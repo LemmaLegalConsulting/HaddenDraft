@@ -9,6 +9,8 @@ STEP_ORDER = ["case", "facts", "template", "law", "draft", "export"]
 def advance(session, payload):
     if "selectedFactIds" in payload:
         session.selected_fact_ids = payload["selectedFactIds"]
+    if "selectedCuratedFacts" in payload:
+        session.selected_curated_facts = payload["selectedCuratedFacts"]
     if "selectedSourceResults" in payload:
         session.selected_source_results = payload["selectedSourceResults"]
     if "selectedBlockKeys" in payload:
@@ -45,6 +47,7 @@ def create_draft(session):
     context = GenerationContext(
         matter=session.matter,
         selected_facts=facts,
+        selected_curated_facts=session.selected_curated_facts,
         selected_sources=session.selected_source_results,
         template=session.template,
         mode=session.mode,

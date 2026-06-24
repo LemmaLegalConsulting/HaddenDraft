@@ -5,6 +5,7 @@ from django.urls import path
 from apps.core import views as core_views
 from apps.drafting import views as drafting_views
 from apps.matters import views as matter_views
+from apps.rules import views as rule_views
 from apps.sources import views as source_views
 from apps.templates_app import views as template_views
 
@@ -24,7 +25,12 @@ urlpatterns = [
     path("api/cases/", matter_views.cases, name="api_cases"),
     path("api/legalserver/account/", matter_views.legalserver_account, name="api_legalserver_account"),
     path("api/cases/<str:matter_id>/chat/", matter_views.case_chat, name="api_case_chat"),
+    path("api/cases/<str:matter_id>/documents/", matter_views.case_documents, name="api_case_documents"),
+    path("api/cases/<str:matter_id>/documents/<str:document_id>/context/", matter_views.case_document_context, name="api_case_document_context"),
+    path("api/cases/<str:matter_id>/candidate-issues/", rule_views.case_candidate_issues, name="api_case_candidate_issues"),
+    path("api/cases/<str:matter_id>/run-issue-selection/", rule_views.run_case_issue_selection, name="api_run_issue_selection"),
     path("api/cases/<str:matter_id>/", matter_views.case_detail, name="api_case_detail"),
+    path("api/candidate-issues/<int:issue_id>/review/", rule_views.candidate_issue_review, name="api_candidate_issue_review"),
     path("api/sources/", source_views.sources, name="api_sources"),
     path("api/research/", source_views.research, name="api_research"),
     path("api/templates/", template_views.templates, name="api_templates"),

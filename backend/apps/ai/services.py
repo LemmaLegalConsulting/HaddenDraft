@@ -10,6 +10,7 @@ from apps.sources.models import SourceConfiguration
 class GenerationContext:
     matter: object
     selected_facts: list
+    selected_curated_facts: list
     selected_sources: list
     template: object
     mode: str
@@ -48,6 +49,18 @@ class ConstrainedDraftingService:
             lines.append(f"{index}. {fact.text} [{fact.source_label}]")
         return "\n".join(lines) if lines else "No facts selected for this section."
 
+    def generate_curated_facts_section(self, facts, curated_facts):
+        lines = []
+        index = 1
+        for fact in facts:
+            lines.append(f"{index}. {fact.text} [{fact.source_label}]")
+            index += 1
+        for fact in curated_facts:
+            source = fact.get("citation") or fact.get("source") or "curated source"
+            lines.append(f"{index}. {fact.get('text', '')} [{source}]")
+            index += 1
+        return "\n".join(lines) if lines else "No facts selected for this section."
+
     def generate_constrained_section(self, *, label, context, fallback):
         ai_config = SourceConfiguration.effective_settings("openai", {"enabled": settings.AI_DRAFTING_ENABLED})
         if str(ai_config.get("enabled", "")).lower() in {"0", "false", "no", "off"}:
@@ -57,7 +70,12 @@ class ConstrainedDraftingService:
             f"- {source.get('title') or source.get('citation')}: {source.get('snippet', '')}"
             for source in context.selected_sources
         )
-        facts = "\n".join(f"- {fact.text} [{fact.source_label}]" for fact in context.selected_facts)
+        model_facts = [f"- {fact.text} [{fact.source_label}]" for fact in context.selected_facts]
+        for fact in context.selected_curated_facts:
+            source = fact.get("citation") or fact.get("source") or "curated source"
+            excerpt = fact.get("sourceExcerpt", "")
+            model_facts.append(f"- {fact.get('text', '')} [{source}]{f' Evidence: {excerpt}' if excerpt else ''}")
+        facts = "\n".join(model_facts)
         prompt = (
             f"Draft the {label} section for a housing court document.\n"
             f"Matter: {context.matter.summary}\n"
@@ -84,7 +102,7 @@ class ConstrainedDraftingService:
             if block.key not in selected_block_keys and not block.required:
                 continue
             if block.block_type == "facts" or block.ai_fill_mode == "constrained_generation" and block.key == "facts":
-                body = self.generate_facts_section(selected_facts)
+                body = self.generate_curated_facts_section(selected_facts, context.selected_curated_facts)
             elif block.ai_fill_mode == "constrained_generation":
                 body = self.generate_constrained_section(label=block.label, context=context, fallback=block.body)
             elif "{{" in block.body:

@@ -10,6 +10,26 @@ SAMPLE_MATTERS = [
         "posture": "Answer due in 5 days",
         "risk": "High urgency",
         "summary": "Nonpayment eviction with disputed balance, repair issues, and pending rental assistance.",
+        "raw_payload": {
+            "case_notes": [
+                "Client reports that the landlord has not credited a $450 money order from March and a $300 payment made in April.",
+                "Client says the bedroom ceiling has leaked during heavy rain since February. She notified the property manager by text on February 14, March 3, and April 9.",
+            ],
+            "documents": [
+                {
+                    "id": "demo-ledger",
+                    "title": "Landlord ledger excerpt.txt",
+                    "source": "Uploaded document",
+                    "text": "Ledger shows rent charges for January through May. It lists no credit for the tenant's March money order and shows late fees added after the tenant reported repair issues.",
+                },
+                {
+                    "id": "demo-repair-texts",
+                    "title": "Repair text messages.txt",
+                    "source": "Uploaded screenshots",
+                    "text": "February 14: Tenant texted property manager that water was coming through the bedroom ceiling. March 3: Tenant sent another message with a photo of mold around the leak. April 9: Tenant asked for an update and said her child was coughing at night.",
+                },
+            ],
+        },
     },
     {
         "external_id": "LS-24027",
@@ -75,7 +95,10 @@ SAMPLE_FACTS = [
 
 def seed_matters():
     for item in SAMPLE_MATTERS:
-        matter, _created = Matter.objects.get_or_create(external_id=item["external_id"], defaults=item)
+        matter, created = Matter.objects.get_or_create(external_id=item["external_id"], defaults=item)
+        if not created and item.get("raw_payload") and not matter.raw_payload:
+            matter.raw_payload = item["raw_payload"]
+            matter.save(update_fields=["raw_payload"])
         if matter.external_id == "LS-24018":
             for fact in SAMPLE_FACTS:
                 MatterFact.objects.get_or_create(matter=matter, slug=fact["slug"], defaults=fact)

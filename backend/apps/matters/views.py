@@ -5,6 +5,16 @@ from django.http import JsonResponse
 
 from apps.ai.case_chat import case_chat_reply
 from apps.core.http import api_login_required
+from apps.core.http import json_body
+from apps.matters.document_context import (
+    chunk_text,
+    document_to_public_dict,
+    get_case_document,
+    get_case_documents,
+    get_document_text,
+    search_chunks,
+    summarize_text,
+)
 from apps.matters.models import Matter
 from apps.matters.seed import seed_matters
 from apps.matters.serializers import matter_to_dict
@@ -69,6 +79,48 @@ def case_detail(_request, matter_id):
         return JsonResponse({"error": "Case not found or LegalServer account not connected"}, status=404)
     matter = Matter.objects.prefetch_related("facts").get(external_id=matter_id)
     return JsonResponse({"case": matter_to_dict(matter, include_facts=True)})
+
+
+@api_login_required
+def case_documents(request, matter_id):
+    if request.method != "GET":
+        return JsonResponse({"error": "GET required"}, status=405)
+    matter = Matter.objects.filter(external_id=matter_id).first()
+    if not matter:
+        return JsonResponse({"error": "Case not found"}, status=404)
+    documents = [document_to_public_dict(document) for document in get_case_documents(matter)]
+    return JsonResponse({"documents": documents})
+
+
+@api_login_required
+def case_document_context(request, matter_id, document_id):
+    if request.method != "POST":
+        return JsonResponse({"error": "POST required"}, status=405)
+    matter = Matter.objects.filter(external_id=matter_id).first()
+    if not matter:
+        return JsonResponse({"error": "Case not found"}, status=404)
+    document = get_case_document(matter, document_id)
+    if not document:
+        return JsonResponse({"error": "Document not found"}, status=404)
+
+    body = json_body(request)
+    level = body.get("level", "summary")
+    text = get_document_text(document)
+    chunks = chunk_text(text)
+    payload = {"document": document_to_public_dict(document)}
+    if level == "full":
+        payload["text"] = text
+        payload["summary"] = summarize_text(text)
+        payload["chunks"] = chunks
+    elif level == "chunks":
+        payload["summary"] = summarize_text(text)
+        payload["chunks"] = chunks
+    elif level == "search":
+        payload["summary"] = summarize_text(text)
+        payload["chunks"] = search_chunks(chunks, body.get("query", ""), limit=body.get("limit", 5))
+    else:
+        payload["summary"] = summarize_text(text)
+    return JsonResponse(payload)
 
 
 @api_login_required

@@ -23,6 +23,7 @@ import { CaseChat } from "./components/CaseChat.jsx";
 import { DraftEditor } from "./editor/DraftEditor.jsx";
 import { CaseSelector } from "./components/CaseSelector.jsx";
 import { FactReview } from "./components/FactReview.jsx";
+import { LawReview } from "./components/LawReview.jsx";
 import { ResearchPanel } from "./components/ResearchPanel.jsx";
 import { TemplatePicker } from "./components/TemplatePicker.jsx";
 import { WorkflowStepper } from "./components/WorkflowStepper.jsx";
@@ -31,6 +32,7 @@ const workflowSteps = [
   { id: "setup", label: "Document" },
   { id: "facts", label: "Facts" },
   { id: "sources", label: "Sources" },
+  { id: "law", label: "Review law" },
   { id: "editor", label: "Draft" },
 ];
 
@@ -52,7 +54,9 @@ export function App() {
   const [matter, setMatter] = useState(null);
   const [selectedTemplateId, setSelectedTemplateId] = useState(null);
   const [selectedFactIds, setSelectedFactIds] = useState([]);
+  const [selectedCuratedFacts, setSelectedCuratedFacts] = useState([]);
   const [selectedBlockKeys, setSelectedBlockKeys] = useState([]);
+  const [candidateIssues, setCandidateIssues] = useState([]);
   const [sourceResults, setSourceResults] = useState([]);
   const [session, setSession] = useState(null);
   const [draft, setDraft] = useState(null);
@@ -173,6 +177,7 @@ export function App() {
     if (!auth?.isAuthenticated || !selectedMatterId) {
       setMatter(null);
       setSelectedFactIds([]);
+      setSelectedCuratedFacts([]);
       return;
     }
     api.caseDetail(selectedMatterId)
@@ -180,10 +185,12 @@ export function App() {
         setMatter(response.case);
         const defaults = response.case.facts.filter((fact) => fact.selectedByDefault).map((fact) => fact.id);
         setSelectedFactIds(defaults);
+        setSelectedCuratedFacts([]);
       })
       .catch((err) => {
         setMatter(null);
         setSelectedFactIds([]);
+        setSelectedCuratedFacts([]);
         setError(err.message);
       });
   }, [auth, selectedMatterId]);
@@ -258,6 +265,7 @@ export function App() {
       const advanced = await api.advanceSession(created.id, {
         status: nextStatus,
         selectedFactIds,
+        selectedCuratedFacts,
         selectedSourceResults: sourceResults,
         selectedBlockKeys,
         instructions,
@@ -274,7 +282,7 @@ export function App() {
     }
   }
 
-  async function saveWorkflow(status) {
+  async function saveWorkflow(status, overrides = {}) {
     if (!session) {
       await startSession(status);
       return;
@@ -284,8 +292,9 @@ export function App() {
       const response = await api.advanceSession(session.id, {
         status,
         selectedFactIds,
+        selectedCuratedFacts,
         selectedSourceResults: sourceResults,
-        selectedBlockKeys,
+        selectedBlockKeys: overrides.selectedBlockKeys || selectedBlockKeys,
         instructions,
         ...(draftMode === "draft_from_template" ? { template: selectedTemplateId } : {}),
       });
@@ -309,6 +318,7 @@ export function App() {
       await api.advanceSession(activeSession.id, {
         status: "draft",
         selectedFactIds,
+        selectedCuratedFacts,
         selectedSourceResults: sourceResults,
         selectedBlockKeys,
         instructions,
@@ -351,7 +361,20 @@ export function App() {
   }
 
   async function continueFromDraftSources() {
-    await saveWorkflow("draft");
+    await saveWorkflow("law");
+    setDraftStep("law");
+  }
+
+  async function continueFromLawReview() {
+    const approvedBlockKeys = candidateIssues
+      .filter((issue) => issue.status === "approved")
+      .flatMap((issue) => issue.outputs?.activate_blocks_after_approval || []);
+    let nextSelectedBlockKeys = selectedBlockKeys;
+    if (approvedBlockKeys.length) {
+      nextSelectedBlockKeys = [...new Set([...selectedBlockKeys, ...approvedBlockKeys])];
+      setSelectedBlockKeys(nextSelectedBlockKeys);
+    }
+    await saveWorkflow("draft", { selectedBlockKeys: nextSelectedBlockKeys });
     setDraftStep("editor");
   }
 
@@ -550,7 +573,14 @@ export function App() {
 
         {mode === "draft" && draftStep === "facts" && (
           <section className="step-screen">
-            <FactReview facts={matter?.facts || []} selectedFactIds={selectedFactIds} onChange={setSelectedFactIds} />
+            <FactReview
+              matter={matter}
+              facts={matter?.facts || []}
+              selectedFactIds={selectedFactIds}
+              selectedCuratedFacts={selectedCuratedFacts}
+              onFactChange={setSelectedFactIds}
+              onCuratedChange={setSelectedCuratedFacts}
+            />
             <div className="button-row step-actions">
               <button className="secondary" onClick={() => setDraftStep("setup")}>Back</button>
               <button className="primary" disabled={!matter} onClick={() => setDraftStep("sources")}>Continue to sources</button>
@@ -568,7 +598,23 @@ export function App() {
             <div className="button-row step-actions">
               <button className="secondary" onClick={() => setDraftStep("facts")}>Back</button>
               <button className="primary" disabled={!matter || busy} onClick={continueFromDraftSources}>
-                {busy ? <Loader2 className="spin" size={16} /> : <ClipboardList size={16} />} Continue to draft
+                {busy ? <Loader2 className="spin" size={16} /> : <ClipboardList size={16} />} Continue to law review
+              </button>
+            </div>
+          </section>
+        )}
+
+        {mode === "draft" && draftStep === "law" && (
+          <section className="step-screen">
+            <LawReview
+              matter={matter}
+              session={session}
+              onIssuesChange={setCandidateIssues}
+            />
+            <div className="button-row step-actions">
+              <button className="secondary" onClick={() => setDraftStep("sources")}>Back</button>
+              <button className="primary" disabled={!matter || busy} onClick={continueFromLawReview}>
+                {busy ? <Loader2 className="spin" size={16} /> : <FileText size={16} />} Continue to draft
               </button>
             </div>
           </section>
@@ -593,7 +639,7 @@ export function App() {
               )}
             </div>
             <div className="button-row step-actions top-step-actions">
-              <button className="secondary" onClick={() => setDraftStep("sources")}>Back to sources</button>
+              <button className="secondary" onClick={() => setDraftStep("law")}>Back to law review</button>
               <button className="primary" disabled={busy || !matter} onClick={generateDraft}>
                 {busy ? <Loader2 className="spin" size={16} /> : <FileText size={16} />} Generate draft
               </button>

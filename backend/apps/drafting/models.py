@@ -27,6 +27,7 @@ class DraftingSession(models.Model):
     )
     status = models.CharField(max_length=80, choices=STATUS_CHOICES, default="case")
     selected_fact_ids = models.JSONField(default=list, blank=True)
+    selected_curated_facts = models.JSONField(default=list, blank=True)
     selected_source_results = models.JSONField(default=list, blank=True)
     selected_block_keys = models.JSONField(default=list, blank=True)
     instructions = models.TextField(blank=True)

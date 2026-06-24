@@ -52,6 +52,9 @@ INSTALLED_APPS = [
     "apps.sources",
     "apps.templates_app",
     "apps.drafting",
+    "apps.facts",
+    "apps.issues",
+    "apps.rules",
 ]
 
 MIDDLEWARE = [

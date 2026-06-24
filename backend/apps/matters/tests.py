@@ -108,3 +108,34 @@ class CaseConnectionTests(TestCase):
         self.assertTrue(response.json()["legalserver"]["connected"])
         identity = UserSourceIdentity.objects.get(user=self.user, provider="legalserver")
         self.assertEqual(identity.identifier, "quinten@lemmalegal.com")
+
+    def test_case_document_context_summarizes_and_searches_case_notes(self):
+        matter = Matter.objects.create(
+            external_id="LS-DOC-1",
+            client_name="Document Client",
+            matter_type="Eviction",
+            jurisdiction="Housing Court",
+            raw_payload={
+                "case_notes": [
+                    "Tenant has a disability and asked for more time to gather records. Landlord received the request.",
+                    "Tenant paid April rent by money order.",
+                ]
+            },
+        )
+
+        list_response = self.client.get(f"/api/cases/{matter.external_id}/documents/")
+
+        self.assertEqual(list_response.status_code, 200)
+        documents = list_response.json()["documents"]
+        self.assertEqual(documents[0]["kind"], "case_note")
+
+        context_response = self.client.post(
+            f"/api/cases/{matter.external_id}/documents/{documents[0]['id']}/context/",
+            data=json.dumps({"level": "search", "query": "disability records"}),
+            content_type="application/json",
+        )
+
+        self.assertEqual(context_response.status_code, 200)
+        payload = context_response.json()
+        self.assertIn("disability", payload["summary"])
+        self.assertEqual(payload["chunks"][0]["index"], 1)

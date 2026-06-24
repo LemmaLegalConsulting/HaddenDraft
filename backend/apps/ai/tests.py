@@ -68,6 +68,7 @@ class DraftingServiceLLMTests(TestCase):
         context = GenerationContext(
             matter=matter,
             selected_facts=[fact],
+            selected_curated_facts=[],
             selected_sources=[{"title": "Guide", "snippet": "Use repair evidence."}],
             template=SimpleNamespace(),
             mode="draft_from_scratch",

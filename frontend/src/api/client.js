@@ -53,6 +53,14 @@ export const api = {
   disconnectLegalServer: () => request("/legalserver/account/", { method: "DELETE" }),
   caseDetail: (matterId) => request(`/cases/${matterId}/`),
   caseChat: (matterId, payload) => request(`/cases/${matterId}/chat/`, { method: "POST", body: JSON.stringify(payload) }),
+  caseDocuments: (matterId) => request(`/cases/${matterId}/documents/`),
+  caseDocumentContext: (matterId, documentId, payload) =>
+    request(`/cases/${matterId}/documents/${documentId}/context/`, { method: "POST", body: JSON.stringify(payload) }),
+  candidateIssues: (matterId) => request(`/cases/${matterId}/candidate-issues/`),
+  runIssueSelection: (matterId, payload) =>
+    request(`/cases/${matterId}/run-issue-selection/`, { method: "POST", body: JSON.stringify(payload) }),
+  reviewCandidateIssue: (issueId, payload) =>
+    request(`/candidate-issues/${issueId}/review/`, { method: "POST", body: JSON.stringify(payload) }),
   modes: () => request("/modes/"),
   templates: () => request("/templates/"),
   research: (payload) => request("/research/", { method: "POST", body: JSON.stringify(payload) }),

@@ -1,0 +1,16 @@
+SUPPORTED_OPERATORS = [
+    "equals",
+    "not_equals",
+    "in",
+    "not_in",
+    "exists",
+    "missing",
+    "greater_than",
+    "greater_than_or_equal",
+    "less_than",
+    "less_than_or_equal",
+    "between",
+    "contains",
+    "date_before",
+    "date_after",
+]

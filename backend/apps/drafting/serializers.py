@@ -10,6 +10,7 @@ def session_to_dict(session):
         "matter": matter_to_dict(session.matter, include_facts=True),
         "template": template_to_dict(session.template, include_blocks=True) if session.template else None,
         "selectedFactIds": session.selected_fact_ids,
+        "selectedCuratedFacts": session.selected_curated_facts,
         "selectedSourceResults": session.selected_source_results,
         "selectedBlockKeys": session.selected_block_keys,
         "instructions": session.instructions,
