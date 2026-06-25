@@ -5,7 +5,7 @@
   familiar vocabulary for primitives we already use heavily—buttons, cards,
   badges, alerts, dropdowns, form controls, and spacing utilities—while leaving
   the bespoke case workspace, drafting workflow, and editor layouts in app.css.
-  Theme values are provided by bux.css via --bs-* CSS variables.
+  Buckeye theme values are provided by bux-component-theme.css via --bs-* CSS variables.
 */
 
 :root {
