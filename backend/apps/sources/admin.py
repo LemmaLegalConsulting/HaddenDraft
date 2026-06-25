@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from apps.sources.models import RetrievedDocument, SourceConfiguration, UserOAuthConnection
+from apps.sources.models import RetrievedDocument, SourceConfiguration, UserOAuthConnection, UserSourceIdentity
 
 
 @admin.register(SourceConfiguration)
@@ -82,6 +82,23 @@ class UserOAuthConnectionAdmin(admin.ModelAdmin):
         (None, {"fields": ("user", "provider", "enabled")}),
         ("Office 365 app", {"fields": ("tenant_id", "client_id", "scopes", "expires_at")}),
         ("Tokens", {"fields": ("access_token", "refresh_token")}),
+    )
+
+
+@admin.register(UserSourceIdentity)
+class UserSourceIdentityAdmin(admin.ModelAdmin):
+    list_display = ("user", "provider", "identifier", "enabled", "updated_at")
+    list_filter = ("provider", "enabled")
+    search_fields = ("user__username", "user__email", "identifier")
+    fieldsets = (
+        (None, {"fields": ("user", "provider", "enabled")}),
+        (
+            "External identity mapping",
+            {
+                "fields": ("identifier",),
+                "description": "For LegalServer, this is the email or username used to map the logged-in app user to LegalServer permissions. Disable this row to turn off an individual mapping.",
+            },
+        ),
     )
 
 

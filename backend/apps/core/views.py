@@ -16,7 +16,7 @@ from apps.core.http import api_login_required, json_body, method_not_allowed
 from apps.core.models import AuthorProfile
 from apps.matters.seed import seed_matters
 from apps.matters.services import legalserver_account_status
-from apps.sources.models import UserOAuthConnection
+from apps.sources.models import UserOAuthConnection, UserSourceIdentity
 from apps.sources.registry import connector_registry
 from apps.templates_app.seed import seed_templates
 
@@ -218,6 +218,31 @@ def decode_jwt_payload(token):
         return {}
 
 
+def default_legalserver_identity_from_office365(user, claims):
+    if not getattr(settings, "LEGALSERVER_AUTO_MAP_OFFICE365_EMAIL", True):
+        return
+    identifier = (
+        claims.get("email")
+        or claims.get("preferred_username")
+        or claims.get("upn")
+        or getattr(user, "email", "")
+        or user.get_username()
+    )
+    identifier = (identifier or "").strip()
+    if not identifier:
+        return
+    identity, created = UserSourceIdentity.objects.get_or_create(
+        user=user,
+        provider="legalserver",
+        defaults={"identifier": identifier, "enabled": True},
+    )
+    if created:
+        return
+    if identity.enabled and not identity.identifier:
+        identity.identifier = identifier
+        identity.save(update_fields=["identifier", "updated_at"])
+
+
 def office365_callback(request):
     if request.GET.get("state") != request.session.get("office365_oauth_state"):
         return JsonResponse({"error": "Invalid Office 365 sign-in state"}, status=400)
@@ -268,6 +293,7 @@ def office365_callback(request):
             "scopes": token_payload.get("scope", settings.OFFICE365_SCOPES),
         },
     )
+    default_legalserver_identity_from_office365(user, claims)
     login(request, user, backend="django.contrib.auth.backends.ModelBackend")
     request.session.pop("office365_oauth_state", None)
     return redirect(settings.FRONTEND_SITE_URL)

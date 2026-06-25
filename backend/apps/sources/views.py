@@ -1,7 +1,7 @@
 from django.http import JsonResponse
 
 from apps.core.http import api_login_required, json_body, method_not_allowed
-from apps.matters.models import Matter
+from apps.matters.services import matter_for_user
 from apps.sources.models import RetrievedDocument
 from apps.sources.registry import connector_registry
 
@@ -19,7 +19,9 @@ def research(request):
     body = json_body(request)
     matter = None
     if body.get("matterId"):
-        matter = Matter.objects.filter(external_id=body["matterId"]).first()
+        matter = matter_for_user(request.user, body["matterId"])
+        if not matter:
+            return JsonResponse({"error": "Case not found or not available to this user"}, status=404)
 
     results = connector_registry.search(
         body.get("query", ""),

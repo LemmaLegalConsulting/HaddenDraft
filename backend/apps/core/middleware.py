@@ -1,21 +1,27 @@
+from django.conf import settings
+from django.http import HttpResponse
+
+
 class DevCorsMiddleware:
-    """Small development CORS shim for the Vite dev server."""
+    """Small development CORS shim for configured Vite dev-server origins."""
 
     def __init__(self, get_response):
         self.get_response = get_response
 
     def __call__(self, request):
-        if request.method == "OPTIONS":
-            from django.http import HttpResponse
+        origin = request.headers.get("Origin", "")
+        allowed_origins = set(getattr(settings, "CORS_ALLOWED_ORIGINS", []))
+        origin_allowed = bool(origin and origin in allowed_origins)
 
-            response = HttpResponse()
+        if request.method == "OPTIONS":
+            response = HttpResponse(status=204 if origin_allowed else 403)
         else:
             response = self.get_response(request)
 
-        origin = request.headers.get("Origin", "")
-        allowed_origins = {"http://localhost:5173", "http://127.0.0.1:5173", "http://localhost:5174", "http://127.0.0.1:5174"}
-        response["Access-Control-Allow-Origin"] = origin if origin in allowed_origins else "http://localhost:5173"
-        response["Access-Control-Allow-Credentials"] = "true"
-        response["Access-Control-Allow-Headers"] = "content-type,x-csrftoken"
-        response["Access-Control-Allow-Methods"] = "GET,POST,PATCH,PUT,DELETE,OPTIONS"
+        if origin_allowed:
+            response["Access-Control-Allow-Origin"] = origin
+            response["Vary"] = "Origin"
+            response["Access-Control-Allow-Credentials"] = "true"
+            response["Access-Control-Allow-Headers"] = "content-type,x-csrftoken"
+            response["Access-Control-Allow-Methods"] = "GET,POST,PATCH,PUT,DELETE,OPTIONS"
         return response
