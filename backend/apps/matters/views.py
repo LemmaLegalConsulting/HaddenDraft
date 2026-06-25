@@ -39,7 +39,7 @@ def _matter_or_404(user, matter_id):
 @api_login_required
 def cases(request):
     query = request.GET.get("q", "").strip()
-    sync = sync_legalserver_matters_for_user(request.user, query=query, restrict_to_user=True)
+    sync = sync_legalserver_matters_for_user(request.user, query=query, restrict_to_user=not bool(query))
     if settings.ENABLE_DEMO_MATTERS and not sync.matters:
         seed_matters()
     matters = sync.matters if not settings.ENABLE_DEMO_MATTERS else matter_for_demo_list()
