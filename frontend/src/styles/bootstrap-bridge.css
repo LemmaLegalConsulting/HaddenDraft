@@ -1,0 +1,228 @@
+/*
+  A small Bootstrap-compatible component bridge.
+
+  This intentionally is not a wholesale framework reset. It gives the app a
+  familiar Bootstrap vocabulary for primitives we already use heavily—buttons,
+  cards, badges, alerts, dropdowns, form controls, and spacing utilities—while
+  leaving the bespoke case workspace, drafting workflow, and editor layouts in
+  app.css. Theme values are provided by bux.css via Bootstrap-style --bs-* CSS
+  variables.
+*/
+
+:root {
+  --bs-body-bg: #ffffff;
+  --bs-body-color: #212529;
+  --bs-border-color: #dee2e6;
+  --bs-border-radius: 0.5rem;
+  --bs-border-radius-sm: 0.375rem;
+  --bs-border-radius-pill: 50rem;
+  --bs-primary: #0d6efd;
+  --bs-primary-rgb: 13, 110, 253;
+  --bs-secondary: #6c757d;
+  --bs-secondary-rgb: 108, 117, 125;
+  --bs-danger: #dc3545;
+  --bs-danger-rgb: 220, 53, 69;
+  --bs-light: #f8f9fa;
+  --bs-dark: #212529;
+  --bs-focus-ring-color: rgba(var(--bs-primary-rgb), 0.25);
+  --bs-box-shadow-sm: 0 0.125rem 0.25rem rgba(33, 35, 37, 0.075);
+  --bs-box-shadow: 0 0.5rem 1rem rgba(33, 35, 37, 0.15);
+}
+
+.btn,
+button.btn,
+a.btn {
+  align-items: center;
+  background: var(--bs-btn-bg, transparent);
+  border: 1px solid var(--bs-btn-border-color, transparent);
+  border-radius: var(--bs-btn-border-radius, var(--bs-border-radius-sm));
+  color: var(--bs-btn-color, var(--bs-body-color));
+  cursor: pointer;
+  display: inline-flex;
+  font-weight: 700;
+  gap: 0.5rem;
+  justify-content: center;
+  line-height: 1.4;
+  min-height: 38px;
+  padding: 0.5rem 0.75rem;
+  text-decoration: none;
+  transition: background-color 120ms ease, border-color 120ms ease, box-shadow 120ms ease, color 120ms ease;
+}
+
+.btn:hover,
+a.btn:hover {
+  background: var(--bs-btn-hover-bg, var(--bs-btn-bg, transparent));
+  border-color: var(--bs-btn-hover-border-color, var(--bs-btn-border-color, transparent));
+  color: var(--bs-btn-hover-color, var(--bs-btn-color, var(--bs-body-color)));
+}
+
+.btn:focus-visible,
+a.btn:focus-visible {
+  box-shadow: 0 0 0 0.25rem var(--bs-focus-ring-color);
+  outline: 0;
+}
+
+.btn:disabled,
+.btn.disabled,
+fieldset:disabled .btn {
+  opacity: 0.65;
+  pointer-events: none;
+}
+
+.btn-primary {
+  --bs-btn-bg: var(--bs-primary);
+  --bs-btn-border-color: var(--bs-primary);
+  --bs-btn-color: #ffffff;
+  --bs-btn-hover-bg: var(--bs-primary-hover, var(--bs-primary));
+  --bs-btn-hover-border-color: var(--bs-primary-hover, var(--bs-primary));
+  --bs-btn-hover-color: #ffffff;
+}
+
+.btn-secondary {
+  --bs-btn-bg: var(--bs-light);
+  --bs-btn-border-color: transparent;
+  --bs-btn-color: var(--bs-body-color);
+  --bs-btn-hover-bg: var(--bs-secondary-soft-hover, var(--bs-border-color));
+  --bs-btn-hover-border-color: transparent;
+  --bs-btn-hover-color: var(--bs-body-color);
+}
+
+.btn-outline-secondary {
+  --bs-btn-bg: transparent;
+  --bs-btn-border-color: var(--bs-border-color);
+  --bs-btn-color: var(--bs-body-color);
+  --bs-btn-hover-bg: var(--bs-light);
+  --bs-btn-hover-border-color: var(--bs-border-color);
+  --bs-btn-hover-color: var(--bs-body-color);
+}
+
+.btn-danger {
+  --bs-btn-bg: var(--bs-danger);
+  --bs-btn-border-color: var(--bs-danger);
+  --bs-btn-color: #ffffff;
+  --bs-btn-hover-bg: var(--bs-danger-hover, var(--bs-danger));
+  --bs-btn-hover-border-color: var(--bs-danger-hover, var(--bs-danger));
+  --bs-btn-hover-color: #ffffff;
+}
+
+.btn-sm {
+  min-height: 32px;
+  padding: 0.375rem 0.625rem;
+}
+
+.card {
+  background: var(--bs-card-bg, #ffffff);
+  border: 1px solid var(--bs-card-border-color, var(--bs-border-color));
+  border-radius: var(--bs-card-border-radius, var(--bs-border-radius));
+  color: var(--bs-body-color);
+}
+
+.card-body {
+  padding: 1rem;
+}
+
+.badge {
+  align-items: center;
+  background: var(--bs-badge-bg, var(--bs-light));
+  border-radius: var(--bs-border-radius-pill);
+  color: var(--bs-badge-color, var(--bs-body-color));
+  display: inline-flex;
+  font-size: 0.75rem;
+  font-weight: 700;
+  gap: 0.25rem;
+  line-height: 1;
+  padding: 0.25rem 0.5rem;
+}
+
+.alert {
+  background: var(--bs-alert-bg, var(--bs-light));
+  border: 1px solid var(--bs-alert-border-color, var(--bs-border-color));
+  border-radius: var(--bs-border-radius);
+  color: var(--bs-alert-color, var(--bs-body-color));
+  padding: 0.75rem 0.875rem;
+}
+
+.alert-danger {
+  --bs-alert-bg: var(--app-danger-bg, #f8d7da);
+  --bs-alert-border-color: var(--app-danger-border, #f1aeb5);
+  --bs-alert-color: var(--app-danger-text, #842029);
+}
+
+.dropdown {
+  position: relative;
+}
+
+.dropdown-menu {
+  background: var(--bs-dropdown-bg, #ffffff);
+  border: 1px solid var(--bs-dropdown-border-color, var(--bs-border-color));
+  border-radius: var(--bs-dropdown-border-radius, var(--bs-border-radius));
+  box-shadow: var(--bs-dropdown-box-shadow, var(--bs-box-shadow));
+  color: var(--bs-body-color);
+  display: grid;
+  gap: 0.25rem;
+  min-width: 12rem;
+  padding: 0.375rem;
+  position: absolute;
+  z-index: 1000;
+}
+
+.dropdown-menu-end {
+  right: 0;
+}
+
+.dropdown-item {
+  align-items: center;
+  background: transparent;
+  border: 0;
+  border-radius: var(--bs-border-radius-sm);
+  color: var(--bs-body-color);
+  display: flex;
+  gap: 0.5rem;
+  justify-content: flex-start;
+  min-height: 34px;
+  padding: 0.5rem 0.625rem;
+  text-align: left;
+  text-decoration: none;
+  width: 100%;
+}
+
+.dropdown-item:hover,
+.dropdown-item:focus-visible {
+  background: var(--bs-dropdown-link-hover-bg, var(--bs-light));
+  color: var(--bs-body-color);
+}
+
+.dropdown-divider {
+  border-top: 1px solid var(--bs-border-color);
+  height: 0;
+  margin: 0.25rem 0;
+}
+
+.form-control,
+.form-select {
+  background: #ffffff;
+  border: 1px solid var(--bs-border-color);
+  border-radius: var(--bs-border-radius-sm);
+  color: var(--bs-body-color);
+  min-height: 38px;
+  padding: 0.5rem 0.625rem;
+  width: 100%;
+}
+
+.form-control:focus,
+.form-select:focus {
+  border-color: var(--bs-primary);
+  box-shadow: 0 0 0 0.25rem var(--bs-focus-ring-color);
+  outline: 0;
+}
+
+.d-flex { display: flex; }
+.d-grid { display: grid; }
+.align-items-center { align-items: center; }
+.justify-content-between { justify-content: space-between; }
+.justify-content-end { justify-content: flex-end; }
+.gap-1 { gap: 0.25rem; }
+.gap-2 { gap: 0.5rem; }
+.gap-3 { gap: 1rem; }
+.w-100 { width: 100%; }
+.text-muted { color: var(--bs-secondary); }
