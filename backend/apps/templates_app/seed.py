@@ -1,7 +1,14 @@
 from apps.templates_app.models import DocumentTemplate, TemplateBlock
 
 
-def seed_templates():
+def write_block(template, block, *, update_existing=False):
+    if update_existing:
+        TemplateBlock.objects.update_or_create(template=template, key=block["key"], defaults=block)
+        return
+    TemplateBlock.objects.get_or_create(template=template, key=block["key"], defaults=block)
+
+
+def seed_templates(*, update_existing=False):
     answer, _created = DocumentTemplate.objects.get_or_create(
         slug="answer-counterclaims-cleveland",
         defaults={
@@ -71,12 +78,12 @@ def seed_templates():
             "label": "Signature block",
             "block_type": "signature",
             "order": 100,
-            "body": "Respectfully submitted,\n\n{{ advocate_name }}",
+            "body": "{{ advocate_signoff }}\n\n{{ advocate_signature_image }}\n{{ advocate_name }}\n{{ advocate_organization }}\n{{ advocate_address }}\n{{ advocate_phone }}\n{{ advocate_email }}",
             "ai_fill_mode": "deterministic",
         },
     ]
     for block in blocks:
-        TemplateBlock.objects.get_or_create(template=answer, key=block["key"], defaults=block)
+        write_block(answer, block, update_existing=update_existing)
 
     motion, _created = DocumentTemplate.objects.get_or_create(
         slug="motion-continuance-cleveland",
@@ -88,17 +95,26 @@ def seed_templates():
             "metadata": {"fit": "Recommended"},
         },
     )
-    TemplateBlock.objects.get_or_create(
-        template=motion,
-        key="motion-body",
-        defaults={
+    motion_blocks = [
+        {
+            "key": "motion-body",
             "label": "Motion body",
             "block_type": "argument",
             "order": 10,
             "body": "Defendant respectfully requests a continuance because additional time is needed to review documents, resolve disputed rent issues, and permit rental assistance processing.",
             "ai_fill_mode": "constrained_generation",
         },
-    )
+        {
+            "key": "motion-signature",
+            "label": "Signature block",
+            "block_type": "signature",
+            "order": 90,
+            "body": "{{ advocate_signoff }}\n\n{{ advocate_signature_image }}\n{{ advocate_name }}\n{{ advocate_organization }}\n{{ advocate_address }}\n{{ advocate_phone }}\n{{ advocate_email }}",
+            "ai_fill_mode": "deterministic",
+        },
+    ]
+    for block in motion_blocks:
+        write_block(motion, block, update_existing=update_existing)
 
     shell, _created = DocumentTemplate.objects.get_or_create(
         slug="novel-motion-shell",
@@ -110,16 +126,24 @@ def seed_templates():
             "metadata": {"fit": "Draft from scratch"},
         },
     )
-    for index, block in enumerate(["Caption", "Facts", "Argument", "Prayer for Relief", "Signature"], start=1):
-        block_type = "relief" if block == "Prayer for Relief" else "argument" if block == "Argument" else block.lower().split()[0]
-        TemplateBlock.objects.get_or_create(
-            template=shell,
-            key=block.lower().replace(" ", "-"),
-            defaults={
+    shell_blocks = [
+        ("Caption", "{{ court }}\n{{ plaintiff }} v. {{ defendant }}\nCase No. {{ case_number }}"),
+        ("Facts", "Facts section to be completed."),
+        ("Argument", "Argument section to be completed."),
+        ("Prayer for Relief", "Prayer for Relief section to be completed."),
+        ("Signature", "{{ advocate_signoff }}\n\n{{ advocate_signature_image }}\n{{ advocate_name }}\n{{ advocate_organization }}\n{{ advocate_address }}\n{{ advocate_phone }}\n{{ advocate_email }}"),
+    ]
+    for index, (block, body) in enumerate(shell_blocks, start=1):
+        block_type = "relief" if block == "Prayer for Relief" else "signature" if block == "Signature" else "argument" if block == "Argument" else block.lower().split()[0]
+        write_block(
+            shell,
+            {
+                "key": block.lower().replace(" ", "-"),
                 "label": block,
                 "block_type": block_type,
                 "order": index * 10,
-                "body": f"{block} section to be completed.",
+                "body": body,
                 "ai_fill_mode": "constrained_generation" if block in {"Facts", "Argument", "Prayer for Relief"} else "deterministic",
             },
+            update_existing=update_existing,
         )

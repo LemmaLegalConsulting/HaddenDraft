@@ -1,3 +1,4 @@
+import re
 from dataclasses import dataclass
 
 from django.conf import settings
@@ -15,6 +16,7 @@ class GenerationContext:
     template: object
     mode: str
     instructions: str = ""
+    author_profile: dict | None = None
 
 
 class ConstrainedDraftingService:
@@ -48,6 +50,9 @@ class ConstrainedDraftingService:
         for index, fact in enumerate(facts, start=1):
             lines.append(f"{index}. {fact.text} [{fact.source_label}]")
         return "\n".join(lines) if lines else "No facts selected for this section."
+
+    def normalize_generated_text(self, text):
+        return re.sub(r"<br\s*/?>", "\n", text or "", flags=re.IGNORECASE)
 
     def generate_curated_facts_section(self, facts, curated_facts):
         lines = []
@@ -87,12 +92,30 @@ class ConstrainedDraftingService:
             "Use only the provided facts and sources. Do not invent citations."
         )
         try:
-            return client.complete(
+            return self.normalize_generated_text(client.complete(
                 system="You draft constrained legal document sections from supplied facts and sources.",
                 user=prompt,
-            )
+            ))
         except OpenAIBackendError:
             return fallback
+
+    def regenerate_section(self, *, section, context, instruction=""):
+        fallback = section.get("body", "")
+        label = section.get("label", "Draft block")
+        if instruction:
+            scoped_context = GenerationContext(
+                matter=context.matter,
+                selected_facts=context.selected_facts,
+                selected_curated_facts=context.selected_curated_facts,
+                selected_sources=context.selected_sources,
+                template=context.template,
+                mode=context.mode,
+                instructions=f"{context.instructions}\n\nBlock refinement instruction: {instruction}".strip(),
+                author_profile=context.author_profile,
+            )
+        else:
+            scoped_context = context
+        return self.generate_constrained_section(label=label, context=scoped_context, fallback=fallback)
 
     def compose_document(self, context, selected_block_keys):
         selected_facts = context.selected_facts
@@ -106,16 +129,53 @@ class ConstrainedDraftingService:
             elif block.ai_fill_mode == "constrained_generation":
                 body = self.generate_constrained_section(label=block.label, context=context, fallback=block.body)
             elif "{{" in block.body:
+                author = context.author_profile or {}
+                author_name = author.get("displayName") or "Advocate"
+                author_signoff = author.get("signoff") or "Respectfully submitted,"
+                contact = "\n".join(
+                    item
+                    for item in [
+                        author.get("organization", ""),
+                        author.get("address", ""),
+                        author.get("phone", ""),
+                        author.get("email", ""),
+                    ]
+                    if item
+                )
+                signature_marker = "[signature image]" if author.get("signatureImage") else ""
                 body = (
                     block.body.replace("{{ court }}", context.matter.jurisdiction)
                     .replace("{{ plaintiff }}", "Plaintiff")
                     .replace("{{ defendant }}", context.matter.client_name)
                     .replace("{{ case_number }}", context.matter.external_id)
-                    .replace("{{ advocate_name }}", "Advocate")
+                    .replace("{{ advocate_name }}", author_name)
+                    .replace("{{ advocate_signoff }}", author_signoff)
+                    .replace("{{ advocate_salutation }}", author.get("salutation") or "")
+                    .replace("{{ advocate_organization }}", author.get("organization") or "")
+                    .replace("{{ advocate_email }}", author.get("email") or "")
+                    .replace("{{ advocate_phone }}", author.get("phone") or "")
+                    .replace("{{ advocate_address }}", author.get("address") or "")
+                    .replace("{{ advocate_contact }}", contact)
+                    .replace("{{ advocate_signature_image }}", signature_marker)
                 )
             else:
                 body = block.body
-            sections.append({"key": block.key, "label": block.label, "body": body, "sources": block.supporting_sources})
+            section_sources = list(block.supporting_sources)
+            if block.ai_fill_mode == "constrained_generation":
+                section_sources.extend(selected_sources)
+            sections.append({
+                "key": block.key,
+                "label": block.label,
+                "body": self.normalize_generated_text(body),
+                "sources": section_sources,
+                "blockType": block.block_type,
+                "aiFillMode": block.ai_fill_mode,
+                "origin": "ai" if block.ai_fill_mode == "constrained_generation" else "template",
+                "format": {
+                    "style": "numbered" if block.block_type in {"facts", "argument", "optional_clause"} else "plain",
+                    "headingNumbering": "none",
+                },
+            })
 
         if context.mode == "draft_from_scratch" and context.instructions:
             sections.insert(

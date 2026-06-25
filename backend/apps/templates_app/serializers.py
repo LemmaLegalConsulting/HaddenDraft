@@ -1,4 +1,8 @@
+from apps.templates_app.template_variables import block_variable_metadata, template_variable_metadata
+
+
 def block_to_dict(block):
+    template = getattr(block, "template", None)
     return {
         "id": block.id,
         "key": block.key,
@@ -10,6 +14,7 @@ def block_to_dict(block):
         "aiFillMode": block.ai_fill_mode,
         "selectionRule": block.selection_rule,
         "supportingSources": block.supporting_sources,
+        "wordTemplateVariables": block_variable_metadata(template, block) if template else None,
     }
 
 
@@ -27,4 +32,5 @@ def template_to_dict(template, include_blocks=False):
     }
     if include_blocks:
         data["blocks"] = [block_to_dict(block) for block in template.blocks.all()]
+        data["wordTemplateVariables"] = template_variable_metadata(template)
     return data

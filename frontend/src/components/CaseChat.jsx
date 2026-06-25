@@ -9,6 +9,10 @@ const starterPrompts = [
   { id: "timeline", label: "What happened so far?", prompt: "What's happened in this case so far?" },
 ];
 
+function cleanMessage(text = "") {
+  return text.replace(/<br\s*\/?>/gi, "\n");
+}
+
 export function CaseChat({ matter, onAction }) {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
@@ -84,7 +88,7 @@ export function CaseChat({ matter, onAction }) {
             )}
             {messages.map((message, index) => (
               <article key={`${message.role}-${index}`} className={`chat-message ${message.role}`}>
-                <p>{message.content}</p>
+                <p>{cleanMessage(message.content)}</p>
                 {message.toolsUsed?.length > 0 && <small>Used {message.toolsUsed.join(", ")}</small>}
                 {message.actions?.length > 0 && (
                   <div className="action-card-list">

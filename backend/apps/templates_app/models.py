@@ -1,4 +1,8 @@
 from django.db import models
+from django.core.validators import FileExtensionValidator
+
+
+word_template_validator = FileExtensionValidator(["docx", "dotx"])
 
 
 class DocumentTemplate(models.Model):
@@ -17,6 +21,16 @@ class DocumentTemplate(models.Model):
     jurisdiction = models.CharField(max_length=255, blank=True)
     source_label = models.CharField(max_length=255, default="Internal template")
     metadata = models.JSONField(default=dict, blank=True)
+    style_template = models.FileField(
+        upload_to="template_styles/",
+        blank=True,
+        validators=[word_template_validator],
+        help_text="Optional .dotx or .docx style source used as the master document for Word exports.",
+    )
+    replace_child_styles = models.BooleanField(
+        default=True,
+        help_text="When enabled, composed block documents inherit conflicting styles from the style template.",
+    )
     created_from_example = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -45,6 +59,12 @@ class TemplateBlock(models.Model):
     block_type = models.CharField(max_length=80, choices=BLOCK_TYPE_CHOICES)
     order = models.PositiveIntegerField(default=0)
     body = models.TextField()
+    docx_template = models.FileField(
+        upload_to="template_blocks/",
+        blank=True,
+        validators=[word_template_validator],
+        help_text="Optional .docx/.dotx Jinja template rendered for this block during Word export.",
+    )
     required = models.BooleanField(default=True)
     ai_fill_mode = models.CharField(max_length=80, default="none")
     selection_rule = models.JSONField(default=dict, blank=True)

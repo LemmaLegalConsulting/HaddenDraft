@@ -20,7 +20,28 @@ class AuthViewTests(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertTrue(response.json()["user"]["isAuthenticated"])
+        self.assertEqual(response.json()["user"]["profile"]["email"], "advocate@example.org")
         self.assertEqual(self.client.session["ms_graph_access_token"], "graph-token")
+
+    def test_author_profile_can_be_updated(self):
+        User.objects.create_user(username="advocate", password="secret", email="advocate@example.org")
+        self.client.login(username="advocate", password="secret")
+
+        response = self.client.patch(
+            "/api/author-profile/",
+            data=json.dumps({
+                "displayName": "Ada Advocate",
+                "salutation": "Dear Clerk:",
+                "signoff": "Respectfully,",
+                "phone": "555-0100",
+            }),
+            content_type="application/json",
+        )
+
+        self.assertEqual(response.status_code, 200)
+        profile = response.json()["profile"]
+        self.assertEqual(profile["displayName"], "Ada Advocate")
+        self.assertEqual(profile["signoff"], "Respectfully,")
 
     def test_me_reports_anonymous_user(self):
         response = self.client.get("/api/auth/me/")

@@ -1,16 +1,19 @@
 import base64
 import json
+import re
 import secrets
 from urllib.parse import urlencode
 
 import requests
 from django.conf import settings
 from django.contrib.auth import authenticate, get_user_model, login, logout
+from django.db import OperationalError, ProgrammingError
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import redirect
 from django.views.decorators.csrf import ensure_csrf_cookie
 
-from apps.core.http import api_login_required
+from apps.core.http import api_login_required, json_body, method_not_allowed
+from apps.core.models import AuthorProfile
 from apps.matters.seed import seed_matters
 from apps.matters.services import legalserver_account_status
 from apps.sources.models import UserOAuthConnection
@@ -71,18 +74,87 @@ def modes(_request):
     )
 
 
+def normalize_ai_text(text):
+    return re.sub(r"<br\s*/?>", "\n", text or "", flags=re.IGNORECASE)
+
+
+def profile_to_dict(profile, user=None):
+    fallback_name = ""
+    if user:
+        fallback_name = user.get_full_name() or getattr(user, "email", "") or user.get_username()
+    return {
+        "displayName": profile.display_name or fallback_name,
+        "salutation": profile.salutation,
+        "signoff": profile.signoff,
+        "organization": profile.organization,
+        "phone": profile.phone,
+        "email": profile.email or (getattr(user, "email", "") if user else ""),
+        "address": profile.address,
+        "signatureImage": profile.signature_image,
+        "preferences": profile.preferences,
+    }
+
+
+def profile_for_user(user):
+    try:
+        profile, _created = AuthorProfile.objects.get_or_create(
+            user=user,
+            defaults={
+                "display_name": user.get_full_name() or getattr(user, "email", "") or user.get_username(),
+                "email": getattr(user, "email", ""),
+            },
+        )
+        return profile
+    except (OperationalError, ProgrammingError):
+        return AuthorProfile(
+            user=user,
+            display_name=user.get_full_name(),
+            email=getattr(user, "email", ""),
+        )
+
+
 def auth_user_to_dict(user):
+    profile = profile_for_user(user) if user and user.is_authenticated else None
     return {
         "isAuthenticated": bool(user and user.is_authenticated),
         "username": user.get_username() if user and user.is_authenticated else "",
         "email": getattr(user, "email", "") if user and user.is_authenticated else "",
         "name": user.get_full_name() if user and user.is_authenticated else "",
+        "profile": profile_to_dict(profile, user) if profile else None,
     }
 
 
 @ensure_csrf_cookie
 def me(request):
     return JsonResponse({"user": auth_user_to_dict(request.user)})
+
+
+@api_login_required
+def author_profile(request):
+    profile = profile_for_user(request.user)
+    if not profile.pk and request.method != "GET":
+        return JsonResponse({"error": "Author profile storage is not migrated yet. Run backend migrations."}, status=503)
+    if request.method == "GET":
+        return JsonResponse({"profile": profile_to_dict(profile, request.user)})
+    if request.method != "PATCH":
+        return method_not_allowed(["GET", "PATCH"])
+    body = json_body(request)
+    field_map = {
+        "displayName": "display_name",
+        "salutation": "salutation",
+        "signoff": "signoff",
+        "organization": "organization",
+        "phone": "phone",
+        "email": "email",
+        "address": "address",
+        "signatureImage": "signature_image",
+        "preferences": "preferences",
+    }
+    for api_name, model_name in field_map.items():
+        if api_name in body:
+            setattr(profile, model_name, body[api_name])
+    profile.save()
+    return JsonResponse({"profile": profile_to_dict(profile, request.user)})
 
 
 def login_view(request):

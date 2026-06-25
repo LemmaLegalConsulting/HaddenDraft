@@ -68,6 +68,10 @@ DOCUMENT_STOPWORDS = {
 }
 
 
+def normalize_ai_text(text):
+    return re.sub(r"<br\s*/?>", "\n", text or "", flags=re.IGNORECASE)
+
+
 def compact_case_context(matter):
     details = {item["label"]: item["value"] for item in matter_details(matter)}
     return {
@@ -425,13 +429,13 @@ def deterministic_case_answer(message, case_context, tool_results):
         ]
         return "Here is the case timeline so far:\n" + "\n".join(lines)
     if tool_results.get("suggested_actions") is not None:
-        return tool_results["suggested_actions"]["summary"]
+        return normalize_ai_text(tool_results["suggested_actions"]["summary"])
     if tool_results.get("document_text") is not None:
         extraction = tool_results["document_text"]
         if extraction.get("error"):
             return f"I could not extract text from {extraction['document'].get('title', 'the document')}: {extraction['error']}"
         if tool_results.get("document_summary"):
-            return (
+            return normalize_ai_text(
                 f"Summary of {extraction['document'].get('title', 'the document')}:\n"
                 f"{tool_results['document_summary']}"
             )
@@ -508,7 +512,7 @@ def case_chat_reply(*, matter, messages, llm_client=None):
     ai_config = SourceConfiguration.effective_settings("openai", {"enabled": settings.AI_DRAFTING_ENABLED})
     if str(ai_config.get("enabled", "")).lower() in {"0", "false", "no", "off"}:
         return {
-            "message": deterministic_case_answer(latest, case_context, tool_results),
+            "message": normalize_ai_text(deterministic_case_answer(latest, case_context, tool_results)),
             "caseContext": case_context,
             "toolsUsed": tools_used,
             "toolResults": tool_results,
@@ -519,7 +523,7 @@ def case_chat_reply(*, matter, messages, llm_client=None):
         for key in ("documents", "document_text", "case_notes", "case_timeline", "suggested_actions")
     ):
         return {
-            "message": deterministic_case_answer(latest, case_context, tool_results),
+            "message": normalize_ai_text(deterministic_case_answer(latest, case_context, tool_results)),
             "caseContext": case_context,
             "toolsUsed": tools_used,
             "toolResults": tool_results,
@@ -545,9 +549,9 @@ def case_chat_reply(*, matter, messages, llm_client=None):
     ]
     try:
         client = llm_client or OpenAICompatibleClient()
-        answer = client.complete_messages(messages=llm_messages, temperature=0.1)
+        answer = normalize_ai_text(client.complete_messages(messages=llm_messages, temperature=0.1))
     except OpenAIBackendError:
-        answer = deterministic_case_answer(latest, case_context, tool_results)
+        answer = normalize_ai_text(deterministic_case_answer(latest, case_context, tool_results))
     return {
         "message": answer,
         "caseContext": case_context,

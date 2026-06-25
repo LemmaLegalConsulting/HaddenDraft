@@ -15,7 +15,7 @@ async function request(path, options = {}) {
   const response = await fetch(`${API_BASE}${path}`, {
     credentials: "include",
     headers: {
-      "Content-Type": "application/json",
+      ...(options.body instanceof FormData ? {} : { "Content-Type": "application/json" }),
       ...(csrfToken ? { "X-CSRFToken": csrfToken } : {}),
       ...(options.headers || {}),
     },
@@ -29,6 +29,10 @@ async function request(path, options = {}) {
       throw new Error(payload.error || `Request failed: ${response.status}`);
     } catch (err) {
       if (err instanceof SyntaxError) {
+        const contentType = response.headers.get("content-type") || "";
+        if (contentType.includes("text/html") || /^\s*</.test(text)) {
+          throw new Error(`Request failed: ${response.status}`);
+        }
         throw new Error(text || `Request failed: ${response.status}`);
       }
       throw err;
@@ -45,6 +49,8 @@ async function request(path, options = {}) {
 export const api = {
   bootstrap: () => request("/bootstrap/"),
   me: () => request("/auth/me/"),
+  authorProfile: () => request("/author-profile/"),
+  updateAuthorProfile: (payload) => request("/author-profile/", { method: "PATCH", body: JSON.stringify(payload) }),
   login: (payload) => request("/auth/login/", { method: "POST", body: JSON.stringify(payload) }),
   logout: () => request("/auth/logout/", { method: "POST" }),
   startOffice365Login: () => request("/auth/office365/start/"),
@@ -54,6 +60,12 @@ export const api = {
   caseDetail: (matterId) => request(`/cases/${matterId}/`),
   caseChat: (matterId, payload) => request(`/cases/${matterId}/chat/`, { method: "POST", body: JSON.stringify(payload) }),
   caseDocuments: (matterId) => request(`/cases/${matterId}/documents/`),
+  caseFacts: (matterId) => request(`/cases/${matterId}/facts/`),
+  recommendCaseFacts: (matterId) => request(`/cases/${matterId}/facts/recommend/`, { method: "POST" }),
+  createCaseFact: (matterId, payload) =>
+    request(`/cases/${matterId}/facts/`, { method: "POST", body: JSON.stringify(payload) }),
+  uploadCaseFactDocument: (matterId, formData) =>
+    request(`/cases/${matterId}/facts/`, { method: "POST", body: formData }),
   caseDocumentContext: (matterId, documentId, payload) =>
     request(`/cases/${matterId}/documents/${documentId}/context/`, { method: "POST", body: JSON.stringify(payload) }),
   candidateIssues: (matterId) => request(`/cases/${matterId}/candidate-issues/`),
@@ -71,6 +83,8 @@ export const api = {
     request(`/drafting-sessions/${sessionId}/advance/`, { method: "POST", body: JSON.stringify(payload) }),
   generateDraft: (sessionId) => request(`/drafting-sessions/${sessionId}/draft/`, { method: "POST" }),
   updateDraft: (draftId, payload) => request(`/drafts/${draftId}/`, { method: "PATCH", body: JSON.stringify(payload) }),
+  regenerateDraftBlock: (draftId, blockKey, payload) =>
+    request(`/drafts/${draftId}/blocks/${blockKey}/regenerate/`, { method: "POST", body: JSON.stringify(payload) }),
   validateDraft: (draftId) => request(`/drafts/${draftId}/validate/`, { method: "POST" }),
   exportDraftUrl: (draftId) => `${API_BASE}/drafts/${draftId}/export/`,
   adminUrl: () => "/admin/",

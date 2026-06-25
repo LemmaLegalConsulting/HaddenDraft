@@ -13,6 +13,7 @@ def session_to_dict(session):
         "selectedCuratedFacts": session.selected_curated_facts,
         "selectedSourceResults": session.selected_source_results,
         "selectedBlockKeys": session.selected_block_keys,
+        "authorProfile": session.author_profile,
         "instructions": session.instructions,
         "updatedAt": session.updated_at.isoformat(),
     }

@@ -1,4 +1,5 @@
 import json
+import re
 
 from django.conf import settings
 from django.http import JsonResponse
@@ -15,14 +16,15 @@ from apps.matters.document_context import (
     search_chunks,
     summarize_text,
 )
-from apps.matters.models import Matter
+from apps.matters.models import Matter, MatterFact
 from apps.matters.seed import seed_matters
-from apps.matters.serializers import matter_to_dict
+from apps.matters.serializers import fact_to_dict, matter_to_dict
 from apps.matters.services import (
     legalserver_account_status,
     sync_legalserver_matter,
     sync_legalserver_matters_for_user,
 )
+from apps.sources.document_text import DocumentExtractionError, extract_text
 from apps.sources.models import UserSourceIdentity
 
 
@@ -121,6 +123,117 @@ def case_document_context(request, matter_id, document_id):
     else:
         payload["summary"] = summarize_text(text)
     return JsonResponse(payload)
+
+
+def _fact_slug(matter, title):
+    base = re.sub(r"[^a-z0-9]+", "-", (title or "added fact").lower()).strip("-") or "added-fact"
+    slug = base
+    index = 2
+    while MatterFact.objects.filter(matter=matter, slug=slug).exists():
+        slug = f"{base}-{index}"
+        index += 1
+    return slug
+
+
+def _fact_title(text, fallback):
+    first_line = next((line.strip() for line in (text or "").splitlines() if line.strip()), "")
+    if not first_line:
+        return fallback
+    return first_line[:80]
+
+
+def _create_case_fact(matter, *, title, text, source_label):
+    text = (text or "").strip()
+    if not text:
+        return None
+    title = (title or "").strip() or _fact_title(text, "Added fact")
+    return MatterFact.objects.create(
+        matter=matter,
+        slug=_fact_slug(matter, title),
+        title=title,
+        text=text,
+        source_label=source_label or "Added during drafting",
+        confidence="user_added",
+        selected_by_default=False,
+    )
+
+
+@api_login_required
+def case_facts(request, matter_id):
+    matter = Matter.objects.filter(external_id=matter_id).first()
+    if not matter:
+        return JsonResponse({"error": "Case not found"}, status=404)
+
+    if request.method == "GET":
+        return JsonResponse({"facts": [fact_to_dict(fact) for fact in matter.facts.all()]})
+
+    if request.method != "POST":
+        return JsonResponse({"error": "GET or POST required"}, status=405)
+
+    created = []
+    if request.content_type and request.content_type.startswith("multipart/"):
+        upload = request.FILES.get("file")
+        if not upload:
+            return JsonResponse({"error": "Upload a document file"}, status=400)
+        try:
+            extracted = extract_text(upload.read(), filename=upload.name, content_type=upload.content_type or "")
+        except DocumentExtractionError as exc:
+            return JsonResponse({"error": str(exc)}, status=400)
+        fact = _create_case_fact(
+            matter,
+            title=request.POST.get("title") or upload.name,
+            text=extracted["text"],
+            source_label=f"Uploaded document: {upload.name}",
+        )
+        if fact:
+            created.append(fact)
+    else:
+        body = json_body(request)
+        fact = _create_case_fact(
+            matter,
+            title=body.get("title") or "",
+            text=body.get("text") or "",
+            source_label=body.get("source") or "Typed during drafting",
+        )
+        if fact:
+            created.append(fact)
+
+    if not created:
+        return JsonResponse({"error": "Fact text is required"}, status=400)
+
+    matter = Matter.objects.prefetch_related("facts").get(id=matter.id)
+    return JsonResponse(
+        {
+            "facts": [fact_to_dict(fact) for fact in matter.facts.all()],
+            "created": [fact_to_dict(fact) for fact in created],
+            "case": matter_to_dict(matter, include_facts=True),
+        },
+        status=201,
+    )
+
+
+@api_login_required
+def case_fact_recommendations(request, matter_id):
+    if request.method != "POST":
+        return JsonResponse({"error": "POST required"}, status=405)
+    matter = Matter.objects.prefetch_related("facts").filter(external_id=matter_id).first()
+    if not matter:
+        return JsonResponse({"error": "Case not found"}, status=404)
+
+    from apps.ai.services import drafting_ai
+
+    recommended_slugs = set(drafting_ai.recommend_fact_slugs(matter))
+    recommended = [
+        fact
+        for fact in matter.facts.all()
+        if fact.slug in recommended_slugs or fact.selected_by_default
+    ]
+    return JsonResponse(
+        {
+            "factIds": [fact.id for fact in recommended],
+            "facts": [fact_to_dict(fact) for fact in recommended],
+        }
+    )
 
 
 @api_login_required

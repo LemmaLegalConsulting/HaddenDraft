@@ -30,6 +30,7 @@ class DraftingSession(models.Model):
     selected_curated_facts = models.JSONField(default=list, blank=True)
     selected_source_results = models.JSONField(default=list, blank=True)
     selected_block_keys = models.JSONField(default=list, blank=True)
+    author_profile = models.JSONField(default=dict, blank=True)
     instructions = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

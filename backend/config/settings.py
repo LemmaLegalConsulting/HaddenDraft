@@ -112,6 +112,8 @@ USE_I18N = True
 USE_TZ = True
 
 STATIC_URL = "static/"
+MEDIA_URL = "media/"
+MEDIA_ROOT = REPO_DIR / "media"
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 OPENAI_BASE_URL = os.environ.get("OPENAI_BASE_URL", "")

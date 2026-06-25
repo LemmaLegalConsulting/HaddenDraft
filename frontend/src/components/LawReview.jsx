@@ -60,21 +60,21 @@ export function LawReview({ matter, session, onIssuesChange }) {
     <div className="panel">
       <div className="panel-heading">
         <div>
-          <p className="eyebrow">Law review</p>
-          <h3>Candidate legal issues</h3>
+          <p className="eyebrow">Law + facts</p>
+          <h3>Legal standards mapped to case facts</h3>
         </div>
         <Scale size={18} />
       </div>
       <button className="primary full" disabled={busy || !matter} onClick={runIssueSelection}>
         {busy ? <Loader2 className="spin" size={16} /> : <Scale size={16} />}
-        Run issue selection
+        Map legal standards to facts
       </button>
       {error && <div className="inline-error">{error}</div>}
       <div className="issue-list">
         {issues.length === 0 && (
           <div className="empty-state compact">
             <h3>No candidate issues yet</h3>
-            <p>Run issue selection after reviewing facts and sources.</p>
+            <p>Map legal standards after reviewing fact sources. Approved issues activate draft sections with supporting facts.</p>
           </div>
         )}
         {issues.map((issue) => (
@@ -85,10 +85,21 @@ export function LawReview({ matter, session, onIssuesChange }) {
                 <span className={`status-pill ${issue.status}`}>{issue.status.replaceAll("_", " ")}</span>
               </div>
               {issue.explanation && <p>{issue.explanation}</p>}
+              {issue.supportingFacts?.length > 0 && (
+                <div className="standard-fact-map">
+                  <strong>Supporting facts</strong>
+                  <ul>
+                    {issue.supportingFacts.map((fact) => <li key={fact}>{fact}</li>)}
+                  </ul>
+                </div>
+              )}
               {issue.missingFacts?.length > 0 && (
-                <ul>
-                  {issue.missingFacts.map((fact) => <li key={fact}>{fact}</li>)}
-                </ul>
+                <div className="standard-fact-map missing">
+                  <strong>Missing facts to confirm</strong>
+                  <ul>
+                    {issue.missingFacts.map((fact) => <li key={fact}>{fact}</li>)}
+                  </ul>
+                </div>
               )}
               <small>{issue.sourceTableKey} v{issue.sourceTableVersion} · {issue.sourceRowId}</small>
             </div>

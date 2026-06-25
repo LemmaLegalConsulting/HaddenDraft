@@ -2,14 +2,12 @@ from django.http import JsonResponse
 
 from apps.core.http import api_login_required, json_body, method_not_allowed
 from apps.templates_app.models import DocumentTemplate
-from apps.templates_app.seed import seed_templates
 from apps.templates_app.serializers import template_to_dict
 from apps.templates_app.services import build_template_from_example
 
 
 @api_login_required
 def templates(request):
-    seed_templates()
     if request.method != "GET":
         return method_not_allowed(["GET"])
     queryset = DocumentTemplate.objects.prefetch_related("blocks")

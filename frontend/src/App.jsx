@@ -16,9 +16,13 @@ import {
   Search,
   Settings,
   Sparkles,
+  UserRound,
+  X,
 } from "lucide-react";
 
 import { api } from "./api/client.js";
+import { AuthorFields, emptyAuthorProfile } from "./components/AuthorFields.jsx";
+import { AuthorProfile } from "./components/AuthorProfile.jsx";
 import { CaseChat } from "./components/CaseChat.jsx";
 import { DraftEditor } from "./editor/DraftEditor.jsx";
 import { CaseSelector } from "./components/CaseSelector.jsx";
@@ -30,9 +34,10 @@ import { WorkflowStepper } from "./components/WorkflowStepper.jsx";
 
 const workflowSteps = [
   { id: "setup", label: "Document" },
+  { id: "author", label: "Author" },
   { id: "facts", label: "Facts" },
-  { id: "sources", label: "Sources" },
-  { id: "law", label: "Review law" },
+  { id: "sources", label: "Fact sources" },
+  { id: "law", label: "Law + standards" },
   { id: "editor", label: "Draft" },
 ];
 
@@ -60,6 +65,7 @@ export function App() {
   const [sourceResults, setSourceResults] = useState([]);
   const [session, setSession] = useState(null);
   const [draft, setDraft] = useState(null);
+  const [draftAuthorProfile, setDraftAuthorProfile] = useState(emptyAuthorProfile);
   const [instructions, setInstructions] = useState("");
   const [busy, setBusy] = useState(false);
   const [authBusy, setAuthBusy] = useState(false);
@@ -70,6 +76,7 @@ export function App() {
   const [caseBusy, setCaseBusy] = useState(false);
   const [accountBusy, setAccountBusy] = useState(false);
   const [credentials, setCredentials] = useState({ username: "", password: "" });
+  const [profileOpen, setProfileOpen] = useState(false);
   const [error, setError] = useState("");
 
   useEffect(() => {
@@ -77,6 +84,7 @@ export function App() {
       try {
         const authResponse = await api.me();
         setAuth(authResponse.user);
+        setDraftAuthorProfile({ ...emptyAuthorProfile, ...(authResponse.user.profile || {}) });
         if (authResponse.user.isAuthenticated) {
           await loadWorkspace();
         }
@@ -88,8 +96,8 @@ export function App() {
   }, []);
 
   async function loadWorkspace() {
-    const [bootstrap, caseResponse, templateResponse] = await Promise.all([
-      api.bootstrap(),
+    const bootstrap = await api.bootstrap();
+    const [caseResponse, templateResponse] = await Promise.all([
       api.cases(),
       api.templates(),
     ]);
@@ -137,6 +145,7 @@ export function App() {
     try {
       const response = await api.login(credentials);
       setAuth(response.user);
+      setDraftAuthorProfile({ ...emptyAuthorProfile, ...(response.user.profile || {}) });
       setCredentials({ username: "", password: "" });
       await loadWorkspace();
     } catch (err) {
@@ -158,6 +167,11 @@ export function App() {
     } finally {
       setAuthBusy(false);
     }
+  }
+
+  function updateAuthProfile(profile) {
+    setAuth((current) => current ? { ...current, profile, name: profile.displayName || current.name } : current);
+    setDraftAuthorProfile((current) => ({ ...current, ...profile }));
   }
 
   async function handleOffice365Login() {
@@ -258,6 +272,7 @@ export function App() {
         mode: draftMode,
         matterId: matter.id,
         templateId: draftMode === "draft_from_scratch" ? undefined : selectedTemplateId,
+        authorProfile: draftAuthorProfile,
         instructions,
       };
       const response = await api.createSession(payload);
@@ -268,6 +283,7 @@ export function App() {
         selectedCuratedFacts,
         selectedSourceResults: sourceResults,
         selectedBlockKeys,
+        authorProfile: draftAuthorProfile,
         instructions,
         ...(draftMode === "draft_from_template" ? { template: selectedTemplateId } : {}),
       });
@@ -295,6 +311,7 @@ export function App() {
         selectedCuratedFacts,
         selectedSourceResults: sourceResults,
         selectedBlockKeys: overrides.selectedBlockKeys || selectedBlockKeys,
+        authorProfile: draftAuthorProfile,
         instructions,
         ...(draftMode === "draft_from_template" ? { template: selectedTemplateId } : {}),
       });
@@ -321,6 +338,7 @@ export function App() {
         selectedCuratedFacts,
         selectedSourceResults: sourceResults,
         selectedBlockKeys,
+        authorProfile: draftAuthorProfile,
         instructions,
         ...(draftMode === "draft_from_template" ? { template: selectedTemplateId } : {}),
       });
@@ -340,6 +358,20 @@ export function App() {
       const response = await api.validateDraft(draft.id);
       setDraft(response.draft);
       await saveWorkflow("export");
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function regenerateDraftBlock(blockKey, instruction = "") {
+    if (!draft) return;
+    setBusy(true);
+    setError("");
+    try {
+      const response = await api.regenerateDraftBlock(draft.id, blockKey, { instruction });
+      setDraft(response.draft);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -426,10 +458,10 @@ export function App() {
               onChange={(event) => setCredentials((current) => ({ ...current, password: event.target.value }))}
             />
           </label>
-          {error && <div className="inline-error">{error}</div>}
           <button className="secondary full" type="button" disabled={authBusy} onClick={handleOffice365Login}>
             {authBusy ? <Loader2 className="spin" size={16} /> : <Cloud size={16} />} Sign in with Office 365
           </button>
+          {error && <div className="inline-error">{error}</div>}
           <button className="primary full" disabled={authBusy || !credentials.username || !credentials.password}>
             {authBusy ? <Loader2 className="spin" size={16} /> : <LogIn size={16} />} Sign in
           </button>
@@ -481,10 +513,20 @@ export function App() {
           <div>
             <p className="eyebrow">Housing Unit</p>
             <h2>Drafting Workspace</h2>
+            {matter && (
+              <div className="active-case-banner">
+                <strong>{matter.client}</strong>
+                <span>{matter.matter}{matter.posture ? ` · ${matter.posture}` : ""}</span>
+                <small>{matter.sourceSystem || "LegalServer"} case {matter.id}</small>
+              </div>
+            )}
           </div>
           <div className="topbar-actions">
             <div className="auth-status">
               <span>{auth.name || auth.email || auth.username}</span>
+              <button className="secondary" type="button" onClick={() => setProfileOpen(true)}>
+                <UserRound size={16} /> Profile
+              </button>
               <button className="secondary" disabled={authBusy} onClick={handleLogout}>
                 <LogOut size={16} /> Sign out
               </button>
@@ -494,6 +536,26 @@ export function App() {
             </a>
           </div>
         </header>
+
+        {profileOpen && (
+          <div className="modal-backdrop" role="presentation">
+            <div className="profile-modal" role="dialog" aria-modal="true" aria-label="Profile">
+              <div className="modal-heading">
+                <h4>Profile</h4>
+                <button className="icon-button secondary" type="button" onClick={() => setProfileOpen(false)} title="Close">
+                  <X size={16} />
+                </button>
+              </div>
+              <AuthorProfile
+                user={auth}
+                onSaved={(profile) => {
+                  updateAuthProfile(profile);
+                  setProfileOpen(false);
+                }}
+              />
+            </div>
+          </div>
+        )}
 
         {error && <div className="error-banner">{error}</div>}
 
@@ -564,7 +626,26 @@ export function App() {
               />
             )}
             <div className="button-row step-actions">
-              <button className="primary" disabled={!matter || (draftMode === "draft_from_scratch" && !instructions.trim())} onClick={() => setDraftStep("facts")}>
+              <button className="primary" disabled={!matter || (draftMode === "draft_from_scratch" && !instructions.trim())} onClick={() => setDraftStep("author")}>
+                Continue to author
+              </button>
+            </div>
+          </section>
+        )}
+
+        {mode === "draft" && draftStep === "author" && (
+          <section className="panel">
+            <div className="panel-heading">
+              <div>
+                <p className="eyebrow">Draft author</p>
+                <h3>Who signs this document?</h3>
+              </div>
+              <UserRound size={18} />
+            </div>
+            <AuthorFields profile={draftAuthorProfile} onChange={setDraftAuthorProfile} />
+            <div className="button-row step-actions">
+              <button className="secondary" onClick={() => setDraftStep("setup")}>Back</button>
+              <button className="primary" disabled={!draftAuthorProfile.displayName?.trim() && !draftAuthorProfile.email?.trim()} onClick={() => setDraftStep("facts")}>
                 Continue to facts
               </button>
             </div>
@@ -580,9 +661,10 @@ export function App() {
               selectedCuratedFacts={selectedCuratedFacts}
               onFactChange={setSelectedFactIds}
               onCuratedChange={setSelectedCuratedFacts}
+              onMatterChange={setMatter}
             />
             <div className="button-row step-actions">
-              <button className="secondary" onClick={() => setDraftStep("setup")}>Back</button>
+              <button className="secondary" onClick={() => setDraftStep("author")}>Back</button>
               <button className="primary" disabled={!matter} onClick={() => setDraftStep("sources")}>Continue to sources</button>
             </div>
           </section>
@@ -633,7 +715,7 @@ export function App() {
                     <CheckCircle2 size={16} /> Validate
                   </button>
                   <a className="primary link-button" href={api.exportDraftUrl(draft.id)}>
-                    <Download size={16} /> Export
+                    <Download size={16} /> Export to Word
                   </a>
                 </div>
               )}
@@ -646,16 +728,19 @@ export function App() {
             </div>
             <DraftEditor
               draft={draft}
-              onChange={(plainText, editorState) => setDraft((current) => current ? { ...current, plainText, editorState } : current)}
+              busy={busy}
+              onChange={(sections, plainText, editorState) => setDraft((current) => current ? { ...current, sections, plainText, editorState } : current)}
               onPersist={async () => {
                 if (draft) {
                   const response = await api.updateDraft(draft.id, {
+                    sections: draft.sections,
                     plainText: draft.plainText,
                     editorState: draft.editorState,
                   });
                   setDraft(response.draft);
                 }
               }}
+              onRegenerateBlock={regenerateDraftBlock}
             />
             {draft?.validationFlags?.length > 0 && (
               <div className="flags">

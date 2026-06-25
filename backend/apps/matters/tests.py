@@ -2,9 +2,10 @@ import json
 from unittest.mock import patch
 
 from django.contrib.auth.models import User
+from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase, override_settings
 
-from apps.matters.models import Matter
+from apps.matters.models import Matter, MatterFact
 from apps.sources.models import UserSourceIdentity
 
 
@@ -139,3 +140,90 @@ class CaseConnectionTests(TestCase):
         payload = context_response.json()
         self.assertIn("disability", payload["summary"])
         self.assertEqual(payload["chunks"][0]["index"], 1)
+
+    def test_case_fact_recommendations_select_relevant_and_default_facts(self):
+        matter = Matter.objects.create(
+            external_id="LS-FACT-1",
+            client_name="Fact Client",
+            matter_type="Eviction",
+            jurisdiction="Housing Court",
+            summary="Tenant disputes rent and reported mold repairs.",
+        )
+        rent = MatterFact.objects.create(
+            matter=matter,
+            slug="rent-dispute",
+            title="Rent dispute",
+            text="Tenant disputes rent.",
+            source_label="LegalServer",
+            selected_by_default=False,
+        )
+        default = MatterFact.objects.create(
+            matter=matter,
+            slug="default-note",
+            title="Default note",
+            text="Selected by default.",
+            source_label="LegalServer",
+            selected_by_default=True,
+        )
+        MatterFact.objects.create(
+            matter=matter,
+            slug="unrelated",
+            title="Unrelated",
+            text="Not relevant.",
+            source_label="LegalServer",
+            selected_by_default=False,
+        )
+
+        response = self.client.post(f"/api/cases/{matter.external_id}/facts/recommend/")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(set(response.json()["factIds"]), {rent.id, default.id})
+
+    def test_user_can_add_typed_case_fact(self):
+        matter = Matter.objects.create(
+            external_id="LS-FACT-2",
+            client_name="Fact Client",
+            matter_type="Eviction",
+            jurisdiction="Housing Court",
+        )
+
+        response = self.client.post(
+            f"/api/cases/{matter.external_id}/facts/",
+            data=json.dumps({
+                "title": "New payment",
+                "text": "Client paid $500 after the ledger was printed.",
+                "source": "Client call",
+            }),
+            content_type="application/json",
+        )
+
+        self.assertEqual(response.status_code, 201)
+        created = response.json()["created"][0]
+        self.assertEqual(created["title"], "New payment")
+        self.assertEqual(created["source"], "Client call")
+        self.assertTrue(MatterFact.objects.filter(matter=matter, slug="new-payment").exists())
+
+    def test_user_can_add_case_fact_from_uploaded_text_document(self):
+        matter = Matter.objects.create(
+            external_id="LS-FACT-3",
+            client_name="Fact Client",
+            matter_type="Eviction",
+            jurisdiction="Housing Court",
+        )
+
+        response = self.client.post(
+            f"/api/cases/{matter.external_id}/facts/",
+            data={
+                "title": "Uploaded repairs",
+                "file": SimpleUploadedFile(
+                    "repairs.txt",
+                    b"Tenant texted landlord about no heat on January 5.",
+                    content_type="text/plain",
+                ),
+            },
+        )
+
+        self.assertEqual(response.status_code, 201)
+        created = response.json()["created"][0]
+        self.assertEqual(created["title"], "Uploaded repairs")
+        self.assertIn("no heat", created["text"])

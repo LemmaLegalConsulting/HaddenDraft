@@ -4,6 +4,7 @@ from unittest.mock import patch
 from django.test import TestCase, override_settings
 
 from apps.ai.case_chat import case_chat_reply
+from apps.ai.case_chat import normalize_ai_text as normalize_chat_text
 from apps.ai.openai_client import OpenAICompatibleClient
 from apps.ai.services import ConstrainedDraftingService, GenerationContext
 from apps.matters.models import Matter
@@ -81,6 +82,9 @@ class DraftingServiceLLMTests(TestCase):
 
 
 class CaseChatTests(TestCase):
+    def test_chat_text_normalizes_html_breaks(self):
+        self.assertEqual(normalize_chat_text("One<br/>Two<br>Three"), "One\nTwo\nThree")
+
     @override_settings(AI_DRAFTING_ENABLED=False)
     def test_document_question_uses_case_documents(self):
         matter = Matter.objects.create(

@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { Check, FileSearch, FileText, Loader2, Plus, Search, TextSelect, X } from "lucide-react";
+import { Check, FileSearch, FileText, Loader2, Plus, Search, Sparkles, TextSelect, Upload, X } from "lucide-react";
 
 import { api } from "../api/client.js";
 
@@ -11,11 +11,17 @@ function curatedId(prefix, value) {
   return `${prefix}:${value}`.replace(/\s+/g, "-").toLowerCase();
 }
 
-export function FactReview({ matter, facts, selectedFactIds, selectedCuratedFacts, onFactChange, onCuratedChange }) {
+export function FactReview({ matter, facts, selectedFactIds, selectedCuratedFacts, onFactChange, onCuratedChange, onMatterChange }) {
   const [documents, setDocuments] = useState([]);
   const [documentState, setDocumentState] = useState({});
   const [searchTerms, setSearchTerms] = useState({});
   const [loadingDocuments, setLoadingDocuments] = useState(false);
+  const [autoSelecting, setAutoSelecting] = useState(false);
+  const [addingFact, setAddingFact] = useState(false);
+  const [uploadingFact, setUploadingFact] = useState(false);
+  const [newFact, setNewFact] = useState({ title: "", text: "", source: "" });
+  const [uploadTitle, setUploadTitle] = useState("");
+  const [uploadFile, setUploadFile] = useState(null);
   const [error, setError] = useState("");
 
   useEffect(() => {
@@ -50,6 +56,63 @@ export function FactReview({ matter, facts, selectedFactIds, selectedCuratedFact
       return;
     }
     onCuratedChange([...selectedCuratedFacts, fact]);
+  }
+
+  function mergeSelectedFactIds(ids) {
+    onFactChange([...new Set([...(selectedFactIds || []), ...(ids || [])])]);
+  }
+
+  async function autoSelectFacts() {
+    if (!matter?.id) return;
+    setAutoSelecting(true);
+    setError("");
+    try {
+      const response = await api.recommendCaseFacts(matter.id);
+      mergeSelectedFactIds(response.factIds || []);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setAutoSelecting(false);
+    }
+  }
+
+  async function submitTypedFact(event) {
+    event.preventDefault();
+    if (!matter?.id || !newFact.text.trim()) return;
+    setAddingFact(true);
+    setError("");
+    try {
+      const response = await api.createCaseFact(matter.id, newFact);
+      onMatterChange?.(response.case);
+      mergeSelectedFactIds((response.created || []).map((fact) => fact.id));
+      setNewFact({ title: "", text: "", source: "" });
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setAddingFact(false);
+    }
+  }
+
+  async function submitUploadedFact(event) {
+    event.preventDefault();
+    if (!matter?.id || !uploadFile) return;
+    setUploadingFact(true);
+    setError("");
+    try {
+      const formData = new FormData();
+      formData.append("file", uploadFile);
+      if (uploadTitle.trim()) formData.append("title", uploadTitle.trim());
+      const response = await api.uploadCaseFactDocument(matter.id, formData);
+      onMatterChange?.(response.case);
+      mergeSelectedFactIds((response.created || []).map((fact) => fact.id));
+      setUploadTitle("");
+      setUploadFile(null);
+      event.currentTarget.reset();
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setUploadingFact(false);
+    }
   }
 
   async function loadContext(document, level, extra = {}) {
@@ -107,8 +170,12 @@ export function FactReview({ matter, facts, selectedFactIds, selectedCuratedFact
             <p className="eyebrow">Facts</p>
             <h3>Candidate facts</h3>
           </div>
+          <button className="secondary" type="button" onClick={autoSelectFacts} disabled={!matter || autoSelecting}>
+            {autoSelecting ? <Loader2 className="spin" size={16} /> : <Sparkles size={16} />} Auto-select
+          </button>
         </div>
         <div className="check-list">
+          {facts.length === 0 && <p className="muted">No case facts available yet.</p>}
           {facts.map((fact) => (
             <label key={fact.id} className="check-row fact-with-citation" title={citationForFact(fact)}>
               <input type="checkbox" checked={selectedFactIds.includes(fact.id)} onChange={() => toggleMatterFact(fact)} />
@@ -120,6 +187,63 @@ export function FactReview({ matter, facts, selectedFactIds, selectedCuratedFact
             </label>
           ))}
         </div>
+      </section>
+
+      <section className="panel add-facts-panel">
+        <div className="panel-heading">
+          <div>
+            <p className="eyebrow">Add facts</p>
+            <h3>Update the case record</h3>
+          </div>
+          <Plus size={18} />
+        </div>
+        <form className="fact-entry-form" onSubmit={submitTypedFact}>
+          <label className="field">
+            <span>Title</span>
+            <input
+              value={newFact.title}
+              onChange={(event) => setNewFact((current) => ({ ...current, title: event.target.value }))}
+              placeholder="Repair request, payment, notice problem..."
+            />
+          </label>
+          <label className="field">
+            <span>Fact text</span>
+            <textarea
+              value={newFact.text}
+              onChange={(event) => setNewFact((current) => ({ ...current, text: event.target.value }))}
+              placeholder="Type a fact that should be available for drafting."
+              rows={4}
+            />
+          </label>
+          <label className="field">
+            <span>Source</span>
+            <input
+              value={newFact.source}
+              onChange={(event) => setNewFact((current) => ({ ...current, source: event.target.value }))}
+              placeholder="Client update, intake call, advocate note..."
+            />
+          </label>
+          <div className="button-row compact">
+            <button className="primary" type="submit" disabled={!newFact.text.trim() || addingFact}>
+              {addingFact ? <Loader2 className="spin" size={16} /> : <Plus size={16} />} Add and select
+            </button>
+          </div>
+        </form>
+        <form className="fact-upload-form" onSubmit={submitUploadedFact}>
+          <label className="field">
+            <span>Upload source document</span>
+            <input type="file" accept=".txt,.md,.csv,.json,.html,.htm,.docx,.pdf,text/*,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document" onChange={(event) => setUploadFile(event.target.files?.[0] || null)} />
+          </label>
+          <label className="field">
+            <span>Fact title</span>
+            <input value={uploadTitle} onChange={(event) => setUploadTitle(event.target.value)} placeholder="Optional title for the extracted text" />
+          </label>
+          <div className="button-row compact">
+            <button className="secondary" type="submit" disabled={!uploadFile || uploadingFact}>
+              {uploadingFact ? <Loader2 className="spin" size={16} /> : <Upload size={16} />} Extract and select
+            </button>
+          </div>
+        </form>
       </section>
 
       <section className="panel">

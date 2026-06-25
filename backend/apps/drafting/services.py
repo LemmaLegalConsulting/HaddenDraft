@@ -15,6 +15,8 @@ def advance(session, payload):
         session.selected_source_results = payload["selectedSourceResults"]
     if "selectedBlockKeys" in payload:
         session.selected_block_keys = payload["selectedBlockKeys"]
+    if "authorProfile" in payload:
+        session.author_profile = payload["authorProfile"] or {}
     if "instructions" in payload:
         session.instructions = payload["instructions"]
     if "template" in payload:
@@ -52,6 +54,7 @@ def create_draft(session):
         template=session.template,
         mode=session.mode,
         instructions=session.instructions,
+        author_profile=session.author_profile,
     )
     block_keys = session.selected_block_keys or [block.key for block in session.template.blocks.all()]
     sections = drafting_ai.compose_document(context, block_keys)
@@ -65,4 +68,46 @@ def create_draft(session):
     )
     session.status = "draft"
     session.save()
+    return draft
+
+
+def plain_text_from_sections(sections):
+    return "\n\n".join(f"{section.get('label', '').upper()}\n{section.get('body', '')}" for section in sections)
+
+
+def regeneration_context(session):
+    facts = list(MatterFact.objects.filter(id__in=session.selected_fact_ids))
+    return GenerationContext(
+        matter=session.matter,
+        selected_facts=facts,
+        selected_curated_facts=session.selected_curated_facts,
+        selected_sources=session.selected_source_results,
+        template=session.template,
+        mode=session.mode,
+        instructions=session.instructions,
+        author_profile=session.author_profile,
+    )
+
+
+def regenerate_draft_block(draft, block_key, instruction=""):
+    context = regeneration_context(draft.session)
+    sections = list(draft.sections or [])
+    next_sections = []
+    updated = None
+    for section in sections:
+        if section.get("key") == block_key:
+            updated = {
+                **section,
+                "body": drafting_ai.regenerate_section(section=section, context=context, instruction=instruction),
+                "origin": "ai",
+            }
+            next_sections.append(updated)
+        else:
+            next_sections.append(section)
+    if updated is None:
+        return draft
+    draft.sections = next_sections
+    draft.plain_text = plain_text_from_sections(next_sections)
+    draft.editor_state = {"format": "lexical_blocks", "blocks": {}}
+    draft.save()
     return draft

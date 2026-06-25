@@ -3,8 +3,8 @@ from django.http import JsonResponse
 from apps.core.http import api_login_required, json_body, method_not_allowed
 from apps.drafting.models import DraftDocument, DraftingSession
 from apps.drafting.serializers import draft_to_dict, session_to_dict
-from apps.drafting.services import advance, create_draft, initialize_session
-from apps.exporting.services import export_plain_text
+from apps.drafting.services import advance, create_draft, initialize_session, regenerate_draft_block
+from apps.exporting.services import export_docx
 from apps.matters.models import Matter
 from apps.templates_app.models import DocumentTemplate
 from apps.validation.services import validate_document as run_validation
@@ -29,6 +29,7 @@ def sessions(request):
         mode=body.get("mode", "draft_from_template"),
         matter=matter,
         template=template,
+        author_profile=body.get("authorProfile", {}),
         instructions=body.get("instructions", ""),
     )
     initialize_session(session)
@@ -69,11 +70,21 @@ def draft_detail(request, draft_id):
         return JsonResponse({"draft": draft_to_dict(draft)})
     if request.method == "PATCH":
         body = json_body(request)
+        draft.sections = body.get("sections", draft.sections)
         draft.plain_text = body.get("plainText", draft.plain_text)
         draft.editor_state = body.get("editorState", draft.editor_state)
         draft.save()
         return JsonResponse({"draft": draft_to_dict(draft)})
     return method_not_allowed(["GET", "PATCH"])
+
+
+@api_login_required
+def regenerate_block(request, draft_id, block_key):
+    if request.method != "POST":
+        return method_not_allowed(["POST"])
+    draft = DraftDocument.objects.select_related("session", "session__matter", "session__template").get(id=draft_id)
+    draft = regenerate_draft_block(draft, block_key, json_body(request).get("instruction", ""))
+    return JsonResponse({"draft": draft_to_dict(draft)})
 
 
 @api_login_required
@@ -91,4 +102,4 @@ def export_draft(request, draft_id):
     if request.method != "GET":
         return method_not_allowed(["GET"])
     draft = DraftDocument.objects.get(id=draft_id)
-    return export_plain_text(draft)
+    return export_docx(draft)
