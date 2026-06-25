@@ -46,6 +46,7 @@ def _display_value(value):
 
 class LegalServerClient:
     search_fields = ("case_number", "case_title", "external_id", "first", "last")
+    user_search_fields = ("email", "user_email", "user_name", "username", "login")
 
     def __init__(self, *, base_url=None, api_token=None, session=None):
         config = SourceConfiguration.effective_settings(
@@ -55,6 +56,7 @@ class LegalServerClient:
                 "api_token": settings.LEGALSERVER_API_TOKEN,
                 "matters_path": settings.LEGALSERVER_MATTERS_PATH,
                 "matter_documents_path": settings.LEGALSERVER_MATTER_DOCUMENTS_PATH,
+                "users_path": settings.LEGALSERVER_USERS_PATH,
                 "user_filter_param": settings.LEGALSERVER_USER_FILTER_PARAM,
             },
         )
@@ -62,6 +64,7 @@ class LegalServerClient:
         self.api_token = api_token or config["api_token"]
         self.matters_path = config["matters_path"]
         self.matter_documents_path = config["matter_documents_path"]
+        self.users_path = config.get("users_path") or settings.LEGALSERVER_USERS_PATH
         self.user_filter_param = config["user_filter_param"]
         self.session = session or requests.Session()
 
@@ -132,6 +135,11 @@ class LegalServerClient:
             return payload
         return payload.get("results") or payload.get("data") or payload.get("matters") or []
 
+    def _user_list_from_payload(self, payload):
+        if isinstance(payload, list):
+            return payload
+        return payload.get("results") or payload.get("data") or payload.get("users") or []
+
     def get_matter(self, matter_id):
         path = f"{self.matters_path.rstrip('/')}/{matter_id}"
         return self._get(path)
@@ -142,6 +150,36 @@ class LegalServerClient:
         if isinstance(payload, list):
             return payload
         return payload.get("results") or payload.get("data") or payload.get("documents") or []
+
+    def find_user(self, identifier):
+        if not identifier or not self.users_path:
+            return {}
+        users_by_id = {}
+        for field in self.user_search_fields:
+            payload = self._get(self.users_path, params={field: identifier, "page_size": 10})
+            for user in self._user_list_from_payload(payload):
+                user_key = _first_value(
+                    user,
+                    "id",
+                    "user_id",
+                    "uuid",
+                    "user_uuid",
+                    "email",
+                    "user_email",
+                    "user_name",
+                    "username",
+                    default=str(len(users_by_id)),
+                )
+                users_by_id[str(user_key)] = user
+        normalized = identifier.casefold().strip()
+        for user in users_by_id.values():
+            values = [
+                _first_value(user, "email", "user_email", "email_address", default=""),
+                _first_value(user, "user_name", "username", "login", default=""),
+            ]
+            if any(str(value).casefold().strip() == normalized for value in values if value):
+                return user
+        return next(iter(users_by_id.values()), {})
 
 
 def user_email_for_filter(user):
