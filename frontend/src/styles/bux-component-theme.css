@@ -1,0 +1,117 @@
+:root {
+  --bs-body-bg: var(--bux-gray-light-90);
+  --bs-body-color: var(--bux-gray-dark-80);
+  --bs-border-color: var(--bux-gray-light-60);
+  --bs-light: var(--bux-gray-light-80);
+  --bs-dark: var(--bux-gray-dark-80);
+  --bs-primary: var(--bux-scarlet);
+  --bs-primary-rgb: 186, 12, 47;
+  --bs-primary-hover: var(--bux-scarlet-dark-40);
+  --bs-secondary: var(--bux-gray-dark-40);
+  --bs-secondary-rgb: 100, 106, 110;
+  --bs-secondary-soft-hover: var(--bux-gray-light-60);
+  --bs-danger: #8b1e1e;
+  --bs-danger-rgb: 139, 30, 30;
+  --bs-danger-hover: #6f1818;
+  --bs-focus-ring-color: rgba(186, 12, 47, 0.24);
+  --bs-dropdown-bg: var(--bux-white);
+  --bs-dropdown-border-color: var(--bux-gray-light-40);
+  --bs-dropdown-link-hover-bg: var(--bux-gray-light-80);
+  --app-danger-bg: #fde8e8;
+  --app-danger-border: #f4b8b8;
+  --app-danger-text: #8b1e1e;
+}
+
+.primary,
+a.primary.link-button,
+.btn-primary {
+  background: var(--bs-primary);
+  border-color: var(--bs-primary);
+  color: var(--bux-white);
+}
+
+.primary:hover,
+a.primary.link-button:hover,
+.btn-primary:hover {
+  background: var(--bs-primary-hover);
+  border-color: var(--bs-primary-hover);
+  color: var(--bux-white);
+}
+
+.secondary,
+a.secondary.link-button,
+.btn-secondary {
+  background: var(--bux-gray-light-80);
+  border-color: transparent;
+  color: var(--bux-gray-dark-80);
+}
+
+.secondary:hover,
+a.secondary.link-button:hover,
+.btn-secondary:hover,
+.btn-outline-secondary:hover {
+  background: var(--bux-gray-light-60);
+  border-color: transparent;
+  color: var(--bux-gray-dark-80);
+}
+
+.btn-outline-secondary {
+  background: transparent;
+  border-color: var(--bux-gray-light-40);
+  color: var(--bux-gray-dark-80);
+}
+
+.btn-danger {
+  background: var(--bs-danger);
+  border-color: var(--bs-danger);
+  color: var(--bux-white);
+}
+
+.btn-danger:hover {
+  background: var(--bs-danger-hover);
+  border-color: var(--bs-danger-hover);
+  color: var(--bux-white);
+}
+
+.secondary.danger,
+.text-danger {
+  color: var(--app-danger-text);
+}
+
+.alert-danger,
+.error-banner,
+.inline-error {
+  background: var(--app-danger-bg);
+  border-color: var(--app-danger-border);
+  color: var(--app-danger-text);
+}
+
+.status-pill,
+.badge {
+  background: var(--bux-gray-light-80);
+  color: var(--bux-gray-dark-40);
+}
+
+.status-pill.approved,
+.badge-approved {
+  background: var(--bux-gray-light-90);
+  border: 1px solid var(--bux-gray-light-60);
+  color: var(--bux-scarlet-dark-40);
+}
+
+.status-pill.rejected,
+.badge-danger {
+  background: var(--app-danger-bg);
+  color: var(--app-danger-text);
+}
+
+.card,
+.dropdown-menu,
+.form-control,
+.form-select {
+  border-color: var(--bux-gray-light-60);
+}
+
+.dropdown-menu {
+  box-shadow: 0 16px 38px rgba(33, 35, 37, 0.16);
+}
