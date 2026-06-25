@@ -5,20 +5,41 @@ from apps.drafting.models import DraftDocument, DraftingSession
 from apps.drafting.serializers import draft_to_dict, session_to_dict
 from apps.drafting.services import advance, create_draft, initialize_session, regenerate_draft_block
 from apps.exporting.services import export_docx
-from apps.matters.models import Matter
+from apps.matters.services import accessible_matters_for_user, matter_for_user, user_can_access_matter
 from apps.templates_app.models import DocumentTemplate
 from apps.validation.services import validate_document as run_validation
+
+
+def _session_or_404(user, session_id, *, with_template=False):
+    queryset = DraftingSession.objects.select_related("matter", "template")
+    if with_template:
+        queryset = queryset.prefetch_related("template__blocks")
+    session = queryset.filter(id=session_id).first()
+    if not session or not user_can_access_matter(user, session.matter):
+        return None, JsonResponse({"error": "Drafting session not found"}, status=404)
+    return session, None
+
+
+def _draft_or_404(user, draft_id):
+    draft = DraftDocument.objects.select_related("session", "session__matter", "session__template").filter(id=draft_id).first()
+    if not draft or not user_can_access_matter(user, draft.session.matter):
+        return None, JsonResponse({"error": "Draft not found"}, status=404)
+    return draft, None
 
 
 @api_login_required
 def sessions(request):
     if request.method == "GET":
-        return JsonResponse({"sessions": [session_to_dict(session) for session in DraftingSession.objects.select_related("matter", "template")]})
+        accessible_ids = [matter.id for matter in accessible_matters_for_user(request.user)]
+        sessions = DraftingSession.objects.select_related("matter", "template").filter(matter_id__in=accessible_ids)
+        return JsonResponse({"sessions": [session_to_dict(session) for session in sessions]})
     if request.method != "POST":
         return method_not_allowed(["GET", "POST"])
 
     body = json_body(request)
-    matter = Matter.objects.get(external_id=body["matterId"])
+    matter = matter_for_user(request.user, body.get("matterId", ""))
+    if not matter:
+        return JsonResponse({"error": "Case not found or not available to this user"}, status=404)
     template = None
     if body.get("templateId"):
         template = DocumentTemplate.objects.get(id=body["templateId"])
@@ -40,7 +61,10 @@ def sessions(request):
 def session_detail(request, session_id):
     if request.method != "GET":
         return method_not_allowed(["GET"])
-    session = DraftingSession.objects.select_related("matter", "template").prefetch_related("matter__facts", "template__blocks").get(id=session_id)
+    session, error = _session_or_404(request.user, session_id)
+    if error:
+        return error
+    session = DraftingSession.objects.select_related("matter", "template").prefetch_related("matter__facts", "template__blocks").get(id=session.id)
     return JsonResponse({"session": session_to_dict(session)})
 
 
@@ -48,7 +72,9 @@ def session_detail(request, session_id):
 def advance_session(request, session_id):
     if request.method != "POST":
         return method_not_allowed(["POST"])
-    session = DraftingSession.objects.get(id=session_id)
+    session, error = _session_or_404(request.user, session_id)
+    if error:
+        return error
     session = advance(session, json_body(request))
     initialize_session(session)
     return JsonResponse({"session": session_to_dict(session)})
@@ -58,14 +84,18 @@ def advance_session(request, session_id):
 def generate_draft(request, session_id):
     if request.method != "POST":
         return method_not_allowed(["POST"])
-    session = DraftingSession.objects.select_related("matter", "template").prefetch_related("template__blocks").get(id=session_id)
+    session, error = _session_or_404(request.user, session_id, with_template=True)
+    if error:
+        return error
     draft = create_draft(session)
     return JsonResponse({"draft": draft_to_dict(draft)}, status=201)
 
 
 @api_login_required
 def draft_detail(request, draft_id):
-    draft = DraftDocument.objects.get(id=draft_id)
+    draft, error = _draft_or_404(request.user, draft_id)
+    if error:
+        return error
     if request.method == "GET":
         return JsonResponse({"draft": draft_to_dict(draft)})
     if request.method == "PATCH":
@@ -82,7 +112,9 @@ def draft_detail(request, draft_id):
 def regenerate_block(request, draft_id, block_key):
     if request.method != "POST":
         return method_not_allowed(["POST"])
-    draft = DraftDocument.objects.select_related("session", "session__matter", "session__template").get(id=draft_id)
+    draft, error = _draft_or_404(request.user, draft_id)
+    if error:
+        return error
     draft = regenerate_draft_block(draft, block_key, json_body(request).get("instruction", ""))
     return JsonResponse({"draft": draft_to_dict(draft)})
 
@@ -91,7 +123,9 @@ def regenerate_block(request, draft_id, block_key):
 def validate_draft(request, draft_id):
     if request.method != "POST":
         return method_not_allowed(["POST"])
-    draft = DraftDocument.objects.get(id=draft_id)
+    draft, error = _draft_or_404(request.user, draft_id)
+    if error:
+        return error
     draft.validation_flags = run_validation(draft)
     draft.save()
     return JsonResponse({"draft": draft_to_dict(draft)})
@@ -101,5 +135,7 @@ def validate_draft(request, draft_id):
 def export_draft(request, draft_id):
     if request.method != "GET":
         return method_not_allowed(["GET"])
-    draft = DraftDocument.objects.get(id=draft_id)
+    draft, error = _draft_or_404(request.user, draft_id)
+    if error:
+        return error
     return export_docx(draft)

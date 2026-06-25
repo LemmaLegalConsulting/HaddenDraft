@@ -46,50 +46,76 @@ def _display_value(value):
 
 class LegalServerClient:
     search_fields = ("case_number", "case_title", "external_id", "first", "last")
+    user_search_fields = ("email", "user_email", "user_name", "username", "login")
 
-    def __init__(self, *, base_url=None, api_token=None, session=None):
+    def __init__(self, *, base_url=None, api_token=None, username=None, password=None, session=None):
         config = SourceConfiguration.effective_settings(
             "legalserver",
             {
                 "base_url": settings.LEGALSERVER_BASE_URL,
                 "api_token": settings.LEGALSERVER_API_TOKEN,
+                "api_username": settings.LEGALSERVER_API_USERNAME,
+                "api_password": settings.LEGALSERVER_API_PASSWORD,
                 "matters_path": settings.LEGALSERVER_MATTERS_PATH,
                 "matter_documents_path": settings.LEGALSERVER_MATTER_DOCUMENTS_PATH,
+                "users_path": settings.LEGALSERVER_USERS_PATH,
                 "user_filter_param": settings.LEGALSERVER_USER_FILTER_PARAM,
             },
         )
         self.base_url = _clean_base_url(base_url or config["base_url"])
-        self.api_token = api_token or config["api_token"]
+        self.api_token = api_token or config.get("api_token", "")
+        self.api_username = username or config.get("api_username", "")
+        self.api_password = password or config.get("api_password", "")
         self.matters_path = config["matters_path"]
         self.matter_documents_path = config["matter_documents_path"]
+        self.users_path = config.get("users_path") or settings.LEGALSERVER_USERS_PATH
         self.user_filter_param = config["user_filter_param"]
         self.session = session or requests.Session()
 
     @property
     def configured(self):
-        return bool(self.base_url and self.api_token)
+        return bool(self.base_url and (self.api_token or (self.api_username and self.api_password)))
 
     def _url(self, path):
         return urljoin(self.base_url, path.lstrip("/"))
 
     def _headers(self):
-        return {
-            "Authorization": f"Bearer {self.api_token}",
-            "Accept": "application/json",
-        }
+        headers = {"Accept": "application/json"}
+        if self.api_token:
+            headers["Authorization"] = f"Bearer {self.api_token}"
+        return headers
+
+    def _request_kwargs(self):
+        if self.api_token:
+            return {}
+        return {"auth": (self.api_username, self.api_password)}
 
     def _get(self, path, *, params=None):
         if not self.configured:
             raise LegalServerError("LegalServer is not configured")
-        response = self.session.get(self._url(path), headers=self._headers(), params=params or {}, timeout=20)
+        response = self.session.get(
+            self._url(path),
+            headers=self._headers(),
+            params=params or {},
+            timeout=20,
+            **self._request_kwargs(),
+        )
         if response.status_code >= 400:
             raise LegalServerError(f"LegalServer request failed with status {response.status_code}")
+        content_type = response.headers.get("content-type", "")
+        if "json" not in content_type.lower():
+            raise LegalServerError("LegalServer returned a non-JSON response")
         return response.json()
 
     def download_document(self, url):
         if not self.configured:
             raise LegalServerError("LegalServer is not configured")
-        response = self.session.get(url, headers=self._headers(), timeout=30)
+        response = self.session.get(
+            url,
+            headers=self._headers(),
+            timeout=30,
+            **self._request_kwargs(),
+        )
         if response.status_code >= 400:
             raise LegalServerError(f"LegalServer document download failed with status {response.status_code}")
         return {
@@ -98,8 +124,14 @@ class LegalServerClient:
             "filename": url.rsplit("/", 1)[-1].split("?", 1)[0],
         }
 
-    def search_matters(self, *, query="", user_email="", limit=25):
+    def _search_params(self, *, user_email="", limit=25):
         params = {"page_size": limit}
+        if user_email:
+            params[self.user_filter_param] = user_email
+        return params
+
+    def search_matters(self, *, query="", user_email="", limit=25):
+        params = self._search_params(user_email=user_email, limit=limit)
         if query:
             matters_by_id = {}
             for field in self.search_fields:
@@ -126,6 +158,11 @@ class LegalServerClient:
             return payload
         return payload.get("results") or payload.get("data") or payload.get("matters") or []
 
+    def _user_list_from_payload(self, payload):
+        if isinstance(payload, list):
+            return payload
+        return payload.get("results") or payload.get("data") or payload.get("users") or []
+
     def get_matter(self, matter_id):
         path = f"{self.matters_path.rstrip('/')}/{matter_id}"
         return self._get(path)
@@ -136,6 +173,36 @@ class LegalServerClient:
         if isinstance(payload, list):
             return payload
         return payload.get("results") or payload.get("data") or payload.get("documents") or []
+
+    def find_user(self, identifier):
+        if not identifier or not self.users_path:
+            return {}
+        users_by_id = {}
+        for field in self.user_search_fields:
+            payload = self._get(self.users_path, params={field: identifier, "page_size": 10})
+            for user in self._user_list_from_payload(payload):
+                user_key = _first_value(
+                    user,
+                    "id",
+                    "user_id",
+                    "uuid",
+                    "user_uuid",
+                    "email",
+                    "user_email",
+                    "user_name",
+                    "username",
+                    default=str(len(users_by_id)),
+                )
+                users_by_id[str(user_key)] = user
+        normalized = identifier.casefold().strip()
+        for user in users_by_id.values():
+            values = [
+                _first_value(user, "email", "user_email", "email_address", default=""),
+                _first_value(user, "user_name", "username", "login", default=""),
+            ]
+            if any(str(value).casefold().strip() == normalized for value in values if value):
+                return user
+        return next(iter(users_by_id.values()), {})
 
 
 def user_email_for_filter(user):
@@ -194,18 +261,26 @@ class LegalServerConnector(SourceConnector):
 
     @property
     def status(self):
-        return "Connected" if self.client.configured else "Configure LEGALSERVER_BASE_URL and LEGALSERVER_API_TOKEN"
+        return "Connected" if self.client.configured else "Configure LEGALSERVER_BASE_URL and LegalServer API credentials"
 
     def search(self, query, *, matter=None, jurisdiction="", limit=5, user=None, request=None):
         if not self.client.configured:
             return []
         try:
             documents = self.client.get_matter_documents(matter.external_id) if matter else []
-            matters = [] if matter else self.client.search_matters(
-                query=query,
-                user_email=user_identifier_for_filter(user),
-                limit=limit,
-            )
+            matters = []
+            if not matter:
+                from apps.matters.services import legalserver_access_profile_for_user, payload_matches_legalserver_identifier
+
+                access_profile = legalserver_access_profile_for_user(user, client=self.client)
+                if access_profile.identifier and not access_profile.error:
+                    matters = self.client.search_matters(
+                        query=query,
+                        user_email="" if access_profile.is_superuser else access_profile.identifier,
+                        limit=limit,
+                    )
+                    if not access_profile.is_superuser:
+                        matters = [payload for payload in matters if payload_matches_legalserver_identifier(payload, access_profile.identifier)]
         except LegalServerError:
             return []
 

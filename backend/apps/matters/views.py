@@ -16,16 +16,24 @@ from apps.matters.document_context import (
     search_chunks,
     summarize_text,
 )
-from apps.matters.models import Matter, MatterFact
+from apps.matters.models import MatterFact
 from apps.matters.seed import seed_matters
 from apps.matters.serializers import fact_to_dict, matter_to_dict
 from apps.matters.services import (
     legalserver_account_status,
+    matter_for_user,
     sync_legalserver_matter,
     sync_legalserver_matters_for_user,
 )
 from apps.sources.document_text import DocumentExtractionError, extract_text
 from apps.sources.models import UserSourceIdentity
+
+
+def _matter_or_404(user, matter_id):
+    matter = matter_for_user(user, matter_id)
+    if matter:
+        return matter, None
+    return None, JsonResponse({"error": "Case not found or not available to this user"}, status=404)
 
 
 @api_login_required
@@ -34,7 +42,7 @@ def cases(request):
     sync = sync_legalserver_matters_for_user(request.user, query=query, restrict_to_user=not bool(query))
     if settings.ENABLE_DEMO_MATTERS and not sync.matters:
         seed_matters()
-    matters = sync.matters if not settings.ENABLE_DEMO_MATTERS else Matter.objects.all()
+    matters = sync.matters if not settings.ENABLE_DEMO_MATTERS else matter_for_demo_list()
     account = legalserver_account_status(request.user)
     return JsonResponse(
         {
@@ -45,6 +53,12 @@ def cases(request):
             },
         }
     )
+
+
+def matter_for_demo_list():
+    from apps.matters.models import Matter
+
+    return Matter.objects.all()
 
 
 @api_login_required
@@ -71,15 +85,17 @@ def legalserver_account(request):
 
 
 @api_login_required
-def case_detail(_request, matter_id):
-    if not Matter.objects.filter(external_id=matter_id).exists():
-        sync_legalserver_matter(matter_id)
-    if not Matter.objects.filter(external_id=matter_id).exists():
-        if settings.ENABLE_DEMO_MATTERS:
-            seed_matters()
-    if not Matter.objects.filter(external_id=matter_id).exists():
-        return JsonResponse({"error": "Case not found or LegalServer account not connected"}, status=404)
-    matter = Matter.objects.prefetch_related("facts").get(external_id=matter_id)
+def case_detail(request, matter_id):
+    matter = matter_for_user(request.user, matter_id)
+    if not matter:
+        sync_legalserver_matter(matter_id, user=request.user)
+        matter = matter_for_user(request.user, matter_id)
+    if not matter and settings.ENABLE_DEMO_MATTERS:
+        seed_matters()
+        matter = matter_for_user(request.user, matter_id)
+    if not matter:
+        return JsonResponse({"error": "Case not found or not available to this user"}, status=404)
+    matter = matter.__class__.objects.prefetch_related("facts").get(id=matter.id)
     return JsonResponse({"case": matter_to_dict(matter, include_facts=True)})
 
 
@@ -87,9 +103,9 @@ def case_detail(_request, matter_id):
 def case_documents(request, matter_id):
     if request.method != "GET":
         return JsonResponse({"error": "GET required"}, status=405)
-    matter = Matter.objects.filter(external_id=matter_id).first()
-    if not matter:
-        return JsonResponse({"error": "Case not found"}, status=404)
+    matter, error = _matter_or_404(request.user, matter_id)
+    if error:
+        return error
     documents = [document_to_public_dict(document) for document in get_case_documents(matter)]
     return JsonResponse({"documents": documents})
 
@@ -98,9 +114,9 @@ def case_documents(request, matter_id):
 def case_document_context(request, matter_id, document_id):
     if request.method != "POST":
         return JsonResponse({"error": "POST required"}, status=405)
-    matter = Matter.objects.filter(external_id=matter_id).first()
-    if not matter:
-        return JsonResponse({"error": "Case not found"}, status=404)
+    matter, error = _matter_or_404(request.user, matter_id)
+    if error:
+        return error
     document = get_case_document(matter, document_id)
     if not document:
         return JsonResponse({"error": "Document not found"}, status=404)
@@ -160,9 +176,9 @@ def _create_case_fact(matter, *, title, text, source_label):
 
 @api_login_required
 def case_facts(request, matter_id):
-    matter = Matter.objects.filter(external_id=matter_id).first()
-    if not matter:
-        return JsonResponse({"error": "Case not found"}, status=404)
+    matter, error = _matter_or_404(request.user, matter_id)
+    if error:
+        return error
 
     if request.method == "GET":
         return JsonResponse({"facts": [fact_to_dict(fact) for fact in matter.facts.all()]})
@@ -201,7 +217,7 @@ def case_facts(request, matter_id):
     if not created:
         return JsonResponse({"error": "Fact text is required"}, status=400)
 
-    matter = Matter.objects.prefetch_related("facts").get(id=matter.id)
+    matter = matter.__class__.objects.prefetch_related("facts").get(id=matter.id)
     return JsonResponse(
         {
             "facts": [fact_to_dict(fact) for fact in matter.facts.all()],
@@ -216,9 +232,10 @@ def case_facts(request, matter_id):
 def case_fact_recommendations(request, matter_id):
     if request.method != "POST":
         return JsonResponse({"error": "POST required"}, status=405)
-    matter = Matter.objects.prefetch_related("facts").filter(external_id=matter_id).first()
-    if not matter:
-        return JsonResponse({"error": "Case not found"}, status=404)
+    matter, error = _matter_or_404(request.user, matter_id)
+    if error:
+        return error
+    matter = matter.__class__.objects.prefetch_related("facts").get(id=matter.id)
 
     from apps.ai.services import drafting_ai
 
@@ -240,11 +257,12 @@ def case_fact_recommendations(request, matter_id):
 def case_chat(request, matter_id):
     if request.method != "POST":
         return JsonResponse({"error": "POST required"}, status=405)
-    if not Matter.objects.filter(external_id=matter_id).exists():
-        sync_legalserver_matter(matter_id)
-    matter = Matter.objects.filter(external_id=matter_id).first()
+    matter = matter_for_user(request.user, matter_id)
     if not matter:
-        return JsonResponse({"error": "Case not found"}, status=404)
+        sync_legalserver_matter(matter_id, user=request.user)
+        matter = matter_for_user(request.user, matter_id)
+    if not matter:
+        return JsonResponse({"error": "Case not found or not available to this user"}, status=404)
     body = json.loads(request.body.decode("utf-8") or "{}")
     reply = case_chat_reply(matter=matter, messages=body.get("messages") or [])
     return JsonResponse(reply)
