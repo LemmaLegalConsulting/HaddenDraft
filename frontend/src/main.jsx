@@ -3,7 +3,6 @@ import { createRoot } from "react-dom/client";
 
 import { App } from "./App.jsx";
 import "./styles/app.css";
-import "./styles/component-bridge.css";
 import "./styles/bux.css";
 import "./styles/bux-component-theme.css";
 
