@@ -33,7 +33,7 @@ def env_list(name, default):
 load_dotenv(REPO_DIR / ".env")
 
 SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY", "dev-only-change-me")
-DEBUG = env_bool("DJANGO_DEBUG", False)
+DEBUG = env_bool("DJANGO_DEBUG", True)
 if not DEBUG and SECRET_KEY in {"", "change-me", "dev-only-change-me"}:
     raise ImproperlyConfigured("Set DJANGO_SECRET_KEY to a unique secret before running with DJANGO_DEBUG=false.")
 
