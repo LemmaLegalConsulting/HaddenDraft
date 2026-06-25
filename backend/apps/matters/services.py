@@ -132,6 +132,8 @@ def user_can_access_matter(user, matter):
         return True
     if settings.ENABLE_DEMO_MATTERS:
         return True
+    if settings.DEBUG and not matter.raw_payload:
+        return True
     identifier = legalserver_identifier_for_user(user)
     if not identifier:
         return False
