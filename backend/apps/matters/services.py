@@ -235,8 +235,9 @@ def legalserver_access_profile_for_user(user, *, client=None):
 
     try:
         client = client or LegalServerClient()
-        profile.user_payload = client.find_user(identifier) if client.configured else {}
-    except LegalServerError:
+        if getattr(client, "configured", False) and hasattr(client, "find_user"):
+            profile.user_payload = client.find_user(identifier)
+    except (LegalServerError, AttributeError):
         profile.user_payload = {}
     if profile.user_payload:
         profile.roles = legalserver_user_roles(profile.user_payload)
