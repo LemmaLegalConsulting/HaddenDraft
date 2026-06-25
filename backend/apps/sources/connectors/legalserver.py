@@ -245,11 +245,19 @@ class LegalServerConnector(SourceConnector):
             return []
         try:
             documents = self.client.get_matter_documents(matter.external_id) if matter else []
-            matters = [] if matter else self.client.search_matters(
-                query=query,
-                user_email=user_identifier_for_filter(user),
-                limit=limit,
-            )
+            matters = []
+            if not matter:
+                from apps.matters.services import legalserver_access_profile_for_user, payload_matches_legalserver_identifier
+
+                access_profile = legalserver_access_profile_for_user(user, client=self.client)
+                if access_profile.identifier and not access_profile.error:
+                    matters = self.client.search_matters(
+                        query=query,
+                        user_email="" if access_profile.is_superuser else access_profile.identifier,
+                        limit=limit,
+                    )
+                    if not access_profile.is_superuser:
+                        matters = [payload for payload in matters if payload_matches_legalserver_identifier(payload, access_profile.identifier)]
         except LegalServerError:
             return []
 
