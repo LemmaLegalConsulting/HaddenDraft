@@ -98,8 +98,14 @@ class LegalServerClient:
             "filename": url.rsplit("/", 1)[-1].split("?", 1)[0],
         }
 
-    def search_matters(self, *, query="", user_email="", limit=25):
+    def _search_params(self, *, user_email="", limit=25):
         params = {"page_size": limit}
+        if user_email:
+            params[self.user_filter_param] = user_email
+        return params
+
+    def search_matters(self, *, query="", user_email="", limit=25):
+        params = self._search_params(user_email=user_email, limit=limit)
         if query:
             matters_by_id = {}
             for field in self.search_fields:
