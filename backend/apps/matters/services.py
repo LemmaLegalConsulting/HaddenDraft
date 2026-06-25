@@ -261,7 +261,7 @@ def user_can_access_matter(user, matter, *, access_profile=None):
         return True
     if settings.ENABLE_DEMO_MATTERS:
         return True
-    if settings.DEBUG and not matter.raw_payload:
+    if settings.DEBUG:
         return True
     if not access_profile.identifier or access_profile.error:
         return False
@@ -321,7 +321,7 @@ def sync_legalserver_matters_for_user(user, *, query="", limit=50, restrict_to_u
             user_email="" if access_profile.is_superuser or not restrict_to_user else access_profile.identifier,
             limit=limit,
         )
-        if not access_profile.is_superuser and restrict_to_user:
+        if not access_profile.is_superuser:
             payloads = [payload for payload in payloads if payload_matches_legalserver_identifier(payload, access_profile.identifier)]
         if query and not payloads:
             payload = client.get_matter(query)
