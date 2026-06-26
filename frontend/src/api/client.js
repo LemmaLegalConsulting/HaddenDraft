@@ -76,6 +76,8 @@ export const api = {
     request(`/candidate-issues/${issueId}/review/`, { method: "POST", body: JSON.stringify(payload) }),
   modes: () => request("/modes/"),
   templates: () => request("/templates/"),
+  userResources: () => request("/user-resources/"),
+  createUserResource: (formData) => request("/user-resources/", { method: "POST", body: formData }),
   research: (payload) => request("/research/", { method: "POST", body: JSON.stringify(payload) }),
   createTemplateFromExample: (payload) =>
     request("/templates/from-example/", { method: "POST", body: JSON.stringify(payload) }),
