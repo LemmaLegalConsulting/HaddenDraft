@@ -141,6 +141,15 @@ textarea:focus-visible {
   color: var(--bux-white);
 }
 
+.source-row-button {
+  color: var(--bux-white);
+}
+
+.source-row-button:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: var(--bux-white);
+}
+
 .source-summary {
   color: var(--bux-gray-light-80);
 }
@@ -178,6 +187,7 @@ textarea:focus-visible {
 .empty-state,
 .muted,
 .case-card small,
+.case-muted,
 .matter-summary span,
 .check-row small,
 .block-row em,
@@ -250,6 +260,7 @@ a.primary.link-button:hover {
 }
 
 .case-card.selected,
+.case-source-toggle label.selected,
 .draft-mode-switch button.selected,
 .source-toggles button.selected {
   background: var(--bux-white);
@@ -260,6 +271,11 @@ a.primary.link-button:hover {
 
 .case-card.selected {
   box-shadow: inset 4px 0 0 var(--bux-scarlet);
+}
+
+.case-client,
+.case-number {
+  color: var(--bux-gray-dark-80);
 }
 
 .issue-card,
@@ -319,6 +335,7 @@ a.primary.link-button:hover {
 .block-menu,
 .editor-modal,
 .profile-modal,
+.connection-modal,
 .citation-preview {
   border-color: var(--bux-gray-light-40);
   box-shadow: 0 16px 38px rgba(33, 35, 37, 0.18);

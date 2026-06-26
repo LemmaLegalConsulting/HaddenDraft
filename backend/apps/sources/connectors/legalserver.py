@@ -26,6 +26,42 @@ def _first_value(payload, *keys, default=""):
     return default
 
 
+LEGALSERVER_PRIMARY_MATTER_ID_FIELDS = (
+    "matter_identification_number",
+    "case_number",
+    "matter_id",
+    "case_id",
+    "external_id",
+)
+
+LEGALSERVER_FALLBACK_MATTER_ID_FIELDS = (
+    "id",
+    "matter_uuid",
+    "uuid",
+)
+
+
+def legalserver_matter_identifier(payload):
+    value = _first_value(payload, *LEGALSERVER_PRIMARY_MATTER_ID_FIELDS, default="")
+    if value not in (None, ""):
+        return str(value)
+    value = _first_value(payload, *LEGALSERVER_FALLBACK_MATTER_ID_FIELDS, default="")
+    return str(value) if value not in (None, "") else ""
+
+
+def legalserver_matter_identifier_candidates(payload):
+    seen = set()
+    for key in (*LEGALSERVER_PRIMARY_MATTER_ID_FIELDS, *LEGALSERVER_FALLBACK_MATTER_ID_FIELDS):
+        value = payload.get(key)
+        if value in (None, ""):
+            continue
+        value = str(value)
+        if value in seen:
+            continue
+        seen.add(value)
+        yield value
+
+
 def _display_value(value):
     if value in (None, ""):
         return ""
@@ -167,12 +203,13 @@ class LegalServerClient:
                 for matter in self._matter_list_from_payload(payload):
                     matter_key = _first_value(
                         matter,
-                        "id",
-                        "matter_id",
-                        "matter_uuid",
-                        "case_id",
+                        "matter_identification_number",
                         "case_number",
+                        "matter_id",
+                        "case_id",
                         "external_id",
+                        "matter_uuid",
+                        "id",
                         "uuid",
                         default=str(len(matters_by_id)),
                     )
@@ -332,7 +369,7 @@ class LegalServerConnector(SourceConnector):
             )
 
         for payload in matters[:limit]:
-            matter_id = str(_first_value(payload, "id", "matter_id", "matter_uuid", "case_id", "case_number", "external_id", "uuid", default=""))
+            matter_id = legalserver_matter_identifier(payload)
             defaults = matter_payload_to_defaults(payload)
             results.append(
                 SourceResult(

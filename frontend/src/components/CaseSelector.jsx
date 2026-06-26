@@ -1,5 +1,27 @@
 import React from "react";
-import { ChevronDown, ClipboardCheck, FilePlus2, FileText, Link2, Loader2, MessageSquare, RotateCcw, Search, Unplug, Upload } from "lucide-react";
+import { ClipboardCheck, FilePlus2, FileText, Loader2, MessageSquare, RotateCcw, Search, Upload } from "lucide-react";
+
+function detailValue(item, label) {
+  return (item.details || []).find((detail) => detail.label === label)?.value || "";
+}
+
+function caseNumberFor(item) {
+  return item.caseNumber || detailValue(item, "Case number") || item.id;
+}
+
+function isLegalServerCase(item) {
+  return (item.sourceSystem || "LegalServer").toLowerCase() === "legalserver";
+}
+
+function lastActivityLabel(item) {
+  if (!isLegalServerCase(item) || !item.lastActivityAt) return "";
+  const lastActivity = new Date(item.lastActivityAt);
+  if (Number.isNaN(lastActivity.getTime())) return "";
+  const days = Math.max(0, Math.floor((Date.now() - lastActivity.getTime()) / 86400000));
+  if (days === 0) return "Active today";
+  if (days === 1) return "1 day inactive";
+  return `${days} days inactive`;
+}
 
 export function CaseSelector({
   cases,
@@ -7,11 +29,7 @@ export function CaseSelector({
   onSelect,
   matter,
   legalserver,
-  identifier,
-  onIdentifierChange,
-  onConnect,
-  onDisconnect,
-  accountBusy,
+  legalserverLoading = false,
   search,
   onSearchChange,
   onSearch,
@@ -21,8 +39,8 @@ export function CaseSelector({
   onCreateManualCase,
   onModeChange,
 }) {
-  const [connectionDetailsOpen, setConnectionDetailsOpen] = React.useState(false);
   const [manualCaseOpen, setManualCaseOpen] = React.useState(false);
+  const [caseSource, setCaseSource] = React.useState("legalserver");
   const [manualCase, setManualCase] = React.useState({
     clientName: "",
     matterType: "",
@@ -32,65 +50,55 @@ export function CaseSelector({
   });
   const [manualFiles, setManualFiles] = React.useState([]);
   const connected = Boolean(legalserver?.connected);
-  const configured = legalserver?.configured !== false;
-  const syncError = legalserver?.syncError;
-  const connectionSummary = !configured
-    ? "LegalServer not configured"
-    : connected
-      ? "LegalServer connected"
-      : "LegalServer disconnected";
+  const legalserverCases = cases.filter(isLegalServerCase);
+  const localCases = cases.filter((item) => !isLegalServerCase(item));
+  const visibleCases = caseSource === "local" ? localCases : legalserverCases;
+
+  React.useEffect(() => {
+    if (!legalserverLoading && !connected && caseSource === "legalserver" && !legalserverCases.length && localCases.length) {
+      setCaseSource("local");
+    }
+  }, [caseSource, connected, legalserverCases.length, legalserverLoading, localCases.length]);
 
   return (
     <div className="panel">
-      <form className="connection-panel" onSubmit={onConnect}>
+      <div className="case-source-row">
+        <div className="case-source-toggle" role="radiogroup" aria-label="Case source">
+          <label className={caseSource === "legalserver" ? "selected" : ""}>
+            <input
+              type="radio"
+              name="case-source"
+              value="legalserver"
+              checked={caseSource === "legalserver"}
+              disabled={legalserverLoading}
+              onChange={() => setCaseSource("legalserver")}
+            />
+            {legalserverLoading ? "Checking LegalServer" : "LegalServer case"}
+          </label>
+          <label className={caseSource === "local" ? "selected" : ""}>
+            <input
+              type="radio"
+              name="case-source"
+              value="local"
+              checked={caseSource === "local"}
+              onChange={() => setCaseSource("local")}
+            />
+            Local case
+          </label>
+        </div>
         <button
-          className="connection-summary-toggle"
-          type="button"
-          aria-expanded={connectionDetailsOpen}
-          onClick={() => setConnectionDetailsOpen((current) => !current)}
-        >
-          <span>{connectionSummary}</span>
-          <ChevronDown className={connectionDetailsOpen ? "chevron open" : "chevron"} size={16} />
-        </button>
-        {connectionDetailsOpen && (
-          <>
-            <div className="connection-detail">
-              <span>{connected ? "Connected as" : "No LegalServer account connected"}</span>
-              {connected && <strong>{legalserver.identifier}</strong>}
-              {!connected && configured && <small>Use the username or email for assigned matters.</small>}
-              {!configured && <small>LegalServer API credentials are not configured for this environment.</small>}
-            </div>
-            {configured && (
-              <div className="connection-controls">
-                <input
-                  aria-label="LegalServer identifier"
-                  placeholder={legalserver?.suggestedIdentifier || "LegalServer username or email"}
-                  value={identifier}
-                  onChange={(event) => onIdentifierChange(event.target.value)}
-                />
-                <button className="secondary" type="submit" disabled={accountBusy || !identifier.trim()}>
-                  {accountBusy ? <Loader2 className="spin" size={16} /> : <Link2 size={16} />} Connect
-                </button>
-                {connected && (
-                  <button className="secondary icon-button" type="button" disabled={accountBusy} onClick={onDisconnect} title="Disconnect LegalServer account">
-                    <Unplug size={16} />
-                  </button>
-                )}
-              </div>
-            )}
-          </>
-        )}
-      </form>
-      {connectionDetailsOpen && syncError && syncError !== "not_connected" && <div className="inline-error">LegalServer sync: {syncError}</div>}
-      <div className="manual-case-panel">
-        <button
-          className="secondary full"
+          className="primary new-local-case-button"
           type="button"
           aria-expanded={manualCaseOpen}
-          onClick={() => setManualCaseOpen((current) => !current)}
+          onClick={() => {
+            setCaseSource("local");
+            setManualCaseOpen((current) => !current);
+          }}
         >
           <FilePlus2 size={16} /> New local case
         </button>
+      </div>
+      <div className="manual-case-panel">
         {manualCaseOpen && (
           <form
             className="manual-case-form"
@@ -98,6 +106,7 @@ export function CaseSelector({
               event.preventDefault();
               const created = await onCreateManualCase?.({ ...manualCase, files: manualFiles });
               if (created) {
+                setCaseSource("local");
                 setManualCase({ clientName: "", matterType: "", jurisdiction: "", posture: "", notes: "" });
                 setManualFiles([]);
                 event.currentTarget.reset();
@@ -163,43 +172,55 @@ export function CaseSelector({
           </form>
         )}
       </div>
-      {connected && (
-        connectionDetailsOpen && (
-          <form className="case-search" onSubmit={onSearch}>
-            <input
-              aria-label="Search LegalServer matters"
-              placeholder="Party, matter, or case ID"
-              value={search}
-              onChange={(event) => onSearchChange(event.target.value)}
-            />
-            <button className="secondary" type="submit" disabled={caseBusy}>
-              {caseBusy ? <Loader2 className="spin" size={16} /> : <Search size={16} />} Search
-            </button>
-            <button className="secondary icon-button" type="button" disabled={caseBusy || !search} onClick={onSearchReset} title="Show assigned matters">
-              <RotateCcw size={16} />
-            </button>
-          </form>
-        )
+      {connected && caseSource === "legalserver" && !legalserverLoading && (
+        <form className="case-search" onSubmit={onSearch}>
+          <input
+            aria-label="Search LegalServer matters"
+            placeholder="Party, matter, or case ID"
+            value={search}
+            onChange={(event) => onSearchChange(event.target.value)}
+          />
+          <button className="secondary" type="submit" disabled={caseBusy}>
+            {caseBusy ? <Loader2 className="spin" size={16} /> : <Search size={16} />} Search
+          </button>
+          <button className="secondary icon-button" type="button" disabled={caseBusy || !search} onClick={onSearchReset} title="Show assigned matters">
+            <RotateCcw size={16} />
+          </button>
+        </form>
       )}
       <div className="case-list">
-        {cases.map((item) => (
-          <button
-            key={item.id}
-            className={`case-card ${selectedMatterId === item.id ? "selected" : ""}`}
-            onClick={() => onSelect(item.id)}
-          >
-            <span>{item.client}</span>
-            <strong>{item.matter}</strong>
-            <small>{item.posture}</small>
-          </button>
-        ))}
-        {!cases.length && (
+        {visibleCases.map((item) => {
+          const activity = lastActivityLabel(item);
+          const status = item.posture || detailValue(item, "Status");
+          return (
+            <button
+              key={item.id}
+              className={`case-card ${selectedMatterId === item.id ? "selected" : ""}`}
+              onClick={() => onSelect(item.id)}
+              type="button"
+              aria-label={`${item.client || "Unnamed client"}, case ${caseNumberFor(item)}`}
+            >
+              <strong className="case-client">{item.client || "Unnamed client"}</strong>
+              <span className="case-number">{caseNumberFor(item)}</span>
+              <span className="case-muted case-type">{item.matter || "Case"}</span>
+              <span className="case-muted case-status">{status}</span>
+              {activity && <span className="case-muted case-activity">{activity}</span>}
+            </button>
+          );
+        })}
+        {!visibleCases.length && (
           <div className="empty-state compact-empty">
-            <strong className="empty-state-title">{connected ? "No matters found" : "No cases yet"}</strong>
+            <strong className="empty-state-title">
+              {caseSource === "legalserver" ? (legalserverLoading ? "Checking LegalServer" : connected ? "No matters found" : "No LegalServer cases") : "No local cases yet"}
+            </strong>
             <p>
-              {connected
-                ? "LegalServer did not return matters for this identifier."
-                : "Create a local case with notes or files, or connect LegalServer to load assigned matters."}
+              {caseSource === "legalserver"
+                ? legalserverLoading
+                  ? "Checking your LegalServer connection and assigned matters."
+                  : connected
+                  ? "LegalServer did not return matters for this identifier."
+                  : "Connect LegalServer to load assigned matters."
+                : "Create a local case with notes or files."}
             </p>
           </div>
         )}
