@@ -1,12 +1,14 @@
 from types import SimpleNamespace
 
 from django.contrib.auth.models import User
+from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import RequestFactory, TestCase, override_settings
 
 from apps.matters.models import Matter
 from apps.sources.connectors.legalserver import LegalServerClient, LegalServerConnector, LegalServerError, matter_payload_to_defaults
 from apps.sources.connectors.sharepoint import SharePointClient, SharePointConnector, graph_token_for_request
-from apps.sources.models import SourceConfiguration, UserOAuthConnection
+from apps.sources.connectors.user_resources import UserResourceConnector
+from apps.sources.models import SourceConfiguration, UserOAuthConnection, UserResource
 from apps.sources.registry import ConnectorRegistry
 
 
@@ -230,6 +232,69 @@ class SharePointConnectorTests(TestCase):
 
         self.assertEqual(results[0].source_kind, "sharepoint")
         self.assertEqual(results[0].url, "https://sharepoint/doc")
+
+
+class UserResourceConnectorTests(TestCase):
+    def test_connector_returns_only_current_users_private_references(self):
+        user = User.objects.create_user(username="advocate")
+        other = User.objects.create_user(username="other")
+        UserResource.objects.create(
+            user=user,
+            title="Habitability brief",
+            resource_type="brief",
+            text="Example argument about mold and repair evidence.",
+        )
+        UserResource.objects.create(
+            user=other,
+            title="Other user's brief",
+            resource_type="brief",
+            text="Example argument about mold and repair evidence.",
+        )
+
+        results = UserResourceConnector().search("mold repair", user=user)
+
+        self.assertEqual(len(results), 1)
+        self.assertEqual(results[0].title, "Habitability brief")
+        self.assertEqual(results[0].source_label, "Private reference")
+        self.assertTrue(results[0].metadata["private"])
+
+
+class UserResourceViewTests(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(username="advocate", password="password")
+        self.client.force_login(self.user)
+
+    def test_user_can_upload_private_reference_document(self):
+        response = self.client.post(
+            "/api/user-resources/",
+            data={
+                "title": "Sample opposition",
+                "resourceType": "brief",
+                "file": SimpleUploadedFile(
+                    "opposition.txt",
+                    b"This example brief argues that rent should be abated for unrepaired mold.",
+                    content_type="text/plain",
+                ),
+            },
+        )
+
+        self.assertEqual(response.status_code, 201)
+        payload = response.json()
+        self.assertEqual(payload["resource"]["title"], "Sample opposition")
+        resource = UserResource.objects.get()
+        self.assertEqual(resource.user, self.user)
+        self.assertEqual(resource.resource_type, "brief")
+        self.assertIn("unrepaired mold", resource.text)
+
+    def test_user_resource_list_is_owner_scoped(self):
+        other = User.objects.create_user(username="other")
+        mine = UserResource.objects.create(user=self.user, title="My case", resource_type="case", text="Tenant won.")
+        UserResource.objects.create(user=other, title="Other case", resource_type="case", text="Hidden.")
+
+        response = self.client.get("/api/user-resources/")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual([item["id"] for item in response.json()["resources"]], [mine.id])
 
 
 class ConnectorRegistryTests(TestCase):

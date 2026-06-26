@@ -900,6 +900,30 @@ button:disabled {
   margin-top: 12px;
 }
 
+.reference-upload-form {
+  border-bottom: 1px solid #dbe4e8;
+  display: grid;
+  gap: 10px;
+  margin-bottom: 14px;
+  padding-bottom: 14px;
+}
+
+.reference-upload-grid {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: 1fr 180px;
+}
+
+.reference-list {
+  display: grid;
+  gap: 4px;
+}
+
+.reference-list small {
+  color: #667782;
+  overflow-wrap: anywhere;
+}
+
 .result-card {
   border-left: 3px solid #7c9aa6;
   padding: 8px 10px;
@@ -1686,6 +1710,10 @@ button:disabled {
   }
 
   .manual-case-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .reference-upload-grid {
     grid-template-columns: 1fr;
   }
 

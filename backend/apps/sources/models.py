@@ -158,6 +158,30 @@ class UserSourceIdentity(models.Model):
         return identity.identifier if identity and identity.identifier else ""
 
 
+class UserResource(models.Model):
+    RESOURCE_TYPE_CHOICES = [
+        ("case", "Case"),
+        ("brief", "Brief"),
+        ("example", "Example"),
+        ("other", "Other"),
+    ]
+
+    user = models.ForeignKey("auth.User", related_name="knowledge_resources", on_delete=models.CASCADE)
+    title = models.CharField(max_length=500)
+    resource_type = models.CharField(max_length=40, choices=RESOURCE_TYPE_CHOICES, default="other")
+    original_filename = models.CharField(max_length=500, blank=True)
+    text = models.TextField()
+    extractor = models.CharField(max_length=80, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["-updated_at"]
+
+    def __str__(self):
+        return self.title
+
+
 class RetrievedDocument(models.Model):
     source_kind = models.CharField(max_length=80)
     source_label = models.CharField(max_length=255)

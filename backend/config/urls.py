@@ -35,6 +35,7 @@ urlpatterns = [
     path("api/cases/<str:matter_id>/", matter_views.case_detail, name="api_case_detail"),
     path("api/candidate-issues/<int:issue_id>/review/", rule_views.candidate_issue_review, name="api_candidate_issue_review"),
     path("api/sources/", source_views.sources, name="api_sources"),
+    path("api/user-resources/", source_views.user_resources, name="api_user_resources"),
     path("api/research/", source_views.research, name="api_research"),
     path("api/templates/", template_views.templates, name="api_templates"),
     path("api/templates/from-example/", template_views.template_from_example, name="api_template_from_example"),

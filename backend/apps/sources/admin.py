@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from apps.sources.models import RetrievedDocument, SourceConfiguration, UserOAuthConnection, UserSourceIdentity
+from apps.sources.models import RetrievedDocument, SourceConfiguration, UserOAuthConnection, UserResource, UserSourceIdentity
 
 
 @admin.register(SourceConfiguration)
@@ -107,3 +107,10 @@ class RetrievedDocumentAdmin(admin.ModelAdmin):
     list_display = ("title", "source_kind", "source_label", "citation", "created_at")
     list_filter = ("source_kind",)
     search_fields = ("title", "snippet", "citation")
+
+
+@admin.register(UserResource)
+class UserResourceAdmin(admin.ModelAdmin):
+    list_display = ("title", "user", "resource_type", "original_filename", "updated_at")
+    list_filter = ("resource_type",)
+    search_fields = ("title", "original_filename", "text", "user__username", "user__email")
