@@ -20,6 +20,7 @@ content/
 │   └── checks/               # versioned machine-readable drafting/quality rules
 ├── statutes/
 │   └── ohio-revised-code/    # configured official-code scope and generated section index
+├── research-sources/         # reviewable Auto-research routing policy
 └── triage-rubrics/           # YAML files seeded into TriageRubric records
 ```
 
@@ -104,6 +105,16 @@ seeded into the database only when their slug does not already exist, so an
 admin-managed record is never silently overwritten. To intentionally apply a
 changed file to an existing database record, use the content synchronization
 command with its explicit update option.
+
+## Auto research sources
+
+`research-sources/auto-source-guidance.yaml` is the reviewable policy used by
+Research mode's **Auto sources** setting. Each source declares its connector
+kind, label, optional default role, and term-based routing rules with a
+plain-language reason. The API returns those reasons and the number of results
+from each selected source, so a user can see both why a source was searched and
+when it returned no matches. Keep source IDs aligned with the Research source
+picker and use logical IDs rather than file paths or connector internals.
 
 ## Future SharePoint provider
 

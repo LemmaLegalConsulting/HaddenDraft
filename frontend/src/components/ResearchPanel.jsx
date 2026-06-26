@@ -15,6 +15,9 @@ import {
   Search,
   Send,
   ExternalLink,
+  History,
+  Plus,
+  Trash2,
   Upload,
 } from "lucide-react";
 
@@ -76,9 +79,14 @@ export function ResearchPanel({ matter, sources, onResults }) {
   const [query, setQuery] = useState("");
   const [selectedSourceIds, setSelectedSourceIds] = useState([]);
   const [results, setResults] = useState([]);
+  const [sourceDecision, setSourceDecision] = useState(null);
   const [selectedResultIds, setSelectedResultIds] = useState([]);
   const [messages, setMessages] = useState([]);
   const [useAi, setUseAi] = useState(true);
+  const [sourceMode, setSourceMode] = useState("auto");
+  const [showHistory, setShowHistory] = useState(true);
+  const [threads, setThreads] = useState([]);
+  const [selectedThreadId, setSelectedThreadId] = useState("");
   const [resources, setResources] = useState([]);
   const [resourceTitle, setResourceTitle] = useState("");
   const [resourceType, setResourceType] = useState("case");
@@ -106,7 +114,7 @@ export function ResearchPanel({ matter, sources, onResults }) {
     let cancelled = false;
     api.researchHistory()
       .then((response) => {
-        if (!cancelled) setMessages(response.messages || []);
+        if (!cancelled) { setMessages(response.messages || []); setThreads(response.threads || []); }
       })
       .catch((err) => {
         if (!cancelled) setError(err.message || "Could not load research history.");
@@ -144,11 +152,18 @@ export function ResearchPanel({ matter, sources, onResults }) {
         query: trimmedQuery,
         matterId: matter?.id,
         jurisdiction: matter?.jurisdiction,
-        sourceKinds: selectedKinds.length ? selectedKinds : undefined,
-        sourceIds: selectedSourceIds.length ? selectedSourceIds : undefined,
+        sourceKinds: sourceMode === "manual" && selectedKinds.length ? selectedKinds : undefined,
+        sourceIds: sourceMode === "manual" && selectedSourceIds.length ? selectedSourceIds : undefined,
+        sourceMode,
         useAi,
       });
       setResults(response.results);
+      if (sourceMode === "auto") {
+        setSelectedSourceIds(response.selectedSourceIds || []);
+        setSourceDecision(response.sourceDecision || null);
+      } else {
+        setSourceDecision(null);
+      }
       setSelectedResultIds(response.results.map((result) => result.id));
       onResults(response.results);
       if (useAi && response.answer) {
@@ -171,6 +186,27 @@ export function ResearchPanel({ matter, sources, onResults }) {
       onResults(results.filter((item) => nextIds.includes(item.id)));
       return nextIds;
     });
+  }
+
+  async function clearHistory() {
+    setBusy(true);
+    try { await api.clearResearchHistory(); setMessages([]); setShowHistory(false); }
+    catch (err) { setError(err.message || "Could not clear research history."); }
+    finally { setBusy(false); }
+  }
+
+  async function newChat() {
+    setBusy(true);
+    try { const response = await api.newResearchChat(); setMessages([]); setThreads(response.threads || []); setSelectedThreadId(""); setShowHistory(true); }
+    catch (err) { setError(err.message || "Could not start a new research chat."); }
+    finally { setBusy(false); }
+  }
+
+  async function selectThread(event) {
+    const threadId = event.target.value;
+    setSelectedThreadId(threadId);
+    const response = await api.researchHistory(threadId);
+    setMessages(response.messages || []);
   }
 
   async function uploadResource(event) {
@@ -247,7 +283,16 @@ export function ResearchPanel({ matter, sources, onResults }) {
         )}
       </div>
       <form className="research-chat-form" onSubmit={runSearch}>
-        {useAi && messages.length > 0 && (
+        <div className="chat-history-actions">
+          <select aria-label="Research chat threads" value={selectedThreadId} onChange={selectThread}>
+            <option value="">Current chat</option>
+            {threads.filter((thread) => !thread.active).map((thread) => <option key={thread.id} value={thread.id}>{thread.preview}</option>)}
+          </select>
+          <button className="text-link-button" type="button" onClick={() => setShowHistory((value) => !value)}><History size={15} /> {showHistory ? "Hide history" : "View history"}</button>
+          <button className="text-link-button" type="button" disabled={busy} onClick={newChat}><Plus size={15} /> New chat</button>
+          <button className="text-link-button danger" type="button" disabled={busy || !!selectedThreadId || !messages.length} onClick={clearHistory}><Trash2 size={15} /> Clear</button>
+        </div>
+        {useAi && showHistory && messages.length > 0 && (
           <div className="research-transcript" aria-label="Research conversation">
             {messages.map((message, index) => (
               <div key={`${message.role}-${index}`} className={`research-message ${message.role}`}>
@@ -270,6 +315,25 @@ export function ResearchPanel({ matter, sources, onResults }) {
           </label>
           <small>{useAi ? "Ask connected sources and get a cited answer." : "Retrieve matching results only."}</small>
         </div>
+        <div className="research-mode-row">
+          <label className="research-ai-toggle"><input type="radio" checked={sourceMode === "auto"} onChange={() => setSourceMode("auto")} /><span>Auto sources</span></label>
+          <label className="research-ai-toggle"><input type="radio" checked={sourceMode === "manual"} onChange={() => setSourceMode("manual")} /><span>Choose sources</span></label>
+          <small>{sourceMode === "auto" ? "Automatically routes this question to relevant sources." : "Only the selected sources will be searched."}</small>
+        </div>
+        {sourceMode === "auto" && sourceDecision && (
+          <aside className="source-decision" aria-label="Automatic source decision">
+            <strong>Auto-source decision</strong>
+            <p>{sourceDecision.summary}</p>
+            <ul>
+              {sourceDecision.sources.map((source) => (
+                <li key={source.id}>
+                  <span><b>{source.label}</b> — {source.reason}</span>
+                  <small>{source.resultCount} result{source.resultCount === 1 ? "" : "s"}</small>
+                </li>
+              ))}
+            </ul>
+          </aside>
+        )}
         <div className="research-question">
           <label className="field">
             <span>Research question</span>
@@ -280,7 +344,7 @@ export function ResearchPanel({ matter, sources, onResults }) {
           </label>
           <p className="field-example">Example: Can a tenant raise habitability conditions as a defense when rent is disputed and rental assistance is pending?</p>
         </div>
-        {sourceGroups.length > 0 && (
+        {sourceMode === "manual" && sourceGroups.length > 0 && (
           <div className="source-picker" aria-label="Research sources">
             <div className="source-toggles">
               {sourceGroups.map((group) => (
@@ -308,7 +372,7 @@ export function ResearchPanel({ matter, sources, onResults }) {
             </div>
           </div>
         )}
-        <button className="primary full" type="submit" disabled={busy || historyLoading || !query.trim()}>
+        <button className="primary full" type="submit" disabled={busy || historyLoading || !!selectedThreadId || !query.trim()}>
           {busy ? <Loader2 className="spin" size={16} /> : useAi ? <Send size={16} /> : <Search size={16} />}
           {useAi ? "Ask sources" : "Search sources"}
         </button>

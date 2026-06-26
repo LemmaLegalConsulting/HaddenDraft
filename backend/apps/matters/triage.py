@@ -1,3 +1,4 @@
+import ast
 import json
 import re
 from pathlib import Path
@@ -210,6 +211,47 @@ def llm_triage_payload(matter, rubric, text):
     return _json_from_text(response)
 
 
+def _clean_bullet_text(value):
+    return re.sub(r"^\s*[-*]\s+", "", str(value).strip())
+
+
+def _maybe_literal(value):
+    if not isinstance(value, str):
+        return value
+    stripped = value.strip()
+    if not stripped or stripped[0] not in "[{":
+        return value
+    try:
+        return json.loads(stripped)
+    except json.JSONDecodeError:
+        try:
+            return ast.literal_eval(stripped)
+        except (ValueError, SyntaxError):
+            return value
+
+
+def _text_value(value):
+    parsed = _maybe_literal(value)
+    if isinstance(parsed, list):
+        return "\n".join(f"- {_clean_bullet_text(item)}" for item in parsed if str(item).strip())
+    if isinstance(parsed, dict):
+        return "\n".join(
+            f"- {key}: {_clean_bullet_text(nested)}"
+            for key, nested in parsed.items()
+            if str(nested).strip()
+        )
+    return str(parsed or "").strip()
+
+
+def _list_value(value):
+    parsed = _maybe_literal(value)
+    if isinstance(parsed, list):
+        return [_clean_bullet_text(item) for item in parsed if str(item).strip()]
+    if isinstance(parsed, str) and parsed.strip():
+        return [_clean_bullet_text(line) for line in parsed.splitlines() if line.strip()]
+    return []
+
+
 def normalize_triage_payload(payload, fallback):
     merged = {**fallback, **{key: value for key, value in (payload or {}).items() if value not in (None, "")}}
     return {
@@ -217,10 +259,10 @@ def normalize_triage_payload(payload, fallback):
         "priority": bool(merged.get("priority")),
         "priority_label": str(merged.get("priority_label") or ("priority_full_representation" if merged.get("priority") else "needs_review"))[:120],
         "confidence": str(merged.get("confidence") or "needs_review")[:80],
-        "summary": str(merged.get("summary") or ""),
-        "reasoning": str(merged.get("reasoning") or ""),
-        "matched_criteria": merged.get("matched_criteria") if isinstance(merged.get("matched_criteria"), list) else [],
-        "missing_information": merged.get("missing_information") if isinstance(merged.get("missing_information"), list) else [],
+        "summary": _text_value(merged.get("summary")),
+        "reasoning": _text_value(merged.get("reasoning")),
+        "matched_criteria": _list_value(merged.get("matched_criteria")),
+        "missing_information": _list_value(merged.get("missing_information")),
         "evidence": merged.get("evidence") if isinstance(merged.get("evidence"), list) else [],
     }
 

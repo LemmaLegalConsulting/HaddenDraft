@@ -1,0 +1,44 @@
+# Reviewable Auto-source routing policy.  Source IDs must match the retrieval UI.
+# Defaults apply only when no more-specific rule matches.
+sources:
+  ohio-statutes:
+    kind: rag
+    label: Ohio Statutes
+    default: true
+    default_reason: Primary-law baseline for general Ohio housing-law questions.
+    when:
+      - terms: [statute, code, revised code, section, orc]
+        reason: The question asks for statutory text or a code section.
+  treatise:
+    kind: rag
+    label: Ohio eviction treatise
+    default: true
+    default_reason: Secondary-source baseline for issue spotting and practical context.
+  hud-handbook:
+    kind: rag
+    label: HUD Handbook
+    when:
+      - terms: [hud, subsid, voucher, section 8]
+        reason: The question concerns federally assisted housing or a HUD program.
+  ohio-cases:
+    kind: local_cases
+    label: Ohio case law
+    when:
+      - terms: [case law, decision, precedent, appeal]
+        reason: The question asks for judicial authority.
+  case-file:
+    kind: legalserver
+    label: Selected case file
+    when:
+      - terms: [case, file, note, document, client]
+        requires_matter: true
+        reason: The question refers to the selected client's case materials.
+  sharepoint:
+    kind: sharepoint
+    label: SharePoint
+  user-resources:
+    kind: user_resources
+    label: User resources
+    when:
+      - terms: [brief, sample, uploaded, my resource]
+        reason: The question explicitly refers to a private uploaded resource.
