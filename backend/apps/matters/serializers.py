@@ -59,6 +59,36 @@ def fact_to_dict(fact):
     }
 
 
+def triage_rubric_to_dict(rubric):
+    return {
+        "id": rubric.id,
+        "slug": rubric.slug,
+        "name": rubric.name,
+        "description": rubric.description,
+        "standard": rubric.standard,
+        "criteria": rubric.criteria,
+        "active": rubric.active,
+    }
+
+
+def triage_assessment_to_dict(assessment):
+    return {
+        "id": assessment.id,
+        "matterId": assessment.matter.external_id,
+        "rubric": triage_rubric_to_dict(assessment.rubric),
+        "caseType": assessment.case_type,
+        "priority": assessment.priority,
+        "priorityLabel": assessment.priority_label,
+        "confidence": assessment.confidence,
+        "summary": assessment.summary,
+        "reasoning": assessment.reasoning,
+        "matchedCriteria": assessment.matched_criteria,
+        "missingInformation": assessment.missing_information,
+        "evidence": assessment.evidence,
+        "createdAt": assessment.created_at.isoformat(),
+    }
+
+
 def matter_to_dict(matter, include_facts=False):
     data = {
         "id": matter.external_id,

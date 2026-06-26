@@ -900,7 +900,7 @@ button:disabled {
   margin-top: 12px;
 }
 
-.reference-upload-form {
+.private-reference-panel {
   border-bottom: 1px solid #dbe4e8;
   display: grid;
   gap: 10px;
@@ -908,10 +908,29 @@ button:disabled {
   padding-bottom: 14px;
 }
 
+.reference-upload-form {
+  display: grid;
+  gap: 10px;
+}
+
 .reference-upload-grid {
   display: grid;
   gap: 10px;
   grid-template-columns: 1fr 180px;
+}
+
+.text-link-button {
+  background: transparent;
+  color: #22645c;
+  justify-self: start;
+  min-height: 0;
+  padding: 0;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.text-link-button:hover {
+  color: #174d45;
 }
 
 .reference-list {
@@ -998,6 +1017,100 @@ button:disabled {
 .issue-card small {
   color: #667782;
   font-size: 12px;
+}
+
+.triage-layout {
+  align-items: start;
+  display: grid;
+  gap: 14px;
+  grid-template-columns: minmax(320px, 0.9fr) minmax(0, 1.1fr);
+}
+
+.triage-control-panel,
+.triage-result-panel {
+  display: grid;
+  gap: 12px;
+}
+
+.triage-control-panel h3,
+.triage-result-panel h3 {
+  font-size: 18px;
+  margin: 0;
+}
+
+.rubric-summary,
+.triage-selected-case,
+.triage-evidence {
+  background: #f7fafb;
+  border: 1px solid #dbe4e8;
+  border-radius: 6px;
+  display: grid;
+  gap: 4px;
+  padding: 10px;
+}
+
+.rubric-summary p,
+.triage-result-panel p,
+.triage-evidence p {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.rubric-summary p {
+  color: #465761;
+  max-height: 150px;
+  overflow: auto;
+}
+
+.triage-selected-case span,
+.triage-selected-case small,
+.triage-result-grid span,
+.triage-evidence span {
+  color: #667782;
+  font-size: 12px;
+}
+
+.triage-upload-panel {
+  border-bottom: 0;
+  border-top: 1px solid #dbe4e8;
+  margin: 4px 0 0;
+  padding: 12px 0 0;
+}
+
+.triage-result-heading {
+  align-items: start;
+  display: grid;
+  gap: 10px;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+}
+
+.triage-result-grid {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.triage-result-grid div {
+  background: #f0f4f6;
+  border-radius: 6px;
+  display: grid;
+  gap: 3px;
+  padding: 10px;
+}
+
+.triage-list {
+  display: grid;
+  gap: 8px;
+}
+
+.triage-list ul {
+  margin: 0;
+  padding-left: 18px;
+}
+
+.triage-evidence-list {
+  display: grid;
+  gap: 8px;
 }
 
 .status-pill {
@@ -1572,7 +1685,8 @@ button:disabled {
 @media (max-width: 980px) {
   .app-shell,
   .two-col,
-  .facts-workflow {
+  .facts-workflow,
+  .triage-layout {
     grid-template-columns: 1fr;
   }
 
@@ -1606,7 +1720,8 @@ button:disabled {
   .author-form,
   .draft-editor-layout,
   .reason-support,
-  .draft-mode-switch {
+  .draft-mode-switch,
+  .triage-result-grid {
     grid-template-columns: 1fr;
   }
 

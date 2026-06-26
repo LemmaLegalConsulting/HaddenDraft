@@ -14,6 +14,7 @@ export function ResearchPanel({ matter, sources, onResults }) {
   const [resourceFile, setResourceFile] = useState(null);
   const [busy, setBusy] = useState(false);
   const [uploadBusy, setUploadBusy] = useState(false);
+  const [showUploadForm, setShowUploadForm] = useState(false);
   const [error, setError] = useState("");
 
   React.useEffect(() => {
@@ -74,6 +75,7 @@ export function ResearchPanel({ matter, sources, onResults }) {
       setResources((current) => [response.resource, ...current.filter((item) => item.id !== response.resource.id)]);
       setResourceTitle("");
       setResourceFile(null);
+      setShowUploadForm(false);
       event.currentTarget.reset();
     } catch (err) {
       setError(err.message || "Reference upload failed.");
@@ -84,33 +86,7 @@ export function ResearchPanel({ matter, sources, onResults }) {
 
   return (
     <div className="panel">
-      <form className="reference-upload-form" onSubmit={uploadResource}>
-        <div className="reference-upload-grid">
-          <label className="field">
-            <span>Private reference</span>
-            <input value={resourceTitle} onChange={(event) => setResourceTitle(event.target.value)} placeholder="Title, optional" />
-          </label>
-          <label className="field">
-            <span>Type</span>
-            <select value={resourceType} onChange={(event) => setResourceType(event.target.value)}>
-              <option value="case">Case</option>
-              <option value="brief">Example brief</option>
-              <option value="example">Example filing</option>
-              <option value="other">Other</option>
-            </select>
-          </label>
-        </div>
-        <label className="field">
-          <span>Reference file</span>
-          <input
-            type="file"
-            accept=".txt,.md,.csv,.json,.html,.htm,.docx,.pdf,text/*,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-            onChange={(event) => setResourceFile(event.target.files?.[0] || null)}
-          />
-        </label>
-        <button className="secondary full" type="submit" disabled={uploadBusy || !resourceFile}>
-          {uploadBusy ? <Loader2 className="spin" size={16} /> : <Upload size={16} />} Upload private reference
-        </button>
+      <div className="private-reference-panel">
         {resources.length > 0 && (
           <div className="reference-list">
             {resources.slice(0, 4).map((resource) => (
@@ -118,7 +94,45 @@ export function ResearchPanel({ matter, sources, onResults }) {
             ))}
           </div>
         )}
-      </form>
+        <button
+          className="text-link-button"
+          type="button"
+          aria-expanded={showUploadForm}
+          onClick={() => setShowUploadForm((current) => !current)}
+        >
+          Upload a reference...
+        </button>
+        {showUploadForm && (
+          <form className="reference-upload-form" onSubmit={uploadResource}>
+            <div className="reference-upload-grid">
+              <label className="field">
+                <span>Private reference</span>
+                <input value={resourceTitle} onChange={(event) => setResourceTitle(event.target.value)} placeholder="Title, optional" />
+              </label>
+              <label className="field">
+                <span>Type</span>
+                <select value={resourceType} onChange={(event) => setResourceType(event.target.value)}>
+                  <option value="case">Case</option>
+                  <option value="brief">Example brief</option>
+                  <option value="example">Example filing</option>
+                  <option value="other">Other</option>
+                </select>
+              </label>
+            </div>
+            <label className="field">
+              <span>Reference file</span>
+              <input
+                type="file"
+                accept=".txt,.md,.csv,.json,.html,.htm,.docx,.pdf,text/*,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                onChange={(event) => setResourceFile(event.target.files?.[0] || null)}
+              />
+            </label>
+            <button className="secondary full" type="submit" disabled={uploadBusy || !resourceFile}>
+              {uploadBusy ? <Loader2 className="spin" size={16} /> : <Upload size={16} />} Upload private reference
+            </button>
+          </form>
+        )}
+      </div>
       <label className="field">
         <span>Query</span>
         <input value={query} onChange={(event) => setQuery(event.target.value)} />

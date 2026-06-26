@@ -16,9 +16,9 @@ from apps.matters.document_context import (
     search_chunks,
     summarize_text,
 )
-from apps.matters.models import MatterFact
+from apps.matters.models import MatterFact, TriageRubric
 from apps.matters.seed import seed_matters
-from apps.matters.serializers import fact_to_dict, matter_to_dict
+from apps.matters.serializers import fact_to_dict, matter_to_dict, triage_assessment_to_dict, triage_rubric_to_dict
 from apps.matters.services import (
     create_manual_matter_for_user,
     legalserver_account_status,
@@ -27,6 +27,7 @@ from apps.matters.services import (
     sync_legalserver_matter,
     sync_legalserver_matters_for_user,
 )
+from apps.matters.triage import ensure_default_triage_rubric, run_triage
 from apps.sources.document_text import DocumentExtractionError, extract_text
 from apps.sources.models import UserSourceIdentity
 
@@ -36,6 +37,15 @@ def _matter_or_404(user, matter_id):
     if matter:
         return matter, None
     return None, JsonResponse({"error": "Case not found or not available to this user"}, status=404)
+
+
+@api_login_required
+def triage_rubrics(request):
+    if request.method != "GET":
+        return JsonResponse({"error": "GET required"}, status=405)
+    ensure_default_triage_rubric()
+    rubrics = TriageRubric.objects.filter(active=True)
+    return JsonResponse({"rubrics": [triage_rubric_to_dict(rubric) for rubric in rubrics]})
 
 
 @api_login_required
@@ -342,6 +352,44 @@ def case_fact_recommendations(request, matter_id):
             "facts": [fact_to_dict(fact) for fact in recommended],
         }
     )
+
+
+@api_login_required
+def case_triage(request, matter_id):
+    if request.method not in ("GET", "POST"):
+        return JsonResponse({"error": "GET or POST required"}, status=405)
+    matter, error = _matter_or_404(request.user, matter_id)
+    if error:
+        return error
+    matter = matter.__class__.objects.prefetch_related("facts").get(id=matter.id)
+
+    if request.method == "GET":
+        return JsonResponse(
+            {
+                "assessments": [
+                    triage_assessment_to_dict(assessment)
+                    for assessment in matter.triage_assessments.select_related("rubric").all()
+                ]
+            }
+        )
+
+    body = {}
+    if request.content_type and request.content_type.startswith("application/json") and request.body:
+        body = json_body(request)
+    rubric = None
+    rubric_id = body.get("rubricId") or body.get("rubric_id")
+    rubric_slug = body.get("rubricSlug") or body.get("rubric_slug")
+    if rubric_id:
+        rubric = TriageRubric.objects.filter(id=rubric_id, active=True).first()
+    elif rubric_slug:
+        rubric = TriageRubric.objects.filter(slug=rubric_slug, active=True).first()
+    else:
+        rubric = ensure_default_triage_rubric()
+    if not rubric:
+        return JsonResponse({"error": "Active triage rubric not found"}, status=404)
+
+    assessment = run_triage(matter, rubric=rubric, user=request.user)
+    return JsonResponse({"assessment": triage_assessment_to_dict(assessment)}, status=201)
 
 
 @api_login_required

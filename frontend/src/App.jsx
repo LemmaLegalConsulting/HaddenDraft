@@ -4,6 +4,7 @@ import {
   ChevronDown,
   Cloud,
   CheckCircle2,
+  ClipboardCheck,
   ClipboardList,
   Download,
   FileText,
@@ -30,6 +31,7 @@ import { FactReview } from "./components/FactReview.jsx";
 import { LawReview } from "./components/LawReview.jsx";
 import { ResearchPanel } from "./components/ResearchPanel.jsx";
 import { TemplatePicker } from "./components/TemplatePicker.jsx";
+import { TriagePanel } from "./components/TriagePanel.jsx";
 import { WorkflowStepper } from "./components/WorkflowStepper.jsx";
 
 const workflowSteps = [
@@ -43,6 +45,7 @@ const workflowSteps = [
 
 const modeOptions = [
   { id: "case", label: "Case", icon: ClipboardList },
+  { id: "triage", label: "Triage", icon: ClipboardCheck },
   { id: "case_chat", label: "Chat", icon: MessageSquare },
   { id: "research", label: "Research", icon: Search },
   { id: "draft", label: "Draft", icon: PenLine },
@@ -52,6 +55,7 @@ export function App() {
   const [boot, setBoot] = useState(null);
   const [cases, setCases] = useState([]);
   const [templates, setTemplates] = useState([]);
+  const [triageRubrics, setTriageRubrics] = useState([]);
   const [mode, setMode] = useState("case");
   const [draftMode, setDraftMode] = useState("draft_from_template");
   const [draftStep, setDraftStep] = useState("setup");
@@ -65,6 +69,9 @@ export function App() {
   const [sourceResults, setSourceResults] = useState([]);
   const [session, setSession] = useState(null);
   const [draft, setDraft] = useState(null);
+  const [triageAssessment, setTriageAssessment] = useState(null);
+  const [triageHistory, setTriageHistory] = useState([]);
+  const [selectedTriageRubricId, setSelectedTriageRubricId] = useState("");
   const [draftAuthorProfile, setDraftAuthorProfile] = useState(emptyAuthorProfile);
   const [instructions, setInstructions] = useState("");
   const [busy, setBusy] = useState(false);
@@ -100,13 +107,16 @@ export function App() {
 
   async function loadWorkspace() {
     const bootstrap = await api.bootstrap();
-    const [caseResponse, templateResponse] = await Promise.all([
+    const [caseResponse, templateResponse, rubricResponse] = await Promise.all([
       api.cases(),
       api.templates(),
+      api.triageRubrics(),
     ]);
     setBoot(bootstrap);
     applyCaseResponse(caseResponse);
     setTemplates(templateResponse.templates);
+    setTriageRubrics(rubricResponse.rubrics || []);
+    setSelectedTriageRubricId((current) => current || rubricResponse.rubrics?.[0]?.id || "");
     const defaultTemplate = templateResponse.templates.find((item) => item.slug === "answer-counterclaims-cleveland");
     setSelectedTemplateId(defaultTemplate?.id ?? templateResponse.templates[0]?.id ?? null);
   }
@@ -213,6 +223,23 @@ export function App() {
       });
   }, [auth, selectedMatterId]);
 
+  useEffect(() => {
+    if (!auth?.isAuthenticated || !selectedMatterId) {
+      setTriageAssessment(null);
+      setTriageHistory([]);
+      return;
+    }
+    api.caseTriage(selectedMatterId)
+      .then((response) => {
+        setTriageHistory(response.assessments || []);
+        setTriageAssessment(response.assessments?.[0] || null);
+      })
+      .catch(() => {
+        setTriageHistory([]);
+        setTriageAssessment(null);
+      });
+  }, [auth, selectedMatterId]);
+
   async function handleLegalServerConnect(event) {
     event.preventDefault();
     setAccountBusy(true);
@@ -280,6 +307,24 @@ export function App() {
       return false;
     } finally {
       setManualCaseBusy(false);
+    }
+  }
+
+  async function runTriage(rubricId = selectedTriageRubricId) {
+    if (!matter) return;
+    setBusy(true);
+    setError("");
+    try {
+      const response = await api.runCaseTriage(matter.id, { rubricId });
+      setTriageAssessment(response.assessment);
+      setTriageHistory((current) => [
+        response.assessment,
+        ...current.filter((item) => item.id !== response.assessment.id),
+      ]);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setBusy(false);
     }
   }
 
@@ -659,6 +704,24 @@ export function App() {
             manualCaseBusy={manualCaseBusy}
             onCreateManualCase={handleCreateManualCase}
             onModeChange={(nextMode) => nextMode === "draft" ? openDraft() : setMode(nextMode)}
+          />
+        )}
+
+        {mode === "triage" && (
+          <TriagePanel
+            cases={cases}
+            matter={matter}
+            selectedMatterId={selectedMatterId}
+            onSelectMatter={setSelectedMatterId}
+            rubrics={triageRubrics}
+            selectedRubricId={selectedTriageRubricId}
+            onSelectRubric={setSelectedTriageRubricId}
+            assessment={triageAssessment}
+            history={triageHistory}
+            busy={busy}
+            manualCaseBusy={manualCaseBusy}
+            onRunTriage={runTriage}
+            onCreateManualCase={handleCreateManualCase}
           />
         )}
 
