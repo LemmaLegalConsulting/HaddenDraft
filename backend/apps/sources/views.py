@@ -1,8 +1,11 @@
 from django.http import JsonResponse
 
 from apps.ai.openai_client import OpenAIBackendError, OpenAICompatibleClient
+from apps.ai.chat_history import append_message, messages_for_user
+from apps.ai.models import ChatConversation
 from apps.ai.prompt_catalog import render_prompt
 from apps.core.http import api_login_required, json_body, method_not_allowed
+from apps.core.views import default_jurisdiction_for_user
 from apps.matters.services import matter_for_user
 from apps.sources.document_text import DocumentExtractionError, extract_text
 from apps.sources.models import RetrievedDocument, UserResource
@@ -13,7 +16,7 @@ def _truthy(value):
     return str(value).lower() in {"1", "true", "yes", "on"}
 
 
-def _research_answer(*, query, matter, results, messages):
+def _research_answer(*, query, matter, results, messages, jurisdiction):
     if not results:
         return "No matching source results were found."
 
@@ -21,7 +24,7 @@ def _research_answer(*, query, matter, results, messages):
     for index, result in enumerate(results[:12], start=1):
         citation = f" Citation: {result.citation}." if result.citation else ""
         source_lines.append(
-            f"{index}. {result.title} [{result.source_label}].{citation}\n"
+            f"[{index}] {result.title} [{result.source_label}].{citation}\n"
             f"Excerpt: {result.snippet}"
         )
 
@@ -36,7 +39,7 @@ def _research_answer(*, query, matter, results, messages):
         "research.answer",
         query=query,
         matter_summary=getattr(matter, "summary", "") if matter else "",
-        jurisdiction=getattr(matter, "jurisdiction", "") if matter else "",
+        jurisdiction=jurisdiction,
         conversation="\n".join(chat_lines) or "- None",
         sources="\n".join(source_lines),
     )
@@ -57,8 +60,10 @@ def sources(_request):
 
 @api_login_required
 def research(request):
+    if request.method == "GET":
+        return JsonResponse({"messages": messages_for_user(user=request.user, kind=ChatConversation.RESEARCH)})
     if request.method != "POST":
-        return method_not_allowed(["POST"])
+        return method_not_allowed(["GET", "POST"])
 
     body = json_body(request)
     query = body.get("query", "")
@@ -68,11 +73,21 @@ def research(request):
         if not matter:
             return JsonResponse({"error": "Case not found or not available to this user"}, status=404)
 
+    jurisdiction = (
+        getattr(matter, "jurisdiction", "").strip()
+        or str(body.get("jurisdiction") or "").strip()
+        or default_jurisdiction_for_user(request.user)
+    )
+
+    history = messages_for_user(user=request.user, kind=ChatConversation.RESEARCH)
+    current_message = {"role": "user", "content": query}
+    conversation = [*history, current_message]
     results = connector_registry.search(
         query,
         kinds=body.get("sourceKinds"),
+        source_ids=body.get("sourceIds"),
         matter=matter,
-        jurisdiction=body.get("jurisdiction", ""),
+        jurisdiction=jurisdiction,
         limit_per_source=body.get("limitPerSource", 5),
         user=request.user,
         request=request,
@@ -95,9 +110,18 @@ def research(request):
                 query=query,
                 matter=matter,
                 results=results,
-                messages=body.get("messages") or [],
+                messages=conversation,
+                jurisdiction=jurisdiction,
             )
             payload["usedAi"] = True
+            append_message(user=request.user, kind=ChatConversation.RESEARCH, role="user", content=query)
+            append_message(
+                user=request.user,
+                kind=ChatConversation.RESEARCH,
+                role="assistant",
+                content=payload["answer"],
+                metadata={"citations": payload["results"]},
+            )
         except OpenAIBackendError as exc:
             return JsonResponse({"error": f"AI research failed: {exc}"}, status=502)
     return JsonResponse(payload)

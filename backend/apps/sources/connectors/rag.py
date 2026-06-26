@@ -1,4 +1,4 @@
-"""Retrieval connector for generated, provider-neutral treatise chunks."""
+"""Retrieval connector for generated, provider-neutral legal-content chunks."""
 
 from __future__ import annotations
 
@@ -32,6 +32,14 @@ SEMANTIC_GROUPS = {
     "rent": ("rent abatement", "nonpayment", "rent depositing", "payment", "deposit"),
     "assistance": ("assisted", "housing choice voucher", "hud", "subsidy", "rental assistance"),
     "defense": ("common defenses", "defense", "counterclaim"),
+}
+
+# UI source IDs deliberately map to logical content-library documents rather
+# than filesystem paths.  This preserves the content-provider boundary.
+RAG_SOURCE_DOCUMENTS = {
+    "ohio-statutes": {"ohio-revised-code"},
+    "treatise": {"ohio-eviction-landlord-tenant-law-6e"},
+    "hud-handbook": {"hud-4350-3-rev-1"},
 }
 
 
@@ -101,7 +109,10 @@ class ContentLibraryTreatiseConnector(SourceConnector):
         self._chunks = []
 
     def _manifest_paths(self):
-        return sorted(content_path("treatises", "markdown").glob("*/*/manifest.yaml"))
+        return sorted([
+            *content_path("treatises", "markdown").glob("*/*/manifest.yaml"),
+            *content_path("statutes").glob("*/manifest.yaml"),
+        ])
 
     def _load_chunks(self):
         manifests = self._manifest_paths()
@@ -133,6 +144,10 @@ class ContentLibraryTreatiseConnector(SourceConnector):
                     "document_version": manifest.get("document_version", ""),
                     "source_path": manifest.get("source_path", ""),
                     "source_sha256": manifest.get("source_sha256", ""),
+                    "citation": item.get("citation", ""),
+                    "url": item.get("url", ""),
+                    "effective_date": item.get("effective_date", ""),
+                    "jurisdiction": manifest.get("jurisdiction", ""),
                 })
         self._cache_key, self._chunks = cache_key, chunks
         return chunks
@@ -184,19 +199,28 @@ class ContentLibraryTreatiseConnector(SourceConnector):
 
     @staticmethod
     def _citation(chunk):
+        if chunk["citation"]:
+            effective = f" (effective {chunk['effective_date']})" if chunk["effective_date"] else ""
+            return f"{chunk['citation']}{effective}"
         path = " > ".join(chunk["section_path"])
         pages = chunk["pages"]
         page_text = f"PDF p. {pages[0]}" if len(pages) == 1 or pages[0] == pages[-1] else f"PDF pp. {pages[0]}–{pages[-1]}"
         version = f", {chunk['document_version']}" if chunk["document_version"] else ""
         return f"{chunk['document_title']}{version}, {path} ({page_text})"
 
-    def search(self, query, *, matter=None, jurisdiction="", limit=5, user=None, request=None):
+    def search(self, query, *, matter=None, jurisdiction="", limit=5, user=None, request=None, source_ids=None):
         original_terms, expanded_terms = _expanded_terms(query)
         if not original_terms:
             return []
         ranked = []
         semantic_groups = _active_semantic_groups(original_terms)
-        for chunk in self._load_chunks():
+        selected_documents = set()
+        for source_id in source_ids or []:
+            selected_documents.update(RAG_SOURCE_DOCUMENTS.get(source_id, set()))
+        chunks = self._load_chunks()
+        if selected_documents:
+            chunks = [chunk for chunk in chunks if chunk["document_slug"] in selected_documents]
+        for chunk in chunks:
             score = self._score(chunk, original_terms, expanded_terms, semantic_groups)
             if score:
                 ranked.append((score, chunk))
@@ -212,6 +236,7 @@ class ContentLibraryTreatiseConnector(SourceConnector):
                 source_kind=self.kind,
                 source_label="Managed legal content library",
                 citation=self._citation(chunk),
+                url=chunk["url"],
                 metadata={
                     "chunkId": chunk["id"],
                     "documentSlug": chunk["document_slug"],
@@ -221,6 +246,8 @@ class ContentLibraryTreatiseConnector(SourceConnector):
                     "pdfPages": chunk["pages"],
                     "sourcePath": chunk["source_path"],
                     "sourceSha256": chunk["source_sha256"],
+                    "jurisdiction": chunk["jurisdiction"],
+                    "effectiveDate": chunk["effective_date"],
                     "retrieval": "hybrid-conceptual-with-metadata-rerank" if settings.AI_DRAFTING_ENABLED else "hybrid-conceptual",
                 },
             ))

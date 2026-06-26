@@ -12,9 +12,23 @@ class AuthorProfile(models.Model):
     email = models.EmailField(blank=True)
     address = models.TextField(blank=True)
     signature_image = models.TextField(blank=True)
+    default_jurisdiction = models.CharField(max_length=255, blank=True)
     preferences = models.JSONField(default=dict, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return self.display_name or self.user.get_username()
+
+
+class OrganizationSettings(models.Model):
+    """Single-row operational defaults, editable through Django admin."""
+
+    default_jurisdiction = models.CharField(max_length=255, blank=True)
+
+    class Meta:
+        verbose_name = "organization settings"
+        verbose_name_plural = "organization settings"
+
+    def __str__(self):
+        return "Organization settings"

@@ -5,6 +5,8 @@ from django.conf import settings
 from django.http import JsonResponse
 
 from apps.ai.case_chat import case_chat_reply
+from apps.ai.chat_history import append_message, messages_for_user
+from apps.ai.models import ChatConversation
 from apps.core.http import api_login_required
 from apps.core.http import json_body
 from apps.matters.document_context import (
@@ -394,14 +396,33 @@ def case_triage(request, matter_id):
 
 @api_login_required
 def case_chat(request, matter_id):
-    if request.method != "POST":
-        return JsonResponse({"error": "POST required"}, status=405)
+    if request.method not in {"GET", "POST"}:
+        return JsonResponse({"error": "GET or POST required"}, status=405)
     matter = matter_for_user(request.user, matter_id)
     if not matter:
         sync_legalserver_matter(matter_id, user=request.user)
         matter = matter_for_user(request.user, matter_id)
     if not matter:
         return JsonResponse({"error": "Case not found or not available to this user"}, status=404)
+    scope_key = str(matter.id)
+    if request.method == "GET":
+        return JsonResponse({"messages": messages_for_user(user=request.user, kind=ChatConversation.CASE, scope_key=scope_key)})
     body = json.loads(request.body.decode("utf-8") or "{}")
-    reply = case_chat_reply(matter=matter, messages=body.get("messages") or [])
+    content = str(body.get("content") or "").strip()
+    if not content:
+        supplied = body.get("messages") or []
+        content = str(supplied[-1].get("content") or "").strip() if supplied else ""
+    if not content:
+        return JsonResponse({"error": "A chat message is required"}, status=400)
+    history = messages_for_user(user=request.user, kind=ChatConversation.CASE, scope_key=scope_key)
+    reply = case_chat_reply(matter=matter, messages=[*history, {"role": "user", "content": content}])
+    append_message(user=request.user, kind=ChatConversation.CASE, scope_key=scope_key, role="user", content=content)
+    append_message(
+        user=request.user,
+        kind=ChatConversation.CASE,
+        scope_key=scope_key,
+        role="assistant",
+        content=reply["message"],
+        metadata={"toolsUsed": reply.get("toolsUsed", []), "actions": reply.get("actions", [])},
+    )
     return JsonResponse(reply)

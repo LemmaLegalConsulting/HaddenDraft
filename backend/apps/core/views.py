@@ -13,7 +13,7 @@ from django.shortcuts import redirect
 from django.views.decorators.csrf import ensure_csrf_cookie
 
 from apps.core.http import api_login_required, json_body, method_not_allowed
-from apps.core.models import AuthorProfile
+from apps.core.models import AuthorProfile, OrganizationSettings
 from apps.matters.seed import seed_matters
 from apps.matters.services import legalserver_account_status
 from apps.sources.models import UserOAuthConnection, UserSourceIdentity
@@ -91,6 +91,7 @@ def profile_to_dict(profile, user=None):
         "email": profile.email or (getattr(user, "email", "") if user else ""),
         "address": profile.address,
         "signatureImage": profile.signature_image,
+        "defaultJurisdiction": profile.default_jurisdiction,
         "preferences": profile.preferences,
     }
 
@@ -148,6 +149,7 @@ def author_profile(request):
         "email": "email",
         "address": "address",
         "signatureImage": "signature_image",
+        "defaultJurisdiction": "default_jurisdiction",
         "preferences": "preferences",
     }
     for api_name, model_name in field_map.items():
@@ -155,6 +157,20 @@ def author_profile(request):
             setattr(profile, model_name, body[api_name])
     profile.save()
     return JsonResponse({"profile": profile_to_dict(profile, request.user)})
+
+
+def default_jurisdiction_for_user(user):
+    """Resolve research jurisdiction without requiring the frontend to trust itself."""
+    profile = profile_for_user(user)
+    if profile.default_jurisdiction.strip():
+        return profile.default_jurisdiction.strip()
+    try:
+        organization = OrganizationSettings.objects.only("default_jurisdiction").first()
+        if organization and organization.default_jurisdiction.strip():
+            return organization.default_jurisdiction.strip()
+    except (OperationalError, ProgrammingError):
+        pass
+    return settings.DEFAULT_JURISDICTION.strip()
 
 
 def login_view(request):

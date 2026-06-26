@@ -151,6 +151,9 @@ CONTENT_LIBRARY_DIR = Path(os.environ.get("CONTENT_LIBRARY_DIR", REPO_DIR / "con
 if not CONTENT_LIBRARY_DIR.is_absolute():
     CONTENT_LIBRARY_DIR = REPO_DIR / CONTENT_LIBRARY_DIR
 DOCUMENT_TEXT_EXTRACTOR = os.environ.get("DOCUMENT_TEXT_EXTRACTOR", "stdlib")
+# Fallback only. Administrators can override it in Organization settings, and
+# users can choose a personal default in their profile.
+DEFAULT_JURISDICTION = os.environ.get("DEFAULT_JURISDICTION", "Ohio")
 
 LEGALSERVER_BASE_URL = os.environ.get("LEGALSERVER_BASE_URL", "")
 LEGALSERVER_API_TOKEN = os.environ.get("LEGALSERVER_API_TOKEN", "")

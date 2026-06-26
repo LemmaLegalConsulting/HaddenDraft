@@ -18,6 +18,8 @@ content/
 ├── drafting-rules/
 │   ├── style-guides/source/  # court manuals and drafting guidance, not substantive authority
 │   └── checks/               # versioned machine-readable drafting/quality rules
+├── statutes/
+│   └── ohio-revised-code/    # configured official-code scope and generated section index
 └── triage-rubrics/           # YAML files seeded into TriageRubric records
 ```
 
@@ -57,6 +59,42 @@ converter and regenerate it.
 
 This separation makes the input, deterministic derivative, and later
 database/vector records independently auditable.
+
+## Statutes
+
+`statutes/ohio-revised-code/scope.yaml` is the reviewable acquisition policy
+for the Ohio Revised Code housing corpus. It separates the prioritized rings
+from the mechanically executable targets: an `all_sections` target follows
+every section linked by the official chapter page; a range target follows only
+the inclusive numerical range; and a `sections` target follows the named
+sections.
+
+Run `python scripts/ingest_ohio_revised_code.py --all` for an initial or
+periodic complete refresh, or `--ring 1` for one ring. The normal refresh uses
+one expanded official chapter page per configured chapter and derives
+section-level records/chunks locally; it therefore avoids a high-volume
+section-by-section crawl. Use `--chapter 5321` for a targeted chapter refresh
+or `--section 5321.04` when one known section needs immediate checking. The job
+compares a normalized source hash with `manifest.yaml` and rewrites only
+changed section records and chunks. `--force` rebuilds selected records even
+if their text is unchanged; `--dry-run` reports the proposed work without
+writing. Do not hand-edit `sections/`, `chunks/`, `manifest.yaml`, or
+`ohio_orc_housing_consumer.jsonl`: they are generated evidence and retrieval
+derivatives.
+
+The saved section record retains the official page/PDF URLs, effective date,
+latest legislation, official last-updated timestamp, fetch timestamp, and both
+raw and normalized hashes. This is required provenance for a law that is
+updated on an ongoing basis. A scheduled job should run a normal refresh (for
+example nightly or weekly) and alert on fetch/parse failures; it must not treat
+a failed fetch as a deletion. The official code is a research source, not a
+substitute for checking current law and session legislation before filing.
+
+For example, a scheduler can run `python scripts/ingest_ohio_revised_code.py
+--ring 1` after deploying the content library, then run rings 2 and 3 on a less
+frequent cadence. The command exits nonzero when any selected section could not
+be fetched or parsed, so the scheduler should alert and retry rather than
+publishing a partial refresh as successful.
 
 ## Triage rubrics
 

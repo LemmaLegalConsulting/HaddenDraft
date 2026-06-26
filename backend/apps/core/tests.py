@@ -7,6 +7,11 @@ from django.contrib import admin
 from django.contrib.auth.models import User
 from django.test import TestCase, override_settings
 
+from apps.ai.chat_history import append_message, messages_for_user
+from apps.ai.models import ChatConversation
+from apps.core.models import AuthorProfile, OrganizationSettings
+from apps.core.views import default_jurisdiction_for_user
+
 
 class AuthViewTests(TestCase):
     def test_manual_login_uses_django_auth_and_stores_graph_token(self):
@@ -34,6 +39,7 @@ class AuthViewTests(TestCase):
                 "salutation": "Dear Clerk:",
                 "signoff": "Respectfully,",
                 "phone": "555-0100",
+                "defaultJurisdiction": "Cuyahoga County, Ohio",
             }),
             content_type="application/json",
         )
@@ -42,6 +48,26 @@ class AuthViewTests(TestCase):
         profile = response.json()["profile"]
         self.assertEqual(profile["displayName"], "Ada Advocate")
         self.assertEqual(profile["signoff"], "Respectfully,")
+        self.assertEqual(profile["defaultJurisdiction"], "Cuyahoga County, Ohio")
+
+    @override_settings(DEFAULT_JURISDICTION="Ohio")
+    def test_user_jurisdiction_overrides_organization_and_environment_defaults(self):
+        user = User.objects.create_user(username="jurisdiction-user", password="secret")
+        OrganizationSettings.objects.create(default_jurisdiction="Michigan")
+
+        self.assertEqual(default_jurisdiction_for_user(user), "Michigan")
+        profile = AuthorProfile.objects.get(user=user)
+        profile.default_jurisdiction = "Cuyahoga County, Ohio"
+        profile.save()
+        self.assertEqual(default_jurisdiction_for_user(user), "Cuyahoga County, Ohio")
+
+    def test_case_chat_history_is_separated_by_case_scope(self):
+        user = User.objects.create_user(username="chat-user", password="secret")
+        append_message(user=user, kind=ChatConversation.CASE, scope_key="case-1", role="user", content="First case")
+        append_message(user=user, kind=ChatConversation.CASE, scope_key="case-2", role="user", content="Second case")
+
+        self.assertEqual([item["content"] for item in messages_for_user(user=user, kind=ChatConversation.CASE, scope_key="case-1")], ["First case"])
+        self.assertEqual([item["content"] for item in messages_for_user(user=user, kind=ChatConversation.CASE, scope_key="case-2")], ["Second case"])
 
     def test_me_reports_anonymous_user(self):
         response = self.client.get("/api/auth/me/")

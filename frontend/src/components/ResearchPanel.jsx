@@ -14,10 +14,12 @@ import {
   Loader2,
   Search,
   Send,
+  ExternalLink,
   Upload,
 } from "lucide-react";
 
 import { api } from "../api/client.js";
+import { CitationPreviewModal, MarkdownResponse } from "./MarkdownResponse.jsx";
 
 const SOURCE_GROUPS = [
   {
@@ -82,9 +84,11 @@ export function ResearchPanel({ matter, sources, onResults }) {
   const [resourceType, setResourceType] = useState("case");
   const [resourceFile, setResourceFile] = useState(null);
   const [busy, setBusy] = useState(false);
+  const [historyLoading, setHistoryLoading] = useState(true);
   const [uploadBusy, setUploadBusy] = useState(false);
   const [showUploadForm, setShowUploadForm] = useState(false);
   const [error, setError] = useState("");
+  const [previewCitation, setPreviewCitation] = useState(null);
 
   React.useEffect(() => {
     let cancelled = false;
@@ -96,6 +100,21 @@ export function ResearchPanel({ matter, sources, onResults }) {
     return () => {
       cancelled = true;
     };
+  }, []);
+
+  React.useEffect(() => {
+    let cancelled = false;
+    api.researchHistory()
+      .then((response) => {
+        if (!cancelled) setMessages(response.messages || []);
+      })
+      .catch((err) => {
+        if (!cancelled) setError(err.message || "Could not load research history.");
+      })
+      .finally(() => {
+        if (!cancelled) setHistoryLoading(false);
+      });
+    return () => { cancelled = true; };
   }, []);
 
   const sourceGroups = availableSourceGroups(sources);
@@ -126,14 +145,14 @@ export function ResearchPanel({ matter, sources, onResults }) {
         matterId: matter?.id,
         jurisdiction: matter?.jurisdiction,
         sourceKinds: selectedKinds.length ? selectedKinds : undefined,
+        sourceIds: selectedSourceIds.length ? selectedSourceIds : undefined,
         useAi,
-        messages: nextMessages,
       });
       setResults(response.results);
       setSelectedResultIds(response.results.map((result) => result.id));
       onResults(response.results);
       if (useAi && response.answer) {
-        setMessages([...nextMessages, { role: "assistant", content: response.answer }]);
+        setMessages([...nextMessages, { role: "assistant", content: response.answer, citations: response.results }]);
       }
       setQuery("");
     } catch (err) {
@@ -233,7 +252,9 @@ export function ResearchPanel({ matter, sources, onResults }) {
             {messages.map((message, index) => (
               <div key={`${message.role}-${index}`} className={`research-message ${message.role}`}>
                 <strong>{message.role === "assistant" ? "AI" : "You"}</strong>
-                <p>{message.content}</p>
+                {message.role === "assistant" ? (
+                  <MarkdownResponse content={message.content} citations={message.citations} />
+                ) : <p>{message.content}</p>}
               </div>
             ))}
           </div>
@@ -287,7 +308,7 @@ export function ResearchPanel({ matter, sources, onResults }) {
             </div>
           </div>
         )}
-        <button className="primary full" type="submit" disabled={busy || !query.trim()}>
+        <button className="primary full" type="submit" disabled={busy || historyLoading || !query.trim()}>
           {busy ? <Loader2 className="spin" size={16} /> : useAi ? <Send size={16} /> : <Search size={16} />}
           {useAi ? "Ask sources" : "Search sources"}
         </button>
@@ -308,9 +329,20 @@ export function ResearchPanel({ matter, sources, onResults }) {
                 <small>{result.sourceLabel}{result.citation ? ` · ${result.citation}` : ""}</small>
               </span>
             </label>
+            <div className="result-source-actions">
+              <button className="text-link-button" type="button" onClick={() => setPreviewCitation(result)}>
+                Preview citation
+              </button>
+              {result.url && (
+                <a href={result.url} target="_blank" rel="noreferrer">
+                  View full source <ExternalLink size={14} />
+                </a>
+              )}
+            </div>
           </article>
         ))}
       </div>
+      <CitationPreviewModal citation={previewCitation} onClose={() => setPreviewCitation(null)} />
     </div>
   );
 }
