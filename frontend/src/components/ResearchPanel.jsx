@@ -45,13 +45,6 @@ export function ResearchPanel({ matter, sources, onResults }) {
 
   return (
     <div className="panel">
-      <div className="panel-heading">
-        <div>
-          <p className="eyebrow">Retrieval</p>
-          <h3>Source search</h3>
-        </div>
-        <Search size={18} />
-      </div>
       <label className="field">
         <span>Query</span>
         <input value={query} onChange={(event) => setQuery(event.target.value)} />

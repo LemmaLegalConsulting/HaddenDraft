@@ -8,7 +8,10 @@ from apps.sources.models import SourceConfiguration, UserSourceIdentity
 
 
 class LegalServerError(RuntimeError):
-    pass
+    def __init__(self, message, *, status_code=None, detail=""):
+        self.status_code = status_code
+        self.detail = detail
+        super().__init__(message)
 
 
 def _clean_base_url(base_url):
@@ -44,6 +47,25 @@ def _display_value(value):
     return str(value)
 
 
+def _legalserver_response_detail(response):
+    try:
+        payload = response.json()
+    except ValueError:
+        payload = getattr(response, "text", "")
+    if isinstance(payload, dict):
+        for key in ("detail", "error", "message", "non_field_errors"):
+            value = payload.get(key)
+            if value not in (None, ""):
+                payload = value
+                break
+    if isinstance(payload, list):
+        payload = "; ".join(str(item) for item in payload)
+    elif isinstance(payload, dict):
+        payload = "; ".join(f"{key}: {value}" for key, value in payload.items() if value not in (None, ""))
+    detail = str(payload or "").strip()
+    return detail[:500]
+
+
 class LegalServerClient:
     search_fields = ("case_number", "case_title", "external_id", "first", "last")
     user_search_fields = ("email", "user_email", "user_name", "username", "login")
@@ -57,6 +79,7 @@ class LegalServerClient:
                 "api_username": settings.LEGALSERVER_API_USERNAME,
                 "api_password": settings.LEGALSERVER_API_PASSWORD,
                 "matters_path": settings.LEGALSERVER_MATTERS_PATH,
+                "matters_results": settings.LEGALSERVER_MATTERS_RESULTS,
                 "matter_documents_path": settings.LEGALSERVER_MATTER_DOCUMENTS_PATH,
                 "users_path": settings.LEGALSERVER_USERS_PATH,
                 "user_filter_param": settings.LEGALSERVER_USER_FILTER_PARAM,
@@ -67,6 +90,7 @@ class LegalServerClient:
         self.api_username = username or config.get("api_username", "")
         self.api_password = password or config.get("api_password", "")
         self.matters_path = config["matters_path"]
+        self.matters_results = config.get("matters_results", "")
         self.matter_documents_path = config["matter_documents_path"]
         self.users_path = config.get("users_path") or settings.LEGALSERVER_USERS_PATH
         self.user_filter_param = config["user_filter_param"]
@@ -101,7 +125,11 @@ class LegalServerClient:
             **self._request_kwargs(),
         )
         if response.status_code >= 400:
-            raise LegalServerError(f"LegalServer request failed with status {response.status_code}")
+            detail = _legalserver_response_detail(response)
+            message = f"LegalServer request failed with status {response.status_code}"
+            if detail:
+                message = f"{message}: {detail}"
+            raise LegalServerError(message, status_code=response.status_code, detail=detail)
         content_type = response.headers.get("content-type", "")
         if "json" not in content_type.lower():
             raise LegalServerError("LegalServer returned a non-JSON response")
@@ -126,8 +154,8 @@ class LegalServerClient:
 
     def _search_params(self, *, user_email="", limit=25):
         params = {"page_size": limit}
-        if user_email:
-            params[self.user_filter_param] = user_email
+        if self.matters_results:
+            params["results"] = self.matters_results
         return params
 
     def search_matters(self, *, query="", user_email="", limit=25):

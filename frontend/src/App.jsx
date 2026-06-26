@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import {
   Archive,
+  ChevronDown,
   Cloud,
   CheckCircle2,
   ClipboardList,
@@ -15,7 +16,6 @@ import {
   PenLine,
   Search,
   Settings,
-  Sparkles,
   UserRound,
   X,
 } from "lucide-react";
@@ -36,14 +36,14 @@ const workflowSteps = [
   { id: "setup", label: "Document" },
   { id: "author", label: "Author" },
   { id: "facts", label: "Facts" },
-  { id: "sources", label: "Fact sources" },
-  { id: "law", label: "Law + standards" },
+  { id: "sources", label: "Sources" },
+  { id: "law", label: "Law" },
   { id: "editor", label: "Draft" },
 ];
 
 const modeOptions = [
   { id: "case", label: "Case", icon: ClipboardList },
-  { id: "case_chat", label: "Case chat", icon: MessageSquare },
+  { id: "case_chat", label: "Chat", icon: MessageSquare },
   { id: "research", label: "Research", icon: Search },
   { id: "draft", label: "Draft", icon: PenLine },
 ];
@@ -77,6 +77,7 @@ export function App() {
   const [accountBusy, setAccountBusy] = useState(false);
   const [credentials, setCredentials] = useState({ username: "", password: "" });
   const [accountMenuOpen, setAccountMenuOpen] = useState(false);
+  const [sourceDetailsOpen, setSourceDetailsOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const [error, setError] = useState("");
 
@@ -436,14 +437,22 @@ export function App() {
   }
 
   const accountName = auth?.name || auth?.email || auth?.username || "Account";
+  const sourceSummary = useMemo(() => {
+    const sources = boot?.sources || [];
+    if (!sources.length) {
+      return "No connections";
+    }
+    const connectedCount = sources.filter((source) => source.status?.startsWith("Connected")).length;
+    return `${connectedCount} of ${sources.length} connected`;
+  }, [boot?.sources]);
 
   if (!auth?.isAuthenticated) {
     return (
       <main className="login-screen">
-        <form className="login-panel card" onSubmit={handleLogin}>
+        <form className="login-panel" onSubmit={handleLogin}>
           <div className="brand login-brand">
             <div className="brand-icon"><Gavel size={22} /></div>
-            <h1>Housing Drafting Tool</h1>
+            <h1>Drafting Tool</h1>
           </div>
           <label className="field">
             <span>Username</span>
@@ -485,7 +494,7 @@ export function App() {
         <div className="brand">
           <div className="brand-icon"><Gavel size={22} /></div>
           <div>
-            <h1>Housing Drafting Tool</h1>
+            <span className="brand-title">Drafting Tool</span>
           </div>
         </div>
 
@@ -503,30 +512,41 @@ export function App() {
 
         {mode === "draft" && <WorkflowStepper steps={workflowSteps} activeStep={draftStep} onSelect={setDraftStep} />}
 
-        <div className="source-card card">
-          <div className="source-card-title"><Archive size={16} /> Sources</div>
-          {(boot?.sources || []).map((source) => (
-            <div className="source-row" key={source.kind}>
-              <span>{source.label}</span>
-              <small>{source.status}</small>
+        <div className="source-card">
+          <button
+            className="source-card-toggle"
+            type="button"
+            aria-expanded={sourceDetailsOpen}
+            onClick={() => setSourceDetailsOpen((current) => !current)}
+          >
+            <span className="source-card-title"><Archive size={16} /> Connections</span>
+            <span className="source-summary">{sourceSummary}</span>
+            <ChevronDown className={sourceDetailsOpen ? "chevron open" : "chevron"} size={16} />
+          </button>
+          {sourceDetailsOpen && (
+            <div className="source-details">
+              {(boot?.sources || []).map((source) => (
+                <div className="source-row" key={source.kind}>
+                  <span>{source.label}</span>
+                  <small>{source.status}</small>
+                </div>
+              ))}
             </div>
-          ))}
+          )}
         </div>
       </aside>
 
       <main className="workspace">
         <header className="topbar">
-          <div>
-            <p className="eyebrow">Housing Unit</p>
-            <h2>Drafting Workspace</h2>
-            {matter && (
+          {matter && (
+            <div>
+              <h2>{matter.client}</h2>
               <div className="active-case-banner">
-                <strong>{matter.client}</strong>
                 <span>{matter.matter}{matter.posture ? ` · ${matter.posture}` : ""}</span>
                 <small>{matter.sourceSystem || "LegalServer"} case {matter.id}</small>
               </div>
-            )}
-          </div>
+            </div>
+          )}
           <div className="topbar-actions">
             <div className="dropdown account-dropdown">
               <button
@@ -569,7 +589,7 @@ export function App() {
 
         {profileOpen && (
           <div className="modal-backdrop" role="presentation">
-            <div className="profile-modal card" role="dialog" aria-modal="true" aria-label="Profile">
+            <div className="profile-modal" role="dialog" aria-modal="true" aria-label="Profile">
               <div className="modal-heading">
                 <h4>Profile</h4>
                 <button className="btn btn-outline-secondary icon-button" type="button" onClick={() => setProfileOpen(false)} title="Close">
@@ -621,14 +641,7 @@ export function App() {
         )}
 
         {mode === "draft" && draftStep === "setup" && (
-          <section className="panel card">
-            <div className="panel-heading">
-              <div>
-                <p className="eyebrow">Draft setup</p>
-                <h3>Choose what to draft</h3>
-              </div>
-              <Sparkles size={18} />
-            </div>
+          <section className="panel">
             <div className="draft-mode-switch">
               <button className={draftMode === "draft_from_template" ? "selected" : ""} onClick={() => setDraftMode("draft_from_template")}>
                 <Layers3 size={16} /> Use a template
@@ -665,14 +678,7 @@ export function App() {
         )}
 
         {mode === "draft" && draftStep === "author" && (
-          <section className="panel card">
-            <div className="panel-heading">
-              <div>
-                <p className="eyebrow">Draft author</p>
-                <h3>Who signs this document?</h3>
-              </div>
-              <UserRound size={18} />
-            </div>
+          <section className="panel">
             <AuthorFields profile={draftAuthorProfile} onChange={setDraftAuthorProfile} />
             <div className="button-row step-actions">
               <button className="btn btn-outline-secondary" onClick={() => setDraftStep("setup")}>Back</button>
@@ -734,23 +740,17 @@ export function App() {
         )}
 
         {mode === "draft" && draftStep === "editor" && (
-          <section className="panel card editor-panel">
-            <div className="panel-heading">
-              <div>
-                <p className="eyebrow">Draft</p>
-                <h3>Document editor</h3>
+          <section className="panel editor-panel">
+            {draft && (
+              <div className="button-row compact editor-actions">
+                <button className="btn btn-outline-secondary" disabled={busy} onClick={validateDraft}>
+                  <CheckCircle2 size={16} /> Validate
+                </button>
+                <a className="btn btn-primary link-button" href={api.exportDraftUrl(draft.id)}>
+                  <Download size={16} /> Export to Word
+                </a>
               </div>
-              {draft && (
-                <div className="button-row compact">
-                  <button className="btn btn-outline-secondary" disabled={busy} onClick={validateDraft}>
-                    <CheckCircle2 size={16} /> Validate
-                  </button>
-                  <a className="btn btn-primary link-button" href={api.exportDraftUrl(draft.id)}>
-                    <Download size={16} /> Export to Word
-                  </a>
-                </div>
-              )}
-            </div>
+            )}
             <div className="button-row step-actions top-step-actions">
               <button className="btn btn-outline-secondary" onClick={() => setDraftStep("law")}>Back to law review</button>
               <button className="btn btn-primary" disabled={busy || !matter} onClick={generateDraft}>

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Bot, Loader2, Send } from "lucide-react";
+import { Loader2, Send } from "lucide-react";
 
 import { api } from "../api/client.js";
 
@@ -57,16 +57,9 @@ export function CaseChat({ matter, onAction }) {
 
   return (
     <div className="panel chat-panel">
-      <div className="panel-heading">
-        <div>
-          <p className="eyebrow">Case primary</p>
-          <h3>Chat with this case</h3>
-        </div>
-        <Bot size={18} />
-      </div>
       {!matter && (
         <div className="empty-state compact-empty">
-          <h3>Select a case</h3>
+          <strong className="empty-state-title">Select a case</strong>
           <p>Choose a LegalServer matter to ask case-specific questions.</p>
         </div>
       )}
@@ -75,7 +68,6 @@ export function CaseChat({ matter, onAction }) {
           <div className="chat-transcript">
             {!messages.length && (
               <div className="empty-state compact-empty">
-                <h3>{matter.client}</h3>
                 <p>Ask about case status, assignments, documents, facts, or next drafting steps.</p>
                 <div className="starter-card-list">
                   {starterPrompts.map((starter) => (

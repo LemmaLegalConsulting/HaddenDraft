@@ -5,7 +5,6 @@ export function WorkflowStepper({ steps, activeStep, onSelect }) {
   const activeIndex = Math.max(0, steps.findIndex((step) => step.id === activeStep));
   return (
     <div className="stepper">
-      <p className="stepper-title">Workflow</p>
       {steps.map((step, index) => (
         <button
           key={step.id}

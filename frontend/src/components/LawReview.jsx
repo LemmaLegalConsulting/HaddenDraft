@@ -58,13 +58,6 @@ export function LawReview({ matter, session, onIssuesChange }) {
 
   return (
     <div className="panel">
-      <div className="panel-heading">
-        <div>
-          <p className="eyebrow">Law + facts</p>
-          <h3>Legal standards mapped to case facts</h3>
-        </div>
-        <Scale size={18} />
-      </div>
       <button className="primary full" disabled={busy || !matter} onClick={runIssueSelection}>
         {busy ? <Loader2 className="spin" size={16} /> : <Scale size={16} />}
         Map legal standards to facts
@@ -73,7 +66,7 @@ export function LawReview({ matter, session, onIssuesChange }) {
       <div className="issue-list">
         {issues.length === 0 && (
           <div className="empty-state compact">
-            <h3>No candidate issues yet</h3>
+            <strong className="empty-state-title">No candidate issues yet</strong>
             <p>Map legal standards after reviewing fact sources. Approved issues activate draft sections with supporting facts.</p>
           </div>
         )}
