@@ -505,6 +505,29 @@ button:disabled {
   margin-bottom: 12px;
 }
 
+.manual-case-panel {
+  border-bottom: 1px solid #dbe4e8;
+  display: grid;
+  gap: 10px;
+  margin-bottom: 12px;
+  padding-bottom: 12px;
+}
+
+.manual-case-form {
+  background: #f7fafb;
+  border: 1px solid #dbe4e8;
+  border-radius: 6px;
+  display: grid;
+  gap: 10px;
+  padding: 12px;
+}
+
+.manual-case-grid {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
 .connection-controls input,
 .case-search input {
   border: 1px solid #ccd7dd;
@@ -1660,6 +1683,10 @@ button:disabled {
   .step-actions > *,
   .button-row > * {
     flex: 1 1 auto;
+  }
+
+  .manual-case-grid {
+    grid-template-columns: 1fr;
   }
 
   .chat-message {
