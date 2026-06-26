@@ -1,4 +1,4 @@
-# Housing Drafting Tool
+# Legal Drafting Tool
 
 This repository contains a working Django + React prototype for a housing court document drafting workspace. The app supports three modes:
 
