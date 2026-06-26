@@ -8,6 +8,7 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase, override_settings
 
 from apps.matters.models import Matter, MatterFact, TriageAssessment, TriageRubric
+from apps.matters.services import legalserver_id, upsert_matter_from_legalserver
 from apps.matters.triage import load_triage_rubric_file, normalize_triage_payload, sync_triage_rubric_seeds
 from apps.sources.models import UserSourceIdentity
 
@@ -121,6 +122,40 @@ class CaseConnectionTests(TestCase):
         self.assertEqual(response.json()["cases"][0]["id"], "LS-REAL-1")
         self.assertEqual(fake_client.calls[0]["query"], "Acme")
         self.assertEqual(fake_client.calls[0]["user_email"], "")
+
+    def test_legalserver_identifier_prefers_human_case_number_over_guid(self):
+        payload = {
+            "id": "d019be06-6d12-47a5-bdfb-2a8a6f71d9ac",
+            "matter_uuid": "e11620a6-8b6f-4f40-95a5-250511d9ecf3",
+            "case_number": "25-000085",
+            "client_name": "Real Client",
+            "matter_type": "Eviction defense",
+            "court": "Housing Court",
+        }
+
+        self.assertEqual(legalserver_id(payload), "25-000085")
+
+    def test_legalserver_upsert_renames_existing_guid_keyed_matter_to_case_number(self):
+        existing = Matter.objects.create(
+            external_id="d019be06-6d12-47a5-bdfb-2a8a6f71d9ac",
+            client_name="Old Client",
+            matter_type="Old type",
+            jurisdiction="",
+        )
+        payload = {
+            "id": existing.external_id,
+            "case_number": "25-000085",
+            "client_name": "Real Client",
+            "matter_type": "Eviction defense",
+            "court": "Housing Court",
+        }
+
+        matter = upsert_matter_from_legalserver(payload)
+
+        self.assertEqual(matter.id, existing.id)
+        self.assertEqual(matter.external_id, "25-000085")
+        self.assertEqual(matter.client_name, "Real Client")
+        self.assertEqual(Matter.objects.count(), 1)
 
     def test_user_can_connect_legalserver_identifier_without_admin(self):
         response = self.client.post(

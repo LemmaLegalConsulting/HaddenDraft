@@ -1,3 +1,8 @@
+from datetime import datetime, time
+
+from django.utils import timezone
+from django.utils.dateparse import parse_date, parse_datetime
+
 from apps.sources.connectors.legalserver import _display_value
 
 
@@ -44,6 +49,41 @@ def matter_details(matter):
     if assignments:
         details.append(("Assignments", "; ".join(assignments[:4])))
     return [{"label": label, "value": value} for label, value in details if value]
+
+
+def matter_case_number(matter):
+    raw = matter.raw_payload or {}
+    return _first_display(raw, "case_number", "matter_identification_number", "case_id") or matter.external_id
+
+
+def _parse_payload_date(value):
+    if not value:
+        return None
+    parsed = parse_datetime(str(value))
+    if parsed:
+        if timezone.is_naive(parsed):
+            return timezone.make_aware(parsed, timezone.get_current_timezone())
+        return parsed
+    parsed_date = parse_date(str(value))
+    if parsed_date:
+        return timezone.make_aware(datetime.combine(parsed_date, time.min))
+    return None
+
+
+def matter_last_activity_at(matter):
+    raw = matter.raw_payload or {}
+    for key in (
+        "last_activity_at",
+        "last_activity_date",
+        "last_case_activity_date",
+        "last_note_date",
+        "date_last_modified",
+        "updated_at",
+    ):
+        parsed = _parse_payload_date(_display_value(raw.get(key)))
+        if parsed:
+            return parsed.isoformat()
+    return ""
 
 
 def fact_to_dict(fact):
@@ -94,12 +134,14 @@ def matter_to_dict(matter, include_facts=False):
         "id": matter.external_id,
         "databaseId": matter.id,
         "client": matter.client_name,
+        "caseNumber": matter_case_number(matter),
         "matter": matter.matter_type,
         "jurisdiction": matter.jurisdiction,
         "posture": matter.posture,
         "risk": matter.risk,
         "summary": readable_summary(matter),
         "details": matter_details(matter),
+        "lastActivityAt": matter_last_activity_at(matter),
         "sourceSystem": matter.source_system,
     }
     if include_facts:

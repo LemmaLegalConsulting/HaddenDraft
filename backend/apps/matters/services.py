@@ -4,7 +4,13 @@ from uuid import uuid4
 from django.conf import settings
 
 from apps.matters.models import Matter
-from apps.sources.connectors.legalserver import LegalServerClient, LegalServerError, matter_payload_to_defaults
+from apps.sources.connectors.legalserver import (
+    LegalServerClient,
+    LegalServerError,
+    legalserver_matter_identifier,
+    legalserver_matter_identifier_candidates,
+    matter_payload_to_defaults,
+)
 from apps.sources.models import UserSourceIdentity
 
 
@@ -40,11 +46,7 @@ class LegalServerAccessProfile:
 
 
 def legalserver_id(payload):
-    for key in ("id", "matter_id", "matter_uuid", "case_id", "case_number", "external_id", "uuid"):
-        value = payload.get(key)
-        if value not in (None, ""):
-            return str(value)
-    return ""
+    return legalserver_matter_identifier(payload)
 
 
 def upsert_matter_from_legalserver(payload):
@@ -52,7 +54,19 @@ def upsert_matter_from_legalserver(payload):
     if not external_id:
         return None
     defaults = matter_payload_to_defaults(payload)
-    matter, _created = Matter.objects.update_or_create(external_id=external_id, defaults=defaults)
+    known_ids = list(legalserver_matter_identifier_candidates(payload))
+    matter = Matter.objects.filter(external_id=external_id).first()
+    if not matter:
+        matter = Matter.objects.filter(
+            external_id__in=[known_id for known_id in known_ids if known_id != external_id]
+        ).first()
+    if matter:
+        for field, value in defaults.items():
+            setattr(matter, field, value)
+        matter.external_id = external_id
+        matter.save()
+    else:
+        matter = Matter.objects.create(external_id=external_id, **defaults)
     return matter
 
 

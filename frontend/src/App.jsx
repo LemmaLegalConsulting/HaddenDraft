@@ -12,11 +12,13 @@ import {
   Layers3,
   LogIn,
   LogOut,
+  Link2,
   Loader2,
   MessageSquare,
   PenLine,
   Search,
   Settings,
+  Unplug,
   UserRound,
   X,
 } from "lucide-react";
@@ -75,6 +77,7 @@ export function App() {
   const [draftAuthorProfile, setDraftAuthorProfile] = useState(emptyAuthorProfile);
   const [instructions, setInstructions] = useState("");
   const [busy, setBusy] = useState(false);
+  const [workspaceLoading, setWorkspaceLoading] = useState(true);
   const [authBusy, setAuthBusy] = useState(false);
   const [auth, setAuth] = useState(null);
   const [legalserver, setLegalserver] = useState(null);
@@ -86,6 +89,7 @@ export function App() {
   const [credentials, setCredentials] = useState({ username: "", password: "" });
   const [accountMenuOpen, setAccountMenuOpen] = useState(false);
   const [sourceDetailsOpen, setSourceDetailsOpen] = useState(false);
+  const [connectionSettingsOpen, setConnectionSettingsOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const [error, setError] = useState("");
 
@@ -97,28 +101,36 @@ export function App() {
         setDraftAuthorProfile({ ...emptyAuthorProfile, ...(authResponse.user.profile || {}) });
         if (authResponse.user.isAuthenticated) {
           await loadWorkspace();
+        } else {
+          setWorkspaceLoading(false);
         }
       } catch (err) {
         setError(err.message);
+        setWorkspaceLoading(false);
       }
     }
     load();
   }, []);
 
   async function loadWorkspace() {
-    const bootstrap = await api.bootstrap();
-    const [caseResponse, templateResponse, rubricResponse] = await Promise.all([
-      api.cases(),
-      api.templates(),
-      api.triageRubrics(),
-    ]);
-    setBoot(bootstrap);
-    applyCaseResponse(caseResponse);
-    setTemplates(templateResponse.templates);
-    setTriageRubrics(rubricResponse.rubrics || []);
-    setSelectedTriageRubricId((current) => current || rubricResponse.rubrics?.[0]?.id || "");
-    const defaultTemplate = templateResponse.templates.find((item) => item.slug === "answer-counterclaims-cleveland");
-    setSelectedTemplateId(defaultTemplate?.id ?? templateResponse.templates[0]?.id ?? null);
+    setWorkspaceLoading(true);
+    try {
+      const bootstrap = await api.bootstrap();
+      const [caseResponse, templateResponse, rubricResponse] = await Promise.all([
+        api.cases(),
+        api.templates(),
+        api.triageRubrics(),
+      ]);
+      setBoot(bootstrap);
+      applyCaseResponse(caseResponse);
+      setTemplates(templateResponse.templates);
+      setTriageRubrics(rubricResponse.rubrics || []);
+      setSelectedTriageRubricId((current) => current || rubricResponse.rubrics?.[0]?.id || "");
+      const defaultTemplate = templateResponse.templates.find((item) => item.slug === "answer-counterclaims-cleveland");
+      setSelectedTemplateId(defaultTemplate?.id ?? templateResponse.templates[0]?.id ?? null);
+    } finally {
+      setWorkspaceLoading(false);
+    }
   }
 
   function applyCaseResponse(caseResponse) {
@@ -248,6 +260,7 @@ export function App() {
       const response = await api.connectLegalServer({ identifier: legalserverIdentifier });
       setLegalserver(response.legalserver);
       await loadWorkspace();
+      setConnectionSettingsOpen(false);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -511,15 +524,28 @@ export function App() {
     }
   }
 
+  const legalserverLoading = workspaceLoading && !legalserver;
+  const legalserverConfigured = legalserver?.configured !== false;
+  const legalserverConnected = Boolean(legalserver?.connected);
+  const legalserverStatusLabel = legalserverLoading
+    ? "Checking account"
+    : !legalserverConfigured
+      ? "Not configured"
+      : legalserverConnected
+        ? `Connected as ${legalserver.identifier}`
+        : "Connect LegalServer";
   const accountName = auth?.name || auth?.email || auth?.username || "Account";
+  const sources = boot?.sources || [];
+  const sharepointSource = sources.find((source) => source.kind === "sharepoint");
+  const researchSources = sources.filter((source) => !["legalserver", "sharepoint"].includes(source.kind));
   const sourceSummary = useMemo(() => {
-    const sources = boot?.sources || [];
-    if (!sources.length) {
-      return "No connections";
-    }
-    const connectedCount = sources.filter((source) => source.status?.startsWith("Connected")).length;
-    return `${connectedCount} of ${sources.length} connected`;
-  }, [boot?.sources]);
+    const connectionStates = [
+      legalserverConnected,
+      Boolean(sharepointSource?.status?.startsWith("Connected")),
+    ];
+    const connectedCount = connectionStates.filter(Boolean).length;
+    return `${connectedCount} of ${connectionStates.length} connections active`;
+  }, [legalserverConnected, sharepointSource?.status]);
 
   if (!auth?.isAuthenticated) {
     return (
@@ -600,7 +626,29 @@ export function App() {
           </button>
           {sourceDetailsOpen && (
             <div className="source-details">
-              {(boot?.sources || []).map((source) => (
+              <button
+                className="source-row source-row-button"
+                type="button"
+                onClick={() => setConnectionSettingsOpen(true)}
+                disabled={legalserverLoading}
+              >
+                <span>LegalServer account</span>
+                <small>{legalserverStatusLabel}</small>
+              </button>
+              {legalserver?.syncError && legalserver.syncError !== "not_connected" && (
+                <div className="source-row source-row-alert">
+                  <span>LegalServer sync</span>
+                  <small>{legalserver.syncError}</small>
+                </div>
+              )}
+              {sharepointSource && (
+                <div className="source-row" key={sharepointSource.kind}>
+                  <span>{sharepointSource.label}</span>
+                  <small>{sharepointSource.status}</small>
+                </div>
+              )}
+              {researchSources.length > 0 && <div className="source-section-title">Research sources</div>}
+              {researchSources.map((source) => (
                 <div className="source-row" key={source.kind}>
                   <span>{source.label}</span>
                   <small>{source.status}</small>
@@ -682,6 +730,62 @@ export function App() {
           </div>
         )}
 
+        {connectionSettingsOpen && (
+          <div className="modal-backdrop" role="presentation">
+            <form className="profile-modal connection-modal" role="dialog" aria-modal="true" aria-label="LegalServer connection settings" onSubmit={handleLegalServerConnect}>
+              <div className="modal-heading">
+                <div>
+                  <h4>LegalServer Connection</h4>
+                  <p className="modal-subtitle">
+                    {legalserverLoading
+                      ? "Checking your saved account."
+                      : legalserverConnected
+                        ? `Connected as ${legalserver.identifier}`
+                        : "Connect a LegalServer account to load assigned matters."}
+                  </p>
+                </div>
+                <button className="btn btn-outline-secondary icon-button" type="button" onClick={() => setConnectionSettingsOpen(false)} title="Close">
+                  <X size={16} />
+                </button>
+              </div>
+
+              {!legalserverConfigured && (
+                <div className="inline-error">LegalServer API credentials are not configured for this environment.</div>
+              )}
+
+              {legalserver?.syncError && legalserver.syncError !== "not_connected" && (
+                <div className="inline-error">LegalServer sync: {legalserver.syncError}</div>
+              )}
+
+              {legalserverConfigured && (
+                <>
+                  <label className="field">
+                    <span>{legalserverConnected ? "Connected as" : "LegalServer username or email"}</span>
+                    <input
+                      aria-label="LegalServer identifier"
+                      disabled={legalserverLoading || accountBusy}
+                      placeholder={legalserver?.suggestedIdentifier || "LegalServer username or email"}
+                      value={legalserverIdentifier}
+                      onChange={(event) => setLegalserverIdentifier(event.target.value)}
+                    />
+                  </label>
+                  <div className="button-row">
+                    <button className="primary" type="submit" disabled={legalserverLoading || accountBusy || !legalserverIdentifier.trim()}>
+                      {accountBusy ? <Loader2 className="spin" size={16} /> : <Link2 size={16} />}
+                      {legalserverConnected ? "Update connection" : "Connect LegalServer"}
+                    </button>
+                    {legalserverConnected && (
+                      <button className="secondary" type="button" disabled={accountBusy} onClick={handleLegalServerDisconnect}>
+                        {accountBusy ? <Loader2 className="spin" size={16} /> : <Unplug size={16} />} Disconnect
+                      </button>
+                    )}
+                  </div>
+                </>
+              )}
+            </form>
+          </div>
+        )}
+
         {error && <div className="error-banner alert alert-danger">{error}</div>}
 
         {mode === "case" && (
@@ -691,11 +795,7 @@ export function App() {
             onSelect={setSelectedMatterId}
             matter={matter}
             legalserver={legalserver}
-            identifier={legalserverIdentifier}
-            onIdentifierChange={setLegalserverIdentifier}
-            onConnect={handleLegalServerConnect}
-            onDisconnect={handleLegalServerDisconnect}
-            accountBusy={accountBusy}
+            legalserverLoading={legalserverLoading}
             search={caseSearch}
             onSearchChange={setCaseSearch}
             onSearch={handleCaseSearch}

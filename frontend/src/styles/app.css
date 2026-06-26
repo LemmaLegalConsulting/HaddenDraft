@@ -257,14 +257,45 @@ button:disabled {
 }
 
 .source-row {
+  align-items: start;
   border-top: 1px solid rgba(255, 255, 255, 0.08);
+  display: grid;
   gap: 8px;
-  justify-content: space-between;
+  grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+  justify-content: stretch;
   padding: 8px 0;
+}
+
+.source-row-button {
+  background: transparent;
+  color: #f7fafc;
+  grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+  justify-content: stretch;
+  min-height: 0;
+  text-align: left;
+  width: 100%;
+}
+
+.source-row-button:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.source-row-alert small {
+  color: #ffd4d4;
 }
 
 .source-details {
   margin-top: 10px;
+}
+
+.source-section-title {
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  color: #91a2ad;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0;
+  padding-top: 10px;
+  text-transform: uppercase;
 }
 
 .source-summary {
@@ -292,7 +323,13 @@ button:disabled {
 .source-row span,
 .source-row small {
   min-width: 0;
-  overflow-wrap: anywhere;
+  overflow-wrap: break-word;
+  word-break: normal;
+}
+
+.source-row small {
+  line-height: 1.3;
+  text-align: right;
 }
 
 .workspace {
@@ -419,7 +456,7 @@ button:disabled {
 
 .panel {
   min-width: 0;
-  padding: 16px;
+  padding: 12px;
 }
 
 .primary {
@@ -446,15 +483,15 @@ button:disabled {
 
 .case-list {
   display: grid;
-  gap: 8px;
+  gap: 3px;
 }
 
 .connection-panel {
   border-bottom: 1px solid #dbe4e8;
   display: grid;
-  gap: 10px;
-  margin-bottom: 12px;
-  padding-bottom: 12px;
+  gap: 8px;
+  margin-bottom: 8px;
+  padding-bottom: 8px;
 }
 
 .connection-summary-toggle {
@@ -502,15 +539,63 @@ button:disabled {
   display: grid;
   gap: 8px;
   grid-template-columns: minmax(0, 1fr) auto auto;
-  margin-bottom: 12px;
+  margin-bottom: 8px;
+}
+
+.case-source-row {
+  align-items: center;
+  border-bottom: 1px solid #dbe4e8;
+  display: flex;
+  gap: 10px;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  padding-bottom: 8px;
+}
+
+.case-source-toggle {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.case-source-toggle label {
+  align-items: center;
+  border: 1px solid #ccd7dd;
+  border-radius: 6px;
+  color: #26343c;
+  cursor: pointer;
+  display: inline-flex;
+  gap: 6px;
+  min-height: 32px;
+  padding: 5px 8px;
+}
+
+.case-source-toggle label.selected {
+  background: #ffffff;
+  border-color: #22645c;
+  box-shadow: inset 3px 0 0 #22645c;
+}
+
+.case-source-toggle label:has(input:disabled) {
+  cursor: wait;
+  opacity: 0.75;
+}
+
+.case-source-toggle input {
+  margin: 0;
+}
+
+.new-local-case-button {
+  flex: 0 0 auto;
+  min-height: 34px;
+  padding: 7px 10px;
 }
 
 .manual-case-panel {
-  border-bottom: 1px solid #dbe4e8;
   display: grid;
   gap: 10px;
-  margin-bottom: 12px;
-  padding-bottom: 12px;
+  margin-bottom: 8px;
 }
 
 .manual-case-form {
@@ -542,8 +627,11 @@ button:disabled {
   border: 1px solid #d9e2e7;
   color: #25343c;
   display: grid;
-  gap: 2px;
+  gap: 8px;
+  grid-template-columns: minmax(150px, 1.35fr) minmax(92px, 0.55fr) minmax(120px, 0.9fr) minmax(80px, 0.55fr) minmax(104px, auto);
   justify-content: stretch;
+  min-height: 32px;
+  padding: 4px 8px;
   text-align: left;
 }
 
@@ -552,6 +640,29 @@ button:disabled {
 .case-card small {
   min-width: 0;
   overflow-wrap: anywhere;
+}
+
+.case-client {
+  color: #25343c;
+  font-size: 14px;
+  font-weight: 750;
+}
+
+.case-number {
+  color: #26343c;
+  font-size: 13px;
+  font-weight: 650;
+}
+
+.case-muted {
+  color: #667782;
+  font-size: 12px;
+  font-weight: 400;
+}
+
+.case-status,
+.case-activity {
+  text-align: right;
 }
 
 .case-card.selected {
@@ -1809,6 +1920,15 @@ button:disabled {
   justify-content: space-between;
 }
 
+.modal-subtitle {
+  color: #465761;
+  margin: 4px 0 0;
+}
+
+.connection-modal {
+  max-width: 560px;
+}
+
 .editor-modal textarea {
   border: 1px solid #cfd9de;
   border-radius: 6px;
@@ -1961,6 +2081,16 @@ button:disabled {
     grid-template-columns: 1fr;
   }
 
+  .case-card {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .case-type,
+  .case-status,
+  .case-activity {
+    text-align: left;
+  }
+
   .case-details,
   .chat-compose,
   .author-form,
@@ -2033,6 +2163,20 @@ button:disabled {
   .source-card {
     margin-top: 14px;
     padding: 10px;
+  }
+
+  .case-source-row {
+    align-items: stretch;
+    display: grid;
+  }
+
+  .case-source-toggle {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .new-local-case-button {
+    width: 100%;
   }
 
   .topbar h2 {
