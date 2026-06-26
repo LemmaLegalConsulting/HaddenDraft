@@ -1,11 +1,8 @@
 import React from "react";
-import { ClipboardCheck, FilePlus2, Loader2, Play, Upload } from "lucide-react";
+import { AlertTriangle, ClipboardCheck, Loader2, Play, Upload } from "lucide-react";
 
 export function TriagePanel({
-  cases,
   matter,
-  selectedMatterId,
-  onSelectMatter,
   rubrics,
   selectedRubricId,
   onSelectRubric,
@@ -16,7 +13,7 @@ export function TriagePanel({
   onRunTriage,
   onCreateManualCase,
 }) {
-  const [manualCaseOpen, setManualCaseOpen] = React.useState(!matter);
+  const [caseSource, setCaseSource] = React.useState("existing");
   const [manualCase, setManualCase] = React.useState({
     clientName: "",
     matterType: "Eviction defense",
@@ -33,22 +30,83 @@ export function TriagePanel({
       setManualCase({ clientName: "", matterType: "Eviction defense", jurisdiction: "Cleveland Municipal Court - Housing Division", posture: "", notes: "" });
       setManualFiles([]);
       event.currentTarget.reset();
-      setManualCaseOpen(false);
+      setCaseSource("existing");
     }
   }
 
   const activeRubric = rubrics.find((rubric) => String(rubric.id) === String(selectedRubricId)) || rubrics[0];
   const activeAssessment = assessment || history?.[0] || null;
+  const canRun = Boolean(matter && activeRubric && !busy);
+  const rubricSummary = activeRubric ? shortRubricSummary(activeRubric) : "";
 
   return (
-    <section className="triage-layout">
-      <div className="panel triage-control-panel">
+    <section className="panel triage-panel">
+      <div className="triage-control-panel">
         <div className="panel-heading">
           <div>
             <p className="eyebrow">Triage</p>
-            <h3>Screen for representation priority</h3>
+            <h3>Triage case</h3>
           </div>
         </div>
+
+        <div className="triage-source-options" role="radiogroup" aria-label="Case source">
+          <label className="research-ai-toggle">
+            <input
+              type="radio"
+              checked={caseSource === "existing"}
+              onChange={() => setCaseSource("existing")}
+            />
+            <span>Existing case</span>
+          </label>
+          <label className="research-ai-toggle">
+            <input
+              type="radio"
+              checked={caseSource === "upload"}
+              onChange={() => setCaseSource("upload")}
+            />
+            <span>Upload case docs</span>
+          </label>
+        </div>
+
+        {caseSource === "existing" && matter && (
+          <div className="triage-selected-case" aria-label="Selected case">
+            <span>Using selected case</span>
+            <strong>{matter.client}</strong>
+          </div>
+        )}
+
+        {caseSource === "existing" && !matter && (
+          <div className="triage-missing-info">
+            <AlertTriangle size={16} />
+            <span>Select a case on the Case screen before running triage.</span>
+          </div>
+        )}
+
+        {caseSource === "upload" && (
+          <form className="manual-case-form triage-upload-panel" onSubmit={submitManualCase}>
+            <label className="field">
+              <span>Notes</span>
+              <textarea
+                value={manualCase.notes}
+                onChange={(event) => setManualCase((current) => ({ ...current, notes: event.target.value }))}
+                rows={5}
+                placeholder="Paste intake notes or key facts."
+              />
+            </label>
+            <label className="field">
+              <span>Documents</span>
+              <input
+                type="file"
+                multiple
+                accept=".txt,.md,.csv,.json,.html,.htm,.docx,.pdf,text/*,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                onChange={(event) => setManualFiles(Array.from(event.target.files || []))}
+              />
+            </label>
+            <button className="primary full" type="submit" disabled={manualCaseBusy || (!manualCase.notes.trim() && manualFiles.length === 0)}>
+              {manualCaseBusy ? <Loader2 className="spin" size={16} /> : <Upload size={16} />} Create intake
+            </button>
+          </form>
+        )}
 
         <label className="field">
           <span>Rubric standard</span>
@@ -58,122 +116,39 @@ export function TriagePanel({
             ))}
           </select>
         </label>
-        {activeRubric && (
+        {rubricSummary && (
           <div className="rubric-summary">
-            <strong>{activeRubric.description || activeRubric.name}</strong>
-            <p>{activeRubric.standard}</p>
+            <strong>{activeRubric.name}</strong>
+            <p>{rubricSummary}</p>
           </div>
         )}
 
-        <label className="field">
-          <span>Existing case</span>
-          <select value={selectedMatterId || ""} onChange={(event) => onSelectMatter(event.target.value)} disabled={!cases.length}>
-            {!cases.length && <option value="">No cases available</option>}
-            {cases.map((item) => (
-              <option key={item.id} value={item.id}>{item.client} - {item.matter || item.id}</option>
-            ))}
-          </select>
-        </label>
-
-        <div className="triage-selected-case">
-          {matter ? (
-            <>
-              <strong>{matter.client}</strong>
-              <span>{matter.matter}{matter.posture ? ` · ${matter.posture}` : ""}</span>
-              <small>{matter.sourceSystem || "Case"} {matter.id}</small>
-            </>
-          ) : (
-            <span>Select an existing case or create an ad-hoc intake.</span>
-          )}
-        </div>
-
-        <button className="primary full" type="button" disabled={!matter || !activeRubric || busy} onClick={() => onRunTriage?.(activeRubric.id)}>
+        <button className="primary full" type="button" disabled={!canRun} onClick={() => onRunTriage?.(activeRubric.id)}>
           {busy ? <Loader2 className="spin" size={16} /> : <Play size={16} />} Run triage
         </button>
 
-        <div className="manual-case-panel triage-upload-panel">
-          <button
-            className="secondary full"
-            type="button"
-            aria-expanded={manualCaseOpen}
-            onClick={() => setManualCaseOpen((current) => !current)}
-          >
-            <FilePlus2 size={16} /> Ad-hoc document upload
-          </button>
-          {manualCaseOpen && (
-            <form className="manual-case-form" onSubmit={submitManualCase}>
-              <div className="manual-case-grid">
-                <label className="field">
-                  <span>Client or household</span>
-                  <input value={manualCase.clientName} onChange={(event) => setManualCase((current) => ({ ...current, clientName: event.target.value }))} />
-                </label>
-                <label className="field">
-                  <span>Legal problem</span>
-                  <input value={manualCase.matterType} onChange={(event) => setManualCase((current) => ({ ...current, matterType: event.target.value }))} />
-                </label>
-                <label className="field">
-                  <span>Court or county</span>
-                  <input value={manualCase.jurisdiction} onChange={(event) => setManualCase((current) => ({ ...current, jurisdiction: event.target.value }))} />
-                </label>
-                <label className="field">
-                  <span>Posture</span>
-                  <input value={manualCase.posture} onChange={(event) => setManualCase((current) => ({ ...current, posture: event.target.value }))} />
-                </label>
-              </div>
-              <label className="field">
-                <span>Intake notes</span>
-                <textarea value={manualCase.notes} onChange={(event) => setManualCase((current) => ({ ...current, notes: event.target.value }))} rows={4} />
-              </label>
-              <label className="field">
-                <span>Documents</span>
-                <input
-                  type="file"
-                  multiple
-                  accept=".txt,.md,.csv,.json,.html,.htm,.docx,.pdf,text/*,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-                  onChange={(event) => setManualFiles(Array.from(event.target.files || []))}
-                />
-              </label>
-              <button className="primary full" type="submit" disabled={manualCaseBusy || (!manualCase.notes.trim() && manualFiles.length === 0)}>
-                {manualCaseBusy ? <Loader2 className="spin" size={16} /> : <Upload size={16} />} Create intake
-              </button>
-            </form>
-          )}
-        </div>
-      </div>
-
-      <div className="panel triage-result-panel">
         {activeAssessment ? (
-          <>
+          <div className="triage-result-panel">
             <div className="triage-result-heading">
               <ClipboardCheck size={20} />
               <div>
                 <p className="eyebrow">Result</p>
-                <h3>{activeAssessment.priority ? "Priority for full representation" : "Needs review"}</h3>
+                <h3>{triageResultTitle(activeAssessment)}</h3>
               </div>
               <span className={`status-pill ${activeAssessment.priority ? "approved" : "needs_review"}`}>
                 {activeAssessment.confidence}
               </span>
             </div>
-            <div className="triage-result-grid">
-              <div>
-                <span>Case type</span>
-                <strong>{activeAssessment.caseType || "Unclassified"}</strong>
-              </div>
-              <div>
-                <span>Label</span>
-                <strong>{activeAssessment.priorityLabel || "needs_review"}</strong>
-              </div>
-            </div>
-            {activeAssessment.summary && <p>{activeAssessment.summary}</p>}
-            {activeAssessment.reasoning && <p>{activeAssessment.reasoning}</p>}
+            <TriageText title="Summary" value={activeAssessment.summary} defaultOpen />
+            <TriageText title="Reasoning" value={activeAssessment.reasoning} />
+            <TriageList title="Missing details / unanswered questions" items={activeAssessment.missingInformation} important defaultOpen />
             <TriageList title="Matched criteria" items={activeAssessment.matchedCriteria} />
-            <TriageList title="Missing information" items={activeAssessment.missingInformation} />
             <TriageEvidence evidence={activeAssessment.evidence} />
-          </>
+          </div>
         ) : (
           <div className="empty-state compact-empty">
             <strong className="empty-state-title">No triage result yet</strong>
-            <p>Select or create a case, choose a rubric, then run triage.</p>
+            <p>Choose a rubric, then run triage.</p>
           </div>
         )}
       </div>
@@ -181,23 +156,77 @@ export function TriagePanel({
   );
 }
 
-function TriageList({ title, items }) {
+function shortRubricSummary(rubric) {
+  if (rubric.description) return rubric.description;
+  const criteria = rubric.criteria || [];
+  if (criteria.length) return criteria.slice(0, 2).join(" ");
+  return "";
+}
+
+function triageResultTitle(assessment) {
+  const label = String(assessment?.priorityLabel || "").trim();
+  if (!label || label === "needs_review") {
+    return assessment?.priority ? "Priority for full representation" : "Needs review";
+  }
+  return label
+    .replaceAll("_", " ")
+    .replace(/\b\w/g, (letter) => letter.toUpperCase());
+}
+
+function displayLines(value) {
+  if (Array.isArray(value)) return value.map((item) => String(item).replace(/^[-*]\s*/, "").trim()).filter(Boolean);
+  if (!value) return [];
+  const text = String(value).trim();
+  if (!text) return [];
+  if (text.startsWith("[") && text.endsWith("]")) {
+    try {
+      const normalized = text.replaceAll("'", "\"");
+      const parsed = JSON.parse(normalized);
+      if (Array.isArray(parsed)) return displayLines(parsed);
+    } catch {
+      // Fall through to line cleanup.
+    }
+  }
+  return text
+    .split(/\r?\n/)
+    .map((line) => line.replace(/^[-*]\s*/, "").trim())
+    .filter(Boolean);
+}
+
+function TriageText({ title, value, defaultOpen = false }) {
+  const lines = displayLines(value);
+  if (!lines.length) return null;
+  return (
+    <details className="triage-accordion" open={defaultOpen}>
+      <summary>{title}</summary>
+      {lines.length > 1 ? (
+        <ul>
+          {lines.map((line, index) => <li key={`${title}-${index}`}>{line}</li>)}
+        </ul>
+      ) : (
+        <p>{lines[0]}</p>
+      )}
+    </details>
+  );
+}
+
+function TriageList({ title, items, important = false, defaultOpen = false }) {
   if (!items?.length) return null;
   return (
-    <div className="triage-list">
-      <strong>{title}</strong>
+    <details className={`triage-accordion ${important ? "important" : ""}`} open={defaultOpen}>
+      <summary>{title}</summary>
       <ul>
-        {items.map((item, index) => <li key={`${title}-${index}`}>{String(item)}</li>)}
+        {items.map((item, index) => <li key={`${title}-${index}`}>{String(item).replace(/^[-*]\s*/, "")}</li>)}
       </ul>
-    </div>
+    </details>
   );
 }
 
 function TriageEvidence({ evidence }) {
   if (!evidence?.length) return null;
   return (
-    <div className="triage-list">
-      <strong>Evidence</strong>
+    <details className="triage-accordion">
+      <summary>Evidence</summary>
       <div className="triage-evidence-list">
         {evidence.map((item, index) => (
           <div className="triage-evidence" key={`evidence-${index}`}>
@@ -206,6 +235,6 @@ function TriageEvidence({ evidence }) {
           </div>
         ))}
       </div>
-    </div>
+    </details>
   );
 }

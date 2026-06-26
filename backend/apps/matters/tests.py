@@ -8,7 +8,7 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase, override_settings
 
 from apps.matters.models import Matter, MatterFact, TriageAssessment, TriageRubric
-from apps.matters.triage import load_triage_rubric_file, sync_triage_rubric_seeds
+from apps.matters.triage import load_triage_rubric_file, normalize_triage_payload, sync_triage_rubric_seeds
 from apps.sources.models import UserSourceIdentity
 
 
@@ -294,6 +294,41 @@ class CaseConnectionTests(TestCase):
             path.write_text("slug: invalid\nname: Invalid\nstandard: Nope\ncriteria: invalid\n")
             with self.assertRaises(ValueError):
                 load_triage_rubric_file(path)
+
+    def test_triage_normalization_accepts_list_like_summary_fields(self):
+        fallback = {
+            "case_type": "Eviction",
+            "priority": False,
+            "priority_label": "needs_review",
+            "confidence": "low",
+            "summary": "Fallback summary",
+            "reasoning": "Fallback reasoning",
+            "matched_criteria": [],
+            "missing_information": [],
+            "evidence": [],
+        }
+        payload = {
+            "summary": [
+                "- Tenant is facing an eviction action.",
+                "- Hearing date is documented.",
+            ],
+            "reasoning": "['- Mold repairs are unresolved.', '- Rent is saved.']",
+            "matched_criteria": "['- Eviction risk', '- Vulnerability']",
+            "missing_information": "- Confirm rent ledger\n- Confirm notice date",
+        }
+
+        normalized = normalize_triage_payload(payload, fallback)
+
+        self.assertEqual(
+            normalized["summary"],
+            "- Tenant is facing an eviction action.\n- Hearing date is documented.",
+        )
+        self.assertEqual(
+            normalized["reasoning"],
+            "- Mold repairs are unresolved.\n- Rent is saved.",
+        )
+        self.assertEqual(normalized["matched_criteria"], ["Eviction risk", "Vulnerability"])
+        self.assertEqual(normalized["missing_information"], ["Confirm rent ledger", "Confirm notice date"])
 
     @override_settings(AI_DRAFTING_ENABLED=False)
     def test_user_can_run_triage_for_manual_case_with_fallback(self):

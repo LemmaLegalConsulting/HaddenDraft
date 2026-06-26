@@ -1,7 +1,7 @@
 from django.http import JsonResponse
 
 from apps.ai.openai_client import OpenAIBackendError, OpenAICompatibleClient
-from apps.ai.chat_history import append_message, messages_for_user
+from apps.ai.chat_history import append_message, archive_current_conversation, clear_messages, conversation_list, messages_for_user
 from apps.ai.models import ChatConversation
 from apps.ai.prompt_catalog import render_prompt
 from apps.core.http import api_login_required, json_body, method_not_allowed
@@ -10,6 +10,7 @@ from apps.matters.services import matter_for_user
 from apps.sources.document_text import DocumentExtractionError, extract_text
 from apps.sources.models import RetrievedDocument, UserResource
 from apps.sources.registry import connector_registry
+from apps.sources.selection import automatic_source_selection, source_decision_with_counts, source_kinds
 
 
 def _truthy(value):
@@ -61,11 +62,18 @@ def sources(_request):
 @api_login_required
 def research(request):
     if request.method == "GET":
-        return JsonResponse({"messages": messages_for_user(user=request.user, kind=ChatConversation.RESEARCH)})
+        thread_id = request.GET.get("threadId")
+        return JsonResponse({"messages": messages_for_user(user=request.user, kind=ChatConversation.RESEARCH, conversation_id=thread_id), "threads": conversation_list(user=request.user, kind=ChatConversation.RESEARCH)})
+    if request.method == "DELETE":
+        clear_messages(user=request.user, kind=ChatConversation.RESEARCH)
+        return JsonResponse({"ok": True})
     if request.method != "POST":
-        return method_not_allowed(["GET", "POST"])
+        return method_not_allowed(["GET", "POST", "DELETE"])
 
     body = json_body(request)
+    if body.get("action") == "new_thread":
+        archive_current_conversation(user=request.user, kind=ChatConversation.RESEARCH)
+        return JsonResponse({"messages": [], "threads": conversation_list(user=request.user, kind=ChatConversation.RESEARCH)})
     query = body.get("query", "")
     matter = None
     if body.get("matterId"):
@@ -82,10 +90,17 @@ def research(request):
     history = messages_for_user(user=request.user, kind=ChatConversation.RESEARCH)
     current_message = {"role": "user", "content": query}
     conversation = [*history, current_message]
+    source_ids = body.get("sourceIds") or []
+    auto_mode = body.get("sourceMode") == "auto"
+    auto_selection = None
+    if auto_mode:
+        auto_selection = automatic_source_selection(query, matter=matter)
+        source_ids = auto_selection["source_ids"]
+    kinds = body.get("sourceKinds") or source_kinds(source_ids)
     results = connector_registry.search(
         query,
-        kinds=body.get("sourceKinds"),
-        source_ids=body.get("sourceIds"),
+        kinds=kinds,
+        source_ids=source_ids,
         matter=matter,
         jurisdiction=jurisdiction,
         limit_per_source=body.get("limitPerSource", 5),
@@ -103,7 +118,9 @@ def research(request):
             citation=result.citation,
             metadata=result.metadata,
         )
-    payload = {"results": [result.to_dict() for result in results], "usedAi": False}
+    payload = {"results": [result.to_dict() for result in results], "usedAi": False, "selectedSourceIds": source_ids}
+    if auto_selection:
+        payload["sourceDecision"] = source_decision_with_counts(auto_selection, results)
     if _truthy(body.get("useAi")):
         try:
             payload["answer"] = _research_answer(

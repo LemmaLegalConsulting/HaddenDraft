@@ -16,6 +16,7 @@ from apps.sources.connectors.user_resources import UserResourceConnector
 from apps.sources.connectors.rag import ContentLibraryTreatiseConnector
 from apps.sources.models import SourceConfiguration, UserOAuthConnection, UserResource
 from apps.sources.registry import ConnectorRegistry
+from apps.sources.selection import automatic_source_selection
 
 
 class FakeResponse:
@@ -398,7 +399,7 @@ class ResearchViewTests(TestCase):
         with patch("apps.sources.views.connector_registry", registry), patch("apps.sources.views.OpenAICompatibleClient") as ai_client:
             response = self.client.post(
                 "/api/research/",
-                data=json.dumps({"query": "habitability", "useAi": False}),
+                data=json.dumps({"query": "habitability", "useAi": False, "sourceMode": "auto"}),
                 content_type="application/json",
             )
 
@@ -407,6 +408,11 @@ class ResearchViewTests(TestCase):
         self.assertFalse(payload["usedAi"])
         self.assertNotIn("answer", payload)
         self.assertEqual(payload["results"][0]["title"], "Habitability guide")
+        self.assertEqual(payload["sourceDecision"]["mode"], "auto")
+        self.assertEqual(
+            [item["id"] for item in payload["sourceDecision"]["sources"]],
+            ["ohio-statutes", "treatise"],
+        )
         ai_client.assert_not_called()
 
     def test_research_with_ai_returns_answer_from_retrieved_sources(self):
@@ -450,6 +456,21 @@ class ResearchViewTests(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertIn("selected jurisdiction is Ohio", captured["system"])
+
+
+class AutomaticSourceSelectionTests(TestCase):
+    def test_general_question_explains_the_primary_and_secondary_baseline(self):
+        selection = automatic_source_selection("What defenses can a tenant raise in an eviction?")
+
+        self.assertEqual(selection["source_ids"], ["ohio-statutes", "treatise"])
+        self.assertIn("Primary-law baseline", selection["annotations"][0]["reason"])
+        self.assertIn("Secondary-source baseline", selection["annotations"][1]["reason"])
+
+    def test_hud_question_explains_specialized_routing(self):
+        selection = automatic_source_selection("What HUD voucher termination rules apply?")
+
+        self.assertEqual(selection["source_ids"], ["hud-handbook"])
+        self.assertEqual(selection["annotations"][0]["reason"], "The question concerns federally assisted housing or a HUD program.")
 
 
 class ConnectorRegistryTests(TestCase):

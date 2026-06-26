@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Loader2, Send } from "lucide-react";
+import { History, Loader2, Plus, Send, Trash2 } from "lucide-react";
 
 import { api } from "../api/client.js";
 import { MarkdownResponse } from "./MarkdownResponse.jsx";
@@ -20,6 +20,9 @@ export function CaseChat({ matter, onAction }) {
   const [busy, setBusy] = useState(false);
   const [historyLoading, setHistoryLoading] = useState(false);
   const [error, setError] = useState("");
+  const [showHistory, setShowHistory] = useState(true);
+  const [threads, setThreads] = useState([]);
+  const [selectedThreadId, setSelectedThreadId] = useState("");
 
   useEffect(() => {
     setInput("");
@@ -33,7 +36,7 @@ export function CaseChat({ matter, onAction }) {
     let cancelled = false;
     api.caseChatHistory(matter.id)
       .then((response) => {
-        if (!cancelled) setMessages(response.messages || []);
+        if (!cancelled) { setMessages(response.messages || []); setThreads(response.threads || []); }
       })
       .catch((err) => {
         if (!cancelled) setError(err.message || "Could not load case chat history.");
@@ -74,6 +77,29 @@ export function CaseChat({ matter, onAction }) {
     await submitMessage(input.trim());
   }
 
+  async function clearHistory() {
+    if (!matter) return;
+    setBusy(true);
+    try { await api.clearCaseChatHistory(matter.id); setMessages([]); setShowHistory(false); }
+    catch (err) { setError(err.message || "Could not clear case chat history."); }
+    finally { setBusy(false); }
+  }
+
+  async function newChat() {
+    if (!matter) return;
+    setBusy(true);
+    try { const response = await api.newCaseChat(matter.id); setMessages([]); setThreads(response.threads || []); setSelectedThreadId(""); setShowHistory(true); }
+    catch (err) { setError(err.message || "Could not start a new case chat."); }
+    finally { setBusy(false); }
+  }
+
+  async function selectThread(event) {
+    const threadId = event.target.value;
+    setSelectedThreadId(threadId);
+    const response = await api.caseChatHistory(matter.id, threadId);
+    setMessages(response.messages || []);
+  }
+
   return (
     <div className="panel chat-panel">
       {!matter && (
@@ -84,8 +110,17 @@ export function CaseChat({ matter, onAction }) {
       )}
       {matter && (
         <>
+          <div className="chat-history-actions">
+            <select aria-label="Case chat threads" value={selectedThreadId} onChange={selectThread}>
+              <option value="">Current chat</option>
+              {threads.filter((thread) => !thread.active).map((thread) => <option key={thread.id} value={thread.id}>{thread.preview}</option>)}
+            </select>
+            <button className="text-link-button" type="button" onClick={() => setShowHistory((value) => !value)}><History size={15} /> {showHistory ? "Hide history" : "View history"}</button>
+            <button className="text-link-button" type="button" disabled={busy} onClick={newChat}><Plus size={15} /> New chat</button>
+            <button className="text-link-button danger" type="button" disabled={busy || !!selectedThreadId || !messages.length} onClick={clearHistory}><Trash2 size={15} /> Clear</button>
+          </div>
           <div className="chat-transcript">
-            {!messages.length && (
+            {(!messages.length || !showHistory) && (
               <div className="empty-state compact-empty">
                 <p>Ask about case status, assignments, documents, facts, or next drafting steps.</p>
                 <div className="starter-card-list">
@@ -97,7 +132,7 @@ export function CaseChat({ matter, onAction }) {
                 </div>
               </div>
             )}
-            {messages.map((message, index) => (
+            {showHistory && messages.map((message, index) => (
               <article key={`${message.role}-${index}`} className={`chat-message ${message.role}`}>
                 {message.role === "assistant" ? <MarkdownResponse content={cleanMessage(message.content)} /> : <p>{cleanMessage(message.content)}</p>}
                 {message.toolsUsed?.length > 0 && <small>Used {message.toolsUsed.join(", ")}</small>}
@@ -121,7 +156,7 @@ export function CaseChat({ matter, onAction }) {
               onChange={(event) => setInput(event.target.value)}
               placeholder="Ask about documents, case posture, parties, or drafting strategy"
             />
-            <button className="primary" disabled={busy || historyLoading || !input.trim()}>
+            <button className="primary" disabled={busy || historyLoading || !!selectedThreadId || !input.trim()}>
               {busy ? <Loader2 className="spin" size={16} /> : <Send size={16} />} Send
             </button>
           </form>

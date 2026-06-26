@@ -32,8 +32,9 @@ class ChatConversation(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    archived_at = models.DateTimeField(null=True, blank=True)
+
     class Meta:
-        constraints = [models.UniqueConstraint(fields=("user", "kind", "scope_key"), name="unique_user_chat_scope")]
         ordering = ["-updated_at"]
 
 

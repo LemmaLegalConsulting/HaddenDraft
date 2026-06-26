@@ -5,7 +5,7 @@ from django.conf import settings
 from django.http import JsonResponse
 
 from apps.ai.case_chat import case_chat_reply
-from apps.ai.chat_history import append_message, messages_for_user
+from apps.ai.chat_history import append_message, archive_current_conversation, clear_messages, conversation_list, messages_for_user
 from apps.ai.models import ChatConversation
 from apps.core.http import api_login_required
 from apps.core.http import json_body
@@ -396,8 +396,8 @@ def case_triage(request, matter_id):
 
 @api_login_required
 def case_chat(request, matter_id):
-    if request.method not in {"GET", "POST"}:
-        return JsonResponse({"error": "GET or POST required"}, status=405)
+    if request.method not in {"GET", "POST", "DELETE"}:
+        return JsonResponse({"error": "GET, POST, or DELETE required"}, status=405)
     matter = matter_for_user(request.user, matter_id)
     if not matter:
         sync_legalserver_matter(matter_id, user=request.user)
@@ -406,8 +406,15 @@ def case_chat(request, matter_id):
         return JsonResponse({"error": "Case not found or not available to this user"}, status=404)
     scope_key = str(matter.id)
     if request.method == "GET":
-        return JsonResponse({"messages": messages_for_user(user=request.user, kind=ChatConversation.CASE, scope_key=scope_key)})
+        thread_id = request.GET.get("threadId")
+        return JsonResponse({"messages": messages_for_user(user=request.user, kind=ChatConversation.CASE, scope_key=scope_key, conversation_id=thread_id), "threads": conversation_list(user=request.user, kind=ChatConversation.CASE, scope_key=scope_key)})
+    if request.method == "DELETE":
+        clear_messages(user=request.user, kind=ChatConversation.CASE, scope_key=scope_key)
+        return JsonResponse({"ok": True})
     body = json.loads(request.body.decode("utf-8") or "{}")
+    if body.get("action") == "new_thread":
+        archive_current_conversation(user=request.user, kind=ChatConversation.CASE, scope_key=scope_key)
+        return JsonResponse({"messages": [], "threads": conversation_list(user=request.user, kind=ChatConversation.CASE, scope_key=scope_key)})
     content = str(body.get("content") or "").strip()
     if not content:
         supplied = body.get("messages") or []

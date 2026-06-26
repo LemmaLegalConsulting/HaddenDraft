@@ -709,10 +709,7 @@ export function App() {
 
         {mode === "triage" && (
           <TriagePanel
-            cases={cases}
             matter={matter}
-            selectedMatterId={selectedMatterId}
-            onSelectMatter={setSelectedMatterId}
             rubrics={triageRubrics}
             selectedRubricId={selectedTriageRubricId}
             onSelectRubric={setSelectedTriageRubricId}
