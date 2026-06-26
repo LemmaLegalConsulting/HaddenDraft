@@ -64,6 +64,27 @@ class CaseConnectionTests(TestCase):
         self.assertEqual(fake_client.calls, [])
 
     @patch("apps.matters.services.LegalServerClient")
+    def test_unconnected_user_sees_their_manual_cases(self, client_class):
+        fake_client = FakeLegalServerClient()
+        client_class.return_value = fake_client
+        manual = Matter.objects.create(
+            external_id="MANUAL-1",
+            client_name="Manual Client",
+            matter_type="Eviction defense",
+            jurisdiction="Housing Court",
+            source_system="Manual",
+            raw_payload={"created_by_user_id": self.user.id},
+        )
+
+        response = self.client.get("/api/cases/")
+
+        self.assertEqual(response.status_code, 200)
+        payload = response.json()
+        self.assertEqual([case["id"] for case in payload["cases"]], [manual.external_id])
+        self.assertEqual(payload["cases"][0]["sourceSystem"], "Manual")
+        self.assertEqual(fake_client.calls, [])
+
+    @patch("apps.matters.services.LegalServerClient")
     def test_connected_user_filters_legalserver_by_saved_identifier(self, client_class):
         fake_client = FakeLegalServerClient()
         client_class.return_value = fake_client
@@ -116,7 +137,9 @@ class CaseConnectionTests(TestCase):
             client_name="Document Client",
             matter_type="Eviction",
             jurisdiction="Housing Court",
+            source_system="Manual",
             raw_payload={
+                "created_by_user_id": self.user.id,
                 "case_notes": [
                     "Tenant has a disability and asked for more time to gather records. Landlord received the request.",
                     "Tenant paid April rent by money order.",
@@ -148,6 +171,8 @@ class CaseConnectionTests(TestCase):
             matter_type="Eviction",
             jurisdiction="Housing Court",
             summary="Tenant disputes rent and reported mold repairs.",
+            source_system="Manual",
+            raw_payload={"created_by_user_id": self.user.id},
         )
         rent = MatterFact.objects.create(
             matter=matter,
@@ -185,6 +210,8 @@ class CaseConnectionTests(TestCase):
             client_name="Fact Client",
             matter_type="Eviction",
             jurisdiction="Housing Court",
+            source_system="Manual",
+            raw_payload={"created_by_user_id": self.user.id},
         )
 
         response = self.client.post(
@@ -209,6 +236,8 @@ class CaseConnectionTests(TestCase):
             client_name="Fact Client",
             matter_type="Eviction",
             jurisdiction="Housing Court",
+            source_system="Manual",
+            raw_payload={"created_by_user_id": self.user.id},
         )
 
         response = self.client.post(
@@ -227,3 +256,54 @@ class CaseConnectionTests(TestCase):
         created = response.json()["created"][0]
         self.assertEqual(created["title"], "Uploaded repairs")
         self.assertIn("no heat", created["text"])
+
+    @patch("apps.matters.services.LegalServerClient")
+    def test_user_can_create_manual_case_with_notes_and_multiple_files(self, client_class):
+        client_class.return_value = FakeLegalServerClient()
+
+        response = self.client.post(
+            "/api/cases/",
+            data={
+                "clientName": "Local Client",
+                "matterType": "Eviction defense",
+                "jurisdiction": "Cleveland Housing Court",
+                "posture": "Pre-filing intake",
+                "notes": "Client says the landlord refused repairs before filing.",
+                "files": [
+                    SimpleUploadedFile(
+                        "notice.txt",
+                        b"Three-day notice was posted on the door.",
+                        content_type="text/plain",
+                    ),
+                    SimpleUploadedFile(
+                        "ledger.txt",
+                        b"Ledger does not credit the February money order.",
+                        content_type="text/plain",
+                    ),
+                ],
+            },
+        )
+
+        self.assertEqual(response.status_code, 201)
+        payload = response.json()
+        self.assertEqual(payload["case"]["client"], "Local Client")
+        self.assertEqual(payload["case"]["sourceSystem"], "Manual")
+        self.assertEqual(len(payload["created"]), 3)
+        matter = Matter.objects.get(external_id=payload["case"]["id"])
+        self.assertEqual(matter.raw_payload["created_by_user_id"], self.user.id)
+        self.assertEqual(matter.facts.count(), 3)
+
+        detail_response = self.client.get(f"/api/cases/{matter.external_id}/")
+
+        self.assertEqual(detail_response.status_code, 200)
+        self.assertEqual(len(detail_response.json()["case"]["facts"]), 3)
+
+    def test_cannot_create_empty_manual_case(self):
+        response = self.client.post(
+            "/api/cases/",
+            data=json.dumps({"clientName": "Blank Client"}),
+            content_type="application/json",
+        )
+
+        self.assertEqual(response.status_code, 400)
+        self.assertFalse(Matter.objects.filter(client_name="Blank Client").exists())

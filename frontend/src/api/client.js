@@ -55,6 +55,7 @@ export const api = {
   logout: () => request("/auth/logout/", { method: "POST" }),
   startOffice365Login: () => request("/auth/office365/start/"),
   cases: (query = "") => request(`/cases/${query ? `?${new URLSearchParams({ q: query })}` : ""}`),
+  createManualCase: (formData) => request("/cases/", { method: "POST", body: formData }),
   connectLegalServer: (payload) => request("/legalserver/account/", { method: "POST", body: JSON.stringify(payload) }),
   disconnectLegalServer: () => request("/legalserver/account/", { method: "DELETE" }),
   caseDetail: (matterId) => request(`/cases/${matterId}/`),

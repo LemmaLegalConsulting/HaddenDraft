@@ -1,4 +1,5 @@
 from dataclasses import dataclass, field
+from uuid import uuid4
 
 from django.conf import settings
 
@@ -257,6 +258,9 @@ def legalserver_access_profile_for_user(user, *, client=None):
 def user_can_access_matter(user, matter, *, access_profile=None):
     if not user or not getattr(user, "is_authenticated", False) or not matter:
         return False
+    raw_payload = matter.raw_payload or {}
+    if matter.source_system == "Manual" and raw_payload.get("created_by_user_id") == user.id:
+        return True
     access_profile = access_profile or legalserver_access_profile_for_user(user)
     if access_profile.is_superuser:
         return True
@@ -266,7 +270,13 @@ def user_can_access_matter(user, matter, *, access_profile=None):
         return True
     if not access_profile.identifier or access_profile.error:
         return False
-    return payload_matches_legalserver_identifier(matter.raw_payload or {}, access_profile.identifier)
+    return payload_matches_legalserver_identifier(raw_payload, access_profile.identifier)
+
+
+def local_matters_for_user(user):
+    if not user or not getattr(user, "is_authenticated", False):
+        return []
+    return list(Matter.objects.filter(source_system="Manual", raw_payload__created_by_user_id=user.id))
 
 
 def accessible_matters_for_user(user):
@@ -281,6 +291,24 @@ def matter_for_user(user, external_id):
     if matter and user_can_access_matter(user, matter):
         return matter
     return None
+
+
+def create_manual_matter_for_user(user, *, client_name="", matter_type="", jurisdiction="", posture="", summary=""):
+    external_id = f"MANUAL-{user.id}-{uuid4().hex[:12]}"
+    return Matter.objects.create(
+        external_id=external_id,
+        client_name=(client_name or "").strip() or "New local case",
+        matter_type=(matter_type or "").strip() or "Housing matter",
+        jurisdiction=(jurisdiction or "").strip(),
+        posture=(posture or "").strip(),
+        summary=(summary or "").strip(),
+        source_system="Manual",
+        raw_payload={
+            "created_by_user_id": user.id,
+            "created_by_username": getattr(user, "username", ""),
+            "manual_entry": True,
+        },
+    )
 
 
 def legalserver_account_status(user, *, client=None):

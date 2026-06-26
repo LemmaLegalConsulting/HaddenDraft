@@ -20,7 +20,9 @@ from apps.matters.models import MatterFact
 from apps.matters.seed import seed_matters
 from apps.matters.serializers import fact_to_dict, matter_to_dict
 from apps.matters.services import (
+    create_manual_matter_for_user,
     legalserver_account_status,
+    local_matters_for_user,
     matter_for_user,
     sync_legalserver_matter,
     sync_legalserver_matters_for_user,
@@ -38,11 +40,21 @@ def _matter_or_404(user, matter_id):
 
 @api_login_required
 def cases(request):
+    if request.method == "POST":
+        return create_manual_case(request)
+    if request.method != "GET":
+        return JsonResponse({"error": "GET or POST required"}, status=405)
+
     query = request.GET.get("q", "").strip()
     sync = sync_legalserver_matters_for_user(request.user, query=query, restrict_to_user=not bool(query))
     if settings.ENABLE_DEMO_MATTERS and not sync.matters:
         seed_matters()
-    matters = sync.matters if not settings.ENABLE_DEMO_MATTERS else matter_for_demo_list()
+    local_matters = [] if query else local_matters_for_user(request.user)
+    if settings.ENABLE_DEMO_MATTERS:
+        matters = matter_for_demo_list()
+    else:
+        matters_by_id = {matter.external_id: matter for matter in [*local_matters, *sync.matters]}
+        matters = list(matters_by_id.values())
     account = legalserver_account_status(request.user)
     return JsonResponse(
         {
@@ -52,6 +64,85 @@ def cases(request):
                 "syncError": sync.error,
             },
         }
+    )
+
+
+def _request_value(request, key, default=""):
+    if request.content_type and request.content_type.startswith("multipart/"):
+        return request.POST.get(key, default)
+    return json_body(request).get(key, default)
+
+
+def _create_fact_from_upload(matter, upload):
+    extracted = extract_text(upload.read(), filename=upload.name, content_type=upload.content_type or "")
+    return _create_case_fact(
+        matter,
+        title=upload.name,
+        text=extracted["text"],
+        source_label=f"Uploaded document: {upload.name}",
+    )
+
+
+def create_manual_case(request):
+    if not (request.content_type and request.content_type.startswith("multipart/")):
+        body = json_body(request)
+        notes = body.get("notes") or body.get("summary") or ""
+        if not notes.strip():
+            return JsonResponse({"error": "Add intake notes or upload at least one file"}, status=400)
+        matter = create_manual_matter_for_user(
+            request.user,
+            client_name=body.get("clientName") or body.get("client_name") or "",
+            matter_type=body.get("matterType") or body.get("matter_type") or "",
+            jurisdiction=body.get("jurisdiction") or "",
+            posture=body.get("posture") or "",
+            summary=notes,
+        )
+        created = []
+        fact = _create_case_fact(matter, title="Intake notes", text=notes, source_label="Typed intake notes")
+        if fact:
+            created.append(fact)
+        matter = matter.__class__.objects.prefetch_related("facts").get(id=matter.id)
+        return JsonResponse(
+            {
+                "case": matter_to_dict(matter, include_facts=True),
+                "created": [fact_to_dict(fact) for fact in created],
+            },
+            status=201,
+        )
+
+    notes = _request_value(request, "notes")
+    uploads = request.FILES.getlist("files") or request.FILES.getlist("file")
+    if not notes.strip() and not uploads:
+        return JsonResponse({"error": "Add intake notes or upload at least one file"}, status=400)
+
+    matter = create_manual_matter_for_user(
+        request.user,
+        client_name=_request_value(request, "clientName") or _request_value(request, "client_name"),
+        matter_type=_request_value(request, "matterType") or _request_value(request, "matter_type"),
+        jurisdiction=_request_value(request, "jurisdiction"),
+        posture=_request_value(request, "posture"),
+        summary=notes,
+    )
+    created = []
+    fact = _create_case_fact(matter, title="Intake notes", text=notes, source_label="Typed intake notes")
+    if fact:
+        created.append(fact)
+    try:
+        for upload in uploads:
+            upload_fact = _create_fact_from_upload(matter, upload)
+            if upload_fact:
+                created.append(upload_fact)
+    except DocumentExtractionError as exc:
+        matter.delete()
+        return JsonResponse({"error": str(exc)}, status=400)
+
+    matter = matter.__class__.objects.prefetch_related("facts").get(id=matter.id)
+    return JsonResponse(
+        {
+            "case": matter_to_dict(matter, include_facts=True),
+            "created": [fact_to_dict(fact) for fact in created],
+        },
+        status=201,
     )
 
 

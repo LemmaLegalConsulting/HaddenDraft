@@ -1,5 +1,5 @@
 import React from "react";
-import { ChevronDown, FileText, Link2, Loader2, MessageSquare, RotateCcw, Search, Unplug } from "lucide-react";
+import { ChevronDown, FilePlus2, FileText, Link2, Loader2, MessageSquare, RotateCcw, Search, Unplug, Upload } from "lucide-react";
 
 export function CaseSelector({
   cases,
@@ -17,9 +17,20 @@ export function CaseSelector({
   onSearch,
   onSearchReset,
   caseBusy,
+  manualCaseBusy,
+  onCreateManualCase,
   onModeChange,
 }) {
   const [connectionDetailsOpen, setConnectionDetailsOpen] = React.useState(false);
+  const [manualCaseOpen, setManualCaseOpen] = React.useState(false);
+  const [manualCase, setManualCase] = React.useState({
+    clientName: "",
+    matterType: "",
+    jurisdiction: "",
+    posture: "",
+    notes: "",
+  });
+  const [manualFiles, setManualFiles] = React.useState([]);
   const connected = Boolean(legalserver?.connected);
   const configured = legalserver?.configured !== false;
   const syncError = legalserver?.syncError;
@@ -71,6 +82,87 @@ export function CaseSelector({
         )}
       </form>
       {connectionDetailsOpen && syncError && syncError !== "not_connected" && <div className="inline-error">LegalServer sync: {syncError}</div>}
+      <div className="manual-case-panel">
+        <button
+          className="secondary full"
+          type="button"
+          aria-expanded={manualCaseOpen}
+          onClick={() => setManualCaseOpen((current) => !current)}
+        >
+          <FilePlus2 size={16} /> New local case
+        </button>
+        {manualCaseOpen && (
+          <form
+            className="manual-case-form"
+            onSubmit={async (event) => {
+              event.preventDefault();
+              const created = await onCreateManualCase?.({ ...manualCase, files: manualFiles });
+              if (created) {
+                setManualCase({ clientName: "", matterType: "", jurisdiction: "", posture: "", notes: "" });
+                setManualFiles([]);
+                event.currentTarget.reset();
+                setManualCaseOpen(false);
+              }
+            }}
+          >
+            <div className="manual-case-grid">
+              <label className="field">
+                <span>Client or household</span>
+                <input
+                  value={manualCase.clientName}
+                  onChange={(event) => setManualCase((current) => ({ ...current, clientName: event.target.value }))}
+                  placeholder="Client name"
+                />
+              </label>
+              <label className="field">
+                <span>Legal problem</span>
+                <input
+                  value={manualCase.matterType}
+                  onChange={(event) => setManualCase((current) => ({ ...current, matterType: event.target.value }))}
+                  placeholder="Eviction, conditions, subsidy..."
+                />
+              </label>
+              <label className="field">
+                <span>Court or county</span>
+                <input
+                  value={manualCase.jurisdiction}
+                  onChange={(event) => setManualCase((current) => ({ ...current, jurisdiction: event.target.value }))}
+                  placeholder="Optional"
+                />
+              </label>
+              <label className="field">
+                <span>Posture</span>
+                <input
+                  value={manualCase.posture}
+                  onChange={(event) => setManualCase((current) => ({ ...current, posture: event.target.value }))}
+                  placeholder="Intake, pre-hearing..."
+                />
+              </label>
+            </div>
+            <label className="field">
+              <span>Case description or intake notes</span>
+              <textarea
+                value={manualCase.notes}
+                onChange={(event) => setManualCase((current) => ({ ...current, notes: event.target.value }))}
+                placeholder="Type the facts, timeline, defenses, relief requested, or raw intake notes."
+                rows={5}
+              />
+            </label>
+            <label className="field">
+              <span>Case files</span>
+              <input
+                type="file"
+                multiple
+                accept=".txt,.md,.csv,.json,.html,.htm,.docx,.pdf,text/*,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                onChange={(event) => setManualFiles(Array.from(event.target.files || []))}
+              />
+            </label>
+            <button className="primary full" type="submit" disabled={manualCaseBusy || (!manualCase.notes.trim() && manualFiles.length === 0)}>
+              {manualCaseBusy ? <Loader2 className="spin" size={16} /> : <Upload size={16} />} Create and select
+            </button>
+          </form>
+        )}
+      </div>
       {connected && (
         connectionDetailsOpen && (
           <form className="case-search" onSubmit={onSearch}>
@@ -103,11 +195,11 @@ export function CaseSelector({
         ))}
         {!cases.length && (
           <div className="empty-state compact-empty">
-            <strong className="empty-state-title">{connected ? "No matters found" : "Connect LegalServer"}</strong>
+            <strong className="empty-state-title">{connected ? "No matters found" : "No cases yet"}</strong>
             <p>
               {connected
                 ? "LegalServer did not return matters for this identifier."
-                : "Connect your LegalServer identifier to load assigned matters."}
+                : "Create a local case with notes or files, or connect LegalServer to load assigned matters."}
             </p>
           </div>
         )}

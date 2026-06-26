@@ -74,6 +74,7 @@ export function App() {
   const [legalserverIdentifier, setLegalserverIdentifier] = useState("");
   const [caseSearch, setCaseSearch] = useState("");
   const [caseBusy, setCaseBusy] = useState(false);
+  const [manualCaseBusy, setManualCaseBusy] = useState(false);
   const [accountBusy, setAccountBusy] = useState(false);
   const [credentials, setCredentials] = useState({ username: "", password: "" });
   const [accountMenuOpen, setAccountMenuOpen] = useState(false);
@@ -251,6 +252,35 @@ export function App() {
   async function handleCaseSearchReset() {
     setCaseSearch("");
     await loadCases("");
+  }
+
+  async function handleCreateManualCase(payload) {
+    setManualCaseBusy(true);
+    setError("");
+    try {
+      const formData = new FormData();
+      formData.append("clientName", payload.clientName || "");
+      formData.append("matterType", payload.matterType || "");
+      formData.append("jurisdiction", payload.jurisdiction || "");
+      formData.append("posture", payload.posture || "");
+      formData.append("notes", payload.notes || "");
+      (payload.files || []).forEach((file) => formData.append("files", file));
+      const response = await api.createManualCase(formData);
+      setCases((current) => {
+        const withoutDuplicate = current.filter((item) => item.id !== response.case.id);
+        return [response.case, ...withoutDuplicate];
+      });
+      setSelectedMatterId(response.case.id);
+      setMatter(response.case);
+      setSelectedFactIds((response.created || []).map((fact) => fact.id));
+      setSelectedCuratedFacts([]);
+      return true;
+    } catch (err) {
+      setError(err.message);
+      return false;
+    } finally {
+      setManualCaseBusy(false);
+    }
   }
 
   const selectedTemplate = useMemo(
@@ -626,6 +656,8 @@ export function App() {
             onSearch={handleCaseSearch}
             onSearchReset={handleCaseSearchReset}
             caseBusy={caseBusy}
+            manualCaseBusy={manualCaseBusy}
+            onCreateManualCase={handleCreateManualCase}
             onModeChange={(nextMode) => nextMode === "draft" ? openDraft() : setMode(nextMode)}
           />
         )}
