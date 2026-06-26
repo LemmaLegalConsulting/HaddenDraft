@@ -1,10 +1,13 @@
+import json
 from types import SimpleNamespace
+from unittest.mock import patch
 
 from django.contrib.auth.models import User
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import RequestFactory, TestCase, override_settings
 
 from apps.matters.models import Matter
+from apps.sources.connectors.base import SourceResult
 from apps.sources.connectors.legalserver import LegalServerClient, LegalServerConnector, LegalServerError, matter_payload_to_defaults
 from apps.sources.connectors.sharepoint import SharePointClient, SharePointConnector, graph_token_for_request
 from apps.sources.connectors.user_resources import UserResourceConnector
@@ -295,6 +298,58 @@ class UserResourceViewTests(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual([item["id"] for item in response.json()["resources"]], [mine.id])
+
+
+class ResearchViewTests(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(username="advocate", password="password")
+        self.client.force_login(self.user)
+        self.result = SourceResult(
+            id="source:1",
+            title="Habitability guide",
+            snippet="Tenant may raise repair conditions as a defense.",
+            source_kind="rag",
+            source_label="Treatise",
+            citation="Housing guide",
+        )
+
+    def test_research_without_ai_returns_only_retrieval_results(self):
+        registry = SimpleNamespace(search=lambda *args, **kwargs: [self.result])
+
+        with patch("apps.sources.views.connector_registry", registry), patch("apps.sources.views.OpenAICompatibleClient") as ai_client:
+            response = self.client.post(
+                "/api/research/",
+                data=json.dumps({"query": "habitability", "useAi": False}),
+                content_type="application/json",
+            )
+
+        self.assertEqual(response.status_code, 200)
+        payload = response.json()
+        self.assertFalse(payload["usedAi"])
+        self.assertNotIn("answer", payload)
+        self.assertEqual(payload["results"][0]["title"], "Habitability guide")
+        ai_client.assert_not_called()
+
+    def test_research_with_ai_returns_answer_from_retrieved_sources(self):
+        registry = SimpleNamespace(search=lambda *args, **kwargs: [self.result])
+        fake_client = SimpleNamespace(complete=lambda **kwargs: "Yes, based on Housing guide.")
+
+        with patch("apps.sources.views.connector_registry", registry), patch("apps.sources.views.OpenAICompatibleClient", return_value=fake_client):
+            response = self.client.post(
+                "/api/research/",
+                data=json.dumps({
+                    "query": "Can the tenant raise repairs?",
+                    "useAi": True,
+                    "messages": [{"role": "user", "content": "Earlier question"}],
+                }),
+                content_type="application/json",
+            )
+
+        self.assertEqual(response.status_code, 200)
+        payload = response.json()
+        self.assertTrue(payload["usedAi"])
+        self.assertEqual(payload["answer"], "Yes, based on Housing guide.")
+        self.assertEqual(payload["results"][0]["citation"], "Housing guide")
 
 
 class ConnectorRegistryTests(TestCase):
