@@ -1,6 +1,7 @@
 from django.http import JsonResponse
 
 from apps.ai.openai_client import OpenAIBackendError, OpenAICompatibleClient
+from apps.ai.prompt_catalog import render_prompt
 from apps.core.http import api_login_required, json_body, method_not_allowed
 from apps.matters.services import matter_for_user
 from apps.sources.document_text import DocumentExtractionError, extract_text
@@ -31,23 +32,21 @@ def _research_answer(*, query, matter, results, messages):
         if content:
             chat_lines.append(f"{role}: {content}")
 
-    prompt = (
-        "Research question:\n"
-        f"{query}\n\n"
-        f"Matter summary: {getattr(matter, 'summary', '') if matter else ''}\n"
-        f"Jurisdiction: {getattr(matter, 'jurisdiction', '') if matter else ''}\n\n"
-        f"Recent research conversation:\n{chr(10).join(chat_lines) or '- None'}\n\n"
-        f"Retrieved sources:\n{chr(10).join(source_lines)}"
+    prompt = render_prompt(
+        "research.answer",
+        query=query,
+        matter_summary=getattr(matter, "summary", "") if matter else "",
+        jurisdiction=getattr(matter, "jurisdiction", "") if matter else "",
+        conversation="\n".join(chat_lines) or "- None",
+        sources="\n".join(source_lines),
     )
     client = OpenAICompatibleClient()
     return client.complete(
-        system=(
-            "You are a legal research assistant for housing advocates. Answer only from the retrieved "
-            "sources. Cite source titles or citations from the provided list. If the sources do not answer "
-            "the question, say what is missing and do not invent authority."
-        ),
-        user=prompt,
+        system=prompt.system,
+        user=prompt.user,
         temperature=0.1,
+        model=prompt.default_model,
+        reasoning_level=prompt.default_reasoning_level,
     )
 
 

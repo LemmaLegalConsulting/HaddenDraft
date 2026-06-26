@@ -1,0 +1,17 @@
+system prompt: |
+  You are a legal research assistant for housing advocates. Answer only from the retrieved sources. Cite source titles or citations from the provided list. If the sources do not answer the question, say what is missing and do not invent authority.
+user prompt: |
+  Research question:
+  {query}
+
+  Matter summary: {matter_summary}
+  Jurisdiction: {jurisdiction}
+
+  Recent research conversation:
+  {conversation}
+
+  Retrieved sources:
+  {sources}
+settings:
+  default model: gpt-5.4-mini
+  default reasoning level: low

@@ -1,7 +1,22 @@
 from pathlib import Path
 
+from apps.core.content_library import content_path
+
 
 DEFAULT_WORD_TEMPLATE_DIR = Path(__file__).resolve().parent / "default_word_templates"
+
+
+def content_block_template_path(template, block):
+    """Return a top-level content-library snippet, if one has been maintained."""
+    candidates = [
+        content_path("docx-snippets", template.slug, "blocks", f"{block.key}.docx"),
+        content_path("docx-snippets", template.slug, "blocks", f"{block.block_type}.docx"),
+        content_path("docx-snippets", "_shared", "blocks", f"{block.block_type}.docx"),
+    ]
+    for path in candidates:
+        if path.exists():
+            return path
+    return None
 
 
 def default_style_template_path(template):
@@ -12,6 +27,9 @@ def default_style_template_path(template):
 
 
 def default_block_template_path(template, block):
+    content_path_override = content_block_template_path(template, block)
+    if content_path_override:
+        return content_path_override
     candidates = [
         DEFAULT_WORD_TEMPLATE_DIR / template.slug / "blocks" / f"{block.key}.docx",
         DEFAULT_WORD_TEMPLATE_DIR / template.slug / "blocks" / f"{block.block_type}.docx",
@@ -32,6 +50,8 @@ def block_template_path(template, block):
 def block_template_source(template, block):
     if block.docx_template:
         return "admin"
+    if content_block_template_path(template, block):
+        return "content_library"
     if default_block_template_path(template, block):
         return "repository"
     return "body"

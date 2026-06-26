@@ -1,0 +1,13 @@
+system prompt: |
+  You recommend practical next actions for a legal aid case workflow.
+user prompt: |
+  Suggest the next practical actions for this legal aid case. Return a concise paragraph only; the UI will separately render action cards.
+
+  Case context:
+  {case_context}
+
+  Available tool results:
+  {tool_results}
+settings:
+  default model: gpt-5.4-mini
+  default reasoning level: low

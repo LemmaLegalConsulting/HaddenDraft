@@ -1,4 +1,6 @@
 import json
+import tempfile
+from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import patch
 
@@ -11,6 +13,7 @@ from apps.sources.connectors.base import SourceResult
 from apps.sources.connectors.legalserver import LegalServerClient, LegalServerConnector, LegalServerError, matter_payload_to_defaults
 from apps.sources.connectors.sharepoint import SharePointClient, SharePointConnector, graph_token_for_request
 from apps.sources.connectors.user_resources import UserResourceConnector
+from apps.sources.connectors.rag import ContentLibraryTreatiseConnector
 from apps.sources.models import SourceConfiguration, UserOAuthConnection, UserResource
 from apps.sources.registry import ConnectorRegistry
 
@@ -260,6 +263,45 @@ class UserResourceConnectorTests(TestCase):
         self.assertEqual(results[0].title, "Habitability brief")
         self.assertEqual(results[0].source_label, "Private reference")
         self.assertTrue(results[0].metadata["private"])
+
+
+class ContentLibraryTreatiseConnectorTests(TestCase):
+    @override_settings(AI_DRAFTING_ENABLED=False)
+    def test_searches_generated_chunks_and_retains_provenance(self):
+        with tempfile.TemporaryDirectory() as directory:
+            library = Path(directory)
+            version = library / "treatises" / "markdown" / "sample-treatise" / "2026-01"
+            chunks = version / "chunks"
+            chunks.mkdir(parents=True)
+            (chunks / "0001-repairs.md").write_text(
+                "---\nchunk_id: 0001-repairs\n---\n\n# Repairs\n\n## Source text\n\n"
+                "A tenant may raise unsafe repair conditions after giving the landlord notice.\n",
+                encoding="utf-8",
+            )
+            (version / "manifest.yaml").write_text(
+                "document_slug: sample-treatise\n"
+                "document_title: Sample Housing Treatise\n"
+                "document_version: 2026 edition\n"
+                "source_path: treatises/source/sample/2026.pdf\n"
+                "source_sha256: abc123\n"
+                "chunks:\n"
+                "- id: 0001-repairs\n"
+                "  file: chunks/0001-repairs.md\n"
+                "  heading: Repair conditions\n"
+                "  path: [Chapter 1, Repair conditions]\n"
+                "  pages: [12, 13]\n"
+                "  content_kind: substantive-section\n",
+                encoding="utf-8",
+            )
+            with override_settings(CONTENT_LIBRARY_DIR=library):
+                results = ContentLibraryTreatiseConnector().search("habitability repair defense")
+
+        self.assertEqual(len(results), 1)
+        self.assertEqual(results[0].source_kind, "rag")
+        self.assertIn("Sample Housing Treatise", results[0].citation)
+        self.assertIn("PDF pp. 12–13", results[0].citation)
+        self.assertEqual(results[0].metadata["chunkId"], "0001-repairs")
+        self.assertEqual(results[0].metadata["sourceSha256"], "abc123")
 
 
 class UserResourceViewTests(TestCase):

@@ -39,6 +39,8 @@ Runtime settings are loaded from `.env` in the repository root. `.env` is intent
 
 - OpenAI-compatible drafting calls use `OPENAI_BASE_URL`, `OPENAI_API_KEY`, and `OPENAI_MODEL`. Set `AI_DRAFTING_ENABLED=false` to keep deterministic drafting fallbacks during local development.
 - Case action recommendations default to `CASE_ACTION_MODEL` or `OPENAI_MODEL` when unset, so that workflow suggestions can use a different model from document drafting.
+- AI prompts are file-backed YAML entries in [`prompts/`](prompts/README.md). Set `PROMPT_CATALOG_DIR` to a directory containing a benchmark variant catalog; enabled **Prompt overrides** in Django admin take precedence for operational edits.
+- Reusable legal-content defaults are maintained in [`content/`](content/README.md). Set `CONTENT_LIBRARY_DIR` only to point at an equivalent staged content library. DOCX snippets are resolved from the content library before legacy package defaults; triage YAML seeds new database records without replacing admin edits.
 - Case chat document text extraction uses `DOCUMENT_TEXT_EXTRACTOR=stdlib` by default. Optional values are `markitdown` or `docling` when those packages are installed; the extractor interface is intentionally pluggable for custom backends.
 - LegalServer uses `LEGALSERVER_BASE_URL`, `LEGALSERVER_API_TOKEN`, `LEGALSERVER_MATTERS_PATH`, `LEGALSERVER_MATTERS_RESULTS`, and `LEGALSERVER_MATTER_DOCUMENTS_PATH`. Matter search uses the v2 `/api/v2/matters` endpoint with `results=full`, `page_size`, and the documented text search keys. User access filtering is applied inside the app after LegalServer returns authorized records.
 - SharePoint Online uses Microsoft Graph with `SHAREPOINT_SITE_ID`, `SHAREPOINT_DRIVE_ID`, and either a delegated `ms_graph_access_token` in the Django session or a service token in `SHAREPOINT_ACCESS_TOKEN`. Case document lookup uses `SHAREPOINT_CASE_FOLDER_TEMPLATE`.
@@ -115,6 +117,7 @@ npm run build
 ├── backend/                  Django project and backend apps
 ├── brainstorming/            Original planning documents
 ├── clickable_prototype.js    Original clickable React prototype
+├── content/                  Maintained DOCX snippets, treatise source/Markdown, and triage rubrics
 ├── docs/                     Architecture notes
 ├── frontend/                 Vite + React + Lexical frontend
 └── requirements.txt          Python dependencies
@@ -144,6 +147,8 @@ Key extension points:
 - Add a retrieval source by implementing `SourceConnector.search()` under `backend/apps/sources/connectors/` and registering it in `backend/apps/sources/registry.py`.
 - Add or change document structure through `DocumentTemplate` and `TemplateBlock` in `backend/apps/templates_app/models.py`.
 - Replace deterministic AI placeholders inside `backend/apps/ai/services.py`.
+- Maintain LLM system/user messages in `prompts/*.yaml`; see [`prompts/README.md`](prompts/README.md) for the schema, benchmark workflow, and database-override behavior.
+- Maintain reusable legal-content files in [`content/`](content/README.md). Run `.venv/bin/python backend/manage.py sync_content_library` to seed new triage-rubric files; use `--update-triage-rubrics` only when intentionally replacing existing database values.
 - Add export formats in `backend/apps/exporting/services.py`.
 
 ## Frontend Layout
