@@ -1,11 +1,16 @@
+from pathlib import Path
+from tempfile import TemporaryDirectory
 from types import SimpleNamespace
 from unittest.mock import patch
 
+from django.conf import settings
 from django.test import TestCase, override_settings
 
 from apps.ai.case_chat import case_chat_reply
 from apps.ai.case_chat import normalize_ai_text as normalize_chat_text
 from apps.ai.openai_client import OpenAICompatibleClient
+from apps.ai.models import PromptOverride
+from apps.ai.prompt_catalog import PromptCatalogError, PromptRenderError, get_prompt, load_file_prompts, render_prompt
 from apps.ai.services import ConstrainedDraftingService, GenerationContext
 from apps.matters.models import Matter
 from apps.matters.serializers import matter_to_dict
@@ -41,6 +46,54 @@ class OpenAICompatibleClientTests(TestCase):
         self.assertEqual(request["messages"][0]["role"], "system")
         self.assertEqual(request["messages"][1]["content"], "User")
 
+    def test_complete_uses_prompt_model_and_reasoning_level(self):
+        fake_client = FakeOpenAIClient()
+        client = OpenAICompatibleClient(client=fake_client, model="fallback-model")
+
+        client.complete(
+            system="System",
+            user="User",
+            model="prompt-model",
+            reasoning_level="medium",
+        )
+
+        request = fake_client.chat.completions.request
+        self.assertEqual(request["model"], "prompt-model")
+        self.assertEqual(request["reasoning_effort"], "medium")
+
+    def test_complete_omits_temperature_for_fixed_temperature_models(self):
+        fake_client = FakeOpenAIClient()
+        client = OpenAICompatibleClient(client=fake_client, model="gpt-5.4-mini")
+
+        client.complete(system="System", user="User", temperature=0.1)
+
+        self.assertNotIn("temperature", fake_client.chat.completions.request)
+
+    def test_complete_retries_without_temperature_when_provider_rejects_it(self):
+        class TemperatureRejectingCompletions:
+            def __init__(self):
+                self.requests = []
+
+            def create(self, **kwargs):
+                self.requests.append(kwargs)
+                if "temperature" in kwargs:
+                    raise RuntimeError(
+                        "Unsupported value: 'temperature' does not support 0.1 with this model. "
+                        "Only the default (1) value is supported."
+                    )
+                message = SimpleNamespace(content="Generated section")
+                return SimpleNamespace(choices=[SimpleNamespace(message=message)])
+
+        completions = TemperatureRejectingCompletions()
+        fake_client = SimpleNamespace(chat=SimpleNamespace(completions=completions))
+        client = OpenAICompatibleClient(client=fake_client, model="provider-specific-model")
+
+        result = client.complete(system="System", user="User", temperature=0.1)
+
+        self.assertEqual(result, "Generated section")
+        self.assertIn("temperature", completions.requests[0])
+        self.assertNotIn("temperature", completions.requests[1])
+
     @override_settings(OPENAI_MODEL="env-model", OPENAI_API_KEY="env-key", OPENAI_BASE_URL="https://env.example/v1")
     def test_admin_source_configuration_overrides_openai_env_defaults(self):
         fake_client = FakeOpenAIClient()
@@ -59,10 +112,94 @@ class OpenAICompatibleClientTests(TestCase):
         self.assertEqual(fake_client.chat.completions.request["model"], "admin-model")
 
 
+class PromptCatalogTests(TestCase):
+    def test_default_catalog_loads_all_expected_prompt_keys(self):
+        prompts = load_file_prompts()
+
+        self.assertEqual(
+            set(prompts),
+            {
+                "drafting.constrained_section",
+                "triage.apply_rubric",
+                "case_chat.document_summary",
+                "case_chat.suggest_actions",
+                "case_chat.reply",
+                "research.answer",
+            },
+        )
+
+    def test_prompt_is_rendered_from_yaml_with_named_context(self):
+        prompt = render_prompt(
+            "drafting.constrained_section",
+            allow_database_override=False,
+            label="Argument",
+            matter_summary="Repairs needed",
+            jurisdiction="Housing Court",
+            client_name="Tenant",
+            instructions="Focus on habitability.",
+            facts="- Mold in bedroom",
+            sources="- Inspection report",
+        )
+
+        self.assertIn("Draft the Argument section", prompt.user)
+        self.assertIn("- Mold in bedroom", prompt.user)
+        self.assertEqual(prompt.default_model, "gpt-5.4-mini")
+        self.assertEqual(prompt.default_reasoning_level, "low")
+        self.assertEqual(prompt.source, str(Path(settings.PROMPT_CATALOG_DIR) / "drafting.constrained_section.yaml"))
+
+    def test_enabled_database_override_replaces_file_prompt(self):
+        PromptOverride.objects.create(
+            key="case_chat.reply",
+            system="Override system for {client}",
+            user="Override user for {client}",
+            default_model="override-model",
+            default_reasoning_level="medium",
+        )
+
+        prompt = render_prompt("case_chat.reply", client="Sam")
+
+        self.assertEqual(prompt.system, "Override system for Sam")
+        self.assertEqual(prompt.user, "Override user for Sam")
+        self.assertEqual(prompt.default_model, "override-model")
+        self.assertEqual(prompt.default_reasoning_level, "medium")
+        self.assertEqual(prompt.source, "database override")
+
+    def test_missing_context_is_reported_before_an_llm_request(self):
+        with self.assertRaisesRegex(PromptRenderError, "matter_summary"):
+            render_prompt("drafting.constrained_section", allow_database_override=False, label="Argument")
+
+    def test_catalog_directory_can_be_swapped_for_benchmark_variant(self):
+        with TemporaryDirectory() as directory:
+            Path(directory, "benchmark.sample.yaml").write_text(
+                "system prompt: System {name}\nuser prompt: User {name}\nsettings:\n  default model: benchmark-model\n  default reasoning level: high\n",
+                encoding="utf-8",
+            )
+            with self.settings(PROMPT_CATALOG_DIR=Path(directory)):
+                prompt = render_prompt("benchmark.sample", allow_database_override=False, name="variant")
+
+        self.assertEqual(prompt.system, "System variant")
+        self.assertEqual(prompt.user, "User variant")
+        self.assertEqual(prompt.default_model, "benchmark-model")
+        self.assertEqual(prompt.default_reasoning_level, "high")
+
+    def test_invalid_catalog_schema_fails_clearly(self):
+        with TemporaryDirectory() as directory:
+            Path(directory, "broken.yaml").write_text("system prompt: System\n", encoding="utf-8")
+            with self.settings(PROMPT_CATALOG_DIR=Path(directory)):
+                with self.assertRaisesRegex(PromptCatalogError, "user prompt"):
+                    get_prompt("anything", allow_database_override=False)
+
+
 class DraftingServiceLLMTests(TestCase):
     @override_settings(AI_DRAFTING_ENABLED=True)
     def test_constrained_generation_uses_openai_compatible_client(self):
-        fake_llm = SimpleNamespace(complete=lambda **kwargs: "LLM body")
+        captured_request = {}
+
+        def complete(**kwargs):
+            captured_request.update(kwargs)
+            return "LLM body"
+
+        fake_llm = SimpleNamespace(complete=complete)
         service = ConstrainedDraftingService(llm_client=fake_llm)
         matter = SimpleNamespace(summary="Repairs needed", jurisdiction="Housing Court", client_name="Tenant")
         fact = SimpleNamespace(text="There is mold in the bedroom.", source_label="LegalServer note")
@@ -79,6 +216,14 @@ class DraftingServiceLLMTests(TestCase):
         body = service.generate_constrained_section(label="Argument", context=context, fallback="Fallback")
 
         self.assertEqual(body, "LLM body")
+        self.assertEqual(
+            captured_request["system"],
+            "You draft constrained legal document sections from supplied facts and sources.\n",
+        )
+        self.assertIn("Draft the Argument section", captured_request["user"])
+        self.assertIn("There is mold in the bedroom.", captured_request["user"])
+        self.assertEqual(captured_request["model"], "gpt-5.4-mini")
+        self.assertEqual(captured_request["reasoning_level"], "low")
 
 
 class CaseChatTests(TestCase):

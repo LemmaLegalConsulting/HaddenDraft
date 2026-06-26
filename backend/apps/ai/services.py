@@ -4,6 +4,7 @@ from dataclasses import dataclass
 from django.conf import settings
 
 from apps.ai.openai_client import OpenAIBackendError, OpenAICompatibleClient
+from apps.ai.prompt_catalog import render_prompt
 from apps.sources.models import SourceConfiguration
 
 
@@ -81,20 +82,22 @@ class ConstrainedDraftingService:
             excerpt = fact.get("sourceExcerpt", "")
             model_facts.append(f"- {fact.get('text', '')} [{source}]{f' Evidence: {excerpt}' if excerpt else ''}")
         facts = "\n".join(model_facts)
-        prompt = (
-            f"Draft the {label} section for a housing court document.\n"
-            f"Matter: {context.matter.summary}\n"
-            f"Jurisdiction: {context.matter.jurisdiction}\n"
-            f"Client: {context.matter.client_name}\n"
-            f"Instructions: {context.instructions}\n"
-            f"Selected facts:\n{facts or '- None'}\n"
-            f"Selected sources:\n{sources or '- None'}\n"
-            "Use only the provided facts and sources. Do not invent citations."
+        prompt = render_prompt(
+            "drafting.constrained_section",
+            label=label,
+            matter_summary=context.matter.summary,
+            jurisdiction=context.matter.jurisdiction,
+            client_name=context.matter.client_name,
+            instructions=context.instructions,
+            facts=facts or "- None",
+            sources=sources or "- None",
         )
         try:
             return self.normalize_generated_text(client.complete(
-                system="You draft constrained legal document sections from supplied facts and sources.",
-                user=prompt,
+                system=prompt.system,
+                user=prompt.user,
+                model=prompt.default_model,
+                reasoning_level=prompt.default_reasoning_level,
             ))
         except OpenAIBackendError:
             return fallback

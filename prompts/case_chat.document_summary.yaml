@@ -1,0 +1,12 @@
+system prompt: |
+  You summarize extracted legal case document text accurately and concisely.
+user prompt: |
+  Summarize this case document for a legal aid advocate. Identify what kind of document it is, the key facts or obligations, dates/parties if visible, and any drafting relevance. Keep it concise and do not invent details.
+
+  Document title: {document_title}
+
+  Extracted text:
+  {document_text}
+settings:
+  default model: gpt-5.4-mini
+  default reasoning level: low

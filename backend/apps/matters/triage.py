@@ -1,45 +1,73 @@
 import json
 import re
+from pathlib import Path
 
+import yaml
 from django.conf import settings
 
 from apps.ai.openai_client import OpenAIBackendError, OpenAICompatibleClient
+from apps.ai.prompt_catalog import render_prompt
 from apps.matters.models import TriageAssessment, TriageRubric
 from apps.sources.models import SourceConfiguration
+from apps.core.content_library import content_path
 
 
-CLEVELAND_RTC_RUBRIC = {
-    "slug": "cleveland-rtc-priority",
-    "name": "Cleveland Right to Counsel priority",
-    "description": "Initial screening for priority full-representation cases under Cleveland eviction Right to Counsel intake rules.",
-    "standard": (
-        "Classify whether this housing matter appears to be a priority case for full representation "
-        "under Cleveland's eviction Right to Counsel screening rules. Treat the case as priority when "
-        "the tenant or household appears to be in an eviction or displacement matter in Cleveland or "
-        "Cuyahoga County and has indicators commonly used for full-representation triage, including "
-        "children in the household, very low income, subsidy or voucher risk, disability, domestic "
-        "violence or safety concerns, imminent lockout/hearing/default, conditions affecting health, "
-        "or other severe housing-stability risk. Mark as needs review when eligibility facts are missing."
-    ),
-    "criteria": [
-        "Eviction, termination, lockout, or displacement risk",
-        "Cleveland or Cuyahoga County housing forum",
-        "Children, disability, senior, pregnancy, or other vulnerable household member",
-        "Subsidized housing, voucher, public housing, or rental assistance at risk",
-        "Imminent hearing, lockout, default, or deadline",
-        "Health/safety conditions, domestic violence, retaliation, or discrimination concerns",
-        "Income or other facts suggesting Right to Counsel eligibility",
-    ],
-    "active": True,
-}
+DEFAULT_TRIAGE_RUBRIC_SLUG = "cleveland-rtc-priority"
+REQUIRED_RUBRIC_FIELDS = {"slug", "name", "standard", "criteria"}
+
+
+def rubric_seed_path(slug):
+    return content_path("triage-rubrics", f"{slug}.yaml")
+
+
+def load_triage_rubric_file(path):
+    """Load and validate a human-maintained triage rubric file."""
+    path = Path(path)
+    try:
+        payload = yaml.safe_load(path.read_text(encoding="utf-8"))
+    except (OSError, yaml.YAMLError) as exc:
+        raise ValueError(f"Could not read triage rubric {path}: {exc}") from exc
+    if not isinstance(payload, dict):
+        raise ValueError(f"Triage rubric {path} must contain a YAML mapping.")
+    missing = REQUIRED_RUBRIC_FIELDS - payload.keys()
+    if missing:
+        raise ValueError(f"Triage rubric {path} is missing: {', '.join(sorted(missing))}.")
+    if not isinstance(payload["criteria"], list) or not all(isinstance(item, str) for item in payload["criteria"]):
+        raise ValueError(f"Triage rubric {path} must provide criteria as a list of strings.")
+    return {
+        "slug": str(payload["slug"]),
+        "name": str(payload["name"]),
+        "description": str(payload.get("description", "")),
+        "standard": str(payload["standard"]),
+        "criteria": payload["criteria"],
+        "active": bool(payload.get("active", True)),
+    }
+
+
+def triage_rubric_seeds():
+    directory = content_path("triage-rubrics")
+    if not directory.exists():
+        return []
+    return [load_triage_rubric_file(path) for path in sorted(directory.glob("*.yaml"))]
+
+
+def sync_triage_rubric_seeds(*, update_existing=False):
+    """Create file-backed defaults without overwriting admin-managed records."""
+    synced = []
+    for seed in triage_rubric_seeds():
+        rubric, created = TriageRubric.objects.get_or_create(slug=seed["slug"], defaults=seed)
+        if update_existing and not created:
+            for field, value in seed.items():
+                if field != "slug":
+                    setattr(rubric, field, value)
+            rubric.save()
+        synced.append((rubric, created))
+    return synced
 
 
 def ensure_default_triage_rubric():
-    rubric, _created = TriageRubric.objects.get_or_create(
-        slug=CLEVELAND_RTC_RUBRIC["slug"],
-        defaults=CLEVELAND_RTC_RUBRIC,
-    )
-    return rubric
+    sync_triage_rubric_seeds()
+    return TriageRubric.objects.get(slug=DEFAULT_TRIAGE_RUBRIC_SLUG)
 
 
 def _flatten_payload(value, prefix=""):
@@ -162,20 +190,20 @@ def llm_triage_payload(matter, rubric, text):
         return {}
     client = OpenAICompatibleClient()
     criteria = "\n".join(f"- {item}" for item in (rubric.criteria or []))
-    prompt = (
-        "Apply the triage rubric to the case information. Return only valid JSON with keys: "
-        "case_type, priority, priority_label, confidence, summary, reasoning, matched_criteria, "
-        "missing_information, evidence. evidence must be an array of objects with label and excerpt.\n\n"
-        f"Rubric name: {rubric.name}\n"
-        f"Standard:\n{rubric.standard}\n"
-        f"Criteria:\n{criteria or '- None'}\n\n"
-        f"Case information:\n{text}"
+    prompt = render_prompt(
+        "triage.apply_rubric",
+        rubric_name=rubric.name,
+        standard=rubric.standard,
+        criteria=criteria or "- None",
+        case_information=text,
     )
     try:
         response = client.complete(
-            system="You are a careful legal services intake triage assistant. Use only supplied facts.",
-            user=prompt,
+            system=prompt.system,
+            user=prompt.user,
             temperature=0,
+            model=prompt.default_model,
+            reasoning_level=prompt.default_reasoning_level,
         )
     except OpenAIBackendError:
         return {}

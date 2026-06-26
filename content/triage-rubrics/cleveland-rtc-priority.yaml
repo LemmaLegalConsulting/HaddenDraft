@@ -1,0 +1,22 @@
+slug: cleveland-rtc-priority
+name: Cleveland Right to Counsel priority
+description: Initial screening for priority full-representation cases under Cleveland eviction Right to Counsel intake rules.
+standard: >-
+  Classify whether this housing matter appears to be a priority case for full
+  representation under Cleveland's eviction Right to Counsel screening rules.
+  Treat the case as priority when the tenant or household appears to be in an
+  eviction or displacement matter in Cleveland or Cuyahoga County and has
+  indicators commonly used for full-representation triage, including children
+  in the household, very low income, subsidy or voucher risk, disability,
+  domestic violence or safety concerns, imminent lockout/hearing/default,
+  conditions affecting health, or other severe housing-stability risk. Mark as
+  needs review when eligibility facts are missing.
+criteria:
+  - Eviction, termination, lockout, or displacement risk
+  - Cleveland or Cuyahoga County housing forum
+  - Children, disability, senior, pregnancy, or other vulnerable household member
+  - Subsidized housing, voucher, public housing, or rental assistance at risk
+  - Imminent hearing, lockout, default, or deadline
+  - Health/safety conditions, domestic violence, retaliation, or discrimination concerns
+  - Income or other facts suggesting Right to Counsel eligibility
+active: true

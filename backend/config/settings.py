@@ -63,6 +63,7 @@ INSTALLED_APPS = [
     "apps.facts",
     "apps.issues",
     "apps.rules",
+    "apps.ai",
 ]
 
 MIDDLEWARE = [
@@ -142,9 +143,13 @@ X_FRAME_OPTIONS = "DENY"
 
 OPENAI_BASE_URL = os.environ.get("OPENAI_BASE_URL", "")
 OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY", "")
-OPENAI_MODEL = os.environ.get("OPENAI_MODEL") or os.environ.get("OPENAI_MISTRAL_MODEL", "gpt-4.1-mini")
+OPENAI_MODEL = os.environ.get("OPENAI_MODEL") or os.environ.get("OPENAI_MISTRAL_MODEL", "gpt-5.4-mini")
 AI_DRAFTING_ENABLED = env_bool("AI_DRAFTING_ENABLED", bool(OPENAI_API_KEY))
 CASE_ACTION_MODEL = os.environ.get("CASE_ACTION_MODEL", OPENAI_MODEL)
+PROMPT_CATALOG_DIR = Path(os.environ.get("PROMPT_CATALOG_DIR", REPO_DIR / "prompts"))
+CONTENT_LIBRARY_DIR = Path(os.environ.get("CONTENT_LIBRARY_DIR", REPO_DIR / "content"))
+if not CONTENT_LIBRARY_DIR.is_absolute():
+    CONTENT_LIBRARY_DIR = REPO_DIR / CONTENT_LIBRARY_DIR
 DOCUMENT_TEXT_EXTRACTOR = os.environ.get("DOCUMENT_TEXT_EXTRACTOR", "stdlib")
 
 LEGALSERVER_BASE_URL = os.environ.get("LEGALSERVER_BASE_URL", "")

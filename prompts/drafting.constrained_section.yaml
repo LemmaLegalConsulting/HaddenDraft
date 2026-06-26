@@ -1,0 +1,16 @@
+system prompt: |
+  You draft constrained legal document sections from supplied facts and sources.
+user prompt: |
+  Draft the {label} section for a housing court document.
+  Matter: {matter_summary}
+  Jurisdiction: {jurisdiction}
+  Client: {client_name}
+  Instructions: {instructions}
+  Selected facts:
+  {facts}
+  Selected sources:
+  {sources}
+  Use only the provided facts and sources. Do not invent citations.
+settings:
+  default model: gpt-5.5
+  default reasoning level: medium

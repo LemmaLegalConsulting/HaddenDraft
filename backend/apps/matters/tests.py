@@ -1,4 +1,6 @@
 import json
+import tempfile
+from pathlib import Path
 from unittest.mock import patch
 
 from django.contrib.auth.models import User
@@ -6,6 +8,7 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase, override_settings
 
 from apps.matters.models import Matter, MatterFact, TriageAssessment, TriageRubric
+from apps.matters.triage import load_triage_rubric_file, sync_triage_rubric_seeds
 from apps.sources.models import UserSourceIdentity
 
 
@@ -266,6 +269,31 @@ class CaseConnectionTests(TestCase):
         rubrics = response.json()["rubrics"]
         self.assertEqual(rubrics[0]["slug"], "cleveland-rtc-priority")
         self.assertIn("Cleveland", rubrics[0]["standard"])
+
+    def test_triage_rubric_file_seed_preserves_existing_admin_record(self):
+        with tempfile.TemporaryDirectory() as directory:
+            library = Path(directory)
+            rubric_dir = library / "triage-rubrics"
+            rubric_dir.mkdir()
+            (rubric_dir / "file-backed.yaml").write_text(
+                """slug: file-backed\nname: File backed\nstandard: Classify it.\ncriteria:\n  - First criterion\n"""
+            )
+            with override_settings(CONTENT_LIBRARY_DIR=library):
+                synced = sync_triage_rubric_seeds()
+                self.assertTrue(synced[0][1])
+                rubric = TriageRubric.objects.get(slug="file-backed")
+                rubric.name = "Admin managed name"
+                rubric.save(update_fields=["name"])
+                sync_triage_rubric_seeds()
+                rubric.refresh_from_db()
+                self.assertEqual(rubric.name, "Admin managed name")
+
+    def test_triage_rubric_file_requires_string_criteria(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "invalid.yaml"
+            path.write_text("slug: invalid\nname: Invalid\nstandard: Nope\ncriteria: invalid\n")
+            with self.assertRaises(ValueError):
+                load_triage_rubric_file(path)
 
     @override_settings(AI_DRAFTING_ENABLED=False)
     def test_user_can_run_triage_for_manual_case_with_fallback(self):

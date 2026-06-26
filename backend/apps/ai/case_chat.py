@@ -4,6 +4,7 @@ import re
 from django.conf import settings
 
 from apps.ai.openai_client import OpenAIBackendError, OpenAICompatibleClient
+from apps.ai.prompt_catalog import render_prompt
 from apps.matters.serializers import matter_details, readable_summary
 from apps.sources.connectors.legalserver import LegalServerClient, LegalServerError, _display_value, _first_value
 from apps.sources.document_text import DocumentExtractionError, extract_text
@@ -292,19 +293,19 @@ def summarize_document_text(extraction, *, llm_client=None):
     ai_config = SourceConfiguration.effective_settings("openai", {"enabled": settings.AI_DRAFTING_ENABLED})
     if str(ai_config.get("enabled", "")).lower() in {"0", "false", "no", "off"}:
         return fallback
-    prompt = (
-        "Summarize this case document for a legal aid advocate. "
-        "Identify what kind of document it is, the key facts or obligations, dates/parties if visible, "
-        "and any drafting relevance. Keep it concise and do not invent details.\n\n"
-        f"Document title: {extraction.get('document', {}).get('title', 'Document')}\n\n"
-        f"Extracted text:\n{text[:12000]}"
+    prompt = render_prompt(
+        "case_chat.document_summary",
+        document_title=extraction.get("document", {}).get("title", "Document"),
+        document_text=text[:12000],
     )
     try:
         client = llm_client or OpenAICompatibleClient()
         return client.complete(
-            system="You summarize extracted legal case document text accurately and concisely.",
-            user=prompt,
+            system=prompt.system,
+            user=prompt.user,
             temperature=0.1,
+            model=prompt.default_model,
+            reasoning_level=prompt.default_reasoning_level,
         )
     except OpenAIBackendError:
         return fallback
@@ -372,18 +373,19 @@ def suggest_case_actions(case_context, tool_results, *, llm_client=None):
     ai_config = SourceConfiguration.effective_settings("openai", {"enabled": settings.AI_DRAFTING_ENABLED})
     if str(ai_config.get("enabled", "")).lower() in {"0", "false", "no", "off"}:
         return {"summary": fallback, "actions": cards}
-    prompt = (
-        "Suggest the next practical actions for this legal aid case. Return a concise paragraph only; "
-        "the UI will separately render action cards.\n\n"
-        f"Case context:\n{json.dumps(case_context, indent=2)}\n\n"
-        f"Available tool results:\n{json.dumps(tool_results, indent=2)}"
+    prompt = render_prompt(
+        "case_chat.suggest_actions",
+        case_context=json.dumps(case_context, indent=2),
+        tool_results=json.dumps(tool_results, indent=2),
     )
     try:
         client = llm_client or OpenAICompatibleClient(model=settings.CASE_ACTION_MODEL)
         summary = client.complete(
-            system="You recommend practical next actions for a legal aid case workflow.",
-            user=prompt,
+            system=prompt.system,
+            user=prompt.user,
             temperature=0.1,
+            model=prompt.default_model,
+            reasoning_level=prompt.default_reasoning_level,
         )
     except OpenAIBackendError:
         summary = fallback
@@ -530,17 +532,14 @@ def case_chat_reply(*, matter, messages, llm_client=None):
             "actions": tool_results.get("suggested_actions", {}).get("actions", []),
         }
 
-    prompt = (
-        "Answer the user's question about the selected LegalServer case. "
-        "Use the compact case context first. Use tool results only when present. "
-        "Do not dump raw JSON. If tool results are present, answer from them directly and do not say another API call is needed. "
-        "If the user asks for data not present in context or tool results, say what additional case API call would be needed.\n\n"
-        f"Case context:\n{json.dumps(case_context, indent=2)}\n\n"
-        f"Tool results:\n{json.dumps(tool_results, indent=2)}"
+    prompt = render_prompt(
+        "case_chat.reply",
+        case_context=json.dumps(case_context, indent=2),
+        tool_results=json.dumps(tool_results, indent=2),
     )
     llm_messages = [
-        {"role": "system", "content": "You are a case-aware legal aid drafting assistant. Be concise and source-bound."},
-        {"role": "user", "content": prompt},
+        {"role": "system", "content": prompt.system},
+        {"role": "user", "content": prompt.user},
         *[
             {"role": item.get("role", "user"), "content": item.get("content", "")}
             for item in messages[-6:]
@@ -549,7 +548,14 @@ def case_chat_reply(*, matter, messages, llm_client=None):
     ]
     try:
         client = llm_client or OpenAICompatibleClient()
-        answer = normalize_ai_text(client.complete_messages(messages=llm_messages, temperature=0.1))
+        answer = normalize_ai_text(
+            client.complete_messages(
+                messages=llm_messages,
+                temperature=0.1,
+                model=prompt.default_model,
+                reasoning_level=prompt.default_reasoning_level,
+            )
+        )
     except OpenAIBackendError:
         answer = normalize_ai_text(deterministic_case_answer(latest, case_context, tool_results))
     return {
