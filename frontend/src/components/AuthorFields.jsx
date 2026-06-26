@@ -9,6 +9,7 @@ export const emptyAuthorProfile = {
   email: "",
   address: "",
   signatureImage: "",
+  defaultJurisdiction: "",
   preferences: {},
 };
 
@@ -48,6 +49,10 @@ export function AuthorFields({ profile, onChange, onSignatureChange }) {
       <label className="field">
         <span>Organization</span>
         <input value={value.organization || ""} onChange={(event) => updateField("organization", event.target.value)} />
+      </label>
+      <label className="field">
+        <span>Default research jurisdiction</span>
+        <input value={value.defaultJurisdiction || ""} onChange={(event) => updateField("defaultJurisdiction", event.target.value)} placeholder="Ohio" />
       </label>
       <label className="field">
         <span>Email</span>

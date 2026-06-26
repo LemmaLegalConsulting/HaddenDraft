@@ -903,6 +903,51 @@ button:disabled {
   white-space: pre-wrap;
 }
 
+.markdown-response {
+  color: #26343c;
+  overflow-wrap: anywhere;
+}
+
+.markdown-response > :first-child { margin-top: 0; }
+.markdown-response > :last-child { margin-bottom: 0; }
+.markdown-response p { margin: 0 0 8px; }
+.markdown-response ul, .markdown-response ol { margin: 0 0 8px; padding-left: 22px; }
+.markdown-response li + li { margin-top: 3px; }
+.markdown-response blockquote { border-left: 3px solid #c9d8de; margin: 8px 0; padding-left: 10px; }
+.markdown-response code { background: #e6edf0; border-radius: 3px; padding: 1px 3px; }
+
+.inline-citation {
+  background: #d7eee7;
+  border: 0;
+  border-radius: 999px;
+  color: #174d45;
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.82em;
+  font-weight: 700;
+  margin-left: 3px;
+  padding: 1px 5px;
+}
+
+.result-source-actions {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+  padding: 0 10px 10px 35px;
+}
+
+.result-source-actions a {
+  align-items: center;
+  color: #174d45;
+  display: inline-flex;
+  font-size: 12px;
+  font-weight: 700;
+  gap: 4px;
+}
+
+.citation-modal { max-width: 620px; }
+
 .research-message.user {
   background: #d7eee7;
   justify-self: end;

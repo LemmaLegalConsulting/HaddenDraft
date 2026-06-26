@@ -18,10 +18,13 @@ class ConnectorRegistry:
     def get(self, kind):
         return self._connectors[kind]
 
-    def search(self, query, *, kinds=None, matter=None, jurisdiction="", limit_per_source=5, user=None, request=None):
+    def search(self, query, *, kinds=None, source_ids=None, matter=None, jurisdiction="", limit_per_source=5, user=None, request=None):
         selected = self.all() if not kinds else [self.get(kind) for kind in kinds if kind in self._connectors]
         results = []
         for connector in selected:
+            # A single connector can expose several logical libraries.  Keep the
+            # picker selection intact instead of treating every RAG library alike.
+            source_kwargs = {"source_ids": source_ids} if connector.kind == "rag" else {}
             results.extend(
                 connector.search(
                     query,
@@ -30,6 +33,7 @@ class ConnectorRegistry:
                     limit=limit_per_source,
                     user=user,
                     request=request,
+                    **source_kwargs,
                 )
             )
         return results

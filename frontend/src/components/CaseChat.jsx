@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Loader2, Send } from "lucide-react";
 
 import { api } from "../api/client.js";
+import { MarkdownResponse } from "./MarkdownResponse.jsx";
 
 const starterPrompts = [
   { id: "about", label: "What's the case about?", prompt: "What's this case about?" },
@@ -17,12 +18,30 @@ export function CaseChat({ matter, onAction }) {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [busy, setBusy] = useState(false);
+  const [historyLoading, setHistoryLoading] = useState(false);
   const [error, setError] = useState("");
 
   useEffect(() => {
-    setMessages([]);
     setInput("");
     setError("");
+    if (!matter) {
+      setMessages([]);
+      setHistoryLoading(false);
+      return undefined;
+    }
+    setHistoryLoading(true);
+    let cancelled = false;
+    api.caseChatHistory(matter.id)
+      .then((response) => {
+        if (!cancelled) setMessages(response.messages || []);
+      })
+      .catch((err) => {
+        if (!cancelled) setError(err.message || "Could not load case chat history.");
+      })
+      .finally(() => {
+        if (!cancelled) setHistoryLoading(false);
+      });
+    return () => { cancelled = true; };
   }, [matter?.id]);
 
   async function submitMessage(content) {
@@ -33,7 +52,7 @@ export function CaseChat({ matter, onAction }) {
     setBusy(true);
     setError("");
     try {
-      const response = await api.caseChat(matter.id, { messages: nextMessages });
+      const response = await api.caseChat(matter.id, { content });
       setMessages([
         ...nextMessages,
         {
@@ -80,7 +99,7 @@ export function CaseChat({ matter, onAction }) {
             )}
             {messages.map((message, index) => (
               <article key={`${message.role}-${index}`} className={`chat-message ${message.role}`}>
-                <p>{cleanMessage(message.content)}</p>
+                {message.role === "assistant" ? <MarkdownResponse content={cleanMessage(message.content)} /> : <p>{cleanMessage(message.content)}</p>}
                 {message.toolsUsed?.length > 0 && <small>Used {message.toolsUsed.join(", ")}</small>}
                 {message.actions?.length > 0 && (
                   <div className="action-card-list">
@@ -102,7 +121,7 @@ export function CaseChat({ matter, onAction }) {
               onChange={(event) => setInput(event.target.value)}
               placeholder="Ask about documents, case posture, parties, or drafting strategy"
             />
-            <button className="primary" disabled={busy || !input.trim()}>
+            <button className="primary" disabled={busy || historyLoading || !input.trim()}>
               {busy ? <Loader2 className="spin" size={16} /> : <Send size={16} />} Send
             </button>
           </form>

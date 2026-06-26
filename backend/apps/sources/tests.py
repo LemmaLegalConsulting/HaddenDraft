@@ -303,6 +303,43 @@ class ContentLibraryTreatiseConnectorTests(TestCase):
         self.assertEqual(results[0].metadata["chunkId"], "0001-repairs")
         self.assertEqual(results[0].metadata["sourceSha256"], "abc123")
 
+    @override_settings(AI_DRAFTING_ENABLED=False)
+    def test_searches_generated_statute_chunks_with_official_citation_and_url(self):
+        with tempfile.TemporaryDirectory() as directory:
+            library = Path(directory)
+            statute = library / "statutes" / "ohio-revised-code"
+            chunks = statute / "chunks"
+            chunks.mkdir(parents=True)
+            (chunks / "orc-5321-04-01.md").write_text(
+                "# Ohio Rev. Code § 5321.04 — Landlord obligations\n\n## Source text\n\n"
+                "A landlord shall make repairs necessary to keep premises fit and habitable.\n",
+                encoding="utf-8",
+            )
+            (statute / "manifest.yaml").write_text(
+                "document_slug: ohio-revised-code\n"
+                "document_title: Ohio Revised Code\n"
+                "jurisdiction: Ohio\n"
+                "chunks:\n"
+                "- id: orc-5321-04-01\n"
+                "  file: chunks/orc-5321-04-01.md\n"
+                "  heading: Ohio Rev. Code § 5321.04 — Landlord obligations\n"
+                "  path: [Ohio Revised Code, Chapter 5321, § 5321.04]\n"
+                "  content_kind: statute-section\n"
+                "  citation: Ohio Rev. Code § 5321.04\n"
+                "  url: https://codes.ohio.gov/ohio-revised-code/section-5321.04\n"
+                "  effective_date: September 28, 2012\n",
+                encoding="utf-8",
+            )
+            with override_settings(CONTENT_LIBRARY_DIR=library):
+                results = ContentLibraryTreatiseConnector().search(
+                    "landlord repair habitability", source_ids=["ohio-statutes"]
+                )
+
+        self.assertEqual(len(results), 1)
+        self.assertEqual(results[0].citation, "Ohio Rev. Code § 5321.04 (effective September 28, 2012)")
+        self.assertEqual(results[0].url, "https://codes.ohio.gov/ohio-revised-code/section-5321.04")
+        self.assertEqual(results[0].metadata["jurisdiction"], "Ohio")
+
 
 class UserResourceViewTests(TestCase):
     def setUp(self):
@@ -392,6 +429,27 @@ class ResearchViewTests(TestCase):
         self.assertTrue(payload["usedAi"])
         self.assertEqual(payload["answer"], "Yes, based on Housing guide.")
         self.assertEqual(payload["results"][0]["citation"], "Housing guide")
+        history = self.client.get("/api/research/").json()["messages"]
+        self.assertEqual([message["role"] for message in history], ["user", "assistant"])
+        self.assertEqual(history[1]["citations"][0]["citation"], "Housing guide")
+
+    def test_research_uses_the_users_default_jurisdiction_in_the_ai_guardrail(self):
+        from apps.core.models import AuthorProfile
+
+        AuthorProfile.objects.create(user=self.user, default_jurisdiction="Ohio")
+        registry = SimpleNamespace(search=lambda *args, **kwargs: [self.result])
+        captured = {}
+        fake_client = SimpleNamespace(complete=lambda **kwargs: captured.update(kwargs) or "Ohio answer [1]")
+
+        with patch("apps.sources.views.connector_registry", registry), patch("apps.sources.views.OpenAICompatibleClient", return_value=fake_client):
+            response = self.client.post(
+                "/api/research/",
+                data=json.dumps({"query": "Can the tenant raise repairs?", "useAi": True}),
+                content_type="application/json",
+            )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("selected jurisdiction is Ohio", captured["system"])
 
 
 class ConnectorRegistryTests(TestCase):

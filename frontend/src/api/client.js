@@ -63,6 +63,7 @@ export const api = {
   connectLegalServer: (payload) => request("/legalserver/account/", { method: "POST", body: JSON.stringify(payload) }),
   disconnectLegalServer: () => request("/legalserver/account/", { method: "DELETE" }),
   caseDetail: (matterId) => request(`/cases/${matterId}/`),
+  caseChatHistory: (matterId) => request(`/cases/${matterId}/chat/`),
   caseChat: (matterId, payload) => request(`/cases/${matterId}/chat/`, { method: "POST", body: JSON.stringify(payload) }),
   caseDocuments: (matterId) => request(`/cases/${matterId}/documents/`),
   caseFacts: (matterId) => request(`/cases/${matterId}/facts/`),
@@ -82,6 +83,7 @@ export const api = {
   templates: () => request("/templates/"),
   userResources: () => request("/user-resources/"),
   createUserResource: (formData) => request("/user-resources/", { method: "POST", body: formData }),
+  researchHistory: () => request("/research/"),
   research: (payload) => request("/research/", { method: "POST", body: JSON.stringify(payload) }),
   createTemplateFromExample: (payload) =>
     request("/templates/from-example/", { method: "POST", body: JSON.stringify(payload) }),
