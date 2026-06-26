@@ -4,39 +4,46 @@ from django.contrib.auth.models import User
 from django.test import RequestFactory, TestCase, override_settings
 
 from apps.matters.models import Matter
-from apps.sources.connectors.legalserver import LegalServerClient, LegalServerConnector, matter_payload_to_defaults
+from apps.sources.connectors.legalserver import LegalServerClient, LegalServerConnector, LegalServerError, matter_payload_to_defaults
 from apps.sources.connectors.sharepoint import SharePointClient, SharePointConnector, graph_token_for_request
 from apps.sources.models import SourceConfiguration, UserOAuthConnection
 from apps.sources.registry import ConnectorRegistry
 
 
 class FakeResponse:
-    def __init__(self, payload, status_code=200):
+    def __init__(self, payload, status_code=200, headers=None, text=""):
         self.payload = payload
         self.status_code = status_code
+        self.headers = headers or {"content-type": "application/json"}
+        self.text = text
 
     def json(self):
+        if isinstance(self.payload, BaseException):
+            raise self.payload
         return self.payload
 
 
 class FakeSession:
-    def __init__(self, payload):
+    def __init__(self, payload, status_code=200, headers=None, text=""):
         self.payload = payload
+        self.status_code = status_code
+        self.headers = headers
+        self.text = text
         self.calls = []
 
     def get(self, url, headers=None, params=None, timeout=None):
         self.calls.append({"url": url, "headers": headers, "params": params, "timeout": timeout})
-        return FakeResponse(self.payload)
+        return FakeResponse(self.payload, status_code=self.status_code, headers=self.headers, text=self.text)
 
 
 class LegalServerClientTests(TestCase):
     @override_settings(
         LEGALSERVER_BASE_URL="https://example.legalserver.org",
         LEGALSERVER_API_TOKEN="token",
-        LEGALSERVER_MATTERS_PATH="/api/v1/matters",
-        LEGALSERVER_USER_FILTER_PARAM="assigned_user_email",
+        LEGALSERVER_MATTERS_PATH="/api/v2/matters",
+        LEGALSERVER_MATTERS_RESULTS="full",
     )
-    def test_search_matters_queries_supported_legalserver_fields(self):
+    def test_search_matters_uses_v2_full_results_shape(self):
         session = FakeSession({"results": [{"id": "123"}]})
         client = LegalServerClient(session=session)
 
@@ -44,11 +51,15 @@ class LegalServerClientTests(TestCase):
 
         self.assertEqual(matters, [{"id": "123"}])
         call = session.calls[0]
-        self.assertEqual(call["url"], "https://example.legalserver.org/api/v1/matters")
+        self.assertEqual(call["url"], "https://example.legalserver.org/api/v2/matters")
         self.assertEqual(call["headers"]["Authorization"], "Bearer token")
         self.assertEqual(call["params"]["page_size"], 7)
-        searched_fields = {next(key for key in call["params"] if key != "page_size") for call in session.calls}
+        searched_fields = {
+            next(key for key in call["params"] if key not in ("page_size", "results")) for call in session.calls
+        }
         self.assertEqual(searched_fields, {"case_number", "case_title", "external_id", "first", "last"})
+        self.assertTrue(all(call["params"]["results"] == "full" for call in session.calls))
+        self.assertTrue(all("caseworker" not in call["params"] for call in session.calls))
 
     def test_matter_payload_normalization_accepts_common_field_names(self):
         defaults = matter_payload_to_defaults(
@@ -69,6 +80,7 @@ class LegalServerClientTests(TestCase):
         LEGALSERVER_BASE_URL="https://env.legalserver.org",
         LEGALSERVER_API_TOKEN="env-token",
         LEGALSERVER_MATTERS_PATH="/env/matters",
+        LEGALSERVER_MATTERS_RESULTS="full",
         LEGALSERVER_USER_FILTER_PARAM="env_user",
     )
     def test_admin_source_configuration_overrides_legalserver_env_defaults(self):
@@ -88,7 +100,37 @@ class LegalServerClientTests(TestCase):
         call = session.calls[0]
         self.assertEqual(call["url"], "https://admin.legalserver.org/admin/matters")
         self.assertEqual(call["headers"]["Authorization"], "Bearer admin-token")
-        self.assertEqual(call["params"], {"page_size": 25})
+        self.assertEqual(call["params"], {"page_size": 25, "results": "full"})
+
+    @override_settings(
+        LEGALSERVER_BASE_URL="https://example.legalserver.org",
+        LEGALSERVER_API_TOKEN="token",
+        LEGALSERVER_MATTERS_PATH="/api/v2/matters",
+    )
+    def test_error_includes_legalserver_response_detail(self):
+        session = FakeSession({"detail": "Unknown query parameter assigned_user_email"}, status_code=400)
+        client = LegalServerClient(session=session)
+
+        with self.assertRaises(LegalServerError) as context:
+            client.search_matters(user_email="advocate@example.org")
+
+        self.assertEqual(context.exception.status_code, 400)
+        self.assertIn("Unknown query parameter assigned_user_email", str(context.exception))
+
+    @override_settings(
+        LEGALSERVER_BASE_URL="https://example.legalserver.org",
+        LEGALSERVER_API_TOKEN="token",
+        LEGALSERVER_MATTERS_PATH="/api/v2/matters",
+        LEGALSERVER_MATTERS_RESULTS="full",
+        LEGALSERVER_USER_FILTER_PARAM="",
+    )
+    def test_user_email_is_not_sent_as_a_matter_search_filter(self):
+        session = FakeSession({"results": []})
+        client = LegalServerClient(session=session)
+
+        client.search_matters(user_email="advocate@example.org")
+
+        self.assertEqual(session.calls[0]["params"], {"page_size": 25, "results": "full"})
 
 
 class LegalServerConnectorTests(TestCase):

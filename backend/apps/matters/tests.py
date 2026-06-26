@@ -79,7 +79,7 @@ class CaseConnectionTests(TestCase):
         payload = response.json()
         self.assertEqual(payload["cases"][0]["id"], "LS-REAL-1")
         self.assertTrue(payload["legalserver"]["connected"])
-        self.assertEqual(fake_client.calls[0]["user_email"], "quinten@lemmalegal.com")
+        self.assertEqual(fake_client.calls[0]["user_email"], "")
 
     @patch("apps.matters.services.LegalServerClient")
     def test_case_search_does_not_limit_to_primary_assignment(self, client_class):

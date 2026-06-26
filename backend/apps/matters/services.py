@@ -90,6 +90,7 @@ def _assignment_identity_values(payload):
         "assigned_user_email",
         "assigned_user",
         "assigned_to",
+        "caseworker",
         "advocate_email",
         "advocate",
         "attorney_email",
@@ -316,11 +317,7 @@ def sync_legalserver_matters_for_user(user, *, query="", limit=50, restrict_to_u
             error=access_profile.error,
         )
     try:
-        payloads = client.search_matters(
-            query=query,
-            user_email="" if access_profile.is_superuser or not restrict_to_user else access_profile.identifier,
-            limit=limit,
-        )
+        payloads = client.search_matters(query=query, user_email="", limit=limit)
         if not access_profile.is_superuser:
             payloads = [payload for payload in payloads if payload_matches_legalserver_identifier(payload, access_profile.identifier)]
         if query and not payloads:

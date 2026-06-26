@@ -120,7 +120,7 @@ function DraftBlock({ block, blockState, disabled, onBlockChange, onFormatChange
   const [menuOpen, setMenuOpen] = useState(false);
   const format = block.format || {};
   const initialConfig = useMemo(() => ({
-    namespace: `HousingDraftBlock-${block.key}`,
+    namespace: `DraftBlock-${block.key}`,
     editorState: blockState ? JSON.stringify(blockState) : loadPlainText(block.body || ""),
     theme: {
       paragraph: "editor-paragraph",

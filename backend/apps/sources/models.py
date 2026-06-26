@@ -22,7 +22,7 @@ class SourceConfiguration(models.Model):
         "Matters path",
         max_length=255,
         blank=True,
-        help_text="Advanced override. Leave blank to use /api/v1/matters.",
+        help_text="Advanced override. Leave blank to use /api/v2/matters.",
     )
     legalserver_matter_documents_path = models.CharField(
         "Matter documents path",
@@ -34,7 +34,7 @@ class SourceConfiguration(models.Model):
         "User filter parameter",
         max_length=120,
         blank=True,
-        help_text="Advanced override. Leave blank to use assigned_user_email.",
+        help_text="Advanced override. Leave blank to disable server-side user filtering.",
     )
 
     sharepoint_site_id = models.CharField(max_length=255, blank=True)

@@ -34,10 +34,12 @@ Set `LEGALSERVER_AUTO_MAP_OFFICE365_EMAIL=false` for deployments where LegalServ
 
 The defaults assume conventional endpoints and payloads, but deployments may differ.
 
-- `LEGALSERVER_MATTERS_PATH` defaults to `/api/v1/matters`.
+- `LEGALSERVER_MATTERS_PATH` defaults to `/api/v2/matters`.
+- `LEGALSERVER_MATTERS_RESULTS` defaults to `full`, which requests the v2 full matter result shape.
 - `LEGALSERVER_MATTER_DOCUMENTS_PATH` defaults to `/api/v1/matters/{matter_id}/documents`.
 - `LEGALSERVER_USERS_PATH` defaults to `/api/v1/users`.
-- `LEGALSERVER_USER_FILTER_PARAM` defaults to `assigned_user_email`.
+
+Matter search sends only the v2 documented matter-search parameters: `page_size`, `results`, and text search keys such as `case_number`, `case_title`, `external_id`, `first`, and `last`. User access filtering is applied inside the app after LegalServer returns authorized records.
 
 If the users endpoint is unavailable or not included in the API user's permissions, regular users can still proceed when the saved LegalServer identifier matches the signed-in email. LegalServer role-based elevation requires a reachable users endpoint or a Django-side superuser group/staff assignment.
 

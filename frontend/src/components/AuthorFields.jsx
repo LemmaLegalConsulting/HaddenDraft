@@ -39,7 +39,7 @@ export function AuthorFields({ profile, onChange, onSignatureChange }) {
       </label>
       <label className="field">
         <span>Preferred salutation</span>
-        <input value={value.salutation || ""} onChange={(event) => updateField("salutation", event.target.value)} placeholder="Dear Housing Court Clerk:" />
+        <input value={value.salutation || ""} onChange={(event) => updateField("salutation", event.target.value)} placeholder="Dear Clerk:" />
       </label>
       <label className="field">
         <span>Preferred sign-off</span>

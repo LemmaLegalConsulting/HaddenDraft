@@ -165,11 +165,7 @@ export function FactReview({ matter, facts, selectedFactIds, selectedCuratedFact
   return (
     <div className="facts-workflow">
       <section className="panel">
-        <div className="panel-heading">
-          <div>
-            <p className="eyebrow">Facts</p>
-            <h3>Candidate facts</h3>
-          </div>
+        <div className="button-row panel-actions">
           <button className="secondary" type="button" onClick={autoSelectFacts} disabled={!matter || autoSelecting}>
             {autoSelecting ? <Loader2 className="spin" size={16} /> : <Sparkles size={16} />} Auto-select
           </button>
@@ -190,13 +186,6 @@ export function FactReview({ matter, facts, selectedFactIds, selectedCuratedFact
       </section>
 
       <section className="panel add-facts-panel">
-        <div className="panel-heading">
-          <div>
-            <p className="eyebrow">Add facts</p>
-            <h3>Update the case record</h3>
-          </div>
-          <Plus size={18} />
-        </div>
         <form className="fact-entry-form" onSubmit={submitTypedFact}>
           <label className="field">
             <span>Title</span>
@@ -247,13 +236,7 @@ export function FactReview({ matter, facts, selectedFactIds, selectedCuratedFact
       </section>
 
       <section className="panel">
-        <div className="panel-heading">
-          <div>
-            <p className="eyebrow">Documents</p>
-            <h3>Context curation</h3>
-          </div>
-          {loadingDocuments ? <Loader2 className="spin" size={18} /> : <FileSearch size={18} />}
-        </div>
+        {loadingDocuments && <Loader2 className="spin panel-status-icon" size={18} />}
         {error && <div className="inline-error">{error}</div>}
         <div className="document-list">
           {documents.map((document) => {
@@ -325,12 +308,6 @@ export function FactReview({ matter, facts, selectedFactIds, selectedCuratedFact
       </section>
 
       <section className="panel curated-facts-panel">
-        <div className="panel-heading">
-          <div>
-            <p className="eyebrow">Selected context</p>
-            <h3>Facts allowed for drafting</h3>
-          </div>
-        </div>
         <div className="curated-fact-list">
           {selectedCuratedFacts.length === 0 && <p className="muted">No document-derived facts selected.</p>}
           {selectedCuratedFacts.map((fact) => (

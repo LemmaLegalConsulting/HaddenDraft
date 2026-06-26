@@ -84,6 +84,7 @@ textarea:focus-visible {
 }
 
 .brand h1,
+.brand-title,
 .source-card-title {
   color: var(--bux-white);
 }
@@ -132,6 +133,18 @@ textarea:focus-visible {
   border: 1px solid var(--bux-gray-dark-20);
 }
 
+.source-card-toggle {
+  color: var(--bux-white);
+}
+
+.source-card-toggle:hover {
+  color: var(--bux-white);
+}
+
+.source-summary {
+  color: var(--bux-gray-light-80);
+}
+
 .source-row {
   border-top-color: rgba(255, 255, 255, 0.22);
 }
@@ -146,11 +159,15 @@ textarea:focus-visible {
 }
 
 .topbar h2,
-.panel h3,
+.empty-state-title,
 .active-case-banner strong,
 .case-details dd,
 .connection-panel strong,
 .standard-fact-map strong {
+  color: var(--bux-gray-dark-80);
+}
+
+.connection-summary-toggle {
   color: var(--bux-gray-dark-80);
 }
 
@@ -221,12 +238,15 @@ a.primary.link-button:hover {
 .check-row,
 .block-row,
 .document-card,
-.matter-summary,
-.connection-panel,
 .issue-card,
 .reason-support,
 .signature-preview {
   background: var(--bux-gray-light-90);
+}
+
+.connection-panel,
+.matter-summary {
+  background: transparent;
 }
 
 .case-card.selected,
