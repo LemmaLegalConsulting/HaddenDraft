@@ -5,7 +5,7 @@ from django.contrib.auth.models import User
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase, override_settings
 
-from apps.matters.models import Matter, MatterFact
+from apps.matters.models import Matter, MatterFact, TriageAssessment, TriageRubric
 from apps.sources.models import UserSourceIdentity
 
 
@@ -256,6 +256,66 @@ class CaseConnectionTests(TestCase):
         created = response.json()["created"][0]
         self.assertEqual(created["title"], "Uploaded repairs")
         self.assertIn("no heat", created["text"])
+
+    def test_triage_rubrics_seeds_default_cleveland_rtc_standard(self):
+        TriageRubric.objects.all().delete()
+
+        response = self.client.get("/api/triage/rubrics/")
+
+        self.assertEqual(response.status_code, 200)
+        rubrics = response.json()["rubrics"]
+        self.assertEqual(rubrics[0]["slug"], "cleveland-rtc-priority")
+        self.assertIn("Cleveland", rubrics[0]["standard"])
+
+    @override_settings(AI_DRAFTING_ENABLED=False)
+    def test_user_can_run_triage_for_manual_case_with_fallback(self):
+        matter = Matter.objects.create(
+            external_id="MANUAL-TRIAGE-1",
+            client_name="Triage Client",
+            matter_type="Eviction defense",
+            jurisdiction="Cleveland Municipal Court Housing Division",
+            summary="Tenant has an eviction hearing tomorrow and has two children in the home.",
+            source_system="Manual",
+            raw_payload={"created_by_user_id": self.user.id},
+        )
+        MatterFact.objects.create(
+            matter=matter,
+            slug="voucher-risk",
+            title="Voucher risk",
+            text="Client has a Section 8 voucher and received a notice to leave.",
+            source_label="Intake",
+        )
+
+        response = self.client.post(
+            f"/api/cases/{matter.external_id}/triage/",
+            data=json.dumps({"rubricSlug": "cleveland-rtc-priority"}),
+            content_type="application/json",
+        )
+
+        self.assertEqual(response.status_code, 201)
+        assessment = response.json()["assessment"]
+        self.assertTrue(assessment["priority"])
+        self.assertEqual(assessment["priorityLabel"], "priority_full_representation")
+        self.assertEqual(assessment["rubric"]["slug"], "cleveland-rtc-priority")
+        self.assertEqual(TriageAssessment.objects.get().created_by, self.user)
+
+    @override_settings(AI_DRAFTING_ENABLED=False)
+    def test_user_can_list_prior_triage_assessments(self):
+        matter = Matter.objects.create(
+            external_id="MANUAL-TRIAGE-2",
+            client_name="Triage Client",
+            matter_type="Advice",
+            jurisdiction="Cuyahoga County",
+            summary="Client asks about repairs.",
+            source_system="Manual",
+            raw_payload={"created_by_user_id": self.user.id},
+        )
+        self.client.post(f"/api/cases/{matter.external_id}/triage/")
+
+        response = self.client.get(f"/api/cases/{matter.external_id}/triage/")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.json()["assessments"]), 1)
 
     @patch("apps.matters.services.LegalServerClient")
     def test_user_can_create_manual_case_with_notes_and_multiple_files(self, client_class):

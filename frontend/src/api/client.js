@@ -56,6 +56,10 @@ export const api = {
   startOffice365Login: () => request("/auth/office365/start/"),
   cases: (query = "") => request(`/cases/${query ? `?${new URLSearchParams({ q: query })}` : ""}`),
   createManualCase: (formData) => request("/cases/", { method: "POST", body: formData }),
+  triageRubrics: () => request("/triage/rubrics/"),
+  caseTriage: (matterId) => request(`/cases/${matterId}/triage/`),
+  runCaseTriage: (matterId, payload) =>
+    request(`/cases/${matterId}/triage/`, { method: "POST", body: JSON.stringify(payload) }),
   connectLegalServer: (payload) => request("/legalserver/account/", { method: "POST", body: JSON.stringify(payload) }),
   disconnectLegalServer: () => request("/legalserver/account/", { method: "DELETE" }),
   caseDetail: (matterId) => request(`/cases/${matterId}/`),

@@ -1,5 +1,5 @@
 import React from "react";
-import { ChevronDown, FilePlus2, FileText, Link2, Loader2, MessageSquare, RotateCcw, Search, Unplug, Upload } from "lucide-react";
+import { ChevronDown, ClipboardCheck, FilePlus2, FileText, Link2, Loader2, MessageSquare, RotateCcw, Search, Unplug, Upload } from "lucide-react";
 
 export function CaseSelector({
   cases,
@@ -221,6 +221,9 @@ export function CaseSelector({
             </button>
             <button className="secondary" type="button" onClick={() => onModeChange("research")}>
               <Search size={16} /> Search sources
+            </button>
+            <button className="secondary" type="button" onClick={() => onModeChange("triage")}>
+              <ClipboardCheck size={16} /> Triage
             </button>
             <button className="secondary" type="button" onClick={() => onModeChange("draft")}>
               <FileText size={16} /> Draft
