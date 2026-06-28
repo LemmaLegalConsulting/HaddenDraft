@@ -12,6 +12,9 @@ python scripts/chunk_legal_sources.py --all
 The manifest records the source SHA-256 and generation time. Chunks carry their
 PDF page range and complete heading ancestry, and are limited at existing
 paragraph boundaries so citation strings and enumerated lists are not split.
+Treatises delivered as multiple section-level PDFs may be configured as one
+logical corpus. Their manifest includes a `source_files` inventory, and every
+chunk records the path and SHA-256 of the specific PDF from which it came.
 The HUD profile classifies glossary definitions and appendices/exhibits
 separately for retrieval filters. See the parent [`content/README.md`](../README.md)
 for naming and provenance requirements.

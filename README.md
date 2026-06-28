@@ -42,6 +42,11 @@ Runtime settings are loaded from `.env` in the repository root. `.env` is intent
 - AI prompts are file-backed YAML entries in [`prompts/`](prompts/README.md). Set `PROMPT_CATALOG_DIR` to a directory containing a benchmark variant catalog; enabled **Prompt overrides** in Django admin take precedence for operational edits.
 - Research is constrained to a jurisdiction. Set the organization fallback with `DEFAULT_JURISDICTION`; Django admin's **Organization settings** can override it, and each user can set a **Default research jurisdiction** in Profile. A selected matter's jurisdiction takes precedence over both.
 - Reusable legal-content defaults are maintained in [`content/`](content/README.md). Set `CONTENT_LIBRARY_DIR` only to point at an equivalent staged content library. DOCX snippets are resolved from the content library before legacy package defaults; triage YAML seeds new database records without replacing admin edits.
+- Prepared Word templates live under `content/document-templates/`. Add received
+  DOCX files to `content/original_templates/`, then run `.venv/bin/python
+  backend/manage.py ingest_document_templates`. Prepared manifests are indexed
+  automatically at server startup/API access, while exports render the original
+  OOXML layout with Jinja2 data from the Lexical block editor.
 - Case chat document text extraction uses `DOCUMENT_TEXT_EXTRACTOR=stdlib` by default. Optional values are `markitdown` or `docling` when those packages are installed; the extractor interface is intentionally pluggable for custom backends.
 - LegalServer uses `LEGALSERVER_BASE_URL`, `LEGALSERVER_API_TOKEN`, `LEGALSERVER_MATTERS_PATH`, `LEGALSERVER_MATTERS_RESULTS`, and `LEGALSERVER_MATTER_DOCUMENTS_PATH`. Matter search uses the v2 `/api/v2/matters` endpoint with `results=full`, `page_size`, and the documented text search keys. User access filtering is applied inside the app after LegalServer returns authorized records.
 - SharePoint Online uses Microsoft Graph with `SHAREPOINT_SITE_ID`, `SHAREPOINT_DRIVE_ID`, and either a delegated `ms_graph_access_token` in the Django session or a service token in `SHAREPOINT_ACCESS_TOKEN`. Case document lookup uses `SHAREPOINT_CASE_FOLDER_TEMPLATE`.
@@ -150,6 +155,9 @@ Key extension points:
 - Replace deterministic AI placeholders inside `backend/apps/ai/services.py`.
 - Maintain LLM system/user messages in `prompts/*.yaml`; see [`prompts/README.md`](prompts/README.md) for the schema, benchmark workflow, and database-override behavior.
 - Maintain reusable legal-content files in [`content/`](content/README.md). Run `.venv/bin/python backend/manage.py sync_content_library` to seed new triage-rubric files; use `--update-triage-rubrics` only when intentionally replacing existing database values.
+- Convert received Word templates with `.venv/bin/python backend/manage.py
+  ingest_document_templates`; use `--force` only when intentionally regenerating
+  unchanged sources. The command also refreshes the database template index.
 - Add export formats in `backend/apps/exporting/services.py`.
 
 ## Frontend Layout

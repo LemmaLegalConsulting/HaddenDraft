@@ -1,6 +1,7 @@
 from pathlib import Path
 
 from apps.core.content_library import content_path
+from apps.templates_app.content_library import resolve_content_asset
 
 
 DEFAULT_WORD_TEMPLATE_DIR = Path(__file__).resolve().parent / "default_word_templates"
@@ -44,12 +45,18 @@ def default_block_template_path(template, block):
 def block_template_path(template, block):
     if block.docx_template:
         return block.docx_template.path
+    if block.content_path:
+        path = resolve_content_asset(block.content_path)
+        if path.exists():
+            return path
     return default_block_template_path(template, block)
 
 
 def block_template_source(template, block):
     if block.docx_template:
         return "admin"
+    if block.content_path and resolve_content_asset(block.content_path).exists():
+        return "content_library"
     if content_block_template_path(template, block):
         return "content_library"
     if default_block_template_path(template, block):
@@ -66,6 +73,8 @@ def style_template_path(template):
 def has_word_template_assets(template):
     if not template:
         return False
+    if template.source_kind == "content_library" and template.content_path:
+        return True
     if template.style_template or default_style_template_path(template):
         return True
     return template.blocks.filter(docx_template__gt="").exists() or any(

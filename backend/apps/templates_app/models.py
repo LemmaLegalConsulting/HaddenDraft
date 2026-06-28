@@ -6,6 +6,10 @@ word_template_validator = FileExtensionValidator(["docx", "dotx"])
 
 
 class DocumentTemplate(models.Model):
+    SOURCE_KIND_CHOICES = [
+        ("database", "Database/admin managed"),
+        ("content_library", "Content library"),
+    ]
     TEMPLATE_KIND_CHOICES = [
         ("answer_counterclaims", "Answer and Counterclaims"),
         ("motion", "Motion"),
@@ -21,6 +25,15 @@ class DocumentTemplate(models.Model):
     jurisdiction = models.CharField(max_length=255, blank=True)
     source_label = models.CharField(max_length=255, default="Internal template")
     metadata = models.JSONField(default=dict, blank=True)
+    source_kind = models.CharField(max_length=40, choices=SOURCE_KIND_CHOICES, default="database")
+    content_path = models.CharField(
+        max_length=500,
+        blank=True,
+        help_text="Provider-relative path to a prepared template manifest.",
+    )
+    source_checksum = models.CharField(max_length=64, blank=True)
+    is_active = models.BooleanField(default=True)
+    last_synced_at = models.DateTimeField(null=True, blank=True)
     style_template = models.FileField(
         upload_to="template_styles/",
         blank=True,
@@ -69,6 +82,15 @@ class TemplateBlock(models.Model):
     ai_fill_mode = models.CharField(max_length=80, default="none")
     selection_rule = models.JSONField(default=dict, blank=True)
     supporting_sources = models.JSONField(default=list, blank=True)
+    content_path = models.CharField(
+        max_length=500,
+        blank=True,
+        help_text="Provider-relative path to this block's DOCX snippet, when present.",
+    )
+    source_checksum = models.CharField(max_length=64, blank=True)
+    input_schema = models.JSONField(default=dict, blank=True)
+    lexical_config = models.JSONField(default=dict, blank=True)
+    editable = models.BooleanField(default=True)
 
     class Meta:
         unique_together = [("template", "key")]

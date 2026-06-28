@@ -26,17 +26,27 @@ MAX_WORDS = 1250
 
 @dataclass(frozen=True)
 class Profile:
-    slug: str; title: str; version: str; source: str; kind: str
+    slug: str; title: str; version: str; source: str; kind: str; output_version: str = ""
 
 PROFILES = {
  "ohio-eviction-landlord-tenant-law-6e": Profile("ohio-eviction-landlord-tenant-law-6e", "Ohio Eviction and Landlord-Tenant Law", "2022-06 (Sixth Edition)", "2022-06.pdf", "ohio"),
  "hud-4350-3-rev-1": Profile("hud-4350-3-rev-1", "HUD Handbook 4350.3 REV-1: Occupancy Requirements of Subsidized Programs", "2013-11 (Change 4)", "2013-11-change-4.pdf", "hud"),
+ "green-book": Profile(
+     "green-book",
+     "HUD Housing Programs: Tenants’ Rights (The Green Book)",
+     "6th ed. 2025",
+     "*.pdf",
+     "green-book",
+     "6th-ed-2025",
+ ),
 }
 
 @dataclass
 class Section:
     heading: str; level: int; page_start: int; page_end: int; path: list[str]
     lines: list[str] = field(default_factory=list)
+    source_path: str = ""
+    source_sha256: str = ""
 
 OHIO_MAIN = re.compile(r"^[IVXLCDM]+\.\s+(?:Eviction Action|Ohio Landlord-Tenant Act|Rental Agreement|Rent Depositing|Tenant Claims|Security Deposit|Landlord Claim|Attorney’s Fees|Jurisdiction|Landlord-Tenant Law|Miscellaneous|Land Installment|HUD-Assisted|Table of Cases|Index)" )
 OHIO_UPPER = re.compile(r"^[A-Z]\.\s+(?!\d).+")
@@ -56,6 +66,14 @@ def clean_lines(text: str, p: Profile) -> list[str]:
         if p.kind == "ohio" and "Ohio Eviction and Landlord-Tenant Law (6th ed.)" in line:
             line = re.sub(r"^(?:[ivxlcdm]+|\d+)?\s*Ohio Eviction and Landlord-Tenant Law \(6th ed\.\)\s*", "", line, flags=re.I)
         if p.kind == "hud" and ("HUD Occupancy Handbook" in line or "4350.3 REV-1" in line or re.match(r"^Chapter \d+:", line)): continue
+        if p.kind == "green-book" and (
+            line.startswith("Published on NCLC Digital Library")
+            or line.startswith("this and other treatises at NCLC Digital Library")
+            or line.startswith("Date downloaded:")
+            or line in {"HUD Housing Programs: Tenants’ Rights (The Green", "Book)", "Footnot es"}
+            or line.startswith("To annotate: enable caret browsing")
+        ):
+            continue
         if line: result.append(line)
     return result
 
@@ -125,6 +143,47 @@ def extract_sections(p: Profile, source: Path) -> tuple[list[Section], int]:
     if not sections: raise ValueError(f"No sections found in {source}")
     return sections, len(reader.pages)
 
+def green_book_path(heading_text: str) -> list[str]:
+    """Build useful ancestry from Green Book decimal section numbers."""
+    match = re.match(r"^(\d+(?:\.\d+)+)\s+", heading_text)
+    if not match:
+        return [heading_text]
+    numbers = match.group(1).split(".")
+    ancestors = [f"Chapter {numbers[0]}"]
+    ancestors.extend(f"Section {'.'.join(numbers[:depth])}" for depth in range(2, len(numbers)))
+    return [*ancestors, heading_text]
+
+def extract_green_book_section(p: Profile, source: Path) -> tuple[Section, int]:
+    """Treat each NCLC chapter download as one section of a single treatise."""
+    reader = PdfReader(source)
+    pages = [clean_lines(page.extract_text() or "", p) for page in reader.pages]
+    heading_text = next((line for page in pages for line in page if line), "")
+    if not heading_text:
+        raise ValueError(f"No extractable text in {source}")
+    body = []
+    found_heading = False
+    for page in pages:
+        for line in page:
+            if not found_heading and line == heading_text:
+                found_heading = True
+                continue
+            if found_heading:
+                body.append(line)
+    if not found_heading:
+        raise ValueError(f"Could not locate section heading in {source}")
+    relative = source.relative_to(CONTENT).as_posix()
+    digest = hashlib.sha256(source.read_bytes()).hexdigest()
+    return Section(
+        heading=heading_text,
+        level=min(len(green_book_path(heading_text)), 5),
+        page_start=1,
+        page_end=len(reader.pages),
+        path=green_book_path(heading_text),
+        lines=body,
+        source_path=relative,
+        source_sha256=digest,
+    ), len(reader.pages)
+
 def split_section(section: Section) -> list[list[str]]:
     lines, pieces, count = normalize(section.lines), [[]], 0
     for line in lines:
@@ -146,27 +205,50 @@ def kind(section: Section, p: Profile) -> str:
     return "glossary-definition" if "glossary" in path else "appendix-or-exhibit" if "appendix" in path or "exhibit" in path else "substantive-section"
 
 def generate(p: Profile) -> dict:
-    source = SOURCE_ROOT / p.slug / p.source
-    if not source.is_file(): raise FileNotFoundError(source)
-    digest = hashlib.sha256(source.read_bytes()).hexdigest()
-    sections, pages = extract_sections(p, source)
-    out, chunks = OUTPUT_ROOT / p.slug / source.stem, OUTPUT_ROOT / p.slug / source.stem / "chunks"
+    source_dir = SOURCE_ROOT / p.slug
+    sources = sorted(source_dir.glob(p.source))
+    if not sources: raise FileNotFoundError(source_dir / p.source)
+    if p.kind != "green-book" and len(sources) != 1:
+        raise ValueError(f"Expected one source PDF for {p.slug}; found {len(sources)}")
+    source_files = []
+    if p.kind == "green-book":
+        extracted = [extract_green_book_section(p, source) for source in sources]
+        sections = [section for section, _pages in extracted]
+        pages = sum(page_count for _section, page_count in extracted)
+        for source, (section, page_count) in zip(sources, extracted):
+            source_files.append({"path": section.source_path, "sha256": section.source_sha256, "pdf_pages": page_count})
+    else:
+        source = sources[0]
+        sections, pages = extract_sections(p, source)
+        digest = hashlib.sha256(source.read_bytes()).hexdigest()
+        relative = source.relative_to(CONTENT).as_posix()
+        for section in sections:
+            section.source_path = relative
+            section.source_sha256 = digest
+        source_files = [{"path": relative, "sha256": digest, "pdf_pages": pages}]
+    aggregate = hashlib.sha256()
+    for item in source_files:
+        aggregate.update(item["path"].encode("utf-8") + b"\0" + item["sha256"].encode("ascii") + b"\n")
+    digest = source_files[0]["sha256"] if len(source_files) == 1 else aggregate.hexdigest()
+    version_slug = p.output_version or sources[0].stem
+    out, chunks = OUTPUT_ROOT / p.slug / version_slug, OUTPUT_ROOT / p.slug / version_slug / "chunks"
     if out.exists(): shutil.rmtree(out)
     chunks.mkdir(parents=True)
-    common = {"document_slug": p.slug, "document_title": p.title, "document_version": p.version, "source_path": source.relative_to(CONTENT).as_posix(), "source_sha256": digest, "generated_at": datetime.now(timezone.utc).replace(microsecond=0).isoformat(), "generator": "scripts/chunk_legal_sources.py"}
+    source_path = source_dir.relative_to(CONTENT).as_posix() if len(sources) > 1 else source_files[0]["path"]
+    common = {"document_slug": p.slug, "document_title": p.title, "document_version": p.version, "source_path": source_path, "source_sha256": digest, "generated_at": datetime.now(timezone.utc).replace(microsecond=0).isoformat(), "generator": "scripts/chunk_legal_sources.py"}
     full, inventory, ordinal = [front({**common, "pdf_pages": pages, "derivative": "full-markdown"}), f"# {p.title}", "", f"Version: {p.version}", ""], [], 0
     for section in sections:
         full.extend(["#" * min(section.level + 1, 6) + " " + section.heading, "", *normalize(section.lines), ""])
         parts = split_section(section)
         for part, text in enumerate(parts, 1):
             ordinal += 1; ident = f"{ordinal:04d}-{slugify(section.heading)[:72]}-{part:02d}"; filename = f"{ident}.md"
-            data = {**common, "chunk_id": ident, "chunk_ordinal": ordinal, "section_heading": section.heading, "section_path": section.path, "pdf_page_start": section.page_start, "pdf_page_end": section.page_end, "chunk_part": part, "chunk_parts_in_section": len(parts), "content_kind": kind(section, p)}
+            data = {**common, "source_path": section.source_path, "source_sha256": section.source_sha256, "chunk_id": ident, "chunk_ordinal": ordinal, "section_heading": section.heading, "section_path": section.path, "pdf_page_start": section.page_start, "pdf_page_end": section.page_end, "chunk_part": part, "chunk_parts_in_section": len(parts), "content_kind": kind(section, p)}
             toc = "\n".join(f"{'  ' * depth}- {item}" for depth, item in enumerate(section.path))
             body = [front(data), f"# {section.heading}", "", "## Table-of-contents context", "", toc, "", "## Source text", "", *text]
             (chunks / filename).write_text("\n".join(body).rstrip() + "\n", encoding="utf-8")
-            inventory.append({"id": ident, "file": f"chunks/{filename}", "heading": section.heading, "path": section.path, "pages": [section.page_start, section.page_end], "content_kind": data["content_kind"]})
-    (out / f"{source.stem}.md").write_text("\n".join(full).rstrip() + "\n", encoding="utf-8")
-    manifest = {**common, "pdf_pages": pages, "chunk_count": len(inventory), "chunks": inventory}
+            inventory.append({"id": ident, "file": f"chunks/{filename}", "heading": section.heading, "path": section.path, "pages": [section.page_start, section.page_end], "content_kind": data["content_kind"], "source_path": section.source_path, "source_sha256": section.source_sha256})
+    (out / f"{version_slug}.md").write_text("\n".join(full).rstrip() + "\n", encoding="utf-8")
+    manifest = {**common, "pdf_pages": pages, "source_files": source_files, "chunk_count": len(inventory), "chunks": inventory}
     (out / "manifest.yaml").write_text(yaml.safe_dump(manifest, sort_keys=False, allow_unicode=True), encoding="utf-8")
     return manifest
 
