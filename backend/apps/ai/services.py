@@ -2,6 +2,7 @@ import re
 from dataclasses import dataclass
 
 from django.conf import settings
+from jinja2 import ChainableUndefined, Environment
 
 from apps.ai.openai_client import OpenAIBackendError, OpenAICompatibleClient
 from apps.ai.prompt_catalog import render_prompt
@@ -18,6 +19,7 @@ class GenerationContext:
     mode: str
     instructions: str = ""
     author_profile: dict | None = None
+    template_data: dict | None = None
 
 
 class ConstrainedDraftingService:
@@ -54,6 +56,33 @@ class ConstrainedDraftingService:
 
     def normalize_generated_text(self, text):
         return re.sub(r"<br\s*/?>", "\n", text or "", flags=re.IGNORECASE)
+
+    def render_template_body(self, body, context):
+        author = context.author_profile or {}
+        contact = "\n".join(
+            item
+            for item in [author.get("organization", ""), author.get("address", ""), author.get("phone", ""), author.get("email", "")]
+            if item
+        )
+        values = {
+            "fields": context.template_data or {},
+            "matter": context.matter,
+            "author": author,
+            "court": context.matter.jurisdiction,
+            "plaintiff": (context.template_data or {}).get("plaintiff_name", "Plaintiff"),
+            "defendant": context.matter.client_name,
+            "case_number": context.matter.external_id,
+            "advocate_name": author.get("displayName") or "Advocate",
+            "advocate_signoff": author.get("signoff") or "Respectfully submitted,",
+            "advocate_salutation": author.get("salutation") or "",
+            "advocate_organization": author.get("organization") or "",
+            "advocate_email": author.get("email") or "",
+            "advocate_phone": author.get("phone") or "",
+            "advocate_address": author.get("address") or "",
+            "advocate_contact": contact,
+            "advocate_signature_image": "[signature image]" if author.get("signatureImage") else "",
+        }
+        return Environment(undefined=ChainableUndefined, autoescape=False).from_string(body).render(values)
 
     def generate_curated_facts_section(self, facts, curated_facts):
         lines = []
@@ -115,6 +144,7 @@ class ConstrainedDraftingService:
                 mode=context.mode,
                 instructions=f"{context.instructions}\n\nBlock refinement instruction: {instruction}".strip(),
                 author_profile=context.author_profile,
+                template_data=context.template_data,
             )
         else:
             scoped_context = context
@@ -132,35 +162,7 @@ class ConstrainedDraftingService:
             elif block.ai_fill_mode == "constrained_generation":
                 body = self.generate_constrained_section(label=block.label, context=context, fallback=block.body)
             elif "{{" in block.body:
-                author = context.author_profile or {}
-                author_name = author.get("displayName") or "Advocate"
-                author_signoff = author.get("signoff") or "Respectfully submitted,"
-                contact = "\n".join(
-                    item
-                    for item in [
-                        author.get("organization", ""),
-                        author.get("address", ""),
-                        author.get("phone", ""),
-                        author.get("email", ""),
-                    ]
-                    if item
-                )
-                signature_marker = "[signature image]" if author.get("signatureImage") else ""
-                body = (
-                    block.body.replace("{{ court }}", context.matter.jurisdiction)
-                    .replace("{{ plaintiff }}", "Plaintiff")
-                    .replace("{{ defendant }}", context.matter.client_name)
-                    .replace("{{ case_number }}", context.matter.external_id)
-                    .replace("{{ advocate_name }}", author_name)
-                    .replace("{{ advocate_signoff }}", author_signoff)
-                    .replace("{{ advocate_salutation }}", author.get("salutation") or "")
-                    .replace("{{ advocate_organization }}", author.get("organization") or "")
-                    .replace("{{ advocate_email }}", author.get("email") or "")
-                    .replace("{{ advocate_phone }}", author.get("phone") or "")
-                    .replace("{{ advocate_address }}", author.get("address") or "")
-                    .replace("{{ advocate_contact }}", contact)
-                    .replace("{{ advocate_signature_image }}", signature_marker)
-                )
+                body = self.render_template_body(block.body, context)
             else:
                 body = block.body
             section_sources = list(block.supporting_sources)

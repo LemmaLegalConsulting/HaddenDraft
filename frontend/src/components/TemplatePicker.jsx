@@ -1,7 +1,20 @@
 import React from "react";
 
-export function TemplatePicker({ templates, selectedTemplateId, selectedBlockKeys, onTemplateChange, onBlockChange }) {
+function fieldLabel(path) {
+  return path.replace(/^fields\./, "").replaceAll("_", " ").replace(/\b\w/g, (letter) => letter.toUpperCase());
+}
+
+export function TemplatePicker({
+  templates,
+  selectedTemplateId,
+  selectedBlockKeys,
+  templateData,
+  onTemplateChange,
+  onBlockChange,
+  onTemplateDataChange,
+}) {
   const selectedTemplate = templates.find((template) => template.id === Number(selectedTemplateId));
+  const templateFields = selectedTemplate?.metadata?.fields || [];
 
   function toggleBlock(key) {
     if (selectedBlockKeys.includes(key)) {
@@ -21,6 +34,24 @@ export function TemplatePicker({ templates, selectedTemplateId, selectedBlockKey
           ))}
         </select>
       </label>
+
+      {templateFields.length > 0 && (
+        <div className="template-field-list">
+          <h4>Template details</h4>
+          {templateFields.map((path) => {
+            const key = path.replace(/^fields\./, "");
+            return (
+              <label className="field" key={path}>
+                <span>{fieldLabel(path)}</span>
+                <input
+                  value={templateData?.[key] || ""}
+                  onChange={(event) => onTemplateDataChange({ ...templateData, [key]: event.target.value })}
+                />
+              </label>
+            );
+          })}
+        </div>
+      )}
 
       <div className="block-list">
         {selectedTemplate?.blocks?.map((block) => (

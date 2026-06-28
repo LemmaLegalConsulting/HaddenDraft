@@ -17,6 +17,8 @@ def advance(session, payload):
         session.selected_block_keys = payload["selectedBlockKeys"]
     if "authorProfile" in payload:
         session.author_profile = payload["authorProfile"] or {}
+    if "templateData" in payload:
+        session.template_data = payload["templateData"] or {}
     if "instructions" in payload:
         session.instructions = payload["instructions"]
     if "template" in payload:
@@ -55,6 +57,7 @@ def create_draft(session):
         mode=session.mode,
         instructions=session.instructions,
         author_profile=session.author_profile,
+        template_data=session.template_data,
     )
     block_keys = session.selected_block_keys or [block.key for block in session.template.blocks.all()]
     sections = drafting_ai.compose_document(context, block_keys)
@@ -86,6 +89,7 @@ def regeneration_context(session):
         mode=session.mode,
         instructions=session.instructions,
         author_profile=session.author_profile,
+        template_data=session.template_data,
     )
 
 

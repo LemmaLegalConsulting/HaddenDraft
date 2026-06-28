@@ -67,6 +67,7 @@ export function App() {
   const [selectedFactIds, setSelectedFactIds] = useState([]);
   const [selectedCuratedFacts, setSelectedCuratedFacts] = useState([]);
   const [selectedBlockKeys, setSelectedBlockKeys] = useState([]);
+  const [templateData, setTemplateData] = useState({});
   const [candidateIssues, setCandidateIssues] = useState([]);
   const [sourceResults, setSourceResults] = useState([]);
   const [session, setSession] = useState(null);
@@ -364,6 +365,7 @@ export function App() {
         matterId: matter.id,
         templateId: draftMode === "draft_from_scratch" ? undefined : selectedTemplateId,
         authorProfile: draftAuthorProfile,
+        templateData,
         instructions,
       };
       const response = await api.createSession(payload);
@@ -375,6 +377,7 @@ export function App() {
         selectedSourceResults: sourceResults,
         selectedBlockKeys,
         authorProfile: draftAuthorProfile,
+        templateData,
         instructions,
         ...(draftMode === "draft_from_template" ? { template: selectedTemplateId } : {}),
       });
@@ -403,6 +406,7 @@ export function App() {
         selectedSourceResults: sourceResults,
         selectedBlockKeys: overrides.selectedBlockKeys || selectedBlockKeys,
         authorProfile: draftAuthorProfile,
+        templateData,
         instructions,
         ...(draftMode === "draft_from_template" ? { template: selectedTemplateId } : {}),
       });
@@ -430,6 +434,7 @@ export function App() {
         selectedSourceResults: sourceResults,
         selectedBlockKeys,
         authorProfile: draftAuthorProfile,
+        templateData,
         instructions,
         ...(draftMode === "draft_from_template" ? { template: selectedTemplateId } : {}),
       });
@@ -857,8 +862,10 @@ export function App() {
                 templates={templates.filter((template) => template.kind !== "shell")}
                 selectedTemplateId={selectedTemplateId}
                 selectedBlockKeys={selectedBlockKeys}
+                templateData={templateData}
                 onTemplateChange={setSelectedTemplateId}
                 onBlockChange={setSelectedBlockKeys}
+                onTemplateDataChange={setTemplateData}
               />
             )}
             <div className="button-row step-actions">
