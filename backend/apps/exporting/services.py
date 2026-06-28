@@ -15,6 +15,7 @@ from apps.templates_app.word_templates import (
     has_word_template_assets,
     style_template_path,
 )
+from apps.templates_app.content_library import full_template_path
 
 
 CONTENT_TYPES = """<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
@@ -226,6 +227,20 @@ def _docx_render_context(draft, section):
     author = _author_context(session.author_profile)
     matter_data = _matter_context(matter)
     sections = draft.sections or []
+    block_context = {}
+    if session.template:
+        block_context = {
+            block.key: {"body": "", "paragraphs": [], "items": []}
+            for block in session.template.blocks.all()
+        }
+    for draft_section in sections:
+        parts = [part.strip() for part in re.split(r"\n{2,}|\n", draft_section.get("body", "")) if part.strip()]
+        items = [re.sub(r"^\d+[.)]\s*", "", part) for part in parts]
+        block_context[draft_section.get("key", "")] = {
+            "body": draft_section.get("body", ""),
+            "paragraphs": parts,
+            "items": items,
+        }
     context = {
         "document": {
             "title": draft.title,
@@ -239,6 +254,8 @@ def _docx_render_context(draft, section):
         "selected_curated_facts": session.selected_curated_facts,
         "selected_sources": session.selected_source_results,
         "instructions": session.instructions,
+        "fields": session.template_data or {},
+        "blocks": block_context,
         "court": matter_data["jurisdiction"],
         "plaintiff": "Plaintiff",
         "defendant": matter_data["client_name"],
@@ -321,7 +338,25 @@ def _composed_docx(draft):
     return output.getvalue()
 
 
+def _full_template_docx(draft, template_path):
+    output = io.BytesIO()
+    with tempfile.TemporaryDirectory() as tmpdir:
+        rendered_path = f"{tmpdir}/rendered.docx"
+        _render_docx_template(template_path, _docx_render_context(draft, {}), rendered_path)
+        with open(rendered_path, "rb") as stream:
+            output.write(stream.read())
+    return output.getvalue()
+
+
 def export_docx(draft):
+    selected_full_template = full_template_path(_draft_template(draft))
+    if selected_full_template:
+        response = HttpResponse(
+            _full_template_docx(draft, selected_full_template),
+            content_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        )
+        response["Content-Disposition"] = f'attachment; filename="draft-{draft.id}.docx"'
+        return response
     if _has_word_template_assets(draft):
         response = HttpResponse(
             _composed_docx(draft),

@@ -271,7 +271,7 @@ class ContentLibraryTreatiseConnectorTests(TestCase):
     def test_searches_generated_chunks_and_retains_provenance(self):
         with tempfile.TemporaryDirectory() as directory:
             library = Path(directory)
-            version = library / "treatises" / "markdown" / "sample-treatise" / "2026-01"
+            version = library / "treatises" / "markdown" / "green-book" / "2026-01"
             chunks = version / "chunks"
             chunks.mkdir(parents=True)
             (chunks / "0001-repairs.md").write_text(
@@ -280,7 +280,7 @@ class ContentLibraryTreatiseConnectorTests(TestCase):
                 encoding="utf-8",
             )
             (version / "manifest.yaml").write_text(
-                "document_slug: sample-treatise\n"
+                "document_slug: green-book\n"
                 "document_title: Sample Housing Treatise\n"
                 "document_version: 2026 edition\n"
                 "source_path: treatises/source/sample/2026.pdf\n"
@@ -291,18 +291,23 @@ class ContentLibraryTreatiseConnectorTests(TestCase):
                 "  heading: Repair conditions\n"
                 "  path: [Chapter 1, Repair conditions]\n"
                 "  pages: [12, 13]\n"
-                "  content_kind: substantive-section\n",
+                "  content_kind: substantive-section\n"
+                "  source_path: treatises/source/green-book/repairs.pdf\n"
+                "  source_sha256: per-file-sha\n",
                 encoding="utf-8",
             )
             with override_settings(CONTENT_LIBRARY_DIR=library):
-                results = ContentLibraryTreatiseConnector().search("habitability repair defense")
+                results = ContentLibraryTreatiseConnector().search(
+                    "habitability repair defense", source_ids=["green-book"]
+                )
 
         self.assertEqual(len(results), 1)
         self.assertEqual(results[0].source_kind, "rag")
         self.assertIn("Sample Housing Treatise", results[0].citation)
         self.assertIn("PDF pp. 12–13", results[0].citation)
         self.assertEqual(results[0].metadata["chunkId"], "0001-repairs")
-        self.assertEqual(results[0].metadata["sourceSha256"], "abc123")
+        self.assertEqual(results[0].metadata["sourceSha256"], "per-file-sha")
+        self.assertEqual(results[0].metadata["sourcePath"], "treatises/source/green-book/repairs.pdf")
 
     @override_settings(AI_DRAFTING_ENABLED=False)
     def test_searches_generated_statute_chunks_with_official_citation_and_url(self):
@@ -471,6 +476,12 @@ class AutomaticSourceSelectionTests(TestCase):
 
         self.assertEqual(selection["source_ids"], ["hud-handbook"])
         self.assertEqual(selection["annotations"][0]["reason"], "The question concerns federally assisted housing or a HUD program.")
+
+    def test_public_housing_question_routes_to_green_book(self):
+        selection = automatic_source_selection("What rules govern a public housing authority homeownership program?")
+
+        self.assertEqual(selection["source_ids"], ["green-book"])
+        self.assertIn("Green Book", selection["annotations"][0]["reason"])
 
 
 class ConnectorRegistryTests(TestCase):

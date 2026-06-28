@@ -40,6 +40,7 @@ RAG_SOURCE_DOCUMENTS = {
     "ohio-statutes": {"ohio-revised-code"},
     "treatise": {"ohio-eviction-landlord-tenant-law-6e"},
     "hud-handbook": {"hud-4350-3-rev-1"},
+    "green-book": {"green-book"},
 }
 
 
@@ -142,8 +143,8 @@ class ContentLibraryTreatiseConnector(SourceConnector):
                     "document_slug": manifest.get("document_slug", ""),
                     "document_title": manifest.get("document_title", "Treatise"),
                     "document_version": manifest.get("document_version", ""),
-                    "source_path": manifest.get("source_path", ""),
-                    "source_sha256": manifest.get("source_sha256", ""),
+                    "source_path": item.get("source_path", manifest.get("source_path", "")),
+                    "source_sha256": item.get("source_sha256", manifest.get("source_sha256", "")),
                     "citation": item.get("citation", ""),
                     "url": item.get("url", ""),
                     "effective_date": item.get("effective_date", ""),

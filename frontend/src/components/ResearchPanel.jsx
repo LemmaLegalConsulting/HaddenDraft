@@ -61,6 +61,7 @@ const SOURCE_GROUPS = [
     options: [
       { id: "treatise", label: "Treatise", kind: "rag", icon: BookOpen },
       { id: "hud-handbook", label: "HUD Handbook", kind: "rag", icon: Library },
+      { id: "green-book", label: "Green Book", kind: "rag", icon: BookOpen },
     ],
   },
 ];

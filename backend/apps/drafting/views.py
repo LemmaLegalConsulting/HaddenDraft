@@ -51,6 +51,7 @@ def sessions(request):
         matter=matter,
         template=template,
         author_profile=body.get("authorProfile", {}),
+        template_data=body.get("templateData", {}),
         instructions=body.get("instructions", ""),
     )
     initialize_session(session)
