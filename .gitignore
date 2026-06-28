@@ -61,3 +61,7 @@ desktop.ini
 # brainstorming files / examples for codex
 brainstorming/
 clickable_prototype.js
+
+content/original_templates/
+content/document-templates/
+content/treatises/
