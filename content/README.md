@@ -9,6 +9,8 @@ without changing the drafting, triage, or retrieval workflows.
 
 ```text
 content/
+├── original_templates/      # received source files; never used directly at runtime
+├── document-templates/      # prepared DOCX/Jinja packages and manifests
 ├── docx-snippets/
 │   ├── _shared/blocks/       # default snippets for every template pathway
 │   └── <template-slug>/blocks/ # pathway-specific overrides
@@ -40,13 +42,35 @@ pathway-specific repository block, the shared repository block, then the block
 text stored in the database. Existing package-local Word files remain a legacy
 fallback while assets are migrated. New or changed reusable assets belong here.
 
+## Document templates
+
+`original_templates/` retains received source documents. Runtime drafting uses
+only prepared packages under `document-templates/<template-slug>/`. Each package
+contains a formatting-preserving `template.docx` and a `manifest.yaml` that
+defines its Lexical blocks, expected fields/lists, checksums, and provenance.
+Generated pathway blocks are written to `docx-snippets/<template-slug>/blocks/`.
+
+Run `.venv/bin/python backend/manage.py ingest_document_templates` after adding
+or changing a source DOCX. The converter modifies OOXML in place instead of
+round-tripping through text, HTML, or Markdown. It therefore retains headers,
+footers, tables, numbering, styles, section settings, and embedded media. The
+command ignores non-DOCX sources; spreadsheets and reference PDFs need their
+own format-specific pipelines.
+
+Prepared manifests are indexed into the database after migrations, on the first
+request after server start, and whenever the template API is read. File-managed
+records are refreshed from their manifest. A database/admin-managed record with
+the same slug is preserved and reported as a conflict. Removing a prepared
+package deactivates its file-managed database row rather than deleting history.
+
 ## Treatises
 
-Place the received, authoritative PDF at
-`treatises/source/<treatise-slug>/<version>.pdf`. Preserve the original file
-name and version/date in a companion `metadata.yaml` when available. A future
-ingestion job will write heading-preserving Markdown to
-`treatises/markdown/<treatise-slug>/<version>.md`, then chunk it by headings for
+Place received, authoritative PDFs under
+`treatises/source/<treatise-slug>/`. Preserve original file names and record
+the version/date in a companion `metadata.yaml` when available. A treatise may
+be one versioned PDF or a configured set of section-level PDFs. The ingestion
+job writes heading-preserving Markdown under
+`treatises/markdown/<treatise-slug>/<version>/`, then chunks it by headings for
 retrieval. Do not hand-edit generated Markdown; correct the source PDF or the
 converter and regenerate it.
 

@@ -20,6 +20,12 @@ sources:
     when:
       - terms: [hud, subsid, voucher, section 8]
         reason: The question concerns federally assisted housing or a HUD program.
+  green-book:
+    kind: rag
+    label: "HUD Housing Programs: Tenants’ Rights (Green Book)"
+    when:
+      - terms: [public housing, housing authority, pha, homeownership, qhwra, turnkey]
+        reason: The question concerns public housing programs covered by the Green Book.
   ohio-cases:
     kind: local_cases
     label: Ohio case law
