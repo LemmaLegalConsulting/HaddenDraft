@@ -57,6 +57,10 @@ Office 365 / SharePoint supports two access paths:
 
 For Office 365 sign-in across any work/school tenant, use `OFFICE365_TENANT_ID=organizations`. Use a concrete tenant ID only when sign-in should be restricted to that tenant.
 
+## Production VM Deployment
+
+See [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md) for the disposable-VM deployment path using Docker Compose, Azure Key Vault, and an external PostgreSQL database.
+
 ## Start The Application
 
 Run the backend and frontend in separate terminals.
@@ -119,7 +123,7 @@ npm run build
 ├── brainstorming/            Original planning documents
 ├── clickable_prototype.js    Original clickable React prototype
 ├── content/                  Maintained DOCX snippets, treatise source/Markdown, and triage rubrics
-├── docs/                     Architecture notes
+├── docs/                     Architecture and deployment notes
 ├── frontend/                 Vite + React + Lexical frontend
 └── requirements.txt          Python dependencies
 ```
