@@ -1,5 +1,6 @@
 import os
 from pathlib import Path
+from urllib.parse import parse_qsl, urlparse
 
 from django.core.exceptions import ImproperlyConfigured
 
@@ -28,6 +29,38 @@ def env_list(name, default):
     if not value:
         return default
     return [item.strip() for item in value.split(",") if item.strip()]
+
+
+def database_from_url(url):
+    parsed = urlparse(url)
+    scheme = parsed.scheme.lower()
+    if scheme in {"postgres", "postgresql"}:
+        query = dict(parse_qsl(parsed.query, keep_blank_values=True))
+        options = {}
+        if "sslmode" in query:
+            options["sslmode"] = query.pop("sslmode")
+        return {
+            "ENGINE": "django.db.backends.postgresql",
+            "NAME": parsed.path.lstrip("/"),
+            "USER": parsed.username or "",
+            "PASSWORD": parsed.password or "",
+            "HOST": parsed.hostname or "",
+            "PORT": str(parsed.port or 5432),
+            "OPTIONS": options,
+        }
+
+    if scheme == "sqlite":
+        if parsed.netloc and parsed.netloc != "":
+            raise ImproperlyConfigured("SQLite DATABASE_URL values must use sqlite:///path/to/db.sqlite3.")
+        path = parsed.path
+        if path in {"", "/"}:
+            path = str(BASE_DIR / "db.sqlite3")
+        return {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": path,
+        }
+
+    raise ImproperlyConfigured("DATABASE_URL must start with postgres://, postgresql://, or sqlite:///.")
 
 
 load_dotenv(REPO_DIR / ".env")
@@ -68,6 +101,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     *( ["apps.core.middleware.DevCorsMiddleware"] if DEBUG else [] ),
     "django.middleware.common.CommonMiddleware",
@@ -106,8 +140,11 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "config.wsgi.application"
 
+DATABASE_URL = os.environ.get("DATABASE_URL", "")
 DATABASES = {
-    "default": {
+    "default": database_from_url(DATABASE_URL)
+    if DATABASE_URL
+    else {
         "ENGINE": "django.db.backends.sqlite3",
         "NAME": BASE_DIR / "db.sqlite3",
     }
@@ -126,8 +163,9 @@ USE_I18N = True
 USE_TZ = True
 
 STATIC_URL = "static/"
+STATIC_ROOT = Path(os.environ.get("DJANGO_STATIC_ROOT", REPO_DIR / "staticfiles"))
 MEDIA_URL = "media/"
-MEDIA_ROOT = REPO_DIR / "media"
+MEDIA_ROOT = Path(os.environ.get("DJANGO_MEDIA_ROOT", REPO_DIR / "media"))
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 SESSION_COOKIE_SECURE = env_bool("DJANGO_SESSION_COOKIE_SECURE", not DEBUG)
