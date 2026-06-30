@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { Check, FileText, Loader2, Plus, Search, Sparkles, TextSelect, Upload, X } from "lucide-react";
+import { Check, FileText, Loader2, Plus, Search, TextSelect, Upload, X } from "lucide-react";
 
 import { api } from "../api/client.js";
 
@@ -15,7 +15,6 @@ export function FactReview({ matter, facts, selectedFactIds, selectedCuratedFact
   const [documents, setDocuments] = useState([]);
   const [documentState, setDocumentState] = useState({});
   const [loadingDocuments, setLoadingDocuments] = useState(false);
-  const [autoSelecting, setAutoSelecting] = useState(false);
   const [addingFact, setAddingFact] = useState(false);
   const [uploadingFact, setUploadingFact] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
@@ -64,21 +63,6 @@ export function FactReview({ matter, facts, selectedFactIds, selectedCuratedFact
 
   function mergeSelectedFactIds(ids) {
     onFactChange([...new Set([...(selectedFactIds || []), ...(ids || [])])]);
-  }
-
-  async function autoSelectFacts() {
-    if (!matter?.id) return;
-    setAutoSelecting(true);
-    setError("");
-    try {
-      const response = await api.recommendCaseFacts(matter.id);
-      if (response.case) onMatterChange?.(response.case);
-      mergeSelectedFactIds(response.factIds || []);
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setAutoSelecting(false);
-    }
   }
 
   async function submitTypedFact(event) {
@@ -184,9 +168,6 @@ export function FactReview({ matter, facts, selectedFactIds, selectedCuratedFact
           </p>
         </div>
         <div className="button-row panel-actions">
-          <button className="secondary" type="button" onClick={autoSelectFacts} disabled={!matter || autoSelecting}>
-            {autoSelecting ? <Loader2 className="spin" size={16} /> : <Sparkles size={16} />} Refresh AI selections
-          </button>
           <button className="secondary" type="button" onClick={() => setModalOpen(true)}>
             <Plus size={16} /> Add fact or document
           </button>
@@ -194,7 +175,7 @@ export function FactReview({ matter, facts, selectedFactIds, selectedCuratedFact
         </div>
         {error && <div className="inline-error">{error}</div>}
         <div className="check-list">
-          {facts.length === 0 && <p className="muted">No saved case facts yet. Use Refresh AI selections to search documents, or add a fact manually.</p>}
+          {facts.length === 0 && <p className="muted">No saved case facts yet. Use the page-level “Refresh AI fact suggestions” action to search documents, or add a fact manually.</p>}
           {facts.map((fact) => (
             <label key={fact.id} className="check-row fact-with-citation" title={citationForFact(fact)}>
               <input type="checkbox" checked={selectedFactIds.includes(fact.id)} onChange={() => toggleMatterFact(fact)} />
