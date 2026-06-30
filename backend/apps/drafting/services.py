@@ -313,8 +313,11 @@ def outline_for_session(session):
         approved_issue_blocks.update(issue.outputs.get("activate_blocks_after_approval", []))
     selected_keys = set(session.selected_block_keys or []) | approved_issue_blocks
     blocks = []
-    for block in _ordered_blocks(session):
+    template_blocks = list(session.template.blocks.all()) if session.template else []
+    for block in template_blocks:
         selected = block.required or block.key in selected_keys
+        if not selected:
+            continue
         blocks.append(
             {
                 "key": block.key,
