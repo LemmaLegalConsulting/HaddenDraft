@@ -1,6 +1,12 @@
+import json
+
+from django.conf import settings
+
+from apps.ai.openai_client import OpenAIBackendError, OpenAICompatibleClient
 from apps.ai.services import GenerationContext, drafting_ai
 from apps.drafting.models import DraftDocument
 from apps.matters.models import MatterFact
+from apps.sources.models import SourceConfiguration
 
 
 WORKFLOW_STEPS = [
@@ -89,17 +95,87 @@ def _selected_fact_slugs_for_blocks(session):
     return slugs
 
 
+def _ai_review_enabled():
+    config = SourceConfiguration.effective_settings("openai", {"enabled": settings.AI_DRAFTING_ENABLED})
+    return str(config.get("enabled", "")).lower() not in {"0", "false", "no", "off"}
+
+
+def _parse_json_response(text):
+    if not text:
+        return None
+    stripped = text.strip()
+    if stripped.startswith("```"):
+        stripped = stripped.strip("`")
+        if stripped.startswith("json"):
+            stripped = stripped[4:].strip()
+    try:
+        return json.loads(stripped)
+    except json.JSONDecodeError:
+        start = stripped.find("{")
+        end = stripped.rfind("}")
+        if start >= 0 and end > start:
+            try:
+                return json.loads(stripped[start : end + 1])
+            except json.JSONDecodeError:
+                return None
+    return None
+
+
+def _ai_json(system, user):
+    if not _ai_review_enabled():
+        return None
+    try:
+        response = OpenAICompatibleClient().complete(system=system, user=user, temperature=0.0)
+    except OpenAIBackendError:
+        return None
+    return _parse_json_response(response)
+
+
+def _fact_review_payload(session, facts):
+    blocks = [f"- {block.key}: {block.label} ({block.block_type})" for block in _ordered_blocks(session)]
+    fact_lines = [f"- id={fact.id}; slug={fact.slug}; title={fact.title}; text={fact.text}; source={fact.source_label}" for fact in facts]
+    return "\n".join(
+        [
+            f"Matter summary: {session.matter.summary}",
+            f"Jurisdiction: {session.matter.jurisdiction}",
+            f"Template: {session.template.title if session.template else 'No template'}",
+            f"Instructions: {session.instructions or '-'}",
+            "Draft sections needing facts:",
+            "\n".join(blocks) or "- None",
+            "Available facts:",
+            "\n".join(fact_lines) or "- None",
+        ]
+    )
+
+
+def _ai_recommend_fact_ids(session, facts):
+    payload = _fact_review_payload(session, facts)
+    data = _ai_json(
+        "You select facts for a legal drafting workflow. Select only facts relevant to the selected template, active sections, jurisdiction, and instructions. Return strict JSON.",
+        f"{payload}\n\nReturn JSON with this shape: {{\"selected_ids\": [1, 2], \"reason\": \"short explanation\"}}",
+    )
+    if not isinstance(data, dict):
+        return None
+    available = {fact.id for fact in facts}
+    selected = [int(value) for value in data.get("selected_ids", []) if str(value).isdigit() and int(value) in available]
+    return selected or None
+
+
 def recommend_fact_ids(session):
-    """Suggest facts from template/block needs, then let a human review them."""
+    """Have AI suggest facts from the template/block needs, with deterministic fallback."""
+    facts = list(MatterFact.objects.filter(matter=session.matter).order_by("id"))
+    ai_selected = _ai_recommend_fact_ids(session, facts)
+    if ai_selected:
+        return ai_selected
+
     recommended_slugs = list(drafting_ai.recommend_fact_slugs(session.matter))
     for slug in _selected_fact_slugs_for_blocks(session):
         if slug not in recommended_slugs:
             recommended_slugs.append(slug)
-    facts = MatterFact.objects.filter(matter=session.matter).order_by("id")
     selected = [fact.id for fact in facts if fact.selected_by_default or fact.slug in recommended_slugs]
     if selected:
         return selected
-    return list(facts.values_list("id", flat=True)[:5])
+    return [fact.id for fact in facts[:5]]
 
 
 def initialize_session(session):
@@ -273,6 +349,63 @@ def result_to_support_candidate(result):
     }
 
 
+def _source_catalog_for_ai():
+    from apps.sources.selection import source_guidance
+
+    sources = source_guidance()["sources"]
+    return "\n".join(
+        f"- id={source_id}; label={source.get('label', source_id)}; kind={source.get('kind')}; reason={source.get('default_reason', '')}"
+        for source_id, source in sources.items()
+    )
+
+
+def _ai_select_source_ids(query, session):
+    from apps.sources.selection import source_guidance
+
+    available = set(source_guidance()["sources"])
+    data = _ai_json(
+        "You select source libraries for a legal drafting support review. Pick only libraries likely to contain relevant authorities, examples, or references. Return strict JSON.",
+        "\n".join(
+            [
+                f"Drafting support query: {query}",
+                f"Matter summary: {session.matter.summary}",
+                f"Jurisdiction: {session.matter.jurisdiction}",
+                "Available source libraries:",
+                _source_catalog_for_ai(),
+                "Return JSON with this shape: {\"selected_source_ids\": [\"ohio-statutes\"], \"reason\": \"short explanation\"}",
+            ]
+        ),
+    )
+    if not isinstance(data, dict):
+        return None
+    selected = [source_id for source_id in data.get("selected_source_ids", []) if source_id in available]
+    return selected or None
+
+
+def _ai_select_candidate_ids(query, candidates):
+    candidate_lines = []
+    for candidate in candidates[:20]:
+        candidate_lines.append(
+            f"- id={candidate.get('id')}; purpose={candidate.get('purpose')}; title={candidate.get('title')}; source={candidate.get('sourceLabel')}; citation={candidate.get('citation')}; snippet={candidate.get('snippet')}"
+        )
+    data = _ai_json(
+        "You select drafting support candidates. Select only sources the draft may rely on. Prefer legal authority and high-value example language. Return strict JSON.",
+        "\n".join(
+            [
+                f"Drafting support query: {query}",
+                "Candidate sources:",
+                "\n".join(candidate_lines) or "- None",
+                "Return JSON with this shape: {\"selected_candidate_ids\": [\"id\"], \"reason\": \"short explanation\"}",
+            ]
+        ),
+    )
+    if not isinstance(data, dict):
+        return None
+    available = {str(candidate.get("id")) for candidate in candidates}
+    selected = [str(candidate_id) for candidate_id in data.get("selected_candidate_ids", []) if str(candidate_id) in available]
+    return selected or None
+
+
 def recommend_support_candidates(session, *, user=None, request=None, limit_per_source=3):
     query = support_query_for_session(session)
     if not query:
@@ -281,22 +414,30 @@ def recommend_support_candidates(session, *, user=None, request=None, limit_per_
     from apps.sources.registry import connector_registry
     from apps.sources.selection import automatic_source_selection, source_kinds
 
+    ai_source_ids = _ai_select_source_ids(query, session)
     selection = automatic_source_selection(query, matter=session.matter)
+    source_ids = ai_source_ids or selection["source_ids"]
     results = connector_registry.search(
         query,
-        kinds=source_kinds(selection["source_ids"]),
-        source_ids=selection["source_ids"],
+        kinds=source_kinds(source_ids),
+        source_ids=source_ids,
         matter=session.matter,
         jurisdiction=session.matter.jurisdiction,
         limit_per_source=limit_per_source,
         user=user,
         request=request,
     )
+    candidates = [result_to_support_candidate(result) for result in results]
+    ai_candidate_ids = _ai_select_candidate_ids(query, candidates)
+    if ai_candidate_ids is not None:
+        selected = set(ai_candidate_ids)
+        candidates = [{**candidate, "selectedByDefault": str(candidate.get("id")) in selected} for candidate in candidates]
     return {
         "query": query,
-        "selectedSourceIds": selection["source_ids"],
-        "sourceDecision": selection,
-        "candidates": [result_to_support_candidate(result) for result in results],
+        "selectedSourceIds": source_ids,
+        "sourceDecision": {**selection, "source_ids": source_ids, "aiReviewed": bool(ai_source_ids)},
+        "candidates": candidates,
+        "aiReviewed": ai_candidate_ids is not None,
     }
 
 
