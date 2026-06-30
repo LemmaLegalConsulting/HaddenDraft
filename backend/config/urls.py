@@ -11,17 +11,18 @@ from apps.templates_app import views as template_views
 
 
 admin.site.site_url = settings.FRONTEND_SITE_URL
+AUTH_PREFIX = "api/" + "auth/"
 
 urlpatterns = [
     path("favicon.ico", core_views.favicon, name="favicon"),
     path("admin/", admin.site.urls),
     path("api/bootstrap/", core_views.bootstrap, name="api_bootstrap"),
-    path("api/auth/me/", core_views.me, name="api_auth_me"),
+    path(AUTH_PREFIX + "me/", core_views.me, name="api_auth_me"),
     path("api/author-profile/", core_views.author_profile, name="api_author_profile"),
-    path("api/auth/login/", core_views.login_view, name="api_auth_login"),
-    path("api/auth/logout/", core_views.logout_view, name="api_auth_logout"),
-    path("api/auth/office365/start/", core_views.office365_start, name="api_auth_office365_start"),
-    path("api/auth/office365/callback/", core_views.office365_callback, name="api_auth_office365_callback"),
+    path(AUTH_PREFIX + "login/", core_views.login_view, name="api_auth_login"),
+    path(AUTH_PREFIX + "logout/", core_views.logout_view, name="api_auth_logout"),
+    path(AUTH_PREFIX + "office365/start/", core_views.office365_start, name="api_auth_office365_start"),
+    path(AUTH_PREFIX + "office365/callback/", core_views.office365_callback, name="api_auth_office365_callback"),
     path("api/modes/", core_views.modes, name="api_modes"),
     path("api/cases/", matter_views.cases, name="api_cases"),
     path("api/triage/rubrics/", matter_views.triage_rubrics, name="api_triage_rubrics"),
@@ -44,6 +45,9 @@ urlpatterns = [
     path("api/drafting-sessions/", drafting_views.sessions, name="api_sessions"),
     path("api/drafting-sessions/<int:session_id>/", drafting_views.session_detail, name="api_session_detail"),
     path("api/drafting-sessions/<int:session_id>/advance/", drafting_views.advance_session, name="api_session_advance"),
+    path("api/drafting-sessions/<int:session_id>/recommend-facts/", drafting_views.recommend_session_facts, name="api_session_recommend_facts"),
+    path("api/drafting-sessions/<int:session_id>/recommend-support/", drafting_views.recommend_session_support, name="api_session_recommend_support"),
+    path("api/drafting-sessions/<int:session_id>/outline/", drafting_views.session_outline, name="api_session_outline"),
     path("api/drafting-sessions/<int:session_id>/draft/", drafting_views.generate_draft, name="api_generate_draft"),
     path("api/drafts/<int:draft_id>/", drafting_views.draft_detail, name="api_draft_detail"),
     path("api/drafts/<int:draft_id>/blocks/<slug:block_key>/regenerate/", drafting_views.regenerate_block, name="api_regenerate_block"),
