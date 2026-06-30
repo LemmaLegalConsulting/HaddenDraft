@@ -5,3 +5,6 @@ pypdf>=5.0.0,<6.0.0
 docxtpl>=0.20.2,<1.0
 docxcompose>=2.2.0,<3.0
 PyYAML>=6.0,<7.0
+gunicorn>=23.0,<24.0
+psycopg[binary]>=3.2,<4.0
+whitenoise>=6.8,<7.0
