@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { Check, FileSearch, FileText, Loader2, Plus, Search, Sparkles, TextSelect, Upload, X } from "lucide-react";
+import { Check, FileText, Loader2, Plus, Search, Sparkles, TextSelect, Upload, X } from "lucide-react";
 
 import { api } from "../api/client.js";
 
@@ -14,11 +14,12 @@ function curatedId(prefix, value) {
 export function FactReview({ matter, facts, selectedFactIds, selectedCuratedFacts, onFactChange, onCuratedChange, onMatterChange }) {
   const [documents, setDocuments] = useState([]);
   const [documentState, setDocumentState] = useState({});
-  const [searchTerms, setSearchTerms] = useState({});
   const [loadingDocuments, setLoadingDocuments] = useState(false);
   const [autoSelecting, setAutoSelecting] = useState(false);
   const [addingFact, setAddingFact] = useState(false);
   const [uploadingFact, setUploadingFact] = useState(false);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalMode, setModalMode] = useState("fact");
   const [newFact, setNewFact] = useState({ title: "", text: "", source: "" });
   const [uploadTitle, setUploadTitle] = useState("");
   const [uploadFile, setUploadFile] = useState(null);
@@ -31,8 +32,11 @@ export function FactReview({ matter, facts, selectedFactIds, selectedCuratedFact
     }
     setLoadingDocuments(true);
     setError("");
-    api.caseDocuments(matter.id)
-      .then((response) => setDocuments(response.documents || []))
+    Promise.all([api.caseDocuments(matter.id), api.caseDetail(matter.id)])
+      .then(([documentResponse, caseResponse]) => {
+        setDocuments(documentResponse.documents || []);
+        onMatterChange?.(caseResponse.case);
+      })
       .catch((err) => setError(err.message))
       .finally(() => setLoadingDocuments(false));
   }, [matter?.id]);
@@ -68,6 +72,7 @@ export function FactReview({ matter, facts, selectedFactIds, selectedCuratedFact
     setError("");
     try {
       const response = await api.recommendCaseFacts(matter.id);
+      if (response.case) onMatterChange?.(response.case);
       mergeSelectedFactIds(response.factIds || []);
     } catch (err) {
       setError(err.message);
@@ -86,6 +91,7 @@ export function FactReview({ matter, facts, selectedFactIds, selectedCuratedFact
       onMatterChange?.(response.case);
       mergeSelectedFactIds((response.created || []).map((fact) => fact.id));
       setNewFact({ title: "", text: "", source: "" });
+      setModalOpen(false);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -108,6 +114,7 @@ export function FactReview({ matter, facts, selectedFactIds, selectedCuratedFact
       setUploadTitle("");
       setUploadFile(null);
       event.currentTarget.reset();
+      setModalOpen(false);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -115,21 +122,25 @@ export function FactReview({ matter, facts, selectedFactIds, selectedCuratedFact
     }
   }
 
-  async function loadContext(document, level, extra = {}) {
+  async function inspectDocument(document) {
     setDocumentState((current) => ({
       ...current,
-      [document.id]: { ...(current[document.id] || {}), loading: level, error: "" },
+      [document.id]: { ...(current[document.id] || {}), loading: true, error: "" },
     }));
     try {
-      const response = await api.caseDocumentContext(matter.id, document.id, { level, ...extra });
+      const response = await api.caseDocumentContext(matter.id, document.id, {
+        level: "search",
+        query: "notice rent payment repair disability assistance hearing deadline bankruptcy debtor relief",
+        limit: 5,
+      });
       setDocumentState((current) => ({
         ...current,
-        [document.id]: { ...(current[document.id] || {}), ...response, activeLevel: level, loading: "" },
+        [document.id]: { ...(current[document.id] || {}), ...response, loading: false },
       }));
     } catch (err) {
       setDocumentState((current) => ({
         ...current,
-        [document.id]: { ...(current[document.id] || {}), error: err.message, loading: "" },
+        [document.id]: { ...(current[document.id] || {}), error: err.message, loading: false },
       }));
     }
   }
@@ -163,15 +174,27 @@ export function FactReview({ matter, facts, selectedFactIds, selectedCuratedFact
   }
 
   return (
-    <div className="facts-workflow">
+    <div className="facts-review-stack">
       <section className="panel">
+        <div className="step-guidance">
+          <span className="block-kicker">Fact selection</span>
+          <h3>Confirm the facts the draft may use</h3>
+          <p>
+            Suggested facts are selected by the AI from case facts and document text. Add facts manually only when the case file is missing something important.
+          </p>
+        </div>
         <div className="button-row panel-actions">
           <button className="secondary" type="button" onClick={autoSelectFacts} disabled={!matter || autoSelecting}>
-            {autoSelecting ? <Loader2 className="spin" size={16} /> : <Sparkles size={16} />} Auto-select
+            {autoSelecting ? <Loader2 className="spin" size={16} /> : <Sparkles size={16} />} Refresh AI selections
           </button>
+          <button className="secondary" type="button" onClick={() => setModalOpen(true)}>
+            <Plus size={16} /> Add fact or document
+          </button>
+          <span className="muted-inline">{selectedFactIds.length + selectedCuratedFacts.length} selected</span>
         </div>
+        {error && <div className="inline-error">{error}</div>}
         <div className="check-list">
-          {facts.length === 0 && <p className="muted">No case facts available yet.</p>}
+          {facts.length === 0 && <p className="muted">No saved case facts yet. Use Refresh AI selections to search documents, or add a fact manually.</p>}
           {facts.map((fact) => (
             <label key={fact.id} className="check-row fact-with-citation" title={citationForFact(fact)}>
               <input type="checkbox" checked={selectedFactIds.includes(fact.id)} onChange={() => toggleMatterFact(fact)} />
@@ -185,60 +208,16 @@ export function FactReview({ matter, facts, selectedFactIds, selectedCuratedFact
         </div>
       </section>
 
-      <section className="panel add-facts-panel">
-        <form className="fact-entry-form" onSubmit={submitTypedFact}>
-          <label className="field">
-            <span>Title</span>
-            <input
-              value={newFact.title}
-              onChange={(event) => setNewFact((current) => ({ ...current, title: event.target.value }))}
-              placeholder="Repair request, payment, notice problem..."
-            />
-          </label>
-          <label className="field">
-            <span>Fact text</span>
-            <textarea
-              value={newFact.text}
-              onChange={(event) => setNewFact((current) => ({ ...current, text: event.target.value }))}
-              placeholder="Type a fact that should be available for drafting."
-              rows={4}
-            />
-          </label>
-          <label className="field">
-            <span>Source</span>
-            <input
-              value={newFact.source}
-              onChange={(event) => setNewFact((current) => ({ ...current, source: event.target.value }))}
-              placeholder="Client update, intake call, advocate note..."
-            />
-          </label>
-          <div className="button-row compact">
-            <button className="primary" type="submit" disabled={!newFact.text.trim() || addingFact}>
-              {addingFact ? <Loader2 className="spin" size={16} /> : <Plus size={16} />} Add and select
-            </button>
-          </div>
-        </form>
-        <form className="fact-upload-form" onSubmit={submitUploadedFact}>
-          <label className="field">
-            <span>Upload source document</span>
-            <input type="file" accept=".txt,.md,.csv,.json,.html,.htm,.docx,.pdf,text/*,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document" onChange={(event) => setUploadFile(event.target.files?.[0] || null)} />
-          </label>
-          <label className="field">
-            <span>Fact title</span>
-            <input value={uploadTitle} onChange={(event) => setUploadTitle(event.target.value)} placeholder="Optional title for the extracted text" />
-          </label>
-          <div className="button-row compact">
-            <button className="secondary" type="submit" disabled={!uploadFile || uploadingFact}>
-              {uploadingFact ? <Loader2 className="spin" size={16} /> : <Upload size={16} />} Extract and select
-            </button>
-          </div>
-        </form>
-      </section>
-
       <section className="panel">
-        {loadingDocuments && <Loader2 className="spin panel-status-icon" size={18} />}
-        {error && <div className="inline-error">{error}</div>}
+        <div className="document-card-heading">
+          <div>
+            <strong>Case documents and notes</strong>
+            <small>The AI searches these automatically during fact review. Inspect a document only if you want to manually select a specific excerpt.</small>
+          </div>
+          {loadingDocuments && <Loader2 className="spin" size={18} />}
+        </div>
         <div className="document-list">
+          {documents.length === 0 && <p className="muted">No source documents available for this case.</p>}
           {documents.map((document) => {
             const state = documentState[document.id] || {};
             const summarySelected = selectedCuratedIds.has(curatedId("summary", document.id));
@@ -251,41 +230,16 @@ export function FactReview({ matter, facts, selectedFactIds, selectedCuratedFact
                   </div>
                   {document.kind === "case_note" ? <TextSelect size={18} /> : <FileText size={18} />}
                 </div>
-                {(document.snippet || state.summary) && (
-                  <p className="document-snippet">{state.summary || document.snippet}</p>
-                )}
+                {(document.snippet || state.summary) && <p className="document-snippet">{state.summary || document.snippet}</p>}
                 <div className="button-row compact document-actions">
-                  <button className="secondary" type="button" onClick={() => loadContext(document, "summary")} disabled={state.loading}>
-                    {state.loading === "summary" ? <Loader2 className="spin" size={16} /> : <FileText size={16} />} Summary
-                  </button>
-                  <button className="secondary" type="button" onClick={() => loadContext(document, "chunks")} disabled={state.loading}>
-                    {state.loading === "chunks" ? <Loader2 className="spin" size={16} /> : <TextSelect size={16} />} Chunks
-                  </button>
-                  <button className="secondary" type="button" onClick={() => loadContext(document, "full")} disabled={state.loading}>
-                    {state.loading === "full" ? <Loader2 className="spin" size={16} /> : <FileSearch size={16} />} Full
+                  <button className="secondary" type="button" onClick={() => inspectDocument(document)} disabled={state.loading}>
+                    {state.loading ? <Loader2 className="spin" size={16} /> : <Search size={16} />} Inspect candidate excerpts
                   </button>
                   <button className={summarySelected ? "primary" : "secondary"} type="button" onClick={() => addDocumentSummary(document, state)} disabled={!(state.summary || document.snippet)}>
-                    {summarySelected ? <Check size={16} /> : <Plus size={16} />} Use summary
+                    {summarySelected ? <Check size={16} /> : <Plus size={16} />} {summarySelected ? "Selected summary" : "Use summary"}
                   </button>
                 </div>
-                <form
-                  className="document-search"
-                  onSubmit={(event) => {
-                    event.preventDefault();
-                    loadContext(document, "search", { query: searchTerms[document.id] || "" });
-                  }}
-                >
-                  <input
-                    value={searchTerms[document.id] || ""}
-                    onChange={(event) => setSearchTerms((current) => ({ ...current, [document.id]: event.target.value }))}
-                    placeholder="Search for disability, repairs, notice, payments..."
-                  />
-                  <button className="secondary icon-button" aria-label="Search document" disabled={state.loading}>
-                    <Search size={16} />
-                  </button>
-                </form>
                 {state.error && <div className="inline-error">{state.error}</div>}
-                {state.text && <pre className="document-full-text">{state.text}</pre>}
                 {state.chunks?.length > 0 && (
                   <div className="chunk-list">
                     {state.chunks.map((chunk) => {
@@ -294,7 +248,7 @@ export function FactReview({ matter, facts, selectedFactIds, selectedCuratedFact
                         <div className="chunk-row fact-with-citation" key={chunk.id} title={`${document.citation || document.title}, excerpt ${chunk.index}`}>
                           <p>{chunk.text}</p>
                           <button className={chunkSelected ? "primary" : "secondary"} type="button" onClick={() => addChunkFact(document, chunk)}>
-                            {chunkSelected ? <X size={16} /> : <Plus size={16} />} {chunkSelected ? "Remove" : "Use"}
+                            {chunkSelected ? <X size={16} /> : <Plus size={16} />} {chunkSelected ? "Remove" : "Use excerpt"}
                           </button>
                         </div>
                       );
@@ -309,21 +263,55 @@ export function FactReview({ matter, facts, selectedFactIds, selectedCuratedFact
 
       <section className="panel curated-facts-panel">
         <div className="curated-fact-list">
-          {selectedCuratedFacts.length === 0 && <p className="muted">No document-derived facts selected.</p>}
+          {selectedCuratedFacts.length === 0 && <p className="muted">No document excerpts selected manually.</p>}
           {selectedCuratedFacts.map((fact) => (
-            <div className="curated-fact fact-with-citation" key={fact.id} title={fact.sourceExcerpt || fact.citation || fact.source}>
-              <span>
+            <div className="curated-fact-row" key={fact.id}>
+              <div>
                 <strong>{fact.title}</strong>
-                <em>{fact.text}</em>
+                <p>{fact.text}</p>
                 <small>{fact.citation || fact.source}</small>
-              </span>
-              <button className="secondary icon-button" aria-label="Remove fact" onClick={() => toggleCuratedFact(fact)}>
+              </div>
+              <button className="secondary icon-button" type="button" aria-label="Remove selected document fact" onClick={() => toggleCuratedFact(fact)}>
                 <X size={16} />
               </button>
             </div>
           ))}
         </div>
       </section>
+
+      {modalOpen && (
+        <div className="modal-backdrop" role="presentation">
+          <div className="profile-modal" role="dialog" aria-modal="true" aria-label="Add fact or source document">
+            <div className="modal-heading">
+              <div>
+                <h4>Add a fact or document</h4>
+                <p className="modal-subtitle">Use this only when the case file is missing a fact the draft needs.</p>
+              </div>
+              <button className="btn btn-outline-secondary icon-button" type="button" onClick={() => setModalOpen(false)} title="Close">
+                <X size={16} />
+              </button>
+            </div>
+            <div className="draft-mode-switch">
+              <button className={modalMode === "fact" ? "selected" : ""} type="button" onClick={() => setModalMode("fact")}>Type fact</button>
+              <button className={modalMode === "upload" ? "selected" : ""} type="button" onClick={() => setModalMode("upload")}>Upload document</button>
+            </div>
+            {modalMode === "fact" ? (
+              <form className="fact-entry-form" onSubmit={submitTypedFact}>
+                <label className="field"><span>Title</span><input value={newFact.title} onChange={(event) => setNewFact((current) => ({ ...current, title: event.target.value }))} placeholder="Repair request, payment, notice problem..." /></label>
+                <label className="field"><span>Fact text</span><textarea value={newFact.text} onChange={(event) => setNewFact((current) => ({ ...current, text: event.target.value }))} placeholder="Type a fact that should be available for drafting." rows={4} /></label>
+                <label className="field"><span>Source</span><input value={newFact.source} onChange={(event) => setNewFact((current) => ({ ...current, source: event.target.value }))} placeholder="Client update, intake call, advocate note..." /></label>
+                <button className="primary" type="submit" disabled={!newFact.text.trim() || addingFact}>{addingFact ? <Loader2 className="spin" size={16} /> : <Plus size={16} />} Add and select</button>
+              </form>
+            ) : (
+              <form className="fact-upload-form" onSubmit={submitUploadedFact}>
+                <label className="field"><span>Upload source document</span><input type="file" accept=".txt,.md,.csv,.json,.html,.htm,.docx,.pdf,text/*,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document" onChange={(event) => setUploadFile(event.target.files?.[0] || null)} /></label>
+                <label className="field"><span>Fact title</span><input value={uploadTitle} onChange={(event) => setUploadTitle(event.target.value)} placeholder="Optional title for the extracted text" /></label>
+                <button className="secondary" type="submit" disabled={!uploadFile || uploadingFact}>{uploadingFact ? <Loader2 className="spin" size={16} /> : <Upload size={16} />} Extract and select</button>
+              </form>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
