@@ -19,7 +19,7 @@ class DocumentTemplate(models.Model):
     ]
 
     title = models.CharField(max_length=255)
-    slug = models.SlugField(unique=True)
+    slug = models.SlugField(max_length=120, unique=True)
     kind = models.CharField(max_length=80, choices=TEMPLATE_KIND_CHOICES)
     description = models.TextField(blank=True)
     jurisdiction = models.CharField(max_length=255, blank=True)

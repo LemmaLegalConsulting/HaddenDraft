@@ -4,11 +4,11 @@ set -e
 # Change to backend directory to run manage.py commands
 cd /app/backend
 
-# Run ingest document templates
-python manage.py ingest_document_templates
-
 # Run migrations
 python manage.py migrate
+
+# Run ingest document templates after their database tables exist.
+python manage.py ingest_document_templates
 
 # Collect static files for Django admin
 python manage.py collectstatic --noinput
