@@ -33,6 +33,11 @@ class DraftingSession(models.Model):
     selected_source_results = models.JSONField(default=list, blank=True)
     selected_block_keys = models.JSONField(default=list, blank=True)
     author_profile = models.JSONField(default=dict, blank=True)
+    template_data = models.JSONField(
+        default=dict,
+        blank=True,
+        help_text="Values for fields declared by the selected prepared template.",
+    )
     instructions = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
