@@ -4,7 +4,9 @@ from io import BytesIO
 from pathlib import Path
 
 import yaml
+from django.db import connection
 from django.test import TestCase
+from django.test.utils import CaptureQueriesContext
 from docx import Document
 
 from apps.drafting.models import DraftDocument, DraftingSession
@@ -85,6 +87,22 @@ class TemplateIngestionTests(TestCase):
             template.refresh_from_db()
             self.assertEqual(template.title, "Admin title")
             self.assertEqual(results[0]["status"], "conflict")
+
+    def test_unchanged_sync_does_not_write_to_database(self):
+        self.ingest()
+        with self.settings(CONTENT_LIBRARY_DIR=self.content):
+            sync_prepared_templates()
+
+            with CaptureQueriesContext(connection) as queries:
+                results = sync_prepared_templates()
+
+        self.assertEqual(results[0]["status"], "unchanged")
+        write_statements = [
+            query["sql"]
+            for query in queries.captured_queries
+            if query["sql"].lstrip().upper().startswith(("INSERT", "UPDATE", "DELETE"))
+        ]
+        self.assertEqual(write_statements, [])
 
     def test_full_template_export_uses_edited_lexical_block_values(self):
         self.ingest()

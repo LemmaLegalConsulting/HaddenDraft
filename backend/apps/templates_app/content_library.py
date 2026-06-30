@@ -145,7 +145,12 @@ def sync_prepared_templates(*, deactivate_missing=True):
         results.append({"slug": slug, "status": status, "template": template})
 
     if deactivate_missing:
-        DocumentTemplate.objects.filter(source_kind="content_library").exclude(slug__in=seen).update(is_active=False)
+        missing_active_templates = DocumentTemplate.objects.filter(
+            source_kind="content_library",
+            is_active=True,
+        ).exclude(slug__in=seen)
+        if missing_active_templates.exists():
+            missing_active_templates.update(is_active=False)
     return results
 
 
