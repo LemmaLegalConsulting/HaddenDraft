@@ -94,6 +94,13 @@ export const api = {
   createSession: (payload) => request("/drafting-sessions/", { method: "POST", body: JSON.stringify(payload) }),
   advanceSession: (sessionId, payload) =>
     request(`/drafting-sessions/${sessionId}/advance/`, { method: "POST", body: JSON.stringify(payload) }),
+  recommendSessionFacts: (sessionId, payload = { apply: true }) =>
+    request(`/drafting-sessions/${sessionId}/recommend-facts/`, { method: "POST", body: JSON.stringify(payload) }),
+  recommendSessionSupport: (sessionId, payload = { apply: true }) =>
+    request(`/drafting-sessions/${sessionId}/recommend-support/`, { method: "POST", body: JSON.stringify(payload) }),
+  sessionOutline: (sessionId) => request(`/drafting-sessions/${sessionId}/outline/`),
+  approveSessionOutline: (sessionId, payload = {}) =>
+    request(`/drafting-sessions/${sessionId}/outline/`, { method: "POST", body: JSON.stringify(payload) }),
   generateDraft: (sessionId) => request(`/drafting-sessions/${sessionId}/draft/`, { method: "POST" }),
   updateDraft: (draftId, payload) => request(`/drafts/${draftId}/`, { method: "PATCH", body: JSON.stringify(payload) }),
   regenerateDraftBlock: (draftId, blockKey, payload) =>
