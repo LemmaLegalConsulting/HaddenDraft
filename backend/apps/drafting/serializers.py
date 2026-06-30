@@ -1,3 +1,4 @@
+from apps.drafting.services import normalize_status, workflow_step_payload
 from apps.matters.serializers import matter_to_dict
 from apps.templates_app.serializers import template_to_dict
 
@@ -6,7 +7,8 @@ def session_to_dict(session):
     return {
         "id": session.id,
         "mode": session.mode,
-        "status": session.status,
+        "status": normalize_status(session.status),
+        "workflowSteps": workflow_step_payload(),
         "matter": matter_to_dict(session.matter, include_facts=True),
         "template": template_to_dict(session.template, include_blocks=True) if session.template else None,
         "selectedFactIds": session.selected_fact_ids,
