@@ -1,5 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { Database, Loader2, RefreshCw } from "lucide-react";
+import { Loader2, RefreshCw } from "lucide-react";
+
+import { api } from "../api/client.js";
 
 const PURPOSE_ORDER = ["legal_authority", "example_language", "background_reference"];
 
@@ -24,7 +26,6 @@ export function DraftSupportReview({ session, selectedResults, onSelectedResults
     setBusy(true);
     setError("");
     try {
-      const { api } = await import("../api/client.js");
       const response = await api.recommendSessionSupport(session.id, { apply: true });
       setCandidates(response.candidates || []);
       setGuidance(response.guidance || "");
