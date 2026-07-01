@@ -12,6 +12,7 @@ from apps.templates_app.word_templates import block_template_path, block_templat
 DOCXTPL_PREFIXES = ("p", "tr", "tc", "tbl", "r", "sectPr")
 BLOCK_PREFIX_RE = re.compile(r"\{%\s*(?:" + "|".join(DOCXTPL_PREFIXES) + r")\b", re.IGNORECASE)
 EXPR_PREFIX_RE = re.compile(r"(\{\{\s*)(?:" + "|".join(DOCXTPL_PREFIXES) + r")\s+", re.IGNORECASE)
+NUMERIC_FIELD_RE = re.compile(r"\b(fields)\.([0-9][A-Za-z0-9_]*)")
 
 SYSTEM_ROOTS = {
     "document",
@@ -43,6 +44,7 @@ SYSTEM_ALIASES = {
 def normalize_docxtpl_blocks(text):
     text = BLOCK_PREFIX_RE.sub("{%", text)
     text = EXPR_PREFIX_RE.sub(r"\1", text)
+    text = NUMERIC_FIELD_RE.sub(lambda match: f'{match.group(1)}["{match.group(2)}"]', text)
     return text.replace("“", '"').replace("”", '"').replace("‘", "'").replace("’", "'")
 
 
@@ -247,12 +249,17 @@ def block_variable_metadata(template, block):
             "parseError": error,
         }
 
-    variables = extract_template_variables_from_text(block.body or "")
+    try:
+        variables = extract_template_variables_from_text(block.body or "")
+        error = ""
+    except (TemplateSyntaxError, ValueError) as exc:
+        variables = []
+        error = str(exc)
     return {
         "source": "body",
         "name": "",
         "variables": classify_template_variables(variables),
-        "parseError": "",
+        "parseError": error,
     }
 
 

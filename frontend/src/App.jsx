@@ -31,6 +31,7 @@ import { DraftEditor } from "./editor/DraftEditor.jsx";
 import { CaseSelector } from "./components/CaseSelector.jsx";
 import { DraftSupportReview } from "./components/DraftSupportReview.jsx";
 import { FactReview } from "./components/FactReview.jsx";
+import { factRecommendationState } from "./components/factReviewState.js";
 import { LawReview } from "./components/LawReview.jsx";
 import { ResearchPanel } from "./components/ResearchPanel.jsx";
 import { TemplatePicker } from "./components/TemplatePicker.jsx";
@@ -69,6 +70,7 @@ export function App() {
   const [selectedFactIds, setSelectedFactIds] = useState([]);
   const [selectedCuratedFacts, setSelectedCuratedFacts] = useState([]);
   const [selectedBlockKeys, setSelectedBlockKeys] = useState([]);
+  const [templateData, setTemplateData] = useState({});
   const [candidateIssues, setCandidateIssues] = useState([]);
   const [sourceResults, setSourceResults] = useState([]);
   const [session, setSession] = useState(null);
@@ -364,6 +366,7 @@ export function App() {
         matterId: matter.id,
         templateId: draftMode === "draft_from_scratch" ? undefined : selectedTemplateId,
         authorProfile: draftAuthorProfile,
+        templateData,
         instructions,
       };
       const response = await api.createSession(payload);
@@ -375,6 +378,7 @@ export function App() {
         selectedSourceResults: sourceResults,
         selectedBlockKeys,
         authorProfile: draftAuthorProfile,
+        templateData,
         instructions,
         ...(draftMode === "draft_from_template" ? { template: selectedTemplateId } : {}),
       });
@@ -401,6 +405,7 @@ export function App() {
         selectedSourceResults: overrides.selectedSourceResults || sourceResults,
         selectedBlockKeys: overrides.selectedBlockKeys || selectedBlockKeys,
         authorProfile: draftAuthorProfile,
+        templateData,
         instructions,
         ...(draftMode === "draft_from_template" ? { template: selectedTemplateId } : {}),
       });
@@ -421,8 +426,10 @@ export function App() {
     setError("");
     try {
       const response = await api.recommendSessionFacts(activeSession.id, { apply: true });
-      setSession(response.session || activeSession);
-      setSelectedFactIds(response.factIds || response.session?.selectedFactIds || []);
+      const recommendation = factRecommendationState(response, activeSession);
+      setSession(recommendation.session);
+      if (recommendation.matter) setMatter(recommendation.matter);
+      setSelectedFactIds(recommendation.factIds);
       setDraftStep("facts");
     } catch (err) {
       setError(err.message);
@@ -491,6 +498,7 @@ export function App() {
         selectedSourceResults: sourceResults,
         selectedBlockKeys,
         authorProfile: draftAuthorProfile,
+        templateData,
         instructions,
         ...(draftMode === "draft_from_template" ? { template: selectedTemplateId } : {}),
       });
@@ -620,7 +628,7 @@ export function App() {
         {mode === "triage" && <TriagePanel matter={matter} rubrics={triageRubrics} selectedRubricId={selectedTriageRubricId} onSelectRubric={setSelectedTriageRubricId} assessment={triageAssessment} history={triageHistory} busy={busy} manualCaseBusy={manualCaseBusy} onRunTriage={runTriage} onCreateManualCase={handleCreateManualCase} />}
         {mode === "case_chat" && <CaseChat matter={matter} onAction={handleCaseAction} />}
         {mode === "research" && <ResearchPanel matter={matter} sources={boot?.sources || []} onResults={(results) => setSourceResults(results)} />}
-        {mode === "draft" && draftStep === "setup" && <section className="panel"><div className="step-guidance"><span className="block-kicker">Drafting workflow</span><h3>Choose what you are drafting</h3><p>Select a template or describe a custom document. The next steps will ask the AI to propose facts and support for human review.</p></div><div className="draft-mode-switch"><button className={draftMode === "draft_from_template" ? "selected" : ""} onClick={() => setDraftMode("draft_from_template")}><Layers3 size={16} /> Use a template</button><button className={draftMode === "draft_from_scratch" ? "selected" : ""} onClick={() => setDraftMode("draft_from_scratch")}><FileText size={16} /> Start from scratch</button></div>{draftMode === "draft_from_scratch" ? <label className="field"><span>What should this document be about?</span><textarea className="form-control" value={instructions} onChange={(event) => setInstructions(event.target.value)} placeholder="Example: Motion to continue the eviction hearing because the client needs time to gather rent assistance documents." /></label> : <TemplatePicker templates={templates.filter((template) => template.kind !== "shell")} selectedTemplateId={selectedTemplateId} selectedBlockKeys={selectedBlockKeys} onTemplateChange={setSelectedTemplateId} onBlockChange={setSelectedBlockKeys} />}<div className="button-row step-actions"><button className="btn btn-primary" disabled={!matter || (draftMode === "draft_from_scratch" && !instructions.trim())} onClick={() => setDraftStep("author")}>Continue to author</button></div></section>}
+        {mode === "draft" && draftStep === "setup" && <section className="panel"><div className="step-guidance"><span className="block-kicker">Drafting workflow</span><h3>Choose what you are drafting</h3><p>Select a template or describe a custom document. The next steps will ask the AI to propose facts and support for human review.</p></div><div className="draft-mode-switch"><button className={draftMode === "draft_from_template" ? "selected" : ""} onClick={() => setDraftMode("draft_from_template")}><Layers3 size={16} /> Use a template</button><button className={draftMode === "draft_from_scratch" ? "selected" : ""} onClick={() => setDraftMode("draft_from_scratch")}><FileText size={16} /> Start from scratch</button></div>{draftMode === "draft_from_scratch" ? <label className="field"><span>What should this document be about?</span><textarea className="form-control" value={instructions} onChange={(event) => setInstructions(event.target.value)} placeholder="Example: Motion to continue the eviction hearing because the client needs time to gather rent assistance documents." /></label> : <TemplatePicker templates={templates.filter((template) => template.kind !== "shell")} selectedTemplateId={selectedTemplateId} selectedBlockKeys={selectedBlockKeys} templateData={templateData} onTemplateChange={setSelectedTemplateId} onBlockChange={setSelectedBlockKeys} onTemplateDataChange={setTemplateData} />}<div className="button-row step-actions"><button className="btn btn-primary" disabled={!matter || (draftMode === "draft_from_scratch" && !instructions.trim())} onClick={() => setDraftStep("author")}>Continue to author</button></div></section>}
         {mode === "draft" && draftStep === "author" && <section className="panel"><div className="step-guidance"><span className="block-kicker">Human context</span><h3>Confirm author information</h3><p>This information is used for signature blocks, contact details, and style-sensitive drafting instructions.</p></div><AuthorFields profile={draftAuthorProfile} onChange={setDraftAuthorProfile} /><div className="button-row step-actions"><button className="btn btn-outline-secondary" onClick={() => setDraftStep("setup")}>Back</button><button className="btn btn-primary" disabled={busy || (!draftAuthorProfile.displayName?.trim() && !draftAuthorProfile.email?.trim())} onClick={continueToFactReview}>{busy ? <Loader2 className="spin" size={16} /> : <ClipboardList size={16} />} Ask AI to suggest facts</button></div></section>}
         {mode === "draft" && draftStep === "facts" && <section className="step-screen"><div className="step-guidance panel"><span className="block-kicker">AI proposed, human reviewed</span><h3>Review facts the draft may use</h3><p>The AI preselects facts based on the selected template, active sections, and case summary. Confirm or correct the facts before choosing drafting support.</p><button className="secondary" type="button" disabled={busy || !session?.id} onClick={continueToFactReview}>{busy ? <Loader2 className="spin" size={16} /> : <Search size={16} />} Refresh AI fact suggestions</button></div><FactReview matter={matter} facts={matter?.facts || []} selectedFactIds={selectedFactIds} selectedCuratedFacts={selectedCuratedFacts} onFactChange={setSelectedFactIds} onCuratedChange={setSelectedCuratedFacts} onMatterChange={setMatter} /><div className="button-row step-actions"><button className="btn btn-outline-secondary" onClick={() => setDraftStep("author")}>Back</button><button className="btn btn-primary" disabled={!matter || busy} onClick={continueFromFactReview}>Continue to support review</button></div></section>}
         {mode === "draft" && draftStep === "support" && <section className="step-screen"><DraftSupportReview session={session} selectedResults={sourceResults} onSelectedResultsChange={setSourceResults} onSessionChange={setSession} /><div className="button-row step-actions"><button className="btn btn-outline-secondary" onClick={() => setDraftStep("facts")}>Back</button><button className="btn btn-primary" disabled={!matter || busy} onClick={continueFromDraftSupport}>{busy ? <Loader2 className="spin" size={16} /> : <ClipboardList size={16} />} Continue to legal issues</button></div></section>}
