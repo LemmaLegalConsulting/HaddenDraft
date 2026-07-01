@@ -745,6 +745,12 @@ button:disabled {
   grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
 }
 
+.facts-review-stack {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: minmax(0, 1fr);
+}
+
 .curated-facts-panel {
   grid-column: 1 / -1;
 }
@@ -828,6 +834,7 @@ button:disabled {
 
 .document-card-heading,
 .curated-fact,
+.curated-fact-row,
 .chunk-row {
   align-items: flex-start;
   display: flex;
@@ -837,6 +844,7 @@ button:disabled {
 
 .document-card-heading > *,
 .curated-fact > *,
+.curated-fact-row > *,
 .chunk-row > * {
   min-width: 0;
 }
@@ -858,8 +866,19 @@ button:disabled {
 
 .document-snippet,
 .chunk-row p,
-.curated-fact em {
+.curated-fact em,
+.curated-fact-row p {
   margin: 0;
+}
+
+.curated-fact-row {
+  border: 1px solid #dbe4e8;
+  border-radius: 6px;
+  padding: 12px;
+}
+
+.curated-fact-row small {
+  color: #667782;
 }
 
 .document-actions {
@@ -1897,6 +1916,10 @@ button:disabled {
   overflow: auto;
   padding: 16px;
   width: calc(100vw - 36px);
+}
+
+.fact-add-modal {
+  max-width: 620px;
 }
 
 .profile-modal .panel {

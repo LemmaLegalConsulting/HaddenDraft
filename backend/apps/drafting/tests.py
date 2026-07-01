@@ -17,8 +17,8 @@ from apps.matters.models import Matter
 from apps.templates_app.models import DocumentTemplate, TemplateBlock
 from apps.templates_app.serializers import template_to_dict
 from apps.templates_app.template_variables import (
-    extract_template_variables_from_text,
     block_variable_metadata,
+    extract_template_variables_from_text,
 )
 
 
@@ -30,6 +30,52 @@ class DraftRenderingTests(TestCase):
 
         self.assertIn("selected_facts[i].text", variables)
         self.assertIn("client.name.first", variables)
+
+    def test_template_variable_parser_normalizes_numeric_field_keys(self):
+        variables = extract_template_variables_from_text(
+            "Hearing under {{ fields.24_cfr_982554_if_hcvp_applicant }}."
+        )
+
+        self.assertIn('fields["24_cfr_982554_if_hcvp_applicant"]', variables)
+
+    def test_body_variable_metadata_reports_parse_errors_without_raising(self):
+        template = DocumentTemplate.objects.create(
+            slug="malformed-body-metadata-test",
+            title="Malformed body metadata",
+            kind="motion",
+        )
+        block = TemplateBlock.objects.create(
+            template=template,
+            key="body",
+            label="Body",
+            block_type="argument",
+            order=10,
+            body="Broken {{ fields.unclosed",
+        )
+
+        metadata = block_variable_metadata(template, block)
+
+        self.assertEqual(metadata["variables"]["all"], [])
+        self.assertTrue(metadata["parseError"])
+
+    def test_template_renderer_accepts_numeric_field_keys(self):
+        service = ConstrainedDraftingService()
+        context = SimpleNamespace(
+            author_profile={},
+            template_data={"24_cfr_982554_if_hcvp_applicant": "24 C.F.R. 982.554"},
+            matter=SimpleNamespace(
+                jurisdiction="Housing Court",
+                client_name="Jane Tenant",
+                external_id="CASE-1",
+            ),
+        )
+
+        rendered = service.render_template_body(
+            "Hearing under {{ fields.24_cfr_982554_if_hcvp_applicant }}.",
+            context,
+        )
+
+        self.assertEqual(rendered, "Hearing under 24 C.F.R. 982.554.")
 
     def test_repository_docx_template_variables_are_classified(self):
         template, _created = DocumentTemplate.objects.update_or_create(

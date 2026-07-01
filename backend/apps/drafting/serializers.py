@@ -16,6 +16,7 @@ def session_to_dict(session):
         "selectedSourceResults": session.selected_source_results,
         "selectedBlockKeys": session.selected_block_keys,
         "authorProfile": session.author_profile,
+        "templateData": session.template_data,
         "instructions": session.instructions,
         "updatedAt": session.updated_at.isoformat(),
     }

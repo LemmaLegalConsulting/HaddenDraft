@@ -1,10 +1,13 @@
 import json
+import re
 
 from django.conf import settings
+from django.utils.text import slugify
 
 from apps.ai.openai_client import OpenAIBackendError, OpenAICompatibleClient
 from apps.ai.services import GenerationContext, drafting_ai
 from apps.drafting.models import DraftDocument
+from apps.matters.document_context import chunk_text, get_case_documents, get_document_text, search_chunks, summarize_text
 from apps.matters.models import MatterFact
 from apps.sources.models import SourceConfiguration
 
@@ -67,6 +70,23 @@ SUPPORT_PURPOSE_LABELS = {
     "background_reference": "Background reference",
 }
 
+FACT_TERM_GROUPS = {
+    "notice": {"notice", "served", "service", "quit", "termination", "summons", "complaint"},
+    "hearing": {"hearing", "trial", "court", "deadline", "continued", "continuance", "date"},
+    "payment": {"rent", "payment", "paid", "balance", "ledger", "arrears", "money order", "receipt"},
+    "conditions": {"repair", "repairs", "mold", "leak", "condition", "habitability", "inspection", "code"},
+    "disability": {"disability", "disabled", "accommodation", "medical", "doctor", "records"},
+    "assistance": {"assistance", "rental assistance", "application", "erap", "voucher", "subsidy"},
+    "bankruptcy": {"bankruptcy", "debtor", "petition", "automatic stay", "discharge", "chapter"},
+}
+FACT_STOP_WORDS = {
+    "about", "after", "again", "against", "because", "before", "being", "client", "could", "draft", "from",
+    "have", "into", "matter", "other", "should", "tenant", "that", "their", "there", "these", "this", "with",
+}
+
+
+# Workflow/status helpers
+
 
 def normalize_status(status):
     return LEGACY_STATUS_MAP.get(status, status)
@@ -84,6 +104,65 @@ def _ordered_blocks(session):
     if not selected:
         return blocks
     return [block for block in blocks if block.required or block.key in selected]
+
+
+def initialize_session(session):
+    if session.status in LEGACY_STATUS_MAP:
+        session.status = normalize_status(session.status)
+    if session.template and not session.selected_block_keys:
+        session.selected_block_keys = drafting_ai.recommend_blocks(session.template, _selected_fact_slugs_for_blocks(session))
+    if not session.selected_fact_ids:
+        session.selected_fact_ids = recommend_fact_ids(session)
+    session.save()
+    return session
+
+
+def _validate_transition(session, target_status):
+    if target_status == "support_review" and not session.selected_fact_ids:
+        raise ValueError("Review and select facts before choosing drafting support.")
+    if target_status in {"law_review", "outline_review", "draft_review"} and not session.selected_fact_ids:
+        raise ValueError("Review and select facts before continuing.")
+    if target_status in {"outline_review", "draft_review"} and not session.selected_block_keys:
+        raise ValueError("Select at least one draft section before continuing.")
+
+
+def advance(session, payload):
+    if "selectedFactIds" in payload:
+        session.selected_fact_ids = payload["selectedFactIds"]
+    if "selectedCuratedFacts" in payload:
+        session.selected_curated_facts = payload["selectedCuratedFacts"]
+    if "selectedSourceResults" in payload:
+        session.selected_source_results = payload["selectedSourceResults"]
+    if "selectedBlockKeys" in payload:
+        session.selected_block_keys = payload["selectedBlockKeys"]
+    if "authorProfile" in payload:
+        session.author_profile = payload["authorProfile"] or {}
+    if "templateData" in payload:
+        session.template_data = payload["templateData"] or {}
+    if "instructions" in payload:
+        session.instructions = payload["instructions"]
+    if "template" in payload:
+        session.template_id = payload["template"]
+
+    current_status = normalize_status(session.status)
+    requested_status = payload.get("status")
+    if requested_status:
+        target_status = normalize_status(requested_status)
+        if target_status not in STEP_ORDER:
+            raise ValueError("Unsupported drafting workflow step.")
+    elif current_status in STEP_ORDER:
+        index = STEP_ORDER.index(current_status)
+        target_status = STEP_ORDER[min(index + 1, len(STEP_ORDER) - 1)]
+    else:
+        target_status = "setup"
+
+    _validate_transition(session, target_status)
+    session.status = target_status
+    session.save()
+    return session
+
+
+# Fact recommendation helpers
 
 
 def _selected_fact_slugs_for_blocks(session):
@@ -178,131 +257,183 @@ def recommend_fact_ids(session):
     return [fact.id for fact in facts[:5]]
 
 
-def initialize_session(session):
-    if session.status in LEGACY_STATUS_MAP:
-        session.status = normalize_status(session.status)
-    if session.template and not session.selected_block_keys:
-        session.selected_block_keys = drafting_ai.recommend_blocks(session.template, _selected_fact_slugs_for_blocks(session))
-    if not session.selected_fact_ids:
-        session.selected_fact_ids = recommend_fact_ids(session)
-    session.save()
-    return session
+def _fact_terms(value):
+    return [
+        term
+        for term in re.findall(r"[a-z0-9']+", (value or "").casefold())
+        if len(term) > 2 and term not in FACT_STOP_WORDS
+    ]
 
 
-def _validate_transition(session, target_status):
-    if target_status == "support_review" and not session.selected_fact_ids:
-        raise ValueError("Review and select facts before choosing drafting support.")
-    if target_status in {"law_review", "outline_review", "draft_review"} and not session.selected_fact_ids:
-        raise ValueError("Review and select facts before continuing.")
-    if target_status in {"outline_review", "draft_review"} and not session.selected_block_keys:
-        raise ValueError("Select at least one draft section before continuing.")
+def _expanded_fact_terms(seed_terms):
+    expanded = list(seed_terms)
+    seed_set = set(seed_terms)
+    for terms in FACT_TERM_GROUPS.values():
+        single_words = {term for term in terms if " " not in term}
+        if seed_set.intersection(single_words):
+            expanded.extend(sorted(terms))
+    return list(dict.fromkeys(expanded))
 
 
-def advance(session, payload):
-    if "selectedFactIds" in payload:
-        session.selected_fact_ids = payload["selectedFactIds"]
-    if "selectedCuratedFacts" in payload:
-        session.selected_curated_facts = payload["selectedCuratedFacts"]
-    if "selectedSourceResults" in payload:
-        session.selected_source_results = payload["selectedSourceResults"]
-    if "selectedBlockKeys" in payload:
-        session.selected_block_keys = payload["selectedBlockKeys"]
-    if "authorProfile" in payload:
-        session.author_profile = payload["authorProfile"] or {}
-    if "instructions" in payload:
-        session.instructions = payload["instructions"]
-    if "template" in payload:
-        session.template_id = payload["template"]
+def fact_retrieval_plan(session):
+    """Build deterministic fact categories and progressively broader search patterns."""
+    block_labels_by_slug = {}
+    for block in _ordered_blocks(session):
+        for slug in block.selection_rule.get("fact_slugs", []):
+            block_labels_by_slug.setdefault(slug, []).append(block.label)
 
-    current_status = normalize_status(session.status)
-    requested_status = payload.get("status")
-    if requested_status:
-        target_status = normalize_status(requested_status)
-        if target_status not in STEP_ORDER:
-            raise ValueError("Unsupported drafting workflow step.")
-    elif current_status in STEP_ORDER:
-        index = STEP_ORDER.index(current_status)
-        target_status = STEP_ORDER[min(index + 1, len(STEP_ORDER) - 1)]
-    else:
-        target_status = "setup"
+    categories = []
+    for slug in _selected_fact_slugs_for_blocks(session):
+        labels = block_labels_by_slug.get(slug) or [slug.replace("-", " ")]
+        label = labels[0]
+        seed_terms = list(dict.fromkeys([*_fact_terms(slug.replace("-", " ")), *_fact_terms(" ".join(labels))]))
+        expanded_terms = _expanded_fact_terms(seed_terms)
+        instruction_terms = _fact_terms(session.instructions)[:5]
+        patterns = [
+            label,
+            slug.replace("-", " "),
+            " ".join(expanded_terms[:8]),
+            " ".join(dict.fromkeys([*expanded_terms[:6], *instruction_terms])),
+        ]
+        categories.append(
+            {
+                "key": slug,
+                "label": label,
+                "terms": expanded_terms,
+                "patterns": [pattern for pattern in dict.fromkeys(patterns) if pattern.strip()],
+            }
+        )
 
-    _validate_transition(session, target_status)
-    session.status = target_status
-    session.save()
-    return session
+    if categories:
+        return categories
+
+    context_terms = _fact_terms(" ".join([session.instructions or "", session.matter.summary or ""]))
+    expanded_terms = _expanded_fact_terms(context_terms)
+    if expanded_terms:
+        categories.append(
+            {
+                "key": "case-background",
+                "label": "Case background",
+                "terms": expanded_terms,
+                "patterns": [
+                    " ".join(context_terms[:8]),
+                    " ".join(expanded_terms[:10]),
+                ],
+            }
+        )
+    return categories
+
+
+def _score_fact_chunk(chunk, category, pattern):
+    text = chunk["text"].casefold()
+    category_terms = category["terms"]
+    score = sum(text.count(term) for term in category_terms)
+    pattern_terms = _fact_terms(pattern)
+    score += 2 * sum(text.count(term) for term in pattern_terms if term in category_terms)
+    return score
+
+
+def _prepare_fact_documents(documents):
+    prepared = []
+    for document in documents:
+        chunks = chunk_text(get_document_text(document))
+        if chunks:
+            prepared.append((document, chunks))
+    return prepared
+
+
+def _best_fact_excerpt(prepared, category):
+    def search(patterns):
+        matches = []
+        for pattern in patterns:
+            for document, chunks in prepared:
+                for chunk in search_chunks(chunks, pattern, limit=3):
+                    score = _score_fact_chunk(chunk, category, pattern)
+                    if score:
+                        matches.append((score, -chunk["index"], document, chunk))
+        return max(matches, key=lambda item: (item[0], item[1]), default=None)
+
+    patterns = category["patterns"]
+    best = search(patterns[:2])
+    if best is None or best[0] < 3:
+        retry = search(patterns[2:])
+        if retry and (best is None or retry[0] > best[0]):
+            best = retry
+    return (best[2], best[3]) if best else (None, None)
+
+
+def _document_fact_source(document, chunk):
+    source = document.get("source") or "Case document"
+    citation = document.get("citation") or document.get("title") or "case record"
+    return f"{source}: {citation}, excerpt {chunk['index']}"[:255]
+
+
+def _create_document_fact(matter, category, document, chunk):
+    text = summarize_text(chunk.get("text", ""), max_sentences=2, max_chars=600)
+    if not text:
+        return None
+    normalized = re.sub(r"\s+", " ", text).strip().casefold()
+    for fact in MatterFact.objects.filter(matter=matter).only("id", "text"):
+        if re.sub(r"\s+", " ", fact.text).strip().casefold() == normalized:
+            return fact
+
+    source_label = _document_fact_source(document, chunk)
+    existing = MatterFact.objects.filter(
+        matter=matter,
+        confidence="ai_document_search",
+        source_label=source_label,
+        title__startswith=category["label"][:80],
+    ).first()
+    if existing:
+        return existing
+
+    base_slug = slugify(f"document-{category['key']}-{document['id']}")[:110] or "document-fact"
+    slug = base_slug
+    suffix = 2
+    while MatterFact.objects.filter(matter=matter, slug=slug).exists():
+        slug = f"{base_slug[:116 - len(str(suffix))]}-{suffix}"
+        suffix += 1
+    return MatterFact.objects.create(
+        matter=matter,
+        slug=slug,
+        title=f"{category['label']} — {document.get('title') or 'case record'}"[:255],
+        text=text,
+        source_label=source_label,
+        confidence="ai_document_search",
+        ai_suggested=True,
+        selected_by_default=False,
+    )
+
+
+def recommend_document_fact_ids(session, limit=8):
+    plan = fact_retrieval_plan(session)
+    if not plan:
+        return []
+    prepared_documents = _prepare_fact_documents(get_case_documents(session.matter))
+    selected = []
+    for category in plan:
+        document, chunk = _best_fact_excerpt(prepared_documents, category)
+        if not document:
+            continue
+        fact = _create_document_fact(session.matter, category, document, chunk)
+        if fact and fact.id not in selected:
+            selected.append(fact.id)
+        if len(selected) >= limit:
+            break
+    return selected
+
+
+def recommend_session_fact_ids(session):
+    """Recommend existing facts and source-cited facts recovered from case notes/documents."""
+    document_fact_ids = recommend_document_fact_ids(session)
+    return list(dict.fromkeys([*recommend_fact_ids(session), *document_fact_ids]))
+
+
+# Support recommendation helpers
 
 
 def _selected_facts(session):
     return list(MatterFact.objects.filter(id__in=session.selected_fact_ids).order_by("id"))
-
-
-def create_draft(session):
-    facts = _selected_facts(session)
-    context = GenerationContext(
-        matter=session.matter,
-        selected_facts=facts,
-        selected_curated_facts=session.selected_curated_facts,
-        selected_sources=session.selected_source_results,
-        template=session.template,
-        mode=session.mode,
-        instructions=session.instructions,
-        author_profile=session.author_profile,
-    )
-    block_keys = session.selected_block_keys or [block.key for block in session.template.blocks.all()]
-    sections = drafting_ai.compose_document(context, block_keys)
-    plain_text = "\n\n".join(f"{section['label'].upper()}\n{section['body']}" for section in sections)
-    draft = DraftDocument.objects.create(
-        session=session,
-        title=session.template.title if session.template else "Draft document",
-        sections=sections,
-        plain_text=plain_text,
-        editor_state={"format": "plain_text"},
-    )
-    session.status = "draft_review"
-    session.save()
-    return draft
-
-
-def plain_text_from_sections(sections):
-    return "\n\n".join(f"{section.get('label', '').upper()}\n{section.get('body', '')}" for section in sections)
-
-
-def regeneration_context(session):
-    facts = _selected_facts(session)
-    return GenerationContext(
-        matter=session.matter,
-        selected_facts=facts,
-        selected_curated_facts=session.selected_curated_facts,
-        selected_sources=session.selected_source_results,
-        template=session.template,
-        mode=session.mode,
-        instructions=session.instructions,
-        author_profile=session.author_profile,
-    )
-
-
-def regenerate_draft_block(draft, block_key, instruction=""):
-    context = regeneration_context(draft.session)
-    sections = list(draft.sections or [])
-    next_sections = []
-    updated = None
-    for section in sections:
-        if section.get("key") == block_key:
-            updated = {
-                **section,
-                "body": drafting_ai.regenerate_section(section=section, context=context, instruction=instruction),
-                "origin": "ai",
-            }
-            next_sections.append(updated)
-        else:
-            next_sections.append(section)
-    if updated is None:
-        return draft
-    draft.sections = next_sections
-    draft.plain_text = plain_text_from_sections(next_sections)
-    draft.editor_state = {"format": "lexical_blocks", "blocks": {}}
-    draft.save()
-    return draft
 
 
 def support_query_for_session(session):
@@ -439,6 +570,71 @@ def recommend_support_candidates(session, *, user=None, request=None, limit_per_
         "candidates": candidates,
         "aiReviewed": ai_candidate_ids is not None,
     }
+
+
+# Draft generation helpers
+
+
+def create_draft(session):
+    context = regeneration_context(session)
+    block_keys = session.selected_block_keys or [block.key for block in session.template.blocks.all()]
+    sections = drafting_ai.compose_document(context, block_keys)
+    plain_text = "\n\n".join(f"{section['label'].upper()}\n{section['body']}" for section in sections)
+    draft = DraftDocument.objects.create(
+        session=session,
+        title=session.template.title if session.template else "Draft document",
+        sections=sections,
+        plain_text=plain_text,
+        editor_state={"format": "plain_text"},
+    )
+    session.status = "draft_review"
+    session.save()
+    return draft
+
+
+def plain_text_from_sections(sections):
+    return "\n\n".join(f"{section.get('label', '').upper()}\n{section.get('body', '')}" for section in sections)
+
+
+def regeneration_context(session):
+    return GenerationContext(
+        matter=session.matter,
+        selected_facts=_selected_facts(session),
+        selected_curated_facts=session.selected_curated_facts,
+        selected_sources=session.selected_source_results,
+        template=session.template,
+        mode=session.mode,
+        instructions=session.instructions,
+        author_profile=session.author_profile,
+        template_data=session.template_data,
+    )
+
+
+def regenerate_draft_block(draft, block_key, instruction=""):
+    context = regeneration_context(draft.session)
+    sections = list(draft.sections or [])
+    next_sections = []
+    updated = None
+    for section in sections:
+        if section.get("key") == block_key:
+            updated = {
+                **section,
+                "body": drafting_ai.regenerate_section(section=section, context=context, instruction=instruction),
+                "origin": "ai",
+            }
+            next_sections.append(updated)
+        else:
+            next_sections.append(section)
+    if updated is None:
+        return draft
+    draft.sections = next_sections
+    draft.plain_text = plain_text_from_sections(next_sections)
+    draft.editor_state = {"format": "lexical_blocks", "blocks": {}}
+    draft.save()
+    return draft
+
+
+# Outline helpers
 
 
 def outline_for_session(session):

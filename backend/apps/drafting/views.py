@@ -8,13 +8,13 @@ from apps.drafting.services import (
     create_draft,
     initialize_session,
     outline_for_session,
-    recommend_fact_ids,
+    recommend_session_fact_ids,
     recommend_support_candidates,
     regenerate_draft_block,
 )
 from apps.exporting.services import export_docx
 from apps.matters.models import MatterFact
-from apps.matters.serializers import fact_to_dict
+from apps.matters.serializers import fact_to_dict, matter_to_dict
 from apps.matters.services import accessible_matters_for_user, matter_for_user, user_can_access_matter
 from apps.templates_app.models import DocumentTemplate
 from apps.validation.services import validate_document as run_validation
@@ -68,6 +68,7 @@ def sessions(request):
         matter=matter,
         template=template,
         author_profile=body.get("authorProfile", {}),
+        template_data=body.get("templateData", {}),
         instructions=body.get("instructions", ""),
     )
     initialize_session(session)
@@ -107,17 +108,19 @@ def recommend_session_facts(request, session_id):
     if error:
         return error
     body = json_body(request)
-    fact_ids = recommend_fact_ids(session)
+    fact_ids = recommend_session_fact_ids(session)
     facts = MatterFact.objects.filter(id__in=fact_ids).order_by("id")
     if body.get("apply", True):
         session.selected_fact_ids = fact_ids
         session.save(update_fields=["selected_fact_ids", "updated_at"])
+    matter = session.matter.__class__.objects.prefetch_related("facts").get(id=session.matter.id)
     return JsonResponse(
         {
             "factIds": fact_ids,
             "facts": [fact_to_dict(fact) for fact in facts],
+            "case": matter_to_dict(matter, include_facts=True),
             "session": session_to_dict(session),
-            "guidance": "Suggested facts are preselected from the template sections and matter summary. Review them before continuing.",
+            "guidance": "Suggested facts are preselected from the template, case facts, notes, and document text. Review them before continuing.",
         }
     )
 
