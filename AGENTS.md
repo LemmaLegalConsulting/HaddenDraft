@@ -16,3 +16,90 @@ library, not inside a Django app or embedded in Python constants.
 
 See [`content/README.md`](content/README.md) for the complete maintenance,
 precedence, and future SharePoint-provider guidance.
+
+## Development workflow
+
+This is a Django + React prototype. Work from the repository root unless a
+command says otherwise.
+
+- Backend setup and checks use the local virtualenv:
+  - `.venv/bin/pip install -r requirements.txt`
+  - `.venv/bin/python backend/manage.py migrate`
+  - `.venv/bin/python backend/manage.py check`
+  - `.venv/bin/python backend/manage.py test apps.ai apps.sources apps.core apps.matters`
+- Frontend work happens under `frontend/`:
+  - `npm install`
+  - `npm run test`
+  - `npm run build`
+- When changing both backend and frontend behavior, verify the API contract and
+  the UI path that consumes it.
+
+## Application boundaries
+
+Keep changes aligned with the existing workflow boundaries:
+
+- Retrieval/source integrations belong under `backend/apps/sources/`; new
+  connectors should implement `SourceConnector.search()` and be registered in
+  `backend/apps/sources/registry.py`.
+- Drafting orchestration belongs under `backend/apps/drafting/`.
+- AI prompt execution and model-facing logic belong under `backend/apps/ai/`.
+- Template and reusable block behavior belongs under
+  `backend/apps/templates_app/`.
+- Export formats belong behind `backend/apps/exporting/`.
+- Frontend API calls should go through `frontend/src/api/client.js`; avoid
+  scattering fetch logic through components.
+
+Do not replace reviewable workflow steps with a single free-form agent flow.
+Preserve human review points for facts, template choices, source support,
+validation, and export.
+
+## Prompt catalog rules
+
+Runtime prompts belong in file-backed YAML under `prompts/`, not hardcoded in
+Python or React.
+
+- Use one `*.yaml` or `*.yml` file per prompt key.
+- Keep prompt placeholders explicit and named with Python `{name}` syntax.
+- Do not rely on Django admin prompt overrides for benchmark variants or
+  source-controlled behavior.
+- If a prompt's required variables, model default, or reasoning default changes,
+  update the YAML and any tests or call sites together.
+
+## Legal content and generated assets
+
+Never commit client documents, credentials, private organization templates, or
+other confidential material.
+
+- Public reusable defaults belong under `content/`.
+- Private organization material belongs under `ORGANIZATION_CONTENT_LIBRARY_DIR`,
+  normally `private-content/`, which should remain git-ignored.
+- Do not hand-edit generated Markdown, generated statute chunks, generated
+  manifests, or ingested template package outputs. Fix the source document,
+  converter, or ingestion script and regenerate.
+- Preserve provenance for legal authorities and remote/private content,
+  including source path, checksum, modified time, fetch/import time, and remote
+  IDs where available.
+- Treat generated legal-source records as research aids only; do not imply they
+  replace checking current law before filing.
+
+## Environment and secrets
+
+Runtime configuration belongs in `.env`; `.env` must stay untracked.
+
+- Keep `.env.example` current when adding or renaming settings.
+- Do not add API keys, access tokens, tenant secrets, LegalServer credentials,
+  SharePoint tokens, or client-identifying data to tests, fixtures, screenshots,
+  docs, or sample content.
+- Prefer deterministic fallbacks for local development unless a change
+  explicitly needs live AI, LegalServer, SharePoint, or Office 365 access.
+
+## Change style
+
+Prefer small, reviewable changes that keep legal content, prompts, provider
+integrations, and UI behavior auditable.
+
+- Document new management commands, environment variables, and content-provider
+  paths in the relevant README.
+- Add or update tests for behavior changes in backend services, prompt loading,
+  content ingestion, retrieval connectors, or frontend data handling.
+- Keep naming lowercase kebab-case for content-library files and directories.
