@@ -164,6 +164,21 @@ def _draft_template(draft):
     session = getattr(draft, "session", None)
     if not session:
         return None
+    editor_state = getattr(draft, "editor_state", None) or {}
+    template_id = editor_state.get("templateId")
+    template_slug = editor_state.get("templateSlug")
+    if template_id or template_slug:
+        from apps.templates_app.models import DocumentTemplate
+
+        query = DocumentTemplate.objects.prefetch_related("blocks")
+        if template_id:
+            template = query.filter(id=template_id).first()
+            if template:
+                return template
+        if template_slug:
+            template = query.filter(slug=template_slug).first()
+            if template:
+                return template
     return getattr(session, "template", None)
 
 
@@ -228,26 +243,32 @@ def _selected_facts(session):
 def _docx_render_context(draft, section):
     session = draft.session
     matter = session.matter
+    template = _draft_template(draft)
     author = _author_context(session.author_profile)
     matter_data = _matter_context(matter)
     sections = draft.sections or []
     block_context = {}
-    if session.template:
+    if template:
         block_context = {
-            block.key: {"body": "", "paragraphs": [], "items": []}
-            for block in session.template.blocks.all()
+            block.key: {"body": "", "paragraphs": [], "items": [], "numbered": False, "format": {}, "numbered_items": []}
+            for block in template.blocks.all()
         }
     for draft_section in sections:
+        section_format = draft_section.get("format") or {}
         parts = [
             part.strip()
             for part in re.split(r"\n{2,}|\n", draft_section.get("body", ""))
             if part.strip()
         ]
         items = [re.sub(r"^\d+[.)]\s*", "", part) for part in parts]
+        numbered = section_format.get("style") == "numbered"
         block_context[draft_section.get("key", "")] = {
             "body": draft_section.get("body", ""),
             "paragraphs": parts,
             "items": items,
+            "numbered": numbered,
+            "format": section_format,
+            "numbered_items": [f"{index}. {item}" for index, item in enumerate(items, start=1)] if numbered else items,
         }
     fields = template_field_values(session.template_data)
     client = {
@@ -273,7 +294,7 @@ def _docx_render_context(draft, section):
         "instructions": session.instructions,
         "fields": fields,
         "blocks": block_context,
-        "court": matter_data["jurisdiction"] or getattr(session.template, "jurisdiction", ""),
+        "court": matter_data["jurisdiction"] or getattr(template, "jurisdiction", ""),
         "plaintiff": fields["plaintiff_name"],
         "defendant": matter_data["client_name"],
         "case_number": (session.template_data or {}).get("court_case_number") or "[Court Case Number]",
@@ -358,7 +379,7 @@ def _clear_document_body(document):
 
 
 def _composed_docx(draft):
-    template = draft.session.template
+    template = _draft_template(draft)
     block_by_key = {block.key: block for block in template.blocks.all()}
     sections = draft.sections or []
     output = io.BytesIO()

@@ -162,19 +162,19 @@ export function FactReview({ matter, facts, selectedFactIds, selectedCuratedFact
     <div className="facts-review-stack">
       <section className="panel">
         <div className="step-guidance">
-          <span className="block-kicker">Fact selection</span>
-          <h3>Confirm the facts the draft may use</h3>
-          <p>Suggested facts are selected from case facts, notes, and document text. Add a fact manually only when the case file is missing something important.</p>
+          <span className="block-kicker">Drafting facts</span>
+          <h3>Confirm the drafting facts the AI may use</h3>
+          <p>A drafting fact is a statement selected from the case record that the AI can rely on when drafting. It should have a source, like a case note, uploaded document, custom field, or user-entered note.</p>
         </div>
         <div className="button-row panel-actions">
           <button className="secondary" type="button" onClick={() => setModalOpen(true)}>
-            <Plus size={16} /> Add fact or document
+            <Plus size={16} /> Add drafting fact or document
           </button>
           <span className="muted-inline">{selectedFactIds.length + selectedCuratedFacts.length} selected</span>
         </div>
         {error && <div className="inline-error">{error}</div>}
         <div className="check-list">
-          {facts.length === 0 && <p className="muted">No facts were found in the case file. Refresh the AI suggestions after adding notes or documents, or add a fact manually.</p>}
+          {facts.length === 0 && <p className="muted">No drafting facts selected yet. Review case notes, documents, or custom fields below and add useful summaries or excerpts.</p>}
           {facts.map((fact) => (
             <label key={fact.id} className="check-row fact-with-citation" title={citationForFact(fact)}>
               <input type="checkbox" checked={selectedFactIds.includes(fact.id)} onChange={() => toggleMatterFact(fact)} />
@@ -191,8 +191,8 @@ export function FactReview({ matter, facts, selectedFactIds, selectedCuratedFact
       <section className="panel">
         <div className="document-card-heading">
           <div>
-            <strong>Case documents and notes</strong>
-            <small>These sources are searched automatically. Inspect one only to select a specific excerpt yourself.</small>
+            <strong>Case materials</strong>
+            <small>These notes and documents are source materials. Add useful summaries or excerpts to drafting facts when they should be used in a draft.</small>
           </div>
           {loadingDocuments && <Loader2 className="spin" size={18} />}
         </div>
@@ -213,10 +213,10 @@ export function FactReview({ matter, facts, selectedFactIds, selectedCuratedFact
                 {(document.snippet || state.summary) && <p className="document-snippet">{state.summary || document.snippet}</p>}
                 <div className="button-row compact document-actions">
                   <button className="secondary" type="button" onClick={() => inspectDocument(document)} disabled={state.loading}>
-                    {state.loading ? <Loader2 className="spin" size={16} /> : <Search size={16} />} Inspect candidate excerpts
+                    {state.loading ? <Loader2 className="spin" size={16} /> : <Search size={16} />} Find useful excerpts
                   </button>
                   <button className={summarySelected ? "primary" : "secondary"} type="button" onClick={() => addDocumentSummary(document, state)} disabled={!(state.summary || document.snippet)}>
-                    {summarySelected ? <Check size={16} /> : <Plus size={16} />} {summarySelected ? "Selected summary" : "Use summary"}
+                    {summarySelected ? <Check size={16} /> : <Plus size={16} />} {summarySelected ? "Summary selected" : "Add summary to drafting facts"}
                   </button>
                 </div>
                 {state.error && <div className="inline-error">{state.error}</div>}
@@ -228,7 +228,7 @@ export function FactReview({ matter, facts, selectedFactIds, selectedCuratedFact
                         <div className="chunk-row fact-with-citation" key={chunk.id} title={`${document.citation || document.title}, excerpt ${chunk.index}`}>
                           <p>{chunk.text}</p>
                           <button className={chunkSelected ? "primary" : "secondary"} type="button" onClick={() => addChunkFact(document, chunk)}>
-                            {chunkSelected ? <X size={16} /> : <Plus size={16} />} {chunkSelected ? "Remove" : "Use excerpt"}
+                            {chunkSelected ? <X size={16} /> : <Plus size={16} />} {chunkSelected ? "Remove" : "Add excerpt to drafting facts"}
                           </button>
                         </div>
                       );

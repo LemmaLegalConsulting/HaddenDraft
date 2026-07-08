@@ -27,11 +27,15 @@ import { api } from "./api/client.js";
 import { AuthorFields, emptyAuthorProfile } from "./components/AuthorFields.jsx";
 import { AuthorProfile } from "./components/AuthorProfile.jsx";
 import { CaseChat } from "./components/CaseChat.jsx";
+import { CaseMaterialsPanel } from "./components/CaseMaterialsPanel.jsx";
 import { DraftEditor } from "./editor/DraftEditor.jsx";
 import { CaseSelector } from "./components/CaseSelector.jsx";
 import { DraftSupportReview } from "./components/DraftSupportReview.jsx";
+import { DraftGoalPanel } from "./components/DraftGoalPanel.jsx";
+import { DraftPlanReview } from "./components/DraftPlanReview.jsx";
 import { FactReview } from "./components/FactReview.jsx";
 import { factRecommendationState } from "./components/factReviewState.js";
+import { mergeFactIds } from "./components/factReviewState.js";
 import { LawReview } from "./components/LawReview.jsx";
 import { ResearchPanel } from "./components/ResearchPanel.jsx";
 import { TemplatePicker } from "./components/TemplatePicker.jsx";
@@ -39,12 +43,8 @@ import { TriagePanel } from "./components/TriagePanel.jsx";
 import { WorkflowStepper } from "./components/WorkflowStepper.jsx";
 
 const workflowSteps = [
-  { id: "setup", label: "Document" },
-  { id: "author", label: "Author" },
-  { id: "facts", label: "Review facts" },
-  { id: "support", label: "Review support" },
-  { id: "law", label: "Legal issues" },
-  { id: "outline", label: "Outline" },
+  { id: "goal", label: "Goal" },
+  { id: "plan", label: "Plan" },
   { id: "editor", label: "Draft" },
 ];
 
@@ -63,7 +63,11 @@ export function App() {
   const [triageRubrics, setTriageRubrics] = useState([]);
   const [mode, setMode] = useState("case");
   const [draftMode, setDraftMode] = useState("draft_from_template");
-  const [draftStep, setDraftStep] = useState("setup");
+  const [draftStep, setDraftStep] = useState("goal");
+  const [draftGoal, setDraftGoal] = useState("");
+  const [planningMode, setPlanningMode] = useState("suggest");
+  const [allowMultipleDocuments, setAllowMultipleDocuments] = useState(false);
+  const [draftPlan, setDraftPlan] = useState(null);
   const [selectedMatterId, setSelectedMatterId] = useState(null);
   const [matter, setMatter] = useState(null);
   const [selectedTemplateId, setSelectedTemplateId] = useState(null);
@@ -328,6 +332,23 @@ export function App() {
     }
   }
 
+  async function handleUpdateManualCase(payload) {
+    if (!matter) return false;
+    setManualCaseBusy(true);
+    setError("");
+    try {
+      const response = await api.updateManualCase(matter.id, payload);
+      setMatter(response.case);
+      setCases((current) => current.map((item) => item.id === response.case.id ? response.case : item));
+      return true;
+    } catch (err) {
+      setError(err.message);
+      return false;
+    } finally {
+      setManualCaseBusy(false);
+    }
+  }
+
   async function runTriage(rubricId = selectedTriageRubricId) {
     if (!matter) return;
     setBusy(true);
@@ -370,9 +391,11 @@ export function App() {
         mode: draftMode,
         matterId: matter.id,
         templateId: draftMode === "draft_from_scratch" ? undefined : selectedTemplateId,
+        selectedTemplateIds: planningMode === "known" && selectedTemplateId ? [Number(selectedTemplateId)] : [],
         authorProfile: draftAuthorProfile,
         templateData,
-        instructions,
+        goal: draftGoal,
+        instructions: instructions || draftGoal,
       };
       const response = await api.createSession(payload);
       const created = response.session;
@@ -384,7 +407,8 @@ export function App() {
         selectedBlockKeys,
         authorProfile: draftAuthorProfile,
         templateData,
-        instructions,
+        goal: draftGoal,
+        instructions: instructions || draftGoal,
         ...(draftMode === "draft_from_template" ? { template: selectedTemplateId } : {}),
       });
       setSession(advanced.session);
@@ -411,7 +435,10 @@ export function App() {
         selectedBlockKeys: overrides.selectedBlockKeys || selectedBlockKeys,
         authorProfile: draftAuthorProfile,
         templateData,
-        instructions,
+        goal: draftGoal,
+        instructions: instructions || draftGoal,
+        draftPlan,
+        selectedTemplateIds: planningMode === "known" && selectedTemplateId ? [Number(selectedTemplateId)] : [],
         ...(draftMode === "draft_from_template" ? { template: selectedTemplateId } : {}),
       });
       setSession(response.session);
@@ -419,6 +446,83 @@ export function App() {
     } catch (err) {
       setError(err.message);
       return null;
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function makeDraftPlan(extraGuidance = "") {
+    if (!matter) return;
+    setBusy(true);
+    setError("");
+    try {
+      const payload = {
+        mode: "draft_from_template",
+        matterId: matter.id,
+        goal: draftGoal,
+        instructions: [draftGoal, extraGuidance].filter(Boolean).join("\n\n"),
+        authorProfile: draftAuthorProfile,
+        templateData,
+        selectedFactIds,
+        selectedCuratedFacts,
+        selectedSourceResults: sourceResults,
+        selectedTemplateIds: planningMode === "known" && selectedTemplateId ? [Number(selectedTemplateId)] : [],
+        allowMultipleDocuments,
+      };
+      const created = session || (await api.createSession({
+        mode: "draft_from_template",
+        matterId: matter.id,
+        goal: draftGoal,
+        instructions: draftGoal,
+        authorProfile: draftAuthorProfile,
+        templateData,
+        selectedTemplateIds: payload.selectedTemplateIds,
+      })).session;
+      const response = await api.generateDraftPlan(created.id, payload);
+      setSession(response.session);
+      setDraftPlan(response.plan);
+      setSelectedBlockKeys(response.session.selectedBlockKeys || selectedBlockKeys);
+      setDraftStep("plan");
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function saveDraftPlan(plan = draftPlan) {
+    if (!session?.id || !plan) return null;
+    setBusy(true);
+    setError("");
+    try {
+      const response = await api.updateDraftPlan(session.id, { draftPlan: plan, goal: draftGoal });
+      setSession(response.session);
+      setDraftPlan(response.plan);
+      return response;
+    } catch (err) {
+      setError(err.message);
+      return null;
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function regenerateDraftPlan(guidance = "") {
+    await makeDraftPlan(guidance);
+  }
+
+  async function generateDraftsFromPlan() {
+    const saved = await saveDraftPlan();
+    const activeSession = saved?.session || session;
+    if (!activeSession?.id) return;
+    setBusy(true);
+    setError("");
+    try {
+      const response = await api.generatePlanDrafts(activeSession.id);
+      setDraft(response.drafts?.[0] || null);
+      setDraftStep("editor");
+    } catch (err) {
+      setError(err.message);
     } finally {
       setBusy(false);
     }
@@ -545,7 +649,7 @@ export function App() {
 
   function openDraft() {
     setMode("draft");
-    setDraftStep("setup");
+    setDraftStep("goal");
   }
 
   function selectMode(nextMode) {
@@ -560,17 +664,23 @@ export function App() {
     if (action.type === "custom_motion") {
       setDraftMode("draft_from_scratch");
       setInstructions(action.instructions || action.summary || "");
+      setDraftGoal(action.instructions || action.summary || "");
       setMode("draft");
-      setDraftStep("setup");
+      setDraftStep("goal");
       return;
     }
     if (action.type === "draft_template") {
       setDraftMode("draft_from_template");
+      setDraftGoal(action.instructions || action.summary || "");
       setMode("draft");
-      setDraftStep("setup");
+      setDraftStep("goal");
       return;
     }
-    if (action.type === "review_documents" || action.type === "search_sources") {
+    if (action.type === "review_documents") {
+      setMode("case");
+      return;
+    }
+    if (action.type === "search_sources") {
       setMode("research");
       return;
     }
@@ -629,17 +739,13 @@ export function App() {
         {profileOpen && <div className="modal-backdrop" role="presentation"><div className="profile-modal" role="dialog" aria-modal="true" aria-label="Profile"><div className="modal-heading"><h4>Profile</h4><button className="btn btn-outline-secondary icon-button" type="button" onClick={() => setProfileOpen(false)} title="Close"><X size={16} /></button></div><AuthorProfile user={auth} onSaved={(profile) => { updateAuthProfile(profile); setProfileOpen(false); }} /></div></div>}
         {connectionSettingsOpen && <div className="modal-backdrop" role="presentation"><form className="profile-modal connection-modal" role="dialog" aria-modal="true" aria-label="LegalServer connection settings" onSubmit={handleLegalServerConnect}><div className="modal-heading"><div><h4>LegalServer Connection</h4><p className="modal-subtitle">{legalserverLoading ? "Checking your saved account." : legalserverConnected ? `Connected as ${legalserver.identifier}` : "Connect a LegalServer account to load assigned matters."}</p></div><button className="btn btn-outline-secondary icon-button" type="button" onClick={() => setConnectionSettingsOpen(false)} title="Close"><X size={16} /></button></div>{!legalserverConfigured && <div className="inline-error">LegalServer API credentials are not configured for this environment.</div>}{legalserver?.syncError && legalserver.syncError !== "not_connected" && <div className="inline-error">LegalServer sync: {legalserver.syncError}</div>}{legalserverConfigured && <><label className="field"><span>{legalserverConnected ? "Connected as" : "LegalServer username or email"}</span><input aria-label="LegalServer identifier" disabled={legalserverLoading || accountBusy} placeholder={legalserver?.suggestedIdentifier || "LegalServer username or email"} value={legalserverIdentifier} onChange={(event) => setLegalserverIdentifier(event.target.value)} /></label><div className="button-row"><button className="primary" type="submit" disabled={legalserverLoading || accountBusy || !legalserverIdentifier.trim()}>{accountBusy ? <Loader2 className="spin" size={16} /> : <Link2 size={16} />}{legalserverConnected ? "Update connection" : "Connect LegalServer"}</button>{legalserverConnected && <button className="secondary" type="button" disabled={accountBusy} onClick={handleLegalServerDisconnect}>{accountBusy ? <Loader2 className="spin" size={16} /> : <Unplug size={16} />} Disconnect</button>}</div></>}</form></div>}
         {error && <div className="error-banner alert alert-danger">{error}</div>}
-        {mode === "case" && <CaseSelector cases={cases} selectedMatterId={selectedMatterId} onSelect={setSelectedMatterId} matter={matter} legalserver={legalserver} legalserverLoading={legalserverLoading} search={caseSearch} onSearchChange={setCaseSearch} onSearch={handleCaseSearch} onSearchReset={handleCaseSearchReset} caseBusy={caseBusy} manualCaseBusy={manualCaseBusy} onCreateManualCase={handleCreateManualCase} onModeChange={(nextMode) => nextMode === "draft" ? openDraft() : setMode(nextMode)} />}
+        {mode === "case" && <CaseSelector cases={cases} selectedMatterId={selectedMatterId} onSelect={setSelectedMatterId} matter={matter} legalserver={legalserver} legalserverLoading={legalserverLoading} search={caseSearch} onSearchChange={setCaseSearch} onSearch={handleCaseSearch} onSearchReset={handleCaseSearchReset} caseBusy={caseBusy} manualCaseBusy={manualCaseBusy} onCreateManualCase={handleCreateManualCase} onUpdateManualCase={handleUpdateManualCase} onModeChange={(nextMode) => nextMode === "draft" ? openDraft() : setMode(nextMode)} materialsPanel={<CaseMaterialsPanel matter={matter} selectedFactIds={selectedFactIds} onFactIdsAdded={(ids) => setSelectedFactIds((current) => mergeFactIds(current, ids))} onMatterChange={setMatter} />} />}
         {mode === "triage" && <TriagePanel matter={matter} rubrics={triageRubrics} selectedRubricId={selectedTriageRubricId} onSelectRubric={setSelectedTriageRubricId} assessment={triageAssessment} history={triageHistory} busy={busy} manualCaseBusy={manualCaseBusy} onRunTriage={runTriage} onCreateManualCase={handleCreateManualCase} />}
         {mode === "case_chat" && <CaseChat matter={matter} onAction={handleCaseAction} />}
         {mode === "research" && <ResearchPanel matter={matter} sources={boot?.sources || []} onResults={(results) => setSourceResults(results)} />}
-        {mode === "draft" && draftStep === "setup" && <section className="panel"><div className="step-guidance"><span className="block-kicker">Drafting workflow</span><h3>Choose what you are drafting</h3><p>Select a template or describe a custom document. The next steps will ask the AI to propose facts and support for human review.</p></div><div className="draft-mode-switch"><button className={draftMode === "draft_from_template" ? "selected" : ""} onClick={() => setDraftMode("draft_from_template")}><Layers3 size={16} /> Use a template</button><button className={draftMode === "draft_from_scratch" ? "selected" : ""} onClick={() => setDraftMode("draft_from_scratch")}><FileText size={16} /> Start from scratch</button></div>{draftMode === "draft_from_scratch" ? <label className="field"><span>What should this document be about?</span><textarea className="form-control" value={instructions} onChange={(event) => setInstructions(event.target.value)} placeholder="Example: Motion to continue the eviction hearing because the client needs time to gather rent assistance documents." /></label> : <TemplatePicker templates={templates.filter((template) => template.kind !== "shell")} selectedTemplateId={selectedTemplateId} selectedBlockKeys={selectedBlockKeys} templateData={templateData} onTemplateChange={selectDraftTemplate} onBlockChange={setSelectedBlockKeys} onTemplateDataChange={setTemplateData} />}<div className="button-row step-actions"><button className="btn btn-primary" disabled={!matter || (draftMode === "draft_from_scratch" && !instructions.trim())} onClick={() => setDraftStep("author")}>Continue to author</button></div></section>}
-        {mode === "draft" && draftStep === "author" && <section className="panel"><div className="step-guidance"><span className="block-kicker">Human context</span><h3>Confirm author information</h3><p>This information is used for signature blocks, contact details, and style-sensitive drafting instructions.</p></div><AuthorFields profile={draftAuthorProfile} onChange={setDraftAuthorProfile} /><div className="button-row step-actions"><button className="btn btn-outline-secondary" onClick={() => setDraftStep("setup")}>Back</button><button className="btn btn-primary" disabled={busy || (!draftAuthorProfile.displayName?.trim() && !draftAuthorProfile.email?.trim())} onClick={continueToFactReview}>{busy ? <Loader2 className="spin" size={16} /> : <ClipboardList size={16} />} Ask AI to suggest facts</button></div></section>}
-        {mode === "draft" && draftStep === "facts" && <section className="step-screen"><div className="step-guidance panel"><span className="block-kicker">AI proposed, human reviewed</span><h3>Review facts the draft may use</h3><p>The AI preselects facts based on the selected template, active sections, and case summary. Confirm or correct the facts before choosing drafting support.</p><button className="secondary" type="button" disabled={busy || !session?.id} onClick={continueToFactReview}>{busy ? <Loader2 className="spin" size={16} /> : <Search size={16} />} Refresh AI fact suggestions</button></div><FactReview matter={matter} facts={matter?.facts || []} selectedFactIds={selectedFactIds} selectedCuratedFacts={selectedCuratedFacts} onFactChange={setSelectedFactIds} onCuratedChange={setSelectedCuratedFacts} onMatterChange={setMatter} /><div className="button-row step-actions"><button className="btn btn-outline-secondary" onClick={() => setDraftStep("author")}>Back</button><button className="btn btn-primary" disabled={!matter || busy} onClick={continueFromFactReview}>Continue to support review</button></div></section>}
-        {mode === "draft" && draftStep === "support" && <section className="step-screen"><DraftSupportReview session={session} selectedResults={sourceResults} onSelectedResultsChange={setSourceResults} onSessionChange={setSession} /><div className="button-row step-actions"><button className="btn btn-outline-secondary" onClick={() => setDraftStep("facts")}>Back</button><button className="btn btn-primary" disabled={!matter || busy} onClick={continueFromDraftSupport}>{busy ? <Loader2 className="spin" size={16} /> : <ClipboardList size={16} />} Continue to legal issues</button></div></section>}
-        {mode === "draft" && draftStep === "law" && <section className="step-screen"><LawReview matter={matter} session={session} onIssuesChange={setCandidateIssues} /><div className="button-row step-actions"><button className="btn btn-outline-secondary" onClick={() => setDraftStep("support")}>Back</button><button className="btn btn-primary" disabled={!matter || busy} onClick={continueFromLawReview}>{busy ? <Loader2 className="spin" size={16} /> : <FileText size={16} />} Continue to outline</button></div></section>}
-        {mode === "draft" && draftStep === "outline" && <section className="panel"><div className="step-guidance"><span className="block-kicker">Final review gate before generation</span><h3>Approve the draft outline</h3><p>Review the sections the AI will generate from the confirmed facts, selected support, and approved legal issues.</p></div>{outline ? <div className="outline-review-list"><div className="selected-support-summary"><strong>{outline.selectedFactCount} facts</strong><strong>{outline.selectedSupportCount} support items</strong><strong>{outline.approvedIssues?.length || 0} approved issues</strong></div><div className="result-list">{(outline.blocks || []).map((block) => <article key={block.key} className="result-card"><strong>{block.label}</strong><p>{block.blockType} · {block.aiFillMode}</p><small>{block.required ? "Required" : "Selected"}</small></article>)}</div></div> : <div className="empty-state compact"><strong className="empty-state-title">No outline loaded yet</strong><p>Go back to legal issues and continue again to build the outline review.</p></div>}<div className="button-row step-actions"><button className="btn btn-outline-secondary" onClick={() => setDraftStep("law")}>Back to legal issues</button><button className="btn btn-primary" disabled={busy || !session} onClick={approveOutline}>{busy ? <Loader2 className="spin" size={16} /> : <CheckCircle2 size={16} />} Approve outline</button></div></section>}
-        {mode === "draft" && draftStep === "editor" && <section className="panel editor-panel">{draft && <div className="button-row compact editor-actions"><button className="btn btn-outline-secondary" disabled={busy} onClick={validateDraft}><CheckCircle2 size={16} /> Validate</button><a className="btn btn-primary link-button" href={api.exportDraftUrl(draft.id)}><Download size={16} /> Export to Word</a></div>}<div className="button-row step-actions top-step-actions"><button className="btn btn-outline-secondary" onClick={() => setDraftStep("outline")}>Back to outline</button><button className="btn btn-primary" disabled={busy || !matter} onClick={generateDraft}>{busy ? <Loader2 className="spin" size={16} /> : <FileText size={16} />} Generate draft</button></div><DraftEditor draft={draft} busy={busy} onChange={(sections, plainText, editorState) => setDraft((current) => current ? { ...current, sections, plainText, editorState } : current)} onPersist={async () => { if (draft) { const response = await api.updateDraft(draft.id, { sections: draft.sections, plainText: draft.plainText, editorState: draft.editorState }); setDraft(response.draft); } }} onRegenerateBlock={regenerateDraftBlock} />{draft?.validationFlags?.length > 0 && <div className="flags">{draft.validationFlags.map((flag) => <div key={`${flag.code}-${flag.message}`} className={`flag ${flag.severity}`}><strong>{flag.location}</strong><span>{flag.message}</span></div>)}</div>}</section>}
+        {mode === "draft" && draftStep === "goal" && <DraftGoalPanel goal={draftGoal} onGoalChange={(value) => { setDraftGoal(value); setInstructions(value); }} planningMode={planningMode} onPlanningModeChange={setPlanningMode} allowMultiple={allowMultipleDocuments} onAllowMultipleChange={setAllowMultipleDocuments} selectedTemplateId={selectedTemplateId} onTemplateChange={selectDraftTemplate} templates={templates} matter={matter} busy={busy} onMakePlan={() => makeDraftPlan()} />}
+        {mode === "draft" && draftStep === "plan" && <DraftPlanReview plan={draftPlan} templates={templates} matter={matter} session={session} busy={busy} authorProfile={draftAuthorProfile} onAuthorProfileChange={setDraftAuthorProfile} selectedFactIds={selectedFactIds} selectedCuratedFacts={selectedCuratedFacts} onFactChange={setSelectedFactIds} onCuratedChange={setSelectedCuratedFacts} onMatterChange={setMatter} onFactIdsAdded={(ids) => setSelectedFactIds((current) => mergeFactIds(current, ids))} selectedResults={sourceResults} onSelectedResultsChange={setSourceResults} onSessionChange={setSession} candidateIssues={candidateIssues} onIssuesChange={setCandidateIssues} onPlanChange={setDraftPlan} onRegeneratePlan={regenerateDraftPlan} onGenerateDraft={generateDraftsFromPlan} />}
+        {mode === "draft" && draftStep === "editor" && <section className="panel editor-panel">{draft && <div className="button-row compact editor-actions"><button className="btn btn-outline-secondary" disabled={busy} onClick={validateDraft}><CheckCircle2 size={16} /> Validate</button><a className="btn btn-primary link-button" href={api.exportDraftUrl(draft.id)}><Download size={16} /> Export to Word</a></div>}<div className="button-row step-actions top-step-actions"><button className="btn btn-outline-secondary" onClick={() => setDraftStep("plan")}>Back to plan</button><button className="btn btn-primary" disabled={busy || !matter || !draftPlan} onClick={generateDraftsFromPlan}>{busy ? <Loader2 className="spin" size={16} /> : <FileText size={16} />} Generate draft</button></div><DraftEditor draft={draft} busy={busy} onChange={(sections, plainText, editorState) => setDraft((current) => current ? { ...current, sections, plainText, editorState } : current)} onPersist={async () => { if (draft) { const response = await api.updateDraft(draft.id, { sections: draft.sections, plainText: draft.plainText, editorState: draft.editorState }); setDraft(response.draft); } }} onRegenerateBlock={regenerateDraftBlock} />{draft?.validationFlags?.length > 0 && <div className="flags">{draft.validationFlags.map((flag) => <div key={`${flag.code}-${flag.message}`} className={`flag ${flag.severity}`}><strong>{flag.location}</strong><span>{flag.message}</span></div>)}</div>}</section>}
       </main>
     </div>
   );

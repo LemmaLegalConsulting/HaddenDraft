@@ -330,8 +330,10 @@ def deterministic_action_cards(case_context, tool_results):
             {
                 "id": "review-documents",
                 "type": "review_documents",
-                "title": "Review case documents",
-                "summary": f"Review {len(documents)} available document(s) before drafting.",
+                "title": "Open case materials",
+                "summary": f"View {len(documents)} available document(s), notes, and excerpts.",
+                "effect": "Navigates to the case materials area. It does not change drafting facts until you add a summary or excerpt.",
+                "destination": "Case materials",
             }
         )
     if notes:
@@ -341,6 +343,7 @@ def deterministic_action_cards(case_context, tool_results):
                 "type": "case_chat",
                 "title": "Summarize case notes",
                 "summary": "Use the case notes to identify deadlines, missing documents, and procedural posture.",
+                "effect": "Sends a follow-up chat prompt. It does not add facts to a draft.",
                 "prompt": "Summarize the case notes and identify deadlines, missing documents, and drafting issues.",
             }
         )
@@ -350,6 +353,7 @@ def deterministic_action_cards(case_context, tool_results):
             "type": "custom_motion",
             "title": "Create a custom motion",
             "summary": "Start a scratch draft using the case posture and selected facts.",
+            "effect": "Opens the drafting goal screen with starter instructions.",
             "instructions": f"Draft a motion or filing for {case_context['client']} based on the selected case facts and sources.",
         }
     )
@@ -359,6 +363,7 @@ def deterministic_action_cards(case_context, tool_results):
             "type": "draft_template",
             "title": "Use a document template",
             "summary": "Choose a template, select supporting facts and sources, then generate a draft.",
+            "effect": "Opens the drafting workflow. It will not create a draft until you generate one.",
         }
     )
     return cards

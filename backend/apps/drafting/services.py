@@ -7,9 +7,12 @@ from django.utils.text import slugify
 from apps.ai.openai_client import OpenAIBackendError, OpenAICompatibleClient
 from apps.ai.services import GenerationContext, drafting_ai
 from apps.drafting.models import DraftDocument
-from apps.matters.document_context import chunk_text, get_case_documents, get_document_text, search_chunks, summarize_text
+from apps.matters.document_context import chunk_text, custom_fields_inventory, get_case_documents, get_document_text, search_chunks, summarize_text
 from apps.matters.models import MatterFact
 from apps.sources.models import SourceConfiguration
+from apps.templates_app.models import DocumentTemplate
+from apps.templates_app.recommendations import recommend_templates
+from apps.templates_app.serializers import template_to_dict
 
 
 WORKFLOW_STEPS = [
@@ -147,6 +150,14 @@ def advance(session, payload):
         session.author_profile = payload["authorProfile"] or {}
     if "templateData" in payload:
         session.template_data = payload["templateData"] or {}
+    if "goal" in payload:
+        session.goal = payload["goal"] or ""
+    if "draftPlan" in payload:
+        session.draft_plan = payload["draftPlan"] or {}
+    if "missingInformation" in payload:
+        session.missing_information = payload["missingInformation"] or []
+    if "selectedTemplateIds" in payload:
+        session.selected_template_ids = payload["selectedTemplateIds"] or []
     if "instructions" in payload:
         session.instructions = payload["instructions"]
     if "template" in payload:
@@ -168,6 +179,205 @@ def advance(session, payload):
     session.status = target_status
     session.save()
     return session
+
+
+# Draft plan helpers
+
+
+def _matter_details_text(matter):
+    details = [
+        matter.summary or "",
+        matter.matter_type or "",
+        matter.posture or "",
+        matter.jurisdiction or "",
+    ]
+    return "\n".join(item for item in details if item)
+
+
+def _available_templates():
+    return DocumentTemplate.objects.filter(is_active=True).prefetch_related("blocks").order_by("title")
+
+
+def _plan_missing_information(session, template):
+    missing = []
+    if not session.author_profile or not (session.author_profile.get("displayName") or session.author_profile.get("email")):
+        missing.append(
+            {
+                "field": "author_profile",
+                "question": "Who should appear in the signature block?",
+                "required_for_generation": False,
+            }
+        )
+    if template and template.kind == "motion" and "hearing" in (session.goal or session.instructions or "").casefold():
+        missing.append(
+            {
+                "field": "hearing_date",
+                "question": "What is the current hearing date?",
+                "required_for_generation": False,
+            }
+        )
+    return missing
+
+
+def _source_plan(session):
+    return [
+        {
+            "source_id": source.get("id") or source.get("sourceKind") or source.get("citation") or source.get("title"),
+            "reason": source.get("reason") or source.get("snippet") or "Selected drafting support.",
+        }
+        for source in (session.selected_source_results or [])
+    ]
+
+
+def _requested_custom_fields(session):
+    goal_terms = set(_fact_terms(" ".join([session.goal or "", session.instructions or "", session.matter.summary or ""])))
+    requested = []
+    for field in custom_fields_inventory(session.matter)[:12]:
+        field_terms = set(_fact_terms(" ".join([field["key"], field["label"], field.get("category", "")])))
+        if field["confidence"] == "likely_useful" and (goal_terms.intersection(field_terms) or field["category"] == "narrative"):
+            requested.append(
+                {
+                    "fieldKey": field["key"],
+                    "reason": field["reason"],
+                }
+            )
+    return requested[:5]
+
+
+def _document_item_for_template(session, template, recommendation=None):
+    fact_slugs = [fact.slug for fact in MatterFact.objects.filter(id__in=session.selected_fact_ids)]
+    selected_keys = drafting_ai.recommend_blocks(template, fact_slugs)
+    selected_keys = selected_keys or [block.key for block in template.blocks.all()]
+    missing_information = _plan_missing_information(session, template)
+    goal = session.goal or session.instructions or template.goal or template.description
+    return {
+        "id": template.slug,
+        "template_slug": template.slug,
+        "template_id": template.id,
+        "title": template.title,
+        "goal": goal,
+        "reason": "; ".join((recommendation or {}).get("reasons") or [template.goal or template.description or "Selected template."]),
+        "selected_block_keys": selected_keys,
+        "drafting_instructions": session.instructions or goal,
+        "missing_information": missing_information,
+    }
+
+
+def _plan_summary(session, selected_templates):
+    if session.goal or session.instructions:
+        return session.goal or session.instructions
+    if len(selected_templates) == 1:
+        template = selected_templates[0]
+        return template.goal or f"Make {template.title}."
+    if selected_templates:
+        return "Make the selected documents: " + ", ".join(template.title for template in selected_templates) + "."
+    return _matter_details_text(session.matter) or "Draft a housing case document."
+
+
+def _fallback_plan(session, *, allow_multiple=False):
+    templates = list(_available_templates())
+    selected_templates = []
+    if session.selected_template_ids:
+        selected_ids = {int(value) for value in session.selected_template_ids if str(value).isdigit()}
+        selected_templates = [template for template in templates if template.id in selected_ids]
+    elif session.template_id:
+        selected_templates = [template for template in templates if template.id == session.template_id]
+    if not selected_templates:
+        limit = 3 if allow_multiple else 1
+        selected_templates = [item["template"] for item in recommend_templates(session.goal or session.instructions, session.matter, templates, limit=3)[:limit]]
+    recommendation_by_id = {
+        item["template"].id: item
+        for item in recommend_templates(session.goal or session.instructions, session.matter, templates, limit=3)
+    }
+    document_items = [
+        _document_item_for_template(session, template, recommendation_by_id.get(template.id))
+        for template in selected_templates
+    ]
+    missing = [item for document in document_items for item in document.get("missing_information", [])]
+    return {
+        "summary": _plan_summary(session, selected_templates),
+        "document_items": document_items,
+        "source_plan": _source_plan(session),
+        "author_requirements": {
+            "needed_before_generation": False,
+            "used_in": ["caption", "signature"],
+        },
+        "available_templates": [template_to_dict(template, include_blocks=True) for template in templates],
+        "selected_facts": session.selected_fact_ids or [],
+        "selected_sources": session.selected_source_results or [],
+        "missing_information": missing,
+        "requestedCustomFields": _requested_custom_fields(session),
+    }
+
+
+def create_or_update_plan(session, payload):
+    if "goal" in payload:
+        session.goal = payload.get("goal") or ""
+    if "instructions" in payload:
+        session.instructions = payload.get("instructions") or session.goal
+    if "templateData" in payload:
+        session.template_data = payload.get("templateData") or {}
+    if "authorProfile" in payload:
+        session.author_profile = payload.get("authorProfile") or {}
+    if "selectedFactIds" in payload:
+        session.selected_fact_ids = payload.get("selectedFactIds") or []
+    if "selectedCuratedFacts" in payload:
+        session.selected_curated_facts = payload.get("selectedCuratedFacts") or []
+    if "selectedSourceResults" in payload:
+        session.selected_source_results = payload.get("selectedSourceResults") or []
+    if "selectedTemplateIds" in payload:
+        session.selected_template_ids = [int(value) for value in (payload.get("selectedTemplateIds") or []) if str(value).isdigit()]
+    elif "templateId" in payload and payload.get("templateId"):
+        session.selected_template_ids = [int(payload["templateId"])]
+    plan = _fallback_plan(session, allow_multiple=bool(payload.get("allowMultipleDocuments")))
+    session.draft_plan = plan
+    session.missing_information = plan.get("missing_information") or []
+    if plan.get("document_items"):
+        first = plan["document_items"][0]
+        session.template_id = first.get("template_id") or session.template_id
+        session.selected_block_keys = first.get("selected_block_keys") or session.selected_block_keys
+    session.status = "outline_review"
+    session.save()
+    return session
+
+
+def apply_plan_edits(session, payload):
+    plan = payload.get("draftPlan") or payload.get("plan") or payload
+    if not isinstance(plan, dict):
+        raise ValueError("Draft plan must be an object.")
+    session.draft_plan = plan
+    session.goal = payload.get("goal", session.goal)
+    document_items = plan.get("document_items") or []
+    session.selected_template_ids = [
+        item.get("template_id")
+        for item in document_items
+        if item.get("template_id")
+    ]
+    if not session.selected_template_ids:
+        slugs = [item.get("template_slug") for item in document_items if item.get("template_slug")]
+        session.selected_template_ids = list(DocumentTemplate.objects.filter(slug__in=slugs).values_list("id", flat=True))
+    session.missing_information = [
+        item
+        for document in document_items
+        for item in (document.get("missing_information") or [])
+        if not item.get("not_needed")
+    ] or plan.get("missing_information", [])
+    if document_items:
+        first = document_items[0]
+        template = _template_for_plan_item(first)
+        if template:
+            session.template = template
+        session.selected_block_keys = first.get("selected_block_keys") or session.selected_block_keys
+    session.save()
+    return session
+
+
+def _template_for_plan_item(item):
+    if item.get("template_id"):
+        return DocumentTemplate.objects.filter(id=item["template_id"], is_active=True).prefetch_related("blocks").first()
+    if item.get("template_slug"):
+        return DocumentTemplate.objects.filter(slug=item["template_slug"], is_active=True).prefetch_related("blocks").first()
+    return None
 
 
 # Fact recommendation helpers
@@ -651,17 +861,30 @@ def recommend_support_candidates(session, *, user=None, request=None, limit_per_
 # Draft generation helpers
 
 
-def create_draft(session):
-    context = regeneration_context(session)
-    block_keys = session.selected_block_keys or [block.key for block in session.template.blocks.all()]
+def create_draft(session, *, template=None, block_keys=None, title=None, instructions=None, missing_by_block=None):
+    context = regeneration_context(session, template=template, instructions=instructions)
+    active_template = template or session.template
+    block_keys = block_keys or session.selected_block_keys or [block.key for block in active_template.blocks.all()]
     sections = drafting_ai.compose_document(context, block_keys)
+    if missing_by_block:
+        sections = [
+            {
+                **section,
+                "missingInformation": missing_by_block.get(section.get("key"), section.get("missingInformation", [])),
+            }
+            for section in sections
+        ]
     plain_text = "\n\n".join(f"{section['label'].upper()}\n{section['body']}" for section in sections)
     draft = DraftDocument.objects.create(
         session=session,
-        title=session.template.title if session.template else "Draft document",
+        title=title or (active_template.title if active_template else "Draft document"),
         sections=sections,
         plain_text=plain_text,
-        editor_state={"format": "plain_text"},
+        editor_state={
+            "format": "plain_text",
+            "templateId": active_template.id if active_template else None,
+            "templateSlug": active_template.slug if active_template else "",
+        },
     )
     session.status = "draft_review"
     session.save()
@@ -672,18 +895,59 @@ def plain_text_from_sections(sections):
     return "\n\n".join(f"{section.get('label', '').upper()}\n{section.get('body', '')}" for section in sections)
 
 
-def regeneration_context(session):
+def regeneration_context(session, *, template=None, instructions=None):
     return GenerationContext(
         matter=session.matter,
         selected_facts=_selected_facts(session),
         selected_curated_facts=session.selected_curated_facts,
         selected_sources=session.selected_source_results,
-        template=session.template,
+        template=template or session.template,
         mode=session.mode,
-        instructions=session.instructions,
+        instructions=instructions if instructions is not None else session.instructions,
         author_profile=session.author_profile,
         template_data=session.template_data,
     )
+
+
+def _missing_by_block_for_item(item):
+    missing = item.get("missing_information") or []
+    if not missing:
+        return {}
+    selected_keys = item.get("selected_block_keys") or []
+    target_key = selected_keys[0] if selected_keys else ""
+    return {
+        target_key: [
+            {
+                "question": entry.get("question") or entry.get("field") or "Missing information",
+                "severity": "required" if entry.get("required_for_generation") else "helpful",
+                "field": entry.get("field", ""),
+            }
+            for entry in missing
+            if not entry.get("not_needed")
+        ]
+    } if target_key else {}
+
+
+def create_drafts_from_plan(session):
+    plan = session.draft_plan or _fallback_plan(session)
+    drafts = []
+    for item in plan.get("document_items") or []:
+        template = _template_for_plan_item(item)
+        if not template:
+            continue
+        drafts.append(
+            create_draft(
+                session,
+                template=template,
+                block_keys=item.get("selected_block_keys") or None,
+                title=item.get("title") or template.title,
+                instructions=item.get("drafting_instructions") or item.get("goal") or session.instructions,
+                missing_by_block=_missing_by_block_for_item(item),
+            )
+        )
+    if not drafts and session.template:
+        drafts.append(create_draft(session))
+    return drafts
 
 
 def regenerate_draft_block(draft, block_key, instruction=""):

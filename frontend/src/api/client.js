@@ -56,6 +56,10 @@ export const api = {
   startOffice365Login: () => request("/auth/office365/start/"),
   cases: (query = "") => request(`/cases/${query ? `?${new URLSearchParams({ q: query })}` : ""}`),
   createManualCase: (formData) => request("/cases/", { method: "POST", body: formData }),
+  updateManualCase: (matterId, payload) =>
+    request(`/cases/${matterId}/`, { method: "PATCH", body: JSON.stringify(payload) }),
+  legalserverDraftIntakePreview: (matterId) =>
+    request(`/cases/${matterId}/`, { method: "POST", body: JSON.stringify({ action: "legalserver_draft_intake" }) }),
   triageRubrics: () => request("/triage/rubrics/"),
   caseTriage: (matterId) => request(`/cases/${matterId}/triage/`),
   runCaseTriage: (matterId, payload) =>
@@ -68,6 +72,10 @@ export const api = {
   clearCaseChatHistory: (matterId) => request(`/cases/${matterId}/chat/`, { method: "DELETE" }),
   caseChat: (matterId, payload) => request(`/cases/${matterId}/chat/`, { method: "POST", body: JSON.stringify(payload) }),
   caseDocuments: (matterId) => request(`/cases/${matterId}/documents/`),
+  caseMaterials: (matterId) => request(`/cases/${matterId}/materials/`),
+  customFields: (matterId) => request(`/cases/${matterId}/custom-fields/`),
+  fetchCustomFields: (matterId, payload) =>
+    request(`/cases/${matterId}/custom-fields/fetch/`, { method: "POST", body: JSON.stringify(payload) }),
   caseFacts: (matterId) => request(`/cases/${matterId}/facts/`),
   recommendCaseFacts: (matterId) => request(`/cases/${matterId}/facts/recommend/`, { method: "POST" }),
   createCaseFact: (matterId, payload) =>
@@ -101,6 +109,11 @@ export const api = {
   sessionOutline: (sessionId) => request(`/drafting-sessions/${sessionId}/outline/`),
   approveSessionOutline: (sessionId, payload = {}) =>
     request(`/drafting-sessions/${sessionId}/outline/`, { method: "POST", body: JSON.stringify(payload) }),
+  generateDraftPlan: (sessionId, payload = {}) =>
+    request(`/drafting-sessions/${sessionId}/plan/`, { method: "POST", body: JSON.stringify(payload) }),
+  updateDraftPlan: (sessionId, payload = {}) =>
+    request(`/drafting-sessions/${sessionId}/plan/`, { method: "PATCH", body: JSON.stringify(payload) }),
+  generatePlanDrafts: (sessionId) => request(`/drafting-sessions/${sessionId}/drafts/`, { method: "POST" }),
   generateDraft: (sessionId) => request(`/drafting-sessions/${sessionId}/draft/`, { method: "POST" }),
   updateDraft: (draftId, payload) => request(`/drafts/${draftId}/`, { method: "PATCH", body: JSON.stringify(payload) }),
   regenerateDraftBlock: (draftId, blockKey, payload) =>

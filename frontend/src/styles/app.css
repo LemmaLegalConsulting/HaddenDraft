@@ -823,6 +823,18 @@ button:disabled {
   gap: 10px;
 }
 
+.selected-support-summary {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+}
+
+.selected-support-summary p {
+  flex: 0 0 100%;
+  margin: 0;
+}
+
 .document-card {
   background: #f7fafb;
   border: 1px solid #dbe4e8;

@@ -12,6 +12,8 @@ from docx import Document
 
 from apps.ai.services import ConstrainedDraftingService
 from apps.drafting.models import DraftDocument, DraftingSession
+from apps.drafting.services import create_drafts_from_plan, create_or_update_plan
+from apps.exporting.services import _docx_render_context
 from apps.exporting.services import export_docx
 from apps.matters.models import Matter
 from apps.templates_app.models import DocumentTemplate, TemplateBlock
@@ -210,6 +212,212 @@ class DraftRenderingTests(TestCase):
         self.assertIn('<w:numId w:val="2"/>', document_xml)
         self.assertIn('<w:num w:numId="2">', numbering_xml)
 
+    def test_docx_render_context_exposes_numbered_items_for_templates(self):
+        matter = Matter.objects.create(
+            external_id="CASE-NUMBERED",
+            client_name="Jane Tenant",
+            matter_type="Eviction",
+            jurisdiction="Housing Court",
+        )
+        template = DocumentTemplate.objects.create(
+            slug="numbered-context-template",
+            title="Numbered Context",
+            kind="motion",
+        )
+        TemplateBlock.objects.create(
+            template=template,
+            key="argument",
+            label="Argument",
+            block_type="argument",
+            order=10,
+            body="{{ blocks.argument.numbered_items }}",
+        )
+        session = DraftingSession.objects.create(
+            mode="draft_from_template",
+            matter=matter,
+            template=template,
+        )
+        draft = DraftDocument.objects.create(
+            session=session,
+            title="Numbered Draft",
+            sections=[
+                {
+                    "key": "argument",
+                    "label": "Argument",
+                    "body": "First point\nSecond point",
+                    "format": {"style": "numbered"},
+                }
+            ],
+            plain_text="Argument\nFirst point\nSecond point",
+        )
+
+        context = _docx_render_context(draft, draft.sections[0])
+
+        self.assertTrue(context["blocks"]["argument"]["numbered"])
+        self.assertEqual(context["blocks"]["argument"]["items"], ["First point", "Second point"])
+        self.assertEqual(context["blocks"]["argument"]["numbered_items"], ["1. First point", "2. Second point"])
+
+    def test_plan_selects_continuance_template_and_generates_without_author(self):
+        matter = Matter.objects.create(
+            external_id="CASE-CONTINUE",
+            client_name="Jane Tenant",
+            matter_type="Eviction",
+            jurisdiction="Cleveland Municipal Court - Housing Division",
+            summary="Tenant needs more time for rental assistance.",
+        )
+        dismissal, _created = DocumentTemplate.objects.update_or_create(
+            slug="motion-dismissal-cleveland",
+            defaults={
+                "title": "Motion to Dismiss",
+                "kind": "motion",
+                "goal": "Ask the court to dismiss the case.",
+                "negative_goal": "Do not use when the user asks only to continue or postpone a hearing.",
+                "aliases": ["dismiss case"],
+                "jurisdiction": "Cleveland Municipal Court - Housing Division",
+            },
+        )
+        TemplateBlock.objects.update_or_create(
+            template=dismissal,
+            key="body",
+            defaults={
+                "label": "Body",
+                "block_type": "argument",
+                "order": 10,
+                "body": "Dismiss this case.",
+            },
+        )
+        continuance, _created = DocumentTemplate.objects.update_or_create(
+            slug="motion-continuance-cleveland",
+            defaults={
+                "title": "Motion for Continuance",
+                "kind": "motion",
+                "goal": "Ask the court to postpone or continue a scheduled hearing, deadline, or proceeding.",
+                "negative_goal": "Do not seek dismissal, judgment, or merits resolution unless separately requested.",
+                "aliases": ["continue hearing", "postpone hearing", "more time", "adjournment"],
+                "jurisdiction": "Cleveland Municipal Court - Housing Division",
+            },
+        )
+        TemplateBlock.objects.update_or_create(
+            template=continuance,
+            key="motion-body",
+            defaults={
+                "label": "Motion body",
+                "block_type": "argument",
+                "order": 10,
+                "body": "Defendant asks for a continuance.",
+                "ai_fill_mode": "none",
+            },
+        )
+        TemplateBlock.objects.update_or_create(
+            template=continuance,
+            key="motion-signature",
+            defaults={
+                "label": "Signature",
+                "block_type": "signature",
+                "order": 20,
+                "body": "{{ advocate_name }}",
+            },
+        )
+        session = DraftingSession.objects.create(
+            mode="draft_from_template",
+            matter=matter,
+            goal="continue hearing because rental assistance is pending",
+            instructions="Do not request dismissal.",
+            author_profile={},
+        )
+
+        session = create_or_update_plan(session, {"goal": session.goal})
+        drafts = create_drafts_from_plan(session)
+
+        self.assertEqual(session.draft_plan["document_items"][0]["template_slug"], "motion-continuance-cleveland")
+        self.assertNotEqual(session.draft_plan["document_items"][0]["template_slug"], "motion-dismissal-cleveland")
+        self.assertEqual(len(drafts), 1)
+        self.assertEqual(drafts[0].title, "Motion for Continuance")
+        self.assertIn("motion-body", [section["key"] for section in drafts[0].sections])
+
+    def test_plan_can_generate_multiple_documents(self):
+        matter = Matter.objects.create(
+            external_id="CASE-MULTI",
+            client_name="Jane Tenant",
+            matter_type="Eviction",
+            jurisdiction="Housing Court",
+            summary="Tenant needs an answer and more time.",
+        )
+        templates = []
+        for slug, title, alias in [
+            ("answer-counterclaims-cleveland", "Answer and Counterclaims", "answer eviction"),
+            ("motion-continuance-cleveland", "Motion for Continuance", "more time"),
+        ]:
+            template, _created = DocumentTemplate.objects.update_or_create(
+                slug=slug,
+                defaults={
+                    "title": title,
+                    "kind": "motion",
+                    "goal": title,
+                    "aliases": [alias],
+                },
+            )
+            TemplateBlock.objects.update_or_create(
+                template=template,
+                key=f"{slug}-body",
+                defaults={
+                    "label": "Body",
+                    "block_type": "argument",
+                    "order": 10,
+                    "body": f"{title} body.",
+                },
+            )
+            templates.append(template)
+        session = DraftingSession.objects.create(
+            mode="draft_from_template",
+            matter=matter,
+            selected_template_ids=[template.id for template in templates],
+            goal="answer eviction and ask for more time",
+        )
+
+        session = create_or_update_plan(session, {"allowMultipleDocuments": True})
+        drafts = create_drafts_from_plan(session)
+
+        self.assertEqual(len(session.draft_plan["document_items"]), 2)
+        self.assertEqual(len(drafts), 2)
+
+    def test_known_template_can_create_plan_without_typed_goal(self):
+        matter = Matter.objects.create(
+            external_id="CASE-KNOWN-TEMPLATE",
+            client_name="Jane Tenant",
+            matter_type="Eviction",
+            jurisdiction="Housing Court",
+            summary="Tenant needs a prepared filing.",
+        )
+        template = DocumentTemplate.objects.create(
+            slug="known-template-no-goal",
+            title="Known Template",
+            kind="motion",
+            goal="Make the known template filing.",
+            description="Prepared motion shell.",
+        )
+        TemplateBlock.objects.create(
+            template=template,
+            key="body",
+            label="Body",
+            block_type="argument",
+            order=10,
+            body="Known template body.",
+        )
+        session = DraftingSession.objects.create(
+            mode="draft_from_template",
+            matter=matter,
+            selected_template_ids=[template.id],
+            goal="",
+            instructions="",
+        )
+
+        session = create_or_update_plan(session, {"selectedTemplateIds": [template.id]})
+
+        self.assertEqual(session.draft_plan["summary"], "Make the known template filing.")
+        self.assertEqual(session.draft_plan["document_items"][0]["template_slug"], "known-template-no-goal")
+        self.assertEqual(session.draft_plan["document_items"][0]["drafting_instructions"], "Make the known template filing.")
+
     def test_export_docx_removes_xml_forbidden_characters(self):
         draft = SimpleNamespace(
             id=44,
@@ -249,6 +457,7 @@ class DraftRenderingTests(TestCase):
         caption_doc = Document()
         caption_doc.add_paragraph("Caption for {{ defendant }}")
         caption_doc.add_paragraph("Reviewed body: {{ section.body }}")
+        caption_doc.add_paragraph("Numbered values: {{ blocks.caption.numbered_items | join('; ') }}")
         caption_doc.save(caption_source)
 
         with override_settings(MEDIA_ROOT=media_dir.name):
@@ -282,7 +491,7 @@ class DraftRenderingTests(TestCase):
             draft = DraftDocument.objects.create(
                 session=session,
                 title="Answer",
-                sections=[{"key": "caption", "label": "Caption", "body": "Edited caption text."}],
+                sections=[{"key": "caption", "label": "Caption", "body": "Edited caption text.\nSecond caption point.", "format": {"style": "numbered"}}],
                 plain_text="CAPTION\nEdited caption text.",
             )
 
@@ -294,6 +503,8 @@ class DraftRenderingTests(TestCase):
         ElementTree.fromstring(document_xml)
         self.assertIn("Jane Tenant", document_xml)
         self.assertIn("Edited caption text.", document_xml)
+        self.assertIn("1. Edited caption text.", document_xml)
+        self.assertIn("2. Second caption point.", document_xml)
         self.assertNotIn("Style source body should be cleared.", document_xml)
 
     def test_export_docx_uses_repository_default_block_templates(self):

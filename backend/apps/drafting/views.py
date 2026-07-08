@@ -5,7 +5,10 @@ from apps.drafting.models import DraftDocument, DraftingSession
 from apps.drafting.serializers import draft_to_dict, session_to_dict
 from apps.drafting.services import (
     advance,
+    apply_plan_edits,
     create_draft,
+    create_drafts_from_plan,
+    create_or_update_plan,
     initialize_session,
     outline_for_session,
     recommend_session_fact_ids,
@@ -69,6 +72,8 @@ def sessions(request):
         template=template,
         author_profile=body.get("authorProfile", {}),
         template_data=body.get("templateData", {}),
+        goal=body.get("goal", ""),
+        selected_template_ids=body.get("selectedTemplateIds", [body["templateId"]] if body.get("templateId") else []),
         instructions=body.get("instructions", ""),
     )
     initialize_session(session)
@@ -171,6 +176,43 @@ def session_outline(request, session_id):
             "guidance": "Approve the section plan before generating prose.",
         }
     )
+
+
+@api_login_required
+def draft_plan(request, session_id):
+    if request.method not in {"GET", "POST", "PATCH"}:
+        return method_not_allowed(["GET", "POST", "PATCH"])
+    session, error = _session_or_404(request.user, session_id, with_template=True)
+    if error:
+        return error
+    if request.method == "GET":
+        return JsonResponse({"plan": session.draft_plan, "session": session_to_dict(session)})
+    try:
+        if request.method == "PATCH":
+            session = apply_plan_edits(session, json_body(request))
+        else:
+            session = create_or_update_plan(session, json_body(request))
+    except ValueError as exc:
+        return JsonResponse({"error": str(exc)}, status=400)
+    return JsonResponse({"plan": session.draft_plan, "session": session_to_dict(session)})
+
+
+@api_login_required
+def generate_plan_drafts(request, session_id):
+    if request.method != "POST":
+        return method_not_allowed(["POST"])
+    session, error = _session_or_404(request.user, session_id, with_template=True)
+    if error:
+        return error
+    blocking_missing = [
+        item
+        for item in (session.missing_information or [])
+        if item.get("required_for_generation") and not item.get("answer") and not item.get("not_needed")
+    ]
+    if blocking_missing:
+        return JsonResponse({"error": "Required information is missing", "missingInformation": blocking_missing}, status=400)
+    drafts = create_drafts_from_plan(session)
+    return JsonResponse({"drafts": [draft_to_dict(draft) for draft in drafts]}, status=201)
 
 
 @api_login_required

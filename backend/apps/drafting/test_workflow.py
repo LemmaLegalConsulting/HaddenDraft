@@ -236,9 +236,11 @@ class DraftingMigrationCompatibilityTests(TestCase):
         loader = MigrationLoader(connection)
         self.assertNotIn("drafting", loader.detect_conflicts())
         leaves = loader.graph.leaf_nodes("drafting")
-        self.assertEqual(leaves, [("drafting", "0005_draftingsession_template_data")])
+        self.assertEqual(leaves, [("drafting", "0006_drafting_plan_fields")])
         state_model = loader.project_state(leaves).apps.get_model("drafting", "DraftingSession")
         self.assertEqual(state_model._meta.get_field("template_data").get_default(), {})
+        self.assertEqual(state_model._meta.get_field("draft_plan").get_default(), {})
+        self.assertEqual(state_model._meta.get_field("selected_template_ids").get_default(), [])
 
 
 @override_settings(AI_DRAFTING_ENABLED=False, ENABLE_DEMO_MATTERS=False)
