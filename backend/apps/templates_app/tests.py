@@ -116,6 +116,11 @@ class TemplateIngestionTests(TestCase):
         template_path = manifest_path.parent / "template.docx"
 
         self.assertEqual(manifest["render"]["strategy"], "full_document")
+        self.assertEqual(manifest["description"], "Maintained Word template for Test Motion.")
+        self.assertEqual(
+            manifest["goal"],
+            "Draft Test Motion with case-specific facts, legal grounds, and requested relief.",
+        )
         facts = next(block for block in manifest["blocks"] if block["type"] == "facts")
         self.assertEqual(facts["input"]["type"], "array")
         self.assertEqual(facts["lexical"]["node"], "list")
@@ -224,6 +229,10 @@ class TemplateIngestionTests(TestCase):
             template = DocumentTemplate.objects.get(slug="test-motion")
             self.assertEqual(template.source_kind, "content_library")
             self.assertEqual(template.content_path, "document-templates/test-motion/manifest.yaml")
+            self.assertEqual(
+                template.goal,
+                "Draft Test Motion with case-specific facts, legal grounds, and requested relief.",
+            )
             self.assertTrue(template.blocks.filter(block_type="facts", input_schema__type="array").exists())
             self.assertEqual(results[0]["status"], "created")
 
@@ -234,6 +243,29 @@ class TemplateIngestionTests(TestCase):
             template.refresh_from_db()
             self.assertEqual(template.title, "Admin title")
             self.assertEqual(results[0]["status"], "conflict")
+
+    def test_sync_repairs_legacy_generic_template_description_without_forced_reingestion(self):
+        manifest_path = self.ingest()
+        manifest = yaml.safe_load(manifest_path.read_text())
+        manifest.pop("goal")
+        manifest["description"] = "Prepared from the maintained original Word template."
+        manifest_path.write_text(yaml.safe_dump(manifest, sort_keys=False), encoding="utf-8")
+        with self.settings(CONTENT_LIBRARY_DIR=self.content):
+            sync_prepared_templates()
+            template = DocumentTemplate.objects.get(slug="test-motion")
+            template.goal = ""
+            template.description = "Prepared from the maintained original Word template."
+            template.save(update_fields=["goal", "description", "updated_at"])
+
+            results = sync_prepared_templates()
+
+        template.refresh_from_db()
+        self.assertEqual(results[0]["status"], "updated")
+        self.assertEqual(template.description, "Maintained Word template for Test Motion.")
+        self.assertEqual(
+            template.goal,
+            "Draft Test Motion with case-specific facts, legal grounds, and requested relief.",
+        )
 
     def test_unchanged_sync_does_not_write_to_database(self):
         self.ingest()

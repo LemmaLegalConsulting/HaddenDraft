@@ -444,6 +444,20 @@ def infer_kind(title: str) -> str:
     return "shell"
 
 
+def infer_goal(title: str, kind: str) -> str:
+    if kind == "motion":
+        if "motion" in title.casefold():
+            return f"Draft {title} with case-specific facts, legal grounds, and requested relief."
+        return f"Draft the {title} motion with case-specific facts, legal grounds, and requested relief."
+    if kind == "brief":
+        return f"Draft the {title} filing with case-specific facts, legal grounds, and requested relief."
+    return f"Draft the {title} document with case-specific facts and the requested relief or outcome."
+
+
+def infer_description(title: str) -> str:
+    return f"Maintained Word template for {title}."
+
+
 def ingest_docx(source: Path, prepared_root: Path, snippets_root: Path, *, force=False) -> Path:
     source = source.resolve()
     slug = slugify(source.stem) or "document-template"
@@ -498,12 +512,16 @@ def ingest_docx(source: Path, prepared_root: Path, snippets_root: Path, *, force
         source_path = source.relative_to(prepared_root.parent.resolve()).as_posix()
     except ValueError:
         source_path = source.as_posix()
+    kind = infer_kind(source.stem)
     manifest = {
         "schema_version": MANIFEST_VERSION,
         "slug": slug,
         "title": source.stem,
-        "kind": infer_kind(source.stem),
-        "description": "Prepared from the maintained original Word template.",
+        "kind": kind,
+        "description": infer_description(source.stem),
+        "goal": infer_goal(source.stem, kind),
+        "negative_goal": "",
+        "aliases": [],
         "jurisdiction": "Ohio",
         "source_label": "Content library",
         "active": True,

@@ -418,6 +418,47 @@ class DraftRenderingTests(TestCase):
         self.assertEqual(session.draft_plan["document_items"][0]["template_slug"], "known-template-no-goal")
         self.assertEqual(session.draft_plan["document_items"][0]["drafting_instructions"], "Make the known template filing.")
 
+    def test_generic_template_description_is_not_used_as_drafting_instructions(self):
+        matter = Matter.objects.create(
+            external_id="CASE-GENERIC-NOTE",
+            client_name="Jane Tenant",
+            matter_type="Eviction",
+            jurisdiction="Housing Court",
+            summary="Tenant needs a prepared filing.",
+        )
+        template = DocumentTemplate.objects.create(
+            slug="legacy-content-library-template",
+            title="Legacy Motion",
+            kind="motion",
+            description="Prepared from the maintained original Word template.",
+            goal="",
+        )
+        TemplateBlock.objects.create(
+            template=template,
+            key="body",
+            label="Body",
+            block_type="argument",
+            order=10,
+            body="Legacy motion body.",
+        )
+        session = DraftingSession.objects.create(
+            mode="draft_from_template",
+            matter=matter,
+            selected_template_ids=[template.id],
+            goal="",
+            instructions="",
+        )
+
+        session = create_or_update_plan(session, {"selectedTemplateIds": [template.id]})
+
+        item = session.draft_plan["document_items"][0]
+        self.assertEqual(item["goal"], "Draft Legacy Motion.")
+        self.assertEqual(
+            item["drafting_instructions"],
+            "Use the selected Legacy Motion template structure and draft the active blocks with case-specific facts, requested relief, and reviewer-approved sources.",
+        )
+        self.assertNotIn("maintained original Word template", item["drafting_instructions"])
+
     def test_export_docx_removes_xml_forbidden_characters(self):
         draft = SimpleNamespace(
             id=44,
