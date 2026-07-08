@@ -71,7 +71,9 @@ def get_case_documents(matter, *, client=None, include_remote=True):
     documents = []
 
     note_texts = _note_items(raw_payload)
-    if not note_texts and matter.summary:
+    normalized_notes = {re.sub(r"\s+", " ", note["text"]).strip().casefold() for note in note_texts}
+    normalized_summary = re.sub(r"\s+", " ", matter.summary or "").strip().casefold()
+    if normalized_summary and normalized_summary not in normalized_notes:
         note_texts.append({"title": "Case summary", "text": matter.summary})
     for index, note in enumerate(note_texts, start=1):
         text = note["text"]

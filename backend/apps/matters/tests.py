@@ -176,6 +176,7 @@ class CaseConnectionTests(TestCase):
             matter_type="Eviction",
             jurisdiction="Housing Court",
             source_system="Manual",
+            summary="Case summary adds that the hearing is next week.",
             raw_payload={
                 "created_by_user_id": self.user.id,
                 "case_notes": [
@@ -190,6 +191,7 @@ class CaseConnectionTests(TestCase):
         self.assertEqual(list_response.status_code, 200)
         documents = list_response.json()["documents"]
         self.assertEqual(documents[0]["kind"], "case_note")
+        self.assertEqual(documents[-1]["title"], "Case summary")
 
         context_response = self.client.post(
             f"/api/cases/{matter.external_id}/documents/{documents[0]['id']}/context/",

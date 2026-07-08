@@ -6,6 +6,8 @@ from html import escape
 
 from django.http import HttpResponse
 from docx import Document
+from docx.enum.table import WD_TABLE_ALIGNMENT
+from docx.enum.text import WD_ALIGN_PARAGRAPH
 from docx.oxml.ns import qn
 from docxcompose.composer import Composer
 from docxtpl import DocxTemplate
@@ -15,6 +17,9 @@ from apps.templates_app.word_templates import (
     has_word_template_assets,
     style_template_path,
 )
+from apps.templates_app.content_library import full_template_path
+from apps.templates_app.template_variables import normalize_docxtpl_blocks, template_field_values
+from apps.templates_app.jinja_filters import listify, template_environment
 
 
 CONTENT_TYPES = """<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
@@ -226,6 +231,31 @@ def _docx_render_context(draft, section):
     author = _author_context(session.author_profile)
     matter_data = _matter_context(matter)
     sections = draft.sections or []
+    block_context = {}
+    if session.template:
+        block_context = {
+            block.key: {"body": "", "paragraphs": [], "items": []}
+            for block in session.template.blocks.all()
+        }
+    for draft_section in sections:
+        parts = [
+            part.strip()
+            for part in re.split(r"\n{2,}|\n", draft_section.get("body", ""))
+            if part.strip()
+        ]
+        items = [re.sub(r"^\d+[.)]\s*", "", part) for part in parts]
+        block_context[draft_section.get("key", "")] = {
+            "body": draft_section.get("body", ""),
+            "paragraphs": parts,
+            "items": items,
+        }
+    fields = template_field_values(session.template_data)
+    client = {
+        "name": matter_data["client_name"],
+        "pronouns": (session.template_data or {}).get("client_pronouns", ""),
+        "title": (session.template_data or {}).get("client_title", ""),
+    }
+    household = listify((session.template_data or {}).get("other_occupants", []))
     context = {
         "document": {
             "title": draft.title,
@@ -234,15 +264,19 @@ def _docx_render_context(draft, section):
         },
         "section": section,
         "matter": matter_data,
+        "client": client,
+        "household": household,
         "author": author,
         "selected_facts": _selected_facts(session),
         "selected_curated_facts": session.selected_curated_facts,
         "selected_sources": session.selected_source_results,
         "instructions": session.instructions,
-        "court": matter_data["jurisdiction"],
-        "plaintiff": "Plaintiff",
+        "fields": fields,
+        "blocks": block_context,
+        "court": matter_data["jurisdiction"] or getattr(session.template, "jurisdiction", ""),
+        "plaintiff": fields["plaintiff_name"],
         "defendant": matter_data["client_name"],
-        "case_number": matter_data["external_id"],
+        "case_number": (session.template_data or {}).get("court_case_number") or "[Court Case Number]",
         "advocate_name": author["display_name"],
         "advocate_signoff": author["signoff"],
         "advocate_salutation": author["salutation"],
@@ -257,8 +291,12 @@ def _docx_render_context(draft, section):
 
 
 def _render_docx_template(template_path, context, output_path):
-    doc = DocxTemplate(template_path)
-    doc.render(context)
+    class NormalizingDocxTemplate(DocxTemplate):
+        def patch_xml(self, source_xml):
+            return normalize_docxtpl_blocks(super().patch_xml(source_xml))
+
+    doc = NormalizingDocxTemplate(template_path)
+    doc.render(context, jinja_env=template_environment())
     doc.save(output_path)
 
 
@@ -271,6 +309,41 @@ def _write_text_section_doc(section, output_path):
         if paragraph.strip():
             doc.add_paragraph(paragraph.strip())
     doc.save(output_path)
+
+
+def _remove_editorial_caption_label(path, block, context=None):
+    """Replace an ingestion-only caption marker with a minimal filing caption."""
+    if not block or not block.label.casefold().startswith("case caption"):
+        return
+    document = Document(path)
+    first = next((paragraph for paragraph in document.paragraphs if paragraph.text.strip()), None)
+    first_text = re.sub(r"\s+", " ", first.text).strip().casefold() if first else ""
+    if not first or not first_text.startswith("case caption"):
+        return
+    context = context or {}
+    fields = context.get("fields") or template_field_values()
+    court = str(context.get("court") or "").strip()
+    if "court" not in court.casefold():
+        rendered_text = " ".join(paragraph.text for paragraph in document.paragraphs)
+        inferred = re.search(r"\b([A-Z][A-Za-z]+ Municipal (?:Housing )?Court)\b", rendered_text)
+        court = inferred.group(1) if inferred else "[Court]"
+    plaintiff = str(context.get("plaintiff") or fields["plaintiff_name"])
+    defendant = str(context.get("defendant") or "[Defendant Name]")
+    case_number = str(context.get("case_number") or "[Case Number]")
+    title = re.sub(r"^case caption\s*[-–—:]\s*", "", block.label, flags=re.IGNORECASE)
+
+    heading = document.add_paragraph()
+    heading.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    heading_run = heading.add_run(court.upper())
+    heading_run.bold = True
+    table = document.add_table(rows=1, cols=2)
+    table.alignment = WD_TABLE_ALIGNMENT.CENTER
+    table.cell(0, 0).text = f"{plaintiff}\nPlaintiff / Landlord\n\nv.\n\n{defendant}\nDefendant / Tenant"
+    table.cell(0, 1).text = f"Case No. {case_number}\n\n{title}"
+    first._element.addprevious(heading._element)
+    first._element.addprevious(table._element)
+    first._element.getparent().remove(first._element)
+    document.save(path)
 
 
 def _clear_document_body(document):
@@ -300,7 +373,9 @@ def _composed_docx(draft):
             elif block:
                 selected_block_template_path = block_template_path(template, block)
             if selected_block_template_path:
-                _render_docx_template(selected_block_template_path, _docx_render_context(draft, section), section_path)
+                context = _docx_render_context(draft, section)
+                _render_docx_template(selected_block_template_path, context, section_path)
+                _remove_editorial_caption_label(section_path, block, context)
             else:
                 _write_text_section_doc(section, section_path)
             section_paths.append(section_path)
@@ -321,7 +396,25 @@ def _composed_docx(draft):
     return output.getvalue()
 
 
+def _full_template_docx(draft, template_path):
+    output = io.BytesIO()
+    with tempfile.TemporaryDirectory() as tmpdir:
+        rendered_path = f"{tmpdir}/rendered.docx"
+        _render_docx_template(template_path, _docx_render_context(draft, {}), rendered_path)
+        with open(rendered_path, "rb") as stream:
+            output.write(stream.read())
+    return output.getvalue()
+
+
 def export_docx(draft):
+    selected_full_template = full_template_path(_draft_template(draft))
+    if selected_full_template:
+        response = HttpResponse(
+            _full_template_docx(draft, selected_full_template),
+            content_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        )
+        response["Content-Disposition"] = f'attachment; filename="draft-{draft.id}.docx"'
+        return response
     if _has_word_template_assets(draft):
         response = HttpResponse(
             _composed_docx(draft),

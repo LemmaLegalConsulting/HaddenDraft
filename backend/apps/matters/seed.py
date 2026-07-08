@@ -29,6 +29,15 @@ SAMPLE_MATTERS = [
                     "text": "February 14: Tenant texted property manager that water was coming through the bedroom ceiling. March 3: Tenant sent another message with a photo of mold around the leak. April 9: Tenant asked for an update and said her child was coughing at night.",
                 },
             ],
+            "incomes": [
+                {
+                    "income_type": "SSI",
+                    "amount": 914,
+                    "frequency": "Monthly",
+                    "family_member": "Elena M.",
+                    "relation": "Self"
+                }
+            ],
         },
     },
     {
@@ -39,6 +48,24 @@ SAMPLE_MATTERS = [
         "posture": "Pre-filing review",
         "risk": "Medium urgency",
         "summary": "Unresolved leaks, mold concerns, and repeated written repair requests.",
+        "raw_payload": {
+            "incomes": [
+                {
+                    "income_type": "Wages - Part Time",
+                    "amount": 1200,
+                    "frequency": "Monthly",
+                    "family_member": "Marcus T.",
+                    "relation": "Self"
+                },
+                {
+                    "income_type": "SNAP",
+                    "amount": 300,
+                    "frequency": "Monthly",
+                    "family_member": "Marcus T.",
+                    "relation": "Self"
+                }
+            ]
+        },
     },
     {
         "external_id": "LS-24041",
@@ -48,6 +75,24 @@ SAMPLE_MATTERS = [
         "posture": "Hearing scheduled",
         "risk": "High urgency",
         "summary": "Termination notice tied to alleged lease violations; hearing packet needed.",
+        "raw_payload": {
+            "incomes": [
+                {
+                    "income_type": "Social Security Disability",
+                    "amount": 1050,
+                    "frequency": "Monthly",
+                    "family_member": "Nadia S.",
+                    "relation": "Self"
+                },
+                {
+                    "income_type": "Child Support",
+                    "amount": 400,
+                    "frequency": "Monthly",
+                    "family_member": "Child",
+                    "relation": "Daughter"
+                }
+            ]
+        },
     },
 ]
 
