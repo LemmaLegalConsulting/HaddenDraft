@@ -1,19 +1,18 @@
 # Maintained legal content library
 
-This directory is the source-controlled seed library for reusable legal-content
-assets. It is deliberately separate from Django application packages: the same
-layout can later be supplied by a SharePoint folder or another content provider
-without changing the drafting, triage, or retrieval workflows.
+This directory is the public, source-controlled seed library for reusable
+legal-content assets. Organization-specific templates are not stored here.
+They use the same logical layout under `ORGANIZATION_CONTENT_LIBRARY_DIR`
+(default: the git-ignored `private-content/` directory). Keeping both providers
+behind the same layout allows a future SharePoint folder to replace the private
+local provider without changing drafting, triage, or retrieval workflows.
 
 ## Layout
 
 ```text
-content/
-├── original_templates/      # received source files; never used directly at runtime
-├── document-templates/      # prepared DOCX/Jinja packages and manifests
+content/                       # public, safe-to-commit defaults
 ├── docx-snippets/
-│   ├── _shared/blocks/       # default snippets for every template pathway
-│   └── <template-slug>/blocks/ # pathway-specific overrides
+│   └── _shared/blocks/       # generic, non-confidential defaults only
 ├── treatises/
 │   ├── source/               # authoritative incoming PDFs; do not edit PDFs here
 │   └── markdown/             # deterministic Markdown derivatives, organized by treatise slug
@@ -24,6 +23,13 @@ content/
 │   └── ohio-revised-code/    # configured official-code scope and generated section index
 ├── research-sources/         # reviewable Auto-research routing policy
 └── triage-rubrics/           # YAML files seeded into TriageRubric records
+
+private-content/               # organization provider; ignored by git
+├── original_templates/         # received private source DOCX files
+├── document-templates/         # generated DOCX/Jinja packages and manifests
+├── template-overrides/         # private YAML corrections/field schemas by template slug
+└── docx-snippets/
+    └── <template-slug>/blocks/ # organization/pathway-specific blocks
 ```
 
 Use lowercase kebab-case directory and file names. Keep each source file small,
@@ -33,35 +39,51 @@ repository.
 
 ## DOCX snippets
 
-`docx-snippets/_shared/blocks/` holds defaults such as `caption.docx` and
-`signature.docx`. A template pathway can override a shared block by placing the
-same file name in `docx-snippets/<template-slug>/blocks/`.
+Public `docx-snippets/_shared/blocks/` may hold generic defaults such as a
+non-organization-specific caption or signature. Organization and pathway
+overrides belong under
+`ORGANIZATION_CONTENT_LIBRARY_DIR/docx-snippets/<template-slug>/blocks/`.
 
-The current resolver checks, in order: an admin-uploaded block, the
-pathway-specific repository block, the shared repository block, then the block
-text stored in the database. Existing package-local Word files remain a legacy
-fallback while assets are migrated. New or changed reusable assets belong here.
+The current resolver checks, in order: an admin-uploaded block, the private
+organization provider, the public shared provider, then the block text stored
+in the database. Existing package-local Word files remain a legacy fallback
+while assets are migrated. Never commit organization-specific DOCX files.
 
 ## Document templates
 
-`original_templates/` retains received source documents. Runtime drafting uses
-only prepared packages under `document-templates/<template-slug>/`. Each package
-contains a formatting-preserving `template.docx` and a `manifest.yaml` that
-defines its Lexical blocks, expected fields/lists, checksums, and provenance.
-Generated pathway blocks are written to `docx-snippets/<template-slug>/blocks/`.
+The private provider's `original_templates/` retains received source documents.
+Runtime drafting uses private prepared packages under
+`document-templates/<template-slug>/` when available, with private
+`docx-snippets/<template-slug>/blocks/` as the durable fallback. Each prepared package contains a formatting-preserving
+`template.docx` and `manifest.yaml` defining its blocks, fields, checksums, and
+provenance.
 
 Run `.venv/bin/python backend/manage.py ingest_document_templates` after adding
-or changing a source DOCX. The converter modifies OOXML in place instead of
-round-tripping through text, HTML, or Markdown. It therefore retains headers,
-footers, tables, numbering, styles, section settings, and embedded media. The
-command ignores non-DOCX sources; spreadsheets and reference PDFs need their
-own format-specific pipelines.
+or changing a source DOCX. The converter modifies OOXML in place, preserving
+headers, footers, tables, numbering, styles, sections, and embedded media.
+Correct source documents or converter logic and regenerate derived packages;
+do not hand-edit generated manifests or block files.
 
-Prepared manifests are indexed into the database after migrations, on the first
-request after server start, and whenever the template API is read. File-managed
-records are refreshed from their manifest. A database/admin-managed record with
-the same slug is preserved and reported as a conflict. Removing a prepared
-package deactivates its file-managed database row rather than deleting history.
+Prepared packages are read from `ORGANIZATION_CONTENT_LIBRARY_DIR` before the
+public `CONTENT_LIBRARY_DIR`. The ingestion command writes only to the private
+organization provider. If a provider is unavailable, existing indexed records
+remain active rather than treating provider absence as deletion.
+
+Private `template-overrides/<template-slug>.yaml` files may correct template
+metadata or blocks when an organization needs to maintain fixes separately
+from the public application. Overrides use `schema_version: 1`, a `slug`, an
+optional `template` mapping, and a `blocks` list keyed by existing block key.
+They are applied after prepared packages and database seeds. A block override
+may use `create: true` for a new block or `delete: true` for an obsolete
+ingestion artifact. Keep these files in the private provider, not this repo.
+
+Maintained DOCX and block-body Jinja supports `comma_and_list`, `as_noun`,
+`does_verb`, `did_verb`, `pronoun_subjective`, `pronoun_objective`,
+`pronoun_possessive`, `pronoun_reflexive`, `possessive`, and `answered`.
+Pronoun filters read an explicit `client_pronouns` value such as
+`they/them/theirs`; they do not infer pronouns from names. Template metadata can
+declare `fieldSchema` entries of type `pronouns`, `list`, or `select` so the UI
+collects structured values.
 
 ## Treatises
 
@@ -142,11 +164,13 @@ picker and use logical IDs rather than file paths or connector internals.
 
 ## Future SharePoint provider
 
-Local files are the default provider configured by `CONTENT_LIBRARY_DIR`. A
+Public local files are configured by `CONTENT_LIBRARY_DIR`; private organization
+files are configured by `ORGANIZATION_CONTENT_LIBRARY_DIR`. A
 future admin-selected SharePoint provider should expose this exact logical layout
 and read files into a staging area before validation/processing. It must retain
 the SharePoint item ID, ETag, modified time, source path, checksum, and import
 time with every derived database or retrieval record. The provider must not
-replace local repository defaults merely because SharePoint is configured;
-selection should be explicit at the organization/package level, with local
-files remaining the safe development default.
+replace public repository defaults merely because SharePoint is configured;
+selection should be explicit at the organization/package level. Remote private
+content must retain the same provenance and must never be copied into a tracked
+repository path.

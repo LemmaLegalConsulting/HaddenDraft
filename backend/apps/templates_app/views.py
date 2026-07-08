@@ -4,7 +4,7 @@ from apps.core.http import api_login_required, json_body, method_not_allowed
 from apps.templates_app.models import DocumentTemplate
 from apps.templates_app.serializers import template_to_dict
 from apps.templates_app.services import build_template_from_example
-from apps.templates_app.content_library import sync_prepared_templates
+from apps.templates_app.content_library import sync_prepared_templates, sync_template_overrides
 
 
 @api_login_required
@@ -12,6 +12,7 @@ def templates(request):
     if request.method != "GET":
         return method_not_allowed(["GET"])
     sync_prepared_templates()
+    sync_template_overrides()
     queryset = DocumentTemplate.objects.filter(is_active=True).prefetch_related("blocks")
     return JsonResponse({"templates": [template_to_dict(template, include_blocks=True) for template in queryset]})
 

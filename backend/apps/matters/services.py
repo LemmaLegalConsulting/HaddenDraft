@@ -311,7 +311,7 @@ def create_manual_matter_for_user(user, *, client_name="", matter_type="", juris
     external_id = f"MANUAL-{user.id}-{uuid4().hex[:12]}"
     return Matter.objects.create(
         external_id=external_id,
-        client_name=(client_name or "").strip() or "New local case",
+        client_name=(client_name or "").strip() or "New quick case",
         matter_type=(matter_type or "").strip() or "Housing matter",
         jurisdiction=(jurisdiction or "").strip(),
         posture=(posture or "").strip(),
@@ -323,6 +323,55 @@ def create_manual_matter_for_user(user, *, client_name="", matter_type="", juris
             "manual_entry": True,
         },
     )
+
+
+def update_manual_matter_for_user(matter, user, payload):
+    raw_payload = matter.raw_payload or {}
+    if matter.source_system != "Manual" or raw_payload.get("created_by_user_id") != user.id:
+        raise PermissionError("Only the creator can edit a quick case.")
+    field_map = {
+        "clientName": "client_name",
+        "client_name": "client_name",
+        "matterType": "matter_type",
+        "matter_type": "matter_type",
+        "jurisdiction": "jurisdiction",
+        "posture": "posture",
+        "summary": "summary",
+        "notes": "summary",
+    }
+    changed = []
+    for api_name, model_name in field_map.items():
+        if api_name in payload:
+            setattr(matter, model_name, (payload.get(api_name) or "").strip())
+            if model_name not in changed:
+                changed.append(model_name)
+    if changed:
+        matter.raw_payload = {**raw_payload, "manual_entry": True}
+        matter.save(update_fields=[*changed, "raw_payload", "updated_at"])
+    return matter
+
+
+def create_legalserver_draft_intake_from_manual_matter(matter, user):
+    raw_payload = matter.raw_payload or {}
+    if matter.source_system != "Manual" or raw_payload.get("created_by_user_id") != user.id:
+        raise PermissionError("Only the creator can export a quick case intake preview.")
+    payload = {
+        "client_name": matter.client_name,
+        "matter_type": matter.matter_type,
+        "jurisdiction": matter.jurisdiction,
+        "posture": matter.posture,
+        "summary": matter.summary,
+        "source": {
+            "system": "Manual",
+            "matter_id": matter.external_id,
+            "created_by_user_id": user.id,
+        },
+    }
+    return {
+        "posted": False,
+        "reason": "LegalServer draft-intake posting is not configured.",
+        "payload": payload,
+    }
 
 
 def legalserver_account_status(user, *, client=None):

@@ -176,6 +176,7 @@ class CaseConnectionTests(TestCase):
             matter_type="Eviction",
             jurisdiction="Housing Court",
             source_system="Manual",
+            summary="Case summary adds that the hearing is next week.",
             raw_payload={
                 "created_by_user_id": self.user.id,
                 "case_notes": [
@@ -190,6 +191,7 @@ class CaseConnectionTests(TestCase):
         self.assertEqual(list_response.status_code, 200)
         documents = list_response.json()["documents"]
         self.assertEqual(documents[0]["kind"], "case_note")
+        self.assertEqual(documents[-1]["title"], "Case summary")
 
         context_response = self.client.post(
             f"/api/cases/{matter.external_id}/documents/{documents[0]['id']}/context/",
@@ -455,6 +457,118 @@ class CaseConnectionTests(TestCase):
 
         self.assertEqual(detail_response.status_code, 200)
         self.assertEqual(len(detail_response.json()["case"]["facts"]), 3)
+
+    def test_user_can_edit_own_manual_case_and_preview_legalserver_intake(self):
+        matter = Matter.objects.create(
+            external_id="MANUAL-EDIT-1",
+            client_name="Old Client",
+            matter_type="Old type",
+            jurisdiction="Old court",
+            posture="Old posture",
+            summary="Old summary",
+            source_system="Manual",
+            raw_payload={"created_by_user_id": self.user.id},
+        )
+
+        response = self.client.patch(
+            f"/api/cases/{matter.external_id}/",
+            data=json.dumps(
+                {
+                    "clientName": "Quick Client",
+                    "matterType": "Eviction defense",
+                    "jurisdiction": "Cleveland Housing Court",
+                    "posture": "Pre-hearing",
+                    "summary": "Updated quick case notes.",
+                }
+            ),
+            content_type="application/json",
+        )
+
+        self.assertEqual(response.status_code, 200)
+        payload = response.json()["case"]
+        self.assertEqual(payload["client"], "Quick Client")
+        self.assertEqual(payload["summary"], "Updated quick case notes.")
+
+        preview_response = self.client.post(
+            f"/api/cases/{matter.external_id}/",
+            data=json.dumps({"action": "legalserver_draft_intake"}),
+            content_type="application/json",
+        )
+
+        self.assertEqual(preview_response.status_code, 200)
+        preview = preview_response.json()["legalserverDraftIntake"]
+        self.assertFalse(preview["posted"])
+        self.assertEqual(preview["payload"]["client_name"], "Quick Client")
+
+    def test_case_materials_groups_notes_documents_custom_fields_and_facts(self):
+        matter = Matter.objects.create(
+            external_id="MANUAL-MATERIALS-1",
+            client_name="Materials Client",
+            matter_type="Eviction",
+            jurisdiction="Housing Court",
+            summary="",
+            source_system="Manual",
+            raw_payload={
+                "created_by_user_id": self.user.id,
+                "notes": [
+                    {
+                        "id": "note-1",
+                        "subject": "Documents Received",
+                        "body": "Documents received via webhook.",
+                        "note_has_document_attached": True,
+                        "attachments": [
+                            {"id": "doc-1", "filename": "Rent Ledger.pdf", "download_url": "https://example.test/ledger.pdf"}
+                        ],
+                    }
+                ],
+                "documents": [{"id": "doc-2", "filename": "Lease.pdf", "body": "Lease text"}],
+                "custom_fields": {
+                    "case_narrative": "Client reports a long timeline about rent, notice, and repairs.",
+                    "internal_code": "ABC",
+                },
+            },
+        )
+        MatterFact.objects.create(
+            matter=matter,
+            slug="selected-fact",
+            title="Selected fact",
+            text="Client paid rent.",
+            source_label="Case note",
+        )
+
+        response = self.client.get(f"/api/cases/{matter.external_id}/materials/")
+
+        self.assertEqual(response.status_code, 200)
+        payload = response.json()
+        self.assertEqual(payload["summary"], {"noteCount": 1, "documentCount": 1, "customFieldCount": 2, "draftingFactCount": 1})
+        self.assertTrue(payload["notes"][0]["isWebhookDocumentNotice"])
+        self.assertEqual(payload["notes"][0]["attachedDocuments"][0]["filename"], "Rent Ledger.pdf")
+        self.assertEqual(payload["customFields"][0]["key"], "case_narrative")
+        self.assertEqual(payload["customFields"][0]["confidence"], "likely_useful")
+
+    def test_custom_field_fetch_caches_normalized_fields(self):
+        matter = Matter.objects.create(
+            external_id="MANUAL-FIELDS-1",
+            client_name="Field Client",
+            matter_type="Eviction",
+            jurisdiction="Housing Court",
+            source_system="Manual",
+            raw_payload={
+                "created_by_user_id": self.user.id,
+                "custom_fields": {"housing_conditions_summary": "Mold and leaks in the apartment."},
+            },
+        )
+
+        response = self.client.post(
+            f"/api/cases/{matter.external_id}/custom-fields/fetch/",
+            data=json.dumps({"fieldKeys": ["housing_conditions_summary"], "reason": "Need conditions details."}),
+            content_type="application/json",
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["fields"][0]["key"], "housing_conditions_summary")
+        matter.refresh_from_db()
+        self.assertIn("custom_fields_normalized", matter.raw_payload)
 
     def test_cannot_create_empty_manual_case(self):
         response = self.client.post(

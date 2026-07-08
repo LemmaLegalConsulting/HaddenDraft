@@ -7,6 +7,14 @@ generated_at: '2026-06-26T13:58:22+00:00'
 generator: scripts/chunk_legal_sources.py
 pdf_pages: 794
 chunk_count: 569
+retrieval_hints:
+- subsidized housing
+- voucher
+- project-based section 8
+- tenant rent
+- interim recertification
+- termination of assistance
+- HUD 4350.3
 chunks:
 - id: 0001-1-1-purpose-of-this-handbook-01
   file: chunks/0001-1-1-purpose-of-this-handbook-01.md

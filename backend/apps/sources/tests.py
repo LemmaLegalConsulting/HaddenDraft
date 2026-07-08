@@ -346,6 +346,41 @@ class ContentLibraryTreatiseConnectorTests(TestCase):
         self.assertEqual(results[0].url, "https://codes.ohio.gov/ohio-revised-code/section-5321.04")
         self.assertEqual(results[0].metadata["jurisdiction"], "Ohio")
 
+    @override_settings(AI_DRAFTING_ENABLED=False)
+    def test_retrieval_hints_can_rank_hud_content_without_literal_hud_body_text(self):
+        with tempfile.TemporaryDirectory() as directory:
+            library = Path(directory)
+            version = library / "treatises" / "markdown" / "hud-4350-3-rev-1" / "2026-01"
+            chunks = version / "chunks"
+            chunks.mkdir(parents=True)
+            (chunks / "0001-rent.md").write_text(
+                "# Tenant rent\n\n## Source text\n\n"
+                "Owners must process household income changes and tenant rent adjustments.\n",
+                encoding="utf-8",
+            )
+            (version / "manifest.yaml").write_text(
+                "document_slug: hud-4350-3-rev-1\n"
+                "document_title: HUD Handbook 4350.3\n"
+                "retrieval_hints:\n"
+                "- subsidized housing\n"
+                "- voucher\n"
+                "- tenant rent\n"
+                "- interim recertification\n"
+                "chunks:\n"
+                "- id: 0001-rent\n"
+                "  file: chunks/0001-rent.md\n"
+                "  heading: Tenant rent changes\n"
+                "  path: [Chapter 7, Tenant rent]\n"
+                "  pages: [10]\n"
+                "  content_kind: substantive-section\n",
+                encoding="utf-8",
+            )
+            with override_settings(CONTENT_LIBRARY_DIR=library):
+                results = ContentLibraryTreatiseConnector().search("voucher recertification", source_ids=["hud-handbook"])
+
+        self.assertEqual(len(results), 1)
+        self.assertEqual(results[0].metadata["retrievalHints"], ["subsidized housing", "voucher", "tenant rent", "interim recertification"])
+
 
 class UserResourceViewTests(TestCase):
     def setUp(self):
@@ -475,7 +510,13 @@ class AutomaticSourceSelectionTests(TestCase):
         selection = automatic_source_selection("What HUD voucher termination rules apply?")
 
         self.assertEqual(selection["source_ids"], ["hud-handbook"])
-        self.assertEqual(selection["annotations"][0]["reason"], "The question concerns federally assisted housing or a HUD program.")
+        self.assertEqual(selection["annotations"][0]["reason"], "The question concerns federally assisted housing or HUD Handbook 4350.3.")
+
+    def test_hud_source_auto_selects_expanded_terms(self):
+        for query in ["subsidized rent", "tenant rent calculation", "interim recertification", "termination of assistance"]:
+            with self.subTest(query=query):
+                selection = automatic_source_selection(query)
+                self.assertEqual(selection["source_ids"], ["hud-handbook"])
 
     def test_public_housing_question_routes_to_green_book(self):
         selection = automatic_source_selection("What rules govern a public housing authority homeownership program?")

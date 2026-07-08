@@ -62,7 +62,12 @@ desktop.ini
 brainstorming/
 clickable_prototype.js
 
+# Private / generated legal content
+# Organization-specific templates must never be committed to this public repo.
+# private-content/ (now a submodule)
 content/original_templates/
 content/document-templates/
-content/treatises/
+content/docx-snippets/*/
+!content/docx-snippets/_shared/
+# content/treatises/ (now a submodule)
 ssh/

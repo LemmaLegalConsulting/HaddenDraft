@@ -142,6 +142,8 @@ export function CaseChat({ matter, onAction }) {
                       <button key={action.id} className="action-card" type="button" onClick={() => onAction?.(action)}>
                         <strong>{action.title}</strong>
                         <span>{action.summary}</span>
+                        {action.effect && <small>{action.effect}</small>}
+                        {action.destination && <small>Goes to: {action.destination}</small>}
                       </button>
                     ))}
                   </div>

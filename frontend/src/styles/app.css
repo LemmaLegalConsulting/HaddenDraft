@@ -142,6 +142,8 @@ button:disabled {
 .mode-list button {
   background: transparent;
   color: #dce6eb;
+  display: grid;
+  grid-template-columns: 18px minmax(0, 1fr);
   justify-content: flex-start;
   width: 100%;
 }
@@ -151,6 +153,26 @@ button:disabled {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.mode-item-label {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.mode-item-label small {
+  color: #91a2ad;
+  font-size: 12px;
+  font-weight: 500;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mode-list button.active .mode-item-label small {
+  color: #52636e;
 }
 
 .mode-list button.active,
@@ -355,6 +377,45 @@ button:disabled {
 .topbar h2 {
   font-size: 22px;
   overflow-wrap: anywhere;
+}
+
+.topbar-case {
+  min-width: 0;
+}
+
+.topbar-case-heading {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+  min-width: 0;
+}
+
+.selected-document-pill {
+  align-items: center;
+  background: #e8eef1;
+  border: 1px solid #d5e0e5;
+  border-radius: 999px;
+  color: #26343c;
+  display: inline-flex;
+  font-size: 12px;
+  font-weight: 700;
+  gap: 6px;
+  line-height: 1.2;
+  max-width: min(420px, 100%);
+  min-width: 0;
+  padding: 4px 9px;
+}
+
+.selected-document-pill svg {
+  flex: 0 0 auto;
+}
+
+.selected-document-pill span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .active-case-banner {
@@ -745,6 +806,12 @@ button:disabled {
   grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
 }
 
+.facts-review-stack {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: minmax(0, 1fr);
+}
+
 .curated-facts-panel {
   grid-column: 1 / -1;
 }
@@ -817,6 +884,18 @@ button:disabled {
   gap: 10px;
 }
 
+.selected-support-summary {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+}
+
+.selected-support-summary p {
+  flex: 0 0 100%;
+  margin: 0;
+}
+
 .document-card {
   background: #f7fafb;
   border: 1px solid #dbe4e8;
@@ -828,6 +907,7 @@ button:disabled {
 
 .document-card-heading,
 .curated-fact,
+.curated-fact-row,
 .chunk-row {
   align-items: flex-start;
   display: flex;
@@ -837,6 +917,7 @@ button:disabled {
 
 .document-card-heading > *,
 .curated-fact > *,
+.curated-fact-row > *,
 .chunk-row > * {
   min-width: 0;
 }
@@ -858,8 +939,19 @@ button:disabled {
 
 .document-snippet,
 .chunk-row p,
-.curated-fact em {
+.curated-fact em,
+.curated-fact-row p {
   margin: 0;
+}
+
+.curated-fact-row {
+  border: 1px solid #dbe4e8;
+  border-radius: 6px;
+  padding: 12px;
+}
+
+.curated-fact-row small {
+  color: #667782;
 }
 
 .document-actions {
@@ -1209,12 +1301,85 @@ button:disabled {
   color: #174d45;
 }
 
+.goal-suggest-actions {
+  margin-bottom: 12px;
+}
+
+.goal-suggest-button {
+  justify-content: flex-start;
+  min-height: 42px;
+  padding: 10px 14px;
+}
+
+.goal-suggestion-list {
+  display: grid;
+  gap: 8px;
+  margin: 0 0 14px;
+}
+
+.goal-suggestion-card {
+  align-items: start;
+  background: #f7fafb;
+  border: 1px solid #dbe4e8;
+  border-radius: 6px;
+  display: grid;
+  gap: 12px;
+  grid-template-columns: minmax(0, 1fr) auto;
+  padding: 10px;
+}
+
+.goal-suggestion-card.selected {
+  background: #d7eee7;
+  border-color: #22645c;
+}
+
+.goal-suggestion-card strong,
+.goal-suggestion-card p,
+.goal-suggestion-card small {
+  overflow-wrap: anywhere;
+}
+
+.goal-suggestion-card p {
+  color: #26343c;
+  margin: 4px 0;
+}
+
+.goal-suggestion-card small {
+  color: #667782;
+  display: block;
+}
+
 .step-actions {
   justify-content: flex-end;
 }
 
 .top-step-actions {
   margin-bottom: 12px;
+}
+
+.question-gate {
+  background: #f7fafb;
+  border: 1px solid #dbe4e8;
+  border-radius: 6px;
+  display: grid;
+  gap: 8px;
+  margin-top: 12px;
+  padding: 10px;
+}
+
+.question-gate.active {
+  background: #fff8e6;
+  border-color: #f2c66d;
+}
+
+.question-gate-summary {
+  color: #6f4b00;
+  display: grid;
+  gap: 3px;
+}
+
+.question-gate-summary span {
+  font-size: 13px;
 }
 
 .editor-actions {
@@ -1899,6 +2064,10 @@ button:disabled {
   width: calc(100vw - 36px);
 }
 
+.fact-add-modal {
+  max-width: 620px;
+}
+
 .profile-modal .panel {
   border: 0;
   padding: 0;
@@ -2144,6 +2313,10 @@ button:disabled {
 
   .mode-list button {
     padding-inline: 9px;
+  }
+
+  .mode-item-label small {
+    display: none;
   }
 
   .stepper {

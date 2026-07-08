@@ -26,6 +26,9 @@ CONCEPT_EXPANSIONS = {
     "disputed": ("nonpayment", "payment", "rent", "deposit"),
     "assistance": ("assisted", "housing", "hud", "subsidy", "voucher", "termination"),
     "rental": ("assisted", "housing", "subsidy", "voucher"),
+    "subsidized": ("hud", "assisted", "section 8", "voucher", "tenant rent"),
+    "voucher": ("hud", "section 8", "assisted housing"),
+    "recertification": ("hud", "tenant rent", "household income"),
 }
 SEMANTIC_GROUPS = {
     "habitability": ("defective", "fit and habitable", "maintain", "repair", "health", "safety"),
@@ -40,7 +43,6 @@ RAG_SOURCE_DOCUMENTS = {
     "ohio-statutes": {"ohio-revised-code"},
     "treatise": {"ohio-eviction-landlord-tenant-law-6e"},
     "hud-handbook": {"hud-4350-3-rev-1"},
-    "green-book": {"green-book"},
 }
 
 
@@ -143,8 +145,9 @@ class ContentLibraryTreatiseConnector(SourceConnector):
                     "document_slug": manifest.get("document_slug", ""),
                     "document_title": manifest.get("document_title", "Treatise"),
                     "document_version": manifest.get("document_version", ""),
-                    "source_path": item.get("source_path", manifest.get("source_path", "")),
-                    "source_sha256": item.get("source_sha256", manifest.get("source_sha256", "")),
+                    "source_path": item.get("source_path") or manifest.get("source_path", ""),
+                    "source_sha256": item.get("source_sha256") or manifest.get("source_sha256", ""),
+                    "retrieval_hints": manifest.get("retrieval_hints", []) + item.get("retrieval_hints", []),
                     "citation": item.get("citation", ""),
                     "url": item.get("url", ""),
                     "effective_date": item.get("effective_date", ""),
@@ -160,14 +163,16 @@ class ContentLibraryTreatiseConnector(SourceConnector):
             # The surrounding actual section remains searchable.
             return 0
         haystack = "\n".join([chunk["heading"], *chunk["section_path"], _source_text(chunk["path"])]).casefold()
+        retrieval_hints = " ".join(chunk.get("retrieval_hints") or []).casefold()
         original_hits = sum(term in haystack for term in original_terms)
-        if not original_hits:
+        hint_hits = sum(term in retrieval_hints for term in expanded_terms)
+        if not original_hits and not hint_hits:
             return 0
         heading = " ".join([chunk["heading"], *chunk["section_path"]]).casefold()
         expanded_hits = sum(term in haystack for term in expanded_terms)
         # Heading/path hits are stronger than coincidental hits in a case citation.
         semantic_hits = sum(any(phrase in heading for phrase in SEMANTIC_GROUPS[group]) for group in semantic_groups)
-        return original_hits * 12 + expanded_hits * 3 + sum(term in heading for term in expanded_terms) * 6 + semantic_hits * 20
+        return original_hits * 12 + expanded_hits * 3 + sum(term in heading for term in expanded_terms) * 6 + semantic_hits * 20 + hint_hits * 25
 
     @staticmethod
     def _ai_rerank(query, ranked):
@@ -249,6 +254,7 @@ class ContentLibraryTreatiseConnector(SourceConnector):
                     "sourceSha256": chunk["source_sha256"],
                     "jurisdiction": chunk["jurisdiction"],
                     "effectiveDate": chunk["effective_date"],
+                    "retrievalHints": chunk.get("retrieval_hints", []),
                     "retrieval": "hybrid-conceptual-with-metadata-rerank" if settings.AI_DRAFTING_ENABLED else "hybrid-conceptual",
                 },
             ))

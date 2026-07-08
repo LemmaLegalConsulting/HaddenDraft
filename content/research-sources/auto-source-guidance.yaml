@@ -17,9 +17,23 @@ sources:
   hud-handbook:
     kind: rag
     label: HUD Handbook
+    default: false
     when:
-      - terms: [hud, subsid, voucher, section 8]
-        reason: The question concerns federally assisted housing or a HUD program.
+      - terms:
+          - hud
+          - subsid
+          - subsidy
+          - subsidized
+          - voucher
+          - section 8
+          - project-based
+          - tenant rent
+          - recertification
+          - interim recertification
+          - termination of assistance
+          - assisted housing
+          - "4350.3"
+        reason: The question concerns federally assisted housing or HUD Handbook 4350.3.
   green-book:
     kind: rag
     label: "HUD Housing Programs: Tenants’ Rights (Green Book)"

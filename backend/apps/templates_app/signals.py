@@ -6,7 +6,7 @@ from django.db import OperationalError, ProgrammingError
 from django.db.models.signals import post_migrate
 from django.dispatch import receiver
 
-from apps.templates_app.content_library import sync_prepared_templates
+from apps.templates_app.content_library import sync_prepared_templates, sync_template_overrides
 
 
 logger = logging.getLogger(__name__)
@@ -23,6 +23,7 @@ def _sync_once():
             return
         try:
             sync_prepared_templates()
+            sync_template_overrides()
         except (OperationalError, ProgrammingError):
             # The first process import can occur before migrations. post_migrate
             # or the first request after migration will retry.

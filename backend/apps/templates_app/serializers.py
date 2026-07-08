@@ -1,4 +1,16 @@
-from apps.templates_app.template_variables import block_variable_metadata, template_variable_metadata
+from apps.templates_app.template_variables import LEGACY_LITERAL_FIELDS, block_variable_metadata, template_variable_metadata
+
+
+def _public_template_metadata(template):
+    metadata = dict(template.metadata or {})
+    fields = metadata.get("fields")
+    if isinstance(fields, list):
+        metadata["fields"] = [
+            path
+            for path in fields
+            if str(path).removeprefix("fields.") not in LEGACY_LITERAL_FIELDS
+        ]
+    return metadata
 
 
 def block_to_dict(block):
@@ -29,9 +41,12 @@ def template_to_dict(template, include_blocks=False):
         "title": template.title,
         "kind": template.kind,
         "description": template.description,
+        "goal": template.goal,
+        "negativeGoal": template.negative_goal,
+        "aliases": template.aliases or [],
         "jurisdiction": template.jurisdiction,
         "sourceLabel": template.source_label,
-        "metadata": template.metadata,
+        "metadata": _public_template_metadata(template),
         "sourceKind": template.source_kind,
         "contentPath": template.content_path,
         "isActive": template.is_active,

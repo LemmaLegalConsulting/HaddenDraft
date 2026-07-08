@@ -3,8 +3,23 @@ from django.http import JsonResponse
 from apps.core.http import api_login_required, json_body, method_not_allowed
 from apps.drafting.models import DraftDocument, DraftingSession
 from apps.drafting.serializers import draft_to_dict, session_to_dict
-from apps.drafting.services import advance, create_draft, initialize_session, regenerate_draft_block
+from apps.drafting.services import (
+    advance,
+    apply_plan_edits,
+    create_draft,
+    create_drafts_from_plan,
+    create_or_update_plan,
+    initialize_session,
+    unanswered_missing_information,
+    outline_for_session,
+    recommend_goal_candidates,
+    recommend_session_fact_ids,
+    recommend_support_candidates,
+    regenerate_draft_block,
+)
 from apps.exporting.services import export_docx
+from apps.matters.models import MatterFact
+from apps.matters.serializers import fact_to_dict, matter_to_dict
 from apps.matters.services import accessible_matters_for_user, matter_for_user, user_can_access_matter
 from apps.templates_app.models import DocumentTemplate
 from apps.validation.services import validate_document as run_validation
@@ -25,6 +40,13 @@ def _draft_or_404(user, draft_id):
     if not draft or not user_can_access_matter(user, draft.session.matter):
         return None, JsonResponse({"error": "Draft not found"}, status=404)
     return draft, None
+
+
+def _advance_or_400(session, payload):
+    try:
+        return advance(session, payload), None
+    except ValueError as exc:
+        return None, JsonResponse({"error": str(exc)}, status=400)
 
 
 @api_login_required
@@ -52,6 +74,8 @@ def sessions(request):
         template=template,
         author_profile=body.get("authorProfile", {}),
         template_data=body.get("templateData", {}),
+        goal=body.get("goal", ""),
+        selected_template_ids=body.get("selectedTemplateIds", [body["templateId"]] if body.get("templateId") else []),
         instructions=body.get("instructions", ""),
     )
     initialize_session(session)
@@ -76,9 +100,144 @@ def advance_session(request, session_id):
     session, error = _session_or_404(request.user, session_id)
     if error:
         return error
-    session = advance(session, json_body(request))
+    session, error = _advance_or_400(session, json_body(request))
+    if error:
+        return error
     initialize_session(session)
     return JsonResponse({"session": session_to_dict(session)})
+
+
+@api_login_required
+def recommend_session_facts(request, session_id):
+    if request.method != "POST":
+        return method_not_allowed(["POST"])
+    session, error = _session_or_404(request.user, session_id, with_template=True)
+    if error:
+        return error
+    body = json_body(request)
+    fact_ids = recommend_session_fact_ids(session)
+    facts = MatterFact.objects.filter(id__in=fact_ids).order_by("id")
+    if body.get("apply", True):
+        session.selected_fact_ids = fact_ids
+        session.save(update_fields=["selected_fact_ids", "updated_at"])
+    matter = session.matter.__class__.objects.prefetch_related("facts").get(id=session.matter.id)
+    return JsonResponse(
+        {
+            "factIds": fact_ids,
+            "facts": [fact_to_dict(fact) for fact in facts],
+            "case": matter_to_dict(matter, include_facts=True),
+            "session": session_to_dict(session),
+            "guidance": "Suggested facts are preselected from the template, case facts, notes, and document text. Review them before continuing.",
+        }
+    )
+
+
+@api_login_required
+def recommend_session_goals(request, session_id):
+    if request.method != "POST":
+        return method_not_allowed(["POST"])
+    session, error = _session_or_404(request.user, session_id, with_template=True)
+    if error:
+        return error
+    recommendations = recommend_goal_candidates(session, limit=json_body(request).get("limit", 5))
+    return JsonResponse(
+        {
+            **recommendations,
+            "session": session_to_dict(session),
+        }
+    )
+
+
+@api_login_required
+def recommend_session_support(request, session_id):
+    if request.method != "POST":
+        return method_not_allowed(["POST"])
+    session, error = _session_or_404(request.user, session_id, with_template=True)
+    if error:
+        return error
+    body = json_body(request)
+    recommendations = recommend_support_candidates(session, user=request.user, request=request)
+    selected = [candidate for candidate in recommendations["candidates"] if candidate.get("selectedByDefault")]
+    if body.get("apply", True):
+        session.selected_source_results = selected
+        session.save(update_fields=["selected_source_results", "updated_at"])
+    return JsonResponse(
+        {
+            **recommendations,
+            "selectedResults": selected,
+            "session": session_to_dict(session),
+            "guidance": "Suggested support is ranked from the selected template, blocks, facts, jurisdiction, and instructions. Confirm what the draft may rely on.",
+        }
+    )
+
+
+@api_login_required
+def session_outline(request, session_id):
+    if request.method not in {"GET", "POST"}:
+        return method_not_allowed(["GET", "POST"])
+    session, error = _session_or_404(request.user, session_id, with_template=True)
+    if error:
+        return error
+    if request.method == "POST":
+        body = json_body(request)
+        if "selectedBlockKeys" in body:
+            session.selected_block_keys = body["selectedBlockKeys"]
+        author_profile = {**(session.author_profile or {}), "outlineApproved": True}
+        session.author_profile = author_profile
+        session, error = _advance_or_400(session, {"status": "outline_review"})
+        if error:
+            return error
+    return JsonResponse(
+        {
+            "outline": outline_for_session(session),
+            "session": session_to_dict(session),
+            "guidance": "Approve the section plan before generating prose.",
+        }
+    )
+
+
+@api_login_required
+def draft_plan(request, session_id):
+    if request.method not in {"GET", "POST", "PATCH"}:
+        return method_not_allowed(["GET", "POST", "PATCH"])
+    session, error = _session_or_404(request.user, session_id, with_template=True)
+    if error:
+        return error
+    if request.method == "GET":
+        return JsonResponse({"plan": session.draft_plan, "session": session_to_dict(session)})
+    try:
+        if request.method == "PATCH":
+            session = apply_plan_edits(session, json_body(request))
+        else:
+            session = create_or_update_plan(session, json_body(request))
+    except ValueError as exc:
+        return JsonResponse({"error": str(exc)}, status=400)
+    return JsonResponse({"plan": session.draft_plan, "session": session_to_dict(session)})
+
+
+@api_login_required
+def generate_plan_drafts(request, session_id):
+    if request.method != "POST":
+        return method_not_allowed(["POST"])
+    session, error = _session_or_404(request.user, session_id, with_template=True)
+    if error:
+        return error
+    body = json_body(request)
+    plan = session.draft_plan or {}
+    blocking_missing = unanswered_missing_information(
+        plan,
+        require_all=bool(body.get("requireAllMissingInformation")),
+    )
+    if blocking_missing:
+        return JsonResponse(
+            {
+                "error": "Answer the remaining drafting questions before generating the draft.",
+                "missingInformation": blocking_missing,
+            },
+            status=400,
+        )
+    drafts = create_drafts_from_plan(session)
+    return JsonResponse({"drafts": [draft_to_dict(draft) for draft in drafts]}, status=201)
 
 
 @api_login_required
@@ -129,6 +288,8 @@ def validate_draft(request, draft_id):
         return error
     draft.validation_flags = run_validation(draft)
     draft.save()
+    draft.session.status = "validation"
+    draft.session.save(update_fields=["status", "updated_at"])
     return JsonResponse({"draft": draft_to_dict(draft)})
 
 
@@ -139,4 +300,6 @@ def export_draft(request, draft_id):
     draft, error = _draft_or_404(request.user, draft_id)
     if error:
         return error
+    draft.session.status = "export"
+    draft.session.save(update_fields=["status", "updated_at"])
     return export_docx(draft)

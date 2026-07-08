@@ -8,17 +8,34 @@ def write_block(template, block, *, update_existing=False):
     TemplateBlock.objects.get_or_create(template=template, key=block["key"], defaults=block)
 
 
+def update_template_metadata(template, values, *, update_existing=False):
+    if not update_existing:
+        return
+    changed = []
+    for field, value in values.items():
+        if getattr(template, field) != value:
+            setattr(template, field, value)
+            changed.append(field)
+    if changed:
+        template.save(update_fields=[*changed, "updated_at"])
+
+
 def seed_templates(*, update_existing=False):
+    answer_defaults = {
+        "title": "Answer and Counterclaims",
+        "kind": "answer_counterclaims",
+        "description": "Respond to eviction complaint and preserve defenses or counterclaims.",
+        "goal": "Respond to an eviction complaint and preserve defenses/counterclaims.",
+        "negative_goal": "Do not use when the user only needs a short procedural motion.",
+        "aliases": ["answer eviction", "counterclaims", "respond to complaint", "preserve defenses"],
+        "jurisdiction": "Cleveland Municipal Court - Housing Division",
+        "metadata": {"fit": "Best match", "page_limit": None},
+    }
     answer, _created = DocumentTemplate.objects.get_or_create(
         slug="answer-counterclaims-cleveland",
-        defaults={
-            "title": "Answer and Counterclaims",
-            "kind": "answer_counterclaims",
-            "description": "Respond to eviction complaint and preserve defenses or counterclaims.",
-            "jurisdiction": "Cleveland Municipal Court - Housing Division",
-            "metadata": {"fit": "Best match", "page_limit": None},
-        },
+        defaults=answer_defaults,
     )
+    update_template_metadata(answer, answer_defaults, update_existing=update_existing)
     blocks = [
         {
             "key": "caption",
@@ -85,16 +102,21 @@ def seed_templates(*, update_existing=False):
     for block in blocks:
         write_block(answer, block, update_existing=update_existing)
 
+    motion_defaults = {
+        "title": "Motion for Continuance",
+        "kind": "motion",
+        "description": "Request more time for rental assistance, evidence gathering, or counsel review.",
+        "goal": "Ask the court to postpone or continue a scheduled hearing, deadline, or proceeding.",
+        "negative_goal": "Do not seek dismissal, judgment, or merits resolution unless separately requested.",
+        "aliases": ["continue hearing", "postpone hearing", "more time", "adjournment"],
+        "jurisdiction": "Cleveland Municipal Court - Housing Division",
+        "metadata": {"fit": "Recommended"},
+    }
     motion, _created = DocumentTemplate.objects.get_or_create(
         slug="motion-continuance-cleveland",
-        defaults={
-            "title": "Motion for Continuance",
-            "kind": "motion",
-            "description": "Request more time for rental assistance, evidence gathering, or counsel review.",
-            "jurisdiction": "Cleveland Municipal Court - Housing Division",
-            "metadata": {"fit": "Recommended"},
-        },
+        defaults=motion_defaults,
     )
+    update_template_metadata(motion, motion_defaults, update_existing=update_existing)
     motion_blocks = [
         {
             "key": "motion-body",

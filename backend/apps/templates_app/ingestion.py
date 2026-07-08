@@ -51,9 +51,13 @@ LIST_PROMPT_RE = re.compile(
     r"(?:insert|add|describe|list|synopsis).*(?:fact|event|allegation|question|document|section)|case specific facts",
     re.I,
 )
+PLACEHOLDER_CUE_RE = re.compile(
+    r"address|applicant|application|attorney|case|caption|client|copy|date|deadline|defendant|describe|document|email|filing|hearing|insert|landlord|lease|list|mail|name|notice|occupant|opposing|payment|phone|plaintiff|premises|program|rent|select|signature|subsidy|termination|time|tenancy|voucher",
+    re.I,
+)
+EDITORIAL_BRACKETS = {"her", "his", "or", "s", "section", "x"}
 
 PLACEHOLDER_ALIASES = {
-    "name": "defendant",
     "client name": "defendant",
     "defendant": "defendant",
     "defendant name": "defendant",
@@ -100,7 +104,7 @@ def is_heading(paragraph) -> bool:
     text = " ".join(paragraph.text.split()).strip()
     if not text or len(text) > 120:
         return False
-    if BRACKET_RE.fullmatch(text):
+    if BRACKET_RE.fullmatch(text) or text.strip("[] ").casefold() in PLACEHOLDER_ALIASES:
         return False
     style = (paragraph.style.name if paragraph.style else "").lower()
     normalized = ROMAN_HEADING_RE.sub("", text).strip(" -–—:.").lower()
@@ -166,25 +170,72 @@ def discover_blocks(document) -> list[BlockDefinition]:
         key = base_key if keys[base_key] == 1 else f"{base_key}-{keys[base_key]}"
         block_type = "facts" if start in list_boundaries else classify_block(label)
         sample = "\n".join(paragraph.text for paragraph in paragraphs[start:end])
-        expects_list = block_type == "facts" or bool(LIST_PROMPT_RE.search(sample))
+        expects_list = bool(LIST_PROMPT_RE.search(sample))
         blocks.append(BlockDefinition(key, label, block_type, start, end, start if heading else None, expects_list))
     return blocks
 
 
 def _field_name(label: str, fallback: str) -> str:
     clean = label.strip().strip("*_?.,:;-/ ")
-    return slugify(clean).replace("-", "_") or fallback.replace("-", "_")
+    name = slugify(clean).replace("-", "_") or fallback.replace("-", "_")
+    return f"field_{name}" if name[:1].isdigit() else name
 
 
-def placeholder_expression(label: str, fallback: str) -> str:
+def _looks_like_placeholder(label: str) -> bool:
+    normalized = " ".join(label.split()).strip(" .:_-")
+    lowered = normalized.casefold()
+    if not normalized:
+        return True
+    if lowered in EDITORIAL_BRACKETS or normalized.isdigit() or len(normalized) == 1:
+        return False
+    if normalized.isupper() and len(normalized) <= 80:
+        return True
+    return bool(PLACEHOLDER_CUE_RE.search(normalized))
+
+
+def _context_label(text: str, start: int, fallback: str) -> str:
+    prefix = text[:start].strip()
+    prefix = re.split(r"[.;!?]", prefix)[-1].strip(" :,-–—()")
+    if 1 <= len(prefix) <= 80:
+        return prefix
+    return fallback
+
+
+def placeholder_expression(label: str, fallback: str, *, context: str = "") -> str:
     normalized = " ".join(label.lower().split()).strip(" .:_-")
+    context_normalized = " ".join(context.lower().split())
     alias = PLACEHOLDER_ALIASES.get(normalized)
     if alias:
         return "{{ " + alias + " }}"
+    if not normalized:
+        if "defendant" in context_normalized or "client" in context_normalized:
+            return "{{ defendant }}"
+        if "plaintiff" in context_normalized or "landlord" in context_normalized:
+            return "{{ fields.plaintiff_name }}"
+        if "case no" in context_normalized or "case number" in context_normalized:
+            return "{{ case_number }}"
+        if "attorney" in context_normalized or "counsel" in context_normalized:
+            return "{{ advocate_name }}"
+    if normalized == "name":
+        if "defendant" in context_normalized or "client" in context_normalized:
+            return "{{ defendant }}"
+        if "attorney" in context_normalized or "counsel" in context_normalized:
+            return "{{ advocate_name }}"
+        return "{{ fields." + _field_name(context, fallback) + " }}"
+    if normalized in {"insert", "fill in", "blank"}:
+        return "{{ fields." + _field_name(context, fallback) + " }}"
     if "address" in normalized and "attorney" not in normalized:
+        if "opposing" in context_normalized or "landlord" in context_normalized:
+            return "{{ fields.opposing_counsel_address }}"
         return "{{ fields.premises_address }}"
     if normalized == "date" or normalized.endswith(" date"):
+        if "hearing" in context_normalized:
+            return "{{ fields.hearing_date }}"
+        if "served" in context_normalized or "service" in context_normalized:
+            return "{{ fields.service_date }}"
         return "{{ fields.filing_date }}"
+    if normalized == "time" or normalized.endswith(" time"):
+        return "{{ fields.hearing_time }}" if "hearing" in context_normalized else "{{ fields.time }}"
     if "case caption" in normalized:
         return "{{ fields.case_caption }}"
     if "plaintiff" in normalized:
@@ -201,7 +252,12 @@ def convert_placeholder_text(text: str, fallback_prefix: str) -> tuple[str, list
     def replace(match):
         nonlocal counter
         counter += 1
-        expression = placeholder_expression(match.group(1), f"{fallback_prefix}_{counter}")
+        label = match.group(1)
+        if not _looks_like_placeholder(label):
+            return match.group(0)
+        fallback = f"{fallback_prefix}_{counter}"
+        context = _context_label(text, match.start(), fallback)
+        expression = placeholder_expression(label, fallback, context=context)
         if expression.startswith("{{ fields."):
             fields.append(expression[3:-3].strip())
         return expression
@@ -296,9 +352,6 @@ def annotate_document(document, blocks: list[BlockDefinition]) -> dict:
         if block.expects_list and body_paragraphs:
             loop_target = list_prompt or body_paragraphs[0]
             _replace_with_loop(loop_target, f'blocks["{block.key}"]["items"]')
-            for paragraph in body_paragraphs:
-                if paragraph is not loop_target and paragraph._p.getparent() is not None:
-                    paragraph._p.getparent().remove(paragraph._p)
 
     for index, paragraph in enumerate(_all_story_paragraphs(document)):
         if not paragraph.text or "{%p " in paragraph.text or paragraph.text.strip() == "{{ item }}":
@@ -311,6 +364,10 @@ def annotate_document(document, blocks: list[BlockDefinition]) -> dict:
     # Main-story paragraphs that contain no explicit fill-in still bind to the
     # corresponding Lexical block. Headings remain literal structure.
     for block in blocks:
+        if block.expects_list:
+            # The explicit prompt is dynamic; surrounding form language remains
+            # authoritative template text and must not be replaced or removed.
+            continue
         slot = 0
         last_bound = None
         for index in range(block.body_start, block.end):
@@ -325,7 +382,7 @@ def annotate_document(document, blocks: list[BlockDefinition]) -> dict:
             )
             slot += 1
             last_bound = paragraph
-        if not block.expects_list and last_bound is not None:
+        if last_bound is not None:
             start = _marker_paragraph_like(
                 last_bound,
                 f'{{%p for item in blocks["{block.key}"]["paragraphs"][{slot}:] %}}',
@@ -344,8 +401,15 @@ def _copy_block_document(source_path: Path, output_path: Path, block: BlockDefin
     body = document._body._element
     children = list(body)
     paragraphs = document.paragraphs
-    start_element = paragraphs[min(block.start, len(paragraphs) - 1)]._p
-    start_position = children.index(start_element)
+    first_nonempty = next((index for index, paragraph in enumerate(paragraphs) if paragraph.text.strip()), 0)
+    if block.start <= first_nonempty:
+        # Captions and other leading layout are often tables or text boxes that
+        # python-docx omits from document.paragraphs. Keep those OOXML elements
+        # with the first block instead of silently dropping them.
+        start_position = 0
+    else:
+        start_element = paragraphs[min(block.start, len(paragraphs) - 1)]._p
+        start_position = children.index(start_element)
     if block.end < len(paragraphs):
         end_position = children.index(paragraphs[block.end]._p)
     else:
@@ -378,6 +442,20 @@ def infer_kind(title: str) -> str:
     if "appeal" in lowered or "affidavit" in lowered or "notice" in lowered:
         return "brief"
     return "shell"
+
+
+def infer_goal(title: str, kind: str) -> str:
+    if kind == "motion":
+        if "motion" in title.casefold():
+            return f"Draft {title} with case-specific facts, legal grounds, and requested relief."
+        return f"Draft the {title} motion with case-specific facts, legal grounds, and requested relief."
+    if kind == "brief":
+        return f"Draft the {title} filing with case-specific facts, legal grounds, and requested relief."
+    return f"Draft the {title} document with case-specific facts and the requested relief or outcome."
+
+
+def infer_description(title: str) -> str:
+    return f"Maintained Word template for {title}."
 
 
 def ingest_docx(source: Path, prepared_root: Path, snippets_root: Path, *, force=False) -> Path:
@@ -434,12 +512,16 @@ def ingest_docx(source: Path, prepared_root: Path, snippets_root: Path, *, force
         source_path = source.relative_to(prepared_root.parent.resolve()).as_posix()
     except ValueError:
         source_path = source.as_posix()
+    kind = infer_kind(source.stem)
     manifest = {
         "schema_version": MANIFEST_VERSION,
         "slug": slug,
         "title": source.stem,
-        "kind": infer_kind(source.stem),
-        "description": "Prepared from the maintained original Word template.",
+        "kind": kind,
+        "description": infer_description(source.stem),
+        "goal": infer_goal(source.stem, kind),
+        "negative_goal": "",
+        "aliases": [],
         "jurisdiction": "Ohio",
         "source_label": "Content library",
         "active": True,

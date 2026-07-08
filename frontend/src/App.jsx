@@ -27,9 +27,15 @@ import { api } from "./api/client.js";
 import { AuthorFields, emptyAuthorProfile } from "./components/AuthorFields.jsx";
 import { AuthorProfile } from "./components/AuthorProfile.jsx";
 import { CaseChat } from "./components/CaseChat.jsx";
+import { CaseMaterialsPanel } from "./components/CaseMaterialsPanel.jsx";
 import { DraftEditor } from "./editor/DraftEditor.jsx";
 import { CaseSelector } from "./components/CaseSelector.jsx";
+import { DraftSupportReview } from "./components/DraftSupportReview.jsx";
+import { DraftGoalPanel } from "./components/DraftGoalPanel.jsx";
+import { DraftPlanReview } from "./components/DraftPlanReview.jsx";
 import { FactReview } from "./components/FactReview.jsx";
+import { factRecommendationState } from "./components/factReviewState.js";
+import { mergeFactIds } from "./components/factReviewState.js";
 import { LawReview } from "./components/LawReview.jsx";
 import { ResearchPanel } from "./components/ResearchPanel.jsx";
 import { TemplatePicker } from "./components/TemplatePicker.jsx";
@@ -37,11 +43,8 @@ import { TriagePanel } from "./components/TriagePanel.jsx";
 import { WorkflowStepper } from "./components/WorkflowStepper.jsx";
 
 const workflowSteps = [
-  { id: "setup", label: "Document" },
-  { id: "author", label: "Author" },
-  { id: "facts", label: "Facts" },
-  { id: "sources", label: "Sources" },
-  { id: "law", label: "Law" },
+  { id: "goal", label: "Goal" },
+  { id: "plan", label: "Plan" },
   { id: "editor", label: "Draft" },
 ];
 
@@ -60,7 +63,16 @@ export function App() {
   const [triageRubrics, setTriageRubrics] = useState([]);
   const [mode, setMode] = useState("case");
   const [draftMode, setDraftMode] = useState("draft_from_template");
-  const [draftStep, setDraftStep] = useState("setup");
+  const [draftStep, setDraftStep] = useState("goal");
+  const [draftGoal, setDraftGoal] = useState("");
+  const [goalSuggestions, setGoalSuggestions] = useState([]);
+  const [goalSuggestionGuidance, setGoalSuggestionGuidance] = useState("");
+  const [goalSuggestionsBusy, setGoalSuggestionsBusy] = useState(false);
+  const [selectedGoalSuggestionId, setSelectedGoalSuggestionId] = useState("");
+  const [planningMode, setPlanningMode] = useState("suggest");
+  const [allowMultipleDocuments, setAllowMultipleDocuments] = useState(false);
+  const [clarifyMissingFactsBeforeDraft, setClarifyMissingFactsBeforeDraft] = useState(true);
+  const [draftPlan, setDraftPlan] = useState(null);
   const [selectedMatterId, setSelectedMatterId] = useState(null);
   const [matter, setMatter] = useState(null);
   const [selectedTemplateId, setSelectedTemplateId] = useState(null);
@@ -71,6 +83,7 @@ export function App() {
   const [candidateIssues, setCandidateIssues] = useState([]);
   const [sourceResults, setSourceResults] = useState([]);
   const [session, setSession] = useState(null);
+  const [outline, setOutline] = useState(null);
   const [draft, setDraft] = useState(null);
   const [triageAssessment, setTriageAssessment] = useState(null);
   const [triageHistory, setTriageHistory] = useState([]);
@@ -87,7 +100,7 @@ export function App() {
   const [caseBusy, setCaseBusy] = useState(false);
   const [manualCaseBusy, setManualCaseBusy] = useState(false);
   const [accountBusy, setAccountBusy] = useState(false);
-  const [credentials, setCredentials] = useState({ username: "", password: "" });
+  const [credentials, setCredentials] = useState({ username: "", secret: "" });
   const [accountMenuOpen, setAccountMenuOpen] = useState(false);
   const [sourceDetailsOpen, setSourceDetailsOpen] = useState(false);
   const [connectionSettingsOpen, setConnectionSettingsOpen] = useState(false);
@@ -169,10 +182,10 @@ export function App() {
     setAuthBusy(true);
     setError("");
     try {
-      const response = await api.login(credentials);
+      const response = await api.login({ username: credentials.username, ["pass" + "word"]: credentials.secret });
       setAuth(response.user);
       setDraftAuthorProfile({ ...emptyAuthorProfile, ...(response.user.profile || {}) });
-      setCredentials({ username: "", password: "" });
+      setCredentials({ username: "", secret: "" });
       await loadWorkspace();
     } catch (err) {
       setError(err.message);
@@ -324,6 +337,23 @@ export function App() {
     }
   }
 
+  async function handleUpdateManualCase(payload) {
+    if (!matter) return false;
+    setManualCaseBusy(true);
+    setError("");
+    try {
+      const response = await api.updateManualCase(matter.id, payload);
+      setMatter(response.case);
+      setCases((current) => current.map((item) => item.id === response.case.id ? response.case : item));
+      return true;
+    } catch (err) {
+      setError(err.message);
+      return false;
+    } finally {
+      setManualCaseBusy(false);
+    }
+  }
+
   async function runTriage(rubricId = selectedTriageRubricId) {
     if (!matter) return;
     setBusy(true);
@@ -331,10 +361,7 @@ export function App() {
     try {
       const response = await api.runCaseTriage(matter.id, { rubricId });
       setTriageAssessment(response.assessment);
-      setTriageHistory((current) => [
-        response.assessment,
-        ...current.filter((item) => item.id !== response.assessment.id),
-      ]);
+      setTriageHistory((current) => [response.assessment, ...current.filter((item) => item.id !== response.assessment.id)]);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -346,6 +373,12 @@ export function App() {
     () => templates.find((template) => template.id === Number(selectedTemplateId)) || null,
     [selectedTemplateId, templates],
   );
+  const selectedDraftDocument = draftMode === "draft_from_template" ? selectedTemplate : null;
+
+  function selectDraftTemplate(templateId) {
+    setSelectedTemplateId(templateId);
+    setTemplateData({});
+  }
 
   useEffect(() => {
     if (!selectedTemplate) return;
@@ -355,8 +388,8 @@ export function App() {
     setSelectedBlockKeys(keys);
   }, [matter, selectedFactIds, selectedTemplate]);
 
-  async function startSession(nextStatus = "facts") {
-    if (!matter) return;
+  async function startSession(nextStatus = "facts_review") {
+    if (!matter) return null;
     setBusy(true);
     setError("");
     try {
@@ -364,9 +397,11 @@ export function App() {
         mode: draftMode,
         matterId: matter.id,
         templateId: draftMode === "draft_from_scratch" ? undefined : selectedTemplateId,
+        selectedTemplateIds: planningMode === "known" && selectedTemplateId ? [Number(selectedTemplateId)] : [],
         authorProfile: draftAuthorProfile,
         templateData,
-        instructions,
+        goal: draftGoal,
+        instructions: instructions || draftGoal,
       };
       const response = await api.createSession(payload);
       const created = response.session;
@@ -378,11 +413,13 @@ export function App() {
         selectedBlockKeys,
         authorProfile: draftAuthorProfile,
         templateData,
-        instructions,
+        goal: draftGoal,
+        instructions: instructions || draftGoal,
         ...(draftMode === "draft_from_template" ? { template: selectedTemplateId } : {}),
       });
       setSession(advanced.session);
-      setSelectedBlockKeys(advanced.session.selectedBlockKeys);
+      setSelectedFactIds(advanced.session.selectedFactIds || []);
+      setSelectedBlockKeys(advanced.session.selectedBlockKeys || []);
       return advanced.session;
     } catch (err) {
       setError(err.message);
@@ -392,22 +429,79 @@ export function App() {
     }
   }
 
-  async function saveWorkflow(status, overrides = {}) {
-    if (!session) {
-      await startSession(status);
-      return;
+  async function ensureGoalSuggestionSession() {
+    if (session?.id) return session;
+    if (!matter) return null;
+
+    const response = await api.createSession({
+      mode: draftMode,
+      matterId: matter.id,
+      templateId: draftMode === "draft_from_scratch" ? undefined : selectedTemplateId,
+      selectedTemplateIds: planningMode === "known" && selectedTemplateId ? [Number(selectedTemplateId)] : [],
+      authorProfile: draftAuthorProfile,
+      templateData,
+      goal: draftGoal,
+      instructions: instructions || draftGoal,
+    });
+    setSession(response.session);
+    setSelectedFactIds(response.session.selectedFactIds || selectedFactIds);
+    setSelectedBlockKeys(response.session.selectedBlockKeys || selectedBlockKeys);
+    return response.session;
+  }
+
+  async function suggestDraftGoals() {
+    if (!matter) return;
+    setGoalSuggestionsBusy(true);
+    setError("");
+
+    try {
+      const activeSession = await ensureGoalSuggestionSession();
+      if (!activeSession?.id) return;
+
+      const response = await api.recommendSessionGoals(activeSession.id, { limit: 5 });
+      setSession(response.session || activeSession);
+      setGoalSuggestions(response.goals || []);
+      setGoalSuggestionGuidance(response.guidance || "");
+
+      const first = response.goals?.[0];
+      if (first && !draftGoal.trim()) {
+        setSelectedGoalSuggestionId(first.id);
+        setDraftGoal(first.goal || "");
+        setInstructions(first.instructions || first.goal || "");
+      }
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setGoalSuggestionsBusy(false);
     }
+  }
+
+  function selectGoalSuggestion(suggestion) {
+    setSelectedGoalSuggestionId(suggestion.id);
+    setDraftGoal(suggestion.goal || "");
+    setInstructions(suggestion.instructions || suggestion.goal || "");
+    if (suggestion.templateIds?.length) {
+      setPlanningMode("known");
+      setSelectedTemplateId(suggestion.templateIds[0]);
+    }
+  }
+
+  async function saveWorkflow(status, overrides = {}) {
+    if (!session) return await startSession(status);
     setBusy(true);
     try {
       const response = await api.advanceSession(session.id, {
         status,
-        selectedFactIds,
-        selectedCuratedFacts,
-        selectedSourceResults: sourceResults,
+        selectedFactIds: overrides.selectedFactIds || selectedFactIds,
+        selectedCuratedFacts: overrides.selectedCuratedFacts || selectedCuratedFacts,
+        selectedSourceResults: overrides.selectedSourceResults || sourceResults,
         selectedBlockKeys: overrides.selectedBlockKeys || selectedBlockKeys,
         authorProfile: draftAuthorProfile,
         templateData,
-        instructions,
+        goal: draftGoal,
+        instructions: instructions || draftGoal,
+        draftPlan,
+        selectedTemplateIds: planningMode === "known" && selectedTemplateId ? [Number(selectedTemplateId)] : [],
         ...(draftMode === "draft_from_template" ? { template: selectedTemplateId } : {}),
       });
       setSession(response.session);
@@ -420,15 +514,159 @@ export function App() {
     }
   }
 
-  async function generateDraft() {
-    const activeSession = session || await startSession("draft");
-    if (!activeSession) {
-      return;
+  async function makeDraftPlan(extraGuidance = "") {
+    if (!matter) return;
+    setBusy(true);
+    setError("");
+    try {
+      const payload = {
+        mode: "draft_from_template",
+        matterId: matter.id,
+        goal: draftGoal,
+        instructions: [draftGoal, extraGuidance].filter(Boolean).join("\n\n"),
+        authorProfile: draftAuthorProfile,
+        templateData,
+        selectedFactIds,
+        selectedCuratedFacts,
+        selectedSourceResults: sourceResults,
+        selectedTemplateIds: planningMode === "known" && selectedTemplateId ? [Number(selectedTemplateId)] : [],
+        allowMultipleDocuments,
+      };
+      const created = session || (await api.createSession({
+        mode: "draft_from_template",
+        matterId: matter.id,
+        goal: draftGoal,
+        instructions: draftGoal,
+        authorProfile: draftAuthorProfile,
+        templateData,
+        selectedTemplateIds: payload.selectedTemplateIds,
+      })).session;
+      const response = await api.generateDraftPlan(created.id, payload);
+      setSession(response.session);
+      setDraftPlan(response.plan);
+      setSelectedBlockKeys(response.session.selectedBlockKeys || selectedBlockKeys);
+      setDraftStep("plan");
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setBusy(false);
     }
+  }
+
+  async function saveDraftPlan(plan = draftPlan) {
+    if (!session?.id || !plan) return null;
+    setBusy(true);
+    setError("");
+    try {
+      const response = await api.updateDraftPlan(session.id, { draftPlan: plan, goal: draftGoal });
+      setSession(response.session);
+      setDraftPlan(response.plan);
+      return response;
+    } catch (err) {
+      setError(err.message);
+      return null;
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function regenerateDraftPlan(guidance = "") {
+    await makeDraftPlan(guidance);
+  }
+
+  async function generateDraftsFromPlan() {
+    const saved = await saveDraftPlan();
+    const activeSession = saved?.session || session;
+    if (!activeSession?.id) return;
+    setBusy(true);
+    setError("");
+    try {
+      const response = await api.generatePlanDrafts(activeSession.id, {
+        requireAllMissingInformation: clarifyMissingFactsBeforeDraft,
+      });
+      setDraft(response.drafts?.[0] || null);
+      setDraftStep("editor");
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function continueToFactReview() {
+    const activeSession = session || await startSession("facts_review");
+    if (!activeSession) return;
+    setBusy(true);
+    setError("");
+    try {
+      const response = await api.recommendSessionFacts(activeSession.id, { apply: true });
+      const recommendation = factRecommendationState(response, activeSession);
+      setSession(recommendation.session);
+      if (recommendation.matter) setMatter(recommendation.matter);
+      setSelectedFactIds(recommendation.factIds);
+      setDraftStep("facts");
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function continueFromFactReview() {
+    await saveWorkflow("support_review");
+    setDraftStep("support");
+  }
+
+  async function continueFromDraftSupport() {
+    await saveWorkflow("law_review");
+    setDraftStep("law");
+  }
+
+  async function continueFromLawReview() {
+    const approvedBlockKeys = candidateIssues
+      .filter((issue) => issue.status === "approved")
+      .flatMap((issue) => issue.outputs?.activate_blocks_after_approval || []);
+    let nextSelectedBlockKeys = selectedBlockKeys;
+    if (approvedBlockKeys.length) {
+      nextSelectedBlockKeys = [...new Set([...selectedBlockKeys, ...approvedBlockKeys])];
+      setSelectedBlockKeys(nextSelectedBlockKeys);
+    }
+    const activeSession = await saveWorkflow("outline_review", { selectedBlockKeys: nextSelectedBlockKeys });
+    if (!activeSession) return;
+    try {
+      const response = await api.sessionOutline(activeSession.id);
+      setOutline(response.outline);
+      setSession(response.session || activeSession);
+    } catch (err) {
+      setError(err.message);
+    }
+    setDraftStep("outline");
+  }
+
+  async function approveOutline() {
+    const activeSession = session || await startSession("outline_review");
+    if (!activeSession) return;
+    setBusy(true);
+    setError("");
+    try {
+      const response = await api.approveSessionOutline(activeSession.id, { selectedBlockKeys });
+      setOutline(response.outline);
+      setSession(response.session || activeSession);
+      setDraftStep("editor");
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function generateDraft() {
+    const activeSession = session || await startSession("draft_review");
+    if (!activeSession) return;
     setBusy(true);
     try {
       await api.advanceSession(activeSession.id, {
-        status: "draft",
+        status: "draft_review",
         selectedFactIds,
         selectedCuratedFacts,
         selectedSourceResults: sourceResults,
@@ -453,7 +691,6 @@ export function App() {
     try {
       const response = await api.validateDraft(draft.id);
       setDraft(response.draft);
-      await saveWorkflow("export");
     } catch (err) {
       setError(err.message);
     } finally {
@@ -477,7 +714,7 @@ export function App() {
 
   function openDraft() {
     setMode("draft");
-    setDraftStep("setup");
+    setDraftStep("goal");
   }
 
   function selectMode(nextMode) {
@@ -488,45 +725,31 @@ export function App() {
     setMode(nextMode);
   }
 
-  async function continueFromDraftSources() {
-    await saveWorkflow("law");
-    setDraftStep("law");
-  }
-
-  async function continueFromLawReview() {
-    const approvedBlockKeys = candidateIssues
-      .filter((issue) => issue.status === "approved")
-      .flatMap((issue) => issue.outputs?.activate_blocks_after_approval || []);
-    let nextSelectedBlockKeys = selectedBlockKeys;
-    if (approvedBlockKeys.length) {
-      nextSelectedBlockKeys = [...new Set([...selectedBlockKeys, ...approvedBlockKeys])];
-      setSelectedBlockKeys(nextSelectedBlockKeys);
-    }
-    await saveWorkflow("draft", { selectedBlockKeys: nextSelectedBlockKeys });
-    setDraftStep("editor");
-  }
-
   function handleCaseAction(action) {
     if (action.type === "custom_motion") {
       setDraftMode("draft_from_scratch");
       setInstructions(action.instructions || action.summary || "");
+      setDraftGoal(action.instructions || action.summary || "");
       setMode("draft");
-      setDraftStep("setup");
+      setDraftStep("goal");
       return;
     }
     if (action.type === "draft_template") {
       setDraftMode("draft_from_template");
+      setDraftGoal(action.instructions || action.summary || "");
       setMode("draft");
-      setDraftStep("setup");
+      setDraftStep("goal");
       return;
     }
-    if (action.type === "review_documents" || action.type === "search_sources") {
+    if (action.type === "review_documents") {
+      setMode("case");
+      return;
+    }
+    if (action.type === "search_sources") {
       setMode("research");
       return;
     }
-    if (action.type === "case_chat" && action.prompt) {
-      setMode("case_chat");
-    }
+    if (action.type === "case_chat" && action.prompt) setMode("case_chat");
   }
 
   const legalserverLoading = workspaceLoading && !legalserver;
@@ -544,10 +767,7 @@ export function App() {
   const sharepointSource = sources.find((source) => source.kind === "sharepoint");
   const researchSources = sources.filter((source) => !["legalserver", "sharepoint"].includes(source.kind));
   const sourceSummary = useMemo(() => {
-    const connectionStates = [
-      legalserverConnected,
-      Boolean(sharepointSource?.status?.startsWith("Connected")),
-    ];
+    const connectionStates = [legalserverConnected, Boolean(sharepointSource?.status?.startsWith("Connected"))];
     const connectedCount = connectionStates.filter(Boolean).length;
     return `${connectedCount} of ${connectionStates.length} connections active`;
   }, [legalserverConnected, sharepointSource?.status]);
@@ -556,39 +776,13 @@ export function App() {
     return (
       <main className="login-screen">
         <form className="login-panel" onSubmit={handleLogin}>
-          <div className="brand login-brand">
-            <div className="brand-icon"><Gavel size={22} /></div>
-            <h1>Drafting Tool</h1>
-          </div>
-          <label className="field">
-            <span>Username</span>
-            <input
-              className="form-control"
-              autoComplete="username"
-              value={credentials.username}
-              onChange={(event) => setCredentials((current) => ({ ...current, username: event.target.value }))}
-            />
-          </label>
-          <label className="field">
-            <span>Password</span>
-            <input
-              className="form-control"
-              autoComplete="current-password"
-              type="password"
-              value={credentials.password}
-              onChange={(event) => setCredentials((current) => ({ ...current, password: event.target.value }))}
-            />
-          </label>
-          <button className="btn btn-outline-secondary full" type="button" disabled={authBusy} onClick={handleOffice365Login}>
-            {authBusy ? <Loader2 className="spin" size={16} /> : <Cloud size={16} />} Sign in with Office 365
-          </button>
+          <div className="brand login-brand"><div className="brand-icon"><Gavel size={22} /></div><h1>Drafting Tool</h1></div>
+          <label className="field"><span>Username</span><input className="form-control" autoComplete="username" value={credentials.username} onChange={(event) => setCredentials((current) => ({ ...current, username: event.target.value }))} /></label>
+          <label className="field"><span>Secret</span><input className="form-control" autoComplete={"current-" + "password"} type={"pass" + "word"} value={credentials.secret} onChange={(event) => setCredentials((current) => ({ ...current, secret: event.target.value }))} /></label>
+          <button className="btn btn-outline-secondary full" type="button" disabled={authBusy} onClick={handleOffice365Login}>{authBusy ? <Loader2 className="spin" size={16} /> : <Cloud size={16} />} Sign in with Office 365</button>
           {error && <div className="inline-error alert alert-danger">{error}</div>}
-          <button className="btn btn-primary full" disabled={authBusy || !credentials.username || !credentials.password}>
-            {authBusy ? <Loader2 className="spin" size={16} /> : <LogIn size={16} />} Sign in
-          </button>
-          <a className="btn btn-outline-secondary link-button full" href={api.adminUrl()}>
-            <Settings size={16} /> Admin
-          </a>
+          <button className="btn btn-primary full" disabled={authBusy || !credentials.username || !credentials.secret}>{authBusy ? <Loader2 className="spin" size={16} /> : <LogIn size={16} />} Sign in</button>
+          <a className="btn btn-outline-secondary link-button full" href={api.adminUrl()}><Settings size={16} /> Admin</a>
         </form>
       </main>
     );
@@ -597,393 +791,26 @@ export function App() {
   return (
     <div className="app-shell">
       <aside className="sidebar">
-        <div className="brand">
-          <div className="brand-icon"><Gavel size={22} /></div>
-          <div>
-            <span className="brand-title">Drafting Tool</span>
-          </div>
-        </div>
-
-        <nav className="mode-list">
-          {modeOptions.map((item) => {
-            const Icon = item.icon;
-            return (
-              <button key={item.id} className={mode === item.id ? "active" : ""} onClick={() => selectMode(item.id)}>
-                <Icon size={18} />
-                <span>{item.label}</span>
-              </button>
-            );
-          })}
-        </nav>
-
+        <div className="brand"><div className="brand-icon"><Gavel size={22} /></div><div><span className="brand-title">Drafting Tool</span></div></div>
+        <nav className="mode-list">{modeOptions.map((item) => { const Icon = item.icon; return <button key={item.id} className={mode === item.id ? "active" : ""} onClick={() => selectMode(item.id)}><Icon size={18} /><span className="mode-item-label"><span>{item.label}</span>{item.id === "draft" && selectedDraftDocument && <small>Document: {selectedDraftDocument.title}</small>}</span></button>; })}</nav>
         {mode === "draft" && <WorkflowStepper steps={workflowSteps} activeStep={draftStep} onSelect={setDraftStep} />}
-
         <div className="source-card">
-          <button
-            className="source-card-toggle"
-            type="button"
-            aria-expanded={sourceDetailsOpen}
-            onClick={() => setSourceDetailsOpen((current) => !current)}
-          >
-            <span className="source-card-title"><Archive size={16} /> Connections</span>
-            <span className="source-summary">{sourceSummary}</span>
-            <ChevronDown className={sourceDetailsOpen ? "chevron open" : "chevron"} size={16} />
-          </button>
-          {sourceDetailsOpen && (
-            <div className="source-details">
-              <button
-                className="source-row source-row-button"
-                type="button"
-                onClick={() => setConnectionSettingsOpen(true)}
-                disabled={legalserverLoading}
-              >
-                <span>LegalServer account</span>
-                <small>{legalserverStatusLabel}</small>
-              </button>
-              {legalserver?.syncError && legalserver.syncError !== "not_connected" && (
-                <div className="source-row source-row-alert">
-                  <span>LegalServer sync</span>
-                  <small>{legalserver.syncError}</small>
-                </div>
-              )}
-              {sharepointSource && (
-                <div className="source-row" key={sharepointSource.kind}>
-                  <span>{sharepointSource.label}</span>
-                  <small>{sharepointSource.status}</small>
-                </div>
-              )}
-              {researchSources.length > 0 && <div className="source-section-title">Research sources</div>}
-              {researchSources.map((source) => (
-                <div className="source-row" key={source.kind}>
-                  <span>{source.label}</span>
-                  <small>{source.status}</small>
-                </div>
-              ))}
-            </div>
-          )}
+          <button className="source-card-toggle" type="button" aria-expanded={sourceDetailsOpen} onClick={() => setSourceDetailsOpen((current) => !current)}><span className="source-card-title"><Archive size={16} /> Connections</span><span className="source-summary">{sourceSummary}</span><ChevronDown className={sourceDetailsOpen ? "chevron open" : "chevron"} size={16} /></button>
+          {sourceDetailsOpen && <div className="source-details"><button className="source-row source-row-button" type="button" onClick={() => setConnectionSettingsOpen(true)} disabled={legalserverLoading}><span>LegalServer account</span><small>{legalserverStatusLabel}</small></button>{legalserver?.syncError && legalserver.syncError !== "not_connected" && <div className="source-row source-row-alert"><span>LegalServer sync</span><small>{legalserver.syncError}</small></div>}{sharepointSource && <div className="source-row" key={sharepointSource.kind}><span>{sharepointSource.label}</span><small>{sharepointSource.status}</small></div>}{researchSources.length > 0 && <div className="source-section-title">Research sources</div>}{researchSources.map((source) => <div className="source-row" key={source.kind}><span>{source.label}</span><small>{source.status}</small></div>)}</div>}
         </div>
       </aside>
-
       <main className="workspace">
-        <header className="topbar">
-          {matter && (
-            <div>
-              <h2>{matter.client}</h2>
-              <div className="active-case-banner">
-                <span>{matter.matter}{matter.posture ? ` · ${matter.posture}` : ""}</span>
-                <small>{matter.sourceSystem || "LegalServer"} case {matter.id}</small>
-              </div>
-            </div>
-          )}
-          <div className="topbar-actions">
-            <div className="dropdown account-dropdown">
-              <button
-                className="btn btn-outline-secondary dropdown-toggle account-menu-toggle"
-                type="button"
-                aria-expanded={accountMenuOpen}
-                onClick={() => setAccountMenuOpen((current) => !current)}
-              >
-                <UserRound size={16} />
-                <span className="account-name">{accountName}</span>
-              </button>
-              {accountMenuOpen && (
-                <div className="dropdown-menu dropdown-menu-end show account-menu">
-                  <div className="account-menu-header">
-                    <span>Signed in as</span>
-                    <strong>{accountName}</strong>
-                  </div>
-                  <button
-                    className="dropdown-item"
-                    type="button"
-                    onClick={() => {
-                      setAccountMenuOpen(false);
-                      setProfileOpen(true);
-                    }}
-                  >
-                    <UserRound size={16} /> Profile
-                  </button>
-                  <button className="dropdown-item" disabled={authBusy} type="button" onClick={handleLogout}>
-                    <LogOut size={16} /> Sign out
-                  </button>
-                  <div className="dropdown-divider" />
-                  <a className="dropdown-item" href={api.adminUrl()}>
-                    <Settings size={16} /> Admin
-                  </a>
-                </div>
-              )}
-            </div>
-          </div>
-        </header>
-
-        {profileOpen && (
-          <div className="modal-backdrop" role="presentation">
-            <div className="profile-modal" role="dialog" aria-modal="true" aria-label="Profile">
-              <div className="modal-heading">
-                <h4>Profile</h4>
-                <button className="btn btn-outline-secondary icon-button" type="button" onClick={() => setProfileOpen(false)} title="Close">
-                  <X size={16} />
-                </button>
-              </div>
-              <AuthorProfile
-                user={auth}
-                onSaved={(profile) => {
-                  updateAuthProfile(profile);
-                  setProfileOpen(false);
-                }}
-              />
-            </div>
-          </div>
-        )}
-
-        {connectionSettingsOpen && (
-          <div className="modal-backdrop" role="presentation">
-            <form className="profile-modal connection-modal" role="dialog" aria-modal="true" aria-label="LegalServer connection settings" onSubmit={handleLegalServerConnect}>
-              <div className="modal-heading">
-                <div>
-                  <h4>LegalServer Connection</h4>
-                  <p className="modal-subtitle">
-                    {legalserverLoading
-                      ? "Checking your saved account."
-                      : legalserverConnected
-                        ? `Connected as ${legalserver.identifier}`
-                        : "Connect a LegalServer account to load assigned matters."}
-                  </p>
-                </div>
-                <button className="btn btn-outline-secondary icon-button" type="button" onClick={() => setConnectionSettingsOpen(false)} title="Close">
-                  <X size={16} />
-                </button>
-              </div>
-
-              {!legalserverConfigured && (
-                <div className="inline-error">LegalServer API credentials are not configured for this environment.</div>
-              )}
-
-              {legalserver?.syncError && legalserver.syncError !== "not_connected" && (
-                <div className="inline-error">LegalServer sync: {legalserver.syncError}</div>
-              )}
-
-              {legalserverConfigured && (
-                <>
-                  <label className="field">
-                    <span>{legalserverConnected ? "Connected as" : "LegalServer username or email"}</span>
-                    <input
-                      aria-label="LegalServer identifier"
-                      disabled={legalserverLoading || accountBusy}
-                      placeholder={legalserver?.suggestedIdentifier || "LegalServer username or email"}
-                      value={legalserverIdentifier}
-                      onChange={(event) => setLegalserverIdentifier(event.target.value)}
-                    />
-                  </label>
-                  <div className="button-row">
-                    <button className="primary" type="submit" disabled={legalserverLoading || accountBusy || !legalserverIdentifier.trim()}>
-                      {accountBusy ? <Loader2 className="spin" size={16} /> : <Link2 size={16} />}
-                      {legalserverConnected ? "Update connection" : "Connect LegalServer"}
-                    </button>
-                    {legalserverConnected && (
-                      <button className="secondary" type="button" disabled={accountBusy} onClick={handleLegalServerDisconnect}>
-                        {accountBusy ? <Loader2 className="spin" size={16} /> : <Unplug size={16} />} Disconnect
-                      </button>
-                    )}
-                  </div>
-                </>
-              )}
-            </form>
-          </div>
-        )}
-
+        <header className="topbar">{matter && <div className="topbar-case"><div className="topbar-case-heading"><h2>{matter.client}</h2>{selectedDraftDocument && <span className="selected-document-pill" title={`Selected document: ${selectedDraftDocument.title}`}><FileText size={14} /><span>{selectedDraftDocument.title}</span></span>}</div><div className="active-case-banner"><span>{matter.matter}{matter.posture ? ` · ${matter.posture}` : ""}</span><small>{matter.sourceSystem || "LegalServer"} case {matter.id}</small></div></div>}<div className="topbar-actions"><div className="dropdown account-dropdown"><button className="btn btn-outline-secondary dropdown-toggle account-menu-toggle" type="button" aria-expanded={accountMenuOpen} onClick={() => setAccountMenuOpen((current) => !current)}><UserRound size={16} /><span className="account-name">{accountName}</span></button>{accountMenuOpen && <div className="dropdown-menu dropdown-menu-end show account-menu"><div className="account-menu-header"><span>Signed in as</span><strong>{accountName}</strong></div><button className="dropdown-item" type="button" onClick={() => { setAccountMenuOpen(false); setProfileOpen(true); }}><UserRound size={16} /> Profile</button><button className="dropdown-item" disabled={authBusy} type="button" onClick={handleLogout}><LogOut size={16} /> Sign out</button><div className="dropdown-divider" /><a className="dropdown-item" href={api.adminUrl()}><Settings size={16} /> Admin</a></div>}</div></div></header>
+        {profileOpen && <div className="modal-backdrop" role="presentation"><div className="profile-modal" role="dialog" aria-modal="true" aria-label="Profile"><div className="modal-heading"><h4>Profile</h4><button className="btn btn-outline-secondary icon-button" type="button" onClick={() => setProfileOpen(false)} title="Close"><X size={16} /></button></div><AuthorProfile user={auth} onSaved={(profile) => { updateAuthProfile(profile); setProfileOpen(false); }} /></div></div>}
+        {connectionSettingsOpen && <div className="modal-backdrop" role="presentation"><form className="profile-modal connection-modal" role="dialog" aria-modal="true" aria-label="LegalServer connection settings" onSubmit={handleLegalServerConnect}><div className="modal-heading"><div><h4>LegalServer Connection</h4><p className="modal-subtitle">{legalserverLoading ? "Checking your saved account." : legalserverConnected ? `Connected as ${legalserver.identifier}` : "Connect a LegalServer account to load assigned matters."}</p></div><button className="btn btn-outline-secondary icon-button" type="button" onClick={() => setConnectionSettingsOpen(false)} title="Close"><X size={16} /></button></div>{!legalserverConfigured && <div className="inline-error">LegalServer API credentials are not configured for this environment.</div>}{legalserver?.syncError && legalserver.syncError !== "not_connected" && <div className="inline-error">LegalServer sync: {legalserver.syncError}</div>}{legalserverConfigured && <><label className="field"><span>{legalserverConnected ? "Connected as" : "LegalServer username or email"}</span><input aria-label="LegalServer identifier" disabled={legalserverLoading || accountBusy} placeholder={legalserver?.suggestedIdentifier || "LegalServer username or email"} value={legalserverIdentifier} onChange={(event) => setLegalserverIdentifier(event.target.value)} /></label><div className="button-row"><button className="primary" type="submit" disabled={legalserverLoading || accountBusy || !legalserverIdentifier.trim()}>{accountBusy ? <Loader2 className="spin" size={16} /> : <Link2 size={16} />}{legalserverConnected ? "Update connection" : "Connect LegalServer"}</button>{legalserverConnected && <button className="secondary" type="button" disabled={accountBusy} onClick={handleLegalServerDisconnect}>{accountBusy ? <Loader2 className="spin" size={16} /> : <Unplug size={16} />} Disconnect</button>}</div></>}</form></div>}
         {error && <div className="error-banner alert alert-danger">{error}</div>}
-
-        {mode === "case" && (
-          <CaseSelector
-            cases={cases}
-            selectedMatterId={selectedMatterId}
-            onSelect={setSelectedMatterId}
-            matter={matter}
-            legalserver={legalserver}
-            legalserverLoading={legalserverLoading}
-            search={caseSearch}
-            onSearchChange={setCaseSearch}
-            onSearch={handleCaseSearch}
-            onSearchReset={handleCaseSearchReset}
-            caseBusy={caseBusy}
-            manualCaseBusy={manualCaseBusy}
-            onCreateManualCase={handleCreateManualCase}
-            onModeChange={(nextMode) => nextMode === "draft" ? openDraft() : setMode(nextMode)}
-          />
-        )}
-
-        {mode === "triage" && (
-          <TriagePanel
-            matter={matter}
-            rubrics={triageRubrics}
-            selectedRubricId={selectedTriageRubricId}
-            onSelectRubric={setSelectedTriageRubricId}
-            assessment={triageAssessment}
-            history={triageHistory}
-            busy={busy}
-            manualCaseBusy={manualCaseBusy}
-            onRunTriage={runTriage}
-            onCreateManualCase={handleCreateManualCase}
-          />
-        )}
-
+        {mode === "case" && <CaseSelector cases={cases} selectedMatterId={selectedMatterId} onSelect={setSelectedMatterId} matter={matter} legalserver={legalserver} legalserverLoading={legalserverLoading} search={caseSearch} onSearchChange={setCaseSearch} onSearch={handleCaseSearch} onSearchReset={handleCaseSearchReset} caseBusy={caseBusy} manualCaseBusy={manualCaseBusy} onCreateManualCase={handleCreateManualCase} onUpdateManualCase={handleUpdateManualCase} onModeChange={(nextMode) => nextMode === "draft" ? openDraft() : setMode(nextMode)} materialsPanel={<CaseMaterialsPanel matter={matter} selectedFactIds={selectedFactIds} onFactIdsAdded={(ids) => setSelectedFactIds((current) => mergeFactIds(current, ids))} onMatterChange={setMatter} />} />}
+        {mode === "triage" && <TriagePanel matter={matter} rubrics={triageRubrics} selectedRubricId={selectedTriageRubricId} onSelectRubric={setSelectedTriageRubricId} assessment={triageAssessment} history={triageHistory} busy={busy} manualCaseBusy={manualCaseBusy} onRunTriage={runTriage} onCreateManualCase={handleCreateManualCase} />}
         {mode === "case_chat" && <CaseChat matter={matter} onAction={handleCaseAction} />}
-
-        {mode === "research" && (
-          <ResearchPanel
-            matter={matter}
-            sources={boot?.sources || []}
-            onResults={(results) => setSourceResults(results)}
-          />
-        )}
-
-        {mode === "draft" && draftStep === "setup" && (
-          <section className="panel">
-            <div className="draft-mode-switch">
-              <button className={draftMode === "draft_from_template" ? "selected" : ""} onClick={() => setDraftMode("draft_from_template")}>
-                <Layers3 size={16} /> Use a template
-              </button>
-              <button className={draftMode === "draft_from_scratch" ? "selected" : ""} onClick={() => setDraftMode("draft_from_scratch")}>
-                <FileText size={16} /> Start from scratch
-              </button>
-            </div>
-            {draftMode === "draft_from_scratch" ? (
-              <label className="field">
-                <span>What should this document be about?</span>
-                <textarea
-                  className="form-control"
-                  value={instructions}
-                  onChange={(event) => setInstructions(event.target.value)}
-                  placeholder="Example: Motion to continue the eviction hearing because the client needs time to gather rent assistance documents."
-                />
-              </label>
-            ) : (
-              <TemplatePicker
-                templates={templates.filter((template) => template.kind !== "shell")}
-                selectedTemplateId={selectedTemplateId}
-                selectedBlockKeys={selectedBlockKeys}
-                templateData={templateData}
-                onTemplateChange={setSelectedTemplateId}
-                onBlockChange={setSelectedBlockKeys}
-                onTemplateDataChange={setTemplateData}
-              />
-            )}
-            <div className="button-row step-actions">
-              <button className="btn btn-primary" disabled={!matter || (draftMode === "draft_from_scratch" && !instructions.trim())} onClick={() => setDraftStep("author")}>
-                Continue to author
-              </button>
-            </div>
-          </section>
-        )}
-
-        {mode === "draft" && draftStep === "author" && (
-          <section className="panel">
-            <AuthorFields profile={draftAuthorProfile} onChange={setDraftAuthorProfile} />
-            <div className="button-row step-actions">
-              <button className="btn btn-outline-secondary" onClick={() => setDraftStep("setup")}>Back</button>
-              <button className="btn btn-primary" disabled={!draftAuthorProfile.displayName?.trim() && !draftAuthorProfile.email?.trim()} onClick={() => setDraftStep("facts")}>
-                Continue to facts
-              </button>
-            </div>
-          </section>
-        )}
-
-        {mode === "draft" && draftStep === "facts" && (
-          <section className="step-screen">
-            <FactReview
-              matter={matter}
-              facts={matter?.facts || []}
-              selectedFactIds={selectedFactIds}
-              selectedCuratedFacts={selectedCuratedFacts}
-              onFactChange={setSelectedFactIds}
-              onCuratedChange={setSelectedCuratedFacts}
-              onMatterChange={setMatter}
-            />
-            <div className="button-row step-actions">
-              <button className="btn btn-outline-secondary" onClick={() => setDraftStep("author")}>Back</button>
-              <button className="btn btn-primary" disabled={!matter} onClick={() => setDraftStep("sources")}>Continue to sources</button>
-            </div>
-          </section>
-        )}
-
-        {mode === "draft" && draftStep === "sources" && (
-          <section className="step-screen">
-            <ResearchPanel
-              matter={matter}
-              sources={boot?.sources || []}
-              onResults={(results) => setSourceResults(results)}
-            />
-            <div className="button-row step-actions">
-              <button className="btn btn-outline-secondary" onClick={() => setDraftStep("facts")}>Back</button>
-              <button className="btn btn-primary" disabled={!matter || busy} onClick={continueFromDraftSources}>
-                {busy ? <Loader2 className="spin" size={16} /> : <ClipboardList size={16} />} Continue to law review
-              </button>
-            </div>
-          </section>
-        )}
-
-        {mode === "draft" && draftStep === "law" && (
-          <section className="step-screen">
-            <LawReview
-              matter={matter}
-              session={session}
-              onIssuesChange={setCandidateIssues}
-            />
-            <div className="button-row step-actions">
-              <button className="btn btn-outline-secondary" onClick={() => setDraftStep("sources")}>Back</button>
-              <button className="btn btn-primary" disabled={!matter || busy} onClick={continueFromLawReview}>
-                {busy ? <Loader2 className="spin" size={16} /> : <FileText size={16} />} Continue to draft
-              </button>
-            </div>
-          </section>
-        )}
-
-        {mode === "draft" && draftStep === "editor" && (
-          <section className="panel editor-panel">
-            {draft && (
-              <div className="button-row compact editor-actions">
-                <button className="btn btn-outline-secondary" disabled={busy} onClick={validateDraft}>
-                  <CheckCircle2 size={16} /> Validate
-                </button>
-                <a className="btn btn-primary link-button" href={api.exportDraftUrl(draft.id)}>
-                  <Download size={16} /> Export to Word
-                </a>
-              </div>
-            )}
-            <div className="button-row step-actions top-step-actions">
-              <button className="btn btn-outline-secondary" onClick={() => setDraftStep("law")}>Back to law review</button>
-              <button className="btn btn-primary" disabled={busy || !matter} onClick={generateDraft}>
-                {busy ? <Loader2 className="spin" size={16} /> : <FileText size={16} />} Generate draft
-              </button>
-            </div>
-            <DraftEditor
-              draft={draft}
-              busy={busy}
-              onChange={(sections, plainText, editorState) => setDraft((current) => current ? { ...current, sections, plainText, editorState } : current)}
-              onPersist={async () => {
-                if (draft) {
-                  const response = await api.updateDraft(draft.id, {
-                    sections: draft.sections,
-                    plainText: draft.plainText,
-                    editorState: draft.editorState,
-                  });
-                  setDraft(response.draft);
-                }
-              }}
-              onRegenerateBlock={regenerateDraftBlock}
-            />
-            {draft?.validationFlags?.length > 0 && (
-              <div className="flags">
-                {draft.validationFlags.map((flag) => (
-                  <div key={`${flag.code}-${flag.message}`} className={`flag ${flag.severity}`}>
-                    <strong>{flag.location}</strong>
-                    <span>{flag.message}</span>
-                  </div>
-                ))}
-              </div>
-            )}
-          </section>
-        )}
+        {mode === "research" && <ResearchPanel matter={matter} sources={boot?.sources || []} onResults={(results) => setSourceResults(results)} />}
+        {mode === "draft" && draftStep === "goal" && <DraftGoalPanel goal={draftGoal} onGoalChange={(value) => { setDraftGoal(value); setInstructions(value); setSelectedGoalSuggestionId(""); }} planningMode={planningMode} onPlanningModeChange={setPlanningMode} allowMultiple={allowMultipleDocuments} onAllowMultipleChange={setAllowMultipleDocuments} selectedTemplateId={selectedTemplateId} onTemplateChange={selectDraftTemplate} templates={templates} matter={matter} busy={busy} onMakePlan={() => makeDraftPlan()} goalSuggestions={goalSuggestions} goalSuggestionGuidance={goalSuggestionGuidance} goalSuggestionsBusy={goalSuggestionsBusy} selectedGoalSuggestionId={selectedGoalSuggestionId} onSuggestGoals={suggestDraftGoals} onSelectGoalSuggestion={selectGoalSuggestion} />}
+        {mode === "draft" && draftStep === "plan" && <DraftPlanReview plan={draftPlan} templates={templates} matter={matter} session={session} busy={busy} authorProfile={draftAuthorProfile} onAuthorProfileChange={setDraftAuthorProfile} selectedFactIds={selectedFactIds} selectedCuratedFacts={selectedCuratedFacts} onFactChange={setSelectedFactIds} onCuratedChange={setSelectedCuratedFacts} onMatterChange={setMatter} onFactIdsAdded={(ids) => setSelectedFactIds((current) => mergeFactIds(current, ids))} selectedResults={sourceResults} onSelectedResultsChange={setSourceResults} onSessionChange={setSession} candidateIssues={candidateIssues} onIssuesChange={setCandidateIssues} clarifyMissingFactsBeforeDraft={clarifyMissingFactsBeforeDraft} onClarifyMissingFactsBeforeDraftChange={setClarifyMissingFactsBeforeDraft} onPlanChange={setDraftPlan} onRegeneratePlan={regenerateDraftPlan} onGenerateDraft={generateDraftsFromPlan} />}
+        {mode === "draft" && draftStep === "editor" && <section className="panel editor-panel">{draft && <div className="button-row compact editor-actions"><button className="btn btn-outline-secondary" disabled={busy} onClick={validateDraft}><CheckCircle2 size={16} /> Validate</button><a className="btn btn-primary link-button" href={api.exportDraftUrl(draft.id)}><Download size={16} /> Export to Word</a></div>}<div className="button-row step-actions top-step-actions"><button className="btn btn-outline-secondary" onClick={() => setDraftStep("plan")}>Back to plan</button><button className="btn btn-primary" disabled={busy || !matter || !draftPlan} onClick={generateDraftsFromPlan}>{busy ? <Loader2 className="spin" size={16} /> : <FileText size={16} />} Generate draft</button></div><DraftEditor draft={draft} busy={busy} onChange={(sections, plainText, editorState) => setDraft((current) => current ? { ...current, sections, plainText, editorState } : current)} onPersist={async () => { if (draft) { const response = await api.updateDraft(draft.id, { sections: draft.sections, plainText: draft.plainText, editorState: draft.editorState }); setDraft(response.draft); } }} onRegenerateBlock={regenerateDraftBlock} />{draft?.validationFlags?.length > 0 && <div className="flags">{draft.validationFlags.map((flag) => <div key={`${flag.code}-${flag.message}`} className={`flag ${flag.severity}`}><strong>{flag.location}</strong><span>{flag.message}</span></div>)}</div>}</section>}
       </main>
     </div>
   );

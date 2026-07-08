@@ -4,7 +4,7 @@ Reusable legal-content defaults belong in the top-level [`content/`](content/REA
 library, not inside a Django app or embedded in Python constants.
 
 - Put shared DOCX snippets in `content/docx-snippets/_shared/blocks/` and
-  pathway overrides in `content/docx-snippets/<template-slug>/blocks/`.
+  pathway overrides in `private-content/docx-snippets/<template-slug>/blocks/`.
 - Put authoritative treatise PDFs under `content/treatises/source/`; keep
   generated Markdown under `content/treatises/markdown/` and do not hand-edit
   it.

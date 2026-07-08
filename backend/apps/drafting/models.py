@@ -8,11 +8,13 @@ class DraftingSession(models.Model):
         ("draft_from_template", "Draft from template"),
     ]
     STATUS_CHOICES = [
-        ("case", "Case"),
-        ("facts", "Facts"),
-        ("template", "Template"),
-        ("law", "Law and Sources"),
-        ("draft", "Draft"),
+        ("setup", "Choose document"),
+        ("facts_review", "Review facts"),
+        ("support_review", "Review support"),
+        ("law_review", "Review legal issues"),
+        ("outline_review", "Approve outline"),
+        ("draft_review", "Review draft"),
+        ("validation", "Validation"),
         ("export", "Export"),
     ]
 
@@ -25,7 +27,7 @@ class DraftingSession(models.Model):
         blank=True,
         on_delete=models.SET_NULL,
     )
-    status = models.CharField(max_length=80, choices=STATUS_CHOICES, default="case")
+    status = models.CharField(max_length=80, choices=STATUS_CHOICES, default="setup")
     selected_fact_ids = models.JSONField(default=list, blank=True)
     selected_curated_facts = models.JSONField(default=list, blank=True)
     selected_source_results = models.JSONField(default=list, blank=True)
@@ -36,6 +38,10 @@ class DraftingSession(models.Model):
         blank=True,
         help_text="Values for fields declared by the selected prepared template.",
     )
+    goal = models.TextField(blank=True)
+    draft_plan = models.JSONField(default=dict, blank=True)
+    missing_information = models.JSONField(default=list, blank=True)
+    selected_template_ids = models.JSONField(default=list, blank=True)
     instructions = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

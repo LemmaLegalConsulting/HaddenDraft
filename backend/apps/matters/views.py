@@ -10,7 +10,9 @@ from apps.ai.models import ChatConversation
 from apps.core.http import api_login_required
 from apps.core.http import json_body
 from apps.matters.document_context import (
+    case_materials_payload,
     chunk_text,
+    custom_fields_inventory,
     document_to_public_dict,
     get_case_document,
     get_case_documents,
@@ -23,11 +25,13 @@ from apps.matters.seed import seed_matters
 from apps.matters.serializers import fact_to_dict, matter_to_dict, triage_assessment_to_dict, triage_rubric_to_dict
 from apps.matters.services import (
     create_manual_matter_for_user,
+    create_legalserver_draft_intake_from_manual_matter,
     legalserver_account_status,
     local_matters_for_user,
     matter_for_user,
     sync_legalserver_matter,
     sync_legalserver_matters_for_user,
+    update_manual_matter_for_user,
 )
 from apps.matters.triage import ensure_default_triage_rubric, run_triage
 from apps.sources.document_text import DocumentExtractionError, extract_text
@@ -198,8 +202,26 @@ def case_detail(request, matter_id):
         matter = matter_for_user(request.user, matter_id)
     if not matter:
         return JsonResponse({"error": "Case not found or not available to this user"}, status=404)
-    matter = matter.__class__.objects.prefetch_related("facts").get(id=matter.id)
-    return JsonResponse({"case": matter_to_dict(matter, include_facts=True)})
+    if request.method == "GET":
+        matter = matter.__class__.objects.prefetch_related("facts").get(id=matter.id)
+        return JsonResponse({"case": matter_to_dict(matter, include_facts=True)})
+    if request.method == "PATCH":
+        try:
+            matter = update_manual_matter_for_user(matter, request.user, json_body(request))
+        except PermissionError as exc:
+            return JsonResponse({"error": str(exc)}, status=403)
+        matter = matter.__class__.objects.prefetch_related("facts").get(id=matter.id)
+        return JsonResponse({"case": matter_to_dict(matter, include_facts=True)})
+    if request.method == "POST":
+        body = json_body(request)
+        if body.get("action") != "legalserver_draft_intake":
+            return JsonResponse({"error": "Unsupported case action"}, status=400)
+        try:
+            preview = create_legalserver_draft_intake_from_manual_matter(matter, request.user)
+        except PermissionError as exc:
+            return JsonResponse({"error": str(exc)}, status=403)
+        return JsonResponse({"legalserverDraftIntake": preview})
+    return JsonResponse({"error": "GET, PATCH, or POST required"}, status=405)
 
 
 @api_login_required
@@ -211,6 +233,50 @@ def case_documents(request, matter_id):
         return error
     documents = [document_to_public_dict(document) for document in get_case_documents(matter)]
     return JsonResponse({"documents": documents})
+
+
+@api_login_required
+def case_materials(request, matter_id):
+    if request.method != "GET":
+        return JsonResponse({"error": "GET required"}, status=405)
+    matter, error = _matter_or_404(request.user, matter_id)
+    if error:
+        return error
+    matter = matter.__class__.objects.prefetch_related("facts").get(id=matter.id)
+    return JsonResponse(case_materials_payload(matter))
+
+
+@api_login_required
+def case_custom_fields(request, matter_id):
+    matter, error = _matter_or_404(request.user, matter_id)
+    if error:
+        return error
+    if request.method == "GET":
+        return JsonResponse({"fields": custom_fields_inventory(matter)})
+    if request.method != "POST":
+        return JsonResponse({"error": "GET or POST required"}, status=405)
+    body = json_body(request)
+    field_keys = set(body.get("fieldKeys") or [])
+    if not field_keys:
+        return JsonResponse({"error": "Select at least one custom field"}, status=400)
+    try:
+        from apps.ai.case_chat import refresh_matter_payload
+
+        refresh_matter_payload(matter)
+    except Exception:
+        pass
+    fields = custom_fields_inventory(matter)
+    selected = [field for field in fields if field["key"] in field_keys]
+    raw_payload = matter.raw_payload or {}
+    raw_payload["custom_fields_normalized"] = fields
+    matter.raw_payload = raw_payload
+    matter.save(update_fields=["raw_payload", "updated_at"])
+    return JsonResponse(
+        {
+            "fields": selected,
+            "errors": [] if selected else ["Selected custom fields were not returned by LegalServer."],
+        }
+    )
 
 
 @api_login_required

@@ -73,7 +73,9 @@ def style_template_path(template):
 def has_word_template_assets(template):
     if not template:
         return False
-    if template.source_kind == "content_library" and template.content_path:
+    if template.source_kind == "content_library" and any(
+        block_template_path(template, block) for block in template.blocks.all()
+    ):
         return True
     if template.style_template or default_style_template_path(template):
         return True

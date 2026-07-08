@@ -58,7 +58,7 @@ def automatic_source_selection(query, *, matter=None):
                 continue
             if rule.get("requires_matter") and not matter:
                 continue
-            matched_terms = [term for term in rule.get("terms", []) if term.casefold() in text]
+            matched_terms = [str(term) for term in rule.get("terms", []) if str(term).casefold() in text]
             if matched_terms:
                 selected.append(source_id)
                 reasons[source_id] = rule.get("reason") or f"Matched: {', '.join(matched_terms)}."

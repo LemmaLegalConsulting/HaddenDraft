@@ -58,16 +58,24 @@ export function LawReview({ matter, session, onIssuesChange }) {
 
   return (
     <div className="panel">
+      <div className="step-guidance">
+        <span className="block-kicker">Human review gate</span>
+        <h3>Review legal issues before drafting</h3>
+        <p>
+          The system proposes defenses, counterclaims, denials, or missing-fact checks from the selected facts and drafting support.
+          Approve only the issues the draft should use; approved issues can activate draft sections.
+        </p>
+      </div>
       <button className="primary full" disabled={busy || !matter} onClick={runIssueSelection}>
         {busy ? <Loader2 className="spin" size={16} /> : <Scale size={16} />}
-        Map legal standards to facts
+        Map selected facts and support to legal issues
       </button>
       {error && <div className="inline-error">{error}</div>}
       <div className="issue-list">
         {issues.length === 0 && (
           <div className="empty-state compact">
             <strong className="empty-state-title">No candidate issues yet</strong>
-            <p>Map legal standards after reviewing fact sources. Approved issues activate draft sections with supporting facts.</p>
+            <p>Run legal issue mapping after reviewing facts and drafting support. Approved issues activate draft sections; rejected issues stay out of the draft.</p>
           </div>
         )}
         {issues.map((issue) => (
@@ -80,7 +88,7 @@ export function LawReview({ matter, session, onIssuesChange }) {
               {issue.explanation && <p>{issue.explanation}</p>}
               {issue.supportingFacts?.length > 0 && (
                 <div className="standard-fact-map">
-                  <strong>Supporting facts</strong>
+                  <strong>Selected facts supporting this issue</strong>
                   <ul>
                     {issue.supportingFacts.map((fact) => <li key={fact}>{fact}</li>)}
                   </ul>
@@ -91,6 +99,14 @@ export function LawReview({ matter, session, onIssuesChange }) {
                   <strong>Missing facts to confirm</strong>
                   <ul>
                     {issue.missingFacts.map((fact) => <li key={fact}>{fact}</li>)}
+                  </ul>
+                </div>
+              )}
+              {issue.outputs?.activate_blocks_after_approval?.length > 0 && (
+                <div className="standard-fact-map">
+                  <strong>Draft sections activated if approved</strong>
+                  <ul>
+                    {issue.outputs.activate_blocks_after_approval.map((blockKey) => <li key={blockKey}>{blockKey}</li>)}
                   </ul>
                 </div>
               )}

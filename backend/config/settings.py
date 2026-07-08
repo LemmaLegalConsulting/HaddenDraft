@@ -164,6 +164,11 @@ PROMPT_CATALOG_DIR = Path(os.environ.get("PROMPT_CATALOG_DIR", REPO_DIR / "promp
 CONTENT_LIBRARY_DIR = Path(os.environ.get("CONTENT_LIBRARY_DIR", REPO_DIR / "content"))
 if not CONTENT_LIBRARY_DIR.is_absolute():
     CONTENT_LIBRARY_DIR = REPO_DIR / CONTENT_LIBRARY_DIR
+ORGANIZATION_CONTENT_LIBRARY_DIR = Path(
+    os.environ.get("ORGANIZATION_CONTENT_LIBRARY_DIR", REPO_DIR / "private-content")
+)
+if not ORGANIZATION_CONTENT_LIBRARY_DIR.is_absolute():
+    ORGANIZATION_CONTENT_LIBRARY_DIR = REPO_DIR / ORGANIZATION_CONTENT_LIBRARY_DIR
 DOCUMENT_TEXT_EXTRACTOR = os.environ.get("DOCUMENT_TEXT_EXTRACTOR", "stdlib")
 # Fallback only. Administrators can override it in Organization settings, and
 # users can choose a personal default in their profile.

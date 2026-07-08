@@ -10,6 +10,10 @@ set -euo pipefail
 
 PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
+# ---- Update Submodules -------------------------------------------
+echo "🔄 Checking for private content (submodules)..."
+git submodule update --init 2>/dev/null || true
+
 # ---- Start Django ------------------------------------------------
 cd "$PROJECT_ROOT/backend"
 if [ -d "$PROJECT_ROOT/.venv" ]; then

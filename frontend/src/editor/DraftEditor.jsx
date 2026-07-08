@@ -118,6 +118,7 @@ function newBlockKey() {
 
 function DraftBlock({ block, blockState, disabled, onBlockChange, onFormatChange, onOpenRefine, onPreviewCitation }) {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [missingAnswers, setMissingAnswers] = useState({});
   const format = block.format || {};
   const initialConfig = useMemo(() => ({
     namespace: `DraftBlock-${block.key}`,
@@ -171,6 +172,32 @@ function DraftBlock({ block, blockState, disabled, onBlockChange, onFormatChange
         </div>
       </div>
 
+      {(block.missingInformation || []).length > 0 && (
+        <div className="warning-panel block-missing-info">
+          {(block.missingInformation || []).map((item, index) => (
+            <div key={`${item.question}-${index}`} className="missing-info-item">
+              <strong>{item.question}</strong>
+              <input
+                placeholder="Answer"
+                value={missingAnswers[index] || ""}
+                onChange={(event) => setMissingAnswers((current) => ({ ...current, [index]: event.target.value }))}
+              />
+              <button
+                className="secondary"
+                type="button"
+                disabled={disabled || !missingAnswers[index]?.trim()}
+                onClick={() => onOpenRefine({
+                  ...block,
+                  pendingInstruction: `Use this missing information answer when refining the block. ${item.question} Answer: ${missingAnswers[index]}`,
+                })}
+              >
+                Answer and refine block
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+
       <LexicalComposer initialConfig={initialConfig}>
         <BlockToolbar />
         <div className="block-editor-shell">
@@ -216,7 +243,10 @@ function DraftBlock({ block, blockState, disabled, onBlockChange, onFormatChange
 }
 
 function RefineModal({ block, disabled, onClose, onSubmit }) {
-  const [instruction, setInstruction] = useState("");
+  const [instruction, setInstruction] = useState(block?.pendingInstruction || "");
+  React.useEffect(() => {
+    setInstruction(block?.pendingInstruction || "");
+  }, [block]);
   if (!block) return null;
   return (
     <div className="modal-backdrop" role="presentation">
