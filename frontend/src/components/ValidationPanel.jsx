@@ -1,5 +1,5 @@
 import React from "react";
-import { AlertOctagon, AlertTriangle, Info } from "lucide-react";
+import { AlertOctagon, AlertTriangle, Info, Loader2, Sparkles } from "lucide-react";
 
 const SEVERITY_CONFIG = {
   error: { label: "Errors", Icon: AlertOctagon },
@@ -31,7 +31,7 @@ function FindingCard({ finding }) {
   );
 }
 
-export function ValidationPanel({ findings = [], summary = null }) {
+export function ValidationPanel({ findings = [], summary = null, onReviseWithAI, reviseBusy = false }) {
   const errors = findings.filter((finding) => finding.severity === "error");
   const warnings = findings.filter((finding) => finding.severity === "warning");
   const infos = findings.filter((finding) => finding.severity === "info");
@@ -39,6 +39,7 @@ export function ValidationPanel({ findings = [], summary = null }) {
   if (!findings.length && !summary) return null;
 
   const repairedAttempts = summary?.attempts ? Math.max(summary.attempts.length - 1, 0) : 0;
+  const revisableCount = errors.length + warnings.length;
 
   return (
     <div className="validation-panel">
@@ -53,6 +54,13 @@ export function ValidationPanel({ findings = [], summary = null }) {
         <div className="validation-blocking-warning">
           This draft still has blocking validation errors. Export is available for review, but this output should not be
           filed.
+        </div>
+      )}
+      {onReviseWithAI && revisableCount > 0 && (
+        <div className="button-row compact">
+          <button className="btn btn-outline-secondary" type="button" disabled={reviseBusy} onClick={onReviseWithAI}>
+            {reviseBusy ? <Loader2 className="spin" size={16} /> : <Sparkles size={16} />} Revise with AI
+          </button>
         </div>
       )}
       {[

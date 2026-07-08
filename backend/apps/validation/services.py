@@ -15,11 +15,10 @@ rendered output as validation anchors, not an extracted claim/citation graph.
 
 import re
 
-from jinja2 import TemplateSyntaxError
-
 from apps.templates_app.template_variables import (
     LEGACY_LITERAL_FIELDS,
-    extract_template_variables_from_text,
+    declared_template_fields,
+    normalize_field_path,
     template_field_label,
 )
 from apps.validation.findings import error_finding, sort_and_condense_findings, warning_finding
@@ -143,24 +142,13 @@ def validate_template_data(draft, snapshot):
     findings = []
     session, template = _session_and_template(draft)
     template_data = getattr(session, "template_data", {}) or {}
-    declared_fields = list((getattr(template, "metadata", {}) or {}).get("fields", [])) if template else []
-    if template:
-        for block in template.blocks.all():
-            try:
-                paths = extract_template_variables_from_text(block.body or "")
-            except TemplateSyntaxError:
-                paths = []
-            for path in paths:
-                if str(path).startswith(("fields.", 'fields["')) and path not in declared_fields:
-                    declared_fields.append(path)
+    declared_fields = declared_template_fields(template)
 
     plain_text = snapshot["plainText"]
     docx_text = snapshot["docxText"]
 
     for path in declared_fields:
-        value = str(path)
-        bracketed = re.fullmatch(r'fields\["([^"]+)"\]', value)
-        key = bracketed.group(1) if bracketed else value.removeprefix("fields.")
+        key = normalize_field_path(path)
         if key in LEGACY_LITERAL_FIELDS or str(template_data.get(key, "")).strip():
             continue
         label = template_field_label(key)
@@ -267,11 +255,13 @@ def validate_unresolved_placeholders(draft, snapshot):
     findings = []
     json_text = snapshot["plainText"]
     docx_text = snapshot["docxText"]
+    sections = snapshot["sections"]
 
     json_filing = _placeholder_matches(json_text, FILING_PLACEHOLDER_RE)
     docx_filing = _placeholder_matches(docx_text, FILING_PLACEHOLDER_RE)
     for excerpt in sorted(json_filing | docx_filing):
         view = _view_for(excerpt in json_filing, excerpt in docx_filing)
+        block_key = _section_key_containing(sections, excerpt) if excerpt in json_filing else ""
         findings.append(
             error_finding(
                 draft_id=draft.id,
@@ -279,11 +269,11 @@ def validate_unresolved_placeholders(draft, snapshot):
                 category="template",
                 target=f"placeholder:{excerpt.casefold()}",
                 message=f"The {'rendered Word document' if view == 'docx' else 'draft'} still contains the visible placeholder {excerpt}.",
-                location={"view": view, "excerpt": excerpt},
+                location={"view": view, "excerpt": excerpt, "blockKey": block_key or None},
                 action={
                     "type": "fill_template_field",
                     "label": "Fill the missing field or regenerate the block before filing.",
-                    "payload": {"placeholder": excerpt},
+                    "payload": {"placeholder": excerpt, "blockKey": block_key or None},
                 },
             )
         )
@@ -294,6 +284,7 @@ def validate_unresolved_placeholders(draft, snapshot):
         if NUMERIC_BRACKET_RE.match(excerpt) or CITATION_RE.search(excerpt):
             continue
         view = _view_for(excerpt in json_generic, excerpt in docx_generic)
+        block_key = _section_key_containing(sections, excerpt) if excerpt in json_generic else ""
         findings.append(
             warning_finding(
                 draft_id=draft.id,
@@ -301,7 +292,7 @@ def validate_unresolved_placeholders(draft, snapshot):
                 category="template",
                 target=f"placeholder:{excerpt.casefold()}",
                 message=f"Ambiguous bracketed text {excerpt} may be an unresolved placeholder.",
-                location={"view": view, "excerpt": excerpt},
+                location={"view": view, "excerpt": excerpt, "blockKey": block_key or None},
                 action={
                     "type": "human_review",
                     "label": "Confirm this bracketed text is intentional, or fill it in before filing.",

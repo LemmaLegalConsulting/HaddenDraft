@@ -6,8 +6,10 @@ from django.urls import reverse
 from apps.drafting.models import DraftDocument, DraftingSession
 from apps.matters.models import Matter, MatterFact
 from apps.templates_app.models import DocumentTemplate, TemplateBlock
+from apps.templates_app.template_variables import declared_template_fields, normalize_field_path
 from apps.validation.findings import error_finding, make_finding, warning_finding
 from apps.validation.repair import apply_repairs, is_repairable, validate_with_auto_repair
+from apps.validation.revision import apply_revision_plan, build_revision_plan
 from apps.validation.services import validate_document
 
 VALID_SEVERITIES = {"error", "warning", "info"}
@@ -310,3 +312,151 @@ class ValidateDraftEndpointTests(TestCase):
         self.assertIn("attempts", payload["validation"])
         self.assertIn("remainingErrorCount", payload["validation"])
         self.assertEqual(payload["draft"]["id"], draft.id)
+
+
+class DeclaredTemplateFieldsTests(TestCase):
+    def test_plaintiff_alias_resolves_to_plaintiff_name_field(self):
+        template = DocumentTemplate.objects.create(title="Answer", slug="declared-fields-alias-test", kind="answer_counterclaims")
+        TemplateBlock.objects.create(template=template, key="caption", label="Caption", block_type="caption", body="{{ plaintiff }} v. {{ defendant }}")
+
+        declared = declared_template_fields(template)
+
+        self.assertIn("fields.plaintiff_name", declared)
+        self.assertEqual(normalize_field_path("fields.plaintiff_name"), "plaintiff_name")
+
+    def test_explicit_fields_path_is_declared_directly(self):
+        template = DocumentTemplate.objects.create(title="Motion", slug="declared-fields-explicit-test", kind="motion")
+        TemplateBlock.objects.create(template=template, key="body", label="Body", block_type="argument", body="Hearing on {{ fields.hearing_date }}.")
+
+        declared = declared_template_fields(template)
+
+        self.assertIn("fields.hearing_date", declared)
+
+    def test_no_template_returns_empty_list(self):
+        self.assertEqual(declared_template_fields(None), [])
+
+
+class RevisionPlanTests(TestCase):
+    def _findings(self, draft_id):
+        return [
+            error_finding(
+                draft_id=draft_id,
+                rule_code="E140",
+                category="template",
+                target="placeholder:[court]",
+                message="The draft still contains the visible placeholder [Court].",
+                location={"view": "json", "blockKey": "caption"},
+                action={"type": "fill_template_field", "label": "Fill it in.", "payload": {"blockKey": "caption"}},
+            ),
+            warning_finding(
+                draft_id=draft_id,
+                rule_code="W530",
+                category="fact_support",
+                target="assertion:x",
+                message="This factual statement does not appear supported.",
+                location={"view": "json", "blockKey": "caption"},
+                action={"type": "review_fact_support", "label": "Confirm support.", "payload": {}},
+            ),
+            warning_finding(
+                draft_id=draft_id,
+                rule_code="W440",
+                category="citations",
+                target="citation:410 U.S. 113",
+                message="Citation was detected but cannot be validated automatically.",
+                location={"view": "json"},
+                action={"type": "review_citation", "label": "Review this citation.", "payload": {}},
+            ),
+        ]
+
+    def test_plan_groups_findings_by_block_and_separates_unscoped(self):
+        matter = make_matter()
+        session = make_session(matter)
+        draft = make_draft(session, sections=[{"key": "caption", "label": "Caption", "body": "Some caption text."}], plain_text="Some caption text.")
+
+        result = build_revision_plan(draft, self._findings(draft.id))
+
+        self.assertEqual(len(result["plan"]), 1)
+        self.assertEqual(result["plan"][0]["blockKey"], "caption")
+        self.assertEqual(len(result["plan"][0]["findingIds"]), 2)
+        self.assertEqual(len(result["unscoped"]), 1)
+        self.assertEqual(result["unscoped"][0]["severity"], "warning")
+
+    def test_findings_for_unknown_block_key_are_unscoped(self):
+        matter = make_matter()
+        session = make_session(matter)
+        draft = make_draft(session, sections=[], plain_text="")
+
+        result = build_revision_plan(draft, self._findings(draft.id))
+
+        self.assertEqual(result["plan"], [])
+        self.assertEqual(len(result["unscoped"]), 3)
+
+    @override_settings(AI_DRAFTING_ENABLED=False)
+    def test_apply_revision_plan_only_regenerates_included_blocks(self):
+        matter = make_matter()
+        session = make_session(matter)
+        draft = make_draft(
+            session,
+            sections=[
+                {"key": "caption", "label": "Caption", "body": "Caption text."},
+                {"key": "relief", "label": "Relief", "body": "Relief text."},
+            ],
+            plain_text="Caption text.\n\nRelief text.",
+        )
+
+        result = apply_revision_plan(
+            draft,
+            [
+                {"blockKey": "caption", "instruction": "Fix the caption.", "include": True},
+                {"blockKey": "relief", "instruction": "Fix the relief.", "include": False},
+            ],
+        )
+
+        caption = next(section for section in result.sections if section["key"] == "caption")
+        relief = next(section for section in result.sections if section["key"] == "relief")
+        self.assertEqual(caption.get("origin"), "ai")
+        self.assertNotEqual(relief.get("origin"), "ai")
+
+    def test_apply_revision_plan_skips_items_without_instruction(self):
+        matter = make_matter()
+        session = make_session(matter)
+        draft = make_draft(session, sections=[{"key": "caption", "label": "Caption", "body": "Caption text."}], plain_text="Caption text.")
+
+        result = apply_revision_plan(draft, [{"blockKey": "caption", "instruction": "  ", "include": True}])
+
+        caption = next(section for section in result.sections if section["key"] == "caption")
+        self.assertNotEqual(caption.get("origin"), "ai")
+
+
+class RevisionPlanEndpointTests(TestCase):
+    @override_settings(AI_DRAFTING_ENABLED=False)
+    def test_revision_plan_and_apply_endpoints(self):
+        user = get_user_model().objects.create_user(username="reviser", password="pass", is_superuser=True)
+        matter = make_matter()
+        template = DocumentTemplate.objects.create(title="Motion", slug="revision-endpoint-test", kind="motion")
+        TemplateBlock.objects.create(template=template, key="body", label="Body", block_type="argument", required=True, body="Static body.")
+        session = make_session(matter, template=template)
+        draft = make_draft(
+            session,
+            sections=[{"key": "body", "label": "Body", "body": "The case is pending before [Court]."}],
+            plain_text="The case is pending before [Court].",
+        )
+
+        self.client.login(username="reviser", password="pass")
+        plan_response = self.client.post(reverse("api_draft_revision_plan", args=[draft.id]))
+        self.assertEqual(plan_response.status_code, 200)
+        plan_payload = plan_response.json()["revisionPlan"]
+        self.assertTrue(plan_payload["plan"])
+        self.assertEqual(plan_payload["plan"][0]["blockKey"], "body")
+
+        apply_response = self.client.post(
+            reverse("api_apply_draft_revision", args=[draft.id]),
+            data={"plan": plan_payload["plan"]},
+            content_type="application/json",
+        )
+        self.assertEqual(apply_response.status_code, 200)
+        apply_payload = apply_response.json()
+        self.assertIn("draft", apply_payload)
+        self.assertIn("validation", apply_payload)
+        revised_body = next(section for section in apply_payload["draft"]["sections"] if section["key"] == "body")
+        self.assertEqual(revised_body.get("origin"), "ai")

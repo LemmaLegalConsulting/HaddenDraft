@@ -33,17 +33,19 @@ import { CaseSelector } from "./components/CaseSelector.jsx";
 import { DraftSupportReview } from "./components/DraftSupportReview.jsx";
 import { DraftGoalPanel } from "./components/DraftGoalPanel.jsx";
 import { DraftPlanReview } from "./components/DraftPlanReview.jsx";
+import { DraftQuestionsReview, unansweredPlanQuestions } from "./components/DraftQuestionsReview.jsx";
 import { FactReview } from "./components/FactReview.jsx";
 import { factRecommendationState } from "./components/factReviewState.js";
 import { mergeFactIds } from "./components/factReviewState.js";
 import { LawReview } from "./components/LawReview.jsx";
 import { ResearchPanel } from "./components/ResearchPanel.jsx";
+import { RevisionPlanModal } from "./components/RevisionPlanModal.jsx";
 import { TemplatePicker } from "./components/TemplatePicker.jsx";
 import { TriagePanel } from "./components/TriagePanel.jsx";
 import { ValidationPanel } from "./components/ValidationPanel.jsx";
 import { WorkflowStepper } from "./components/WorkflowStepper.jsx";
 
-const workflowSteps = [
+const BASE_WORKFLOW_STEPS = [
   { id: "goal", label: "Goal" },
   { id: "plan", label: "Plan" },
   { id: "editor", label: "Draft" },
@@ -87,6 +89,9 @@ export function App() {
   const [outline, setOutline] = useState(null);
   const [draft, setDraft] = useState(null);
   const [validationSummary, setValidationSummary] = useState(null);
+  const [draftDirtySinceValidation, setDraftDirtySinceValidation] = useState(false);
+  const [revisionPlan, setRevisionPlan] = useState(null);
+  const [revisionBusy, setRevisionBusy] = useState(false);
   const [triageAssessment, setTriageAssessment] = useState(null);
   const [triageHistory, setTriageHistory] = useState([]);
   const [selectedTriageRubricId, setSelectedTriageRubricId] = useState("");
@@ -108,6 +113,17 @@ export function App() {
   const [connectionSettingsOpen, setConnectionSettingsOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const [error, setError] = useState("");
+
+  const pendingPlanQuestions = useMemo(() => unansweredPlanQuestions(draftPlan), [draftPlan]);
+  const workflowSteps = useMemo(() => {
+    if (!clarifyMissingFactsBeforeDraft || pendingPlanQuestions.length === 0) return BASE_WORKFLOW_STEPS;
+    return [
+      { id: "goal", label: "Goal" },
+      { id: "plan", label: "Plan" },
+      { id: "questions", label: "Questions" },
+      { id: "editor", label: "Draft" },
+    ];
+  }, [clarifyMissingFactsBeforeDraft, pendingPlanQuestions.length]);
 
   useEffect(() => {
     async function load() {
@@ -588,12 +604,21 @@ export function App() {
       });
       setDraft(response.drafts?.[0] || null);
       setValidationSummary(null);
+      setDraftDirtySinceValidation(false);
       setDraftStep("editor");
     } catch (err) {
       setError(err.message);
     } finally {
       setBusy(false);
     }
+  }
+
+  function goToQuestionsOrGenerate() {
+    if (clarifyMissingFactsBeforeDraft && unansweredPlanQuestions(draftPlan).length > 0) {
+      setDraftStep("questions");
+      return;
+    }
+    generateDraftsFromPlan();
   }
 
   async function continueToFactReview() {
@@ -682,6 +707,7 @@ export function App() {
       const response = await api.generateDraft(activeSession.id);
       setDraft(response.draft);
       setValidationSummary(null);
+      setDraftDirtySinceValidation(false);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -696,6 +722,7 @@ export function App() {
       const response = await api.validateDraft(draft.id);
       setDraft(response.draft);
       setValidationSummary(response.validation || null);
+      setDraftDirtySinceValidation(false);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -710,10 +737,71 @@ export function App() {
     try {
       const response = await api.regenerateDraftBlock(draft.id, blockKey, { instruction });
       setDraft(response.draft);
+      setDraftDirtySinceValidation(true);
     } catch (err) {
       setError(err.message);
     } finally {
       setBusy(false);
+    }
+  }
+
+  async function fillMissingField(fieldKey, value, sections, plainText, editorState) {
+    setBusy(true);
+    setError("");
+    try {
+      if (session?.id && fieldKey) {
+        const sessionResponse = await api.updateSessionTemplateData(session.id, { [fieldKey]: value });
+        setSession(sessionResponse.session);
+        setTemplateData(sessionResponse.session.templateData);
+      }
+      if (draft) {
+        const response = await api.updateDraft(draft.id, { sections, plainText, editorState });
+        setDraft(response.draft);
+      }
+      setDraftDirtySinceValidation(true);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function openRevisionPlan() {
+    if (!draft) return;
+    setRevisionBusy(true);
+    setError("");
+    try {
+      const response = await api.draftRevisionPlan(draft.id);
+      setRevisionPlan(response.revisionPlan);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setRevisionBusy(false);
+    }
+  }
+
+  function updateRevisionPlanItem(blockKey, patch) {
+    setRevisionPlan((current) => (
+      current
+        ? { ...current, plan: current.plan.map((item) => (item.blockKey === blockKey ? { ...item, ...patch } : item)) }
+        : current
+    ));
+  }
+
+  async function applyRevisionPlan() {
+    if (!draft || !revisionPlan) return;
+    setRevisionBusy(true);
+    setError("");
+    try {
+      const response = await api.applyDraftRevision(draft.id, revisionPlan.plan);
+      setDraft(response.draft);
+      setValidationSummary(response.validation || null);
+      setDraftDirtySinceValidation(false);
+      setRevisionPlan(null);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setRevisionBusy(false);
     }
   }
 
@@ -814,8 +902,69 @@ export function App() {
         {mode === "case_chat" && <CaseChat matter={matter} onAction={handleCaseAction} />}
         {mode === "research" && <ResearchPanel matter={matter} sources={boot?.sources || []} onResults={(results) => setSourceResults(results)} />}
         {mode === "draft" && draftStep === "goal" && <DraftGoalPanel goal={draftGoal} onGoalChange={(value) => { setDraftGoal(value); setInstructions(value); setSelectedGoalSuggestionId(""); }} planningMode={planningMode} onPlanningModeChange={setPlanningMode} allowMultiple={allowMultipleDocuments} onAllowMultipleChange={setAllowMultipleDocuments} selectedTemplateId={selectedTemplateId} onTemplateChange={selectDraftTemplate} templates={templates} matter={matter} busy={busy} onMakePlan={() => makeDraftPlan()} goalSuggestions={goalSuggestions} goalSuggestionGuidance={goalSuggestionGuidance} goalSuggestionsBusy={goalSuggestionsBusy} selectedGoalSuggestionId={selectedGoalSuggestionId} onSuggestGoals={suggestDraftGoals} onSelectGoalSuggestion={selectGoalSuggestion} />}
-        {mode === "draft" && draftStep === "plan" && <DraftPlanReview plan={draftPlan} templates={templates} matter={matter} session={session} busy={busy} authorProfile={draftAuthorProfile} onAuthorProfileChange={setDraftAuthorProfile} selectedFactIds={selectedFactIds} selectedCuratedFacts={selectedCuratedFacts} onFactChange={setSelectedFactIds} onCuratedChange={setSelectedCuratedFacts} onMatterChange={setMatter} onFactIdsAdded={(ids) => setSelectedFactIds((current) => mergeFactIds(current, ids))} selectedResults={sourceResults} onSelectedResultsChange={setSourceResults} onSessionChange={setSession} candidateIssues={candidateIssues} onIssuesChange={setCandidateIssues} clarifyMissingFactsBeforeDraft={clarifyMissingFactsBeforeDraft} onClarifyMissingFactsBeforeDraftChange={setClarifyMissingFactsBeforeDraft} onPlanChange={setDraftPlan} onRegeneratePlan={regenerateDraftPlan} onGenerateDraft={generateDraftsFromPlan} />}
-        {mode === "draft" && draftStep === "editor" && <section className="panel editor-panel">{draft && <div className="button-row compact editor-actions"><button className="btn btn-outline-secondary" disabled={busy} onClick={validateDraft}><CheckCircle2 size={16} /> Validate</button><a className="btn btn-primary link-button" href={api.exportDraftUrl(draft.id)}><Download size={16} /> Export to Word</a></div>}<div className="button-row step-actions top-step-actions"><button className="btn btn-outline-secondary" onClick={() => setDraftStep("plan")}>Back to plan</button><button className="btn btn-primary" disabled={busy || !matter || !draftPlan} onClick={generateDraftsFromPlan}>{busy ? <Loader2 className="spin" size={16} /> : <FileText size={16} />} Generate draft</button></div><DraftEditor draft={draft} busy={busy} onChange={(sections, plainText, editorState) => setDraft((current) => current ? { ...current, sections, plainText, editorState } : current)} onPersist={async () => { if (draft) { const response = await api.updateDraft(draft.id, { sections: draft.sections, plainText: draft.plainText, editorState: draft.editorState }); setDraft(response.draft); } }} onRegenerateBlock={regenerateDraftBlock} />{draft && (draft.validationFlags?.length > 0 || validationSummary) && <ValidationPanel findings={draft.validationFlags || []} summary={validationSummary} />}</section>}
+        {mode === "draft" && draftStep === "plan" && <DraftPlanReview plan={draftPlan} templates={templates} matter={matter} session={session} busy={busy} authorProfile={draftAuthorProfile} onAuthorProfileChange={setDraftAuthorProfile} selectedFactIds={selectedFactIds} selectedCuratedFacts={selectedCuratedFacts} onFactChange={setSelectedFactIds} onCuratedChange={setSelectedCuratedFacts} onMatterChange={setMatter} onFactIdsAdded={(ids) => setSelectedFactIds((current) => mergeFactIds(current, ids))} selectedResults={sourceResults} onSelectedResultsChange={setSourceResults} onSessionChange={setSession} candidateIssues={candidateIssues} onIssuesChange={setCandidateIssues} clarifyMissingFactsBeforeDraft={clarifyMissingFactsBeforeDraft} onClarifyMissingFactsBeforeDraftChange={setClarifyMissingFactsBeforeDraft} onPlanChange={setDraftPlan} onRegeneratePlan={regenerateDraftPlan} onContinue={goToQuestionsOrGenerate} />}
+        {mode === "draft" && draftStep === "questions" && (
+          <DraftQuestionsReview
+            plan={draftPlan}
+            busy={busy}
+            onPlanChange={setDraftPlan}
+            onBack={() => setDraftStep("plan")}
+            onContinue={generateDraftsFromPlan}
+          />
+        )}
+        {mode === "draft" && draftStep === "editor" && (
+          <section className="panel editor-panel">
+            <DraftEditor
+              draft={draft}
+              busy={busy}
+              onChange={(sections, plainText, editorState) => setDraft((current) => (current ? { ...current, sections, plainText, editorState } : current))}
+              onPersist={async () => {
+                if (!draft) return;
+                const response = await api.updateDraft(draft.id, { sections: draft.sections, plainText: draft.plainText, editorState: draft.editorState });
+                setDraft(response.draft);
+                setDraftDirtySinceValidation(true);
+              }}
+              onRegenerateBlock={regenerateDraftBlock}
+              onFillMissingField={fillMissingField}
+            />
+            {draft && (draft.validationFlags?.length > 0 || validationSummary) && (
+              <ValidationPanel
+                findings={draft.validationFlags || []}
+                summary={validationSummary}
+                onReviseWithAI={openRevisionPlan}
+                reviseBusy={revisionBusy}
+              />
+            )}
+            <div className="button-row step-actions bottom-step-actions">
+              <button className="btn btn-outline-secondary" onClick={() => setDraftStep("plan")}>Back to plan</button>
+              {draft && (
+                <div className="button-row compact bottom-step-actions-right">
+                  {draftDirtySinceValidation && validationSummary && (
+                    <span className="recheck-hint">You've made changes since the last check.</span>
+                  )}
+                  <a className="btn btn-outline-secondary link-button" href={api.exportDraftUrl(draft.id)}>
+                    <Download size={16} /> Export to Word
+                  </a>
+                  <button
+                    className={`btn btn-primary${draftDirtySinceValidation ? " suggested-next-step" : ""}`}
+                    disabled={busy}
+                    type="button"
+                    onClick={validateDraft}
+                  >
+                    {busy ? <Loader2 className="spin" size={16} /> : <CheckCircle2 size={16} />} {validationSummary ? "Recheck" : "Validate"}
+                  </button>
+                </div>
+              )}
+            </div>
+            <RevisionPlanModal
+              plan={revisionPlan}
+              busy={revisionBusy}
+              onClose={() => setRevisionPlan(null)}
+              onUpdateItem={updateRevisionPlanItem}
+              onApply={applyRevisionPlan}
+            />
+          </section>
+        )}
       </main>
     </div>
   );

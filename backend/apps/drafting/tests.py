@@ -677,6 +677,94 @@ class DraftRenderingTests(TestCase):
         self.assertEqual(session.template_data["hearing_date"], "August 1, 2026")
         self.assertIn("August 1, 2026", drafts[0].sections[0]["body"])
 
+    def test_plan_missing_information_includes_unset_template_field_question(self):
+        matter = Matter.objects.create(
+            external_id="CASE-FIELD-QUESTION",
+            client_name="Jane Tenant",
+            matter_type="Eviction",
+            jurisdiction="Housing Court",
+        )
+        template = DocumentTemplate.objects.create(
+            slug="answer-plaintiff-field-test",
+            title="Answer and Counterclaims",
+            kind="answer_counterclaims",
+        )
+        TemplateBlock.objects.create(
+            template=template,
+            key="caption",
+            label="Caption",
+            block_type="caption",
+            order=10,
+            body="{{ plaintiff }} v. {{ defendant }}",
+        )
+        session = DraftingSession.objects.create(mode="draft_from_template", matter=matter, template=template)
+
+        session = create_or_update_plan(session, {"selectedTemplateIds": [template.id]})
+
+        questions = [item["question"] for item in session.missing_information]
+        self.assertTrue(any("plaintiff name" in question.casefold() for question in questions), questions)
+
+    def test_plan_missing_information_omits_already_answered_template_field(self):
+        matter = Matter.objects.create(
+            external_id="CASE-FIELD-ANSWERED",
+            client_name="Jane Tenant",
+            matter_type="Eviction",
+            jurisdiction="Housing Court",
+        )
+        template = DocumentTemplate.objects.create(
+            slug="answer-plaintiff-answered-test",
+            title="Answer and Counterclaims",
+            kind="answer_counterclaims",
+        )
+        TemplateBlock.objects.create(
+            template=template,
+            key="caption",
+            label="Caption",
+            block_type="caption",
+            order=10,
+            body="{{ plaintiff }} v. {{ defendant }}",
+        )
+        session = DraftingSession.objects.create(
+            mode="draft_from_template",
+            matter=matter,
+            template=template,
+            template_data={"plaintiff_name": "Acme Realty LLC"},
+        )
+
+        session = create_or_update_plan(session, {"selectedTemplateIds": [template.id]})
+
+        questions = [item["question"] for item in session.missing_information]
+        self.assertFalse(any("plaintiff name" in question.casefold() for question in questions), questions)
+
+
+class SessionTemplateDataEndpointTests(TestCase):
+    def test_update_session_template_data_merges_values(self):
+        user = get_user_model().objects.create_user(username="filler", password="pass", is_superuser=True)
+        matter = Matter.objects.create(
+            external_id="CASE-TEMPLATE-DATA",
+            client_name="Jane Tenant",
+            matter_type="Eviction",
+            jurisdiction="Housing Court",
+        )
+        session = DraftingSession.objects.create(
+            mode="draft_from_template",
+            matter=matter,
+            template_data={"existing": "value"},
+        )
+
+        self.client.login(username="filler", password="pass")
+        url = reverse("api_session_template_data", args=[session.id])
+        response = self.client.post(
+            url,
+            data='{"templateData": {"plaintiff_name": "Acme Realty LLC"}}',
+            content_type="application/json",
+        )
+
+        self.assertEqual(response.status_code, 200)
+        session.refresh_from_db()
+        self.assertEqual(session.template_data["plaintiff_name"], "Acme Realty LLC")
+        self.assertEqual(session.template_data["existing"], "value")
+
     def test_export_docx_removes_xml_forbidden_characters(self):
         draft = SimpleNamespace(
             id=44,

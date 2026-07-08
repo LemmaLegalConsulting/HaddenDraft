@@ -70,6 +70,47 @@ def template_field_values(values=None):
     return TemplateFieldValues(values or {})
 
 
+ALIAS_TEMPLATE_DATA_KEYS = {
+    "plaintiff": "plaintiff_name",
+    "case_number": "court_case_number",
+}
+
+
+def normalize_field_path(path):
+    value = str(path)
+    bracketed = re.fullmatch(r'fields\["([^"]+)"\]', value)
+    return bracketed.group(1) if bracketed else value.removeprefix("fields.")
+
+
+def declared_template_fields(template):
+    """Template-data keys a template's blocks reference, as `fields.<key>` paths.
+
+    Covers both explicit `fields.x` usage and known system aliases (e.g. the
+    `plaintiff` alias in block bodies resolves to `fields.plaintiff_name` at
+    render time), so callers can detect "this template will show a visible
+    placeholder unless this value is filled in" without duplicating the
+    render-context alias mapping.
+    """
+    if not template:
+        return []
+    declared = list((template.metadata or {}).get("fields", []))
+    for block in template.blocks.all():
+        try:
+            paths = extract_template_variables_from_text(block.body or "")
+        except TemplateSyntaxError:
+            paths = []
+        for path in paths:
+            path_str = str(path)
+            if path_str.startswith(("fields.", 'fields["')):
+                if path_str not in declared:
+                    declared.append(path_str)
+            elif path_str in ALIAS_TEMPLATE_DATA_KEYS:
+                aliased = f"fields.{ALIAS_TEMPLATE_DATA_KEYS[path_str]}"
+                if aliased not in declared:
+                    declared.append(aliased)
+    return declared
+
+
 def normalize_docxtpl_blocks(text):
     text = BLOCK_PREFIX_RE.sub("{%", text)
     text = EXPR_PREFIX_RE.sub(r"\1", text)

@@ -3,6 +3,7 @@ import { CheckCircle2, ClipboardList, FileText, Loader2, Sparkles, UserRound } f
 
 import { AuthorFields } from "./AuthorFields.jsx";
 import { CaseMaterialsPanel } from "./CaseMaterialsPanel.jsx";
+import { unansweredPlanQuestions } from "./DraftQuestionsReview.jsx";
 import { DraftSupportReview } from "./DraftSupportReview.jsx";
 import { FactReview } from "./FactReview.jsx";
 import { LawReview } from "./LawReview.jsx";
@@ -39,18 +40,13 @@ export function DraftPlanReview({
   onClarifyMissingFactsBeforeDraftChange,
   onPlanChange,
   onRegeneratePlan,
-  onGenerateDraft,
+  onContinue,
 }) {
   const [openPanel, setOpenPanel] = useState("documents");
   const [guidance, setGuidance] = useState("");
   const templateBySlug = useMemo(() => new Map(templates.map((template) => [template.slug, template])), [templates]);
   const documentItems = plan?.document_items || [];
-  const unansweredQuestions = documentItems.flatMap((item) => (
-    (item.missing_information || [])
-      .filter((missing) => !missing.answer && !missing.not_needed)
-      .map((missing) => ({ ...missing, documentTitle: item.title }))
-  ));
-  const shouldPauseForQuestions = clarifyMissingFactsBeforeDraft && unansweredQuestions.length > 0;
+  const unansweredQuestions = unansweredPlanQuestions(plan);
 
   if (!plan) {
     return (
@@ -61,12 +57,6 @@ export function DraftPlanReview({
         </div>
       </section>
     );
-  }
-
-  function updateMissing(documentItem, index, patch) {
-    const missing = [...(documentItem.missing_information || [])];
-    missing[index] = { ...missing[index], ...patch };
-    onPlanChange(updateDocument(plan, documentItem.id, { missing_information: missing }));
   }
 
   return (
@@ -130,28 +120,11 @@ export function DraftPlanReview({
                     </label>
                   ))}
                 </div>
-                {(item.missing_information || []).some((missing) => !missing.not_needed) && (
-                  <div className="missing-info-list">
-                    {(item.missing_information || []).map((missing, index) => !missing.not_needed && (
-                      <div className="missing-info-item" key={`${missing.field}-${index}`}>
-                        <strong>{missing.question}</strong>
-                        <input
-                          placeholder="Add answer"
-                          value={missing.answer || ""}
-                          onChange={(event) => updateMissing(item, index, { answer: event.target.value, not_needed: false })}
-                        />
-                        <div className="button-row compact">
-                          <button className="secondary" type="button" onClick={() => updateMissing(item, index, { not_needed: true, required_for_generation: false })}>Skip question</button>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
               </article>
             );
           })}
         </div>
-        <div className={shouldPauseForQuestions ? "question-gate active" : "question-gate"}>
+        <div className="question-gate">
           <label className="checkbox-row">
             <input
               type="checkbox"
@@ -160,10 +133,16 @@ export function DraftPlanReview({
             />
             <span>Pause for unanswered drafting questions before generating</span>
           </label>
-          {shouldPauseForQuestions && (
+          {unansweredQuestions.length > 0 && (
             <div className="question-gate-summary">
-              <strong>{unansweredQuestions.length} question{unansweredQuestions.length === 1 ? "" : "s"} need an answer or skip decision.</strong>
-              <span>Answer them above, mark them not needed, or turn off this pause to generate with placeholders.</span>
+              {clarifyMissingFactsBeforeDraft ? (
+                <>
+                  <strong>{unansweredQuestions.length} question{unansweredQuestions.length === 1 ? "" : "s"} need an answer or skip decision.</strong>
+                  <span>You'll be asked to answer or skip them on the next step before the draft is generated.</span>
+                </>
+              ) : (
+                <span>{unansweredQuestions.length} question{unansweredQuestions.length === 1 ? " is" : "s are"} unanswered. Since the pause is off, unanswered fields will appear as placeholder text (like [Plaintiff Name]) in the draft.</span>
+              )}
             </div>
           )}
         </div>
@@ -178,8 +157,9 @@ export function DraftPlanReview({
           <button className="btn btn-outline-secondary" type="button" disabled={busy} onClick={() => onRegeneratePlan(guidance)}>
             {busy ? <Loader2 className="spin" size={16} /> : <Sparkles size={16} />} Regenerate plan
           </button>
-          <button className="btn btn-primary" type="button" disabled={busy || !documentItems.length || shouldPauseForQuestions} onClick={onGenerateDraft}>
-            {busy ? <Loader2 className="spin" size={16} /> : <CheckCircle2 size={16} />} {shouldPauseForQuestions ? "Answer questions to generate" : "Generate draft"}
+          <button className="btn btn-primary" type="button" disabled={busy || !documentItems.length} onClick={onContinue}>
+            {busy ? <Loader2 className="spin" size={16} /> : <CheckCircle2 size={16} />}{" "}
+            {clarifyMissingFactsBeforeDraft && unansweredQuestions.length > 0 ? "Review questions" : "Generate draft"}
           </button>
         </div>
       </div>

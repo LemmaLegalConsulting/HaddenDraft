@@ -115,6 +115,8 @@ export const api = {
     request(`/drafting-sessions/${sessionId}/plan/`, { method: "POST", body: JSON.stringify(payload) }),
   updateDraftPlan: (sessionId, payload = {}) =>
     request(`/drafting-sessions/${sessionId}/plan/`, { method: "PATCH", body: JSON.stringify(payload) }),
+  updateSessionTemplateData: (sessionId, templateData) =>
+    request(`/drafting-sessions/${sessionId}/template-data/`, { method: "POST", body: JSON.stringify({ templateData }) }),
   generatePlanDrafts: (sessionId, payload = {}) =>
     request(`/drafting-sessions/${sessionId}/drafts/`, { method: "POST", body: JSON.stringify(payload) }),
   generateDraft: (sessionId) => request(`/drafting-sessions/${sessionId}/draft/`, { method: "POST" }),
@@ -122,6 +124,9 @@ export const api = {
   regenerateDraftBlock: (draftId, blockKey, payload) =>
     request(`/drafts/${draftId}/blocks/${blockKey}/regenerate/`, { method: "POST", body: JSON.stringify(payload) }),
   validateDraft: (draftId) => request(`/drafts/${draftId}/validate/`, { method: "POST" }),
+  draftRevisionPlan: (draftId) => request(`/drafts/${draftId}/revision-plan/`, { method: "POST" }),
+  applyDraftRevision: (draftId, plan) =>
+    request(`/drafts/${draftId}/revision/`, { method: "POST", body: JSON.stringify({ plan }) }),
   exportDraftUrl: (draftId) => `${API_BASE}/drafts/${draftId}/export/`,
   adminUrl: () => "/admin/",
 };
