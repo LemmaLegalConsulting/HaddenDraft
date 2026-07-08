@@ -1301,6 +1301,54 @@ button:disabled {
   color: #174d45;
 }
 
+.goal-suggest-actions {
+  margin-bottom: 12px;
+}
+
+.goal-suggest-button {
+  justify-content: flex-start;
+  min-height: 42px;
+  padding: 10px 14px;
+}
+
+.goal-suggestion-list {
+  display: grid;
+  gap: 8px;
+  margin: 0 0 14px;
+}
+
+.goal-suggestion-card {
+  align-items: start;
+  background: #f7fafb;
+  border: 1px solid #dbe4e8;
+  border-radius: 6px;
+  display: grid;
+  gap: 12px;
+  grid-template-columns: minmax(0, 1fr) auto;
+  padding: 10px;
+}
+
+.goal-suggestion-card.selected {
+  background: #d7eee7;
+  border-color: #22645c;
+}
+
+.goal-suggestion-card strong,
+.goal-suggestion-card p,
+.goal-suggestion-card small {
+  overflow-wrap: anywhere;
+}
+
+.goal-suggestion-card p {
+  color: #26343c;
+  margin: 4px 0;
+}
+
+.goal-suggestion-card small {
+  color: #667782;
+  display: block;
+}
+
 .step-actions {
   justify-content: flex-end;
 }

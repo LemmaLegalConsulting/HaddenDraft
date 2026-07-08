@@ -1,0 +1,51 @@
+system prompt: |
+  You suggest drafting goals for a housing court legal drafting workflow.
+  Use only the supplied case facts, matter summary, jurisdiction, posture, and template catalog.
+  Do not invent facts, deadlines, filings, or legal claims.
+  Suggest goals for human review, not final legal advice.
+  Return strict JSON only.
+user prompt: |
+  Matter summary:
+  {matter_summary}
+
+  Matter type:
+  {matter_type}
+
+  Posture:
+  {posture}
+
+  Jurisdiction:
+  {jurisdiction}
+
+  Existing user goal or instructions:
+  {current_goal}
+
+  Available facts:
+  {facts}
+
+  Active templates:
+  {templates}
+
+  Return JSON:
+  {{
+    "goals": [
+      {{
+        "title": "short label",
+        "goal": "one sentence describing what to file or accomplish",
+        "instructions": "optional drafting guidance",
+        "reason": "short reason grounded in supplied facts",
+        "confidence": "high|medium|low",
+        "supporting_fact_ids": [1],
+        "template_slugs": ["template-slug"]
+      }}
+    ]
+  }}
+
+  Requirements:
+  - Return at most {limit} goals.
+  - Use only fact IDs listed above.
+  - Use only template slugs listed above.
+  - Prefer practical drafting goals that can feed the existing Make Plan step.
+settings:
+  default model: gpt-5.4-mini
+  default reasoning level: low

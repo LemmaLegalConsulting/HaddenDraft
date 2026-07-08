@@ -5,17 +5,26 @@ from pathlib import Path
 from types import SimpleNamespace
 from xml.etree import ElementTree
 
+from django.contrib.auth import get_user_model
 from django.core.files import File
+from django.urls import reverse
 from django.test import TestCase
 from django.test.utils import override_settings
 from docx import Document
 
 from apps.ai.services import ConstrainedDraftingService
 from apps.drafting.models import DraftDocument, DraftingSession
-from apps.drafting.services import apply_plan_edits, create_drafts_from_plan, create_or_update_plan, unanswered_missing_information
+from apps.drafting.services import (
+    _normalize_goal_candidates,
+    apply_plan_edits,
+    create_drafts_from_plan,
+    create_or_update_plan,
+    recommend_goal_candidates,
+    unanswered_missing_information,
+)
 from apps.exporting.services import _docx_render_context
 from apps.exporting.services import export_docx
-from apps.matters.models import Matter
+from apps.matters.models import Matter, MatterFact
 from apps.templates_app.models import DocumentTemplate, TemplateBlock
 from apps.templates_app.serializers import template_to_dict
 from apps.templates_app.template_variables import (
@@ -26,6 +35,143 @@ from apps.validation.services import validate_document
 
 
 class DraftRenderingTests(TestCase):
+    def test_goal_recommendation_fallback_suggests_continuance_from_rental_assistance(self):
+        matter = Matter.objects.create(
+            external_id="CASE-GOAL-CONTINUANCE",
+            client_name="Jane Tenant",
+            matter_type="Eviction",
+            jurisdiction="Cleveland Municipal Court - Housing Division",
+            summary="Tenant has pending rental assistance and needs more time before hearing.",
+        )
+        assistance_fact = MatterFact.objects.create(
+            matter=matter,
+            slug="pending-rental-assistance",
+            title="Pending rental assistance",
+            text="Tenant has an ERAP rental assistance application pending.",
+            source_label="Intake",
+        )
+        MatterFact.objects.create(
+            matter=matter,
+            slug="hearing-deadline",
+            title="Hearing deadline",
+            text="The eviction hearing is scheduled soon and tenant needs more time.",
+            source_label="Intake",
+        )
+        template, _created = DocumentTemplate.objects.update_or_create(
+            slug="motion-continuance-cleveland",
+            defaults={
+                "title": "Motion for Continuance",
+                "kind": "motion",
+                "goal": "Ask the court to continue or postpone a hearing.",
+                "aliases": ["continue hearing", "more time"],
+                "jurisdiction": "Cleveland Municipal Court - Housing Division",
+            },
+        )
+        TemplateBlock.objects.create(
+            template=template,
+            key="body",
+            label="Body",
+            block_type="argument",
+            body="Continuance body.",
+        )
+        session = DraftingSession.objects.create(
+            mode="draft_from_template",
+            matter=matter,
+        )
+
+        with override_settings(AI_DRAFTING_ENABLED=False):
+            payload = recommend_goal_candidates(session)
+
+        self.assertTrue(payload["goals"])
+        goal = payload["goals"][0]
+        self.assertRegex(goal["goal"].casefold(), r"continue|more time")
+        self.assertIn(assistance_fact.id, goal["supportingFactIds"])
+        self.assertIn("motion-continuance-cleveland", goal["templateSlugs"])
+
+    def test_goal_recommendation_endpoint_requires_login_and_keeps_session_goal(self):
+        user = get_user_model().objects.create_user(username="reviewer", password="pass", is_superuser=True)
+        matter = Matter.objects.create(
+            external_id="CASE-GOAL-ENDPOINT",
+            client_name="Jane Tenant",
+            matter_type="Eviction",
+            jurisdiction="Housing Court",
+            summary="Tenant has a hearing and needs more time.",
+        )
+        DocumentTemplate.objects.create(
+            slug="endpoint-continuance-template",
+            title="Motion for Continuance",
+            kind="motion",
+            goal="Ask the court for more time.",
+            aliases=["more time"],
+        )
+        session = DraftingSession.objects.create(
+            mode="draft_from_template",
+            matter=matter,
+            goal="Original user goal",
+        )
+        url = reverse("api_session_recommend_goals", args=[session.id])
+
+        unauthenticated = self.client.post(url, data='{"limit": 5}', content_type="application/json")
+        self.assertEqual(unauthenticated.status_code, 401)
+
+        self.client.login(username="reviewer", password="pass")
+        with override_settings(AI_DRAFTING_ENABLED=False):
+            response = self.client.post(url, data='{"limit": 5}', content_type="application/json")
+
+        self.assertEqual(response.status_code, 200)
+        payload = response.json()
+        self.assertIn("goals", payload)
+        self.assertEqual(payload["session"]["goal"], "Original user goal")
+        session.refresh_from_db()
+        self.assertEqual(session.goal, "Original user goal")
+
+    def test_goal_recommendation_normalizer_removes_invalid_ai_references(self):
+        matter = Matter.objects.create(
+            external_id="CASE-GOAL-NORMALIZE",
+            client_name="Jane Tenant",
+            matter_type="Eviction",
+            jurisdiction="Housing Court",
+            summary="Tenant has a hearing.",
+        )
+        valid_fact = MatterFact.objects.create(
+            matter=matter,
+            slug="valid-fact",
+            title="Valid fact",
+            text="Tenant has a pending hearing.",
+            source_label="Intake",
+        )
+        valid_template = DocumentTemplate.objects.create(
+            slug="valid-goal-template",
+            title="Valid Goal Template",
+            kind="motion",
+            is_active=True,
+        )
+        inactive_template = DocumentTemplate.objects.create(
+            slug="inactive-goal-template",
+            title="Inactive Goal Template",
+            kind="motion",
+            is_active=False,
+        )
+
+        normalized = _normalize_goal_candidates(
+            [
+                {
+                    "title": "Hearing continuance",
+                    "goal": "Ask the court for more time before the hearing.",
+                    "supporting_fact_ids": [valid_fact.id, 99999],
+                    "template_slugs": [valid_template.slug, inactive_template.slug, "missing-template"],
+                }
+            ],
+            [valid_fact],
+            [valid_template, inactive_template],
+        )
+
+        self.assertEqual(normalized[0]["id"], "hearing-continuance")
+        self.assertEqual(normalized[0]["confidence"], "medium")
+        self.assertEqual(normalized[0]["supportingFactIds"], [valid_fact.id])
+        self.assertEqual(normalized[0]["templateSlugs"], [valid_template.slug])
+        self.assertEqual(normalized[0]["templateIds"], [valid_template.id])
+
     def test_template_variable_parser_resolves_dotted_paths_and_loop_aliases(self):
         variables = extract_template_variables_from_text(
             "{% for fact in selected_facts %}{{ fact.text }} {{ client.name.first }}{% endfor %}"

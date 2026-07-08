@@ -104,6 +104,8 @@ export const api = {
     request(`/drafting-sessions/${sessionId}/advance/`, { method: "POST", body: JSON.stringify(payload) }),
   recommendSessionFacts: (sessionId, payload = { apply: true }) =>
     request(`/drafting-sessions/${sessionId}/recommend-facts/`, { method: "POST", body: JSON.stringify(payload) }),
+  recommendSessionGoals: (sessionId, payload = { limit: 5 }) =>
+    request(`/drafting-sessions/${sessionId}/recommend-goals/`, { method: "POST", body: JSON.stringify(payload) }),
   recommendSessionSupport: (sessionId, payload = { apply: true }) =>
     request(`/drafting-sessions/${sessionId}/recommend-support/`, { method: "POST", body: JSON.stringify(payload) }),
   sessionOutline: (sessionId) => request(`/drafting-sessions/${sessionId}/outline/`),

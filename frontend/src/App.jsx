@@ -65,6 +65,10 @@ export function App() {
   const [draftMode, setDraftMode] = useState("draft_from_template");
   const [draftStep, setDraftStep] = useState("goal");
   const [draftGoal, setDraftGoal] = useState("");
+  const [goalSuggestions, setGoalSuggestions] = useState([]);
+  const [goalSuggestionGuidance, setGoalSuggestionGuidance] = useState("");
+  const [goalSuggestionsBusy, setGoalSuggestionsBusy] = useState(false);
+  const [selectedGoalSuggestionId, setSelectedGoalSuggestionId] = useState("");
   const [planningMode, setPlanningMode] = useState("suggest");
   const [allowMultipleDocuments, setAllowMultipleDocuments] = useState(false);
   const [clarifyMissingFactsBeforeDraft, setClarifyMissingFactsBeforeDraft] = useState(true);
@@ -425,6 +429,63 @@ export function App() {
     }
   }
 
+  async function ensureGoalSuggestionSession() {
+    if (session?.id) return session;
+    if (!matter) return null;
+
+    const response = await api.createSession({
+      mode: draftMode,
+      matterId: matter.id,
+      templateId: draftMode === "draft_from_scratch" ? undefined : selectedTemplateId,
+      selectedTemplateIds: planningMode === "known" && selectedTemplateId ? [Number(selectedTemplateId)] : [],
+      authorProfile: draftAuthorProfile,
+      templateData,
+      goal: draftGoal,
+      instructions: instructions || draftGoal,
+    });
+    setSession(response.session);
+    setSelectedFactIds(response.session.selectedFactIds || selectedFactIds);
+    setSelectedBlockKeys(response.session.selectedBlockKeys || selectedBlockKeys);
+    return response.session;
+  }
+
+  async function suggestDraftGoals() {
+    if (!matter) return;
+    setGoalSuggestionsBusy(true);
+    setError("");
+
+    try {
+      const activeSession = await ensureGoalSuggestionSession();
+      if (!activeSession?.id) return;
+
+      const response = await api.recommendSessionGoals(activeSession.id, { limit: 5 });
+      setSession(response.session || activeSession);
+      setGoalSuggestions(response.goals || []);
+      setGoalSuggestionGuidance(response.guidance || "");
+
+      const first = response.goals?.[0];
+      if (first && !draftGoal.trim()) {
+        setSelectedGoalSuggestionId(first.id);
+        setDraftGoal(first.goal || "");
+        setInstructions(first.instructions || first.goal || "");
+      }
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setGoalSuggestionsBusy(false);
+    }
+  }
+
+  function selectGoalSuggestion(suggestion) {
+    setSelectedGoalSuggestionId(suggestion.id);
+    setDraftGoal(suggestion.goal || "");
+    setInstructions(suggestion.instructions || suggestion.goal || "");
+    if (suggestion.templateIds?.length) {
+      setPlanningMode("known");
+      setSelectedTemplateId(suggestion.templateIds[0]);
+    }
+  }
+
   async function saveWorkflow(status, overrides = {}) {
     if (!session) return await startSession(status);
     setBusy(true);
@@ -747,7 +808,7 @@ export function App() {
         {mode === "triage" && <TriagePanel matter={matter} rubrics={triageRubrics} selectedRubricId={selectedTriageRubricId} onSelectRubric={setSelectedTriageRubricId} assessment={triageAssessment} history={triageHistory} busy={busy} manualCaseBusy={manualCaseBusy} onRunTriage={runTriage} onCreateManualCase={handleCreateManualCase} />}
         {mode === "case_chat" && <CaseChat matter={matter} onAction={handleCaseAction} />}
         {mode === "research" && <ResearchPanel matter={matter} sources={boot?.sources || []} onResults={(results) => setSourceResults(results)} />}
-        {mode === "draft" && draftStep === "goal" && <DraftGoalPanel goal={draftGoal} onGoalChange={(value) => { setDraftGoal(value); setInstructions(value); }} planningMode={planningMode} onPlanningModeChange={setPlanningMode} allowMultiple={allowMultipleDocuments} onAllowMultipleChange={setAllowMultipleDocuments} selectedTemplateId={selectedTemplateId} onTemplateChange={selectDraftTemplate} templates={templates} matter={matter} busy={busy} onMakePlan={() => makeDraftPlan()} />}
+        {mode === "draft" && draftStep === "goal" && <DraftGoalPanel goal={draftGoal} onGoalChange={(value) => { setDraftGoal(value); setInstructions(value); setSelectedGoalSuggestionId(""); }} planningMode={planningMode} onPlanningModeChange={setPlanningMode} allowMultiple={allowMultipleDocuments} onAllowMultipleChange={setAllowMultipleDocuments} selectedTemplateId={selectedTemplateId} onTemplateChange={selectDraftTemplate} templates={templates} matter={matter} busy={busy} onMakePlan={() => makeDraftPlan()} goalSuggestions={goalSuggestions} goalSuggestionGuidance={goalSuggestionGuidance} goalSuggestionsBusy={goalSuggestionsBusy} selectedGoalSuggestionId={selectedGoalSuggestionId} onSuggestGoals={suggestDraftGoals} onSelectGoalSuggestion={selectGoalSuggestion} />}
         {mode === "draft" && draftStep === "plan" && <DraftPlanReview plan={draftPlan} templates={templates} matter={matter} session={session} busy={busy} authorProfile={draftAuthorProfile} onAuthorProfileChange={setDraftAuthorProfile} selectedFactIds={selectedFactIds} selectedCuratedFacts={selectedCuratedFacts} onFactChange={setSelectedFactIds} onCuratedChange={setSelectedCuratedFacts} onMatterChange={setMatter} onFactIdsAdded={(ids) => setSelectedFactIds((current) => mergeFactIds(current, ids))} selectedResults={sourceResults} onSelectedResultsChange={setSourceResults} onSessionChange={setSession} candidateIssues={candidateIssues} onIssuesChange={setCandidateIssues} clarifyMissingFactsBeforeDraft={clarifyMissingFactsBeforeDraft} onClarifyMissingFactsBeforeDraftChange={setClarifyMissingFactsBeforeDraft} onPlanChange={setDraftPlan} onRegeneratePlan={regenerateDraftPlan} onGenerateDraft={generateDraftsFromPlan} />}
         {mode === "draft" && draftStep === "editor" && <section className="panel editor-panel">{draft && <div className="button-row compact editor-actions"><button className="btn btn-outline-secondary" disabled={busy} onClick={validateDraft}><CheckCircle2 size={16} /> Validate</button><a className="btn btn-primary link-button" href={api.exportDraftUrl(draft.id)}><Download size={16} /> Export to Word</a></div>}<div className="button-row step-actions top-step-actions"><button className="btn btn-outline-secondary" onClick={() => setDraftStep("plan")}>Back to plan</button><button className="btn btn-primary" disabled={busy || !matter || !draftPlan} onClick={generateDraftsFromPlan}>{busy ? <Loader2 className="spin" size={16} /> : <FileText size={16} />} Generate draft</button></div><DraftEditor draft={draft} busy={busy} onChange={(sections, plainText, editorState) => setDraft((current) => current ? { ...current, sections, plainText, editorState } : current)} onPersist={async () => { if (draft) { const response = await api.updateDraft(draft.id, { sections: draft.sections, plainText: draft.plainText, editorState: draft.editorState }); setDraft(response.draft); } }} onRegenerateBlock={regenerateDraftBlock} />{draft?.validationFlags?.length > 0 && <div className="flags">{draft.validationFlags.map((flag) => <div key={`${flag.code}-${flag.message}`} className={`flag ${flag.severity}`}><strong>{flag.location}</strong><span>{flag.message}</span></div>)}</div>}</section>}
       </main>

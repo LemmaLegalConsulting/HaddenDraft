@@ -12,6 +12,7 @@ from apps.drafting.services import (
     initialize_session,
     unanswered_missing_information,
     outline_for_session,
+    recommend_goal_candidates,
     recommend_session_fact_ids,
     recommend_support_candidates,
     regenerate_draft_block,
@@ -127,6 +128,22 @@ def recommend_session_facts(request, session_id):
             "case": matter_to_dict(matter, include_facts=True),
             "session": session_to_dict(session),
             "guidance": "Suggested facts are preselected from the template, case facts, notes, and document text. Review them before continuing.",
+        }
+    )
+
+
+@api_login_required
+def recommend_session_goals(request, session_id):
+    if request.method != "POST":
+        return method_not_allowed(["POST"])
+    session, error = _session_or_404(request.user, session_id, with_template=True)
+    if error:
+        return error
+    recommendations = recommend_goal_candidates(session, limit=json_body(request).get("limit", 5))
+    return JsonResponse(
+        {
+            **recommendations,
+            "session": session_to_dict(session),
         }
     )
 

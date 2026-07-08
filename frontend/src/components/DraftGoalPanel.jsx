@@ -1,5 +1,5 @@
 import React from "react";
-import { FileText, Layers3, Loader2 } from "lucide-react";
+import { FileText, Layers3, Loader2, Sparkles } from "lucide-react";
 
 export function DraftGoalPanel({
   goal,
@@ -14,6 +14,12 @@ export function DraftGoalPanel({
   matter,
   busy,
   onMakePlan,
+  goalSuggestions = [],
+  goalSuggestionGuidance = "",
+  goalSuggestionsBusy = false,
+  selectedGoalSuggestionId = "",
+  onSuggestGoals,
+  onSelectGoalSuggestion,
 }) {
   const selectedTemplate = templates.find((template) => template.id === Number(selectedTemplateId));
   const canMakePlan = Boolean(matter) && (planningMode === "known" ? Boolean(selectedTemplateId) : Boolean(goal.trim()));
@@ -34,6 +40,41 @@ export function DraftGoalPanel({
           rows={5}
         />
       </label>
+      <div className="button-row compact goal-suggest-actions">
+        <button
+          className="btn btn-outline-secondary goal-suggest-button"
+          type="button"
+          disabled={busy || goalSuggestionsBusy || !matter}
+          onClick={onSuggestGoals}
+        >
+          {goalSuggestionsBusy ? <Loader2 className="spin" size={16} /> : <Sparkles size={16} />}
+          Suggest goals from case facts
+        </button>
+      </div>
+      {goalSuggestions?.length > 0 && (
+        <div className="goal-suggestion-list">
+          {goalSuggestionGuidance && <p className="muted">{goalSuggestionGuidance}</p>}
+          {goalSuggestions.map((suggestion) => (
+            <article
+              key={suggestion.id}
+              className={`goal-suggestion-card ${selectedGoalSuggestionId === suggestion.id ? "selected" : ""}`}
+            >
+              <div>
+                <strong>{suggestion.title}</strong>
+                <p>{suggestion.goal}</p>
+                {suggestion.reason && <small>{suggestion.reason}</small>}
+              </div>
+              <button
+                className="secondary"
+                type="button"
+                onClick={() => onSelectGoalSuggestion(suggestion)}
+              >
+                Use and edit
+              </button>
+            </article>
+          ))}
+        </div>
+      )}
       <div className="draft-mode-switch">
         <button className={planningMode === "suggest" ? "selected" : ""} type="button" onClick={() => onPlanningModeChange("suggest")}>
           <FileText size={16} /> Let AI suggest template(s)

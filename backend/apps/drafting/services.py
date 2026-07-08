@@ -5,6 +5,7 @@ from django.conf import settings
 from django.utils.text import slugify
 
 from apps.ai.openai_client import OpenAIBackendError, OpenAICompatibleClient
+from apps.ai.prompt_catalog import PromptCatalogError, PromptRenderError, render_prompt
 from apps.ai.services import GenerationContext, drafting_ai
 from apps.drafting.models import DraftDocument
 from apps.matters.document_context import chunk_text, custom_fields_inventory, get_case_documents, get_document_text, search_chunks, summarize_text
@@ -791,6 +792,257 @@ def recommend_session_fact_ids(session):
     """Recommend existing facts and source-cited facts recovered from case notes/documents."""
     document_fact_ids = recommend_document_fact_ids(session)
     return list(dict.fromkeys([*recommend_fact_ids(session), *document_fact_ids]))
+
+
+# Goal recommendation helpers
+
+
+def _goal_recommendation_payload(session, facts, templates):
+    fact_payload = [
+        {
+            "id": fact.id,
+            "slug": fact.slug,
+            "title": fact.title,
+            "text": fact.text,
+            "source": fact.source_label,
+        }
+        for fact in facts
+    ]
+    template_payload = [
+        {
+            "id": template.id,
+            "title": template.title,
+            "slug": template.slug,
+            "kind": template.kind,
+            "goal": template.goal,
+            "aliases": template.aliases or [],
+            "negative_goal": template.negative_goal,
+            "jurisdiction": template.jurisdiction,
+        }
+        for template in templates
+    ]
+    return {
+        "matter_summary": session.matter.summary or "",
+        "matter_type": session.matter.matter_type or "",
+        "posture": session.matter.posture or "",
+        "jurisdiction": session.matter.jurisdiction or "",
+        "current_goal": "\n".join(
+            part
+            for part in [
+                f"Goal: {session.goal}" if session.goal else "",
+                f"Instructions: {session.instructions}" if session.instructions else "",
+            ]
+            if part
+        )
+        or "-",
+        "facts": json.dumps(fact_payload, ensure_ascii=True, indent=2),
+        "templates": json.dumps(template_payload, ensure_ascii=True, indent=2),
+    }
+
+
+def _goal_candidate_id(title, goal, existing):
+    base = slugify(str(title or goal))[:80] or "suggested-goal"
+    candidate_id = base
+    suffix = 2
+    while candidate_id in existing:
+        suffix_text = f"-{suffix}"
+        candidate_id = f"{base[:80 - len(suffix_text)]}{suffix_text}"
+        suffix += 1
+    existing.add(candidate_id)
+    return candidate_id
+
+
+def _normalize_goal_candidates(candidates, facts, templates, *, limit=5):
+    fact_ids = {fact.id for fact in facts}
+    templates_by_slug = {template.slug: template for template in templates if template.is_active}
+    active_templates = list(templates_by_slug.values())
+    normalized = []
+    seen_ids = set()
+    for candidate in candidates or []:
+        if not isinstance(candidate, dict):
+            continue
+        title = str(candidate.get("title") or "").strip()
+        goal = str(candidate.get("goal") or "").strip()
+        if not goal:
+            continue
+        instructions = str(candidate.get("instructions") or "").strip()
+        reason = str(candidate.get("reason") or "").strip()
+        confidence = str(candidate.get("confidence") or "medium").strip().casefold()
+        if confidence not in {"high", "medium", "low"}:
+            confidence = "medium"
+        supporting_fact_ids = []
+        for value in candidate.get("supporting_fact_ids", candidate.get("supportingFactIds", [])) or []:
+            if str(value).isdigit() and int(value) in fact_ids and int(value) not in supporting_fact_ids:
+                supporting_fact_ids.append(int(value))
+        template_slugs = []
+        for slug in candidate.get("template_slugs", candidate.get("templateSlugs", [])) or []:
+            slug = str(slug).strip()
+            if slug in templates_by_slug and slug not in template_slugs:
+                template_slugs.append(slug)
+        if not template_slugs:
+            template_slugs = [
+                item["template"].slug
+                for item in recommend_templates(goal, None, active_templates, limit=2)
+            ]
+        template_ids = [templates_by_slug[slug].id for slug in template_slugs if slug in templates_by_slug]
+        normalized.append(
+            {
+                "id": _goal_candidate_id(candidate.get("id") or title, goal, seen_ids),
+                "title": title or goal[:80],
+                "goal": goal,
+                "instructions": instructions,
+                "reason": reason,
+                "confidence": confidence,
+                "supportingFactIds": supporting_fact_ids,
+                "templateIds": template_ids,
+                "templateSlugs": template_slugs,
+            }
+        )
+        if len(normalized) >= limit:
+            break
+    return normalized
+
+
+def _ai_recommend_goals(session, facts, templates, *, limit=5):
+    payload = _goal_recommendation_payload(session, facts, templates)
+    try:
+        prompt = render_prompt(
+            "drafting.goal_recommendations",
+            **payload,
+            limit=limit,
+        )
+    except (PromptCatalogError, PromptRenderError):
+        return None
+    data = _ai_json(prompt.system, prompt.user)
+    if not isinstance(data, dict):
+        return None
+    goals = _normalize_goal_candidates(data.get("goals"), facts, templates, limit=limit)
+    return goals or None
+
+
+def _facts_matching_terms(facts, terms):
+    selected = []
+    for fact in facts:
+        text = " ".join([fact.title or "", fact.text or "", fact.slug or ""]).casefold()
+        if any(term in text for term in terms):
+            selected.append(fact.id)
+    return selected
+
+
+def _fallback_goal_candidate(title, goal, instructions, reason, confidence, fact_ids, templates, matter):
+    ranked_templates = recommend_templates(goal, matter, templates, limit=2)
+    return {
+        "title": title,
+        "goal": goal,
+        "instructions": instructions,
+        "reason": reason,
+        "confidence": confidence,
+        "supporting_fact_ids": fact_ids,
+        "template_slugs": [item["template"].slug for item in ranked_templates],
+    }
+
+
+def _fallback_goal_candidates(session, facts, templates, *, limit=5):
+    text = " ".join(
+        [
+            session.matter.summary or "",
+            session.matter.matter_type or "",
+            session.matter.posture or "",
+            session.matter.jurisdiction or "",
+            session.goal or "",
+            session.instructions or "",
+            " ".join(f"{fact.title} {fact.text}" for fact in facts),
+        ]
+    ).casefold()
+    candidates = []
+
+    def add_candidate(term_groups, title, goal, instructions, reason, confidence="medium"):
+        if len(candidates) >= limit:
+            return
+        if not all(any(term in text for term in terms) for terms in term_groups):
+            return
+        fact_terms = [term for terms in term_groups for term in terms]
+        fact_ids = _facts_matching_terms(facts, fact_terms)
+        candidates.append(_fallback_goal_candidate(title, goal, instructions, reason, confidence, fact_ids, templates, session.matter))
+
+    add_candidate(
+        [
+            ("rental assistance", "erap", "application pending", "assistance application"),
+            ("hearing", "court", "deadline", "continuance", "continue"),
+        ],
+        "Ask for more time for rental assistance",
+        "Ask the court to continue the hearing so pending rental assistance can be processed.",
+        "Emphasize the pending rental assistance application and the need for more time before the next hearing or deadline.",
+        "The case facts mention rental assistance and a hearing or deadline.",
+        "high",
+    )
+    add_candidate(
+        [("repair", "repairs", "mold", "leak", "habitability", "inspection", "code")],
+        "Raise repair and habitability issues",
+        "Prepare a filing that explains repair, habitability, inspection, or code issues relevant to the eviction case.",
+        "Use only confirmed condition facts and identify what relief or defenses the reviewer wants to preserve.",
+        "The case facts mention repair or habitability conditions.",
+    )
+    add_candidate(
+        [("notice", "service", "served", "quit", "termination", "summons", "complaint")],
+        "Address notice or service problems",
+        "Prepare a filing that raises confirmed notice, service, termination, summons, or complaint problems for review.",
+        "Describe the specific notice or service facts without assuming a legal defect beyond the supplied facts.",
+        "The case facts mention notice, service, or case-starting papers.",
+    )
+    add_candidate(
+        [("payment", "paid", "rent", "ledger", "receipt", "arrears", "balance", "money order")],
+        "Explain payment or arrears dispute",
+        "Prepare a filing that presents the tenant's payment, rent ledger, receipt, or arrears dispute.",
+        "Ground the draft in specific payment records, amounts, dates, or disputed ledger entries supplied by the case facts.",
+        "The case facts mention payment history, rent ledger, receipts, or arrears.",
+    )
+    add_candidate(
+        [("disability", "disabled", "accommodation", "medical", "doctor", "records")],
+        "Request or explain accommodation needs",
+        "Prepare a filing that explains disability, medical, or reasonable-accommodation facts for human review.",
+        "Avoid disclosing unnecessary medical detail and focus on the requested accommodation or case impact stated in the facts.",
+        "The case facts mention disability, medical needs, or accommodation.",
+    )
+    add_candidate(
+        [("hearing", "court", "deadline", "continuance", "continue", "extension")],
+        "Ask for a continuance or extension",
+        "Ask the court for a continuance or extension based on the scheduled hearing, court date, or deadline.",
+        "Include the known date or deadline if available and explain the practical reason more time is needed.",
+        "The case facts mention a hearing, court date, deadline, or need for more time.",
+    )
+
+    if not candidates and (session.matter.summary or facts):
+        candidates.append(
+            _fallback_goal_candidate(
+                "Draft from case facts",
+                "Prepare a housing-court filing grounded in the selected case facts for human review.",
+                "Review the selected facts and available templates before making the draft plan.",
+                "The case has facts available for a drafting workflow, but no stronger drafting goal pattern was detected.",
+                "low",
+                [fact.id for fact in facts[:3]],
+                templates,
+                session.matter,
+            )
+        )
+    return _normalize_goal_candidates(candidates, facts, templates, limit=limit)
+
+
+def recommend_goal_candidates(session, *, limit=5):
+    facts = list(MatterFact.objects.filter(matter=session.matter).order_by("id"))
+    templates = list(_available_templates())
+    try:
+        limit = int(limit or 5)
+    except (TypeError, ValueError):
+        limit = 5
+    limit = max(1, min(limit, 10))
+    goals = _ai_recommend_goals(session, facts, templates, limit=limit)
+    if not goals:
+        goals = _fallback_goal_candidates(session, facts, templates, limit=limit)
+    return {
+        "goals": goals,
+        "guidance": "Review and edit a suggested goal before making a draft plan.",
+    }
 
 
 # Support recommendation helpers
