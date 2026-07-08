@@ -1,0 +1,3 @@
+[submodule "private-content"]
+	path = private-content
+	url = git@github.com:LemmaLegalConsulting/HaddenDraft-private-content.git

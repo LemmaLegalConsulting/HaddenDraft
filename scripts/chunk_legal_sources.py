@@ -21,15 +21,14 @@ import yaml
 from pypdf import PdfReader
 
 ROOT = Path(__file__).resolve().parents[1]
-CONTENT, SOURCE_ROOT, OUTPUT_ROOT = ROOT / "content", ROOT / "content" / "treatises" / "source", ROOT / "content" / "treatises" / "markdown"
 MAX_WORDS = 1250
 
 @dataclass(frozen=True)
 class Profile:
-    slug: str; title: str; version: str; source: str; kind: str; output_version: str = ""
+    slug: str; title: str; version: str; source: str; kind: str; output_version: str = ""; is_private: bool = False
 
 PROFILES = {
- "ohio-eviction-landlord-tenant-law-6e": Profile("ohio-eviction-landlord-tenant-law-6e", "Ohio Eviction and Landlord-Tenant Law", "2022-06 (Sixth Edition)", "2022-06.pdf", "ohio"),
+ "ohio-eviction-landlord-tenant-law-6e": Profile("ohio-eviction-landlord-tenant-law-6e", "Ohio Eviction and Landlord-Tenant Law", "2022-06 (Sixth Edition)", "2022-06.pdf", "ohio", is_private=True),
  "hud-4350-3-rev-1": Profile("hud-4350-3-rev-1", "HUD Handbook 4350.3 REV-1: Occupancy Requirements of Subsidized Programs", "2013-11 (Change 4)", "2013-11-change-4.pdf", "hud"),
  "green-book": Profile(
      "green-book",
@@ -38,8 +37,13 @@ PROFILES = {
      "*.pdf",
      "green-book",
      "6th-ed-2025",
+     is_private=True
  ),
 }
+
+def get_paths(p: Profile):
+    content_dir = ROOT / "private-content" if p.is_private else ROOT / "content"
+    return content_dir, content_dir / "treatises" / "source", content_dir / "treatises" / "markdown"
 
 @dataclass
 class Section:
@@ -171,7 +175,8 @@ def extract_green_book_section(p: Profile, source: Path) -> tuple[Section, int]:
                 body.append(line)
     if not found_heading:
         raise ValueError(f"Could not locate section heading in {source}")
-    relative = source.relative_to(CONTENT).as_posix()
+    content_dir, _, _ = get_paths(p)
+    relative = source.relative_to(content_dir).as_posix()
     digest = hashlib.sha256(source.read_bytes()).hexdigest()
     return Section(
         heading=heading_text,
@@ -205,7 +210,8 @@ def kind(section: Section, p: Profile) -> str:
     return "glossary-definition" if "glossary" in path else "appendix-or-exhibit" if "appendix" in path or "exhibit" in path else "substantive-section"
 
 def generate(p: Profile) -> dict:
-    source_dir = SOURCE_ROOT / p.slug
+    content_dir, source_root, output_root = get_paths(p)
+    source_dir = source_root / p.slug
     sources = sorted(source_dir.glob(p.source))
     if not sources: raise FileNotFoundError(source_dir / p.source)
     if p.kind != "green-book" and len(sources) != 1:
@@ -221,7 +227,7 @@ def generate(p: Profile) -> dict:
         source = sources[0]
         sections, pages = extract_sections(p, source)
         digest = hashlib.sha256(source.read_bytes()).hexdigest()
-        relative = source.relative_to(CONTENT).as_posix()
+        relative = source.relative_to(content_dir).as_posix()
         for section in sections:
             section.source_path = relative
             section.source_sha256 = digest
@@ -231,10 +237,10 @@ def generate(p: Profile) -> dict:
         aggregate.update(item["path"].encode("utf-8") + b"\0" + item["sha256"].encode("ascii") + b"\n")
     digest = source_files[0]["sha256"] if len(source_files) == 1 else aggregate.hexdigest()
     version_slug = p.output_version or sources[0].stem
-    out, chunks = OUTPUT_ROOT / p.slug / version_slug, OUTPUT_ROOT / p.slug / version_slug / "chunks"
+    out, chunks = output_root / p.slug / version_slug, output_root / p.slug / version_slug / "chunks"
     if out.exists(): shutil.rmtree(out)
     chunks.mkdir(parents=True)
-    source_path = source_dir.relative_to(CONTENT).as_posix() if len(sources) > 1 else source_files[0]["path"]
+    source_path = source_dir.relative_to(content_dir).as_posix() if len(sources) > 1 else source_files[0]["path"]
     common = {"document_slug": p.slug, "document_title": p.title, "document_version": p.version, "source_path": source_path, "source_sha256": digest, "generated_at": datetime.now(timezone.utc).replace(microsecond=0).isoformat(), "generator": "scripts/chunk_legal_sources.py"}
     full, inventory, ordinal = [front({**common, "pdf_pages": pages, "derivative": "full-markdown"}), f"# {p.title}", "", f"Version: {p.version}", ""], [], 0
     for section in sections:

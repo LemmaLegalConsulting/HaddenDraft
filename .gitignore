@@ -64,7 +64,7 @@ clickable_prototype.js
 
 # Private / generated legal content
 # Organization-specific templates must never be committed to this public repo.
-private-content/
+# private-content/ (now a submodule)
 content/original_templates/
 content/document-templates/
 content/docx-snippets/*/
