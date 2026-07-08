@@ -20,6 +20,7 @@ from apps.templates_app.template_variables import (
     block_variable_metadata,
     extract_template_variables_from_text,
 )
+from apps.validation.services import validate_document
 
 
 class DraftRenderingTests(TestCase):
@@ -131,6 +132,37 @@ class DraftRenderingTests(TestCase):
         service = ConstrainedDraftingService()
 
         self.assertEqual(service.normalize_generated_text("Line one<br/>Line two<br>Line three"), "Line one\nLine two\nLine three")
+
+    def test_generated_text_removes_markdown_artifacts_and_duplicate_heading(self):
+        service = ConstrainedDraftingService()
+        normalized = service.normalize_generated_text("## LAW AND ARGUMENT\n\n### I. Standard\nUse *Smith v. Jones*.")
+
+        self.assertEqual(
+            service._without_duplicate_heading(normalized, "Law and Argument"),
+            "I. Standard\nUse Smith v. Jones.",
+        )
+
+    def test_missing_template_fields_render_as_visible_placeholders(self):
+        service = ConstrainedDraftingService()
+        context = SimpleNamespace(
+            author_profile={},
+            template_data={},
+            matter=SimpleNamespace(
+                jurisdiction="Housing Court",
+                client_name="Jane Tenant",
+                external_id="CASE-1",
+            ),
+        )
+
+        rendered = service.render_template_body(
+            "Defendant NAME requests a hearing on {{ fields.hearing_date }}; statutory text {{ fields.s }}upply.",
+            context,
+        )
+
+        self.assertEqual(
+            rendered,
+            "Defendant Jane Tenant requests a hearing on [Hearing Date]; statutory text [s]upply.",
+        )
 
     def test_export_docx_renders_sections_and_numbering_part(self):
         draft = SimpleNamespace(
@@ -319,3 +351,147 @@ class DraftRenderingTests(TestCase):
         self.assertIn("John Tenant", document_xml)
         self.assertIn("Prayer for Relief", document_xml)
         self.assertIn("dismiss the complaint", document_xml)
+
+    def test_validation_reports_missing_declared_template_fields(self):
+        matter = Matter.objects.create(
+            external_id="MISSING-FIELDS-1",
+            client_name="Jane Tenant",
+            matter_type="Eviction",
+            jurisdiction="Housing Court",
+        )
+        template = DocumentTemplate.objects.create(
+            title="Field validation",
+            slug="field-validation-test",
+            kind="motion",
+            metadata={"fields": ["fields.hearing_date", "fields.s"]},
+        )
+        session = DraftingSession.objects.create(
+            mode="draft_from_template",
+            matter=matter,
+            template=template,
+            template_data={},
+        )
+        draft = DraftDocument.objects.create(
+            session=session,
+            title="Field validation",
+            sections=[],
+            plain_text="Hearing on [Hearing Date].",
+        )
+
+        flags = validate_document(draft)
+
+        missing = next(flag for flag in flags if flag["code"] == "missing_template_data")
+        self.assertIn("Hearing Date", missing["message"])
+        self.assertNotIn("[s]", missing["message"])
+
+    def test_validation_blocks_visible_review_markers_and_missing_court(self):
+        matter = Matter.objects.create(
+            external_id="REVIEW-MARKERS-1",
+            client_name="Jane Tenant",
+            matter_type="Eviction",
+            jurisdiction="",
+        )
+        template = DocumentTemplate.objects.create(
+            title="Review markers",
+            slug="review-markers-test",
+            kind="motion",
+            jurisdiction="",
+        )
+        TemplateBlock.objects.create(
+            template=template,
+            key="body",
+            label="Body",
+            block_type="argument",
+            body="Hearing on {{ fields.hearing_date }}.",
+        )
+        session = DraftingSession.objects.create(
+            mode="draft_from_template",
+            matter=matter,
+            template=template,
+        )
+        draft = DraftDocument.objects.create(
+            session=session,
+            title="Review markers",
+            sections=[],
+            plain_text=(
+                "Hearing on [Hearing Date]. "
+                "[Attorney review required: confirm subsidized-housing status]"
+            ),
+        )
+
+        codes = {flag["code"] for flag in validate_document(draft)}
+
+        self.assertIn("missing_template_data", codes)
+        self.assertIn("unresolved_template_values", codes)
+        self.assertIn("attorney_review_required", codes)
+        self.assertIn("missing_jurisdiction", codes)
+
+    def test_validation_rejects_state_only_jurisdiction_for_caption_marker(self):
+        matter = Matter.objects.create(
+            external_id="COURT-MARKER-1",
+            client_name="Jane Tenant",
+            matter_type="Eviction",
+            jurisdiction="",
+        )
+        template = DocumentTemplate.objects.create(
+            title="Captioned motion",
+            slug="captioned-motion-court-test",
+            kind="motion",
+            jurisdiction="Ohio",
+        )
+        TemplateBlock.objects.create(
+            template=template,
+            key="caption",
+            label="Case Caption - Motion",
+            block_type="caption",
+            body="Now comes Defendant.",
+        )
+        session = DraftingSession.objects.create(
+            mode="draft_from_template",
+            matter=matter,
+            template=template,
+        )
+        draft = DraftDocument.objects.create(
+            session=session,
+            title="Captioned motion",
+            sections=[],
+            plain_text="Now comes Defendant.",
+        )
+
+        codes = {flag["code"] for flag in validate_document(draft)}
+
+        self.assertIn("missing_court", codes)
+
+    def test_validation_flags_unmet_template_applicability_data(self):
+        matter = Matter.objects.create(
+            external_id="APPLICABILITY-1",
+            client_name="Jane Tenant",
+            matter_type="Eviction",
+            jurisdiction="Housing Court",
+        )
+        template = DocumentTemplate.objects.create(
+            title="Assisted housing notice motion",
+            slug="applicability-validation-test",
+            kind="motion",
+            metadata={
+                "applicability": {
+                    "requiredTemplateData": {"assisted_housing_status": "confirmed"}
+                }
+            },
+        )
+        session = DraftingSession.objects.create(
+            mode="draft_from_template",
+            matter=matter,
+            template=template,
+            template_data={"assisted_housing_status": "not_confirmed"},
+        )
+        draft = DraftDocument.objects.create(
+            session=session,
+            title="Assisted housing notice motion",
+            sections=[],
+            plain_text="Draft body",
+        )
+
+        codes = {flag["code"] for flag in validate_document(draft)}
+
+        self.assertIn("template_applicability", codes)

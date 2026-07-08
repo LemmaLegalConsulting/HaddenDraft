@@ -1,7 +1,9 @@
 import React from "react";
 
 function fieldLabel(path) {
-  return path.replace(/^fields\./, "").replaceAll("_", " ").replace(/\b\w/g, (letter) => letter.toUpperCase());
+  const key = path.replace(/^fields\./, "");
+  if (/^placeholder_\d+_\d+$/.test(key)) return "Additional template detail";
+  return key.replaceAll("_", " ").replace(/\b\w/g, (letter) => letter.toUpperCase());
 }
 
 export function TemplatePicker({
@@ -38,13 +40,71 @@ export function TemplatePicker({
       {templateFields.length > 0 && (
         <div className="template-field-list">
           <h4>Template details</h4>
+          <p className="muted">Unfilled details remain visibly bracketed in the draft so missing information is not silently omitted.</p>
+          {selectedTemplate?.metadata?.applicability?.summary && (
+            <p className="muted"><strong>Use when:</strong> {selectedTemplate.metadata.applicability.summary}</p>
+          )}
           {templateFields.map((path) => {
             const key = path.replace(/^fields\./, "");
+            const schema = selectedTemplate?.metadata?.fieldSchema?.[key] || {};
+            const value = templateData?.[key] ?? (schema.type === "list" ? [] : "");
+            const label = schema.label || fieldLabel(path);
+            if (schema.type === "pronouns") {
+              return (
+                <label className="field" key={path}>
+                  <span>{label}</span>
+                  <select
+                    value={value}
+                    onChange={(event) => onTemplateDataChange({ ...templateData, [key]: event.target.value })}
+                  >
+                    <option value="">Use the client’s name</option>
+                    <option value="she/her/hers">she/her/hers</option>
+                    <option value="he/him/his">he/him/his</option>
+                    <option value="they/them/theirs">they/them/theirs</option>
+                    <option value="ze/zir/zirs">ze/zir/zirs</option>
+                  </select>
+                </label>
+              );
+            }
+            if (schema.type === "list") {
+              return (
+                <label className="field" key={path}>
+                  <span>{label}</span>
+                  <textarea
+                    className="form-control"
+                    value={Array.isArray(value) ? value.join("\n") : value}
+                    placeholder={schema.placeholder || "One item per line"}
+                    onChange={(event) => onTemplateDataChange({
+                      ...templateData,
+                      [key]: event.target.value.split(/\r?\n/).map((item) => item.trim()).filter(Boolean),
+                    })}
+                  />
+                </label>
+              );
+            }
+            if (schema.type === "select" && Array.isArray(schema.options)) {
+              return (
+                <label className="field" key={path}>
+                  <span>{label}</span>
+                  <select
+                    value={value}
+                    onChange={(event) => onTemplateDataChange({ ...templateData, [key]: event.target.value })}
+                  >
+                    <option value="">Select…</option>
+                    {schema.options.map((option) => (
+                      <option key={typeof option === "string" ? option : option.value} value={typeof option === "string" ? option : option.value}>
+                        {typeof option === "string" ? option : option.label}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              );
+            }
             return (
               <label className="field" key={path}>
-                <span>{fieldLabel(path)}</span>
+                <span>{label}</span>
                 <input
-                  value={templateData?.[key] || ""}
+                  value={value}
                   onChange={(event) => onTemplateDataChange({ ...templateData, [key]: event.target.value })}
                 />
               </label>

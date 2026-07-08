@@ -9,6 +9,7 @@ from django.test.utils import override_settings
 
 from apps.drafting.models import DraftingSession
 from apps.drafting.services import (
+    _concise_fact_text,
     advance,
     create_draft,
     fact_retrieval_plan,
@@ -105,6 +106,30 @@ class HumanReviewedDraftingWorkflowTests(TestCase):
         recommended = recommend_fact_ids(session)
 
         self.assertIn(self.repair_fact.id, recommended)
+
+    @override_settings(AI_DRAFTING_ENABLED=False)
+    def test_recommend_fact_ids_excludes_stale_document_search_rows(self):
+        stale = MatterFact.objects.create(
+            matter=self.matter,
+            slug="document-old-search",
+            title="Old broad search",
+            text="A stale overlapping excerpt.",
+            source_label="Case notes: old search",
+            confidence="ai_document_search",
+            ai_suggested=True,
+            selected_by_default=True,
+        )
+        session = DraftingSession.objects.create(
+            mode="draft_from_template",
+            matter=self.matter,
+            template=self.template,
+            selected_block_keys=["habitability"],
+        )
+
+        recommended = recommend_fact_ids(session)
+
+        self.assertIn(self.repair_fact.id, recommended)
+        self.assertNotIn(stale.id, recommended)
 
     def test_advance_maps_legacy_steps_and_validates_review_prerequisites(self):
         session = DraftingSession.objects.create(
@@ -299,6 +324,18 @@ class DraftingFactRecommendationApiTests(TestCase):
         self.assertEqual(plan[0]["key"], "repair-issues")
         self.assertGreaterEqual(len(plan[0]["patterns"]), 3)
         self.assertIn("mold", plan[0]["terms"])
+
+    def test_retrieved_fact_text_excludes_intake_labels_and_strategy_tasks(self):
+        text = _concise_fact_text(
+            "INTAKE NOTES: - Client: Jane Tenant<br />"
+            "- Rent Escrow: Tenant has not deposited rent with the clerk.<br />"
+            "- File a motion to deposit rent.<br />",
+            {"terms": ["rent", "escrow", "deposit"]},
+        )
+
+        self.assertIn("Tenant has not deposited rent", text)
+        self.assertNotIn("Client:", text)
+        self.assertNotIn("File a motion", text)
 
     def test_recommendation_creates_selects_and_returns_document_facts_without_duplicates(self):
         creation = self._create_session().json()

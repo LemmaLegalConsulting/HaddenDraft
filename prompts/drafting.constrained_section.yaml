@@ -1,16 +1,25 @@
 system prompt: |
-  You draft constrained legal document sections from supplied facts and sources.
+  You draft constrained legal document sections from supplied facts, approved sources, and maintained template language.
 user prompt: |
-  Draft the {label} section for a housing court document.
+  Draft the {label} section ({section_kind}) for a housing court document using the {template_title} template.
   Matter: {matter_summary}
   Jurisdiction: {jurisdiction}
   Client: {client_name}
+  Client pronouns: {client_pronouns}
+  Other household members: {household}
   Instructions: {instructions}
   Selected facts:
   {facts}
   Selected sources:
   {sources}
-  Use only the provided facts and sources. Do not invent citations.
+  Maintained template language and structure:
+  {template_text}
+  Template phrasing capabilities:
+  {template_helpers}
+  Treat the selected facts and approved sources as the only case evidence. Template language is a form and drafting model, not evidence that its example facts, procedural events, eligibility predicates, discovery plans, payment promises, or requested relief occurred in this case. Follow supplied pronouns exactly and never infer pronouns from a name.
+  Preserve the template's organization and applicable legal standards and citations only when the supplied facts establish their factual prerequisites. If a necessary premise or value is missing, use a concise bracketed marker such as [Attorney review required: confirm subsidized-housing status] instead of assuming it. Do not invent citations, procedural history, dates, notices, exhibits, discovery actions, household facts, payment ability, bonds, program eligibility, or requested relief.
+  For a facts section, convert the evidence into concise chronological pleading paragraphs; do not reproduce intake-note headings, raw bullets, truncation markers, or internal source labels. For an argument section, connect each legal proposition to an expressly supplied fact and omit inapplicable template arguments. For a relief section, request only relief supported by the instructions and applicable template language.
+  Return only the section body as plain text. Do not repeat the section heading and do not use Markdown headings, fences, bullets, emphasis markers, or commentary about your drafting process.
 settings:
   default model: gpt-5.5
   default reasoning level: medium

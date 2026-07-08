@@ -83,6 +83,14 @@ FACT_STOP_WORDS = {
     "about", "after", "again", "against", "because", "before", "being", "client", "could", "draft", "from",
     "have", "into", "matter", "other", "should", "tenant", "that", "their", "there", "these", "this", "with",
 }
+FACT_CATEGORY_REQUIRED_PATTERNS = {
+    "rental-assistance": (
+        "rental assistance",
+        "emergency rental assistance",
+        "erap",
+        "assistance application",
+    ),
+}
 
 
 # Workflow/status helpers
@@ -242,7 +250,15 @@ def _ai_recommend_fact_ids(session, facts):
 
 def recommend_fact_ids(session):
     """Have AI suggest facts from the template/block needs, with deterministic fallback."""
-    facts = list(MatterFact.objects.filter(matter=session.matter).order_by("id"))
+    # Derived document-search facts are rebuilt and deduplicated separately for
+    # the current retrieval plan. Excluding older derived rows here prevents a
+    # prior broad search from leaking stale or overlapping excerpts into a new
+    # template recommendation.
+    facts = list(
+        MatterFact.objects.filter(matter=session.matter)
+        .exclude(confidence="ai_document_search")
+        .order_by("id")
+    )
     ai_selected = _ai_recommend_fact_ids(session, facts)
     if ai_selected:
         return ai_selected
@@ -326,6 +342,9 @@ def fact_retrieval_plan(session):
 
 def _score_fact_chunk(chunk, category, pattern):
     text = chunk["text"].casefold()
+    required_patterns = FACT_CATEGORY_REQUIRED_PATTERNS.get(category["key"], ())
+    if required_patterns and not any(required in text for required in required_patterns):
+        return 0
     category_terms = category["terms"]
     score = sum(text.count(term) for term in category_terms)
     pattern_terms = _fact_terms(pattern)
@@ -342,24 +361,40 @@ def _prepare_fact_documents(documents):
     return prepared
 
 
-def _best_fact_excerpt(prepared, category):
+def _best_fact_excerpts(prepared, category, *, limit=2):
     def search(patterns):
-        matches = []
+        matches = {}
         for pattern in patterns:
             for document, chunks in prepared:
                 for chunk in search_chunks(chunks, pattern, limit=3):
                     score = _score_fact_chunk(chunk, category, pattern)
                     if score:
-                        matches.append((score, -chunk["index"], document, chunk))
-        return max(matches, key=lambda item: (item[0], item[1]), default=None)
+                        key = (document["id"], chunk["index"])
+                        candidate = (score, -chunk["index"], document, chunk)
+                        if key not in matches or candidate[:2] > matches[key][:2]:
+                            matches[key] = candidate
+        return list(matches.values())
 
     patterns = category["patterns"]
-    best = search(patterns[:2])
-    if best is None or best[0] < 3:
-        retry = search(patterns[2:])
-        if retry and (best is None or retry[0] > best[0]):
-            best = retry
-    return (best[2], best[3]) if best else (None, None)
+    matches = search(patterns[:2])
+    if not matches or max(match[0] for match in matches) < 3:
+        matches.extend(search(patterns[2:]))
+    ranked = sorted(matches, key=lambda item: (item[0], item[1]), reverse=True)
+    if not ranked:
+        return []
+    best_score = ranked[0][0]
+    selected = []
+    seen_documents = set()
+    for score, _position, document, chunk in ranked:
+        if document["id"] in seen_documents:
+            continue
+        if selected and score < max(2, best_score * 0.35):
+            continue
+        selected.append((document, chunk))
+        seen_documents.add(document["id"])
+        if len(selected) >= limit:
+            break
+    return selected
 
 
 def _document_fact_source(document, chunk):
@@ -368,8 +403,46 @@ def _document_fact_source(document, chunk):
     return f"{source}: {citation}, excerpt {chunk['index']}"[:255]
 
 
+def _concise_fact_text(text, category):
+    """Turn retrieved note/chunk text into short evidence, not an intake-note dump."""
+    cleaned = re.sub(
+        r"\b(?:INTAKE NOTES|LEGAL ISSUES(?:\s*&\s*DEFENSES)? IDENTIFIED|CASE STATUS)\s*:\s*",
+        " ",
+        text or "",
+        flags=re.IGNORECASE,
+    )
+    segments = [
+        re.sub(r"\s+", " ", segment).strip(" -•")
+        for segment in re.split(r"\s*<br\s*/?>\s*|\s+-\s+|(?<=[.!?])\s+", cleaned, flags=re.IGNORECASE)
+    ]
+    segments = [
+        segment
+        for segment in segments
+        if segment
+        and not re.match(r"^(?:client|location|housing type)\s*:", segment, flags=re.IGNORECASE)
+        and not re.match(
+            r"^(?:file|request|consider|argue|investigate|obtain|review)\b",
+            segment,
+            flags=re.IGNORECASE,
+        )
+        and not re.search(r"\bunder\s+(?:O\.?R\.?C\.?|R\.?C\.?)$", segment, flags=re.IGNORECASE)
+    ]
+    terms = set(category.get("terms") or [])
+
+    def score(segment):
+        value = segment.casefold()
+        return sum(1 for term in terms if term in value)
+
+    ranked = sorted(enumerate(segments), key=lambda item: (-score(item[1]), item[0]))
+    selected_indexes = sorted(index for index, segment in ranked[:4] if score(segment) > 0)
+    if not selected_indexes:
+        selected_indexes = list(range(min(2, len(segments))))
+    selected = [segments[index] for index in selected_indexes]
+    return summarize_text(" ".join(selected), max_sentences=4, max_chars=600)
+
+
 def _create_document_fact(matter, category, document, chunk):
-    text = summarize_text(chunk.get("text", ""), max_sentences=2, max_chars=600)
+    text = _concise_fact_text(chunk.get("text", ""), category)
     if not text:
         return None
     normalized = re.sub(r"\s+", " ", text).strip().casefold()
@@ -385,6 +458,9 @@ def _create_document_fact(matter, category, document, chunk):
         title__startswith=category["label"][:80],
     ).first()
     if existing:
+        if existing.text != text:
+            existing.text = text
+            existing.save(update_fields=["text"])
         return existing
 
     base_slug = slugify(f"document-{category['key']}-{document['id']}")[:110] or "document-fact"
@@ -412,12 +488,12 @@ def recommend_document_fact_ids(session, limit=8):
     prepared_documents = _prepare_fact_documents(get_case_documents(session.matter))
     selected = []
     for category in plan:
-        document, chunk = _best_fact_excerpt(prepared_documents, category)
-        if not document:
-            continue
-        fact = _create_document_fact(session.matter, category, document, chunk)
-        if fact and fact.id not in selected:
-            selected.append(fact.id)
+        for document, chunk in _best_fact_excerpts(prepared_documents, category):
+            fact = _create_document_fact(session.matter, category, document, chunk)
+            if fact and fact.id not in selected:
+                selected.append(fact.id)
+            if len(selected) >= limit:
+                break
         if len(selected) >= limit:
             break
     return selected

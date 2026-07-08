@@ -13,11 +13,15 @@ DOCXTPL_PREFIXES = ("p", "tr", "tc", "tbl", "r", "sectPr")
 BLOCK_PREFIX_RE = re.compile(r"\{%\s*(?:" + "|".join(DOCXTPL_PREFIXES) + r")\b", re.IGNORECASE)
 EXPR_PREFIX_RE = re.compile(r"(\{\{\s*)(?:" + "|".join(DOCXTPL_PREFIXES) + r")\s+", re.IGNORECASE)
 NUMERIC_FIELD_RE = re.compile(r"\b(fields)\.([0-9][A-Za-z0-9_]*)")
+BARE_DEFENDANT_RE = re.compile(r"\bDefendant\s+NAME\b", re.IGNORECASE)
+BARE_CLIENT_NAME_RE = re.compile(r"\bM(?:x|s|r)\.\s+NAME\b", re.IGNORECASE)
 
 SYSTEM_ROOTS = {
     "document",
     "section",
     "matter",
+    "client",
+    "household",
     "author",
     "selected_facts",
     "selected_curated_facts",
@@ -40,11 +44,38 @@ SYSTEM_ALIASES = {
     "advocate_signature_image",
 }
 
+LEGACY_LITERAL_FIELDS = {
+    "216": "[216]",
+    "her": "[her]",
+    "or": "[or]",
+    "s": "[s]",
+    "x": "[x]",
+}
+
+
+def template_field_label(key):
+    return re.sub(r"\s+", " ", str(key or "").replace("_", " ")).strip().title() or "Required field"
+
+
+class TemplateFieldValues(dict):
+    """Render missing prepared-template fields visibly instead of deleting text."""
+
+    def __missing__(self, key):
+        if key in LEGACY_LITERAL_FIELDS:
+            return LEGACY_LITERAL_FIELDS[key]
+        return f"[{template_field_label(key)}]"
+
+
+def template_field_values(values=None):
+    return TemplateFieldValues(values or {})
+
 
 def normalize_docxtpl_blocks(text):
     text = BLOCK_PREFIX_RE.sub("{%", text)
     text = EXPR_PREFIX_RE.sub(r"\1", text)
     text = NUMERIC_FIELD_RE.sub(lambda match: f'{match.group(1)}["{match.group(2)}"]', text)
+    text = BARE_DEFENDANT_RE.sub("Defendant {{ defendant }}", text)
+    text = BARE_CLIENT_NAME_RE.sub("{{ defendant }}", text)
     return text.replace("“", '"').replace("”", '"').replace("‘", "'").replace("’", "'")
 
 

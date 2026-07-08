@@ -125,6 +125,7 @@ class PromptCatalogTests(TestCase):
                 "case_chat.suggest_actions",
                 "case_chat.reply",
                 "research.answer",
+                "research.treatise_relevance",
             },
         )
 
@@ -133,18 +134,25 @@ class PromptCatalogTests(TestCase):
             "drafting.constrained_section",
             allow_database_override=False,
             label="Argument",
+            section_kind="argument",
+            template_title="Conditions motion",
             matter_summary="Repairs needed",
             jurisdiction="Housing Court",
             client_name="Tenant",
+            client_pronouns="they/them/theirs",
+            household="Child One and Child Two",
             instructions="Focus on habitability.",
             facts="- Mold in bedroom",
             sources="- Inspection report",
+            template_text="Preserve the statutory standard.",
+            template_helpers="comma_and_list and pronoun_subjective",
         )
 
         self.assertIn("Draft the Argument section", prompt.user)
         self.assertIn("- Mold in bedroom", prompt.user)
-        self.assertEqual(prompt.default_model, "gpt-5.4-mini")
-        self.assertEqual(prompt.default_reasoning_level, "low")
+        self.assertIn("Preserve the statutory standard.", prompt.user)
+        self.assertEqual(prompt.default_model, "gpt-5.5")
+        self.assertEqual(prompt.default_reasoning_level, "medium")
         self.assertEqual(prompt.source, str(Path(settings.PROMPT_CATALOG_DIR) / "drafting.constrained_section.yaml"))
 
     def test_enabled_database_override_replaces_file_prompt(self):
@@ -191,6 +199,19 @@ class PromptCatalogTests(TestCase):
 
 
 class DraftingServiceLLMTests(TestCase):
+    def test_fact_slug_recommendation_does_not_confuse_legal_help_with_rental_assistance(self):
+        service = ConstrainedDraftingService()
+
+        legal_help = service.recommend_fact_slugs(
+            SimpleNamespace(summary="Tenant needs assistance drafting an answer for unpaid rent.")
+        )
+        rental_help = service.recommend_fact_slugs(
+            SimpleNamespace(summary="Tenant has a pending emergency rental assistance application.")
+        )
+
+        self.assertNotIn("rental-assistance", legal_help)
+        self.assertIn("rental-assistance", rental_help)
+
     @override_settings(AI_DRAFTING_ENABLED=True)
     def test_constrained_generation_uses_openai_compatible_client(self):
         captured_request = {}
@@ -218,12 +239,64 @@ class DraftingServiceLLMTests(TestCase):
         self.assertEqual(body, "LLM body")
         self.assertEqual(
             captured_request["system"],
-            "You draft constrained legal document sections from supplied facts and sources.\n",
+            "You draft constrained legal document sections from supplied facts, approved sources, and maintained template language.\n",
         )
         self.assertIn("Draft the Argument section", captured_request["user"])
         self.assertIn("There is mold in the bedroom.", captured_request["user"])
-        self.assertEqual(captured_request["model"], "gpt-5.4-mini")
-        self.assertEqual(captured_request["reasoning_level"], "low")
+        self.assertIn("Fallback", captured_request["user"])
+        self.assertEqual(captured_request["model"], "gpt-5.5")
+        self.assertEqual(captured_request["reasoning_level"], "medium")
+
+    @override_settings(AI_DRAFTING_ENABLED=True)
+    def test_fact_block_uses_llm_to_turn_evidence_into_template_shaped_prose(self):
+        captured_request = {}
+
+        def complete(**kwargs):
+            captured_request.update(kwargs)
+            return "Tenant reported the leak before the eviction was filed."
+
+        block = SimpleNamespace(
+            key="facts",
+            label="Statement of Facts",
+            block_type="facts",
+            ai_fill_mode="constrained_generation",
+            body="Defendant resides at {{ fields.premises_address }}.",
+            required=True,
+            supporting_sources=[],
+        )
+        template = SimpleNamespace(
+            title="Housing motion",
+            jurisdiction="Housing Court",
+            blocks=SimpleNamespace(all=lambda: [block]),
+        )
+        fact = SimpleNamespace(
+            text="INTAKE NOTES: - Tenant reported a leak before filing.",
+            source_label="Case note 1",
+        )
+        context = GenerationContext(
+            matter=SimpleNamespace(
+                summary="Leak reported",
+                jurisdiction="Housing Court",
+                client_name="Tenant",
+                external_id="CASE-1",
+            ),
+            selected_facts=[fact],
+            selected_curated_facts=[],
+            selected_sources=[],
+            template=template,
+            mode="draft_from_template",
+            template_data={},
+        )
+
+        sections = ConstrainedDraftingService(
+            llm_client=SimpleNamespace(complete=complete)
+        ).compose_document(context, ["facts"])
+
+        self.assertEqual(sections[0]["body"], "Tenant reported the leak before the eviction was filed.")
+        self.assertIn("section (facts)", captured_request["user"])
+        self.assertIn("Defendant resides at [Premises Address].", captured_request["user"])
+        self.assertIn("Template language is a form and drafting model, not evidence", captured_request["user"])
+        self.assertIn("Case note 1", sections[0]["sources"])
 
 
 class CaseChatTests(TestCase):
