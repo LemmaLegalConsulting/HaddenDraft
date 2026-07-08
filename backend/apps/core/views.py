@@ -19,6 +19,7 @@ from apps.matters.services import legalserver_account_status
 from apps.sources.models import UserOAuthConnection, UserSourceIdentity
 from apps.sources.registry import connector_registry
 from apps.templates_app.seed import seed_templates
+from apps.templates_app.content_library import sync_prepared_templates
 
 
 @ensure_csrf_cookie
@@ -27,6 +28,7 @@ def bootstrap(_request):
     if settings.ENABLE_DEMO_MATTERS:
         seed_matters()
     seed_templates()
+    sync_prepared_templates()
     sources = [connector.metadata() for connector in connector_registry.all()]
     legalserver_status = legalserver_account_status(_request.user)
     for source in sources:
