@@ -1455,10 +1455,28 @@ button:disabled {
   background: #ffe6c2;
 }
 
+.missing-info-list {
+  display: grid;
+  gap: 14px;
+}
+
+.missing-info-item {
+  background: #ffffff;
+  border: 1px solid #dbe4e8;
+  border-radius: 8px;
+  display: grid;
+  gap: 10px;
+  padding: 14px;
+}
+
 .missing-info-item-heading {
   align-items: center;
   display: flex;
   gap: 6px;
+}
+
+.missing-info-answer {
+  margin: 4px 0 0;
 }
 
 .revision-plan-modal {
