@@ -108,6 +108,8 @@ def source_decision_with_counts(selection, results):
                 counts_by_id[item["id"]] += 1
             elif item["id"] == "hud-handbook" and result.metadata.get("documentSlug") == "hud-4350-3-rev-1":
                 counts_by_id[item["id"]] += 1
+            elif item["id"] == "green-book" and result.metadata.get("documentSlug") == "green-book":
+                counts_by_id[item["id"]] += 1
     return {
         "mode": "auto",
         "summary": "Auto sources selected the sources below based on the maintained routing guidance.",

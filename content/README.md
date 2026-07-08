@@ -87,11 +87,12 @@ collects structured values.
 
 ## Treatises
 
-Place the received, authoritative PDF at
-`treatises/source/<treatise-slug>/<version>.pdf`. Preserve the original file
-name and version/date in a companion `metadata.yaml` when available. A future
-ingestion job will write heading-preserving Markdown to
-`treatises/markdown/<treatise-slug>/<version>.md`, then chunk it by headings for
+Place received, authoritative PDFs under
+`treatises/source/<treatise-slug>/`. Preserve original file names and record
+the version/date in a companion `metadata.yaml` when available. A treatise may
+be one versioned PDF or a configured set of section-level PDFs. The ingestion
+job writes heading-preserving Markdown under
+`treatises/markdown/<treatise-slug>/<version>/`, then chunks it by headings for
 retrieval. Do not hand-edit generated Markdown; correct the source PDF or the
 converter and regenerate it.
 

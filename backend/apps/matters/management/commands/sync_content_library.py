@@ -1,6 +1,7 @@
 from django.core.management.base import BaseCommand, CommandError
 
 from apps.matters.triage import sync_triage_rubric_seeds
+from apps.templates_app.content_library import sync_prepared_templates
 
 
 class Command(BaseCommand):
@@ -21,3 +22,10 @@ class Command(BaseCommand):
         created = sum(created for _rubric, created in rubrics)
         updated = len(rubrics) - created if options["update_triage_rubrics"] else 0
         self.stdout.write(self.style.SUCCESS(f"Synced {len(rubrics)} triage rubric(s): {created} created, {updated} updated."))
+        templates = sync_prepared_templates()
+        conflicts = sum(result["status"] == "conflict" for result in templates)
+        self.stdout.write(
+            self.style.SUCCESS(
+                f"Indexed {len(templates) - conflicts} prepared document template(s); {conflicts} slug conflict(s) preserved."
+            )
+        )
