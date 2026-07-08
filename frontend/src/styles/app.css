@@ -2165,6 +2165,116 @@ button:disabled {
   background: #fff7df;
 }
 
+.validation-panel {
+  display: grid;
+  gap: 16px;
+  margin-top: 14px;
+}
+
+.validation-summary-banner {
+  background: #eef5fb;
+  border-radius: 6px;
+  color: #112029;
+  font-size: 13px;
+  padding: 10px 12px;
+}
+
+.validation-blocking-warning {
+  background: #fdeceb;
+  border-radius: 6px;
+  color: #7a1f16;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 10px 12px;
+}
+
+.finding-group h4 {
+  align-items: center;
+  color: #112029;
+  display: flex;
+  font-size: 14px;
+  gap: 6px;
+  margin: 0 0 8px;
+}
+
+.finding-group-error h4 {
+  color: #b3261e;
+}
+
+.finding-group-warning h4 {
+  color: #8a6100;
+}
+
+.finding-group-info h4 {
+  color: #1c5b8f;
+}
+
+.finding-list {
+  display: grid;
+  gap: 8px;
+}
+
+.finding-card {
+  border-radius: 6px;
+  display: grid;
+  gap: 4px;
+  padding: 10px 12px;
+}
+
+.finding-error {
+  background: #fdeceb;
+}
+
+.finding-warning {
+  background: #fff7df;
+}
+
+.finding-info {
+  background: #eef5fb;
+}
+
+.finding-card-header {
+  align-items: center;
+  color: #465761;
+  display: flex;
+  flex-wrap: wrap;
+  font-size: 11px;
+  gap: 8px;
+  text-transform: uppercase;
+}
+
+.finding-rule-code {
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.finding-source {
+  margin-left: auto;
+}
+
+.finding-message {
+  color: #112029;
+  font-size: 13px;
+  margin: 0;
+}
+
+.finding-target,
+.finding-action {
+  color: #465761;
+  font-size: 12px;
+  margin: 0;
+}
+
+.finding-excerpt {
+  background: rgba(0, 0, 0, 0.04);
+  border-radius: 4px;
+  font-size: 12px;
+  margin: 0;
+  overflow-x: auto;
+  padding: 6px 8px;
+  white-space: pre-wrap;
+}
+
 .empty-state {
   color: #465761;
   display: grid;

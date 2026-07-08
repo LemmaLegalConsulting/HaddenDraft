@@ -22,7 +22,7 @@ from apps.matters.models import MatterFact
 from apps.matters.serializers import fact_to_dict, matter_to_dict
 from apps.matters.services import accessible_matters_for_user, matter_for_user, user_can_access_matter
 from apps.templates_app.models import DocumentTemplate
-from apps.validation.services import validate_document as run_validation
+from apps.validation.repair import validate_with_auto_repair
 
 
 def _session_or_404(user, session_id, *, with_template=False):
@@ -286,11 +286,10 @@ def validate_draft(request, draft_id):
     draft, error = _draft_or_404(request.user, draft_id)
     if error:
         return error
-    draft.validation_flags = run_validation(draft)
-    draft.save()
+    draft, validation_summary = validate_with_auto_repair(draft)
     draft.session.status = "validation"
     draft.session.save(update_fields=["status", "updated_at"])
-    return JsonResponse({"draft": draft_to_dict(draft)})
+    return JsonResponse({"draft": draft_to_dict(draft), "validation": validation_summary})
 
 
 @api_login_required

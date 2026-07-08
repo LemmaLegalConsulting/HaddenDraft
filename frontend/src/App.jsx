@@ -40,6 +40,7 @@ import { LawReview } from "./components/LawReview.jsx";
 import { ResearchPanel } from "./components/ResearchPanel.jsx";
 import { TemplatePicker } from "./components/TemplatePicker.jsx";
 import { TriagePanel } from "./components/TriagePanel.jsx";
+import { ValidationPanel } from "./components/ValidationPanel.jsx";
 import { WorkflowStepper } from "./components/WorkflowStepper.jsx";
 
 const workflowSteps = [
@@ -85,6 +86,7 @@ export function App() {
   const [session, setSession] = useState(null);
   const [outline, setOutline] = useState(null);
   const [draft, setDraft] = useState(null);
+  const [validationSummary, setValidationSummary] = useState(null);
   const [triageAssessment, setTriageAssessment] = useState(null);
   const [triageHistory, setTriageHistory] = useState([]);
   const [selectedTriageRubricId, setSelectedTriageRubricId] = useState("");
@@ -585,6 +587,7 @@ export function App() {
         requireAllMissingInformation: clarifyMissingFactsBeforeDraft,
       });
       setDraft(response.drafts?.[0] || null);
+      setValidationSummary(null);
       setDraftStep("editor");
     } catch (err) {
       setError(err.message);
@@ -678,6 +681,7 @@ export function App() {
       });
       const response = await api.generateDraft(activeSession.id);
       setDraft(response.draft);
+      setValidationSummary(null);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -691,6 +695,7 @@ export function App() {
     try {
       const response = await api.validateDraft(draft.id);
       setDraft(response.draft);
+      setValidationSummary(response.validation || null);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -810,7 +815,7 @@ export function App() {
         {mode === "research" && <ResearchPanel matter={matter} sources={boot?.sources || []} onResults={(results) => setSourceResults(results)} />}
         {mode === "draft" && draftStep === "goal" && <DraftGoalPanel goal={draftGoal} onGoalChange={(value) => { setDraftGoal(value); setInstructions(value); setSelectedGoalSuggestionId(""); }} planningMode={planningMode} onPlanningModeChange={setPlanningMode} allowMultiple={allowMultipleDocuments} onAllowMultipleChange={setAllowMultipleDocuments} selectedTemplateId={selectedTemplateId} onTemplateChange={selectDraftTemplate} templates={templates} matter={matter} busy={busy} onMakePlan={() => makeDraftPlan()} goalSuggestions={goalSuggestions} goalSuggestionGuidance={goalSuggestionGuidance} goalSuggestionsBusy={goalSuggestionsBusy} selectedGoalSuggestionId={selectedGoalSuggestionId} onSuggestGoals={suggestDraftGoals} onSelectGoalSuggestion={selectGoalSuggestion} />}
         {mode === "draft" && draftStep === "plan" && <DraftPlanReview plan={draftPlan} templates={templates} matter={matter} session={session} busy={busy} authorProfile={draftAuthorProfile} onAuthorProfileChange={setDraftAuthorProfile} selectedFactIds={selectedFactIds} selectedCuratedFacts={selectedCuratedFacts} onFactChange={setSelectedFactIds} onCuratedChange={setSelectedCuratedFacts} onMatterChange={setMatter} onFactIdsAdded={(ids) => setSelectedFactIds((current) => mergeFactIds(current, ids))} selectedResults={sourceResults} onSelectedResultsChange={setSourceResults} onSessionChange={setSession} candidateIssues={candidateIssues} onIssuesChange={setCandidateIssues} clarifyMissingFactsBeforeDraft={clarifyMissingFactsBeforeDraft} onClarifyMissingFactsBeforeDraftChange={setClarifyMissingFactsBeforeDraft} onPlanChange={setDraftPlan} onRegeneratePlan={regenerateDraftPlan} onGenerateDraft={generateDraftsFromPlan} />}
-        {mode === "draft" && draftStep === "editor" && <section className="panel editor-panel">{draft && <div className="button-row compact editor-actions"><button className="btn btn-outline-secondary" disabled={busy} onClick={validateDraft}><CheckCircle2 size={16} /> Validate</button><a className="btn btn-primary link-button" href={api.exportDraftUrl(draft.id)}><Download size={16} /> Export to Word</a></div>}<div className="button-row step-actions top-step-actions"><button className="btn btn-outline-secondary" onClick={() => setDraftStep("plan")}>Back to plan</button><button className="btn btn-primary" disabled={busy || !matter || !draftPlan} onClick={generateDraftsFromPlan}>{busy ? <Loader2 className="spin" size={16} /> : <FileText size={16} />} Generate draft</button></div><DraftEditor draft={draft} busy={busy} onChange={(sections, plainText, editorState) => setDraft((current) => current ? { ...current, sections, plainText, editorState } : current)} onPersist={async () => { if (draft) { const response = await api.updateDraft(draft.id, { sections: draft.sections, plainText: draft.plainText, editorState: draft.editorState }); setDraft(response.draft); } }} onRegenerateBlock={regenerateDraftBlock} />{draft?.validationFlags?.length > 0 && <div className="flags">{draft.validationFlags.map((flag) => <div key={`${flag.code}-${flag.message}`} className={`flag ${flag.severity}`}><strong>{flag.location}</strong><span>{flag.message}</span></div>)}</div>}</section>}
+        {mode === "draft" && draftStep === "editor" && <section className="panel editor-panel">{draft && <div className="button-row compact editor-actions"><button className="btn btn-outline-secondary" disabled={busy} onClick={validateDraft}><CheckCircle2 size={16} /> Validate</button><a className="btn btn-primary link-button" href={api.exportDraftUrl(draft.id)}><Download size={16} /> Export to Word</a></div>}<div className="button-row step-actions top-step-actions"><button className="btn btn-outline-secondary" onClick={() => setDraftStep("plan")}>Back to plan</button><button className="btn btn-primary" disabled={busy || !matter || !draftPlan} onClick={generateDraftsFromPlan}>{busy ? <Loader2 className="spin" size={16} /> : <FileText size={16} />} Generate draft</button></div><DraftEditor draft={draft} busy={busy} onChange={(sections, plainText, editorState) => setDraft((current) => current ? { ...current, sections, plainText, editorState } : current)} onPersist={async () => { if (draft) { const response = await api.updateDraft(draft.id, { sections: draft.sections, plainText: draft.plainText, editorState: draft.editorState }); setDraft(response.draft); } }} onRegenerateBlock={regenerateDraftBlock} />{draft && (draft.validationFlags?.length > 0 || validationSummary) && <ValidationPanel findings={draft.validationFlags || []} summary={validationSummary} />}</section>}
       </main>
     </div>
   );
