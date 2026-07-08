@@ -230,6 +230,97 @@ class ValidateDocumentFixtureTests(TestCase):
         self.assertTrue(support_findings, findings)
         self.assertEqual(support_findings[0]["severity"], "warning")
 
+    def test_bare_party_role_mention_does_not_force_error_severity(self):
+        matter = make_matter()
+        session = make_session(matter)
+        draft = make_draft(
+            session,
+            sections=[],
+            plain_text="Defendant paid $500 in rent on March 3, 2024, which is not reflected in any selected fact.",
+        )
+
+        findings = validate_document(draft)
+
+        codes = {f["ruleCode"] for f in findings}
+        self.assertNotIn("E530", codes)
+        self.assertIn("W530", codes)
+
+    def test_curated_fact_text_counts_as_support(self):
+        matter = make_matter()
+        session = make_session(
+            matter,
+            selected_curated_facts=[
+                {
+                    "id": "chunk:1",
+                    "title": "Intake notes excerpt",
+                    "text": "Defendant Eleanor Vance withheld the April, May, and June 2026 rent because of a severe ceiling leak and black mold.",
+                }
+            ],
+        )
+        draft = make_draft(
+            session,
+            sections=[],
+            plain_text="Defendant Eleanor Vance has withheld rent for April, May, and June 2026.",
+        )
+
+        findings = validate_document(draft)
+
+        codes = {f["ruleCode"] for f in findings}
+        self.assertNotIn("W530", codes)
+        self.assertNotIn("E530", codes)
+
+    def test_unreflected_curated_fact_is_warning(self):
+        matter = make_matter()
+        session = make_session(
+            matter,
+            selected_curated_facts=[
+                {"id": "chunk:2", "title": "Unused note", "text": "The water heater has been broken for six months without repair."}
+            ],
+        )
+        draft = make_draft(session, sections=[], plain_text="This motion addresses an unrelated notice defect.")
+
+        findings = validate_document(draft)
+
+        curated_findings = [f for f in findings if f["ruleCode"] == "W521"]
+        self.assertTrue(curated_findings, findings)
+        self.assertEqual(curated_findings[0]["severity"], "warning")
+
+    def test_matter_summary_counts_as_support(self):
+        matter = make_matter(summary="Apex Properties LLC filed an eviction action against the tenant for alleged non-payment of rent.")
+        session = make_session(matter)
+        draft = make_draft(
+            session,
+            sections=[],
+            plain_text="Plaintiff Apex Properties LLC filed this eviction action for alleged non-payment of rent.",
+        )
+
+        findings = validate_document(draft)
+
+        codes = {f["ruleCode"] for f in findings}
+        self.assertNotIn("W530", codes)
+
+    def test_prayer_for_relief_block_is_not_scanned_for_fact_support(self):
+        matter = make_matter()
+        template = DocumentTemplate.objects.create(title="Answer", slug="relief-block-fact-support-test", kind="answer_counterclaims")
+        TemplateBlock.objects.create(template=template, key="relief", label="Prayer for Relief", block_type="relief", body="")
+        session = make_session(matter, template=template)
+        draft = make_draft(
+            session,
+            sections=[
+                {
+                    "key": "relief",
+                    "label": "Prayer for Relief",
+                    "body": "Defendant requests dismissal, reduction or offset of any claimed balance as appropriate.",
+                }
+            ],
+            plain_text="PRAYER FOR RELIEF\nDefendant requests dismissal, reduction or offset of any claimed balance as appropriate.",
+        )
+
+        findings = validate_document(draft)
+
+        support_findings = [f for f in findings if f["category"] == "fact_support" and f["ruleCode"] in {"E530", "W530"}]
+        self.assertEqual(support_findings, [])
+
 
 @override_settings(AI_DRAFTING_ENABLED=False)
 class AutoRepairTests(TestCase):

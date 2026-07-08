@@ -54,8 +54,10 @@ HIGH_RISK_KEYWORDS = {
     "rent", "balance", "arrears", "hearing", "notice", "service", "served", "disability",
     "accommodation", "repair", "repairs", "condition", "address", "deadline",
 }
-CRITICAL_KEYWORDS = {"case number", "docket", "court", "deadline", "plaintiff", "defendant"}
+CRITICAL_KEYWORDS = {"case number", "docket", "court", "deadline"}
 CONCLUSION_CUES = ("should", "must", "therefore", "entitled", "warrants", "grant", "deny", "dismiss")
+NON_FACTUAL_BLOCK_TYPES = {"relief", "signature", "certificate", "caption"}
+NON_FACTUAL_LABEL_HINTS = ("prayer for relief", "relief requested", "certificate of service", "signature")
 
 WORD_RE = re.compile(r"[A-Za-z0-9']+")
 
@@ -646,7 +648,38 @@ def validate_citations(draft, snapshot):
 # --- 3.6 selected fact/source support rules ----------------------------------
 
 
+def _curated_fact_texts(session):
+    return [(fact.get("id") or "", fact.get("title") or "", str(fact.get("text") or "")) for fact in (session.selected_curated_facts or []) if fact.get("text")]
+
+
+def _source_result_texts(session):
+    texts = []
+    for source in session.selected_source_results or []:
+        texts.append(str(source.get("snippet") or ""))
+        texts.append(str(source.get("sourceExcerpt") or ""))
+    return texts
+
+
+def _matter_context_texts(session):
+    """Base case context the drafting tool always has, selected facts or not."""
+    matter = session.matter
+    return [matter.summary or "", matter.client_name or "", matter.matter_type or "", matter.posture or ""]
+
+
+def _is_non_factual_section(draft, section):
+    block_type = _section_block_type(draft, section.get("key", ""))
+    label = (section.get("label") or "").casefold()
+    return block_type in NON_FACTUAL_BLOCK_TYPES or any(hint in label for hint in NON_FACTUAL_LABEL_HINTS)
+
+
 def validate_selected_fact_support(draft, snapshot):
+    """Check draft assertions against selected facts, curated facts, and source snippets.
+
+    Uses the same support inputs the drafting tool itself draws on
+    (`session.selected_fact_ids`, `selected_curated_facts`, `selected_source_results`)
+    so a finding here means the assertion isn't backed by anything the drafter had
+    access to -- not just a gap in this validator's own view of the case.
+    """
     findings = []
     session = getattr(draft, "session", None)
     if not session:
@@ -655,6 +688,7 @@ def validate_selected_fact_support(draft, snapshot):
     from apps.matters.models import MatterFact
 
     selected_facts = list(MatterFact.objects.filter(id__in=session.selected_fact_ids or []))
+    curated_facts = _curated_fact_texts(session)
     draft_words = _significant_words(f"{snapshot['plainText']}\n{snapshot['docxText']}")
 
     for fact in selected_facts:
@@ -679,41 +713,73 @@ def validate_selected_fact_support(draft, snapshot):
                 )
             )
 
-    support_text = " ".join(fact.text for fact in selected_facts)
-    support_text += " " + " ".join(str(source.get("snippet") or "") for source in (session.selected_source_results or []))
+    for fact_id, title, text in curated_facts:
+        fact_words = _significant_words(text)
+        if not fact_words:
+            continue
+        overlap = len(fact_words & draft_words) / len(fact_words)
+        if overlap < 0.2:
+            findings.append(
+                warning_finding(
+                    draft_id=draft.id,
+                    rule_code="W521",
+                    category="fact_support",
+                    target=f"curated-fact:{fact_id or text[:40]}",
+                    message=f"Selected note '{title or text[:60]}' does not appear reflected anywhere in the draft.",
+                    location={"view": "json", "excerpt": text[:160]},
+                    action={
+                        "type": "review_fact_support",
+                        "label": "Confirm this selected note should be added to the draft, or remove it from selection.",
+                        "payload": {"curatedFactId": fact_id},
+                    },
+                )
+            )
+
+    support_text = " ".join(
+        [
+            *(fact.text for fact in selected_facts),
+            *(text for _id, _title, text in curated_facts),
+            *_source_result_texts(session),
+            *_matter_context_texts(session),
+        ]
+    )
     support_words = _significant_words(support_text)
 
-    for sentence in _sentences(snapshot["plainText"]):
-        casefolded = sentence.casefold()
-        has_signal = bool(DOLLAR_RE.search(sentence)) or bool(DATE_RE.search(sentence)) or any(
-            term in casefolded for term in HIGH_RISK_KEYWORDS
-        )
-        if not has_signal:
+    sections = snapshot["sections"] or [{"key": "", "label": "", "body": snapshot["plainText"]}]
+    for section in sections:
+        if _is_non_factual_section(draft, section):
             continue
-        sentence_words = _significant_words(sentence)
-        if not sentence_words:
-            continue
-        overlap = len(sentence_words & support_words) / len(sentence_words)
-        if overlap >= 0.3:
-            continue
-        is_critical = any(term in casefolded for term in CRITICAL_KEYWORDS)
-        builder = error_finding if is_critical else warning_finding
-        rule_code = "E530" if is_critical else "W530"
-        findings.append(
-            builder(
-                draft_id=draft.id,
-                rule_code=rule_code,
-                category="fact_support",
-                target=f"assertion:{sentence[:60]}",
-                message="This factual statement does not appear supported by the selected facts or source snippets.",
-                location={"view": "json", "excerpt": sentence[:200]},
-                action={
-                    "type": "review_fact_support",
-                    "label": "Confirm this factual statement is supported by selected facts or source documents.",
-                    "payload": {},
-                },
+        for sentence in _sentences(section.get("body", "")):
+            casefolded = sentence.casefold()
+            has_signal = bool(DOLLAR_RE.search(sentence)) or bool(DATE_RE.search(sentence)) or any(
+                term in casefolded for term in HIGH_RISK_KEYWORDS
             )
-        )
+            if not has_signal:
+                continue
+            sentence_words = _significant_words(sentence)
+            if not sentence_words:
+                continue
+            overlap = len(sentence_words & support_words) / len(sentence_words)
+            if overlap >= 0.3:
+                continue
+            is_critical = any(term in casefolded for term in CRITICAL_KEYWORDS)
+            builder = error_finding if is_critical else warning_finding
+            rule_code = "E530" if is_critical else "W530"
+            findings.append(
+                builder(
+                    draft_id=draft.id,
+                    rule_code=rule_code,
+                    category="fact_support",
+                    target=f"assertion:{sentence[:60]}",
+                    message="This factual statement does not appear supported by the selected facts or source snippets.",
+                    location={"view": "json", "blockKey": section.get("key") or None, "excerpt": sentence[:200]},
+                    action={
+                        "type": "review_fact_support",
+                        "label": "Confirm this factual statement is supported by selected facts or source documents.",
+                        "payload": {},
+                    },
+                )
+            )
     return findings
 
 
