@@ -339,6 +339,56 @@ def _fallback_plan(session, *, allow_multiple=False):
     }
 
 
+def missing_information_items(plan):
+    document_items = plan.get("document_items") if isinstance(plan, dict) else []
+    missing = [
+        item
+        for document in (document_items or [])
+        for item in (document.get("missing_information") or [])
+        if not item.get("not_needed")
+    ]
+    return missing or (plan.get("missing_information", []) if isinstance(plan, dict) else [])
+
+
+def unanswered_missing_information(plan, *, require_all=False):
+    return [
+        item
+        for item in missing_information_items(plan)
+        if not item.get("answer")
+        and not item.get("not_needed")
+        and (require_all or item.get("required_for_generation"))
+    ]
+
+
+def _field_key_for_missing_information(item):
+    field = str(item.get("field") or "").strip()
+    if not field:
+        return ""
+    return field.removeprefix("fields.").replace(".", "_")
+
+
+def _template_data_with_missing_information_answers(template_data, missing_information):
+    merged = dict(template_data or {})
+    for item in missing_information or []:
+        answer = str(item.get("answer") or "").strip()
+        field_key = _field_key_for_missing_information(item)
+        if answer and field_key and field_key not in merged:
+            merged[field_key] = answer
+    return merged
+
+
+def _missing_information_answer_text(missing_information):
+    lines = []
+    for item in missing_information or []:
+        answer = str(item.get("answer") or "").strip()
+        if answer and not item.get("not_needed"):
+            question = item.get("question") or item.get("field") or "Missing information"
+            lines.append(f"- {question}: {answer}")
+    if not lines:
+        return ""
+    return "User-provided answers to drafting questions:\n" + "\n".join(lines)
+
+
 def create_or_update_plan(session, payload):
     if "goal" in payload:
         session.goal = payload.get("goal") or ""
@@ -360,7 +410,7 @@ def create_or_update_plan(session, payload):
         session.selected_template_ids = [int(payload["templateId"])]
     plan = _fallback_plan(session, allow_multiple=bool(payload.get("allowMultipleDocuments")))
     session.draft_plan = plan
-    session.missing_information = plan.get("missing_information") or []
+    session.missing_information = missing_information_items(plan)
     if plan.get("document_items"):
         first = plan["document_items"][0]
         session.template_id = first.get("template_id") or session.template_id
@@ -385,12 +435,11 @@ def apply_plan_edits(session, payload):
     if not session.selected_template_ids:
         slugs = [item.get("template_slug") for item in document_items if item.get("template_slug")]
         session.selected_template_ids = list(DocumentTemplate.objects.filter(slug__in=slugs).values_list("id", flat=True))
-    session.missing_information = [
-        item
-        for document in document_items
-        for item in (document.get("missing_information") or [])
-        if not item.get("not_needed")
-    ] or plan.get("missing_information", [])
+    session.missing_information = missing_information_items(plan)
+    session.template_data = _template_data_with_missing_information_answers(
+        session.template_data,
+        session.missing_information,
+    )
     if document_items:
         first = document_items[0]
         template = _template_for_plan_item(first)
@@ -890,8 +939,10 @@ def recommend_support_candidates(session, *, user=None, request=None, limit_per_
 # Draft generation helpers
 
 
-def create_draft(session, *, template=None, block_keys=None, title=None, instructions=None, missing_by_block=None):
-    context = regeneration_context(session, template=template, instructions=instructions)
+def create_draft(session, *, template=None, block_keys=None, title=None, instructions=None, missing_by_block=None, missing_information=None):
+    answered_context = _missing_information_answer_text(missing_information if missing_information is not None else session.missing_information)
+    scoped_instructions = "\n\n".join(part for part in [instructions if instructions is not None else session.instructions, answered_context] if part)
+    context = regeneration_context(session, template=template, instructions=scoped_instructions)
     active_template = template or session.template
     block_keys = block_keys or session.selected_block_keys or [block.key for block in active_template.blocks.all()]
     sections = drafting_ai.compose_document(context, block_keys)
@@ -972,6 +1023,7 @@ def create_drafts_from_plan(session):
                 title=item.get("title") or template.title,
                 instructions=item.get("drafting_instructions") or item.get("goal") or session.instructions,
                 missing_by_block=_missing_by_block_for_item(item),
+                missing_information=item.get("missing_information") or [],
             )
         )
     if not drafts and session.template:

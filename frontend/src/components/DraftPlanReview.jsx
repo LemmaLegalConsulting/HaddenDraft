@@ -35,6 +35,8 @@ export function DraftPlanReview({
   candidateIssues,
   onIssuesChange,
   onFactIdsAdded,
+  clarifyMissingFactsBeforeDraft,
+  onClarifyMissingFactsBeforeDraftChange,
   onPlanChange,
   onRegeneratePlan,
   onGenerateDraft,
@@ -43,6 +45,12 @@ export function DraftPlanReview({
   const [guidance, setGuidance] = useState("");
   const templateBySlug = useMemo(() => new Map(templates.map((template) => [template.slug, template])), [templates]);
   const documentItems = plan?.document_items || [];
+  const unansweredQuestions = documentItems.flatMap((item) => (
+    (item.missing_information || [])
+      .filter((missing) => !missing.answer && !missing.not_needed)
+      .map((missing) => ({ ...missing, documentTitle: item.title }))
+  ));
+  const shouldPauseForQuestions = clarifyMissingFactsBeforeDraft && unansweredQuestions.length > 0;
 
   if (!plan) {
     return (
@@ -122,9 +130,9 @@ export function DraftPlanReview({
                     </label>
                   ))}
                 </div>
-                {(item.missing_information || []).length > 0 && (
+                {(item.missing_information || []).some((missing) => !missing.not_needed) && (
                   <div className="missing-info-list">
-                    {(item.missing_information || []).map((missing, index) => (
+                    {(item.missing_information || []).map((missing, index) => !missing.not_needed && (
                       <div className="missing-info-item" key={`${missing.field}-${index}`}>
                         <strong>{missing.question}</strong>
                         <input
@@ -133,8 +141,7 @@ export function DraftPlanReview({
                           onChange={(event) => updateMissing(item, index, { answer: event.target.value, not_needed: false })}
                         />
                         <div className="button-row compact">
-                          <button className="secondary" type="button" onClick={() => updateMissing(item, index, { not_needed: true })}>Mark not needed</button>
-                          <button className="secondary" type="button" onClick={() => updateMissing(item, index, { required_for_generation: false })}>Generate anyway</button>
+                          <button className="secondary" type="button" onClick={() => updateMissing(item, index, { not_needed: true, required_for_generation: false })}>Skip question</button>
                         </div>
                       </div>
                     ))}
@@ -143,6 +150,22 @@ export function DraftPlanReview({
               </article>
             );
           })}
+        </div>
+        <div className={shouldPauseForQuestions ? "question-gate active" : "question-gate"}>
+          <label className="checkbox-row">
+            <input
+              type="checkbox"
+              checked={clarifyMissingFactsBeforeDraft}
+              onChange={(event) => onClarifyMissingFactsBeforeDraftChange(event.target.checked)}
+            />
+            <span>Pause for unanswered drafting questions before generating</span>
+          </label>
+          {shouldPauseForQuestions && (
+            <div className="question-gate-summary">
+              <strong>{unansweredQuestions.length} question{unansweredQuestions.length === 1 ? "" : "s"} need an answer or skip decision.</strong>
+              <span>Answer them above, mark them not needed, or turn off this pause to generate with placeholders.</span>
+            </div>
+          )}
         </div>
         {(!authorProfile.displayName && !authorProfile.email) && (
           <div className="warning-panel"><UserRound size={16} /> Author info is missing; caption/signature will use placeholders.</div>
@@ -155,8 +178,8 @@ export function DraftPlanReview({
           <button className="btn btn-outline-secondary" type="button" disabled={busy} onClick={() => onRegeneratePlan(guidance)}>
             {busy ? <Loader2 className="spin" size={16} /> : <Sparkles size={16} />} Regenerate plan
           </button>
-          <button className="btn btn-primary" type="button" disabled={busy || !documentItems.length} onClick={onGenerateDraft}>
-            {busy ? <Loader2 className="spin" size={16} /> : <CheckCircle2 size={16} />} Generate draft
+          <button className="btn btn-primary" type="button" disabled={busy || !documentItems.length || shouldPauseForQuestions} onClick={onGenerateDraft}>
+            {busy ? <Loader2 className="spin" size={16} /> : <CheckCircle2 size={16} />} {shouldPauseForQuestions ? "Answer questions to generate" : "Generate draft"}
           </button>
         </div>
       </div>

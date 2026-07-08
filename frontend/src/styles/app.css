@@ -142,6 +142,8 @@ button:disabled {
 .mode-list button {
   background: transparent;
   color: #dce6eb;
+  display: grid;
+  grid-template-columns: 18px minmax(0, 1fr);
   justify-content: flex-start;
   width: 100%;
 }
@@ -151,6 +153,26 @@ button:disabled {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.mode-item-label {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.mode-item-label small {
+  color: #91a2ad;
+  font-size: 12px;
+  font-weight: 500;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mode-list button.active .mode-item-label small {
+  color: #52636e;
 }
 
 .mode-list button.active,
@@ -355,6 +377,45 @@ button:disabled {
 .topbar h2 {
   font-size: 22px;
   overflow-wrap: anywhere;
+}
+
+.topbar-case {
+  min-width: 0;
+}
+
+.topbar-case-heading {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+  min-width: 0;
+}
+
+.selected-document-pill {
+  align-items: center;
+  background: #e8eef1;
+  border: 1px solid #d5e0e5;
+  border-radius: 999px;
+  color: #26343c;
+  display: inline-flex;
+  font-size: 12px;
+  font-weight: 700;
+  gap: 6px;
+  line-height: 1.2;
+  max-width: min(420px, 100%);
+  min-width: 0;
+  padding: 4px 9px;
+}
+
+.selected-document-pill svg {
+  flex: 0 0 auto;
+}
+
+.selected-document-pill span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .active-case-banner {
@@ -1246,6 +1307,31 @@ button:disabled {
 
 .top-step-actions {
   margin-bottom: 12px;
+}
+
+.question-gate {
+  background: #f7fafb;
+  border: 1px solid #dbe4e8;
+  border-radius: 6px;
+  display: grid;
+  gap: 8px;
+  margin-top: 12px;
+  padding: 10px;
+}
+
+.question-gate.active {
+  background: #fff8e6;
+  border-color: #f2c66d;
+}
+
+.question-gate-summary {
+  color: #6f4b00;
+  display: grid;
+  gap: 3px;
+}
+
+.question-gate-summary span {
+  font-size: 13px;
 }
 
 .editor-actions {
@@ -2179,6 +2265,10 @@ button:disabled {
 
   .mode-list button {
     padding-inline: 9px;
+  }
+
+  .mode-item-label small {
+    display: none;
   }
 
   .stepper {
