@@ -38,6 +38,10 @@ class DraftingSession(models.Model):
         blank=True,
         help_text="Values for fields declared by the selected prepared template.",
     )
+    goal = models.TextField(blank=True)
+    draft_plan = models.JSONField(default=dict, blank=True)
+    missing_information = models.JSONField(default=list, blank=True)
+    selected_template_ids = models.JSONField(default=list, blank=True)
     instructions = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

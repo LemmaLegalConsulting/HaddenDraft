@@ -336,7 +336,11 @@ class TemplateIngestionTests(TestCase):
         self.assertTrue(template.blocks.filter(key="argument", block_type="argument").exists())
 
     def test_full_template_export_uses_edited_lexical_block_values(self):
-        self.ingest()
+        manifest_path = self.ingest()
+        template_path = manifest_path.parent / "template.docx"
+        source_doc = Document(template_path)
+        source_doc.add_paragraph("Numbered facts: {{ blocks.facts.numbered_items | join('; ') }}")
+        source_doc.save(template_path)
         with self.settings(CONTENT_LIBRARY_DIR=self.content):
             sync_prepared_templates()
             template = DocumentTemplate.objects.prefetch_related("blocks").get(slug="test-motion")
@@ -356,7 +360,7 @@ class TemplateIngestionTests(TestCase):
                 session=session,
                 title="Test Motion",
                 sections=[
-                    {"key": "facts", "label": "Facts", "body": "1. First edited fact.\n2. Second edited fact."},
+                    {"key": "facts", "label": "Facts", "body": "First edited fact.\nSecond edited fact.", "format": {"style": "numbered"}},
                     {"key": "certificate-of-service", "label": "Certificate of Service", "body": "Edited certificate text.\nAdded overflow paragraph."},
                 ],
                 plain_text="",
@@ -368,6 +372,8 @@ class TemplateIngestionTests(TestCase):
             xml = archive.read("word/document.xml").decode("utf-8")
         self.assertIn("First edited fact.", xml)
         self.assertIn("Second edited fact.", xml)
+        self.assertIn("1. First edited fact.", xml)
+        self.assertIn("2. Second edited fact.", xml)
         self.assertIn("Edited certificate text.", xml)
         self.assertIn("Added overflow paragraph.", xml)
         self.assertNotIn("{%p", xml)

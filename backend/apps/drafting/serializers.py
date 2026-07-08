@@ -17,6 +17,10 @@ def session_to_dict(session):
         "selectedBlockKeys": session.selected_block_keys,
         "authorProfile": session.author_profile,
         "templateData": session.template_data,
+        "goal": session.goal,
+        "draftPlan": session.draft_plan,
+        "missingInformation": session.missing_information,
+        "selectedTemplateIds": session.selected_template_ids,
         "instructions": session.instructions,
         "updatedAt": session.updated_at.isoformat(),
     }

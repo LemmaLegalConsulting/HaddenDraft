@@ -120,6 +120,7 @@ class PromptCatalogTests(TestCase):
             set(prompts),
             {
                 "drafting.constrained_section",
+                "drafting.plan",
                 "triage.apply_rubric",
                 "case_chat.document_summary",
                 "case_chat.suggest_actions",

@@ -1,5 +1,5 @@
 import React from "react";
-import { ClipboardCheck, FilePlus2, FileText, Loader2, MessageSquare, RotateCcw, Search, Upload } from "lucide-react";
+import { ClipboardCheck, FilePlus2, FileText, Loader2, MessageSquare, Pencil, RotateCcw, Search, Upload } from "lucide-react";
 
 function detailValue(item, label) {
   return (item.details || []).find((detail) => detail.label === label)?.value || "";
@@ -11,6 +11,10 @@ function caseNumberFor(item) {
 
 function isLegalServerCase(item) {
   return (item.sourceSystem || "LegalServer").toLowerCase() === "legalserver";
+}
+
+function isQuickCase(item) {
+  return (item.sourceSystem || "").toLowerCase() === "manual";
 }
 
 function lastActivityLabel(item) {
@@ -37,9 +41,12 @@ export function CaseSelector({
   caseBusy,
   manualCaseBusy,
   onCreateManualCase,
+  onUpdateManualCase,
   onModeChange,
+  materialsPanel,
 }) {
   const [manualCaseOpen, setManualCaseOpen] = React.useState(false);
+  const [editCaseOpen, setEditCaseOpen] = React.useState(false);
   const [caseSource, setCaseSource] = React.useState("legalserver");
   const [manualCase, setManualCase] = React.useState({
     clientName: "",
@@ -83,7 +90,7 @@ export function CaseSelector({
               checked={caseSource === "local"}
               onChange={() => setCaseSource("local")}
             />
-            Local case
+            Quick case
           </label>
         </div>
         <button
@@ -95,7 +102,7 @@ export function CaseSelector({
             setManualCaseOpen((current) => !current);
           }}
         >
-          <FilePlus2 size={16} /> New local case
+          <FilePlus2 size={16} /> New quick case
         </button>
       </div>
       <div className="manual-case-panel">
@@ -211,7 +218,7 @@ export function CaseSelector({
         {!visibleCases.length && (
           <div className="empty-state compact-empty">
             <strong className="empty-state-title">
-              {caseSource === "legalserver" ? (legalserverLoading ? "Checking LegalServer" : connected ? "No matters found" : "No LegalServer cases") : "No local cases yet"}
+              {caseSource === "legalserver" ? (legalserverLoading ? "Checking LegalServer" : connected ? "No matters found" : "No LegalServer cases") : "No quick cases yet"}
             </strong>
             <p>
               {caseSource === "legalserver"
@@ -220,7 +227,7 @@ export function CaseSelector({
                   : connected
                   ? "LegalServer did not return matters for this identifier."
                   : "Connect LegalServer to load assigned matters."
-                : "Create a local case with notes or files."}
+                : "Create a quick case with notes or files."}
             </p>
           </div>
         )}
@@ -237,6 +244,16 @@ export function CaseSelector({
           </dl>
           {matter.summary && <p>{matter.summary}</p>}
           <div className="case-actions">
+            {isQuickCase(matter) && (
+              <button className="secondary" type="button" onClick={() => setEditCaseOpen((current) => !current)}>
+                <Pencil size={16} /> Edit quick case
+              </button>
+            )}
+            {isQuickCase(matter) && (
+              <button className="secondary" type="button" disabled title="LegalServer draft-intake preview is backend-only until posting is configured">
+                <FilePlus2 size={16} /> Create LegalServer draft intake
+              </button>
+            )}
             <button className="primary" type="button" onClick={() => onModeChange("case_chat")}>
               <MessageSquare size={16} /> Chat
             </button>
@@ -250,6 +267,35 @@ export function CaseSelector({
               <FileText size={16} /> Draft
             </button>
           </div>
+          {editCaseOpen && isQuickCase(matter) && (
+            <form
+              className="manual-case-form edit-case-form"
+              onSubmit={async (event) => {
+                event.preventDefault();
+                const form = new FormData(event.currentTarget);
+                const saved = await onUpdateManualCase?.({
+                  clientName: form.get("clientName"),
+                  matterType: form.get("matterType"),
+                  jurisdiction: form.get("jurisdiction"),
+                  posture: form.get("posture"),
+                  summary: form.get("summary"),
+                });
+                if (saved) setEditCaseOpen(false);
+              }}
+            >
+              <div className="manual-case-grid">
+                <label className="field"><span>Client or household</span><input name="clientName" defaultValue={matter.client || ""} /></label>
+                <label className="field"><span>Legal problem</span><input name="matterType" defaultValue={matter.matter || ""} /></label>
+                <label className="field"><span>Court or county</span><input name="jurisdiction" defaultValue={matter.jurisdiction || ""} /></label>
+                <label className="field"><span>Posture</span><input name="posture" defaultValue={matter.posture || ""} /></label>
+              </div>
+              <label className="field"><span>Case description or intake notes</span><textarea name="summary" defaultValue={matter.summary || ""} rows={5} /></label>
+              <button className="primary full" type="submit" disabled={manualCaseBusy}>
+                {manualCaseBusy ? <Loader2 className="spin" size={16} /> : <Pencil size={16} />} Save quick case
+              </button>
+            </form>
+          )}
+          {materialsPanel}
         </div>
       )}
     </div>
