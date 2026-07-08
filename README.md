@@ -115,13 +115,18 @@ npm run build
 
 ```text
 .
+├── AGENTS.md                 Repository maintenance patterns
 ├── backend/                  Django project and backend apps
 ├── brainstorming/            Original planning documents
 ├── clickable_prototype.js    Original clickable React prototype
 ├── content/                  Maintained DOCX snippets, treatise source/Markdown, and triage rubrics
 ├── docs/                     Architecture notes
 ├── frontend/                 Vite + React + Lexical frontend
-└── requirements.txt          Python dependencies
+├── private-content/          Private organization templates
+├── prompts/                  LLM system/user messages
+├── scripts/                  Helper scripts and utilities
+├── requirements.txt          Python dependencies
+└── Dockerfile, compose.yaml, etc. Docker and deployment setup files
 ```
 
 ## Backend Layout
@@ -137,7 +142,10 @@ backend/
     ├── core/                 Shared JSON helpers, bootstrap, dev CORS middleware
     ├── drafting/             Drafting sessions, draft documents, workflow endpoints
     ├── exporting/            Export adapters
+    ├── facts/                Extracted facts and review states
+    ├── issues/               Candidate issues and review states
     ├── matters/              Case/matter data and candidate facts
+    ├── rules/                Rules engine and decision tables
     ├── sources/              Retrieval connector registry and source search
     ├── templates_app/        Document templates, blocks, template-from-example service
     └── validation/           Draft validation checks
