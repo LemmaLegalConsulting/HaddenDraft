@@ -13,6 +13,9 @@ from apps.templates_app.models import DocumentTemplate, TemplateBlock
 
 PREPARED_TEMPLATE_DIR = "document-templates"
 TEMPLATE_OVERRIDE_DIR = "template-overrides"
+GENERIC_TEMPLATE_DESCRIPTIONS = {
+    "prepared from the maintained original word template.",
+}
 
 
 class TemplateManifestError(ValueError):
@@ -115,6 +118,55 @@ def _template_metadata(manifest: dict) -> dict:
     }
 
 
+def _is_generic_template_description(value: str) -> bool:
+    return " ".join((value or "").split()).casefold() in GENERIC_TEMPLATE_DESCRIPTIONS
+
+
+def _default_template_description(manifest: dict) -> str:
+    description = manifest.get("description", "")
+    if description and not _is_generic_template_description(description):
+        return description
+    return f"Maintained Word template for {manifest['title']}."
+
+
+def _default_template_goal(manifest: dict) -> str:
+    goal = manifest.get("goal", "")
+    if goal:
+        return goal
+    title = manifest["title"]
+    if manifest.get("kind") == "motion":
+        if "motion" in title.casefold():
+            return f"Draft {title} with case-specific facts, legal grounds, and requested relief."
+        return f"Draft the {title} motion with case-specific facts, legal grounds, and requested relief."
+    if manifest.get("kind") == "brief":
+        return f"Draft the {title} filing with case-specific facts, legal grounds, and requested relief."
+    return f"Draft the {title} document with case-specific facts and the requested relief or outcome."
+
+
+def _template_defaults(path: Path, manifest: dict, checksum: str) -> dict:
+    return {
+        "title": manifest["title"],
+        "kind": manifest["kind"],
+        "description": _default_template_description(manifest),
+        "goal": _default_template_goal(manifest),
+        "negative_goal": manifest.get("negative_goal", ""),
+        "aliases": manifest.get("aliases", []),
+        "jurisdiction": manifest.get("jurisdiction", ""),
+        "source_label": manifest.get("source_label", "Content library"),
+        "metadata": _template_metadata(manifest),
+        "source_kind": "content_library",
+        "content_path": logical_content_path(path),
+        "source_checksum": checksum,
+        "is_active": bool(manifest.get("active", True)),
+        "last_synced_at": timezone.now(),
+    }
+
+
+def _template_matches_defaults(template: DocumentTemplate, defaults: dict) -> bool:
+    stable_fields = set(defaults) - {"last_synced_at"}
+    return all(getattr(template, field) == defaults[field] for field in stable_fields)
+
+
 @transaction.atomic
 def sync_prepared_templates(*, deactivate_missing=False):
     """Index prepared packages without overwriting database/admin templates."""
@@ -135,28 +187,16 @@ def sync_prepared_templates(*, deactivate_missing=False):
             results.append({"slug": slug, "status": "conflict", "template": existing})
             continue
         manifest_block_keys = {row["key"] for row in manifest["blocks"]}
+        defaults = _template_defaults(path, manifest, checksum)
         if (
             existing
             and existing.source_checksum == checksum
-            and existing.is_active == bool(manifest.get("active", True))
+            and _template_matches_defaults(existing, defaults)
             and set(existing.blocks.values_list("key", flat=True)) == manifest_block_keys
         ):
             results.append({"slug": slug, "status": "unchanged", "template": existing})
             continue
 
-        defaults = {
-            "title": manifest["title"],
-            "kind": manifest["kind"],
-            "description": manifest.get("description", ""),
-            "jurisdiction": manifest.get("jurisdiction", ""),
-            "source_label": manifest.get("source_label", "Content library"),
-            "metadata": _template_metadata(manifest),
-            "source_kind": "content_library",
-            "content_path": logical_content_path(path),
-            "source_checksum": checksum,
-            "is_active": bool(manifest.get("active", True)),
-            "last_synced_at": timezone.now(),
-        }
         if existing:
             for field, value in defaults.items():
                 setattr(existing, field, value)
@@ -207,6 +247,9 @@ def sync_template_overrides():
         "title",
         "kind",
         "description",
+        "goal",
+        "negative_goal",
+        "aliases",
         "jurisdiction",
         "source_label",
         "is_active",

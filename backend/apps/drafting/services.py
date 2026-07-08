@@ -72,6 +72,9 @@ SUPPORT_PURPOSE_LABELS = {
     "example_language": "Example language",
     "background_reference": "Background reference",
 }
+GENERIC_TEMPLATE_DESCRIPTIONS = {
+    "prepared from the maintained original word template.",
+}
 
 FACT_TERM_GROUPS = {
     "notice": {"notice", "served", "service", "quit", "termination", "summons", "complaint"},
@@ -244,21 +247,47 @@ def _requested_custom_fields(session):
     return requested[:5]
 
 
+def _is_generic_template_description(value):
+    return " ".join((value or "").split()).casefold() in GENERIC_TEMPLATE_DESCRIPTIONS
+
+
+def _template_goal_text(template):
+    if template.goal:
+        return template.goal
+    if template.description and not _is_generic_template_description(template.description):
+        return template.description
+    return f"Draft {template.title}."
+
+
+def _template_drafting_instructions(session, template, goal):
+    if session.instructions:
+        return session.instructions
+    if template.goal:
+        return template.goal
+    return (
+        f"Use the selected {template.title} template structure and draft the active blocks "
+        "with case-specific facts, requested relief, and reviewer-approved sources."
+    )
+
+
 def _document_item_for_template(session, template, recommendation=None):
     fact_slugs = [fact.slug for fact in MatterFact.objects.filter(id__in=session.selected_fact_ids)]
     selected_keys = drafting_ai.recommend_blocks(template, fact_slugs)
     selected_keys = selected_keys or [block.key for block in template.blocks.all()]
     missing_information = _plan_missing_information(session, template)
-    goal = session.goal or session.instructions or template.goal or template.description
+    goal = session.goal or session.instructions or _template_goal_text(template)
+    reason = "; ".join((recommendation or {}).get("reasons") or [template.goal or template.description or "Selected template."])
+    if _is_generic_template_description(reason):
+        reason = "Selected template."
     return {
         "id": template.slug,
         "template_slug": template.slug,
         "template_id": template.id,
         "title": template.title,
         "goal": goal,
-        "reason": "; ".join((recommendation or {}).get("reasons") or [template.goal or template.description or "Selected template."]),
+        "reason": reason,
         "selected_block_keys": selected_keys,
-        "drafting_instructions": session.instructions or goal,
+        "drafting_instructions": _template_drafting_instructions(session, template, goal),
         "missing_information": missing_information,
     }
 
@@ -268,7 +297,7 @@ def _plan_summary(session, selected_templates):
         return session.goal or session.instructions
     if len(selected_templates) == 1:
         template = selected_templates[0]
-        return template.goal or f"Make {template.title}."
+        return _template_goal_text(template)
     if selected_templates:
         return "Make the selected documents: " + ", ".join(template.title for template in selected_templates) + "."
     return _matter_details_text(session.matter) or "Draft a housing case document."
