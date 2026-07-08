@@ -15,6 +15,7 @@ export function WorkflowStepper({ steps, activeStep, onSelect }) {
           <div className="step-index">{index < activeIndex ? <Check size={13} /> : index + 1}</div>
           <div>
             <strong>{step.label}</strong>
+            {step.description && <span>{step.description}</span>}
           </div>
         </button>
       ))}

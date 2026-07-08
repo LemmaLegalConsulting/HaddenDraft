@@ -240,6 +240,17 @@ button:disabled {
   display: block;
 }
 
+.step span {
+  color: #91a2ad;
+  font-size: 12px;
+  font-weight: 600;
+  margin-top: 2px;
+}
+
+.step.active span {
+  color: #52636e;
+}
+
 .source-card {
   background: #1a303b;
   border-radius: 8px;
