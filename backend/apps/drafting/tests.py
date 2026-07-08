@@ -12,7 +12,7 @@ from docx import Document
 
 from apps.ai.services import ConstrainedDraftingService
 from apps.drafting.models import DraftDocument, DraftingSession
-from apps.drafting.services import create_drafts_from_plan, create_or_update_plan
+from apps.drafting.services import apply_plan_edits, create_drafts_from_plan, create_or_update_plan, unanswered_missing_information
 from apps.exporting.services import _docx_render_context
 from apps.exporting.services import export_docx
 from apps.matters.models import Matter
@@ -458,6 +458,79 @@ class DraftRenderingTests(TestCase):
             "Use the selected Legacy Motion template structure and draft the active blocks with case-specific facts, requested relief, and reviewer-approved sources.",
         )
         self.assertNotIn("maintained original Word template", item["drafting_instructions"])
+
+    def test_optional_missing_information_can_be_promoted_to_predraft_questions(self):
+        plan = {
+            "document_items": [
+                {
+                    "missing_information": [
+                        {
+                            "field": "hearing_date",
+                            "question": "What is the current hearing date?",
+                            "required_for_generation": False,
+                        }
+                    ]
+                }
+            ]
+        }
+
+        self.assertEqual(unanswered_missing_information(plan), [])
+        self.assertEqual(len(unanswered_missing_information(plan, require_all=True)), 1)
+
+    def test_plan_missing_information_answers_populate_template_fields(self):
+        matter = Matter.objects.create(
+            external_id="CASE-QUESTION-ANSWER",
+            client_name="Jane Tenant",
+            matter_type="Eviction",
+            jurisdiction="Housing Court",
+            summary="Tenant needs a continuance.",
+        )
+        template = DocumentTemplate.objects.create(
+            slug="question-answer-template",
+            title="Question Answer Template",
+            kind="motion",
+        )
+        TemplateBlock.objects.create(
+            template=template,
+            key="body",
+            label="Body",
+            block_type="argument",
+            order=10,
+            body="The current hearing date is {{ fields.hearing_date }}.",
+        )
+        session = DraftingSession.objects.create(
+            mode="draft_from_template",
+            matter=matter,
+            template=template,
+            selected_template_ids=[template.id],
+        )
+        plan = {
+            "summary": "Ask for more time.",
+            "document_items": [
+                {
+                    "id": template.slug,
+                    "template_slug": template.slug,
+                    "template_id": template.id,
+                    "title": template.title,
+                    "selected_block_keys": ["body"],
+                    "drafting_instructions": "Use the answered hearing date.",
+                    "missing_information": [
+                        {
+                            "field": "hearing_date",
+                            "question": "What is the current hearing date?",
+                            "answer": "August 1, 2026",
+                            "required_for_generation": False,
+                        }
+                    ],
+                }
+            ],
+        }
+
+        session = apply_plan_edits(session, {"draftPlan": plan})
+        drafts = create_drafts_from_plan(session)
+
+        self.assertEqual(session.template_data["hearing_date"], "August 1, 2026")
+        self.assertIn("August 1, 2026", drafts[0].sections[0]["body"])
 
     def test_export_docx_removes_xml_forbidden_characters(self):
         draft = SimpleNamespace(

@@ -113,7 +113,8 @@ export const api = {
     request(`/drafting-sessions/${sessionId}/plan/`, { method: "POST", body: JSON.stringify(payload) }),
   updateDraftPlan: (sessionId, payload = {}) =>
     request(`/drafting-sessions/${sessionId}/plan/`, { method: "PATCH", body: JSON.stringify(payload) }),
-  generatePlanDrafts: (sessionId) => request(`/drafting-sessions/${sessionId}/drafts/`, { method: "POST" }),
+  generatePlanDrafts: (sessionId, payload = {}) =>
+    request(`/drafting-sessions/${sessionId}/drafts/`, { method: "POST", body: JSON.stringify(payload) }),
   generateDraft: (sessionId) => request(`/drafting-sessions/${sessionId}/draft/`, { method: "POST" }),
   updateDraft: (draftId, payload) => request(`/drafts/${draftId}/`, { method: "PATCH", body: JSON.stringify(payload) }),
   regenerateDraftBlock: (draftId, blockKey, payload) =>

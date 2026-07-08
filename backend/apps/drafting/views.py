@@ -10,6 +10,7 @@ from apps.drafting.services import (
     create_drafts_from_plan,
     create_or_update_plan,
     initialize_session,
+    unanswered_missing_information,
     outline_for_session,
     recommend_session_fact_ids,
     recommend_support_candidates,
@@ -204,13 +205,20 @@ def generate_plan_drafts(request, session_id):
     session, error = _session_or_404(request.user, session_id, with_template=True)
     if error:
         return error
-    blocking_missing = [
-        item
-        for item in (session.missing_information or [])
-        if item.get("required_for_generation") and not item.get("answer") and not item.get("not_needed")
-    ]
+    body = json_body(request)
+    plan = session.draft_plan or {}
+    blocking_missing = unanswered_missing_information(
+        plan,
+        require_all=bool(body.get("requireAllMissingInformation")),
+    )
     if blocking_missing:
-        return JsonResponse({"error": "Required information is missing", "missingInformation": blocking_missing}, status=400)
+        return JsonResponse(
+            {
+                "error": "Answer the remaining drafting questions before generating the draft.",
+                "missingInformation": blocking_missing,
+            },
+            status=400,
+        )
     drafts = create_drafts_from_plan(session)
     return JsonResponse({"drafts": [draft_to_dict(draft) for draft in drafts]}, status=201)
 
