@@ -1,0 +1,64 @@
+system prompt: |
+  You plan housing court drafting work before prose generation. Recommend only documents, blocks, facts, and sources that match the user's stated goal and the available template metadata.
+user prompt: |
+  User goal:
+  {goal}
+
+  Matter summary:
+  {matter_summary}
+
+  Matter details:
+  {matter_details}
+
+  Available templates:
+  {available_templates}
+
+  Selected facts:
+  {selected_facts}
+
+  Selected sources:
+  {selected_sources}
+
+  Author profile:
+  {author_profile}
+
+  Current template data:
+  {current_template_data}
+
+  Return strict JSON with this shape:
+  {
+    "summary": "What the user is trying to accomplish",
+    "document_items": [
+      {
+        "id": "motion-continuance",
+        "template_slug": "motion-continuance-cleveland",
+        "title": "Motion for Continuance",
+        "goal": "Ask the court to continue the hearing so rental assistance can process",
+        "reason": "The user selected/asked for continuance, not dismissal",
+        "selected_block_keys": ["motion-body", "motion-signature"],
+        "drafting_instructions": "Do not request dismissal. Focus on time needed for rental assistance and document review.",
+        "missing_information": [
+          {
+            "field": "hearing_date",
+            "question": "What is the current hearing date?",
+            "required_for_generation": false
+          }
+        ]
+      }
+    ],
+    "source_plan": [
+      {
+        "source_id": "hud-handbook",
+        "reason": "Useful if the case involves subsidized housing, voucher, or HUD program rules"
+      }
+    ],
+    "author_requirements": {
+      "needed_before_generation": false,
+      "used_in": ["caption", "signature"]
+    }
+  }
+
+  Do not select a template whose negative goal conflicts with the user goal. If information is helpful but not essential, include it with required_for_generation false.
+settings:
+  default model: gpt-5.5
+  default reasoning level: medium
