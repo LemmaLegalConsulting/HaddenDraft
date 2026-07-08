@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from "react";
 import { $createParagraphNode, $createTextNode, $getRoot, FORMAT_TEXT_COMMAND } from "lexical";
-import { Bold, ExternalLink, Italic, MoreVertical, Plus, Save, Sparkles, Underline, X } from "lucide-react";
+import { AlertCircle, Bold, ExternalLink, Italic, MoreVertical, Plus, Save, Sparkles, Underline, X } from "lucide-react";
 import { LexicalComposer } from "@lexical/react/LexicalComposer";
 import { ContentEditable } from "@lexical/react/LexicalContentEditable";
 import { LexicalErrorBoundary } from "@lexical/react/LexicalErrorBoundary";
@@ -79,15 +79,34 @@ function supportingReasons(block) {
   const map = supportMap(block);
   const lines = cleanBody(block.body).split(/\n+/).map((line) => line.trim()).filter(Boolean);
   const citedLines = lines.flatMap((line) => {
-    const citations = [...line.matchAll(/\[([^\]]+)\]/g)].map((match) => match[1]);
+    const labels = [...line.matchAll(/\[([^\]]+)\]/g)].map((match) => match[1]);
+    const citations = labels.map((label) => map.get(label)).filter(Boolean);
     if (!citations.length) return [];
     return [{
       reason: line.replace(/\s*\[[^\]]+\]/g, "").replace(/^\d+\.\s*/, ""),
-      citations: citations.map((citation) => map.get(citation) || { label: citation, title: citation, snippet: "", url: "" }),
+      citations,
     }];
   });
   if (citedLines.length) return citedLines;
   return [...map.values()].map((preview) => ({ reason: "Block support", citations: [preview] }));
+}
+
+const KNOWN_CITATION_BRACKET_RE = /^\d+\s+[A-Z][A-Za-z.]+\s+\d+$/;
+
+function extractMissingPlaceholders(sections) {
+  const seen = new Map();
+  sections.forEach((section) => {
+    const map = supportMap(section);
+    const matches = [...(section.body || "").matchAll(/\[([^\]\n]{2,80})\]/g)];
+    matches.forEach((match) => {
+      const label = match[1];
+      if (map.has(label) || KNOWN_CITATION_BRACKET_RE.test(label)) return;
+      if (!seen.has(label)) seen.set(label, { label, blockKeys: [] });
+      const entry = seen.get(label);
+      if (!entry.blockKeys.includes(section.key)) entry.blockKeys.push(section.key);
+    });
+  });
+  return [...seen.values()];
 }
 
 function plainTextFromSections(sections) {
@@ -271,6 +290,40 @@ function RefineModal({ block, disabled, onClose, onSubmit }) {
   );
 }
 
+function MissingFieldModal({ placeholder, disabled, onClose, onSubmit }) {
+  const [value, setValue] = useState("");
+  React.useEffect(() => {
+    setValue("");
+  }, [placeholder]);
+  if (!placeholder) return null;
+  return (
+    <div className="modal-backdrop" role="presentation">
+      <div className="editor-modal" role="dialog" aria-modal="true" aria-label={`Fill in ${placeholder.label}`}>
+        <div className="modal-heading">
+          <h4>Fill in: {placeholder.label}</h4>
+          <button className="icon-button secondary" type="button" onClick={onClose} title="Close"><X size={16} /></button>
+        </div>
+        <input
+          className="form-control"
+          autoFocus
+          value={value}
+          onChange={(event) => setValue(event.target.value)}
+          placeholder={`Enter ${placeholder.label.toLowerCase()}`}
+          onKeyDown={(event) => {
+            if (event.key === "Enter" && value.trim()) onSubmit(placeholder.label, value.trim());
+          }}
+        />
+        <div className="button-row step-actions">
+          <button className="secondary" type="button" onClick={onClose}>Cancel</button>
+          <button className="primary" disabled={disabled || !value.trim()} type="button" onClick={() => onSubmit(placeholder.label, value.trim())}>
+            Fill in every occurrence
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function CitationPreview({ citation, onClose }) {
   if (!citation) return null;
   return (
@@ -292,17 +345,34 @@ function CitationPreview({ citation, onClose }) {
   );
 }
 
-export function DraftEditor({ draft, busy, onChange, onPersist, onRegenerateBlock }) {
+export function DraftEditor({ draft, busy, onChange, onPersist, onRegenerateBlock, onFillMissingField }) {
   const sections = sectionsFromDraft(draft);
   const blockStates = draft?.editorState?.blocks || {};
   const [refineBlock, setRefineBlock] = useState(null);
   const [citationPreview, setCitationPreview] = useState(null);
+  const [missingFieldPrompt, setMissingFieldPrompt] = useState(null);
+  const missingPlaceholders = useMemo(() => extractMissingPlaceholders(sections), [sections]);
 
   function updateSections(nextSections, nextBlockStates = blockStates) {
     onChange(nextSections, plainTextFromSections(nextSections), {
       format: "lexical_blocks",
       blocks: nextBlockStates,
     });
+  }
+
+  function fillPlaceholder(label, value) {
+    const bracket = `[${label}]`;
+    const nextSections = sections.map((section) => ({
+      ...section,
+      body: (section.body || "").split(bracket).join(value),
+    }));
+    updateSections(nextSections);
+    const fieldKey = label.toLowerCase().trim().replace(/[^a-z0-9]+/g, "_").replace(/^_+|_+$/g, "");
+    onFillMissingField?.(fieldKey, value, nextSections, plainTextFromSections(nextSections), {
+      format: "lexical_blocks",
+      blocks: blockStates,
+    });
+    setMissingFieldPrompt(null);
   }
 
   function handleBlockChange(blockKey, body, editorState) {
@@ -359,6 +429,22 @@ export function DraftEditor({ draft, busy, onChange, onPersist, onRegenerateBloc
             </button>
           </div>
         </div>
+        {missingPlaceholders.length > 0 && (
+          <div className="missing-field-bar">
+            <span className="missing-field-bar-label"><AlertCircle size={14} /> Fill in before filing:</span>
+            {missingPlaceholders.map((item) => (
+              <button
+                key={item.label}
+                type="button"
+                className="missing-field-pill"
+                disabled={busy}
+                onClick={() => setMissingFieldPrompt(item)}
+              >
+                Missing: {item.label}
+              </button>
+            ))}
+          </div>
+        )}
         <div className="draft-blocks">
           {sections.map((section) => (
             <DraftBlock
@@ -380,6 +466,12 @@ export function DraftEditor({ draft, busy, onChange, onPersist, onRegenerateBloc
         disabled={busy}
         onClose={() => setRefineBlock(null)}
         onSubmit={submitRefine}
+      />
+      <MissingFieldModal
+        placeholder={missingFieldPrompt}
+        disabled={busy}
+        onClose={() => setMissingFieldPrompt(null)}
+        onSubmit={fillPlaceholder}
       />
     </div>
   );

@@ -22,7 +22,9 @@ from apps.matters.models import MatterFact
 from apps.matters.serializers import fact_to_dict, matter_to_dict
 from apps.matters.services import accessible_matters_for_user, matter_for_user, user_can_access_matter
 from apps.templates_app.models import DocumentTemplate
-from apps.validation.services import validate_document as run_validation
+from apps.validation.repair import validate_with_auto_repair
+from apps.validation.revision import apply_revision_plan, build_revision_plan
+from apps.validation.services import validate_document
 
 
 def _session_or_404(user, session_id, *, with_template=False):
@@ -216,6 +218,19 @@ def draft_plan(request, session_id):
 
 
 @api_login_required
+def update_session_template_data(request, session_id):
+    if request.method != "POST":
+        return method_not_allowed(["POST"])
+    session, error = _session_or_404(request.user, session_id)
+    if error:
+        return error
+    updates = json_body(request).get("templateData") or {}
+    session.template_data = {**(session.template_data or {}), **updates}
+    session.save(update_fields=["template_data", "updated_at"])
+    return JsonResponse({"session": session_to_dict(session)})
+
+
+@api_login_required
 def generate_plan_drafts(request, session_id):
     if request.method != "POST":
         return method_not_allowed(["POST"])
@@ -286,11 +301,34 @@ def validate_draft(request, draft_id):
     draft, error = _draft_or_404(request.user, draft_id)
     if error:
         return error
-    draft.validation_flags = run_validation(draft)
-    draft.save()
+    draft, validation_summary = validate_with_auto_repair(draft)
     draft.session.status = "validation"
     draft.session.save(update_fields=["status", "updated_at"])
-    return JsonResponse({"draft": draft_to_dict(draft)})
+    return JsonResponse({"draft": draft_to_dict(draft), "validation": validation_summary})
+
+
+@api_login_required
+def draft_revision_plan(request, draft_id):
+    if request.method != "POST":
+        return method_not_allowed(["POST"])
+    draft, error = _draft_or_404(request.user, draft_id)
+    if error:
+        return error
+    findings = validate_document(draft)
+    return JsonResponse({"revisionPlan": build_revision_plan(draft, findings)})
+
+
+@api_login_required
+def apply_draft_revision(request, draft_id):
+    if request.method != "POST":
+        return method_not_allowed(["POST"])
+    draft, error = _draft_or_404(request.user, draft_id)
+    if error:
+        return error
+    plan_items = json_body(request).get("plan") or []
+    draft = apply_revision_plan(draft, plan_items)
+    draft, validation_summary = validate_with_auto_repair(draft)
+    return JsonResponse({"draft": draft_to_dict(draft), "validation": validation_summary})
 
 
 @api_login_required

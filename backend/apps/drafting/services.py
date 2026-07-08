@@ -14,6 +14,7 @@ from apps.sources.models import SourceConfiguration
 from apps.templates_app.models import DocumentTemplate
 from apps.templates_app.recommendations import recommend_templates
 from apps.templates_app.serializers import template_to_dict
+from apps.templates_app.template_variables import LEGACY_LITERAL_FIELDS, declared_template_fields, normalize_field_path, template_field_label
 
 
 WORKFLOW_STEPS = [
@@ -217,6 +218,18 @@ def _plan_missing_information(session, template):
             {
                 "field": "hearing_date",
                 "question": "What is the current hearing date?",
+                "required_for_generation": False,
+            }
+        )
+    template_data = session.template_data or {}
+    for path in declared_template_fields(template):
+        key = normalize_field_path(path)
+        if key in LEGACY_LITERAL_FIELDS or str(template_data.get(key, "")).strip():
+            continue
+        missing.append(
+            {
+                "field": f"fields.{key}",
+                "question": f"What is the {template_field_label(key).lower()}?",
                 "required_for_generation": False,
             }
         )

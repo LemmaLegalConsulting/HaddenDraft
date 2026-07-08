@@ -427,22 +427,13 @@ def _full_template_docx(draft, template_path):
     return output.getvalue()
 
 
-def export_docx(draft):
+def render_docx_bytes(draft):
     selected_full_template = full_template_path(_draft_template(draft))
     if selected_full_template:
-        response = HttpResponse(
-            _full_template_docx(draft, selected_full_template),
-            content_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-        )
-        response["Content-Disposition"] = f'attachment; filename="draft-{draft.id}.docx"'
-        return response
+        return _full_template_docx(draft, selected_full_template)
+
     if _has_word_template_assets(draft):
-        response = HttpResponse(
-            _composed_docx(draft),
-            content_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-        )
-        response["Content-Disposition"] = f'attachment; filename="draft-{draft.id}.docx"'
-        return response
+        return _composed_docx(draft)
 
     document_xml, num_count = _doc_xml(draft)
     output = io.BytesIO()
@@ -455,8 +446,12 @@ def export_docx(draft):
         docx.writestr("word/_rels/document.xml.rels", _document_rels())
         docx.writestr("word/numbering.xml", _numbering(num_count))
         docx.writestr("word/styles.xml", STYLES)
+    return output.getvalue()
+
+
+def export_docx(draft):
     response = HttpResponse(
-        output.getvalue(),
+        render_docx_bytes(draft),
         content_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
     )
     response["Content-Disposition"] = f'attachment; filename="draft-{draft.id}.docx"'

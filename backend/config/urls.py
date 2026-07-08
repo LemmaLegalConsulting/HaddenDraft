@@ -53,10 +53,13 @@ urlpatterns = [
     path("api/drafting-sessions/<int:session_id>/recommend-support/", drafting_views.recommend_session_support, name="api_session_recommend_support"),
     path("api/drafting-sessions/<int:session_id>/outline/", drafting_views.session_outline, name="api_session_outline"),
     path("api/drafting-sessions/<int:session_id>/plan/", drafting_views.draft_plan, name="api_draft_plan"),
+    path("api/drafting-sessions/<int:session_id>/template-data/", drafting_views.update_session_template_data, name="api_session_template_data"),
     path("api/drafting-sessions/<int:session_id>/drafts/", drafting_views.generate_plan_drafts, name="api_generate_plan_drafts"),
     path("api/drafting-sessions/<int:session_id>/draft/", drafting_views.generate_draft, name="api_generate_draft"),
     path("api/drafts/<int:draft_id>/", drafting_views.draft_detail, name="api_draft_detail"),
     path("api/drafts/<int:draft_id>/blocks/<slug:block_key>/regenerate/", drafting_views.regenerate_block, name="api_regenerate_block"),
     path("api/drafts/<int:draft_id>/validate/", drafting_views.validate_draft, name="api_validate_draft"),
+    path("api/drafts/<int:draft_id>/revision-plan/", drafting_views.draft_revision_plan, name="api_draft_revision_plan"),
+    path("api/drafts/<int:draft_id>/revision/", drafting_views.apply_draft_revision, name="api_apply_draft_revision"),
     path("api/drafts/<int:draft_id>/export/", drafting_views.export_draft, name="api_export_draft"),
 ]

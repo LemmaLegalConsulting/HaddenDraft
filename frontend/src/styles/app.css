@@ -1387,6 +1387,126 @@ button:disabled {
   margin-bottom: 10px;
 }
 
+.bottom-step-actions {
+  justify-content: space-between;
+  margin-top: 16px;
+}
+
+.bottom-step-actions-right {
+  align-items: center;
+}
+
+.recheck-hint {
+  color: #8a6100;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.suggested-next-step {
+  animation: suggested-next-step-pulse 1.8s ease-in-out infinite;
+  box-shadow: 0 0 0 0 rgba(37, 99, 235, 0.5);
+}
+
+@keyframes suggested-next-step-pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(37, 99, 235, 0.45);
+  }
+  70% {
+    box-shadow: 0 0 0 8px rgba(37, 99, 235, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(37, 99, 235, 0);
+  }
+}
+
+.missing-field-bar {
+  align-items: center;
+  background: #fff3e0;
+  border: 1px solid #f0c27b;
+  border-radius: 6px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 14px;
+  padding: 10px;
+}
+
+.missing-field-bar-label {
+  align-items: center;
+  color: #8a4b00;
+  display: flex;
+  font-size: 13px;
+  font-weight: 600;
+  gap: 6px;
+}
+
+.missing-field-pill {
+  background: #fff;
+  border: 1px solid #e0a446;
+  border-radius: 999px;
+  color: #8a4b00;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 5px 12px;
+}
+
+.missing-field-pill:hover {
+  background: #ffe6c2;
+}
+
+.missing-info-item-heading {
+  align-items: center;
+  display: flex;
+  gap: 6px;
+}
+
+.revision-plan-modal {
+  max-width: 640px;
+  width: 100%;
+}
+
+.revision-plan-list {
+  display: grid;
+  gap: 12px;
+  max-height: 45vh;
+  overflow-y: auto;
+}
+
+.revision-plan-item {
+  background: #f7fafb;
+  border: 1px solid #dbe4e8;
+  border-radius: 6px;
+  display: grid;
+  gap: 6px;
+  padding: 10px;
+}
+
+.revision-plan-item.excluded {
+  opacity: 0.6;
+}
+
+.revision-plan-item textarea {
+  font-family: inherit;
+  font-size: 13px;
+  resize: vertical;
+  width: 100%;
+}
+
+.revision-plan-unscoped {
+  background: #f7fafb;
+  border-radius: 6px;
+  color: #465761;
+  font-size: 13px;
+  margin-top: 12px;
+  padding: 10px;
+}
+
+.revision-plan-unscoped ul {
+  margin: 6px 0 0;
+  padding-left: 18px;
+}
+
 .panel-actions {
   justify-content: flex-end;
   margin-bottom: 10px;
@@ -2163,6 +2283,116 @@ button:disabled {
 .flag.warning,
 .flag.needs_check {
   background: #fff7df;
+}
+
+.validation-panel {
+  display: grid;
+  gap: 16px;
+  margin-top: 14px;
+}
+
+.validation-summary-banner {
+  background: #eef5fb;
+  border-radius: 6px;
+  color: #112029;
+  font-size: 13px;
+  padding: 10px 12px;
+}
+
+.validation-blocking-warning {
+  background: #fdeceb;
+  border-radius: 6px;
+  color: #7a1f16;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 10px 12px;
+}
+
+.finding-group h4 {
+  align-items: center;
+  color: #112029;
+  display: flex;
+  font-size: 14px;
+  gap: 6px;
+  margin: 0 0 8px;
+}
+
+.finding-group-error h4 {
+  color: #b3261e;
+}
+
+.finding-group-warning h4 {
+  color: #8a6100;
+}
+
+.finding-group-info h4 {
+  color: #1c5b8f;
+}
+
+.finding-list {
+  display: grid;
+  gap: 8px;
+}
+
+.finding-card {
+  border-radius: 6px;
+  display: grid;
+  gap: 4px;
+  padding: 10px 12px;
+}
+
+.finding-error {
+  background: #fdeceb;
+}
+
+.finding-warning {
+  background: #fff7df;
+}
+
+.finding-info {
+  background: #eef5fb;
+}
+
+.finding-card-header {
+  align-items: center;
+  color: #465761;
+  display: flex;
+  flex-wrap: wrap;
+  font-size: 11px;
+  gap: 8px;
+  text-transform: uppercase;
+}
+
+.finding-rule-code {
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.finding-source {
+  margin-left: auto;
+}
+
+.finding-message {
+  color: #112029;
+  font-size: 13px;
+  margin: 0;
+}
+
+.finding-target,
+.finding-action {
+  color: #465761;
+  font-size: 12px;
+  margin: 0;
+}
+
+.finding-excerpt {
+  background: rgba(0, 0, 0, 0.04);
+  border-radius: 4px;
+  font-size: 12px;
+  margin: 0;
+  overflow-x: auto;
+  padding: 6px 8px;
+  white-space: pre-wrap;
 }
 
 .empty-state {

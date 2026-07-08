@@ -6,3 +6,4 @@ docxtpl>=0.20.2,<1.0
 docxcompose>=2.2.0,<3.0
 PyYAML>=6.0,<7.0
 psycopg[binary]>=3.2,<4.0
+textstat>=0.7.3,<1.0
