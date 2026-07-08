@@ -240,6 +240,17 @@ button:disabled {
   display: block;
 }
 
+.step span {
+  color: #91a2ad;
+  font-size: 12px;
+  font-weight: 600;
+  margin-top: 2px;
+}
+
+.step.active span {
+  color: #52636e;
+}
+
 .source-card {
   background: #1a303b;
   border-radius: 8px;
@@ -1455,10 +1466,28 @@ button:disabled {
   background: #ffe6c2;
 }
 
+.missing-info-list {
+  display: grid;
+  gap: 14px;
+}
+
+.missing-info-item {
+  background: #ffffff;
+  border: 1px solid #dbe4e8;
+  border-radius: 8px;
+  display: grid;
+  gap: 10px;
+  padding: 14px;
+}
+
 .missing-info-item-heading {
   align-items: center;
   display: flex;
   gap: 6px;
+}
+
+.missing-info-answer {
+  margin: 4px 0 0;
 }
 
 .revision-plan-modal {

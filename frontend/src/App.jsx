@@ -120,7 +120,7 @@ export function App() {
     return [
       { id: "goal", label: "Goal" },
       { id: "plan", label: "Plan" },
-      { id: "questions", label: "Questions" },
+      { id: "questions", label: "Answer questions" },
       { id: "editor", label: "Draft" },
     ];
   }, [clarifyMissingFactsBeforeDraft, pendingPlanQuestions.length]);

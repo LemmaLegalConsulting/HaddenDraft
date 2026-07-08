@@ -11,15 +11,19 @@ function updateDocument(plan, documentId, patch) {
 }
 
 export function unansweredPlanQuestions(plan) {
+  return planQuestions(plan).filter((missing) => !missing.answer?.trim() && !missing.not_needed);
+}
+
+function planQuestions(plan) {
   return (plan?.document_items || []).flatMap((item) => (
     (item.missing_information || [])
-      .filter((missing) => !missing.answer && !missing.not_needed)
-      .map((missing, index) => ({ ...missing, documentId: item.id, documentTitle: item.title, index: (item.missing_information || []).indexOf(missing) }))
+      .map((missing, index) => ({ ...missing, documentId: item.id, documentTitle: item.title, index }))
   ));
 }
 
 export function DraftQuestionsReview({ plan, busy, onPlanChange, onBack, onContinue }) {
-  const questions = unansweredPlanQuestions(plan);
+  const questions = planQuestions(plan).filter((question) => !question.not_needed);
+  const unansweredQuestions = unansweredPlanQuestions(plan);
 
   function updateMissing(documentId, index, patch) {
     const item = (plan.document_items || []).find((entry) => entry.id === documentId);
@@ -55,11 +59,15 @@ export function DraftQuestionsReview({ plan, busy, onPlanChange, onBack, onConti
                   <strong>{question.question}</strong>
                 </div>
                 {question.documentTitle && <small className="muted">{question.documentTitle}</small>}
-                <input
-                  placeholder="Add answer"
-                  value={question.answer || ""}
-                  onChange={(event) => updateMissing(question.documentId, question.index, { answer: event.target.value, not_needed: false })}
-                />
+                <label className="field missing-info-answer">
+                  <span>Answer</span>
+                  <textarea
+                    placeholder="Add the missing detail here."
+                    rows={4}
+                    value={question.answer || ""}
+                    onChange={(event) => updateMissing(question.documentId, question.index, { answer: event.target.value, not_needed: false })}
+                  />
+                </label>
                 <div className="button-row compact">
                   <button
                     className="secondary"
@@ -75,7 +83,7 @@ export function DraftQuestionsReview({ plan, busy, onPlanChange, onBack, onConti
         )}
         <div className="button-row step-actions">
           <button className="btn btn-outline-secondary" type="button" onClick={onBack}>Back to plan</button>
-          <button className="btn btn-primary" type="button" disabled={busy || questions.length > 0} onClick={onContinue}>
+          <button className="btn btn-primary" type="button" disabled={busy || unansweredQuestions.length > 0} onClick={onContinue}>
             {busy ? <Loader2 className="spin" size={16} /> : <CheckCircle2 size={16} />} Continue to draft
           </button>
         </div>
