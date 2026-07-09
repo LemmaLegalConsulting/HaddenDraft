@@ -14,7 +14,6 @@ import {
   Loader2,
   Search,
   Send,
-  ExternalLink,
   History,
   Plus,
   Trash2,
@@ -22,7 +21,7 @@ import {
 } from "lucide-react";
 
 import { api } from "../api/client.js";
-import { CitationPreviewModal, MarkdownResponse } from "./MarkdownResponse.jsx";
+import { CaseFacetBrowser, CitationPreviewModal, MarkdownResponse, SourceBrowserModal, SourceFullViewButton } from "./MarkdownResponse.jsx";
 
 const SOURCE_GROUPS = [
   {
@@ -78,6 +77,7 @@ function availableSourceGroups(sources) {
 
 export function ResearchPanel({ matter, sources, onResults }) {
   const [query, setQuery] = useState("");
+  const [lastQuery, setLastQuery] = useState("");
   const [selectedSourceIds, setSelectedSourceIds] = useState([]);
   const [results, setResults] = useState([]);
   const [sourceDecision, setSourceDecision] = useState(null);
@@ -98,6 +98,7 @@ export function ResearchPanel({ matter, sources, onResults }) {
   const [showUploadForm, setShowUploadForm] = useState(false);
   const [error, setError] = useState("");
   const [previewCitation, setPreviewCitation] = useState(null);
+  const [caseSourceCitation, setCaseSourceCitation] = useState(null);
 
   React.useEffect(() => {
     let cancelled = false;
@@ -133,6 +134,7 @@ export function ResearchPanel({ matter, sources, onResults }) {
       .map((sourceId) => sourceOptions.find((option) => option.id === sourceId)?.kind)
       .filter(Boolean)
   )];
+  const hasCaseLawSource = sourceOptions.some((option) => option.id === "ohio-cases");
 
   function toggleSource(sourceId) {
     setSelectedSourceIds((current) => current.includes(sourceId) ? current.filter((item) => item !== sourceId) : [...current, sourceId]);
@@ -153,11 +155,12 @@ export function ResearchPanel({ matter, sources, onResults }) {
         query: trimmedQuery,
         matterId: matter?.id,
         jurisdiction: matter?.jurisdiction,
-        sourceKinds: sourceMode === "manual" && selectedKinds.length ? selectedKinds : undefined,
-        sourceIds: sourceMode === "manual" && selectedSourceIds.length ? selectedSourceIds : undefined,
+        sourceKinds: sourceMode === "cases" ? ["local_cases"] : sourceMode === "manual" && selectedKinds.length ? selectedKinds : undefined,
+        sourceIds: sourceMode === "cases" ? ["ohio-cases"] : sourceMode === "manual" && selectedSourceIds.length ? selectedSourceIds : undefined,
         sourceMode,
         useAi,
       });
+      setLastQuery(trimmedQuery);
       setResults(response.results);
       if (sourceMode === "auto") {
         setSelectedSourceIds(response.selectedSourceIds || []);
@@ -318,8 +321,11 @@ export function ResearchPanel({ matter, sources, onResults }) {
         </div>
         <div className="research-mode-row">
           <label className="research-ai-toggle"><input type="radio" checked={sourceMode === "auto"} onChange={() => setSourceMode("auto")} /><span>Auto sources</span></label>
+          {hasCaseLawSource && (
+            <label className="research-ai-toggle"><input type="radio" checked={sourceMode === "cases"} onChange={() => setSourceMode("cases")} /><span>Cases only</span></label>
+          )}
           <label className="research-ai-toggle"><input type="radio" checked={sourceMode === "manual"} onChange={() => setSourceMode("manual")} /><span>Choose sources</span></label>
-          <small>{sourceMode === "auto" ? "Automatically routes this question to relevant sources." : "Only the selected sources will be searched."}</small>
+          <small>{sourceMode === "auto" ? "Automatically routes this question to relevant sources." : sourceMode === "cases" ? "Searches only the imported case-law corpus." : "Only the selected sources will be searched."}</small>
         </div>
         {sourceMode === "auto" && sourceDecision && (
           <aside className="source-decision" aria-label="Automatic source decision">
@@ -379,6 +385,14 @@ export function ResearchPanel({ matter, sources, onResults }) {
         </button>
       </form>
       {error && <div className="inline-error">{error}</div>}
+      {results.length > 0 && (
+        <CaseFacetBrowser
+          key={lastQuery}
+          compact
+          initialQuery={lastQuery || results.find((result) => result.sourceKind === "local_cases")?.title || ""}
+          onOpenSource={setCaseSourceCitation}
+        />
+      )}
       <div className="result-list">
         {results.map((result) => (
           <article key={result.id} className="result-card">
@@ -398,16 +412,13 @@ export function ResearchPanel({ matter, sources, onResults }) {
               <button className="text-link-button" type="button" onClick={() => setPreviewCitation(result)}>
                 Preview citation
               </button>
-              {result.url && (
-                <a href={result.url} target="_blank" rel="noreferrer">
-                  View full source <ExternalLink size={14} />
-                </a>
-              )}
+              <SourceFullViewButton citation={result} onOpen={setCaseSourceCitation} />
             </div>
           </article>
         ))}
       </div>
       <CitationPreviewModal citation={previewCitation} onClose={() => setPreviewCitation(null)} />
+      <SourceBrowserModal citation={caseSourceCitation} onClose={() => setCaseSourceCitation(null)} />
     </div>
   );
 }

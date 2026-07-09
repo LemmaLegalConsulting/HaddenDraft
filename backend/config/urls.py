@@ -3,6 +3,7 @@ from django.conf import settings
 from django.urls import path
 
 from apps.core import views as core_views
+from apps.caselaw import views as caselaw_views
 from apps.drafting import views as drafting_views
 from apps.matters import views as matter_views
 from apps.rules import views as rule_views
@@ -41,6 +42,14 @@ urlpatterns = [
     path("api/cases/<str:matter_id>/", matter_views.case_detail, name="api_case_detail"),
     path("api/candidate-issues/<int:issue_id>/review/", rule_views.candidate_issue_review, name="api_candidate_issue_review"),
     path("api/sources/", source_views.sources, name="api_sources"),
+    path("api/sources/content/<slug:document_slug>/<str:chunk_id>/", source_views.content_source, name="api_content_source"),
+    path("api/sources/content/<slug:document_slug>/<str:chunk_id>/pdf/", source_views.content_source_pdf, name="api_content_source_pdf"),
+    path("api/caselaw/decisions/", caselaw_views.decisions, name="api_caselaw_decisions"),
+    path("api/caselaw/browse/", caselaw_views.browse, name="api_caselaw_browse"),
+    path("api/caselaw/decisions/<int:decision_id>/", caselaw_views.decision_detail, name="api_caselaw_decision_detail"),
+    path("api/caselaw/decisions/<int:decision_id>/artifacts/", caselaw_views.decision_artifacts, name="api_caselaw_decision_artifacts"),
+    path("api/caselaw/decisions/<int:decision_id>/pdf/", caselaw_views.decision_pdf, name="api_caselaw_decision_pdf"),
+    path("api/caselaw/decisions/<int:decision_id>/similar/", caselaw_views.decision_similar, name="api_caselaw_decision_similar"),
     path("api/user-resources/", source_views.user_resources, name="api_user_resources"),
     path("api/research/", source_views.research, name="api_research"),
     path("api/templates/", template_views.templates, name="api_templates"),

@@ -296,7 +296,7 @@ class ContentLibraryTreatiseConnectorTests(TestCase):
                 "  source_sha256: per-file-sha\n",
                 encoding="utf-8",
             )
-            with override_settings(CONTENT_LIBRARY_DIR=library):
+            with override_settings(CONTENT_LIBRARY_DIR=library, ORGANIZATION_CONTENT_LIBRARY_DIR=library / "private-missing"):
                 results = ContentLibraryTreatiseConnector().search(
                     "habitability repair defense", source_ids=["green-book"]
                 )
@@ -308,6 +308,47 @@ class ContentLibraryTreatiseConnectorTests(TestCase):
         self.assertEqual(results[0].metadata["chunkId"], "0001-repairs")
         self.assertEqual(results[0].metadata["sourceSha256"], "per-file-sha")
         self.assertEqual(results[0].metadata["sourcePath"], "treatises/source/green-book/repairs.pdf")
+
+    def test_content_source_detail_and_pdf_endpoints_use_content_provider_paths(self):
+        user = User.objects.create_user(username="viewer", password="password")
+        self.client.force_login(user)
+        with tempfile.TemporaryDirectory() as directory:
+            library = Path(directory)
+            chunks = library / "treatises" / "markdown" / "sample-book" / "2026" / "chunks"
+            chunks.mkdir(parents=True)
+            source_pdf = library / "treatises" / "source" / "sample-book" / "2026.pdf"
+            source_pdf.parent.mkdir(parents=True)
+            source_pdf.write_bytes(b"%PDF-1.4 tiny fixture")
+            (chunks / "0001.md").write_text(
+                "# Repairs\n\n## Source text\n\nA tenant may raise repair conditions.\n",
+                encoding="utf-8",
+            )
+            (chunks.parent / "manifest.yaml").write_text(
+                "document_slug: sample-book\n"
+                "document_title: Sample Book\n"
+                "document_version: 2026\n"
+                "source_path: treatises/source/sample-book/2026.pdf\n"
+                "chunks:\n"
+                "- id: 0001\n"
+                "  file: chunks/0001.md\n"
+                "  heading: Repairs\n"
+                "  path: [Chapter 1, Repairs]\n"
+                "  pages: [12]\n",
+                encoding="utf-8",
+            )
+            with override_settings(CONTENT_LIBRARY_DIR=library, ORGANIZATION_CONTENT_LIBRARY_DIR=library / "private-missing"):
+                detail = self.client.get("/api/sources/content/sample-book/0001/")
+                pdf = self.client.get("/api/sources/content/sample-book/0001/pdf/")
+
+        self.assertEqual(detail.status_code, 200)
+        payload = detail.json()["source"]
+        self.assertEqual(payload["documentTitle"], "Sample Book")
+        self.assertEqual(payload["pdfPages"], [12])
+        self.assertTrue(payload["hasPdf"])
+        self.assertIn("repair conditions", payload["sourceText"])
+        self.assertEqual(pdf.status_code, 200)
+        self.assertEqual(pdf["Content-Type"], "application/pdf")
+        self.assertEqual(pdf["X-Frame-Options"], "SAMEORIGIN")
 
     @override_settings(AI_DRAFTING_ENABLED=False)
     def test_searches_generated_statute_chunks_with_official_citation_and_url(self):
@@ -336,7 +377,7 @@ class ContentLibraryTreatiseConnectorTests(TestCase):
                 "  effective_date: September 28, 2012\n",
                 encoding="utf-8",
             )
-            with override_settings(CONTENT_LIBRARY_DIR=library):
+            with override_settings(CONTENT_LIBRARY_DIR=library, ORGANIZATION_CONTENT_LIBRARY_DIR=library / "private-missing"):
                 results = ContentLibraryTreatiseConnector().search(
                     "landlord repair habitability", source_ids=["ohio-statutes"]
                 )
@@ -375,7 +416,7 @@ class ContentLibraryTreatiseConnectorTests(TestCase):
                 "  content_kind: substantive-section\n",
                 encoding="utf-8",
             )
-            with override_settings(CONTENT_LIBRARY_DIR=library):
+            with override_settings(CONTENT_LIBRARY_DIR=library, ORGANIZATION_CONTENT_LIBRARY_DIR=library / "private-missing"):
                 results = ContentLibraryTreatiseConnector().search("voucher recertification", source_ids=["hud-handbook"])
 
         self.assertEqual(len(results), 1)

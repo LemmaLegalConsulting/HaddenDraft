@@ -93,6 +93,12 @@ export const api = {
   templates: () => request("/templates/"),
   userResources: () => request("/user-resources/"),
   createUserResource: (formData) => request("/user-resources/", { method: "POST", body: formData }),
+  caselawDecision: (decisionId) => request(`/caselaw/decisions/${decisionId}/`),
+  caselawDecisionPdfUrl: (decisionId) => `${API_BASE}/caselaw/decisions/${decisionId}/pdf/`,
+  caselawBrowse: (params = {}) => request(`/caselaw/browse/${Object.keys(params).length ? `?${new URLSearchParams(Object.entries(params).filter(([, value]) => value !== undefined && value !== ""))}` : ""}`),
+  contentSource: (documentSlug, chunkId) => request(`/sources/content/${encodeURIComponent(documentSlug)}/${encodeURIComponent(chunkId)}/`),
+  contentSourcePdfUrl: (documentSlug, chunkId, page) =>
+    `${API_BASE}/sources/content/${encodeURIComponent(documentSlug)}/${encodeURIComponent(chunkId)}/pdf/${page ? `#page=${page}` : ""}`,
   researchHistory: (threadId) => request(`/research/${threadId ? `?threadId=${threadId}` : ""}`),
   newResearchChat: () => request("/research/", { method: "POST", body: JSON.stringify({ action: "new_thread" }) }),
   clearResearchHistory: () => request("/research/", { method: "DELETE" }),

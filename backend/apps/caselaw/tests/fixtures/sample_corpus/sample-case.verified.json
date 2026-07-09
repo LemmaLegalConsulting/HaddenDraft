@@ -1,0 +1,18 @@
+{
+  "title": "Tenant v. Landlord",
+  "short_title": "Tenant",
+  "docket_number": "CVG-1",
+  "court": "Cleveland Municipal Court Housing Division",
+  "county": "Cuyahoga",
+  "jurisdiction": "Ohio",
+  "judge": "Judge Sample",
+  "decision_date": "2026-01-15",
+  "issues": ["habitability defense", "rent abatement"],
+  "holdings": ["Tenant could present repair evidence."],
+  "rules_applied": ["Ohio Rev. Code 5321.04"],
+  "cases_cited": ["Sample v. Sample"],
+  "key_facts": "Tenant documented mold and unrepaired conditions.",
+  "outcome": "Tenant received an abatement.",
+  "citation_string": "Tenant v. Landlord, No. CVG-1 (Cleveland M.C. Jan. 15, 2026)",
+  "treatment_status": "unchecked"
+}

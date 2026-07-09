@@ -43,6 +43,7 @@ RAG_SOURCE_DOCUMENTS = {
     "ohio-statutes": {"ohio-revised-code"},
     "treatise": {"ohio-eviction-landlord-tenant-law-6e"},
     "hud-handbook": {"hud-4350-3-rev-1"},
+    "green-book": {"green-book"},
 }
 
 

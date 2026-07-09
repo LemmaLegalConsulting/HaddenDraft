@@ -1,10 +1,12 @@
 from django.http import JsonResponse
+from django.http import FileResponse
 
 from apps.ai.openai_client import OpenAIBackendError, OpenAICompatibleClient
 from apps.ai.chat_history import append_message, archive_current_conversation, clear_messages, conversation_list, messages_for_user
 from apps.ai.models import ChatConversation
 from apps.ai.prompt_catalog import render_prompt
 from apps.core.http import api_login_required, json_body, method_not_allowed
+from apps.core.content_library import content_paths
 from apps.core.views import default_jurisdiction_for_user
 from apps.matters.services import matter_for_user
 from apps.sources.document_text import DocumentExtractionError, extract_text
@@ -12,9 +14,58 @@ from apps.sources.models import RetrievedDocument, UserResource
 from apps.sources.registry import connector_registry
 from apps.sources.selection import automatic_source_selection, source_decision_with_counts, source_kinds
 
+import yaml
+
 
 def _truthy(value):
     return str(value).lower() in {"1", "true", "yes", "on"}
+
+
+def _source_text(path):
+    try:
+        text = path.read_text(encoding="utf-8")
+    except OSError:
+        return ""
+    marker = "## Source text"
+    return text.split(marker, 1)[-1].strip() if marker in text else text.strip()
+
+
+def _manifest_paths():
+    paths = []
+    for root in content_paths():
+        paths.extend(root.joinpath("treatises", "markdown").glob("*/*/manifest.yaml"))
+        paths.extend(root.joinpath("statutes").glob("*/manifest.yaml"))
+    return list(dict.fromkeys(paths))
+
+
+def _content_chunk(document_slug, chunk_id):
+    for manifest_path in _manifest_paths():
+        try:
+            manifest = yaml.safe_load(manifest_path.read_text(encoding="utf-8")) or {}
+        except (OSError, yaml.YAMLError):
+            continue
+        if manifest.get("document_slug") != document_slug:
+            continue
+        for item in manifest.get("chunks", []):
+            item_id = str(item.get("id"))
+            requested_id = str(chunk_id)
+            if item_id != requested_id and item_id != requested_id.lstrip("0"):
+                continue
+            chunk_path = manifest_path.parent / item["file"]
+            if not chunk_path.is_file():
+                continue
+            return manifest_path, manifest, item, chunk_path
+    return None
+
+
+def _content_file(source_path):
+    if not source_path:
+        return None
+    relative = [part for part in str(source_path).split("/") if part]
+    for path in content_paths(*relative):
+        if path.is_file():
+            return path
+    return None
 
 
 def _research_answer(*, query, matter, results, messages, jurisdiction):
@@ -57,6 +108,54 @@ def _research_answer(*, query, matter, results, messages, jurisdiction):
 @api_login_required
 def sources(_request):
     return JsonResponse({"sources": [connector.metadata() for connector in connector_registry.all()]})
+
+
+@api_login_required
+def content_source(request, document_slug, chunk_id):
+    if request.method != "GET":
+        return method_not_allowed(["GET"])
+    resolved = _content_chunk(document_slug, chunk_id)
+    if not resolved:
+        return JsonResponse({"error": "Content source not found"}, status=404)
+    _manifest_path, manifest, item, chunk_path = resolved
+    source_path = item.get("source_path") or manifest.get("source_path", "")
+    return JsonResponse({
+        "source": {
+            "chunkId": item.get("id"),
+            "documentSlug": manifest.get("document_slug", ""),
+            "documentTitle": manifest.get("document_title", "Source"),
+            "documentVersion": manifest.get("document_version", ""),
+            "heading": item.get("heading", ""),
+            "sectionPath": item.get("path", []),
+            "contentKind": item.get("content_kind", ""),
+            "pdfPages": item.get("pages", []),
+            "sourcePath": source_path,
+            "hasPdf": bool(_content_file(source_path)),
+            "sourceSha256": item.get("source_sha256") or manifest.get("source_sha256", ""),
+            "citation": item.get("citation", ""),
+            "url": item.get("url", ""),
+            "effectiveDate": item.get("effective_date", ""),
+            "jurisdiction": manifest.get("jurisdiction", ""),
+            "sourceText": _source_text(chunk_path),
+        }
+    })
+
+
+@api_login_required
+def content_source_pdf(request, document_slug, chunk_id):
+    if request.method != "GET":
+        return method_not_allowed(["GET"])
+    resolved = _content_chunk(document_slug, chunk_id)
+    if not resolved:
+        return JsonResponse({"error": "Content source not found"}, status=404)
+    _manifest_path, manifest, item, _chunk_path = resolved
+    pdf_path = _content_file(item.get("source_path") or manifest.get("source_path", ""))
+    if not pdf_path:
+        return JsonResponse({"error": "No PDF source is available for this content chunk."}, status=404)
+    response = FileResponse(pdf_path.open("rb"), content_type="application/pdf", filename=pdf_path.name, as_attachment=False)
+    response["Content-Disposition"] = f'inline; filename="{pdf_path.name}"'
+    response["X-Frame-Options"] = "SAMEORIGIN"
+    return response
 
 
 @api_login_required

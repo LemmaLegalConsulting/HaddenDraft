@@ -58,6 +58,7 @@ INSTALLED_APPS = [
     "apps.core",
     "apps.matters",
     "apps.sources",
+    "apps.caselaw",
     "apps.templates_app",
     "apps.drafting",
     "apps.facts",
@@ -169,6 +170,18 @@ ORGANIZATION_CONTENT_LIBRARY_DIR = Path(
 )
 if not ORGANIZATION_CONTENT_LIBRARY_DIR.is_absolute():
     ORGANIZATION_CONTENT_LIBRARY_DIR = REPO_DIR / ORGANIZATION_CONTENT_LIBRARY_DIR
+CASELAW_STORAGE_BACKEND = os.environ.get("CASELAW_STORAGE_BACKEND", "filesystem")
+CASELAW_STORAGE_ROOT = Path(os.environ.get("CASELAW_STORAGE_ROOT", REPO_DIR / "private-content" / "caselaw-artifacts"))
+if not CASELAW_STORAGE_ROOT.is_absolute():
+    CASELAW_STORAGE_ROOT = REPO_DIR / CASELAW_STORAGE_ROOT
+CASELAW_STORAGE_BUCKET = os.environ.get("CASELAW_STORAGE_BUCKET", "")
+CASELAW_STORAGE_ENDPOINT_URL = os.environ.get("CASELAW_STORAGE_ENDPOINT_URL", "")
+CASELAW_STORAGE_ACCESS_KEY_ID = os.environ.get("CASELAW_STORAGE_ACCESS_KEY_ID", "")
+CASELAW_STORAGE_SECRET_ACCESS_KEY = os.environ.get("CASELAW_STORAGE_SECRET_ACCESS_KEY", "")
+CASELAW_STORAGE_REGION = os.environ.get("CASELAW_STORAGE_REGION", "")
+CASELAW_IMPORT_REQUIRE_VERIFIED = env_bool("CASELAW_IMPORT_REQUIRE_VERIFIED", False)
+CASELAW_IMPORT_APPROVE_VERIFIED_FOR_SEARCH = env_bool("CASELAW_IMPORT_APPROVE_VERIFIED_FOR_SEARCH", True)
+CASELAW_IMPORT_APPROVE_UNVERIFIED_FOR_SEARCH = env_bool("CASELAW_IMPORT_APPROVE_UNVERIFIED_FOR_SEARCH", False)
 DOCUMENT_TEXT_EXTRACTOR = os.environ.get("DOCUMENT_TEXT_EXTRACTOR", "stdlib")
 # Fallback only. Administrators can override it in Organization settings, and
 # users can choose a personal default in their profile.

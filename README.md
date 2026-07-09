@@ -42,6 +42,7 @@ Runtime settings are loaded from `.env` in the repository root. `.env` is intent
 - AI prompts are file-backed YAML entries in [`prompts/`](prompts/README.md). Set `PROMPT_CATALOG_DIR` to a directory containing a benchmark variant catalog; enabled **Prompt overrides** in Django admin take precedence for operational edits.
 - Research is constrained to a jurisdiction. Set the organization fallback with `DEFAULT_JURISDICTION`; Django admin's **Organization settings** can override it, and each user can set a **Default research jurisdiction** in Profile. A selected matter's jurisdiction takes precedence over both.
 - Public reusable legal-content defaults are maintained in [`content/`](content/README.md). Private organization templates live outside source control under `ORGANIZATION_CONTENT_LIBRARY_DIR` (default `private-content/`) and override public defaults; `CONTENT_LIBRARY_DIR` configures only the public provider. Triage YAML seeds new database records without replacing admin edits.
+- Case-law PDFs and sidecar artifacts are side-loaded outside git through the caselaw storage backend. Local development uses `CASELAW_STORAGE_BACKEND=filesystem` and `CASELAW_STORAGE_ROOT=private-content/caselaw-artifacts`; production can use S3-compatible object storage. See [`docs/CASELAW_INGESTION.md`](docs/CASELAW_INGESTION.md).
 - Case chat document text extraction uses `DOCUMENT_TEXT_EXTRACTOR=stdlib` by default. Optional values are `markitdown` or `docling` when those packages are installed; the extractor interface is intentionally pluggable for custom backends.
 - LegalServer uses `LEGALSERVER_BASE_URL`, `LEGALSERVER_API_TOKEN`, `LEGALSERVER_MATTERS_PATH`, `LEGALSERVER_MATTERS_RESULTS`, and `LEGALSERVER_MATTER_DOCUMENTS_PATH`. Matter search uses the v2 `/api/v2/matters` endpoint with `results=full`, `page_size`, and the documented text search keys. User access filtering is applied inside the app after LegalServer returns authorized records.
 - SharePoint Online uses Microsoft Graph with `SHAREPOINT_SITE_ID`, `SHAREPOINT_DRIVE_ID`, and either a delegated `ms_graph_access_token` in the Django session or a service token in `SHAREPOINT_ACCESS_TOKEN`. Case document lookup uses `SHAREPOINT_CASE_FOLDER_TEMPLATE`.
@@ -90,6 +91,13 @@ From the repository root:
 
 ```bash
 .venv/bin/python backend/manage.py check
+```
+
+Dry-run and import a local case-law corpus:
+
+```bash
+.venv/bin/python backend/manage.py ingest_caselaw ~/cases --dry-run
+.venv/bin/python backend/manage.py ingest_caselaw ~/cases
 ```
 
 Run backend tests:
