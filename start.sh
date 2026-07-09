@@ -10,6 +10,12 @@ python manage.py migrate
 # Run ingest document templates after their database tables exist.
 python manage.py ingest_document_templates
 
+# Sync the content library
+python manage.py sync_content_library --update-triage-rubrics
+
+# Ingest caselaw artifacts
+python manage.py ingest_caselaw /app/private-content/caselaw-artifacts
+
 # Collect static files for Django admin
 python manage.py collectstatic --noinput
 

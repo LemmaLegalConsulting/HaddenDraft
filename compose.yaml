@@ -22,11 +22,47 @@ services:
         condition: service_healthy
     env_file:
       - .env.azure
-    ports:
-      - "80:80"
+    environment:
+      - VIRTUAL_HOST=cle-draft.lemmalegal.com
+      - LETSENCRYPT_HOST=cle-draft.lemmalegal.com
+    expose:
+      - "80"
     volumes:
       - app_media:/app/media
+
+  nginx-proxy:
+    image: nginxproxy/nginx-proxy:alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - certs:/etc/nginx/certs
+      - vhost:/etc/nginx/vhost.d
+      - html:/usr/share/nginx/html
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+    restart: unless-stopped
+
+  acme-companion:
+    image: nginxproxy/acme-companion
+    environment:
+      - DEFAULT_EMAIL=quinten@lemmalegal.com
+      - NGINX_PROXY_CONTAINER=app-nginx-proxy-1
+    volumes_from:
+      - nginx-proxy
+    volumes:
+      - certs:/etc/nginx/certs
+      - vhost:/etc/nginx/vhost.d
+      - html:/usr/share/nginx/html
+      - acme:/etc/acme.sh
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    depends_on:
+      - nginx-proxy
+    restart: unless-stopped
 
 volumes:
   postgres_data:
   app_media:
+  certs:
+  vhost:
+  html:
+  acme:

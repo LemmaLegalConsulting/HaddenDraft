@@ -11,14 +11,17 @@ ADMIN_USER="${AZURE_ADMIN_USER:-azureuser}"
 STORAGE_ACCOUNT="${AZURE_STORAGE_ACCOUNT:-agentichousing1782661910}"
 STORAGE_ACCOUNT="${STORAGE_ACCOUNT:0:24}"
 CONTAINER_NAME="${AZURE_STORAGE_CONTAINER:-content}"
+CASELAW_CONTAINER_NAME="${AZURE_CASELAW_CONTAINER:-caselaw}"
 SSH_KEY="${AZURE_SSH_KEY:-$HOME/.ssh/agentic_housing_aidraftingtool}"
 ARTIFACT_TIMESTAMP="$(date -u +%Y%m%dT%H%M%SZ)"
 ARTIFACT_NAME="content-${ARTIFACT_TIMESTAMP}.zip"
 ARTIFACT_FILE="$(mktemp --suffix=.zip)"
+CASELAW_ARTIFACT_NAME="caselaw-${ARTIFACT_TIMESTAMP}.zip"
+CASELAW_ARTIFACT_FILE="$(mktemp --suffix=.zip)"
 SSH_OPTIONS=(-i "$SSH_KEY" -o IdentitiesOnly=yes -o ConnectTimeout=10 -o StrictHostKeyChecking=accept-new)
 
 cleanup() {
-  rm -f "$ARTIFACT_FILE"
+  rm -f "$ARTIFACT_FILE" "$CASELAW_ARTIFACT_FILE"
 }
 trap cleanup EXIT
 
@@ -49,6 +52,7 @@ fi
 CONNECTION_STRING="$(az storage account show-connection-string --subscription "$SUBSCRIPTION_ID" \
   --resource-group "$RESOURCE_GROUP" --name "$STORAGE_ACCOUNT" --query connectionString -o tsv)"
 az storage container create --name "$CONTAINER_NAME" --connection-string "$CONNECTION_STRING" -o none
+az storage container create --name "$CASELAW_CONTAINER_NAME" --connection-string "$CONNECTION_STRING" -o none
 
 echo "Packaging content library..."
 rm -f "$ARTIFACT_FILE"
@@ -59,14 +63,37 @@ for blob_name in "$ARTIFACT_NAME" content-latest.zip; do
     --file "$ARTIFACT_FILE" --connection-string "$CONNECTION_STRING" --overwrite true -o none
 done
 
+echo "Packaging caselaw artifacts..."
+rm -f "$CASELAW_ARTIFACT_FILE"
+if [ -d "private-content/caselaw-artifacts" ]; then
+  (cd private-content/caselaw-artifacts && zip -qr "$CASELAW_ARTIFACT_FILE" .)
+else
+  touch empty_dir && zip -qr "$CASELAW_ARTIFACT_FILE" empty_dir && rm empty_dir
+fi
+echo "Uploading $CASELAW_ARTIFACT_NAME and caselaw-latest.zip..."
+for blob_name in "$CASELAW_ARTIFACT_NAME" caselaw-latest.zip; do
+  az storage blob upload --container-name "$CASELAW_CONTAINER_NAME" --name "$blob_name" \
+    --file "$CASELAW_ARTIFACT_FILE" --connection-string "$CONNECTION_STRING" --overwrite true -o none
+done
+
 if ! az vm show --subscription "$SUBSCRIPTION_ID" --resource-group "$RESOURCE_GROUP" --name "$VM_NAME" -o none 2>/dev/null; then
   echo "Creating $VM_SIZE VM $VM_NAME..."
   az vm create --subscription "$SUBSCRIPTION_ID" --resource-group "$RESOURCE_GROUP" --name "$VM_NAME" \
     --location "$LOCATION" --image Ubuntu2404 --size "$VM_SIZE" --admin-username "$ADMIN_USER" \
     --ssh-key-values "${SSH_KEY}.pub" --public-ip-sku Standard --custom-data cloud-init.yml -o none
 fi
-az vm open-port --subscription "$SUBSCRIPTION_ID" --resource-group "$RESOURCE_GROUP" \
-  --name "$VM_NAME" --port 80 --priority 1001 -o none
+echo "Opening port 80 for web traffic..."
+NSG_NAME=$(az network nsg list -g "$RESOURCE_GROUP" --query "[0].name" -o tsv)
+if [ -n "$NSG_NAME" ]; then
+  az network nsg rule create \
+    --resource-group "$RESOURCE_GROUP" \
+    --nsg-name "$NSG_NAME" \
+    --name Allow-HTTP \
+    --priority 100 \
+    --destination-port-ranges 80 443 \
+    --protocol Tcp \
+    --access Allow >/dev/null || true
+fi
 
 IP_ADDRESS="$(az vm show --subscription "$SUBSCRIPTION_ID" --resource-group "$RESOURCE_GROUP" \
   --name "$VM_NAME" --show-details --query publicIps -o tsv)"
@@ -81,19 +108,24 @@ SAS_TOKEN="$(az storage blob generate-sas --account-name "$STORAGE_ACCOUNT" --co
   --name "$ARTIFACT_NAME" --permissions r --expiry "$SAS_EXPIRY" --connection-string "$CONNECTION_STRING" -o tsv)"
 BLOB_URL="https://${STORAGE_ACCOUNT}.blob.core.windows.net/${CONTAINER_NAME}/${ARTIFACT_NAME}?${SAS_TOKEN}"
 
+CASELAW_SAS_TOKEN="$(az storage blob generate-sas --account-name "$STORAGE_ACCOUNT" --container-name "$CASELAW_CONTAINER_NAME" \
+  --name "$CASELAW_ARTIFACT_NAME" --permissions r --expiry "$SAS_EXPIRY" --connection-string "$CONNECTION_STRING" -o tsv)"
+CASELAW_BLOB_URL="https://${STORAGE_ACCOUNT}.blob.core.windows.net/${CASELAW_CONTAINER_NAME}/${CASELAW_ARTIFACT_NAME}?${CASELAW_SAS_TOKEN}"
+
 echo "Syncing application code..."
 ssh "${SSH_OPTIONS[@]}" "$ADMIN_USER@$IP_ADDRESS" "mkdir -p ~/app"
 rsync -az --delete \
-  --exclude '.git/' --exclude '.venv/' --exclude '.env*' --exclude 'content/' \
+  --exclude '.git/' --exclude '.venv/' --exclude '.env*' --exclude 'content/' --exclude 'private-content/caselaw-artifacts/' \
   --exclude 'node_modules/' --exclude 'frontend/dist/' --exclude 'backend/db.sqlite3' \
   -e "ssh ${SSH_OPTIONS[*]}" ./ "$ADMIN_USER@$IP_ADDRESS:~/app/"
 
 echo "Configuring production environment and deploying Compose services..."
-ssh "${SSH_OPTIONS[@]}" "$ADMIN_USER@$IP_ADDRESS" bash -s -- "$IP_ADDRESS" "$BLOB_URL" <<'REMOTE'
+ssh "${SSH_OPTIONS[@]}" "$ADMIN_USER@$IP_ADDRESS" "bash -s -- \"$IP_ADDRESS\" \"$BLOB_URL\" \"$CASELAW_BLOB_URL\"" <<'REMOTE'
 set -Eeuo pipefail
 cd "$HOME/app"
 IP_ADDRESS="$1"
 BLOB_URL="$2"
+CASELAW_BLOB_URL="$3"
 if [[ ! -f .env.azure ]]; then
   umask 077
   cat > .env.azure <<ENV
@@ -115,7 +147,10 @@ ENV
 fi
 rm -rf content
 python3 scripts/sideload_content.py --url "$BLOB_URL" --target content/
+rm -rf private-content/caselaw-artifacts
+python3 scripts/sideload_content.py --url "$CASELAW_BLOB_URL" --target private-content/caselaw-artifacts/
 sudo docker compose --env-file .env.azure build app
+sudo docker compose --env-file .env.azure run --rm app python manage.py migrate --fake drafting 0005_draftingsession_template_data || true
 sudo docker compose --env-file .env.azure up -d --remove-orphans
 sudo docker image prune -f
 REMOTE
