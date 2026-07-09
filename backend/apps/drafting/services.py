@@ -1171,14 +1171,16 @@ def recommend_support_candidates(session, *, user=None, request=None, limit_per_
     if not query:
         return {"query": "", "candidates": [], "selectedSourceIds": []}
 
+    from apps.sources.augmentation import augmented_search
     from apps.sources.registry import connector_registry
     from apps.sources.selection import automatic_source_selection, source_kinds
 
     ai_source_ids = _ai_select_source_ids(query, session)
     selection = automatic_source_selection(query, matter=session.matter)
     source_ids = ai_source_ids or selection["source_ids"]
-    results = connector_registry.search(
+    search_payload = augmented_search(
         query,
+        connector_registry=connector_registry,
         kinds=source_kinds(source_ids),
         source_ids=source_ids,
         matter=session.matter,
@@ -1186,7 +1188,10 @@ def recommend_support_candidates(session, *, user=None, request=None, limit_per_
         limit_per_source=limit_per_source,
         user=user,
         request=request,
+        max_rounds=2,
     )
+    results = search_payload["results"]
+    source_ids = search_payload["selected_source_ids"]
     candidates = [result_to_support_candidate(result) for result in results]
     ai_candidate_ids = _ai_select_candidate_ids(query, candidates)
     if ai_candidate_ids is not None:
@@ -1198,13 +1203,75 @@ def recommend_support_candidates(session, *, user=None, request=None, limit_per_
         "sourceDecision": {**selection, "source_ids": source_ids, "aiReviewed": bool(ai_source_ids)},
         "candidates": candidates,
         "aiReviewed": ai_candidate_ids is not None,
+        "searchAugmentation": search_payload["augmentation"],
     }
+
+
+def _missing_information_gap_query(session, missing_information):
+    questions = [
+        item.get("question") or item.get("field") or ""
+        for item in missing_information or []
+        if not item.get("answer") and not item.get("not_needed")
+    ]
+    questions = [question.strip() for question in questions if question and question.strip()]
+    if not questions:
+        return ""
+    return "\n".join([
+        support_query_for_session(session),
+        "Drafting questions that may reveal research gaps:",
+        *questions[:5],
+    ]).strip()
+
+
+def augment_support_for_missing_information(session, *, missing_information=None, user=None, request=None):
+    author_profile = session.author_profile or {}
+    if author_profile.get("missingInformationResearchAugmented"):
+        return {"expanded": False, "reason": "Missing-information research augmentation already ran."}
+    query = _missing_information_gap_query(session, missing_information if missing_information is not None else session.missing_information)
+    if not query:
+        return {"expanded": False, "reason": "No unanswered drafting questions required source augmentation."}
+
+    from apps.sources.augmentation import augmented_search
+    from apps.sources.registry import connector_registry
+    from apps.sources.selection import automatic_source_selection, source_kinds
+
+    selection = automatic_source_selection(query, matter=session.matter)
+    search_payload = augmented_search(
+        query,
+        connector_registry=connector_registry,
+        kinds=source_kinds(selection["source_ids"]),
+        source_ids=selection["source_ids"],
+        matter=session.matter,
+        jurisdiction=session.matter.jurisdiction,
+        limit_per_source=2,
+        user=user,
+        request=request,
+        max_rounds=1,
+        minimum_results=3,
+    )
+    existing = {str(candidate.get("id")) for candidate in session.selected_source_results or []}
+    added = [
+        {**result_to_support_candidate(result), "addedForMissingInformation": True}
+        for result in search_payload["results"]
+        if str(getattr(result, "id", "")) not in existing
+    ]
+    if added:
+        session.selected_source_results = [*(session.selected_source_results or []), *added]
+    session.author_profile = {**author_profile, "missingInformationResearchAugmented": True}
+    session.save(update_fields=["selected_source_results", "author_profile", "updated_at"])
+    return {**search_payload["augmentation"], "addedCount": len(added)}
 
 
 # Draft generation helpers
 
 
-def create_draft(session, *, template=None, block_keys=None, title=None, instructions=None, missing_by_block=None, missing_information=None):
+def create_draft(session, *, template=None, block_keys=None, title=None, instructions=None, missing_by_block=None, missing_information=None, user=None, request=None):
+    augment_support_for_missing_information(
+        session,
+        missing_information=missing_information if missing_information is not None else session.missing_information,
+        user=user,
+        request=request,
+    )
     answered_context = _missing_information_answer_text(missing_information if missing_information is not None else session.missing_information)
     scoped_instructions = "\n\n".join(part for part in [instructions if instructions is not None else session.instructions, answered_context] if part)
     context = regeneration_context(session, template=template, instructions=scoped_instructions)
@@ -1273,7 +1340,7 @@ def _missing_by_block_for_item(item):
     } if target_key else {}
 
 
-def create_drafts_from_plan(session):
+def create_drafts_from_plan(session, *, user=None, request=None):
     plan = session.draft_plan or _fallback_plan(session)
     drafts = []
     for item in plan.get("document_items") or []:
@@ -1289,10 +1356,12 @@ def create_drafts_from_plan(session):
                 instructions=item.get("drafting_instructions") or item.get("goal") or session.instructions,
                 missing_by_block=_missing_by_block_for_item(item),
                 missing_information=item.get("missing_information") or [],
+                user=user,
+                request=request,
             )
         )
     if not drafts and session.template:
-        drafts.append(create_draft(session))
+        drafts.append(create_draft(session, user=user, request=request))
     return drafts
 
 

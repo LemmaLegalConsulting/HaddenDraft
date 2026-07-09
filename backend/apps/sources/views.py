@@ -11,6 +11,7 @@ from apps.core.views import default_jurisdiction_for_user
 from apps.matters.services import matter_for_user
 from apps.sources.document_text import DocumentExtractionError, extract_text
 from apps.sources.models import RetrievedDocument, UserResource
+from apps.sources.augmentation import augmented_search
 from apps.sources.registry import connector_registry
 from apps.sources.selection import automatic_source_selection, source_decision_with_counts, source_kinds
 
@@ -196,16 +197,35 @@ def research(request):
         auto_selection = automatic_source_selection(query, matter=matter)
         source_ids = auto_selection["source_ids"]
     kinds = body.get("sourceKinds") or source_kinds(source_ids)
-    results = connector_registry.search(
-        query,
-        kinds=kinds,
-        source_ids=source_ids,
-        matter=matter,
-        jurisdiction=jurisdiction,
-        limit_per_source=body.get("limitPerSource", 5),
-        user=request.user,
-        request=request,
-    )
+    use_augmentation = _truthy(body.get("useAi")) or auto_mode or _truthy(body.get("augmentSearch"))
+    if use_augmentation:
+        search_payload = augmented_search(
+            query,
+            connector_registry=connector_registry,
+            kinds=kinds,
+            source_ids=source_ids,
+            matter=matter,
+            jurisdiction=jurisdiction,
+            limit_per_source=body.get("limitPerSource", 5),
+            user=request.user,
+            request=request,
+            max_rounds=body.get("maxSearchRounds") or 2,
+        )
+        results = search_payload["results"]
+        source_ids = search_payload["selected_source_ids"]
+        augmentation = search_payload["augmentation"]
+    else:
+        results = connector_registry.search(
+            query,
+            kinds=kinds,
+            source_ids=source_ids,
+            matter=matter,
+            jurisdiction=jurisdiction,
+            limit_per_source=body.get("limitPerSource", 5),
+            user=request.user,
+            request=request,
+        )
+        augmentation = {"enabled": False, "rounds": [], "expanded": False}
     for result in results:
         RetrievedDocument.objects.create(
             source_kind=result.source_kind,
@@ -217,7 +237,12 @@ def research(request):
             citation=result.citation,
             metadata=result.metadata,
         )
-    payload = {"results": [result.to_dict() for result in results], "usedAi": False, "selectedSourceIds": source_ids}
+    payload = {
+        "results": [result.to_dict() for result in results],
+        "usedAi": False,
+        "selectedSourceIds": source_ids,
+        "searchAugmentation": augmentation,
+    }
     if auto_selection:
         payload["sourceDecision"] = source_decision_with_counts(auto_selection, results)
     if _truthy(body.get("useAi")):

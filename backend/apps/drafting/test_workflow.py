@@ -1,5 +1,6 @@
 import json
 from types import SimpleNamespace
+from unittest.mock import patch
 
 from django.contrib.auth.models import User
 from django.db import connection
@@ -11,6 +12,7 @@ from apps.drafting.models import DraftingSession
 from apps.drafting.services import (
     _concise_fact_text,
     advance,
+    augment_support_for_missing_information,
     create_draft,
     fact_retrieval_plan,
     initialize_session,
@@ -22,6 +24,7 @@ from apps.drafting.services import (
     workflow_step_payload,
 )
 from apps.matters.models import Matter, MatterFact
+from apps.sources.connectors.base import SourceResult
 from apps.templates_app.models import DocumentTemplate, TemplateBlock
 
 
@@ -210,6 +213,39 @@ class HumanReviewedDraftingWorkflowTests(TestCase):
         self.assertTrue(legal["selectedByDefault"])
         self.assertEqual(example["purpose"], "example_language")
         self.assertTrue(example["selectedByDefault"])
+
+    def test_missing_information_can_augment_support_once(self):
+        session = DraftingSession.objects.create(
+            mode="draft_from_template",
+            matter=self.matter,
+            template=self.template,
+            selected_block_keys=["habitability"],
+            missing_information=[{"question": "What authority supports rent deposit for repairs?"}],
+        )
+        result = SourceResult(
+            id="orc-5321-07",
+            title="R.C. 5321.07",
+            snippet="Tenant remedies for landlord repair failures.",
+            source_kind="rag",
+            source_label="Ohio Statutes",
+            citation="R.C. 5321.07",
+        )
+
+        with patch("apps.sources.augmentation.augmented_search") as search:
+            search.return_value = {
+                "results": [result],
+                "selected_source_ids": ["ohio-statutes"],
+                "augmentation": {"expanded": True, "rounds": [], "finalEvaluation": {"adequate": True}},
+            }
+            first = augment_support_for_missing_information(session)
+            second = augment_support_for_missing_information(session)
+
+        session.refresh_from_db()
+        self.assertEqual(first["addedCount"], 1)
+        self.assertFalse(second["expanded"])
+        self.assertEqual(search.call_count, 1)
+        self.assertEqual(session.selected_source_results[0]["id"], "orc-5321-07")
+        self.assertTrue(session.selected_source_results[0]["addedForMissingInformation"])
 
     def test_outline_summarizes_reviewed_inputs(self):
         session = DraftingSession.objects.create(

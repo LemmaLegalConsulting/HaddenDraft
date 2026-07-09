@@ -81,6 +81,7 @@ export function ResearchPanel({ matter, sources, onResults }) {
   const [selectedSourceIds, setSelectedSourceIds] = useState([]);
   const [results, setResults] = useState([]);
   const [sourceDecision, setSourceDecision] = useState(null);
+  const [searchAugmentation, setSearchAugmentation] = useState(null);
   const [selectedResultIds, setSelectedResultIds] = useState([]);
   const [messages, setMessages] = useState([]);
   const [useAi, setUseAi] = useState(true);
@@ -162,6 +163,7 @@ export function ResearchPanel({ matter, sources, onResults }) {
       });
       setLastQuery(trimmedQuery);
       setResults(response.results);
+      setSearchAugmentation(response.searchAugmentation || null);
       if (sourceMode === "auto") {
         setSelectedSourceIds(response.selectedSourceIds || []);
         setSourceDecision(response.sourceDecision || null);
@@ -336,6 +338,20 @@ export function ResearchPanel({ matter, sources, onResults }) {
                 <li key={source.id}>
                   <span><b>{source.label}</b> — {source.reason}</span>
                   <small>{source.resultCount} result{source.resultCount === 1 ? "" : "s"}</small>
+                </li>
+              ))}
+            </ul>
+          </aside>
+        )}
+        {searchAugmentation?.expanded && (
+          <aside className="source-decision" aria-label="Search expansion decision">
+            <strong>Search expanded</strong>
+            <p>{searchAugmentation.finalEvaluation?.adequate ? "Additional related sources were added." : "Additional related sources were tried, but coverage may still be incomplete."}</p>
+            <ul>
+              {searchAugmentation.rounds.slice(1).map((round, index) => (
+                <li key={`${round.query}-${index}`}>
+                  <span><b>{round.resultCount} result{round.resultCount === 1 ? "" : "s"}</b> — {round.reason}</span>
+                  <small>{round.query}</small>
                 </li>
               ))}
             </ul>

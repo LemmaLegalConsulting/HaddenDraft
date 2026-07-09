@@ -15,6 +15,7 @@ from apps.sources.connectors.sharepoint import SharePointClient, SharePointConne
 from apps.sources.connectors.user_resources import UserResourceConnector
 from apps.sources.connectors.rag import ContentLibraryTreatiseConnector
 from apps.sources.models import SourceConfiguration, UserOAuthConnection, UserResource
+from apps.sources.augmentation import augmented_search, evaluate_search_results
 from apps.sources.registry import ConnectorRegistry
 from apps.sources.selection import automatic_source_selection
 
@@ -586,3 +587,110 @@ class ConnectorRegistryTests(TestCase):
 
         self.assertEqual(seen["user"], user)
         self.assertEqual(seen["request"], request)
+
+
+class AugmentedSearchTests(TestCase):
+    def test_evaluation_accepts_enough_mixed_legal_sources(self):
+        results = [
+            SourceResult(id="statute-1", title="Repair statute", snippet="repair escrow", source_kind="rag", source_label="Ohio Statutes"),
+            SourceResult(id="case-1", title="Repair case", snippet="habitability repair", source_kind="local_cases", source_label="Cases"),
+            SourceResult(id="treatise-1", title="Treatise", snippet="rent deposit repair", source_kind="rag", source_label="Treatise"),
+            SourceResult(id="statute-2", title="Notice statute", snippet="notice repair", source_kind="rag", source_label="Ohio Statutes"),
+        ]
+
+        evaluation = evaluate_search_results("repair", results)
+
+        self.assertTrue(evaluation["adequate"])
+        self.assertEqual(evaluation["reasons"], [])
+
+    def test_augmented_search_expands_from_case_statute_facets(self):
+        calls = []
+
+        class FakeRegistry:
+            def search(self, query, **kwargs):
+                calls.append({"query": query, "source_ids": kwargs.get("source_ids"), "kinds": kwargs.get("kinds")})
+                if len(calls) == 1:
+                    return [
+                        SourceResult(
+                            id="local-case:1:1",
+                            title="Tenant v Landlord",
+                            snippet="Repair defects and rent escrow.",
+                            source_kind="local_cases",
+                            source_label="Local case law",
+                            metadata={
+                                "statutesCited": ["R.C. 5321.07"],
+                                "issues": ["rent deposit"],
+                                "casesCited": [],
+                                "regulationsCited": [],
+                            },
+                        )
+                    ]
+                if "5321.07" in query:
+                    return [
+                        SourceResult(id="orc-5321-07", title="R.C. 5321.07", snippet="repair notice", source_kind="rag", source_label="Ohio Statutes"),
+                    ]
+                if query == "rent deposit":
+                    return [
+                        SourceResult(id="local-case:2:2", title="Rent deposit case", snippet="rent deposit repair", source_kind="local_cases", source_label="Local case law"),
+                    ]
+                return []
+
+        payload = augmented_search(
+            "repair escrow",
+            connector_registry=FakeRegistry(),
+            source_ids=["ohio-cases"],
+            kinds=["local_cases"],
+            max_rounds=2,
+        )
+
+        self.assertTrue(payload["augmentation"]["expanded"])
+        self.assertIn("ohio-statutes", payload["selected_source_ids"])
+        self.assertEqual(len(payload["results"]), 3)
+        self.assertLessEqual(len(payload["augmentation"]["rounds"]), 5)
+        self.assertTrue(any("related statute facet" in round_item["reason"] for round_item in payload["augmentation"]["rounds"][1:]))
+
+    def test_augmented_search_does_not_expand_when_results_are_adequate(self):
+        calls = []
+
+        class FakeRegistry:
+            def search(self, query, **kwargs):
+                calls.append(query)
+                return [
+                    SourceResult(id="statute-1", title="Repair statute", snippet="repair", source_kind="rag", source_label="Ohio Statutes"),
+                    SourceResult(id="case-1", title="Repair case", snippet="repair", source_kind="local_cases", source_label="Cases"),
+                    SourceResult(id="treatise-1", title="Treatise", snippet="repair", source_kind="rag", source_label="Treatise"),
+                    SourceResult(id="statute-2", title="Notice statute", snippet="repair", source_kind="rag", source_label="Ohio Statutes"),
+                ]
+
+        payload = augmented_search(
+            "repair",
+            connector_registry=FakeRegistry(),
+            source_ids=["ohio-statutes", "treatise", "ohio-cases"],
+            kinds=["rag", "local_cases"],
+        )
+
+        self.assertFalse(payload["augmentation"]["expanded"])
+        self.assertEqual(calls, ["repair"])
+
+    def test_augmented_search_can_retry_same_query_against_new_sources(self):
+        calls = []
+
+        class FakeRegistry:
+            def search(self, query, **kwargs):
+                calls.append((query, tuple(kwargs.get("source_ids") or [])))
+                if kwargs.get("source_ids") == ["ohio-cases"]:
+                    return [
+                        SourceResult(id="case-1", title="Repair case", snippet="repair", source_kind="local_cases", source_label="Cases"),
+                    ]
+                return []
+
+        payload = augmented_search(
+            "repair",
+            connector_registry=FakeRegistry(),
+            source_ids=["ohio-statutes", "treatise"],
+            kinds=["rag"],
+            max_rounds=1,
+        )
+
+        self.assertTrue(payload["augmentation"]["expanded"])
+        self.assertIn(("repair", ("ohio-cases",)), calls)

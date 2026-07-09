@@ -70,6 +70,10 @@ def _metadata(decision, document_type):
         "metadataVerified": decision.metadata_verified,
         "approvedForDrafting": decision.approved_for_drafting,
         "documentType": document_type,
+        "issues": decision.issues,
+        "statutesCited": decision.statutes_cited,
+        "regulationsCited": decision.regulations_cited,
+        "casesCited": decision.cases_cited,
         "sourceSha256": decision.source_sha256,
         "warning": "Treatment/currentness has not been checked." if decision.treatment_status == "unchecked" else "",
     }

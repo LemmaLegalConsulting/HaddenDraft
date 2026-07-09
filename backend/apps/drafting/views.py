@@ -251,7 +251,7 @@ def generate_plan_drafts(request, session_id):
             },
             status=400,
         )
-    drafts = create_drafts_from_plan(session)
+    drafts = create_drafts_from_plan(session, user=request.user, request=request)
     return JsonResponse({"drafts": [draft_to_dict(draft) for draft in drafts]}, status=201)
 
 
@@ -262,7 +262,7 @@ def generate_draft(request, session_id):
     session, error = _session_or_404(request.user, session_id, with_template=True)
     if error:
         return error
-    draft = create_draft(session)
+    draft = create_draft(session, user=request.user, request=request)
     return JsonResponse({"draft": draft_to_dict(draft)}, status=201)
 
 
