@@ -34,6 +34,7 @@ DATETIME_FIELDS = {
 LIST_FIELDS = {
     "parties", "party_roles", "parallel_citations", "issues", "holdings", "rules_applied",
     "statutes_cited", "regulations_cited", "cases_cited", "distinguished_by", "followed_by", "cited_by",
+    "search_keywords",
 }
 BOOL_FIELDS = {
     "is_unpublished", "is_trial_court", "is_administrative", "is_persuasive_only",
@@ -347,6 +348,7 @@ def rebuild_search_documents(decision, ocr_text):
     decision.chunks.all().delete()
     title = decision.title
     add_search_doc(decision, "overview", title, [decision.title, decision.court, decision.decision_date, decision.posture, decision.outcome])
+    add_search_doc(decision, "keywords", title, decision.search_keywords)
     add_search_doc(decision, "issues", title, decision.issues)
     add_search_doc(decision, "holdings", title, decision.holdings)
     add_search_doc(decision, "rules", title, [decision.rules_applied, decision.statutes_cited, decision.regulations_cited, decision.cases_cited])

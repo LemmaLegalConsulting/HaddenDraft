@@ -59,7 +59,7 @@ def _result_matches_query(result, query):
     return bool(terms & _query_terms(text))
 
 
-def evaluate_search_results(query, results, *, minimum_results=4):
+def evaluate_search_results(query, results, *, minimum_results=4, expect_source_diversity=True):
     """Cheap coverage check used before spending another retrieval round."""
     if not results:
         return {"adequate": False, "reasons": ["No sources were retrieved."]}
@@ -76,7 +76,7 @@ def evaluate_search_results(query, results, *, minimum_results=4):
         reasons.append("The retrieved snippets do not share clear terms with the research question.")
     if not legal_sources:
         reasons.append("No legal authority or secondary source was retrieved.")
-    if len(source_kinds_seen) == 1 and len(results) < minimum_results + 2:
+    if expect_source_diversity and len(source_kinds_seen) == 1 and len(results) < minimum_results + 2:
         reasons.append("The result set is narrow across source types.")
     return {"adequate": not reasons, "reasons": reasons}
 
@@ -104,18 +104,30 @@ def _default_rag_source_ids():
     return [source_id for source_id in ["ohio-statutes", "treatise", "hud-handbook", "green-book"] if source_id in available]
 
 
-def related_source_plans(query, results, selected_source_ids, attempted_searches):
-    """Build conservative follow-up searches from case facets and source gaps."""
+def related_source_plans(query, results, selected_source_ids, attempted_searches, *, allowed_source_ids=None):
+    """Build conservative follow-up searches from case facets and source gaps.
+
+    ``allowed_source_ids`` restricts every plan to an explicit user selection:
+    follow-up rounds may vary the query, but never search sources the user
+    excluded (for example, "Cases only" must never fall through to the treatise).
+    """
     plans = []
     selected = set(selected_source_ids)
+    allowed = None if allowed_source_ids is None else set(allowed_source_ids)
+
+    def _permitted(source_ids):
+        if allowed is None:
+            return source_ids
+        return [source_id for source_id in source_ids if source_id in allowed]
+
     facets = _facet_values(results)
     for facet in facets:
         if facet["facet"] in {"statute", "regulation"}:
-            source_ids = _valid_source_ids(_default_rag_source_ids())
+            source_ids = _permitted(_valid_source_ids(_default_rag_source_ids()))
             followup = f"{facet['value']} {query}".strip()
             reason = f"Expanded from related {facet['facet']} facet: {facet['value']}."
         elif facet["facet"] in {"caseCitation", "issue"}:
-            source_ids = _valid_source_ids(["ohio-cases"])
+            source_ids = _permitted(_valid_source_ids(["ohio-cases"]))
             followup = facet["value"]
             reason = f"Expanded from related {facet['facet']} facet: {facet['value']}."
         else:
@@ -123,6 +135,9 @@ def related_source_plans(query, results, selected_source_ids, attempted_searches
         if not source_ids or _search_key(followup, source_ids) in attempted_searches:
             continue
         plans.append(SearchPlan(query=followup, source_ids=source_ids, reason=reason, facet=facet))
+
+    if allowed is not None:
+        return plans
 
     if "ohio-cases" not in selected and "ohio-cases" in source_guidance()["sources"]:
         followup = query
@@ -159,6 +174,7 @@ def augmented_search(
     request=None,
     max_rounds=2,
     minimum_results=4,
+    allow_source_expansion=True,
 ):
     """Run retrieval once, then add bounded related-source follow-ups when needed."""
     try:
@@ -168,6 +184,8 @@ def augmented_search(
     max_rounds = max(0, min(max_rounds, 3))
     selected_source_ids = list(dict.fromkeys(source_ids or []))
     selected_kinds = kinds or source_kinds(selected_source_ids)
+    allowed_source_ids = None if allow_source_expansion else selected_source_ids
+    expect_source_diversity = allow_source_expansion or len(selected_kinds) > 1
     results = connector_registry.search(
         query,
         kinds=selected_kinds,
@@ -189,12 +207,21 @@ def augmented_search(
     evaluations = []
 
     for _round_index in range(max_rounds):
-        evaluation = evaluate_search_results(query, results, minimum_results=minimum_results)
+        evaluation = evaluate_search_results(
+            query, results,
+            minimum_results=minimum_results,
+            expect_source_diversity=expect_source_diversity,
+        )
         evaluations.append(evaluation)
         if evaluation["adequate"]:
             break
-        plans = related_source_plans(query, results, selected_source_ids + added_source_ids, attempted_searches)
-        if not plans:
+        plans = related_source_plans(
+            query, results,
+            selected_source_ids + added_source_ids,
+            attempted_searches,
+            allowed_source_ids=allowed_source_ids,
+        )
+        if not plans and allow_source_expansion:
             auto_selection = automatic_source_selection(query, matter=matter)
             if set(auto_selection["source_ids"]) - set(selected_source_ids + added_source_ids):
                 plans = [SearchPlan(
@@ -228,7 +255,11 @@ def augmented_search(
             })
         results = _dedupe_results(results)
 
-    final_evaluation = evaluate_search_results(query, results, minimum_results=minimum_results)
+    final_evaluation = evaluate_search_results(
+        query, results,
+        minimum_results=minimum_results,
+        expect_source_diversity=expect_source_diversity,
+    )
     return {
         "results": results,
         "selected_source_ids": list(dict.fromkeys(selected_source_ids + added_source_ids)),

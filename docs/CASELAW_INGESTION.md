@@ -5,7 +5,22 @@ The caselaw corpus is stored in two places:
 - Searchable metadata, OCR text, chunks, and provenance live in the Django database.
 - Original PDFs and sidecar files live in the configured caselaw artifact storage backend.
 
-Case files are not source-controlled. For local development, keep them under a private import directory such as `~/cases` and copy artifacts into `private-content/caselaw-artifacts`.
+Case files are not source-controlled. For local development, keep them under a
+private import directory such as `~/cases` and copy artifacts into
+`private-content/caselaw-artifacts`.
+
+The repository-local `downloaded_cases/` directory is ignored because it is a
+generated acquisition cache. If a downloaded corpus needs to be retained,
+store it outside the repository and pass its path explicitly to the staging
+helper:
+
+```bash
+.venv/bin/python scripts/ingest_downloaded_cases.py \
+  --source-dir ~/case-law-cache/downloaded_cases
+```
+
+The helper copies only complete, verified PDF sidecar sets into the private
+artifact provider. It does not make the source corpus part of Git history.
 
 ## Local Storage
 

@@ -57,6 +57,12 @@ desktop.ini
 # Project / Tools
 .codex/
 
+# Local case-law acquisition and generated analysis.  These files are
+# reproducible inputs/derivatives and must stay outside the public repository.
+downloaded_cases/
+build/
+logs/
+
 
 # brainstorming files / examples for codex
 brainstorming/

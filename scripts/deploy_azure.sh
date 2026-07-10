@@ -136,22 +136,35 @@ POSTGRES_HOST=db
 POSTGRES_PORT=5432
 DJANGO_SECRET_KEY=$(openssl rand -hex 48)
 DJANGO_DEBUG=false
-DJANGO_ALLOWED_HOSTS=$IP_ADDRESS
+DJANGO_ALLOWED_HOSTS=$IP_ADDRESS,cle-draft.lemmalegal.com
 FRONTEND_SITE_URL=http://$IP_ADDRESS
 DJANGO_SESSION_COOKIE_SECURE=false
 DJANGO_CSRF_COOKIE_SECURE=false
 DJANGO_SECURE_HSTS_SECONDS=0
 CONTENT_LIBRARY_DIR=/app/content
 AI_DRAFTING_ENABLED=false
+VIRTUAL_HOST=$IP_ADDRESS,cle-draft.lemmalegal.com
+LETSENCRYPT_HOST=cle-draft.lemmalegal.com
 ENV
 fi
+
+# Patch existing .env.azure with updated host configurations
+sed -i "s/^DJANGO_ALLOWED_HOSTS=.*/DJANGO_ALLOWED_HOSTS=$IP_ADDRESS,cle-draft.lemmalegal.com/" .env.azure
+if grep -q "^VIRTUAL_HOST=" .env.azure; then
+  sed -i "s/^VIRTUAL_HOST=.*/VIRTUAL_HOST=$IP_ADDRESS,cle-draft.lemmalegal.com/" .env.azure
+  sed -i "s/^LETSENCRYPT_HOST=.*/LETSENCRYPT_HOST=cle-draft.lemmalegal.com/" .env.azure
+else
+  echo "VIRTUAL_HOST=$IP_ADDRESS,cle-draft.lemmalegal.com" >> .env.azure
+  echo "LETSENCRYPT_HOST=cle-draft.lemmalegal.com" >> .env.azure
+fi
+
 rm -rf content
 python3 scripts/sideload_content.py --url "$BLOB_URL" --target content/
 rm -rf private-content/caselaw-artifacts
 python3 scripts/sideload_content.py --url "$CASELAW_BLOB_URL" --target private-content/caselaw-artifacts/
 sudo docker compose --env-file .env.azure build app
-sudo docker compose --env-file .env.azure run --rm app python manage.py migrate --fake drafting 0005_draftingsession_template_data || true
-sudo docker compose --env-file .env.azure up -d --remove-orphans
+sudo docker compose --env-file .env.azure run -T --rm app bash -c "cd backend && python manage.py migrate --fake drafting 0006_drafting_plan_fields" || true
+sudo docker compose --env-file .env.azure up -d --build --force-recreate --remove-orphans
 sudo docker image prune -f
 REMOTE
 

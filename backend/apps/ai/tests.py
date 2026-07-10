@@ -126,6 +126,7 @@ class PromptCatalogTests(TestCase):
                 "case_chat.document_summary",
                 "case_chat.suggest_actions",
                 "case_chat.reply",
+                "caselaw.search_keywords",
                 "research.answer",
                 "research.treatise_relevance",
             },

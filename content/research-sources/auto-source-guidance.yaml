@@ -43,6 +43,8 @@ sources:
   ohio-cases:
     kind: local_cases
     label: Ohio case law
+    default: true
+    default_reason: Local case-law corpus showing how Ohio courts have applied housing law.
     when:
       - terms: [case law, decision, precedent, appeal]
         reason: The question asks for judicial authority.

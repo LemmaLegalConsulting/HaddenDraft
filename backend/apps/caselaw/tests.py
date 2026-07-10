@@ -107,6 +107,42 @@ class CaseLawImportTests(TestCase):
         self.assertIn("warning", results[0].metadata)
         self.assertEqual(LocalCaseIndexConnector().search("habitability repair", jurisdiction="Michigan"), [])
 
+    @override_settings(CASELAW_STORAGE_BACKEND="filesystem")
+    def test_search_keywords_metadata_is_ingested_and_retrievable(self):
+        with override_settings(CASELAW_STORAGE_ROOT=self.storage):
+            ingest_caselaw_directory(self.corpus)
+
+        decision = CaseLawDecision.objects.get()
+        self.assertIn("deficient notice", decision.search_keywords)
+        self.assertTrue(decision.search_documents.filter(document_type="keywords").exists())
+
+        # The opinion text never says "deficient notice"; the researcher-phrased
+        # keyword sidecar is what surfaces the case.
+        results = LocalCaseIndexConnector().search("deficient notice")
+        self.assertEqual(len(results), 1)
+        self.assertEqual(results[0].title, "Tenant v. Landlord")
+        self.assertIn("deficient notice", results[0].metadata["searchKeywords"])
+
+    def test_concept_expansion_surfaces_synonym_only_case_text(self):
+        decision = CaseLawDecision.objects.create(
+            title="Landlord v. Renter",
+            court="Cleveland Municipal Court",
+            jurisdiction="Ohio",
+            source_sha256="a" * 64,
+            approved_for_search=True,
+        )
+        CaseLawSearchDocument.objects.create(
+            decision=decision,
+            document_type="holdings",
+            title=decision.title,
+            search_text="The writ was defective because service did not comply with R.C. 1923.04.",
+        )
+
+        results = LocalCaseIndexConnector().search("deficient notice")
+
+        self.assertEqual(len(results), 1)
+        self.assertEqual(results[0].title, "Landlord v. Renter")
+
 
 class CaseLawApiTests(TestCase):
     def setUp(self):

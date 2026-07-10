@@ -210,6 +210,9 @@ def research(request):
             user=request.user,
             request=request,
             max_rounds=body.get("maxSearchRounds") or 2,
+            # Explicit modes ("Cases only" / manual pick) must never widen the
+            # search to sources the user excluded; only Auto may add sources.
+            allow_source_expansion=auto_mode,
         )
         results = search_payload["results"]
         source_ids = search_payload["selected_source_ids"]
