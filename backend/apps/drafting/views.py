@@ -245,11 +245,16 @@ def update_session_template_data(request, session_id):
 
 @api_login_required
 def generate_plan_drafts(request, session_id):
-    if request.method != "POST":
-        return method_not_allowed(["POST"])
+    if request.method not in {"GET", "POST"}:
+        return method_not_allowed(["GET", "POST"])
     session, error = _session_or_404(request.user, session_id, with_template=True)
     if error:
         return error
+    if request.method == "GET":
+        # A plan can produce several documents, so reopening a session has to be
+        # able to recover all of them, not just the one that was generated last.
+        drafts = session.drafts.select_related("template").order_by("created_at")
+        return JsonResponse({"drafts": [draft_to_dict(draft) for draft in drafts]})
     body = json_body(request)
     plan = session.draft_plan or {}
     blocking_missing = unanswered_missing_information(

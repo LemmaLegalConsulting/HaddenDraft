@@ -123,6 +123,7 @@ export const api = {
     request(`/drafting-sessions/${sessionId}/plan/`, { method: "PATCH", body: JSON.stringify(payload) }),
   updateSessionTemplateData: (sessionId, templateData) =>
     request(`/drafting-sessions/${sessionId}/template-data/`, { method: "POST", body: JSON.stringify({ templateData }) }),
+  sessionDrafts: (sessionId) => request(`/drafting-sessions/${sessionId}/drafts/`),
   generatePlanDrafts: (sessionId, payload = {}) =>
     request(`/drafting-sessions/${sessionId}/drafts/`, { method: "POST", body: JSON.stringify(payload) }),
   generateDraft: (sessionId) => request(`/drafting-sessions/${sessionId}/draft/`, { method: "POST" }),

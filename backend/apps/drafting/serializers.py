@@ -30,6 +30,7 @@ def draft_to_dict(draft):
     return {
         "id": draft.id,
         "sessionId": draft.session_id,
+        "templateId": draft.template_id,
         "title": draft.title,
         "sections": draft.sections,
         "plainText": draft.plain_text,

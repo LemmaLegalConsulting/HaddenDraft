@@ -83,6 +83,23 @@ class DraftTemplateIdentityTests(TestCase):
         second.refresh_from_db()
         self.assertEqual(_draft_template(second), self.template_b)
 
+    def test_every_planned_draft_is_listed_for_the_session(self):
+        session, drafts = self._two_document_drafts()
+        response = self.client.get(f"/api/drafting-sessions/{session.id}/drafts/")
+        self.assertEqual(response.status_code, 200)
+        listed = response.json()["drafts"]
+        self.assertEqual([item["id"] for item in listed], [draft.id for draft in drafts])
+        self.assertEqual(
+            [item["templateId"] for item in listed], [self.template_a.id, self.template_b.id]
+        )
+
+    def test_draft_listing_is_scoped_to_users_who_can_reach_the_case(self):
+        session, _drafts = self._two_document_drafts()
+        outsider = get_user_model().objects.create_user("outsider", "outsider@example.com", "pw")
+        self.client.force_login(outsider)
+        response = self.client.get(f"/api/drafting-sessions/{session.id}/drafts/")
+        self.assertEqual(response.status_code, 404)
+
     def test_legacy_drafts_still_resolve_from_editor_state(self):
         session = DraftingSession.objects.create(
             mode="draft_from_template", matter=self.matter, template=self.template_a

@@ -33,6 +33,7 @@ import { CaseSelector } from "./components/CaseSelector.jsx";
 import { DraftSupportReview } from "./components/DraftSupportReview.jsx";
 import { DraftGoalPanel } from "./components/DraftGoalPanel.jsx";
 import { DraftPlanReview } from "./components/DraftPlanReview.jsx";
+import { DraftSwitcher } from "./components/DraftSwitcher.jsx";
 import { DraftQuestionsReview, unansweredPlanQuestions } from "./components/DraftQuestionsReview.jsx";
 import { FactReview } from "./components/FactReview.jsx";
 import { factRecommendationState } from "./components/factReviewState.js";
@@ -88,6 +89,7 @@ export function App() {
   const [session, setSession] = useState(null);
   const [outline, setOutline] = useState(null);
   const [draft, setDraft] = useState(null);
+  const [drafts, setDrafts] = useState([]);
   const [validationSummary, setValidationSummary] = useState(null);
   const [draftDirtySinceValidation, setDraftDirtySinceValidation] = useState(false);
   const [revisionPlan, setRevisionPlan] = useState(null);
@@ -143,6 +145,22 @@ export function App() {
     }
     load();
   }, []);
+
+  // Recover the documents a session already produced when the editor is opened
+  // without them in memory, so a plan's later documents are never stranded.
+  useEffect(() => {
+    if (mode !== "draft" || draftStep !== "editor") return undefined;
+    if (!session?.id || drafts.length > 0) return undefined;
+    let cancelled = false;
+    api.sessionDrafts(session.id)
+      .then((response) => {
+        if (!cancelled && response.drafts?.length) setGeneratedDrafts(response.drafts);
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, [mode, draftStep, session?.id, drafts.length]);
 
   async function loadWorkspace() {
     setWorkspaceLoading(true);
@@ -602,9 +620,7 @@ export function App() {
       const response = await api.generatePlanDrafts(activeSession.id, {
         requireAllMissingInformation: clarifyMissingFactsBeforeDraft,
       });
-      setDraft(response.drafts?.[0] || null);
-      setValidationSummary(null);
-      setDraftDirtySinceValidation(false);
+      setGeneratedDrafts(response.drafts);
       setDraftStep("editor");
     } catch (err) {
       setError(err.message);
@@ -705,9 +721,7 @@ export function App() {
         ...(draftMode === "draft_from_template" ? { template: selectedTemplateId } : {}),
       });
       const response = await api.generateDraft(activeSession.id);
-      setDraft(response.draft);
-      setValidationSummary(null);
-      setDraftDirtySinceValidation(false);
+      setGeneratedDrafts(response.draft ? [response.draft] : []);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -715,12 +729,47 @@ export function App() {
     }
   }
 
+  // `drafts` holds every document the plan produced; `draft` is the one on
+  // screen. Both have to move together or edits are lost when switching.
+  function applyDraftUpdate(nextDraft) {
+    if (!nextDraft) return;
+    setDraft(nextDraft);
+    setDrafts((current) => current.map((item) => (item.id === nextDraft.id ? nextDraft : item)));
+  }
+
+  function patchActiveDraft(patch) {
+    setDraft((current) => {
+      if (!current) return current;
+      const next = { ...current, ...patch };
+      setDrafts((items) => items.map((item) => (item.id === next.id ? next : item)));
+      return next;
+    });
+  }
+
+  function setGeneratedDrafts(generated) {
+    const list = generated || [];
+    setDrafts(list);
+    setDraft(list[0] || null);
+    setValidationSummary(null);
+    setDraftDirtySinceValidation(false);
+  }
+
+  function selectDraft(draftId) {
+    const next = drafts.find((item) => item.id === draftId);
+    if (!next || next.id === draft?.id) return;
+    setDraft(next);
+    // Validation state belongs to the document that produced it.
+    setValidationSummary(null);
+    setDraftDirtySinceValidation(false);
+    setRevisionPlan(null);
+  }
+
   async function validateDraft() {
     if (!draft) return;
     setBusy(true);
     try {
       const response = await api.validateDraft(draft.id);
-      setDraft(response.draft);
+      applyDraftUpdate(response.draft);
       setValidationSummary(response.validation || null);
       setDraftDirtySinceValidation(false);
     } catch (err) {
@@ -736,7 +785,7 @@ export function App() {
     setError("");
     try {
       const response = await api.regenerateDraftBlock(draft.id, blockKey, { instruction });
-      setDraft(response.draft);
+      applyDraftUpdate(response.draft);
       setDraftDirtySinceValidation(true);
     } catch (err) {
       setError(err.message);
@@ -756,7 +805,7 @@ export function App() {
       }
       if (draft) {
         const response = await api.updateDraft(draft.id, { sections, plainText, editorState });
-        setDraft(response.draft);
+        applyDraftUpdate(response.draft);
       }
       setDraftDirtySinceValidation(true);
     } catch (err) {
@@ -794,7 +843,7 @@ export function App() {
     setError("");
     try {
       const response = await api.applyDraftRevision(draft.id, revisionPlan.plan);
-      setDraft(response.draft);
+      applyDraftUpdate(response.draft);
       setValidationSummary(response.validation || null);
       setDraftDirtySinceValidation(false);
       setRevisionPlan(null);
@@ -914,14 +963,20 @@ export function App() {
         )}
         {mode === "draft" && draftStep === "editor" && (
           <section className="panel editor-panel">
+            <DraftSwitcher
+              drafts={drafts}
+              activeDraftId={draft?.id ?? null}
+              onSelect={selectDraft}
+              busy={busy}
+            />
             <DraftEditor
               draft={draft}
               busy={busy}
-              onChange={(sections, plainText, editorState) => setDraft((current) => (current ? { ...current, sections, plainText, editorState } : current))}
+              onChange={(sections, plainText, editorState) => patchActiveDraft({ sections, plainText, editorState })}
               onPersist={async () => {
                 if (!draft) return;
                 const response = await api.updateDraft(draft.id, { sections: draft.sections, plainText: draft.plainText, editorState: draft.editorState });
-                setDraft(response.draft);
+                applyDraftUpdate(response.draft);
                 setDraftDirtySinceValidation(true);
               }}
               onRegenerateBlock={regenerateDraftBlock}
