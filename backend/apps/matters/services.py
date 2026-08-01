@@ -1,3 +1,4 @@
+import re
 from dataclasses import dataclass, field
 from uuid import uuid4
 
@@ -12,6 +13,9 @@ from apps.sources.connectors.legalserver import (
     matter_payload_to_defaults,
 )
 from apps.sources.models import UserSourceIdentity
+
+
+DEMO_SOURCE_SYSTEM = "Demo"
 
 
 @dataclass
@@ -94,10 +98,23 @@ def _normalized_identifier_candidates(identifier):
     return candidates
 
 
+IDENTITY_TOKEN_RE = re.compile(r"[a-z0-9._%+-]+(?:@[a-z0-9.-]+)?")
+
+
 def _identity_value_matches(value, candidates):
+    """Match an assignment value against a user identifier by whole token.
+
+    Substring matching would make one advocate's identifier match another's:
+    "bob@x.org" is a substring of "robert.bobson@x.org", and the bare local
+    part "bob" appears inside plenty of unrelated names.
+    """
     if value in (None, ""):
         return False
-    return any(candidate in str(value).casefold() for candidate in candidates)
+    normalized = str(value).casefold().strip()
+    if normalized in candidates:
+        return True
+    # Identity fields are sometimes decorated, e.g. "Bob Smith <bob@x.org>".
+    return bool(candidates & set(IDENTITY_TOKEN_RE.findall(normalized)))
 
 
 def _assignment_identity_values(payload):
@@ -138,11 +155,11 @@ def _assignment_identity_values(payload):
         "staff_assignments",
         "case_assignments",
     )
+    # "notes" and "assigned_by" are free text describing the assignment, not the
+    # assignee, so a passing mention of a colleague must not grant them access.
     nested_keys = (
         "name",
         "email",
-        "assigned_by",
-        "notes",
         "user_name",
         "user_id",
         "user_uuid",
@@ -275,12 +292,12 @@ def user_can_access_matter(user, matter, *, access_profile=None):
     raw_payload = matter.raw_payload or {}
     if matter.source_system == "Manual" and raw_payload.get("created_by_user_id") == user.id:
         return True
+    if matter.source_system == DEMO_SOURCE_SYSTEM:
+        # Seeded sample data carries no client information, so it is readable
+        # whenever it is enabled at all.
+        return settings.ENABLE_DEMO_MATTERS
     access_profile = access_profile or legalserver_access_profile_for_user(user)
     if access_profile.is_superuser:
-        return True
-    if settings.ENABLE_DEMO_MATTERS:
-        return True
-    if settings.DEBUG:
         return True
     if not access_profile.identifier or access_profile.error:
         return False

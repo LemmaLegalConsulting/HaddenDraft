@@ -31,7 +31,7 @@ cd ..
 .venv/bin/python backend/manage.py createsuperuser
 ```
 
-The app seeds templates through the API bootstrap path. Sample matters are opt-in with `ENABLE_DEMO_MATTERS=true`; by default, missing LegalServer access shows an unconnected/empty state instead of fake case data.
+The app seeds templates through the API bootstrap path. Sample matters are opt-in with `ENABLE_DEMO_MATTERS=true`; by default, missing LegalServer access shows an unconnected/empty state instead of fake case data. Seeded sample matters are stored with `source_system="Demo"`, and the flag grants access only to those rows: it never widens who can read a real LegalServer case.
 
 ## Integration Configuration
 

@@ -4,7 +4,6 @@ import json
 
 from django.contrib.auth import get_user_model
 from django.test import TestCase
-from django.test.utils import override_settings
 
 from apps.drafting.models import DraftingSession
 from apps.drafting.services import create_draft
@@ -12,10 +11,9 @@ from apps.matters.models import Matter
 from apps.templates_app.models import DocumentTemplate, TemplateBlock
 
 
-@override_settings(ENABLE_DEMO_MATTERS=True)
 class DraftingRequestValidationTests(TestCase):
     def setUp(self):
-        self.user = get_user_model().objects.create_user("advocate", "advocate@example.com", "pw")
+        self.user = get_user_model().objects.create_user("advocate", "advocate@example.com", "pw", is_staff=True)
         self.client.force_login(self.user)
         self.matter = Matter.objects.create(
             external_id="LS-500",
