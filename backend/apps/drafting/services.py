@@ -2,6 +2,7 @@ import json
 import re
 
 from django.conf import settings
+from django.db import OperationalError, ProgrammingError
 from django.utils.text import slugify
 
 from apps.ai.openai_client import OpenAIBackendError, OpenAICompatibleClient
@@ -1414,12 +1415,13 @@ def regenerate_draft_block(draft, block_key, instruction=""):
 
 
 def outline_for_session(session):
-    issues = []
-    try:
-        from apps.issues.models import CandidateIssue
+    from apps.issues.models import CandidateIssue
 
+    try:
         issues = list(CandidateIssue.objects.filter(case_id=session.matter.external_id, status="approved"))
-    except Exception:
+    except (OperationalError, ProgrammingError):
+        # Tolerate an unmigrated issues table only. Swallowing everything here
+        # silently drops reviewer-approved issues from the outline.
         issues = []
     approved_issue_blocks = set()
     for issue in issues:

@@ -62,7 +62,11 @@ def _content_chunk(document_slug, chunk_id):
 def _content_file(source_path):
     if not source_path:
         return None
-    relative = [part for part in str(source_path).split("/") if part]
+    relative = [part for part in str(source_path).split("/") if part and part != "."]
+    # source_path comes from generated manifests rather than the request, but a
+    # traversal component would still resolve outside the content library.
+    if any(part == ".." for part in relative) or not relative:
+        return None
     for path in content_paths(*relative):
         if path.is_file():
             return path
