@@ -1313,14 +1313,11 @@ def create_draft(session, *, template=None, block_keys=None, title=None, instruc
     plain_text = "\n\n".join(f"{section['label'].upper()}\n{section['body']}" for section in sections)
     draft = DraftDocument.objects.create(
         session=session,
-        title=title or (active_template.title if active_template else "Draft document"),
+        template=active_template,
+        title=title or active_template.title,
         sections=sections,
         plain_text=plain_text,
-        editor_state={
-            "format": "plain_text",
-            "templateId": active_template.id if active_template else None,
-            "templateSlug": active_template.slug if active_template else "",
-        },
+        editor_state={"format": "plain_text"},
     )
     session.status = "draft_review"
     session.save()

@@ -14,9 +14,13 @@ def _regenerate_document(draft):
     from apps.drafting.services import create_draft
 
     session = draft.session
-    if not session.template:
+    # Regenerate from this draft's own template and sections. A session can hold
+    # several documents, and session.template only names the first one.
+    template = draft.template or session.template
+    if not template:
         return draft
-    replacement = create_draft(session)
+    block_keys = [section.get("key") for section in draft.sections or [] if section.get("key")]
+    replacement = create_draft(session, template=template, block_keys=block_keys or None, title=draft.title)
     draft.sections = replacement.sections
     draft.plain_text = replacement.plain_text
     draft.editor_state = replacement.editor_state
