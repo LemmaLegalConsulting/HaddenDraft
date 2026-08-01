@@ -12,7 +12,7 @@ from django.http import HttpResponse, JsonResponse
 from django.shortcuts import redirect
 from django.views.decorators.csrf import ensure_csrf_cookie
 
-from apps.core.http import api_login_required, json_body, method_not_allowed
+from apps.core.http import api_login_required, json_body, json_body_errors_to_400, method_not_allowed
 from apps.core.models import AuthorProfile, OrganizationSettings
 from apps.matters.seed import seed_matters
 from apps.matters.services import legalserver_account_status
@@ -175,10 +175,11 @@ def default_jurisdiction_for_user(user):
     return settings.DEFAULT_JURISDICTION.strip()
 
 
+@json_body_errors_to_400
 def login_view(request):
     if request.method != "POST":
         return JsonResponse({"error": "POST required"}, status=405)
-    body = json.loads(request.body.decode("utf-8") or "{}")
+    body = json_body(request)
     user = authenticate(request, username=body.get("username", ""), password=body.get("password", ""))
     if user is None:
         return JsonResponse({"error": "Invalid username or password"}, status=401)

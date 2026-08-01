@@ -166,7 +166,16 @@ def advance(session, payload):
     if "instructions" in payload:
         session.instructions = payload["instructions"]
     if "template" in payload:
-        session.template_id = payload["template"]
+        # Assigning the raw value would persist an unusable foreign key and only
+        # fail later, when something first dereferences session.template.
+        reference = payload["template"]
+        if reference in (None, ""):
+            session.template = None
+        else:
+            template = template_for_reference(reference)
+            if not template:
+                raise ValueError("Selected template was not found.")
+            session.template = template
 
     current_status = normalize_status(session.status)
     requested_status = payload.get("status")
@@ -462,6 +471,17 @@ def apply_plan_edits(session, payload):
         session.selected_block_keys = first.get("selected_block_keys") or session.selected_block_keys
     session.save()
     return session
+
+
+def template_for_reference(value):
+    """Resolve a template id supplied by a client, without raising on junk input."""
+    if value in (None, ""):
+        return None
+    try:
+        template_id = int(value)
+    except (TypeError, ValueError):
+        return None
+    return DocumentTemplate.objects.filter(id=template_id).first()
 
 
 def _template_for_plan_item(item):
@@ -1276,6 +1296,10 @@ def create_draft(session, *, template=None, block_keys=None, title=None, instruc
     scoped_instructions = "\n\n".join(part for part in [instructions if instructions is not None else session.instructions, answered_context] if part)
     context = regeneration_context(session, template=template, instructions=scoped_instructions)
     active_template = template or session.template
+    if not active_template:
+        # compose_document walks template.blocks, so there is no usable
+        # template-less path here despite the fallbacks further down.
+        raise ValueError("Choose a template before generating a draft.")
     block_keys = block_keys or session.selected_block_keys or [block.key for block in active_template.blocks.all()]
     sections = drafting_ai.compose_document(context, block_keys)
     if missing_by_block:
