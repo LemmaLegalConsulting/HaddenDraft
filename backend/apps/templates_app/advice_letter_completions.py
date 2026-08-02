@@ -28,6 +28,126 @@ REVIEW_NOTE = (
 )
 
 
+# Sentences the editor's own half-finished edit left ungrammatical. Accepting
+# tracked changes is faithful, so these survive acceptance intact and have to be
+# repaired by name. Each records what the accepted text said and why the
+# replacement is what the editor meant -- a copy-editor should not have to guess
+# whether a fix changed the advice.
+MERGE_REPAIRS = {
+    "security-deposit": [
+        {
+            "broken": "explain why they’re not all the deposit to you",
+            "fixed": "explain why they are not returning all of the deposit to you",
+            "why": (
+                "The editor deleted \"returning some or \" and \"all of\" and "
+                "inserted \"all\", which removed the verb. The surrounding "
+                "sentences make returning the deposit the subject."
+            ),
+        }
+    ],
+}
+
+
+# "Advice Letter - NP" is a letter someone actually sent, with live dates, a
+# typed signature, and initials. Most of it duplicates sections that already
+# exist -- attending by Zoom, settling before the hearing -- so keeping it whole
+# would mean maintaining that advice twice. Three parts of it exist nowhere
+# else, including Pay-to-Stay, which the catalog lists as a row with no file.
+# Those become sections; the composite is retired in favour of picking them.
+RETIRED_SECTIONS = {
+    "advice-letter-np": {
+        "reason": (
+            "A sent letter rather than a template: live hearing dates, a typed "
+            "signature, and \"your hearing is tomorrow\". Its reusable content is "
+            "now carried by nonpayment-no-defense, pay-to-stay-cleveland, and "
+            "what-happens-at-the-hearing, together with the existing zoom-info "
+            "and settlement sections."
+        ),
+        "replaced_by": [
+            "nonpayment-no-defense",
+            "pay-to-stay-cleveland",
+            "what-happens-at-the-hearing",
+            "getting-zoom-info-cle",
+            "negotiate-move-out-neo",
+        ],
+    }
+}
+
+
+# Sections lifted out of that letter, rewritten so nothing about one client
+# remains. Drafted, so they carry the same review requirement as COMPLETIONS.
+DERIVED_SECTIONS = {
+    "nonpayment-no-defense": {
+        "title": "Nonpayment of Rent - No Defense Found",
+        "topic": "Nonpayment",
+        "region": "CLE",
+        "status": STATUS_AI_DRAFTED,
+        "note": (
+            "Lifted from the sent letter \"Advice Letter - NP\" and rewritten as a "
+            "template. " + REVIEW_NOTE
+        ),
+        "paragraphs": [
+            "Your Landlord Is Evicting You for Unpaid Rent. Unpaid rent is one of "
+            "the easiest reasons a landlord can use. A landlord does not have to "
+            "take a late payment. Often a lawyer can do little to stop the court "
+            "from siding with the landlord.",
+            "We Looked at Your Papers. I read the complaint and the notice your "
+            "landlord filed. I do not see a mistake in them that gives you a "
+            "defense. Here is what I can tell you instead.",
+        ],
+    },
+    "pay-to-stay-cleveland": {
+        "title": "Pay-to-Stay in Cleveland",
+        "topic": "Nonpayment",
+        "region": "CLE",
+        "status": STATUS_AI_DRAFTED,
+        "note": (
+            "The catalog lists \"P2S jurisdiction\" with no maintained file. Drafted "
+            "from the Pay-to-Stay paragraph in the sent letter \"Advice Letter - "
+            "NP\". " + REVIEW_NOTE
+        ),
+        "paragraphs": [
+            "Cleveland Has a Pay-to-Stay Law. The best answer to an unpaid-rent "
+            "case is to bring the money to court. Cleveland has a law called "
+            "Pay-to-Stay. It lets you stop the eviction by paying what you owe.",
+            "What You Must Pay. You must pay the rent you owe. You must also pay "
+            "late fees and court costs. You can pay with your own money or with "
+            "rent help from an agency.",
+            "Bring What You Have. Bring the full amount if you can. If you cannot, "
+            "bring as much as you can. Bring proof of any rent help that is on "
+            "the way.",
+            "Tell the Judge. When the judge calls your case, say that you are "
+            "paying under Cleveland's Pay-to-Stay law. Show the judge your proof "
+            "of payment.",
+        ],
+    },
+    "what-happens-at-the-hearing": {
+        "title": "What Happens at the Hearing and After",
+        "topic": "Misc.",
+        "region": "CLE",
+        "status": STATUS_AI_DRAFTED,
+        "note": (
+            "Lifted from the sent letter \"Advice Letter - NP\" and rewritten as a "
+            "template. " + REVIEW_NOTE
+        ),
+        "paragraphs": [
+            "The Hearing. If you and your landlord do not reach an agreement, the "
+            "hearing starts right away. You get a chance to tell the court your "
+            "side.",
+            "The Court's Decision. The court usually decides at the end of the "
+            "hearing. If the court sides with your landlord, you may get as few "
+            "as 7 to 10 days to move.",
+            "If You Do Not Move. Movers hired by your landlord will come to your "
+            "home. They will set your things out on the tree lawn. Court bailiffs "
+            "come too, to keep the peace.",
+            "Plan Ahead. Start looking for a new home now, even if you hope to "
+            "win. Ask friends or family if you can store your things. Moving on "
+            "your own terms is easier than a court-ordered move-out.",
+        ],
+    },
+}
+
+
 COMPLETIONS = {
     "admissions-denial-past-time": {
         "title": "Denied for Subsidized Housing - Deadline to Appeal Has Passed",

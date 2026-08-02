@@ -68,11 +68,13 @@ class TrackedChangeTests(TestCase):
         add_tracked_paragraph(document, "The notice must be ", "conspicuous.", " obvious.")
         document.save(path)
 
-        accepted = accept_tracked_changes(Document(path))
+        accepted, touched = accept_tracked_changes(Document(path))
         text = "\n".join(p.text for p in accepted.paragraphs)
 
         self.assertIn("The notice must be conspicuous.", text)
         self.assertNotIn("obvious", text)
+        # The edited paragraph is reported so a copy-editor knows to read it.
+        self.assertEqual(touched, {0})
 
     def test_a_section_with_tracked_changes_is_marked_for_review(self):
         path = self.root / "tracked.docx"

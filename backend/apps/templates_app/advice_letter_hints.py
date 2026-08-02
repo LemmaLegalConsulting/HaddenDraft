@@ -80,6 +80,36 @@ SELECTION_HINTS = {
         "excludes": [],
         "summary": "The caller lives in the home but is not on the case.",
     },
+    "nonpayment-no-defense": {
+        "triggers": [
+            "eviction for nonpayment of rent",
+            "no defect found in the notice or complaint",
+            "client owes back rent",
+        ],
+        "requires": [],
+        "excludes": ["decarlo", "3-day-conspicuousness-of-statutory-language"],
+        "summary": "Unpaid rent with no defect found in the paperwork.",
+    },
+    "pay-to-stay-cleveland": {
+        "triggers": [
+            "client can pay the back rent",
+            "rent assistance is coming",
+            "eviction for nonpayment in Cleveland",
+        ],
+        "requires": ["region_cleveland"],
+        "excludes": [],
+        "summary": "Stop a nonpayment eviction by paying what is owed.",
+    },
+    "what-happens-at-the-hearing": {
+        "triggers": [
+            "client will represent themselves at a hearing",
+            "client asks what happens at the hearing",
+        ],
+        "requires": ["hearing_scheduled"],
+        "excludes": [],
+        "summary": "What the hearing looks like and what follows a judgment.",
+        "usually_paired": True,
+    },
     # ---------------------------------------------------------------- outcomes
     "negotiate-move-out-neo": {
         "triggers": [

@@ -294,17 +294,39 @@ The source folder is the working group's own: `Client Letters.xlsx`,
 `Model Letter.docx`, and `Letter Sub-Sections/`. Ingestion handles three things
 the maintained files need before the text is usable:
 
-- **Tracked changes are accepted.** Nine sections carry unresolved edits. A run
-  inside `w:ins` is not paragraph content, so reading them naively yields
-  shredded prose.
+- **Tracked changes are accepted, then copy-edited.** Nine sections carry
+  unresolved edits. A run inside `w:ins` is not paragraph content, so reading
+  them naively yields shredded prose. The accepted text is written to
+  `advice-letters/accepted/` so a reviewer can open the resolved version in Word.
 - **Repeated wrappers are stripped.** Five sections restate the whole Model
   Letter; assembling those as written would greet the client several times.
 - **Authoring notes become composition slots.** `[Insert next defense/advice]`
   points at another section and must never print.
 
-Each section records a `status`: `ready`, `needs_review` (had tracked changes or
-comments), `ai_drafted` (finished during ingest — an attorney must read it), or
-`stub`. Only `ready` sections are offered by default.
+Each section records a `status`: `ready`, `needs_review`, `ai_drafted` (finished
+or derived during ingest — an attorney must read it), or `stub`. Only `ready`
+sections are offered by default.
+
+### Copy-editing accepted text
+
+Accepting an editor's marks reproduces their mistakes faithfully. In the
+security-deposit section the editor deleted "returning some or all of" and
+inserted "all", so the accepted text reads "explain why they're not all the
+deposit to you" — correct as a merge, and ungrammatical.
+
+So the copy-edit pass splits the work. Mechanical damage is repaired: 41
+non-breaking spaces and 7 doubled spaces across the corpus, plus spaces before
+punctuation, missing spaces after it, and doubled punctuation. Legal citations
+are protected, so `R.C. 5321.04` and `Civ.R. 5(B)(4)` survive intact.
+
+Anything needing judgment is reported and left alone. Every paragraph that sat
+on a merge boundary is flagged for a human read, because that is where a
+half-finished edit surfaces; a section with such a flag stays out of the default
+picker. Wording is never rewritten — a copy-edit that quietly changed the advice
+would be worse than the artifact it fixed. Sentences broken by the editor's own
+edit are repaired by name in `advice_letter_completions.MERGE_REPAIRS`, each
+recording what the accepted text said and why the replacement is what the editor
+meant.
 
 **Selection hints** live in `selection-hints.yaml` beside the catalog, written
 once and never overwritten so edits survive re-ingestion. Each says when to send

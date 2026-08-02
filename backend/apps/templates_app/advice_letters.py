@@ -37,6 +37,7 @@ from django.utils.text import slugify
 from lxml import etree
 
 from apps.templates_app.placeholders import convert_paragraph
+from apps.validation.copyedit import copyedit_lines
 from apps.validation.readability import check_readability
 
 
@@ -116,6 +117,7 @@ class SectionDraft:
     source_sha256: str = ""
     tracked_changes: int = 0
     comments: int = 0
+    copyedit: dict = field(default_factory=dict)
 
     @property
     def body(self):
@@ -149,8 +151,20 @@ def accept_tracked_changes(document):
     An insertion's runs live inside `w:ins`, which python-docx does not treat as
     paragraph content, so leaving them wrapped drops the words entirely. A
     deletion is removed outright rather than kept as `w:delText`.
+
+    Returns the indexes of the paragraphs that carried an edit. Accepting is
+    faithful, not corrective: where an editor deleted more than they replaced,
+    the accepted text is grammatically broken. Those paragraphs are exactly the
+    ones a copy-editor has to read, so their positions are reported rather than
+    discarded.
     """
     body = document._body._element
+    paragraphs = list(body.iter(f"{W}p"))
+    touched = {
+        index
+        for index, paragraph in enumerate(paragraphs)
+        if paragraph.find(f".//{W}ins") is not None or paragraph.find(f".//{W}del") is not None
+    }
     for deletion in list(body.iter(f"{W}del")):
         parent = deletion.getparent()
         if parent is not None:
@@ -169,7 +183,7 @@ def accept_tracked_changes(document):
             parent = node.getparent()
             if parent is not None:
                 parent.remove(node)
-    return document
+    return document, touched
 
 
 # ---------------------------------------------------------------- wrapper
@@ -211,6 +225,41 @@ def strip_wrapper(paragraphs: list[str]) -> tuple[list[str], bool]:
 # ---------------------------------------------------------------- extraction
 
 
+def strip_slots(document) -> list[str]:
+    """Remove composition notes before anything can mistake them for fill-ins.
+
+    "[INSERT - Attend Hearing by Zoom]" names another section. Left in place it
+    is indistinguishable from "[DATE]" to the placeholder converter, which
+    turned it into `fields.insert_attend_hearing_zoom` -- a variable nobody can
+    fill, standing where a whole section belongs.
+    """
+    found = []
+    for paragraph in list(document.paragraphs):
+        text = paragraph.text
+        if not SLOT_RE.search(text):
+            continue
+        found.extend(match.group(0) for match in SLOT_RE.finditer(text))
+        if SLOT_RE.fullmatch(text.strip()):
+            parent = paragraph._p.getparent()
+            if parent is not None:
+                parent.remove(paragraph._p)
+            continue
+        # Partial match: clear the slot from the runs it spans, keeping the rest.
+        cursor = 0
+        spans = [(match.start(), match.end()) for match in SLOT_RE.finditer(text)]
+        for run in paragraph.runs:
+            start, end = cursor, cursor + len(run.text)
+            cursor = end
+            kept = "".join(
+                character
+                for offset, character in enumerate(run.text, start=start)
+                if not any(span_start <= offset < span_end for span_start, span_end in spans)
+            )
+            if kept != run.text:
+                run.text = kept
+    return found
+
+
 def _paragraph_lines(document):
     lines = []
     for paragraph in document.paragraphs:
@@ -227,14 +276,18 @@ def _paragraph_lines(document):
 def extract_section(path: Path, *, slug="", title="") -> SectionDraft:
     """Read one maintained sub-section into a prepared draft."""
     tracked, comments = tracked_change_counts(path)
-    document = accept_tracked_changes(Document(path))
+    document, touched = accept_tracked_changes(Document(path))
+    slots = strip_slots(document)
     rows = _paragraph_lines(document)
 
     fields: set[str] = set()
     paragraphs = []
-    for text, _style, numbered, found in rows:
+    edited_positions = set()
+    for index, (text, _style, numbered, found) in enumerate(rows):
         fields.update(found)
         paragraphs.append(f"- {text}" if numbered else text)
+        if index in touched:
+            edited_positions.add(index)
 
     body_lines, had_wrapper = strip_wrapper(paragraphs)
 
@@ -253,11 +306,26 @@ def extract_section(path: Path, *, slug="", title="") -> SectionDraft:
     if body_lines and _title_key(body_lines[0].lstrip("- ")) == _title_key(draft.title):
         body_lines = body_lines[1:]
 
-    draft.slots = [match.group(0) for line in body_lines for match in SLOT_RE.finditer(line)]
-    draft.paragraphs = [
+    draft.slots = slots
+    cleaned = [
         substitute_known_placeholders(SLOT_RE.sub("", line)).strip() for line in body_lines
     ]
-    draft.paragraphs = [line for line in draft.paragraphs if line]
+    cleaned = [line for line in cleaned if line]
+
+    # Copy-edit last, so it sees the text exactly as it will be sent.
+    draft.paragraphs, report = copyedit_lines(
+        cleaned, touched={index for index in edited_positions if index < len(cleaned)}
+    )
+    draft.copyedit = report.as_dict()
+    if report.fixes:
+        draft.notes.append(
+            f"{len(report.fixes)} spacing/punctuation fix(es) applied during ingest."
+        )
+    if report.flags:
+        draft.notes.append(
+            f"{len(report.flags)} passage(s) need a human read: "
+            + ", ".join(sorted({flag['kind'] for flag in report.flags}))
+        )
     draft.variants = [
         VARIANT_RE.match(line).group(1).strip()
         for line in draft.paragraphs
@@ -276,16 +344,25 @@ def extract_section(path: Path, *, slug="", title="") -> SectionDraft:
 
 
 def classify_status(draft: SectionDraft) -> str:
+    """Decide whether a section can be offered without a warning.
+
+    Accepting an editor's marks is not the same as approving them. A section
+    whose merge left a passage needing a human read stays out of the default
+    picker; one whose accepted text copy-edits clean is treated as ready, with
+    the acceptance recorded in its notes so the history is not lost.
+    """
     if draft.word_count < STUB_WORD_COUNT:
         return STATUS_STUB
-    if draft.tracked_changes or draft.comments:
+    if draft.comments:
+        return STATUS_NEEDS_REVIEW
+    if (draft.copyedit or {}).get("flags"):
         return STATUS_NEEDS_REVIEW
     return STATUS_READY
 
 
 def extract_wrapper(path: Path) -> list[SectionDraft]:
     """Split the Model Letter into its opening and closing sections."""
-    document = accept_tracked_changes(Document(path))
+    document, _touched = accept_tracked_changes(Document(path))
     rows = _paragraph_lines(document)
 
     intro, closing = [], []
@@ -459,6 +536,7 @@ def section_to_manifest_row(draft: SectionDraft, docx_path: str) -> dict:
         "slots": draft.slots,
         "variants": draft.variants,
         "notes": draft.notes,
+        "copyedit": draft.copyedit,
         "word_count": draft.word_count,
         "source": {
             "file": draft.source_file,
@@ -475,10 +553,16 @@ def build_catalog(
     *,
     completions: dict | None = None,
     hints: dict | None = None,
+    repairs: dict | None = None,
+    derived: dict | None = None,
+    retired: dict | None = None,
 ) -> Path:
     """Convert the maintained OneDrive folder into a prepared catalog package."""
     completions = completions or {}
     hints = hints or {}
+    repairs = repairs or {}
+    derived = derived or {}
+    retired = retired or {}
     rows = []
     catalog_rows = []
 
@@ -519,6 +603,61 @@ def build_catalog(
         draft.notes.append(completion.get("note", "Completed during ingest; attorney review required."))
         if completion.get("topic"):
             draft.topic = completion["topic"]
+
+    # Sections authored here rather than lifted from a maintained file.
+    for slug, spec in derived.items():
+        drafts.append(
+            SectionDraft(
+                slug=slug,
+                title=spec.get("title", slug.replace("-", " ").title()),
+                topic=spec.get("topic", ""),
+                region=spec.get("region", ""),
+                status=spec.get("status", STATUS_AI_DRAFTED),
+                paragraphs=list(spec["paragraphs"]),
+                notes=[spec.get("note", "Drafted during ingest; attorney review required.")],
+            )
+        )
+
+    # A composite whose reusable parts now live in their own sections.
+    for draft in drafts:
+        retirement = retired.get(draft.slug)
+        if not retirement:
+            continue
+        draft.status = STATUS_STUB
+        draft.notes.append(
+            "Retired: "
+            + retirement["reason"]
+            + " Use instead: "
+            + ", ".join(retirement.get("replaced_by", []))
+            + "."
+        )
+
+    # Repair sentences the editor's own unfinished edit left ungrammatical.
+    for draft in drafts:
+        for repair in repairs.get(draft.slug, []):
+            applied = False
+            for index, line in enumerate(draft.paragraphs):
+                if repair["broken"] in line:
+                    draft.paragraphs[index] = line.replace(repair["broken"], repair["fixed"])
+                    applied = True
+            if applied:
+                draft.notes.append(
+                    f"Repaired a broken merge: \"{repair['broken']}\" -> "
+                    f"\"{repair['fixed']}\". {repair['why']}"
+                )
+            else:
+                draft.notes.append(
+                    f"Merge repair no longer matches the source: \"{repair['broken']}\". "
+                    "The maintained text may have been fixed upstream; re-check this section."
+                )
+
+    # A readable record of what accepting the marks produced, so a reviewer can
+    # open the resolved text in Word instead of re-deriving it from the
+    # tracked-changes original.
+    accepted_root = output_root / "accepted"
+    for draft in drafts:
+        if draft.tracked_changes or draft.comments:
+            write_section_docx(draft, accepted_root / f"{draft.slug}.docx")
 
     sections_root = output_root / "sections"
     for draft in drafts:

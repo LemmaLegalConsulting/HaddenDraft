@@ -3,7 +3,12 @@ from pathlib import Path
 from django.core.management.base import BaseCommand, CommandError
 
 from apps.core.content_library import content_library_dir, organization_content_library_dir
-from apps.templates_app.advice_letter_completions import COMPLETIONS
+from apps.templates_app.advice_letter_completions import (
+    COMPLETIONS,
+    DERIVED_SECTIONS,
+    MERGE_REPAIRS,
+    RETIRED_SECTIONS,
+)
 from apps.templates_app.advice_letter_hints import load_selection_hints, seed_selection_hints
 from apps.templates_app.advice_letter_library import ADVICE_LETTER_DIR, sync_advice_letters
 from apps.templates_app.advice_letters import build_catalog
@@ -45,7 +50,15 @@ class Command(BaseCommand):
         seed_selection_hints(output_root, force=options["reseed_hints"])
         hints = load_selection_hints(output_root)
 
-        manifest_path = build_catalog(source, output_root, completions=COMPLETIONS, hints=hints)
+        manifest_path = build_catalog(
+            source,
+            output_root,
+            completions=COMPLETIONS,
+            hints=hints,
+            repairs=MERGE_REPAIRS,
+            derived=DERIVED_SECTIONS,
+            retired=RETIRED_SECTIONS,
+        )
 
         import yaml
 
