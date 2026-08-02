@@ -145,3 +145,56 @@ class ComponentVersion(models.Model):
 
     def __str__(self):
         return f"{self.component}@{self.sequence}"
+
+
+class DraftOperation(models.Model):
+    """A proposed, reviewable change to one part of a document.
+
+    Changes are described before they are made, so a reviewer (or a later
+    model-driven stage) can see exactly what would move, and so an applied
+    change keeps a record of what it replaced.
+    """
+
+    OPERATION_TYPES = [
+        ("replace_component", "Replace component"),
+        ("insert_component", "Insert component"),
+        ("delete_component", "Delete component"),
+        ("move_component", "Move component"),
+        ("revert_component", "Revert component to an earlier version"),
+    ]
+    STATUS_CHOICES = [
+        ("proposed", "Proposed"),
+        ("applied", "Applied"),
+        ("rejected", "Rejected"),
+    ]
+
+    document = models.ForeignKey(DraftDocument, related_name="operations", on_delete=models.CASCADE)
+    operation_type = models.CharField(max_length=60, choices=OPERATION_TYPES)
+    target_component = models.ForeignKey(
+        DocumentComponent,
+        related_name="operations",
+        null=True,
+        blank=True,
+        on_delete=models.CASCADE,
+    )
+    payload = models.JSONField(default=dict, blank=True)
+    rationale = models.TextField(blank=True)
+    status = models.CharField(max_length=30, choices=STATUS_CHOICES, default="proposed")
+    origin = models.CharField(max_length=40, choices=ComponentVersion.ORIGIN_CHOICES, default="human")
+    decision_note = models.TextField(blank=True)
+    result = models.JSONField(default=dict, blank=True)
+    requested_by = models.ForeignKey(
+        "auth.User",
+        related_name="draft_operations",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    resolved_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        ordering = ["-created_at", "-id"]
+
+    def __str__(self):
+        return f"{self.operation_type} on {self.document_id} ({self.status})"

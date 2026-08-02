@@ -1,8 +1,10 @@
 from django.http import JsonResponse
 
 from apps.core.http import api_login_required, json_body, method_not_allowed
+from apps.drafting import operations
 from apps.drafting.components import component_history, record_sections
 from apps.drafting.models import DraftDocument, DraftingSession
+from apps.drafting.operations import operation_to_dict
 from apps.drafting.serializers import draft_to_dict, session_to_dict
 from apps.drafting.services import (
     advance,
@@ -328,6 +330,73 @@ def draft_components(request, draft_id):
     if error:
         return error
     return JsonResponse({"components": component_history(draft)})
+
+
+@api_login_required
+def draft_operations(request, draft_id):
+    """List the change history for a document, or propose a new change to it."""
+    if request.method not in {"GET", "POST"}:
+        return method_not_allowed(["GET", "POST"])
+    draft, error = _draft_or_404(request.user, draft_id)
+    if error:
+        return error
+    if request.method == "GET":
+        return JsonResponse(
+            {
+                "operations": [
+                    operation_to_dict(operation)
+                    for operation in draft.operations.select_related("target_component", "requested_by")
+                ]
+            }
+        )
+
+    body = json_body(request)
+    try:
+        operation = operations.propose(
+            draft,
+            body.get("operationType", ""),
+            payload=body.get("payload") or {},
+            rationale=body.get("rationale", ""),
+            requested_by=request.user,
+        )
+        # Applying on propose keeps the reviewer's own edits one request, while
+        # still recording what the change was and what it replaced.
+        if body.get("apply"):
+            operations.apply(operation)
+            draft.refresh_from_db()
+    except operations.OperationError as exc:
+        return JsonResponse({"error": str(exc)}, status=400)
+    return JsonResponse(
+        {"operation": operation_to_dict(operation), "draft": draft_to_dict(draft)},
+        status=201,
+    )
+
+
+@api_login_required
+def draft_operation_decision(request, draft_id, operation_id):
+    """Apply or reject a proposed change."""
+    if request.method != "POST":
+        return method_not_allowed(["POST"])
+    draft, error = _draft_or_404(request.user, draft_id)
+    if error:
+        return error
+    operation = draft.operations.filter(id=operation_id).first()
+    if not operation:
+        return JsonResponse({"error": "Operation not found"}, status=404)
+    body = json_body(request)
+    decision = body.get("decision")
+    try:
+        if decision == "apply":
+            operations.apply(operation)
+        elif decision == "reject":
+            operations.reject(operation, body.get("note", ""))
+        else:
+            return JsonResponse({"error": "Decision must be 'apply' or 'reject'."}, status=400)
+    except operations.OperationError as exc:
+        return JsonResponse({"error": str(exc)}, status=400)
+    operation.refresh_from_db()
+    draft.refresh_from_db()
+    return JsonResponse({"operation": operation_to_dict(operation), "draft": draft_to_dict(draft)})
 
 
 @api_login_required

@@ -8,7 +8,8 @@ from django.utils.text import slugify
 from apps.ai.openai_client import OpenAIBackendError, OpenAICompatibleClient
 from apps.ai.prompt_catalog import PromptCatalogError, PromptRenderError, render_prompt
 from apps.ai.services import GenerationContext, drafting_ai
-from apps.drafting.components import plain_text_from_sections, record_sections, sync_components
+from apps.drafting import operations
+from apps.drafting.components import plain_text_from_sections, sync_components
 from apps.drafting.models import DraftDocument
 from apps.matters.document_context import chunk_text, custom_fields_inventory, get_case_documents, get_document_text, search_chunks, summarize_text
 from apps.matters.models import MatterFact
@@ -1385,29 +1386,22 @@ def create_drafts_from_plan(session, *, user=None, request=None):
 
 
 def regenerate_draft_block(draft, block_key, instruction=""):
-    context = regeneration_context(draft.session)
-    sections = list(draft.sections or [])
-    next_sections = []
-    updated = None
-    for section in sections:
-        if section.get("key") == block_key:
-            updated = {
-                **section,
-                "body": drafting_ai.regenerate_section(section=section, context=context, instruction=instruction),
-                "origin": "ai",
-            }
-            next_sections.append(updated)
-        else:
-            next_sections.append(section)
-    if updated is None:
+    """Regenerate one section as a recorded replace operation, not a whole-document rewrite."""
+    section = next((item for item in draft.sections or [] if item.get("key") == block_key), None)
+    if section is None:
         return draft
-    return record_sections(
+    context = regeneration_context(draft.session)
+    body = drafting_ai.regenerate_section(section=section, context=context, instruction=instruction)
+    operations.propose_and_apply(
         draft,
-        next_sections,
+        "replace_component",
+        payload={"stableKey": block_key, "body": body, "structuredContent": {"origin": "ai"}},
+        rationale=instruction,
         origin="ai",
-        instruction=instruction,
-        editor_state={"format": "lexical_blocks", "blocks": {}},
     )
+    draft.editor_state = {"format": "lexical_blocks", "blocks": {}}
+    draft.save(update_fields=["editor_state", "updated_at"])
+    return draft
 
 
 # Outline helpers

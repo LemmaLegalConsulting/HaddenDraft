@@ -42,6 +42,33 @@ This is what makes narrower operations possible: regenerating one section no
 longer discards the text it replaced, and the document's prior states remain
 recoverable.
 
+## Draft operations
+
+`apps.drafting.operations` describes a change to a document before it is made.
+A `DraftOperation` names its type (`replace_component`, `insert_component`,
+`delete_component`, `move_component`, `revert_component`), its target component,
+a payload, a rationale, and its status (`proposed`, `applied`, `rejected`).
+
+Proposal and application are separate. `propose()` validates the described
+change against the current document and stores it without touching the draft;
+`apply()` runs the deterministic applier in a transaction and records the
+resulting component versions. A resolved operation cannot be applied twice.
+
+Block regeneration and reviewer-initiated edits go through this path, so the
+draft's change log is the operation list rather than a series of anonymous
+overwrites. `revert_component` restores an earlier component version as a new
+version, which is how a bad regeneration is undone without losing the record
+that it happened.
+
+The API is `GET|POST /api/drafts/<id>/operations/` and
+`POST /api/drafts/<id>/operations/<operation_id>/decision/` with
+`{"decision": "apply" | "reject"}`. Proposing with `{"apply": true}` records and
+applies in one request, which is what an already-approved reviewer edit does.
+
+This is also the seam for any future model-driven drafting stage: something that
+may propose operations but not write documents needs no new permission model,
+because proposals are inert until a reviewer applies them.
+
 ## Frontend
 
 The React app mirrors the backend boundaries:

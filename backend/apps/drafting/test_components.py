@@ -144,6 +144,20 @@ class DocumentComponentTests(TestCase):
             ["caption", "habitability", "caption-2"],
         )
 
+    def test_documents_written_before_this_layer_are_backfilled_on_demand(self):
+        legacy = DraftDocument.objects.create(
+            session=self.session,
+            template=self.template,
+            title="Legacy draft",
+            sections=[{"key": "caption", "label": "Caption", "body": "Older text."}],
+            plain_text="CAPTION\nOlder text.",
+        )
+
+        history = component_history(legacy)
+
+        self.assertEqual([item["stableKey"] for item in history], ["caption"])
+        self.assertEqual(history[0]["versions"][0]["body"], "Older text.")
+
     def test_component_history_endpoint_exposes_versions_for_review(self):
         draft = create_draft(self.session)
         regenerate_draft_block(draft, "habitability", "Tighten the argument.")

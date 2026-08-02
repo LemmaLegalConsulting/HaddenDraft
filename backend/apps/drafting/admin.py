@@ -1,6 +1,12 @@
 from django.contrib import admin
 
-from apps.drafting.models import ComponentVersion, DocumentComponent, DraftDocument, DraftingSession
+from apps.drafting.models import (
+    ComponentVersion,
+    DocumentComponent,
+    DraftDocument,
+    DraftingSession,
+    DraftOperation,
+)
 
 
 @admin.register(DraftingSession)
@@ -30,3 +36,11 @@ class DocumentComponentAdmin(admin.ModelAdmin):
     list_filter = ("component_type",)
     search_fields = ("stable_key", "label", "document__title")
     inlines = [ComponentVersionInline]
+
+
+@admin.register(DraftOperation)
+class DraftOperationAdmin(admin.ModelAdmin):
+    list_display = ("id", "document", "operation_type", "target_component", "status", "origin", "created_at")
+    list_filter = ("operation_type", "status", "origin")
+    search_fields = ("document__title", "rationale")
+    readonly_fields = ("created_at", "resolved_at", "result")

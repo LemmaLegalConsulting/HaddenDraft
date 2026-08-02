@@ -135,8 +135,16 @@ def record_sections(draft, sections, *, origin=None, instruction="", editor_stat
     return sync_components(draft, origin=origin, instruction=instruction)
 
 
+def ensure_components(draft):
+    """Backfill components for a document written before this layer existed."""
+    if not DocumentComponent.objects.filter(document=draft).exists():
+        sync_components(draft)
+    return draft
+
+
 def component_history(draft):
     """Serializable component history for review and rollback surfaces."""
+    ensure_components(draft)
     components = (
         DocumentComponent.objects.filter(document=draft)
         .prefetch_related("versions")
