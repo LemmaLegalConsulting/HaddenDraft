@@ -10,6 +10,7 @@ from apps.ai.prompt_catalog import PromptCatalogError, PromptRenderError, render
 from apps.ai.services import GenerationContext, drafting_ai
 from apps.drafting import operations
 from apps.drafting.components import plain_text_from_sections, sync_components
+from apps.drafting.packages import derive_relationships
 from apps.drafting.source_bindings import bind_current_versions
 from apps.drafting.models import DraftDocument
 from apps.matters.document_context import chunk_text, custom_fields_inventory, get_case_documents, get_document_text, search_chunks, summarize_text
@@ -1384,6 +1385,7 @@ def create_drafts_from_plan(session, *, user=None, request=None):
         )
     if not drafts and session.template:
         drafts.append(create_draft(session, user=user, request=request))
+    derive_relationships(session)
     return drafts
 
 

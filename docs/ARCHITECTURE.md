@@ -42,6 +42,28 @@ This is what makes narrower operations possible: regenerating one section no
 longer discards the text it replaced, and the document's prior states remain
 recoverable.
 
+## Filing packages
+
+A plan can produce a motion, a memorandum, a declaration, and a proposed order.
+They are filed together and must agree with each other, so `apps.drafting.packages`
+gives each document in a session a package role and records the relationships
+between them as `PackageRelationship` rows (`implements_relief`, `incorporates`,
+`depends_on`, `cites`, `authenticates_exhibit`).
+
+Roles come from the template's `metadata.packageRole` when it declares one, then
+from the document title, then from the template kind. Declaring the role in
+template metadata is the preferred path: a new document family should arrive as
+content, not as Python.
+
+`apps.validation.packages` (rule codes 800-899) is the first validation that
+looks across documents: a caption case number that disagrees with the rest of
+the package (`W800`), an exhibit no declaration identifies (`W810`), and a
+companion document the text promises but the package does not contain (`W820`).
+A session with one document is not package-validated.
+
+`GET|POST /api/drafting-sessions/<id>/package/` returns the package composition
+and relationship graph; POST re-derives the relationships.
+
 ## Source bindings
 
 A drafting session holds one flat list of selected sources. `SourceBinding`

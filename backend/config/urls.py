@@ -64,6 +64,7 @@ urlpatterns = [
     path("api/drafting-sessions/<int:session_id>/plan/", drafting_views.draft_plan, name="api_draft_plan"),
     path("api/drafting-sessions/<int:session_id>/template-data/", drafting_views.update_session_template_data, name="api_session_template_data"),
     path("api/drafting-sessions/<int:session_id>/drafts/", drafting_views.generate_plan_drafts, name="api_generate_plan_drafts"),
+    path("api/drafting-sessions/<int:session_id>/package/", drafting_views.session_package, name="api_session_package"),
     path("api/drafting-sessions/<int:session_id>/draft/", drafting_views.generate_draft, name="api_generate_draft"),
     path("api/drafts/<int:draft_id>/", drafting_views.draft_detail, name="api_draft_detail"),
     path("api/drafts/<int:draft_id>/components/", drafting_views.draft_components, name="api_draft_components"),

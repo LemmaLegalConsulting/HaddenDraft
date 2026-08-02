@@ -147,6 +147,44 @@ class ComponentVersion(models.Model):
         return f"{self.component}@{self.sequence}"
 
 
+class PackageRelationship(models.Model):
+    """How two documents in the same filing package depend on each other.
+
+    A plan can produce a motion, a memorandum, a declaration, and a proposed
+    order. They are filed together and have to agree with each other, so the
+    relationships between them are recorded rather than inferred at read time.
+    """
+
+    RELATIONSHIP_TYPES = [
+        ("cites", "Cites"),
+        ("authenticates_exhibit", "Authenticates exhibit"),
+        ("implements_relief", "Implements relief"),
+        ("incorporates", "Incorporates"),
+        ("depends_on", "Depends on"),
+    ]
+
+    source_document = models.ForeignKey(
+        DraftDocument,
+        related_name="outgoing_relationships",
+        on_delete=models.CASCADE,
+    )
+    target_document = models.ForeignKey(
+        DraftDocument,
+        related_name="incoming_relationships",
+        on_delete=models.CASCADE,
+    )
+    relationship_type = models.CharField(max_length=80, choices=RELATIONSHIP_TYPES)
+    metadata = models.JSONField(default=dict, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["source_document_id", "relationship_type"]
+        unique_together = [("source_document", "target_document", "relationship_type")]
+
+    def __str__(self):
+        return f"{self.source_document_id} {self.relationship_type} {self.target_document_id}"
+
+
 class SourceBinding(models.Model):
     """What a specific version of a component relied on, and in what way.
 

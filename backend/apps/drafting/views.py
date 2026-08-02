@@ -5,6 +5,7 @@ from apps.drafting import operations
 from apps.drafting.components import component_history, record_sections
 from apps.drafting.models import DraftDocument, DraftingSession
 from apps.drafting.operations import operation_to_dict
+from apps.drafting.packages import derive_relationships, package_payload
 from apps.drafting.serializers import draft_to_dict, session_to_dict
 from apps.drafting.services import (
     advance,
@@ -277,6 +278,19 @@ def generate_plan_drafts(request, session_id):
     except ValueError as exc:
         return JsonResponse({"error": str(exc)}, status=400)
     return JsonResponse({"drafts": [draft_to_dict(draft) for draft in drafts]}, status=201)
+
+
+@api_login_required
+def session_package(request, session_id):
+    """The documents this session produced, their roles, and how they relate."""
+    if request.method not in {"GET", "POST"}:
+        return method_not_allowed(["GET", "POST"])
+    session, error = _session_or_404(request.user, session_id)
+    if error:
+        return error
+    if request.method == "POST":
+        derive_relationships(session)
+    return JsonResponse({"package": package_payload(session)})
 
 
 @api_login_required

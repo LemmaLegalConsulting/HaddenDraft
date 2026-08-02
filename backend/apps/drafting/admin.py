@@ -6,6 +6,7 @@ from apps.drafting.models import (
     DraftDocument,
     DraftingSession,
     DraftOperation,
+    PackageRelationship,
 )
 
 
@@ -44,3 +45,10 @@ class DraftOperationAdmin(admin.ModelAdmin):
     list_filter = ("operation_type", "status", "origin")
     search_fields = ("document__title", "rationale")
     readonly_fields = ("created_at", "resolved_at", "result")
+
+
+@admin.register(PackageRelationship)
+class PackageRelationshipAdmin(admin.ModelAdmin):
+    list_display = ("id", "source_document", "relationship_type", "target_document", "created_at")
+    list_filter = ("relationship_type",)
+    search_fields = ("source_document__title", "target_document__title")
