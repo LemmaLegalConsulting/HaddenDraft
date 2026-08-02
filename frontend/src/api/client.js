@@ -128,6 +128,12 @@ export const api = {
     request(`/drafting-sessions/${sessionId}/drafts/`, { method: "POST", body: JSON.stringify(payload) }),
   generateDraft: (sessionId) => request(`/drafting-sessions/${sessionId}/draft/`, { method: "POST" }),
   updateDraft: (draftId, payload) => request(`/drafts/${draftId}/`, { method: "PATCH", body: JSON.stringify(payload) }),
+  draftComponents: (draftId) => request(`/drafts/${draftId}/components/`),
+  draftOperations: (draftId) => request(`/drafts/${draftId}/operations/`),
+  proposeDraftOperation: (draftId, payload) =>
+    request(`/drafts/${draftId}/operations/`, { method: "POST", body: JSON.stringify(payload) }),
+  decideDraftOperation: (draftId, operationId, payload) =>
+    request(`/drafts/${draftId}/operations/${operationId}/decision/`, { method: "POST", body: JSON.stringify(payload) }),
   regenerateDraftBlock: (draftId, blockKey, payload) =>
     request(`/drafts/${draftId}/blocks/${blockKey}/regenerate/`, { method: "POST", body: JSON.stringify(payload) }),
   validateDraft: (draftId) => request(`/drafts/${draftId}/validate/`, { method: "POST" }),

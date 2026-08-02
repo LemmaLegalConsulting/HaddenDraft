@@ -33,6 +33,7 @@ import { CaseSelector } from "./components/CaseSelector.jsx";
 import { DraftSupportReview } from "./components/DraftSupportReview.jsx";
 import { DraftGoalPanel } from "./components/DraftGoalPanel.jsx";
 import { DraftPlanReview } from "./components/DraftPlanReview.jsx";
+import { DocumentHistoryPanel } from "./components/DocumentHistoryPanel.jsx";
 import { DraftSwitcher } from "./components/DraftSwitcher.jsx";
 import { DraftQuestionsReview, unansweredPlanQuestions } from "./components/DraftQuestionsReview.jsx";
 import { FactReview } from "./components/FactReview.jsx";
@@ -941,6 +942,11 @@ export function App() {
               }}
               onRegenerateBlock={regenerateDraftBlock}
               onFillMissingField={fillMissingField}
+            />
+            <DocumentHistoryPanel
+              draft={draft}
+              busy={busy}
+              onDraftRestored={(restored) => dispatchWorkspace({ type: "documentEdited", draft: restored })}
             />
             {draft && (draft.validationFlags?.length > 0 || validationSummary) && (
               <ValidationPanel
