@@ -356,7 +356,27 @@ def _docx_render_context(draft, section):
         "office_name": author["office_name"],
         "office_address": author["address"],
     }
+    context.update(_template_choice_values(template, session.template_data))
     return context
+
+
+def _template_choice_values(template, template_data):
+    """Resolve a template's either/or clauses to a chosen option.
+
+    A choice the advocate has not answered falls back to the template's default
+    so the passage still renders. A certificate of service that silently
+    disappeared because nobody picked a service method would be worse than one
+    naming the wrong method, which review catches.
+    """
+    choices = (getattr(template, "metadata", None) or {}).get("choices") or []
+    supplied = template_data or {}
+    values = {}
+    for choice in choices:
+        name = choice.get("name")
+        if not name:
+            continue
+        values[name] = supplied.get(name) or choice.get("default", "")
+    return values
 
 
 def _render_docx_template(template_path, context, output_path):

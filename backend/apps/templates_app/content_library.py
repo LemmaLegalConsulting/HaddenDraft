@@ -131,6 +131,7 @@ def _template_metadata(manifest: dict) -> dict:
         "schemaVersion": manifest["schema_version"],
         "render": manifest.get("render", {}),
         "fields": manifest.get("fields", []),
+        "choices": manifest.get("choices", []),
         "source": manifest.get("source", {}),
     }
 

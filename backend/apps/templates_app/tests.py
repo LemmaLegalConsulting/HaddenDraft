@@ -191,6 +191,128 @@ class HeadingAndLatitudeTests(TestCase):
         self.assertEqual(classify_latitude(document, block), LATITUDE_GUIDED)
 
 
+class AlternativeClauseTests(TestCase):
+    """An editorial "[OR]" becomes a choice, not two certificates and a marker."""
+
+    def setUp(self):
+        self.temp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.temp.cleanup)
+        self.root = Path(self.temp.name)
+
+    def build(self, first, second, *, heading="CERTIFICATE OF SERVICE", marker="[OR]"):
+        source = self.root / "Alternatives.docx"
+        document = Document()
+        document.add_heading(heading, level=1)
+        document.add_paragraph(first)
+        document.add_paragraph(marker)
+        document.add_paragraph(second)
+        document.save(source)
+        manifest_path = ingest_docx(
+            source, self.root / "prepared", self.root / "snippets", force=True
+        )
+        return yaml.safe_load(manifest_path.read_text()), manifest_path.parent / "template.docx"
+
+    def render(self, template_path, manifest, **context):
+        values = {
+            "fields": template_field_values({}),
+            "blocks": {
+                block["key"]: {"body": "", "paragraphs": [], "items": [], "revision": ""}
+                for block in manifest["blocks"]
+            },
+            "defendant": "Jane Tenant",
+            "plaintiff": "Acme LLC",
+        }
+        values.update({flag: True for flag in manifest.get("flags", [])})
+        values.update(context)
+        output = self.root / "rendered.docx"
+        _render_docx_template(template_path, values, output)
+        return [p.text.strip() for p in Document(output).paragraphs if p.text.strip()]
+
+    def test_service_alternatives_become_a_named_choice(self):
+        manifest, _path = self.build(
+            "I certify that on [DATE] I served the motion on [PLAINTIFF] by email to [PLAINTIFF'S EMAIL].",
+            "I certify that on [DATE] I served the motion on [PLAINTIFF] by United States mail to [PLAINTIFF'S ADDRESS].",
+        )
+
+        choice = manifest["choices"][0]
+        self.assertEqual(choice["name"], "service_method")
+        self.assertEqual(choice["options"], ["email", "mail"])
+        self.assertEqual(choice["default"], "email")
+        self.assertEqual(choice["block"], "certificate-of-service")
+
+    def test_only_the_chosen_alternative_renders(self):
+        manifest, path = self.build(
+            "I certify that I served the motion by email to [PLAINTIFF'S EMAIL].",
+            "I certify that I served the motion by United States mail to [PLAINTIFF'S ADDRESS].",
+        )
+
+        mailed = self.render(path, manifest, service_method="mail")
+
+        self.assertTrue(any("United States mail" in line for line in mailed))
+        self.assertFalse(any("by email" in line for line in mailed))
+        self.assertNotIn("[OR]", mailed)
+
+    def test_an_unanswered_choice_falls_back_to_the_first_alternative(self):
+        """A certificate of service must never silently disappear."""
+        manifest, path = self.build(
+            "I certify that I served the motion by email to [PLAINTIFF'S EMAIL].",
+            "I certify that I served the motion by United States mail to [PLAINTIFF'S ADDRESS].",
+        )
+
+        rendered = self.render(path, manifest)
+
+        certificates = [line for line in rendered if "I certify" in line]
+        self.assertEqual(len(certificates), 1)
+        self.assertIn("by email", certificates[0])
+
+    def test_three_alternatives_chain_into_one_choice(self):
+        source = self.root / "Three.docx"
+        document = Document()
+        document.add_heading("CERTIFICATE OF SERVICE", level=1)
+        document.add_paragraph("I served the motion by email to [PLAINTIFF'S EMAIL].")
+        document.add_paragraph("[OR]")
+        document.add_paragraph("I served the motion by United States mail to [PLAINTIFF'S ADDRESS].")
+        document.add_paragraph("[OR]")
+        document.add_paragraph("I served the motion by personal service on [PLAINTIFF].")
+        document.save(source)
+        manifest_path = ingest_docx(
+            source, self.root / "prepared", self.root / "snippets", force=True
+        )
+        manifest = yaml.safe_load(manifest_path.read_text())
+
+        choice = manifest["choices"][0]
+        self.assertEqual(choice["options"], ["email", "mail", "personal"])
+
+        rendered = self.render(
+            manifest_path.parent / "template.docx", manifest, service_method="personal"
+        )
+        served = [line for line in rendered if "I served" in line]
+        self.assertEqual(len(served), 1)
+        self.assertIn("personal service", served[0])
+
+    def test_a_non_certificate_block_gets_a_block_scoped_variable(self):
+        manifest, _path = self.build(
+            "Defendant requests a stay of execution pending appeal.",
+            "Defendant requests dismissal of the complaint.",
+            heading="PRAYER FOR RELIEF",
+        )
+
+        choice = manifest["choices"][0]
+        self.assertEqual(choice["name"], "prayer_for_relief_option")
+        self.assertEqual(choice["options"], ["option_1", "option_2"])
+
+    def test_prose_containing_the_word_or_is_not_treated_as_a_marker(self):
+        manifest, path = self.build(
+            "Plaintiff served a notice by email.",
+            "Plaintiff served a notice by mail.",
+            marker="The notice was defective or untimely.",
+        )
+
+        self.assertEqual(manifest.get("choices"), [])
+        rendered = self.render(path, manifest)
+        self.assertTrue(any("defective or untimely" in line for line in rendered))
+
+
 class TemplatePhrasingFilterTests(TestCase):
     def test_list_and_number_aware_language_matches_assemblyline_conventions(self):
         self.assertEqual(comma_and_list(["Ada", "Grace", "Katherine"]), "Ada, Grace, and Katherine")

@@ -55,6 +55,10 @@ Keep changes aligned with the existing workflow boundaries:
   language the author marked as variable (`[...]`, `____`, highlighting) through
   `apps.templates_app.placeholders`; never rebind ordinary prose to a model-written
   slot. Rewrite paragraphs run by run so inline formatting survives.
+- Express either/or clauses as a named choice with Docassemble/AssemblyLine
+  conventions: a snake_case variable, snake_case option values, and
+  paragraph-level `{%p if %}`/`{%p elif %}` tags. Make the first alternative the
+  default so an unanswered choice never deletes the passage.
 - Express how much the model may write as a block's `ai_latitude`
   (`locked`/`guided`/`generate`). Latitude constrains the model only: a human
   edit must always reach the export through `blocks[<key>]["revision"]`.

@@ -364,6 +364,124 @@ def classify_latitude(document, block: BlockDefinition) -> str:
     return LATITUDE_LOCKED
 
 
+OR_MARKER_RE = re.compile(r"^\[?\s*or\s*\]?[.:]?$", re.I)
+
+# Choice values are named for what distinguishes the alternatives, following
+# Docassemble/AssemblyLine's snake_case variable and option naming.
+ALTERNATIVE_OPTION_CUES = (
+    ("email", ("by email", "electronic mail", "e-mail", "electronically")),
+    ("mail", ("united states mail", "u.s. mail", "regular mail", "ordinary mail", "certified mail")),
+    ("personal", ("personal service", "personally serv", "hand deliver", "in person")),
+    ("courier", ("courier", "commercial carrier", "bonnie speed")),
+    ("fax", ("facsimile", "by fax")),
+)
+
+
+def _option_key(text: str, position: int) -> str:
+    lowered = " ".join(text.split()).casefold()
+    for key, cues in ALTERNATIVE_OPTION_CUES:
+        if any(cue in lowered for cue in cues):
+            return key
+    return f"option_{position}"
+
+
+def _choice_variable(block: BlockDefinition | None) -> str:
+    if block is not None and block.block_type == "certificate":
+        return "service_method"
+    base = (block.key if block else "clause").replace("-", "_")
+    return f"{base}_option"
+
+
+def _is_or_marker(paragraph) -> bool:
+    return bool(OR_MARKER_RE.match(" ".join(paragraph.text.split())))
+
+
+def _alternative_groups(document, blocks, original_paragraphs):
+    """Find "A / [OR] / B" runs the author left for the drafter to choose between.
+
+    Ownership is resolved against the paragraph list as it stood before any
+    markers were inserted, because a block's bounds are indices into that list
+    and every insertion shifts the current one.
+    """
+    owner = {}
+    for block in blocks:
+        for index in range(block.body_start, block.end):
+            if 0 <= index < len(original_paragraphs):
+                owner[id(original_paragraphs[index]._p)] = block
+
+    live = [
+        paragraph
+        for paragraph in document.paragraphs
+        if paragraph.text.strip()
+        and paragraph._p.getparent() is not None
+        and not paragraph.text.lstrip().startswith("{%")
+    ]
+
+    groups = []
+    index = 0
+    while index < len(live):
+        if not _is_or_marker(live[index]) or index == 0 or index + 1 >= len(live):
+            index += 1
+            continue
+        members = [live[index - 1]]
+        markers = []
+        cursor = index
+        # Consecutive markers chain into one choice with three or more options.
+        while cursor + 1 < len(live) and _is_or_marker(live[cursor]):
+            markers.append(live[cursor])
+            members.append(live[cursor + 1])
+            cursor += 2
+        groups.append((owner.get(id(members[0]._p)), members, markers))
+        index = cursor
+    return groups
+
+
+def bind_alternatives(document, blocks, original_paragraphs) -> list[dict]:
+    """Turn an editorial "[OR]" into a chooseable conditional.
+
+    The maintained originals put both a certificate of service by email and one
+    by ordinary mail in the document with "[OR]" between them, expecting the
+    advocate to delete the inapplicable one. Left literal, a generated filing
+    certifies service twice and prints "[OR]" in between.
+
+    The first alternative is also the default, so an unanswered choice still
+    produces a complete certificate rather than deleting the passage.
+    """
+    choices = []
+    for block, members, markers in _alternative_groups(document, blocks, original_paragraphs):
+        variable = _choice_variable(block)
+        keys = []
+        for position, paragraph in enumerate(members, start=1):
+            key = _option_key(paragraph.text, position)
+            if key in keys:
+                key = f"{key}_{position}"
+            keys.append(key)
+
+        first, last = members[0], members[-1]
+        first._p.addprevious(
+            _marker_paragraph_like(
+                first,
+                '{%p if ' + variable + ' == "' + keys[0] + '" or not ' + variable + ' %}',
+            )
+        )
+        for marker, key in zip(markers, keys[1:]):
+            _set_paragraph_text_preserving_first_run(
+                marker, '{%p elif ' + variable + ' == "' + key + '" %}'
+            )
+        last._p.addnext(_marker_paragraph_like(last, "{%p endif %}"))
+
+        choices.append(
+            {
+                "name": variable,
+                "label": re.sub(r"\s+", " ", variable.replace("_", " ")).strip().title(),
+                "options": keys,
+                "default": keys[0],
+                "block": block.key if block else "",
+            }
+        )
+    return choices
+
+
 def _wrap_revisable_block(paragraphs, block_key: str):
     """Let an accepted revision stand in for the maintained wording.
 
@@ -436,10 +554,15 @@ def annotate_document(document, blocks: list[BlockDefinition]) -> dict:
         ]
         _wrap_revisable_block(body_paragraphs, block.key)
 
+    # Runs last so the choice conditional nests inside the revision wrapper
+    # rather than straddling it.
+    choices = bind_alternatives(document, blocks, main_paragraphs)
+
     return {
         "fields": sorted(fields),
         "flags": sorted(flags),
         "latitudes": latitudes,
+        "choices": choices,
     }
 
 
@@ -586,6 +709,7 @@ def ingest_docx(source: Path, prepared_root: Path, snippets_root: Path, *, force
         },
         "fields": discovery["fields"],
         "flags": discovery["flags"],
+        "choices": discovery["choices"],
         "blocks": block_rows,
     }
     manifest_path.write_text(yaml.safe_dump(manifest, sort_keys=False, allow_unicode=True))

@@ -206,6 +206,28 @@ language the author marked as variable is rebound:
 | `________` | the field the surrounding sentence implies |
 | A highlighted value | the matching field |
 | A highlighted sentence | `{% if include_… %}…{% endif %}`, keeping the original wording |
+| Two clauses separated by `[OR]` | `{%p if … %}` / `{%p elif … %}` / `{%p endif %}` over a named choice |
+
+Alternative clauses follow Docassemble/AssemblyLine conventions: a snake_case
+variable with snake_case option values, and paragraph-level `{%p %}` tags. A
+certificate of service written both ways becomes:
+
+```jinja
+{%p if service_method == "email" or not service_method %}
+Pursuant to Civ.R. 5(B)(4), I certify that on {{ fields.service_date }} … by email
+to {{ fields.plaintiff_email }}, pursuant to Civ.R. 5(B)(2)(f).
+{%p elif service_method == "mail" %}
+Pursuant to Civ.R. 5(B)(4), I certify that on {{ fields.service_date }} … by United
+States mail to {{ fields.plaintiff_address }}, pursuant to Civ.R. 5(B)(2)(c).
+{%p endif %}
+```
+
+The first alternative is also the default, so an unanswered choice still renders a
+complete certificate. Options are named for what distinguishes them (`email`,
+`mail`, `personal`, `courier`, `fax`) and fall back to `option_1`, `option_2`.
+Each choice is declared in the manifest, surfaced on the template as
+`metadata.choices`, and offered as a select under **Either/or clauses**; the
+advocate's answer travels in the session's template data.
 
 Every block records an `ai_latitude` that governs how much of it the model may
 write:
