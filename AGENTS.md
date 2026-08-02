@@ -41,7 +41,10 @@ Keep changes aligned with the existing workflow boundaries:
 - Retrieval/source integrations belong under `backend/apps/sources/`; new
   connectors should implement `SourceConnector.search()` and be registered in
   `backend/apps/sources/registry.py`.
-- Drafting orchestration belongs under `backend/apps/drafting/`.
+- Drafting orchestration belongs under `backend/apps/drafting/`. Write draft
+  section JSON only through `apps.drafting.components.record_sections()`, and
+  express changes to an existing document as `apps.drafting.operations`
+  proposals, so component history and provenance stay complete.
 - AI prompt execution and model-facing logic belong under `backend/apps/ai/`.
 - Template and reusable block behavior belongs under
   `backend/apps/templates_app/`.

@@ -159,9 +159,27 @@ backend/
     └── validation/           Draft validation checks
 ```
 
+Inside `apps/drafting/`, the document artifact layer sits under `DraftDocument`:
+
+- `components.py`: each section is also a durable `DocumentComponent` with
+  append-only `ComponentVersion` history. `record_sections()` is the one write
+  path, so generation, editor saves, and auto-repair are all attributable.
+- `operations.py`: typed, reviewable changes (`replace`, `insert`, `delete`,
+  `move`, `revert`). Proposals are inert until applied.
+- `source_bindings.py`: which component version used which source, typed by
+  whether that source is record evidence, authority, procedure, or example
+  language only.
+- `packages.py`: the documents a plan generates, their package roles, and the
+  relationships between them.
+
+Validation rules for the last two live in `apps/validation/source_integrity.py`
+and `apps/validation/packages.py`. See [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md)
+for the model and API details.
+
 Key extension points:
 
 - Add a retrieval source by implementing `SourceConnector.search()` under `backend/apps/sources/connectors/` and registering it in `backend/apps/sources/registry.py`.
+- Declare a document's role in a filing package with `metadata.packageRole` on its template, so cross-document validation understands the package without new Python.
 - Add or change document structure through `DocumentTemplate` and `TemplateBlock` in `backend/apps/templates_app/models.py`.
 - Replace deterministic AI placeholders inside `backend/apps/ai/services.py`.
 - Maintain LLM system/user messages in `prompts/*.yaml`; see [`prompts/README.md`](prompts/README.md) for the schema, benchmark workflow, and database-override behavior.
