@@ -8,6 +8,7 @@ from django.utils.text import slugify
 from apps.ai.openai_client import OpenAIBackendError, OpenAICompatibleClient
 from apps.ai.prompt_catalog import PromptCatalogError, PromptRenderError, render_prompt
 from apps.ai.services import GenerationContext, drafting_ai
+from apps.drafting.components import plain_text_from_sections, record_sections, sync_components
 from apps.drafting.models import DraftDocument
 from apps.matters.document_context import chunk_text, custom_fields_inventory, get_case_documents, get_document_text, search_chunks, summarize_text
 from apps.matters.models import MatterFact
@@ -1311,22 +1312,18 @@ def create_draft(session, *, template=None, block_keys=None, title=None, instruc
             }
             for section in sections
         ]
-    plain_text = "\n\n".join(f"{section['label'].upper()}\n{section['body']}" for section in sections)
     draft = DraftDocument.objects.create(
         session=session,
         template=active_template,
         title=title or active_template.title,
         sections=sections,
-        plain_text=plain_text,
+        plain_text=plain_text_from_sections(sections),
         editor_state={"format": "plain_text"},
     )
+    sync_components(draft)
     session.status = "draft_review"
     session.save()
     return draft
-
-
-def plain_text_from_sections(sections):
-    return "\n\n".join(f"{section.get('label', '').upper()}\n{section.get('body', '')}" for section in sections)
 
 
 def regeneration_context(session, *, template=None, instructions=None):
@@ -1404,11 +1401,13 @@ def regenerate_draft_block(draft, block_key, instruction=""):
             next_sections.append(section)
     if updated is None:
         return draft
-    draft.sections = next_sections
-    draft.plain_text = plain_text_from_sections(next_sections)
-    draft.editor_state = {"format": "lexical_blocks", "blocks": {}}
-    draft.save()
-    return draft
+    return record_sections(
+        draft,
+        next_sections,
+        origin="ai",
+        instruction=instruction,
+        editor_state={"format": "lexical_blocks", "blocks": {}},
+    )
 
 
 # Outline helpers

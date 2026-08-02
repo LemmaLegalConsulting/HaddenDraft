@@ -1,6 +1,7 @@
 from django.http import JsonResponse
 
 from apps.core.http import api_login_required, json_body, method_not_allowed
+from apps.drafting.components import component_history, record_sections
 from apps.drafting.models import DraftDocument, DraftingSession
 from apps.drafting.serializers import draft_to_dict, session_to_dict
 from apps.drafting.services import (
@@ -299,12 +300,34 @@ def draft_detail(request, draft_id):
         return JsonResponse({"draft": draft_to_dict(draft)})
     if request.method == "PATCH":
         body = json_body(request)
-        draft.sections = body.get("sections", draft.sections)
-        draft.plain_text = body.get("plainText", draft.plain_text)
-        draft.editor_state = body.get("editorState", draft.editor_state)
-        draft.save()
+        if "sections" in body:
+            # Reviewer edits are recorded as human component versions, so the
+            # AI or template text they replaced stays recoverable.
+            record_sections(
+                draft,
+                body["sections"],
+                origin="human",
+                editor_state=body.get("editorState", draft.editor_state),
+            )
+            if "plainText" in body:
+                draft.plain_text = body["plainText"]
+                draft.save(update_fields=["plain_text", "updated_at"])
+        else:
+            draft.plain_text = body.get("plainText", draft.plain_text)
+            draft.editor_state = body.get("editorState", draft.editor_state)
+            draft.save()
         return JsonResponse({"draft": draft_to_dict(draft)})
     return method_not_allowed(["GET", "PATCH"])
+
+
+@api_login_required
+def draft_components(request, draft_id):
+    if request.method != "GET":
+        return method_not_allowed(["GET"])
+    draft, error = _draft_or_404(request.user, draft_id)
+    if error:
+        return error
+    return JsonResponse({"components": component_history(draft)})
 
 
 @api_login_required

@@ -79,3 +79,69 @@ class DraftDocument(models.Model):
 
     def __str__(self):
         return self.title
+
+
+class DocumentComponent(models.Model):
+    """A durable, individually addressable part of a draft document.
+
+    `DraftDocument.sections` stays the shape the editor and export path read.
+    A component is the same section as a domain object: it keeps its identity,
+    history, and review state when the section JSON is rewritten.
+    """
+
+    document = models.ForeignKey(DraftDocument, related_name="components", on_delete=models.CASCADE)
+    stable_key = models.CharField(
+        max_length=160,
+        help_text="Identity of this component within the document, normally the template block key.",
+    )
+    component_type = models.CharField(max_length=80, blank=True)
+    label = models.CharField(max_length=255, blank=True)
+    position = models.PositiveIntegerField(default=0)
+    parent = models.ForeignKey("self", related_name="children", null=True, blank=True, on_delete=models.CASCADE)
+    removed_at = models.DateTimeField(
+        null=True,
+        blank=True,
+        help_text="Set when the component left the document. History is kept rather than deleted.",
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["position", "id"]
+        unique_together = [("document", "stable_key")]
+
+    def __str__(self):
+        return f"{self.document_id}:{self.stable_key}"
+
+    @property
+    def current_version(self):
+        return self.versions.order_by("-sequence").first()
+
+
+class ComponentVersion(models.Model):
+    ORIGIN_CHOICES = [
+        ("template", "Template"),
+        ("ai", "AI generation"),
+        ("human", "Human edit"),
+        ("validation_repair", "Validation repair"),
+        ("rollback", "Rollback"),
+    ]
+
+    component = models.ForeignKey(DocumentComponent, related_name="versions", on_delete=models.CASCADE)
+    sequence = models.PositiveIntegerField()
+    body = models.TextField(blank=True)
+    structured_content = models.JSONField(
+        default=dict,
+        blank=True,
+        help_text="Section fields other than key, label, and body, such as sources and formatting.",
+    )
+    origin = models.CharField(max_length=40, choices=ORIGIN_CHOICES, default="template")
+    instruction = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["component_id", "sequence"]
+        unique_together = [("component", "sequence")]
+
+    def __str__(self):
+        return f"{self.component}@{self.sequence}"

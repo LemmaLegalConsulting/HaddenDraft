@@ -12,9 +12,35 @@ This implementation is organized around reviewable workflow boundaries rather th
   templates; database rows are a query/index cache and never replace the files.
 - `content/`: provider-neutral, file-backed defaults for reusable DOCX snippets, authoritative treatise PDFs and Markdown derivatives, and triage rubric seeds. Django packages consume logical content paths rather than owning these legal assets.
 - `apps.drafting`: drafting sessions, selected facts/source results/block keys, draft documents, and workflow advancement.
+- `apps.drafting.components`: the durable artifact layer under `DraftDocument`. See [Document components and versions](#document-components-and-versions).
 - `apps.ai`: constrained AI service boundary, including the YAML prompt catalog and optional database overrides. Default prompts are repository files in `prompts/`, which keeps benchmark variants reviewable and independent from application code.
 - `apps.validation`: output checks for missing facts, tentative language, citation-like strings, and length.
 - `apps.exporting`: export adapters. The first adapter exports editable plain text; this is the boundary for future DOCX generation.
+
+## Document components and versions
+
+`DraftDocument.sections` is the JSON shape the editor, validation, and export
+paths read, and it stays that way. Underneath it, every section is also stored as
+a durable domain object:
+
+- `DocumentComponent`: one addressable part of a document, identified by a
+  `stable_key` (normally the template block key) that survives rewrites of the
+  section JSON. A component dropped from the document is retired with
+  `removed_at` rather than deleted, so its history stays auditable.
+- `ComponentVersion`: an append-only body/`structured_content` snapshot with the
+  `origin` that produced it (`template`, `ai`, `human`, `validation_repair`,
+  `rollback`) and the instruction that was given.
+
+`apps.drafting.components.record_sections()` is the single write path: it saves
+the section JSON, refreshes plain text, and records a version for each component
+whose content actually changed. Generation, block regeneration, reviewer edits
+through `PATCH /api/drafts/<id>/`, and validation auto-repair all go through it,
+so each one is attributable. `GET /api/drafts/<id>/components/` returns the
+per-component version history.
+
+This is what makes narrower operations possible: regenerating one section no
+longer discards the text it replaced, and the document's prior states remain
+recoverable.
 
 ## Frontend
 

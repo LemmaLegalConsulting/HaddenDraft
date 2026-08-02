@@ -1,5 +1,6 @@
 """Bounded automatic repair for error-level, safely-regenerable validation findings."""
 
+from apps.drafting.components import plain_text_from_sections, record_sections
 from apps.validation.services import validate_document
 
 REPAIRABLE_ACTION_TYPES = {"regenerate_block", "regenerate_document", "refresh_plain_text"}
@@ -21,10 +22,13 @@ def _regenerate_document(draft):
         return draft
     block_keys = [section.get("key") for section in draft.sections or [] if section.get("key")]
     replacement = create_draft(session, template=template, block_keys=block_keys or None, title=draft.title)
-    draft.sections = replacement.sections
-    draft.plain_text = replacement.plain_text
-    draft.editor_state = replacement.editor_state
-    draft.save(update_fields=["sections", "plain_text", "editor_state", "updated_at"])
+    record_sections(
+        draft,
+        replacement.sections,
+        origin="validation_repair",
+        instruction="Regenerated the document to clear error-level validation findings.",
+        editor_state=replacement.editor_state,
+    )
     replacement.delete()
     return draft
 
@@ -43,8 +47,6 @@ def _regenerate_blocks(draft, block_messages):
 
 
 def _refresh_plain_text(draft):
-    from apps.drafting.services import plain_text_from_sections
-
     draft.plain_text = plain_text_from_sections(draft.sections or [])
     draft.save(update_fields=["plain_text", "updated_at"])
     return draft
