@@ -11,6 +11,11 @@ from apps.core.content_library import content_library_dir, content_library_roots
 from apps.templates_app.models import DocumentTemplate, TemplateBlock
 
 
+# v1 packages rebound every paragraph to an AI slot; v2 keeps the maintained
+# wording and records per-block `ai_latitude`. Both load so an existing library
+# keeps working until it is re-ingested.
+SUPPORTED_MANIFEST_VERSIONS = {1, 2}
+
 PREPARED_TEMPLATE_DIR = "document-templates"
 TEMPLATE_OVERRIDE_DIR = "template-overrides"
 GENERIC_TEMPLATE_DESCRIPTIONS = {
@@ -57,13 +62,25 @@ def load_manifest(path: Path) -> tuple[dict, str]:
     missing = sorted(required - set(data))
     if missing:
         raise TemplateManifestError(f"{path}: missing {', '.join(missing)}")
-    if data["schema_version"] != 1:
+    if data["schema_version"] not in SUPPORTED_MANIFEST_VERSIONS:
         raise TemplateManifestError(f"{path}: unsupported schema_version {data['schema_version']}")
-    if not isinstance(data["blocks"], list) or not data["blocks"]:
-        raise TemplateManifestError(f"{path}: blocks must be a non-empty list")
+    if not isinstance(data["blocks"], list):
+        raise TemplateManifestError(f"{path}: blocks must be a list")
     keys = [row.get("key") for row in data["blocks"]]
     if any(not key for key in keys) or len(keys) != len(set(keys)):
         raise TemplateManifestError(f"{path}: block keys must be present and unique")
+
+    if data["render"].get("strategy") == "workbook":
+        # A spreadsheet exhibit has no reviewable prose blocks; the advocate
+        # fills rows in the workbook, so only the workbook itself is validated.
+        workbook = (path.parent / (data["render"].get("xlsx") or "")).resolve()
+        if not data["render"].get("xlsx") or not workbook.is_file():
+            raise TemplateManifestError(f"{path}: render.xlsx does not exist")
+        logical_content_path(workbook)
+        return data, _checksum_bytes(raw)
+
+    if not data["blocks"]:
+        raise TemplateManifestError(f"{path}: blocks must be a non-empty list")
     render_path = data["render"].get("docx")
     prepared_docx = (path.parent / (render_path or "")).resolve()
     if not render_path or not prepared_docx.is_file():
@@ -216,6 +233,8 @@ def sync_prepared_templates(*, deactivate_missing=False):
                 "order": int(row.get("order", 0)),
                 "body": row.get("body", ""),
                 "required": bool(row.get("required", True)),
+                "ai_latitude": row.get("ai_latitude", "locked"),
+                "ai_instructions": row.get("instructions", []),
                 "ai_fill_mode": row.get("ai_fill_mode", "none"),
                 "selection_rule": row.get("selection_rule", {}),
                 "supporting_sources": row.get("supporting_sources", []),

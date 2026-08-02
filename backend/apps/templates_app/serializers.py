@@ -24,6 +24,8 @@ def block_to_dict(block):
         "body": block.body,
         "required": block.required,
         "aiFillMode": block.ai_fill_mode,
+        "aiLatitude": block.ai_latitude,
+        "aiInstructions": block.ai_instructions,
         "selectionRule": block.selection_rule,
         "supportingSources": block.supporting_sources,
         "inputSchema": block.input_schema,

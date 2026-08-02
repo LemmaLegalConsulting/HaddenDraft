@@ -4,6 +4,12 @@ from django.core.validators import FileExtensionValidator
 
 word_template_validator = FileExtensionValidator(["docx", "dotx"])
 
+AI_LATITUDE_CHOICES = [
+    ("locked", "Locked - render the maintained wording verbatim"),
+    ("guided", "Guided - maintained wording, rewritable on review"),
+    ("generate", "Generate - the model writes this block"),
+]
+
 
 class DocumentTemplate(models.Model):
     SOURCE_KIND_CHOICES = [
@@ -16,6 +22,7 @@ class DocumentTemplate(models.Model):
         ("brief", "Brief"),
         ("hearing_statement", "Hearing Statement"),
         ("shell", "Drafting shell"),
+        ("worksheet", "Spreadsheet exhibit"),
     ]
 
     title = models.CharField(max_length=255)
@@ -58,6 +65,65 @@ class DocumentTemplate(models.Model):
         return self.title
 
 
+class Letterhead(models.Model):
+    """An organization's stationery, parameterized by advocate.
+
+    One record serves every advocate. The masthead, margins, and section setup
+    come from the DOCX; the contact block is filled from the author's profile at
+    render time, so adding an advocate does not mean adding a document.
+    """
+
+    SOURCE_KIND_CHOICES = [
+        ("database", "Uploaded through admin"),
+        ("content_library", "Content library"),
+    ]
+
+    slug = models.SlugField(max_length=120, unique=True)
+    title = models.CharField(max_length=255)
+    description = models.TextField(blank=True)
+    organization = models.CharField(max_length=255, blank=True)
+    docx = models.FileField(
+        upload_to="letterheads/",
+        blank=True,
+        validators=[word_template_validator],
+        help_text=(
+            "A .docx/.dotx whose advocate contact lines are Jinja variables. "
+            "Upload an ordinary letterhead and the admin will parameterize it."
+        ),
+    )
+    content_path = models.CharField(
+        max_length=500,
+        blank=True,
+        help_text="Provider-relative path when the letterhead ships in the content library.",
+    )
+    source_kind = models.CharField(max_length=40, choices=SOURCE_KIND_CHOICES, default="database")
+    is_default = models.BooleanField(
+        default=False,
+        help_text="Used for letters when the advocate's office does not name its own.",
+    )
+    is_active = models.BooleanField(default=True)
+    is_placeholder = models.BooleanField(
+        default=False,
+        help_text="A neutral stand-in shipped so a fresh install can draft letters.",
+    )
+    variables = models.JSONField(default=list, blank=True)
+    preparation_report = models.JSONField(
+        default=dict,
+        blank=True,
+        help_text="What the parameterizer replaced, kept for auditing an upload.",
+    )
+    source_checksum = models.CharField(max_length=64, blank=True)
+    last_synced_at = models.DateTimeField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["-is_default", "title"]
+
+    def __str__(self):
+        return self.title
+
+
 class TemplateBlock(models.Model):
     BLOCK_TYPE_CHOICES = [
         ("caption", "Caption"),
@@ -82,6 +148,21 @@ class TemplateBlock(models.Model):
         help_text="Optional .docx/.dotx Jinja template rendered for this block during Word export.",
     )
     required = models.BooleanField(default=True)
+    ai_latitude = models.CharField(
+        max_length=20,
+        choices=AI_LATITUDE_CHOICES,
+        default="locked",
+        help_text=(
+            "How much of this block the model may write. Locked blocks render the "
+            "maintained wording verbatim; guided blocks render it but accept a "
+            "reviewed rewrite; generate blocks are written from the instructions."
+        ),
+    )
+    ai_instructions = models.JSONField(
+        default=list,
+        blank=True,
+        help_text="Drafting directions the template author wrote into this block.",
+    )
     ai_fill_mode = models.CharField(max_length=80, default="none")
     selection_rule = models.JSONField(default=dict, blank=True)
     supporting_sources = models.JSONField(default=list, blank=True)

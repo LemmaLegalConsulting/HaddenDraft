@@ -168,8 +168,13 @@ function DraftBlock({ block, blockState, disabled, onBlockChange, onFormatChange
       <div className="draft-block-header">
         <h4>{block.label}</h4>
         <div className="block-header-actions">
-          {(block.origin === "ai" || block.aiFillMode === "constrained_generation") && (
+          {(block.origin === "ai" || block.aiLatitude === "generate" || block.aiFillMode === "constrained_generation") && (
             <span className="ai-badge" title="AI-generated"><Sparkles size={13} /> AI</span>
+          )}
+          {block.aiLatitude === "locked" && (
+            <span className="ai-badge locked-badge" title="Maintained template wording. You can still edit it; the AI will not rewrite it.">
+              Template wording
+            </span>
           )}
           <button className="icon-button secondary" title="Actions" type="button" onClick={() => setMenuOpen((value) => !value)}>
             <MoreVertical size={16} />

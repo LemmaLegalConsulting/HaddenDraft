@@ -221,12 +221,35 @@ def _author_context(author):
         "signoff": author.get("signoff") or "Respectfully submitted,",
         "salutation": author.get("salutation") or "",
         "organization": author.get("organization") or "",
+        "title": author.get("title") or "",
+        "bar_number": author.get("barNumber") or "",
         "email": author.get("email") or "",
         "phone": author.get("phone") or "",
+        "fax": author.get("fax") or "",
+        "office_name": author.get("officeName") or "",
         "address": author.get("address") or "",
         "contact": contact,
         "signature_image": author.get("signatureImage") or "",
     }
+
+
+def _normalized_body(text):
+    return re.sub(r"\s+", " ", str(text or "")).strip()
+
+
+def _block_revision(body, maintained_body):
+    """The edited text for a block, or "" when it still matches the template.
+
+    A prepared template renders the maintained wording with its original styling
+    and inline formatting. Substituting plain text back in would throw that away,
+    so a section that nobody changed must render from the DOCX, not from its
+    plain-text copy in the draft.
+    """
+    if not _normalized_body(body):
+        return ""
+    if _normalized_body(body) == _normalized_body(maintained_body):
+        return ""
+    return body
 
 
 def _selected_facts(session):
@@ -253,27 +276,36 @@ def _docx_render_context(draft, section):
     matter_data = _matter_context(matter)
     sections = draft.sections or []
     block_context = {}
+    maintained_bodies = {}
     if template:
         block_context = {
-            block.key: {"body": "", "paragraphs": [], "items": [], "numbered": False, "format": {}, "numbered_items": []}
+            block.key: {
+                "body": "",
+                "paragraphs": [],
+                "items": [],
+                "numbered": False,
+                "format": {},
+                "numbered_items": [],
+                "revision": "",
+            }
             for block in template.blocks.all()
         }
+        maintained_bodies = {block.key: block.body or "" for block in template.blocks.all()}
     for draft_section in sections:
         section_format = draft_section.get("format") or {}
-        parts = [
-            part.strip()
-            for part in re.split(r"\n{2,}|\n", draft_section.get("body", ""))
-            if part.strip()
-        ]
+        body = draft_section.get("body", "")
+        parts = [part.strip() for part in re.split(r"\n{2,}|\n", body) if part.strip()]
         items = [re.sub(r"^\d+[.)]\s*", "", part) for part in parts]
         numbered = section_format.get("style") == "numbered"
-        block_context[draft_section.get("key", "")] = {
-            "body": draft_section.get("body", ""),
+        key = draft_section.get("key", "")
+        block_context[key] = {
+            "body": body,
             "paragraphs": parts,
             "items": items,
             "numbered": numbered,
             "format": section_format,
             "numbered_items": [f"{index}. {item}" for index, item in enumerate(items, start=1)] if numbered else items,
+            "revision": _block_revision(body, maintained_bodies.get(key, "")),
         }
     fields = template_field_values(session.template_data)
     client = {
@@ -309,9 +341,20 @@ def _docx_render_context(draft, section):
         "advocate_organization": author["organization"],
         "advocate_email": author["email"],
         "advocate_phone": author["phone"],
+        "advocate_fax": author["fax"],
+        "advocate_title": author["title"],
+        "advocate_bar_number": author["bar_number"],
+        "advocate_name_and_bar": (
+            f"{author['display_name']} ({author['bar_number']})"
+            if author["bar_number"]
+            else author["display_name"]
+        ),
+        "advocate_signature_block": author["contact"] or author["display_name"],
         "advocate_address": author["address"],
         "advocate_contact": author["contact"],
         "advocate_signature_image": author["signature_image"],
+        "office_name": author["office_name"],
+        "office_address": author["address"],
     }
     return context
 

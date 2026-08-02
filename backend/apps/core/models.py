@@ -8,8 +8,27 @@ class AuthorProfile(models.Model):
     salutation = models.CharField(max_length=255, blank=True)
     signoff = models.CharField(max_length=255, default="Sincerely,")
     organization = models.CharField(max_length=255, blank=True)
+    # Letterhead and signature-block fields. A letterhead prints the advocate's
+    # title and fax, and a filing signature block prints the bar number, so both
+    # have to live on the profile rather than being typed per document.
+    title = models.CharField(
+        max_length=255,
+        blank=True,
+        help_text='Job title as it appears on letterhead, e.g. "Staff Attorney".',
+    )
+    bar_number = models.CharField(max_length=80, blank=True)
     phone = models.CharField(max_length=80, blank=True)
+    fax = models.CharField(
+        max_length=80,
+        blank=True,
+        help_text="Leave empty to hide the fax line on the letterhead.",
+    )
     email = models.EmailField(blank=True)
+    office_name = models.CharField(
+        max_length=255,
+        blank=True,
+        help_text='Which office the advocate works from, e.g. "Cleveland" or "Elyria".',
+    )
     address = models.TextField(blank=True)
     signature_image = models.TextField(blank=True)
     default_jurisdiction = models.CharField(max_length=255, blank=True)

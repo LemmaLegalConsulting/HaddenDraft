@@ -3,6 +3,26 @@
 The converter edits WordprocessingML in place. It does not round-trip through
 HTML, Markdown, or plain text, so styles, numbering, tables, headers, footers,
 images, section settings, and relationships remain in the package.
+
+A prepared template keeps the maintained original's wording. Only language the
+author marked as variable -- square brackets, underscore blanks, highlighting --
+becomes a Jinja binding, so an export reads as the original document with the
+case's details filled in rather than as a regenerated lookalike.
+
+How much freedom the model gets is a per-block decision recorded as
+`ai_latitude`:
+
+``locked``
+    Captions, certificates of service, signature blocks, quoted statutes, and
+    citation-bearing legal standards. Rendered verbatim; only fill-ins vary.
+``guided``
+    The original prose is a strong starting draft that still needs adapting to
+    the case. It renders literally, and an accepted rewrite from review replaces
+    it through ``blocks[<key>]["revision"]``.
+``generate``
+    The original says "insert case specific facts" or similar. The instruction
+    becomes the model's prompt instead of output text, and the model supplies
+    the paragraphs.
 """
 
 from __future__ import annotations
@@ -18,12 +38,40 @@ from pathlib import Path
 
 import yaml
 from docx import Document
+from docx.enum.text import WD_ALIGN_PARAGRAPH
 from docx.oxml import OxmlElement
 from docx.oxml.ns import qn
 from django.utils.text import slugify
 
+from apps.templates_app.placeholders import (
+    BRACKET_RE,
+    PLACEHOLDER_ALIASES,
+    convert_paragraph,
+    convert_text,
+    is_instruction,
+)
 
-MANIFEST_VERSION = 1
+
+MANIFEST_VERSION = 2
+
+LATITUDE_LOCKED = "locked"
+LATITUDE_GUIDED = "guided"
+LATITUDE_GENERATE = "generate"
+
+# Blocks whose wording is fixed by rule, court practice, or citation accuracy.
+LOCKED_BLOCK_TYPES = {"caption", "certificate", "signature"}
+# Blocks that carry the argument and are expected to be adapted per case.
+GUIDED_BLOCK_TYPES = {"facts", "argument", "relief"}
+
+AI_FILL_MODE_BY_LATITUDE = {
+    LATITUDE_LOCKED: "none",
+    LATITUDE_GUIDED: "revision_on_request",
+    LATITUDE_GENERATE: "constrained_generation",
+}
+
+QUOTED_AUTHORITY_RE = re.compile(
+    r"\b(?:R\.C\.|Civ\.R\.|Loc\.R\.|C\.F\.R\.|U\.S\.C\.|Cod\.Ord\.|Ohio App\.3d|N\.E\.2d|Ohio-\d{4})"
+)
 HEADING_WORDS = {
     "background",
     "caption",
@@ -46,32 +94,10 @@ HEADING_WORDS = {
     "tasks (delete as you complete each task)",
 }
 ROMAN_HEADING_RE = re.compile(r"^(?:[IVXLCDM]+|[A-Z]|\d+)[.)]\s+", re.I)
-BRACKET_RE = re.compile(r"\[([^\[\]]*)\]")
 LIST_PROMPT_RE = re.compile(
     r"(?:insert|add|describe|list|synopsis).*(?:fact|event|allegation|question|document|section)|case specific facts",
     re.I,
 )
-PLACEHOLDER_CUE_RE = re.compile(
-    r"address|applicant|application|attorney|case|caption|client|copy|date|deadline|defendant|describe|document|email|filing|hearing|insert|landlord|lease|list|mail|name|notice|occupant|opposing|payment|phone|plaintiff|premises|program|rent|select|signature|subsidy|termination|time|tenancy|voucher",
-    re.I,
-)
-EDITORIAL_BRACKETS = {"her", "his", "or", "s", "section", "x"}
-
-PLACEHOLDER_ALIASES = {
-    "client name": "defendant",
-    "defendant": "defendant",
-    "defendant name": "defendant",
-    "attorney name": "advocate_name",
-    "email": "advocate_email",
-    "attorney email": "advocate_email",
-    "phone": "advocate_phone",
-    "phone number": "advocate_phone",
-    "attorney telephone": "advocate_phone",
-    "case number": "case_number",
-    "case no.": "case_number",
-}
-
-
 @dataclass
 class BlockDefinition:
     key: str
@@ -100,6 +126,27 @@ def normalize_label(text: str) -> str:
     return text.title() if text.isupper() else text
 
 
+def _visible_runs(paragraph):
+    return [run for run in paragraph.runs if run.text.strip()]
+
+
+def _is_emphasized(paragraph) -> bool:
+    """True when every visible run is bold or underlined.
+
+    The maintained originals rarely use Word's Heading styles. Section titles
+    are Normal or List Paragraph text that has simply been bolded, so style name
+    alone misses most of the document's structure.
+    """
+    runs = _visible_runs(paragraph)
+    if not runs:
+        return False
+    return all(run.bold for run in runs) or all(run.underline for run in runs)
+
+
+def _is_centered(paragraph) -> bool:
+    return paragraph.paragraph_format.alignment == WD_ALIGN_PARAGRAPH.CENTER
+
+
 def is_heading(paragraph) -> bool:
     text = " ".join(paragraph.text.split()).strip()
     if not text or len(text) > 120:
@@ -109,13 +156,19 @@ def is_heading(paragraph) -> bool:
     style = (paragraph.style.name if paragraph.style else "").lower()
     normalized = ROMAN_HEADING_RE.sub("", text).strip(" -–—:.").lower()
     alpha = "".join(character for character in text if character.isalpha())
-    return (
+    if (
         style.startswith("heading")
         or normalized in HEADING_WORDS
         or (len(alpha) >= 4 and alpha.isupper() and len(text.split()) <= 12)
         or (bool(ROMAN_HEADING_RE.match(text)) and text.upper() == text)
         or text.lower().startswith("case caption")
-    )
+    ):
+        return True
+    # A short, fully emphasized or centered line that does not end like prose is
+    # a section title: "Complexity of Legal and Factual Issues".
+    if len(text.split()) <= 12 and not text.endswith((".", ";", ",")):
+        return _is_emphasized(paragraph) or _is_centered(paragraph)
+    return False
 
 
 def classify_block(label: str) -> str:
@@ -173,96 +226,6 @@ def discover_blocks(document) -> list[BlockDefinition]:
         expects_list = bool(LIST_PROMPT_RE.search(sample))
         blocks.append(BlockDefinition(key, label, block_type, start, end, start if heading else None, expects_list))
     return blocks
-
-
-def _field_name(label: str, fallback: str) -> str:
-    clean = label.strip().strip("*_?.,:;-/ ")
-    name = slugify(clean).replace("-", "_") or fallback.replace("-", "_")
-    return f"field_{name}" if name[:1].isdigit() else name
-
-
-def _looks_like_placeholder(label: str) -> bool:
-    normalized = " ".join(label.split()).strip(" .:_-")
-    lowered = normalized.casefold()
-    if not normalized:
-        return True
-    if lowered in EDITORIAL_BRACKETS or normalized.isdigit() or len(normalized) == 1:
-        return False
-    if normalized.isupper() and len(normalized) <= 80:
-        return True
-    return bool(PLACEHOLDER_CUE_RE.search(normalized))
-
-
-def _context_label(text: str, start: int, fallback: str) -> str:
-    prefix = text[:start].strip()
-    prefix = re.split(r"[.;!?]", prefix)[-1].strip(" :,-–—()")
-    if 1 <= len(prefix) <= 80:
-        return prefix
-    return fallback
-
-
-def placeholder_expression(label: str, fallback: str, *, context: str = "") -> str:
-    normalized = " ".join(label.lower().split()).strip(" .:_-")
-    context_normalized = " ".join(context.lower().split())
-    alias = PLACEHOLDER_ALIASES.get(normalized)
-    if alias:
-        return "{{ " + alias + " }}"
-    if not normalized:
-        if "defendant" in context_normalized or "client" in context_normalized:
-            return "{{ defendant }}"
-        if "plaintiff" in context_normalized or "landlord" in context_normalized:
-            return "{{ fields.plaintiff_name }}"
-        if "case no" in context_normalized or "case number" in context_normalized:
-            return "{{ case_number }}"
-        if "attorney" in context_normalized or "counsel" in context_normalized:
-            return "{{ advocate_name }}"
-    if normalized == "name":
-        if "defendant" in context_normalized or "client" in context_normalized:
-            return "{{ defendant }}"
-        if "attorney" in context_normalized or "counsel" in context_normalized:
-            return "{{ advocate_name }}"
-        return "{{ fields." + _field_name(context, fallback) + " }}"
-    if normalized in {"insert", "fill in", "blank"}:
-        return "{{ fields." + _field_name(context, fallback) + " }}"
-    if "address" in normalized and "attorney" not in normalized:
-        if "opposing" in context_normalized or "landlord" in context_normalized:
-            return "{{ fields.opposing_counsel_address }}"
-        return "{{ fields.premises_address }}"
-    if normalized == "date" or normalized.endswith(" date"):
-        if "hearing" in context_normalized:
-            return "{{ fields.hearing_date }}"
-        if "served" in context_normalized or "service" in context_normalized:
-            return "{{ fields.service_date }}"
-        return "{{ fields.filing_date }}"
-    if normalized == "time" or normalized.endswith(" time"):
-        return "{{ fields.hearing_time }}" if "hearing" in context_normalized else "{{ fields.time }}"
-    if "case caption" in normalized:
-        return "{{ fields.case_caption }}"
-    if "plaintiff" in normalized:
-        return "{{ fields.plaintiff_name }}"
-    if "signature block" in normalized:
-        return "{{ advocate_contact }}"
-    return "{{ fields." + _field_name(label, fallback) + " }}"
-
-
-def convert_placeholder_text(text: str, fallback_prefix: str) -> tuple[str, list[str]]:
-    fields = []
-    counter = 0
-
-    def replace(match):
-        nonlocal counter
-        counter += 1
-        label = match.group(1)
-        if not _looks_like_placeholder(label):
-            return match.group(0)
-        fallback = f"{fallback_prefix}_{counter}"
-        context = _context_label(text, match.start(), fallback)
-        expression = placeholder_expression(label, fallback, context=context)
-        if expression.startswith("{{ fields."):
-            fields.append(expression[3:-3].strip())
-        return expression
-
-    return BRACKET_RE.sub(replace, text), fields
 
 
 def _set_paragraph_text_preserving_first_run(paragraph, text: str):
@@ -331,69 +294,153 @@ def _converted_block_body(document, block: BlockDefinition) -> str:
         text = document.paragraphs[index].text.strip()
         if not text:
             continue
-        converted, _fields = convert_placeholder_text(text, f"{block.key}_{index}")
+        converted, _conversion = convert_text(text, f"{block.key}_{index}")
         lines.append(converted)
     return "\n".join(lines)
 
 
-def annotate_document(document, blocks: list[BlockDefinition]) -> dict:
-    """Add Jinja bindings while retaining the original package and paragraph XML."""
-    fields = set()
-    main_paragraphs = list(document.paragraphs)
-    main_ids = {paragraph._p for paragraph in main_paragraphs}
+def block_instructions(document, block: BlockDefinition) -> list[str]:
+    """Drafting directions the author wrote into a block, e.g. "[describe X]"."""
+    instructions = []
+    for index in range(block.body_start, block.end):
+        text = document.paragraphs[index].text
+        if not text.strip():
+            continue
+        for match in BRACKET_RE.finditer(text):
+            label = " ".join(match.group(1).split())
+            if label and is_instruction(label) and label not in instructions:
+                instructions.append(label)
+    return instructions
 
+
+def _block_text(document, block: BlockDefinition) -> str:
+    return "\n".join(
+        document.paragraphs[index].text
+        for index in range(block.body_start, block.end)
+        if document.paragraphs[index].text.strip()
+    )
+
+
+def _has_fill_ins(document, block: BlockDefinition) -> bool:
+    for index in range(block.body_start, block.end):
+        paragraph = document.paragraphs[index]
+        if not paragraph.text.strip():
+            continue
+        if BRACKET_RE.search(paragraph.text) or "___" in paragraph.text:
+            return True
+        if any(run.font.highlight_color is not None for run in paragraph.runs if run.text.strip()):
+            return True
+    return False
+
+
+def classify_latitude(document, block: BlockDefinition) -> str:
+    """Decide how much of a block the model may write.
+
+    Wording that carries legal authority is locked because a paraphrase of a
+    quoted statute or a regenerated citation is a correctness problem, not a
+    style one. Blocks whose original text is an instruction to the drafter are
+    the model's to write.
+    """
+    if block.expects_list:
+        return LATITUDE_GENERATE
+    if block.block_type in LOCKED_BLOCK_TYPES:
+        return LATITUDE_LOCKED
+    text = _block_text(document, block)
+    if not text.strip():
+        return LATITUDE_GENERATE
+    instructions = block_instructions(document, block)
+    words = len(text.split())
+    if instructions and words < 60:
+        # Little more than the instruction itself: nothing to preserve.
+        return LATITUDE_GENERATE
+    # Quoted authority and citation strings must survive verbatim.
+    if len(QUOTED_AUTHORITY_RE.findall(text)) >= 3 and not instructions:
+        return LATITUDE_LOCKED
+    # Fill-ins are the author's own signal that the passage is case-specific, so
+    # a sub-section like "Time Needed for Discovery" is adaptable even though its
+    # heading carries no argument keyword.
+    if block.block_type in GUIDED_BLOCK_TYPES or instructions or _has_fill_ins(document, block):
+        return LATITUDE_GUIDED
+    return LATITUDE_LOCKED
+
+
+def _wrap_revisable_block(paragraphs, block_key: str):
+    """Let an accepted revision stand in for the maintained wording.
+
+    The original prose renders by default. When the advocate edits the section
+    or accepts a proposed rewrite, `blocks[<key>]["revision"]` is set and the
+    whole block is replaced.
+
+    This wrapping is not what `ai_latitude` controls. Latitude governs whether
+    the *model* may propose a rewrite; a human edit must always reach the export,
+    including in a locked block, or the editor would silently discard it.
+    """
+    live = [paragraph for paragraph in paragraphs if paragraph._p.getparent() is not None]
+    if not live:
+        return
+    first, last = live[0], live[-1]
+    first._p.addprevious(
+        _marker_paragraph_like(first, f'{{%p if blocks["{block_key}"]["revision"] %}}')
+    )
+    revision = _marker_paragraph_like(first, f'{{{{ blocks["{block_key}"]["revision"] }}}}')
+    otherwise = _marker_paragraph_like(first, "{%p else %}")
+    first._p.addprevious(revision)
+    first._p.addprevious(otherwise)
+    last._p.addnext(_marker_paragraph_like(last, "{%p endif %}"))
+
+
+def annotate_document(document, blocks: list[BlockDefinition]) -> dict:
+    """Bind fill-ins and AI slots while leaving the author's wording in place."""
+    fields = set()
+    flags = set()
+    main_paragraphs = list(document.paragraphs)
+    latitudes = {block.key: classify_latitude(document, block) for block in blocks}
+
+    # Blocks the author left to the drafter become model-written paragraphs. The
+    # instruction text is the prompt, so it must not survive into the export.
     for block in blocks:
+        if latitudes[block.key] != LATITUDE_GENERATE:
+            continue
         body_paragraphs = [
             main_paragraphs[index]
             for index in range(block.body_start, block.end)
             if main_paragraphs[index].text.strip()
         ]
+        if not body_paragraphs:
+            continue
         list_prompt = next((p for p in body_paragraphs if LIST_PROMPT_RE.search(p.text)), None)
-        if block.expects_list and body_paragraphs:
-            loop_target = list_prompt or body_paragraphs[0]
-            _replace_with_loop(loop_target, f'blocks["{block.key}"]["items"]')
+        loop_target = list_prompt or body_paragraphs[0]
+        collection = "items" if block.expects_list else "paragraphs"
+        _replace_with_loop(loop_target, f'blocks["{block.key}"]["{collection}"]')
+        for paragraph in body_paragraphs:
+            if paragraph is loop_target or paragraph._p.getparent() is None:
+                continue
+            # Remaining instruction-only lines would otherwise print as prose.
+            if BRACKET_RE.fullmatch(" ".join(paragraph.text.split())):
+                paragraph._p.getparent().remove(paragraph._p)
 
+    # Every surviving paragraph keeps its wording; only fill-ins are rebound.
     for index, paragraph in enumerate(_all_story_paragraphs(document)):
-        if not paragraph.text or "{%p " in paragraph.text or paragraph.text.strip() == "{{ item }}":
-            continue
-        converted, found = convert_placeholder_text(paragraph.text, f"placeholder_{index + 1}")
-        fields.update(found)
-        if converted != paragraph.text:
-            _set_paragraph_text_preserving_first_run(paragraph, converted)
+        conversion = convert_paragraph(paragraph, f"placeholder_{index + 1}")
+        fields.update(conversion.fields)
+        flags.update(conversion.flags)
 
-    # Main-story paragraphs that contain no explicit fill-in still bind to the
-    # corresponding Lexical block. Headings remain literal structure.
     for block in blocks:
-        if block.expects_list:
-            # The explicit prompt is dynamic; surrounding form language remains
-            # authoritative template text and must not be replaced or removed.
+        if latitudes[block.key] == LATITUDE_GENERATE:
+            # Already bound to a model-written collection.
             continue
-        slot = 0
-        last_bound = None
-        for index in range(block.body_start, block.end):
-            paragraph = main_paragraphs[index]
-            if not paragraph.text.strip() or paragraph._p not in main_ids or paragraph._p.getparent() is None:
-                continue
-            if paragraph.text.strip() == "{{ item }}" or paragraph.text.startswith("{%p "):
-                continue
-            _set_paragraph_text_preserving_first_run(
-                paragraph,
-                f'{{{{ blocks["{block.key}"]["paragraphs"][{slot}] }}}}',
-            )
-            slot += 1
-            last_bound = paragraph
-        if last_bound is not None:
-            start = _marker_paragraph_like(
-                last_bound,
-                f'{{%p for item in blocks["{block.key}"]["paragraphs"][{slot}:] %}}',
-            )
-            item = _marker_paragraph_like(last_bound, "{{ item }}")
-            end = _marker_paragraph_like(last_bound, "{%p endfor %}")
-            last_bound._p.addnext(start)
-            start.addnext(item)
-            item.addnext(end)
+        body_paragraphs = [
+            main_paragraphs[index]
+            for index in range(block.body_start, block.end)
+            if main_paragraphs[index].text.strip()
+        ]
+        _wrap_revisable_block(body_paragraphs, block.key)
 
-    return {"fields": sorted(fields)}
+    return {
+        "fields": sorted(fields),
+        "flags": sorted(flags),
+        "latitudes": latitudes,
+    }
 
 
 def _copy_block_document(source_path: Path, output_path: Path, block: BlockDefinition):
@@ -479,11 +526,13 @@ def ingest_docx(source: Path, prepared_root: Path, snippets_root: Path, *, force
     template_path = package_dir / "template.docx"
     annotated.save(template_path)
 
+    latitudes = discovery["latitudes"]
     block_rows = []
     for order, block in enumerate(blocks, start=1):
         relative_block_path = Path("docx-snippets") / slug / "blocks" / f"{block.key}.docx"
         block_path = snippets_root / slug / "blocks" / f"{block.key}.docx"
         _copy_block_document(source, block_path, block)
+        latitude = latitudes.get(block.key, LATITUDE_LOCKED)
         block_rows.append(
             {
                 "key": block.key,
@@ -491,8 +540,10 @@ def ingest_docx(source: Path, prepared_root: Path, snippets_root: Path, *, force
                 "type": block.block_type,
                 "order": order * 10,
                 "required": True,
-                "editable": True,
-                "ai_fill_mode": "constrained_generation" if block.block_type in {"facts", "argument"} else "none",
+                "editable": latitude != LATITUDE_LOCKED,
+                "ai_latitude": latitude,
+                "ai_fill_mode": AI_FILL_MODE_BY_LATITUDE[latitude],
+                "instructions": block_instructions(original, block),
                 "body": block_bodies[block.key],
                 "docx": relative_block_path.as_posix(),
                 "sha256": sha256_file(block_path),
@@ -534,6 +585,7 @@ def ingest_docx(source: Path, prepared_root: Path, snippets_root: Path, *, force
             "format_preservation": "in_place_ooxml",
         },
         "fields": discovery["fields"],
+        "flags": discovery["flags"],
         "blocks": block_rows,
     }
     manifest_path.write_text(yaml.safe_dump(manifest, sort_keys=False, allow_unicode=True))
@@ -564,10 +616,18 @@ def promote_shared_blocks(manifest_paths: list[Path], snippets_root: Path, *, fo
 
 
 def ingest_directory(source_root: Path, prepared_root: Path, snippets_root: Path, *, force=False):
+    from apps.templates_app.spreadsheets import ingest_xlsx
+
     manifests = [
         ingest_docx(path, prepared_root, snippets_root, force=force)
         for path in sorted(source_root.rglob("*.docx"))
         if not path.name.startswith("~$")
     ]
     promote_shared_blocks(manifests, snippets_root, force=force)
+    # Some maintained exhibits are workbooks rather than filings.
+    manifests += [
+        ingest_xlsx(path, prepared_root, force=force)
+        for path in sorted(source_root.rglob("*.xlsx"))
+        if not path.name.startswith("~$")
+    ]
     return manifests
