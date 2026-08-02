@@ -144,10 +144,12 @@ def ensure_components(draft):
 
 def component_history(draft):
     """Serializable component history for review and rollback surfaces."""
+    from apps.drafting.source_bindings import binding_to_dict
+
     ensure_components(draft)
     components = (
         DocumentComponent.objects.filter(document=draft)
-        .prefetch_related("versions")
+        .prefetch_related("versions", "versions__source_bindings")
         .order_by("removed_at", "position", "id")
     )
     payload = []
@@ -170,6 +172,9 @@ def component_history(draft):
                         "instruction": version.instruction,
                         "body": version.body,
                         "createdAt": version.created_at.isoformat(),
+                        "sourceBindings": [
+                            binding_to_dict(binding) for binding in version.source_bindings.all()
+                        ],
                     }
                     for version in versions
                 ],

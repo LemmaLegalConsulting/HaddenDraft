@@ -147,6 +147,58 @@ class ComponentVersion(models.Model):
         return f"{self.component}@{self.sequence}"
 
 
+class SourceBinding(models.Model):
+    """What a specific version of a component relied on, and in what way.
+
+    Selected sources are a flat list on the session; a binding says which
+    component used which source and whether that source may be cited, relied on
+    for a fact, or only followed for style.
+    """
+
+    ROLE_CHOICES = [
+        ("record_evidence", "Record evidence"),
+        ("legal_authority", "Legal authority"),
+        ("procedural_rule", "Procedural rule"),
+        ("example_language", "Example language"),
+        ("background_reference", "Background reference"),
+    ]
+    SUPPORT_TYPE_CHOICES = [
+        ("direct", "Direct"),
+        ("inference", "Inference"),
+        ("background", "Background"),
+        ("style_only", "Style only"),
+    ]
+
+    component_version = models.ForeignKey(
+        ComponentVersion,
+        related_name="source_bindings",
+        on_delete=models.CASCADE,
+    )
+    source_key = models.CharField(max_length=255, help_text="Stable identifier of the source within its system.")
+    source_kind = models.CharField(max_length=80, blank=True)
+    role = models.CharField(max_length=40, choices=ROLE_CHOICES)
+    support_type = models.CharField(max_length=40, choices=SUPPORT_TYPE_CHOICES)
+    label = models.CharField(max_length=500, blank=True)
+    citation = models.CharField(max_length=500, blank=True)
+    locator = models.JSONField(
+        default=dict,
+        blank=True,
+        help_text="Where in the source the support is, such as a fact id, URL, or excerpt index.",
+    )
+    excerpt = models.TextField(blank=True)
+    verified = models.BooleanField(
+        default=False,
+        help_text="Set once the locator and quoted text have been checked against the source.",
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["component_version_id", "id"]
+
+    def __str__(self):
+        return f"{self.role}: {self.label or self.source_key}"
+
+
 class DraftOperation(models.Model):
     """A proposed, reviewable change to one part of a document.
 

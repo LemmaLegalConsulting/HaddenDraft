@@ -7,6 +7,7 @@ Rule code ranges:
     E/W/I400-499: citation linting
     E/W/I500-599: selected fact/source support
     E/W/I600-699: filing/jurisdiction/profile checks
+    E/W/I700-799: source integrity (see source_integrity.py)
 
 This is intentionally a linter, not a full fact/claim graph or a legal-reasoning
 engine: rules look at selected facts, selected sources, template blocks, and
@@ -23,6 +24,7 @@ from apps.templates_app.template_variables import (
 )
 from apps.validation.findings import error_finding, sort_and_condense_findings, warning_finding
 from apps.validation.rendered import extract_docx_text
+from apps.validation.source_integrity import validate_source_bindings
 
 try:
     import textstat
@@ -960,5 +962,6 @@ def validate_document(draft, *, include_docx=True):
     findings.extend(validate_citations(draft, snapshot))
     findings.extend(validate_selected_fact_support(draft, snapshot))
     findings.extend(validate_filing_profile(draft, snapshot))
+    findings.extend(validate_source_bindings(draft, snapshot, citation_pattern=CITATION_RE))
 
     return sort_and_condense_findings(findings)

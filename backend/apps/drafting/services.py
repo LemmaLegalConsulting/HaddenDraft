@@ -10,6 +10,7 @@ from apps.ai.prompt_catalog import PromptCatalogError, PromptRenderError, render
 from apps.ai.services import GenerationContext, drafting_ai
 from apps.drafting import operations
 from apps.drafting.components import plain_text_from_sections, sync_components
+from apps.drafting.source_bindings import bind_current_versions
 from apps.drafting.models import DraftDocument
 from apps.matters.document_context import chunk_text, custom_fields_inventory, get_case_documents, get_document_text, search_chunks, summarize_text
 from apps.matters.models import MatterFact
@@ -1322,6 +1323,7 @@ def create_draft(session, *, template=None, block_keys=None, title=None, instruc
         editor_state={"format": "plain_text"},
     )
     sync_components(draft)
+    bind_current_versions(draft, facts=context.selected_facts, source_results=context.selected_sources)
     session.status = "draft_review"
     session.save()
     return draft
@@ -1401,6 +1403,7 @@ def regenerate_draft_block(draft, block_key, instruction=""):
     )
     draft.editor_state = {"format": "lexical_blocks", "blocks": {}}
     draft.save(update_fields=["editor_state", "updated_at"])
+    bind_current_versions(draft)
     return draft
 
 

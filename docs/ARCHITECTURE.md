@@ -42,6 +42,31 @@ This is what makes narrower operations possible: regenerating one section no
 longer discards the text it replaced, and the document's prior states remain
 recoverable.
 
+## Source bindings
+
+A drafting session holds one flat list of selected sources. `SourceBinding`
+records which component version actually used which source, in which role:
+
+- `record_evidence` — a case document or matter fact; supports a fact, not a
+  legal rule.
+- `legal_authority` / `procedural_rule` — the only roles a draft may cite as
+  authority.
+- `example_language` — a prior filing that may guide wording only
+  (`support_type = style_only`).
+- `background_reference` — context that supports nothing on its own.
+
+`apps.drafting.source_bindings` derives bindings from how a section was
+composed (facts blocks bind selected facts; constrained-generation blocks bind
+the reviewer-approved sources) and records them against the component version,
+which is immutable, so history keeps the provenance of each earlier draft.
+
+`apps.validation.source_integrity` (rule codes 700-799) uses them to check the
+source *type* against the assertion, which citation-string linting cannot do: a
+section that states a legal proposition backed only by example language is
+flagged (`W700`), as is one with no citable authority bound at all (`W710`).
+`SourceBinding.verified` is the hook for the next layer — checking that a
+locator resolves and that quoted text matches the source.
+
 ## Draft operations
 
 `apps.drafting.operations` describes a change to a document before it is made.
