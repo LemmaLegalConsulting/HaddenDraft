@@ -243,8 +243,20 @@ class LegalServerClient:
         if not identifier or not self.users_path:
             return {}
         users_by_id = {}
+        rejected = 0
         for field in self.user_search_fields:
-            payload = self._get(self.users_path, params={field: identifier, "page_size": 10})
+            try:
+                payload = self._get(self.users_path, params={field: identifier, "page_size": 10})
+            except LegalServerError as error:
+                # Which user search keys exist varies by LegalServer version and
+                # site configuration, and a site rejects an unsupported key -- or
+                # a value of the wrong shape, such as a bare username sent to an
+                # email field -- with a 400. Skipping that key and trying the
+                # rest finds the user; aborting on the first rejection never did.
+                if error.status_code == 400:
+                    rejected += 1
+                    continue
+                raise
             for user in self._user_list_from_payload(payload):
                 user_key = _first_value(
                     user,
@@ -259,6 +271,12 @@ class LegalServerClient:
                     default=str(len(users_by_id)),
                 )
                 users_by_id[str(user_key)] = user
+        if not users_by_id and rejected == len(self.user_search_fields):
+            raise LegalServerError(
+                "LegalServer rejected every configured user search key; "
+                "check LEGALSERVER user search configuration.",
+                status_code=400,
+            )
         normalized = identifier.casefold().strip()
         for user in users_by_id.values():
             values = [

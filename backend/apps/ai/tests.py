@@ -121,6 +121,7 @@ class PromptCatalogTests(TestCase):
             {
                 "drafting.constrained_section",
                 "drafting.goal_recommendations",
+                "drafting.letter",
                 "drafting.plan",
                 "triage.apply_rubric",
                 "case_chat.document_summary",

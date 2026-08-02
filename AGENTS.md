@@ -5,6 +5,9 @@ library, not inside a Django app or embedded in Python constants.
 
 - Put shared DOCX snippets in `content/docx-snippets/_shared/blocks/` and
   pathway overrides in `private-content/docx-snippets/<template-slug>/blocks/`.
+- Put organization letterheads in `<provider>/letterheads/<slug>/` with a
+  `manifest.yaml` and `letterhead.docx`. Real stationery is private; keep a
+  neutral placeholder in `content/letterheads/` so a fresh checkout can draft.
 - Put authoritative treatise PDFs under `content/treatises/source/`; keep
   generated Markdown under `content/treatises/markdown/` and do not hand-edit
   it.
@@ -48,6 +51,16 @@ Keep changes aligned with the existing workflow boundaries:
 - AI prompt execution and model-facing logic belong under `backend/apps/ai/`.
 - Template and reusable block behavior belongs under
   `backend/apps/templates_app/`.
+- A prepared template keeps the maintained original's wording. Convert only
+  language the author marked as variable (`[...]`, `____`, highlighting) through
+  `apps.templates_app.placeholders`; never rebind ordinary prose to a model-written
+  slot. Rewrite paragraphs run by run so inline formatting survives.
+- Express how much the model may write as a block's `ai_latitude`
+  (`locked`/`guided`/`generate`). Latitude constrains the model only: a human
+  edit must always reach the export through `blocks[<key>]["revision"]`.
+- Letterhead behavior belongs in `apps.templates_app.letterheads`. A letterhead
+  prepared for sharing must carry no trace of the advocate whose file seeded it,
+  including document properties and `mailto:`/`attachedTemplate` relationships.
 - Export formats belong behind `backend/apps/exporting/`.
 - Frontend API calls should go through `frontend/src/api/client.js`; avoid
   scattering fetch logic through components.

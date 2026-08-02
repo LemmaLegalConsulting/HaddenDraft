@@ -181,10 +181,94 @@ Key extension points:
 - Add a retrieval source by implementing `SourceConnector.search()` under `backend/apps/sources/connectors/` and registering it in `backend/apps/sources/registry.py`.
 - Declare a document's role in a filing package with `metadata.packageRole` on its template, so cross-document validation understands the package without new Python.
 - Add or change document structure through `DocumentTemplate` and `TemplateBlock` in `backend/apps/templates_app/models.py`.
+- Replace the organization's letterhead in Django admin under **Letterheads**; see [Letterheads and letters](#letterheads-and-letters).
 - Replace deterministic AI placeholders inside `backend/apps/ai/services.py`.
 - Maintain LLM system/user messages in `prompts/*.yaml`; see [`prompts/README.md`](prompts/README.md) for the schema, benchmark workflow, and database-override behavior.
 - Maintain reusable legal-content files in [`content/`](content/README.md). Run `.venv/bin/python backend/manage.py sync_content_library` to seed new triage-rubric files; use `--update-triage-rubrics` only when intentionally replacing existing database values.
 - Add export formats in `backend/apps/exporting/services.py`.
+
+## Prepared Templates
+
+`ingest_document_templates` converts maintained originals into template packages
+that keep the author's wording:
+
+```bash
+.venv/bin/python backend/manage.py ingest_document_templates --force
+```
+
+DOCX and XLSX sources are both supported. Conversion edits WordprocessingML in
+place, so styles, numbering, tables, headers, footers, and images survive. Only
+language the author marked as variable is rebound:
+
+| Marked as | Becomes |
+| --- | --- |
+| `[DATE]`, `[PHA]`, `[ADDRESS]` | `{{ fields.* }}` or a system alias such as `{{ defendant }}` |
+| `________` | the field the surrounding sentence implies |
+| A highlighted value | the matching field |
+| A highlighted sentence | `{% if include_… %}…{% endif %}`, keeping the original wording |
+
+Every block records an `ai_latitude` that governs how much of it the model may
+write:
+
+- **locked** - captions, certificates of service, signature blocks, and passages
+  carrying quoted statutes or citations. Rendered verbatim.
+- **guided** - the maintained prose is a starting draft that still needs adapting.
+  It renders literally and accepts a reviewed rewrite.
+- **generate** - the original said "insert case specific facts"; the instruction
+  becomes the model's prompt and the model supplies the paragraphs.
+
+Latitude constrains the model, not the advocate. An edit made in the editor always
+reaches the export through `blocks[<key>]["revision"]`, whatever the latitude.
+Adjust a block's latitude in Django admin under **Template blocks**.
+
+## Letterheads and Letters
+
+One parameterized letterhead serves every advocate. Its contact block is filled
+from the author's profile at render time, so adding an advocate does not mean
+adding a document.
+
+```bash
+# Turn one advocate's letterhead into the organization-wide template.
+.venv/bin/python backend/manage.py prepare_letterhead path/to/letterhead.docx \
+    --slug my-org --title "My Legal Aid" --organization "My Legal Aid" --default
+
+# Regenerate the neutral placeholder a fresh checkout draws letters on.
+.venv/bin/python backend/manage.py build_placeholder_letterhead
+```
+
+Preparation replaces the advocate's name, phone, fax, and email lines with
+variables, parameterizes the continuation header, and strips the source
+advocate's identity from document properties and from `mailto:`/`attachedTemplate`
+relationships. The masthead image, margins, and page setup are untouched.
+
+Available variables: `advocate_name`, `advocate_title`, `advocate_phone`,
+`advocate_fax`, `advocate_email`, `office_name`, `office_address`,
+`letter_subject`, `letter_date`. An advocate with no fax gets no fax line rather
+than an empty label.
+
+Organization stationery is private, so it belongs under
+`ORGANIZATION_CONTENT_LIBRARY_DIR` (normally the `private-content/` submodule).
+A neutral `example-legal-aid` placeholder ships in `content/letterheads/` so a
+fresh install can draft and export a letter before anyone uploads their own.
+Non-technical staff replace it in Django admin under **Letterheads**, which
+explains the expected layout and reports which contact lines it found.
+
+Letter drafting lives in `backend/apps/drafting/letters.py` with its prompt in
+`prompts/drafting.letter.yaml`. The letterhead supplies the advocate's identity,
+so the drafted body never restates it.
+
+## Advocate Profiles
+
+The letterhead and filing signature blocks need a title, direct phone, fax,
+office, and bar number. LegalServer's users endpoint carries all of them:
+
+```bash
+.venv/bin/python backend/manage.py sync_author_profiles --dry-run
+```
+
+The command fills blank profile fields and leaves an advocate's own corrections
+alone; pass `--overwrite` to replace them. Mapping lives in
+`backend/apps/core/legalserver_profile.py`.
 
 ## Frontend Layout
 
