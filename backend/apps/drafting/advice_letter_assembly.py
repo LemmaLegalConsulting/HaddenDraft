@@ -87,11 +87,9 @@ def assemble_letter(
 
     for section in ordered:
         status = getattr(section, "status", "ready")
-        if status != "ready":
-            letter.warnings.append(
-                f"{section.title}: {section.get_status_display() if hasattr(section, 'get_status_display') else status}."
-                " Read it before sending."
-            )
+        if getattr(section, "needs_attorney_review", False):
+            reason = getattr(section, "review_summary", "") or status
+            letter.warnings.append(f"{section.title}: {reason}. Read it before sending.")
         for note in getattr(section, "notes", None) or []:
             letter.warnings.append(f"{section.title}: {note}")
 
@@ -101,7 +99,13 @@ def assemble_letter(
             if line:
                 letter.paragraphs.append(line)
         letter.sections.append(
-            {"slug": section.slug, "title": section.title, "status": status}
+            {
+                "slug": section.slug,
+                "title": section.title,
+                "status": status,
+                "needsReview": bool(getattr(section, "needs_attorney_review", False)),
+                "reviewReason": getattr(section, "review_summary", ""),
+            }
         )
 
     report = check_readability(letter.body, kind=kind)

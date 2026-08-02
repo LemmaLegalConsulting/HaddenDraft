@@ -66,9 +66,12 @@ Keep changes aligned with the existing workflow boundaries:
   `DocumentTemplate`. The unit that gets picked and reviewed is the section. Keep
   assembly deterministic: the wording is what the working group revised for
   readability, and regenerating it discards that work.
-- Never offer a section whose `status` is not `ready` without saying why. Text
-  that still carries tracked changes, or that AI finished, must not reach a
-  client because it matched a keyword.
+- Offer every advice-letter section, and say which ones need checking. Text that
+  carries accepted tracked changes, a merge-boundary passage, or AI drafting is
+  flagged with `needs_attorney_review` and a one-line reason rather than hidden;
+  withholding it once hid the best match for a case behind a stale status.
+- Do not let `sync_advice_letters` overwrite a section marked `is_locally_edited`.
+  An attorney's read and correction must survive the next ingest.
 - Score client-facing text with `apps.validation.readability`, whose rules are
   file-backed in `content/drafting-rules/checks/`. Report several formulas rather
   than treating one as authoritative, and never rewrite text purely to move a

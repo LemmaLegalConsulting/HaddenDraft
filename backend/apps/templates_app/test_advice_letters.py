@@ -282,6 +282,8 @@ class AdviceSectionRecommendationTests(TestCase):
             slug="unreviewed",
             title="Unreviewed section",
             status="needs_review",
+            needs_attorney_review=True,
+            review_reason="4 tracked changes accepted here",
             body="Something.",
             selection_hints={
                 "triggers": ["3-day notice names a different landlord than the complaint"]
@@ -309,19 +311,27 @@ class AdviceSectionRecommendationTests(TestCase):
         self.assertIn("decarlo", slugs)
         self.assertNotIn("negotiate-move-out", slugs)
 
-    def test_unreviewed_sections_are_withheld_by_default(self):
+    def test_unreviewed_sections_are_offered_with_a_warning(self):
+        """Withholding them hid the best match for a case behind a stale flag."""
         results = recommend_advice_sections(
             self.sections(), self.matter, conditions={"has_3_day_notice": True}
         )
-        self.assertNotIn("unreviewed", [entry["section"].slug for entry in results])
 
-        included = recommend_advice_sections(
+        unreviewed = next(
+            entry for entry in results if entry["section"].slug == "unreviewed"
+        )
+        self.assertTrue(unreviewed["needsReview"])
+        self.assertIn("tracked changes", unreviewed["reviewReason"])
+
+    def test_reviewed_only_excludes_flagged_sections(self):
+        results = recommend_advice_sections(
             self.sections(),
             self.matter,
             conditions={"has_3_day_notice": True},
-            include_unreviewed=True,
+            reviewed_only=True,
         )
-        self.assertIn("unreviewed", [entry["section"].slug for entry in included])
+
+        self.assertNotIn("unreviewed", [entry["section"].slug for entry in results])
 
     def test_an_unmet_condition_is_reported_not_hidden(self):
         results = recommend_advice_sections(self.sections(), self.matter, conditions={})

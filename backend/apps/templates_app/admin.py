@@ -3,6 +3,7 @@ from pathlib import Path
 
 from django import forms
 from django.contrib import admin, messages
+from django.utils import timezone
 from django.utils.html import format_html
 
 from apps.templates_app.letterhead_library import letterhead_path
@@ -10,7 +11,12 @@ from apps.templates_app.letterheads import (
     LETTERHEAD_VARIABLES,
     prepare_letterhead,
 )
-from apps.templates_app.models import DocumentTemplate, Letterhead, TemplateBlock
+from apps.templates_app.models import (
+    AdviceLetterSection,
+    DocumentTemplate,
+    Letterhead,
+    TemplateBlock,
+)
 
 
 LETTERHEAD_HELP = """
@@ -66,6 +72,188 @@ class DocumentTemplateAdmin(admin.ModelAdmin):
     @admin.display(boolean=True, description="Style template")
     def has_style_template(self, obj):
         return bool(obj.style_template)
+
+
+ADVICE_SECTION_HELP = """
+<div style="max-width:52em;line-height:1.5">
+<h2>Reviewing an advice-letter section</h2>
+<p>Every section is loaded, including ones that were not finished in the source
+documents, so an attorney can read them here instead of opening Word. The
+<b>Needs attorney review</b> flag &mdash; not the absence of a row &mdash; is what marks
+text nobody has checked. Flagged sections are still offered to advocates, with
+the reason shown next to them.</p>
+
+<h3>Why a section gets flagged</h3>
+<ul>
+  <li><b>Tracked changes accepted here.</b> The source still had unresolved
+      edits. Accepting them is faithful, not corrective: where the editor
+      deleted more than they replaced, the result can be ungrammatical.</li>
+  <li><b>A passage sat on a merge boundary.</b> Exactly where a half-finished
+      edit shows up. Read those sentences.</li>
+  <li><b>Drafted here.</b> The maintained section stopped before giving any
+      advice, so the text was written to finish it. It adds no citations, but
+      nobody has confirmed the law.</li>
+  <li><b>Reviewer comments dropped.</b> Someone left a question in the file.</li>
+</ul>
+
+<h3>When you have read it</h3>
+<p>Edit the body if it needs it, clear <b>Needs attorney review</b>, and save.
+Saving here sets <b>Is locally edited</b>, which stops a later
+<code>ingest_advice_letters</code> from overwriting your text or undoing your
+decision. Use the <b>Mark as reviewed</b> action to clear several at once.</p>
+
+<h3>Editing in the content library instead</h3>
+<p>These sections come from <code>advice-letters/catalog.yaml</code> in the private
+content repository, with selection criteria in
+<code>advice-letters/selection-hints.yaml</code>. Editing there and re-running
+<code>ingest_advice_letters</code> is the right path for a change the whole
+organization should keep &mdash; but it will not overwrite anything already edited
+here.</p>
+</div>
+"""
+
+
+@admin.register(AdviceLetterSection)
+class AdviceLetterSectionAdmin(admin.ModelAdmin):
+    list_display = (
+        "title",
+        "topic",
+        "region",
+        "role",
+        "status",
+        "needs_attorney_review",
+        "word_count",
+        "reading_grade",
+        "reviewed_at",
+    )
+    list_filter = (
+        "needs_attorney_review",
+        "status",
+        "role",
+        "topic",
+        "region",
+        "letter_type",
+        "is_active",
+        "is_locally_edited",
+    )
+    search_fields = ("title", "slug", "body", "topic", "review_reason")
+    ordering = ("-needs_attorney_review", "topic", "title")
+    actions = ("mark_reviewed", "flag_for_review")
+    readonly_fields = (
+        "review_help",
+        "why_flagged",
+        "readability_summary",
+        "copyedit_summary",
+        "ingest_notes",
+        "slug",
+        "word_count",
+        "content_path",
+        "source_checksum",
+        "last_synced_at",
+        "is_locally_edited",
+    )
+    fieldsets = (
+        ("How review works", {"fields": ("review_help",)}),
+        ("Review", {
+            "fields": (
+                "needs_attorney_review",
+                "why_flagged",
+                "review_notes",
+                "reviewed_by",
+                "reviewed_at",
+            )
+        }),
+        ("Section", {"fields": ("title", "slug", "body", "status", "is_active")}),
+        ("Where it applies", {
+            "fields": ("role", "topic", "letter_type", "region", "cleveland_specific", "order")
+        }),
+        ("Selection", {"fields": ("selection_hints", "fields", "variants", "slots")}),
+        ("Checks", {"fields": ("readability_summary", "copyedit_summary", "ingest_notes")}),
+        ("Provenance", {
+            "fields": ("content_path", "source_kind", "source_checksum", "last_synced_at",
+                       "is_locally_edited", "word_count")
+        }),
+    )
+
+    @admin.display(description="How review works")
+    def review_help(self, obj):
+        return format_html(ADVICE_SECTION_HELP)
+
+    @admin.display(description="Reading grade", ordering="word_count")
+    def reading_grade(self, obj):
+        return (obj.readability or {}).get("metrics", {}).get("flesch_kincaid_grade", "-")
+
+    @admin.display(description="Why this is flagged")
+    def why_flagged(self, obj):
+        if not obj or not obj.needs_attorney_review:
+            return "Not flagged."
+        return format_html("<b>{}</b>", obj.review_reason or obj.get_status_display())
+
+    @admin.display(description="Readability")
+    def readability_summary(self, obj):
+        metrics = (obj.readability or {}).get("metrics") or {}
+        if not metrics:
+            return "Not scored."
+        warnings = (obj.readability or {}).get("warnings") or []
+        return format_html(
+            "Flesch-Kincaid {} &middot; SMOG {} &middot; {} plain-language warning(s)"
+            "<ul>{}</ul>",
+            metrics.get("flesch_kincaid_grade", "-"),
+            metrics.get("smog_index", "-"),
+            len(warnings),
+            format_html("".join(f"<li>{warning.get('message', '')}</li>" for warning in warnings[:8])),
+        )
+
+    @admin.display(description="Copy-edit")
+    def copyedit_summary(self, obj):
+        report = obj.copyedit or {}
+        fixes, flags = report.get("fixes") or [], report.get("flags") or []
+        if not fixes and not flags:
+            return "Clean."
+        return format_html(
+            "<p>{} fix(es) applied at ingest.</p><p><b>Read these:</b></p><ul>{}</ul>",
+            len(fixes),
+            format_html(
+                "".join(
+                    f"<li><code>{flag.get('kind','')}</code> {flag.get('excerpt','')[:160]}</li>"
+                    for flag in flags[:12]
+                )
+            )
+            or "<li>None</li>",
+        )
+
+    @admin.display(description="Ingest notes")
+    def ingest_notes(self, obj):
+        notes = obj.notes or []
+        if not notes:
+            return "None."
+        return format_html("<ul>{}</ul>", format_html("".join(f"<li>{note}</li>" for note in notes)))
+
+    def save_model(self, request, obj, form, change):
+        if change and form.changed_data:
+            # Anything touched here must survive the next ingest.
+            obj.is_locally_edited = True
+        if "needs_attorney_review" in getattr(form, "changed_data", []) and not obj.needs_attorney_review:
+            obj.reviewed_at = timezone.now()
+            obj.reviewed_by = obj.reviewed_by or request.user
+        super().save_model(request, obj, form, change)
+
+    @admin.action(description="Mark as reviewed (clears the flag)")
+    def mark_reviewed(self, request, queryset):
+        updated = queryset.update(
+            needs_attorney_review=False,
+            reviewed_at=timezone.now(),
+            reviewed_by=request.user,
+            is_locally_edited=True,
+        )
+        self.message_user(request, f"Marked {updated} section(s) reviewed.", messages.SUCCESS)
+
+    @admin.action(description="Flag for attorney review")
+    def flag_for_review(self, request, queryset):
+        updated = queryset.update(
+            needs_attorney_review=True, reviewed_at=None, is_locally_edited=True
+        )
+        self.message_user(request, f"Flagged {updated} section(s).", messages.WARNING)
 
 
 class LetterheadForm(forms.ModelForm):

@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.db import models
 from django.core.validators import FileExtensionValidator
 
@@ -177,8 +178,45 @@ class AdviceLetterSection(models.Model):
         help_text="Triggers, requirements, and conflicts used to rank this section.",
     )
     readability = models.JSONField(default=dict, blank=True)
+    copyedit = models.JSONField(
+        default=dict,
+        blank=True,
+        help_text="What the copy-edit pass fixed, and what it left for a human to read.",
+    )
     notes = models.JSONField(default=list, blank=True)
     word_count = models.PositiveIntegerField(default=0)
+
+    # Review tracking. Everything is loaded so attorneys can read it in place,
+    # so the flag rather than the absence of a row is what marks unchecked text.
+    needs_attorney_review = models.BooleanField(
+        default=False,
+        help_text=(
+            "Set on anything that was not ready as maintained: tracked changes "
+            "accepted here, text drafted here, or a passage a merge left doubtful."
+        ),
+    )
+    review_reason = models.CharField(
+        max_length=255,
+        blank=True,
+        help_text="Why this needs checking, in one line.",
+    )
+    reviewed_at = models.DateTimeField(null=True, blank=True)
+    reviewed_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="reviewed_advice_sections",
+    )
+    review_notes = models.TextField(blank=True)
+    is_locally_edited = models.BooleanField(
+        default=False,
+        help_text=(
+            "Edited here rather than in the content library. Re-ingesting will "
+            "not overwrite this section's text, status, or review state."
+        ),
+    )
+
     source_kind = models.CharField(max_length=40, default="content_library")
     source_checksum = models.CharField(max_length=64, blank=True)
     is_active = models.BooleanField(default=True)
@@ -194,8 +232,17 @@ class AdviceLetterSection(models.Model):
 
     @property
     def sendable(self):
-        """Whether the section may be offered without a warning."""
-        return self.is_active and self.status == "ready"
+        """Whether the section can be offered without a review warning."""
+        return self.is_active and not self.needs_attorney_review
+
+    @property
+    def review_summary(self):
+        """One line for the picker explaining why this still needs checking."""
+        if not self.needs_attorney_review:
+            return ""
+        if self.review_reason:
+            return self.review_reason
+        return dict(self.STATUS_CHOICES).get(self.status, self.status)
 
 
 class TemplateBlock(models.Model):

@@ -59,7 +59,7 @@ def recommend_advice_sections(
     conditions=None,
     region="",
     limit=6,
-    include_unreviewed=False,
+    reviewed_only=False,
 ):
     """Rank advice-letter sections for one tenant.
 
@@ -67,9 +67,11 @@ def recommend_advice_sections(
     reasons recorded alongside every score -- so an advocate can see why a
     section was offered instead of being handed an opaque list.
 
-    Sections that are not `ready` are withheld by default. A section still
-    carrying tracked changes or drafted by AI should not reach a client because
-    it happened to match a keyword.
+    Every active section is ranked, including ones that still need an attorney's
+    eye. Withholding those hid the best match for a case -- the 3-day-notice
+    defect, whose file still had tracked changes -- so instead each result says
+    whether it needs checking and why. Pass `reviewed_only` to rank only
+    approved text.
     """
     conditions = {key for key, value in (conditions or {}).items() if value}
     haystack = " ".join([goal or "", _fact_text(matter, facts)])
@@ -78,7 +80,9 @@ def recommend_advice_sections(
 
     scored = []
     for section in sections:
-        if not include_unreviewed and getattr(section, "status", "ready") != "ready":
+        if getattr(section, "status", "ready") == "stub":
+            continue
+        if reviewed_only and getattr(section, "needs_attorney_review", False):
             continue
         if getattr(section, "role", "body") != "body":
             continue
@@ -135,6 +139,8 @@ def recommend_advice_sections(
                 "reasons": reasons,
                 "unmetConditions": missing,
                 "summary": hints.get("summary", ""),
+                "needsReview": bool(getattr(section, "needs_attorney_review", False)),
+                "reviewReason": getattr(section, "review_summary", ""),
             }
         )
 

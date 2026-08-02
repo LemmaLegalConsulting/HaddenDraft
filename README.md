@@ -303,9 +303,31 @@ the maintained files need before the text is usable:
 - **Authoring notes become composition slots.** `[Insert next defense/advice]`
   points at another section and must never print.
 
-Each section records a `status`: `ready`, `needs_review`, `ai_drafted` (finished
-or derived during ingest — an attorney must read it), or `stub`. Only `ready`
-sections are offered by default.
+### Attorney review
+
+Every section is loaded and offered, including ones the source documents never
+finished — the practical way to review this corpus is to read it in place.
+`needs_attorney_review`, not the absence of a row, marks unchecked text, and
+each flagged section carries a one-line `review_reason` shown next to it in the
+picker and in any letter that uses it.
+
+Withholding flagged sections was the earlier behaviour and it hid the best match
+for a case: the 3-day-notice defect scored highest but never appeared, because
+its file still had tracked changes.
+
+Sections are flagged when tracked changes were accepted here, when a passage sat
+on a merge boundary, when the text was drafted here rather than maintained, or
+when reviewer comments were dropped. Review them at
+**Templates › Advice letter sections** in Django admin, which explains each
+reason inline and shows the readability and copy-edit reports. Filter by
+**Needs attorney review**, edit the body if it needs it, clear the flag, and
+save — or use the **Mark as reviewed** bulk action.
+
+Saving in admin sets `is_locally_edited`, and `ingest_advice_letters` will not
+overwrite the text, status, or review state of such a section. Editing
+`advice-letters/catalog.yaml` and `selection-hints.yaml` in the private content
+repository remains the right path for a change the whole organization should
+keep; it simply will not undo anything already decided in admin.
 
 ### Copy-editing accepted text
 
