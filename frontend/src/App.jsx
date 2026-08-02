@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useReducer, useState } from "react";
 import {
   Archive,
   ChevronDown,
@@ -45,6 +45,7 @@ import { TemplatePicker } from "./components/TemplatePicker.jsx";
 import { TriagePanel } from "./components/TriagePanel.jsx";
 import { ValidationPanel } from "./components/ValidationPanel.jsx";
 import { WorkflowStepper } from "./components/WorkflowStepper.jsx";
+import { activeDraft, draftWorkspaceReducer, initialDraftWorkspace } from "./state/draftWorkspace.js";
 
 const BASE_WORKFLOW_STEPS = [
   { id: "goal", label: "Goal" },
@@ -88,11 +89,7 @@ export function App() {
   const [sourceResults, setSourceResults] = useState([]);
   const [session, setSession] = useState(null);
   const [outline, setOutline] = useState(null);
-  const [draft, setDraft] = useState(null);
-  const [drafts, setDrafts] = useState([]);
-  const [validationSummary, setValidationSummary] = useState(null);
-  const [draftDirtySinceValidation, setDraftDirtySinceValidation] = useState(false);
-  const [revisionPlan, setRevisionPlan] = useState(null);
+  const [workspace, dispatchWorkspace] = useReducer(draftWorkspaceReducer, initialDraftWorkspace);
   const [revisionBusy, setRevisionBusy] = useState(false);
   const [triageAssessment, setTriageAssessment] = useState(null);
   const [triageHistory, setTriageHistory] = useState([]);
@@ -115,6 +112,12 @@ export function App() {
   const [connectionSettingsOpen, setConnectionSettingsOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const [error, setError] = useState("");
+
+  const drafts = workspace.drafts;
+  const draft = activeDraft(workspace);
+  const validationSummary = workspace.validationSummary;
+  const draftDirtySinceValidation = workspace.dirtySinceValidation;
+  const revisionPlan = workspace.revisionPlan;
 
   const pendingPlanQuestions = useMemo(() => unansweredPlanQuestions(draftPlan), [draftPlan]);
   const workflowSteps = useMemo(() => {
@@ -154,7 +157,9 @@ export function App() {
     let cancelled = false;
     api.sessionDrafts(session.id)
       .then((response) => {
-        if (!cancelled && response.drafts?.length) setGeneratedDrafts(response.drafts);
+        if (!cancelled && response.drafts?.length) {
+          dispatchWorkspace({ type: "documentsLoaded", drafts: response.drafts });
+        }
       })
       .catch(() => {});
     return () => {
@@ -620,7 +625,7 @@ export function App() {
       const response = await api.generatePlanDrafts(activeSession.id, {
         requireAllMissingInformation: clarifyMissingFactsBeforeDraft,
       });
-      setGeneratedDrafts(response.drafts);
+      dispatchWorkspace({ type: "documentsGenerated", drafts: response.drafts });
       setDraftStep("editor");
     } catch (err) {
       setError(err.message);
@@ -721,7 +726,7 @@ export function App() {
         ...(draftMode === "draft_from_template" ? { template: selectedTemplateId } : {}),
       });
       const response = await api.generateDraft(activeSession.id);
-      setGeneratedDrafts(response.draft ? [response.draft] : []);
+      dispatchWorkspace({ type: "documentsGenerated", drafts: response.draft ? [response.draft] : [] });
     } catch (err) {
       setError(err.message);
     } finally {
@@ -729,49 +734,12 @@ export function App() {
     }
   }
 
-  // `drafts` holds every document the plan produced; `draft` is the one on
-  // screen. Both have to move together or edits are lost when switching.
-  function applyDraftUpdate(nextDraft) {
-    if (!nextDraft) return;
-    setDraft(nextDraft);
-    setDrafts((current) => current.map((item) => (item.id === nextDraft.id ? nextDraft : item)));
-  }
-
-  function patchActiveDraft(patch) {
-    setDraft((current) => {
-      if (!current) return current;
-      const next = { ...current, ...patch };
-      setDrafts((items) => items.map((item) => (item.id === next.id ? next : item)));
-      return next;
-    });
-  }
-
-  function setGeneratedDrafts(generated) {
-    const list = generated || [];
-    setDrafts(list);
-    setDraft(list[0] || null);
-    setValidationSummary(null);
-    setDraftDirtySinceValidation(false);
-  }
-
-  function selectDraft(draftId) {
-    const next = drafts.find((item) => item.id === draftId);
-    if (!next || next.id === draft?.id) return;
-    setDraft(next);
-    // Validation state belongs to the document that produced it.
-    setValidationSummary(null);
-    setDraftDirtySinceValidation(false);
-    setRevisionPlan(null);
-  }
-
   async function validateDraft() {
     if (!draft) return;
     setBusy(true);
     try {
       const response = await api.validateDraft(draft.id);
-      applyDraftUpdate(response.draft);
-      setValidationSummary(response.validation || null);
-      setDraftDirtySinceValidation(false);
+      dispatchWorkspace({ type: "documentValidated", draft: response.draft, validation: response.validation });
     } catch (err) {
       setError(err.message);
     } finally {
@@ -785,8 +753,7 @@ export function App() {
     setError("");
     try {
       const response = await api.regenerateDraftBlock(draft.id, blockKey, { instruction });
-      applyDraftUpdate(response.draft);
-      setDraftDirtySinceValidation(true);
+      dispatchWorkspace({ type: "documentEdited", draft: response.draft });
     } catch (err) {
       setError(err.message);
     } finally {
@@ -805,9 +772,10 @@ export function App() {
       }
       if (draft) {
         const response = await api.updateDraft(draft.id, { sections, plainText, editorState });
-        applyDraftUpdate(response.draft);
+        dispatchWorkspace({ type: "documentEdited", draft: response.draft });
+      } else {
+        dispatchWorkspace({ type: "documentEdited" });
       }
-      setDraftDirtySinceValidation(true);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -821,7 +789,7 @@ export function App() {
     setError("");
     try {
       const response = await api.draftRevisionPlan(draft.id);
-      setRevisionPlan(response.revisionPlan);
+      dispatchWorkspace({ type: "revisionPlanLoaded", plan: response.revisionPlan });
     } catch (err) {
       setError(err.message);
     } finally {
@@ -830,11 +798,7 @@ export function App() {
   }
 
   function updateRevisionPlanItem(blockKey, patch) {
-    setRevisionPlan((current) => (
-      current
-        ? { ...current, plan: current.plan.map((item) => (item.blockKey === blockKey ? { ...item, ...patch } : item)) }
-        : current
-    ));
+    dispatchWorkspace({ type: "revisionPlanItemUpdated", blockKey, patch });
   }
 
   async function applyRevisionPlan() {
@@ -843,10 +807,7 @@ export function App() {
     setError("");
     try {
       const response = await api.applyDraftRevision(draft.id, revisionPlan.plan);
-      applyDraftUpdate(response.draft);
-      setValidationSummary(response.validation || null);
-      setDraftDirtySinceValidation(false);
-      setRevisionPlan(null);
+      dispatchWorkspace({ type: "revisionPlanApplied", draft: response.draft, validation: response.validation });
     } catch (err) {
       setError(err.message);
     } finally {
@@ -966,18 +927,17 @@ export function App() {
             <DraftSwitcher
               drafts={drafts}
               activeDraftId={draft?.id ?? null}
-              onSelect={selectDraft}
+              onSelect={(draftId) => dispatchWorkspace({ type: "documentSelected", draftId })}
               busy={busy}
             />
             <DraftEditor
               draft={draft}
               busy={busy}
-              onChange={(sections, plainText, editorState) => patchActiveDraft({ sections, plainText, editorState })}
+              onChange={(sections, plainText, editorState) => dispatchWorkspace({ type: "documentPatched", patch: { sections, plainText, editorState } })}
               onPersist={async () => {
                 if (!draft) return;
                 const response = await api.updateDraft(draft.id, { sections: draft.sections, plainText: draft.plainText, editorState: draft.editorState });
-                applyDraftUpdate(response.draft);
-                setDraftDirtySinceValidation(true);
+                dispatchWorkspace({ type: "documentEdited", draft: response.draft });
               }}
               onRegenerateBlock={regenerateDraftBlock}
               onFillMissingField={fillMissingField}
@@ -1014,7 +974,7 @@ export function App() {
             <RevisionPlanModal
               plan={revisionPlan}
               busy={revisionBusy}
-              onClose={() => setRevisionPlan(null)}
+              onClose={() => dispatchWorkspace({ type: "revisionPlanLoaded", plan: null })}
               onUpdateItem={updateRevisionPlanItem}
               onApply={applyRevisionPlan}
             />
