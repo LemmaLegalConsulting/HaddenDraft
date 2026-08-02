@@ -1,0 +1,127 @@
+schema_version: 1
+slug: plain-language
+title: Plain-language rules for client letters
+source: HPG Client Letter Working Group, "Guiding Principles for Readability" and
+  "Final Letter Checklist"
+jurisdiction: Ohio
+audience: client
+severity: warning
+notes: >
+  Written for letters sent to clients, not for filings. The working group's
+  premise is that most readers are at a 3rd-8th grade reading level, so these
+  rules are about being understood rather than about house style.
+
+  No single readability formula is authoritative. Grade-level scores are
+  estimates that count syllables and sentence length; they do not know whether
+  a word is familiar. Run several and treat a disagreement between them as a
+  reason to read the passage, not as a number to optimize.
+
+metrics:
+  # Named in the working group's own quality-control notes.
+  - id: flesch_kincaid_grade
+    label: Flesch-Kincaid grade level
+    target_max: 8.0
+    severity: warning
+  - id: smog_index
+    label: SMOG index
+    target_max: 9.0
+    severity: warning
+  - id: flesch_reading_ease
+    label: Flesch reading ease
+    target_min: 60.0
+    severity: info
+  - id: gunning_fog
+    label: Gunning fog index
+    target_max: 10.0
+    severity: info
+
+rules:
+  checks:
+    - id: sentence_length
+      label: Sentences under 14 words
+      kind: sentence_length
+      max_words: 14
+      severity: warning
+      message: >
+        Sentence runs to {words} words. The working group's limit is 14.
+
+    - id: polysyllable_density
+      label: Few words of three or more syllables
+      kind: polysyllable_density
+      max_per_sentences: 6
+      window_sentences: 30
+      # Informational rather than a warning. Taken literally this is the
+      # strictest rule in the checklist -- "eviction", "landlord", "authority",
+      # and "agreement" all count -- and the working group's own finished
+      # sections do not meet it. Left visible as a nudge toward shorter words
+      # without burying the sentence-length findings, which are actionable.
+      severity: info
+      message: >
+        {count} words of three or more syllables across {sentences} sentences;
+        the guideline allows about {allowed}.
+
+    - id: passive_voice
+      label: Active voice
+      kind: passive_voice
+      severity: info
+      message: >
+        "{match}" reads as passive. Name who acts: the judge, the landlord, or
+        Legal Aid.
+
+  # "Use these synonyms instead" in the final checklist.
+  substitutions:
+    - from: premises
+      to: home
+    - from: vacate
+      to: move
+    - from: ordinance
+      to: law
+    - from: statute
+      to: law
+    - from: motion
+      to: ask
+    - from: commence
+      to: start
+    - from: reside
+      to: live
+    - from: utilize
+      to: use
+    - from: obtain
+      to: get
+    - from: prior to
+      to: before
+    - from: subsequent to
+      to: after
+    - from: in the event that
+      to: if
+
+  # "Terms to either avoid or define". These are allowed when the letter
+  # explains them, which is why they warn rather than fail.
+  define_or_avoid:
+    - habitability
+    - detainer
+    - continuance
+    - restitution
+    - possession
+    - mediation
+    - negotiate
+    - negotiation
+    - discovery
+    - deposition
+    - retaliation
+    - termination
+    - holdover
+    - garnishment
+    - redact
+    - escrow
+    - counterclaim
+    - default judgment
+    - first cause
+    - second cause
+
+length:
+  advice_letter_max_pages: 2
+  action_letter_max_pages: 1
+  # Roughly a page of the letterhead's body area at 11pt.
+  words_per_page: 450
+  preview_required_over_pages: 1

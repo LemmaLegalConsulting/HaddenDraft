@@ -96,15 +96,28 @@ class ParagraphConversion:
     changed: bool = False
 
 
+# Sentence scaffolding that names nothing. "The 3-Day Notice is from ____"
+# should yield `notice_from`, not `the_3_day_notice_is`.
+NAME_STOPWORDS = {
+    "a", "an", "and", "at", "but", "by", "for", "from", "in", "is", "it", "of",
+    "on", "or", "so", "than", "that", "the", "then", "to", "was", "were", "with",
+    "you", "your", "i", "we", "they", "this", "these", "there",
+}
+
+
 def _field_name(label: str, fallback: str) -> str:
     clean = re.sub(r"[^\w\s-]", " ", label).strip()
     name = slugify(clean).replace("-", "_") or fallback.replace("-", "_")
     name = re.sub(r"_+", "_", name).strip("_")
     if not name:
         name = fallback.replace("-", "_")
-    # Long instruction text makes an unusable identifier; keep the leading terms.
     parts = [part for part in name.split("_") if part]
-    name = "_".join(parts[:5])
+    # Drop leading filler, but never everything: a label made only of stopwords
+    # still has to produce an identifier.
+    meaningful = [part for part in parts if part not in NAME_STOPWORDS]
+    parts = meaningful or parts
+    # Long instruction text makes an unusable identifier; keep the leading terms.
+    name = "_".join(parts[:4])
     return f"field_{name}" if name[:1].isdigit() else name
 
 

@@ -124,6 +124,80 @@ class Letterhead(models.Model):
         return self.title
 
 
+class AdviceLetterSection(models.Model):
+    """One interchangeable piece of a client advice letter.
+
+    Kept separate from DocumentTemplate because these are not filings. A letter
+    is a wrapper plus however many of these the tenant's situation calls for, so
+    the unit that gets picked, ranked, and reviewed is the section rather than
+    the document.
+    """
+
+    ROLE_CHOICES = [
+        ("intro", "Opening"),
+        ("body", "Advice section"),
+        ("closing", "Closing"),
+    ]
+    LETTER_TYPE_CHOICES = [
+        ("brief_advice", "Brief advice"),
+        ("full_rep", "Full representation action item"),
+    ]
+    STATUS_CHOICES = [
+        ("ready", "Ready to send"),
+        ("needs_review", "Needs review - had tracked changes or comments"),
+        ("ai_drafted", "Drafted by AI - attorney review required"),
+        ("stub", "Stub - not enough content to send"),
+    ]
+
+    slug = models.SlugField(max_length=140, unique=True)
+    title = models.CharField(max_length=255)
+    role = models.CharField(max_length=20, choices=ROLE_CHOICES, default="body")
+    topic = models.CharField(max_length=120, blank=True)
+    letter_type = models.CharField(max_length=40, choices=LETTER_TYPE_CHOICES, default="brief_advice")
+    region = models.CharField(
+        max_length=20,
+        blank=True,
+        help_text='"CLE", "NEO", or blank when the section applies anywhere.',
+    )
+    cleveland_specific = models.BooleanField(default=False)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="ready")
+    body = models.TextField(blank=True)
+    content_path = models.CharField(max_length=500, blank=True)
+    order = models.PositiveIntegerField(default=0)
+    fields = models.JSONField(default=list, blank=True)
+    slots = models.JSONField(
+        default=list,
+        blank=True,
+        help_text="Authoring notes pointing at another section, e.g. [Insert next defense].",
+    )
+    variants = models.JSONField(default=list, blank=True)
+    selection_hints = models.JSONField(
+        default=dict,
+        blank=True,
+        help_text="Triggers, requirements, and conflicts used to rank this section.",
+    )
+    readability = models.JSONField(default=dict, blank=True)
+    notes = models.JSONField(default=list, blank=True)
+    word_count = models.PositiveIntegerField(default=0)
+    source_kind = models.CharField(max_length=40, default="content_library")
+    source_checksum = models.CharField(max_length=64, blank=True)
+    is_active = models.BooleanField(default=True)
+    last_synced_at = models.DateTimeField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["topic", "order", "title"]
+
+    def __str__(self):
+        return self.title
+
+    @property
+    def sendable(self):
+        """Whether the section may be offered without a warning."""
+        return self.is_active and self.status == "ready"
+
+
 class TemplateBlock(models.Model):
     BLOCK_TYPE_CHOICES = [
         ("caption", "Caption"),

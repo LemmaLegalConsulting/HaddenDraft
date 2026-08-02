@@ -62,6 +62,17 @@ Keep changes aligned with the existing workflow boundaries:
 - Express how much the model may write as a block's `ai_latitude`
   (`locked`/`guided`/`generate`). Latitude constrains the model only: a human
   edit must always reach the export through `blocks[<key>]["revision"]`.
+- Client advice letters are catalogued as `AdviceLetterSection`, not as
+  `DocumentTemplate`. The unit that gets picked and reviewed is the section. Keep
+  assembly deterministic: the wording is what the working group revised for
+  readability, and regenerating it discards that work.
+- Never offer a section whose `status` is not `ready` without saying why. Text
+  that still carries tracked changes, or that AI finished, must not reach a
+  client because it matched a keyword.
+- Score client-facing text with `apps.validation.readability`, whose rules are
+  file-backed in `content/drafting-rules/checks/`. Report several formulas rather
+  than treating one as authoritative, and never rewrite text purely to move a
+  score.
 - Letterhead behavior belongs in `apps.templates_app.letterheads`. A letterhead
   prepared for sharing must carry no trace of the advocate whose file seeded it,
   including document properties and `mailto:`/`attachedTemplate` relationships.

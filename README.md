@@ -279,6 +279,60 @@ Letter drafting lives in `backend/apps/drafting/letters.py` with its prompt in
 `prompts/drafting.letter.yaml`. The letterhead supplies the advocate's identity,
 so the drafted body never restates it.
 
+## Client Advice Letters
+
+Advice letters are catalogued separately from litigation templates, because the
+unit an advocate picks is the section rather than the document. A letter is the
+Model Letter's opening, however many sections the tenant's situation calls for,
+and its closing — composed onto the letterhead.
+
+```bash
+.venv/bin/python backend/manage.py ingest_advice_letters path/to/letter-folder
+```
+
+The source folder is the working group's own: `Client Letters.xlsx`,
+`Model Letter.docx`, and `Letter Sub-Sections/`. Ingestion handles three things
+the maintained files need before the text is usable:
+
+- **Tracked changes are accepted.** Nine sections carry unresolved edits. A run
+  inside `w:ins` is not paragraph content, so reading them naively yields
+  shredded prose.
+- **Repeated wrappers are stripped.** Five sections restate the whole Model
+  Letter; assembling those as written would greet the client several times.
+- **Authoring notes become composition slots.** `[Insert next defense/advice]`
+  points at another section and must never print.
+
+Each section records a `status`: `ready`, `needs_review` (had tracked changes or
+comments), `ai_drafted` (finished during ingest — an attorney must read it), or
+`stub`. Only `ready` sections are offered by default.
+
+**Selection hints** live in `selection-hints.yaml` beside the catalog, written
+once and never overwritten so edits survive re-ingestion. Each says when to send
+a section — `triggers` matched against case facts, `requires` conditions that
+must hold, `excludes` sections that contradict it. Ranking runs through
+`recommend_advice_sections()`, alongside the litigation template scorer, and
+every result carries its reasons.
+
+## Plain-Language Checking
+
+Client-facing text is scored against
+`content/drafting-rules/checks/plain-language.yaml`, which encodes the working
+group's own guidance: sentences under 14 words, a jargon substitution list
+(premises→home, vacate→move), terms to define or avoid, and page targets.
+
+```bash
+.venv/bin/python backend/manage.py check_readability --advice-sections
+.venv/bin/python backend/manage.py check_readability letter.txt --verbose-findings
+```
+
+Several formulas run together — Flesch-Kincaid, SMOG, Flesch reading ease,
+Gunning fog — and are reported side by side rather than reconciled. None is
+authoritative: they count syllables and sentence length and cannot tell whether
+a word is familiar, so a disagreement between them is a reason to read the
+passage. The organization's concrete rules carry more weight than any score.
+The check is invoked deliberately — from review, the command, or advice-letter
+ingest — and is not folded into generation.
+
 ## Advocate Profiles
 
 The letterhead and filing signature blocks need a title, direct phone, fax,
