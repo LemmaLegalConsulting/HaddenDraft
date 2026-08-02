@@ -493,7 +493,7 @@ class ResearchViewTests(TestCase):
         self.assertEqual(payload["sourceDecision"]["mode"], "auto")
         self.assertEqual(
             [item["id"] for item in payload["sourceDecision"]["sources"]],
-            ["ohio-statutes", "treatise"],
+            ["ohio-statutes", "treatise", "ohio-cases"],
         )
         ai_client.assert_not_called()
 
@@ -544,9 +544,10 @@ class AutomaticSourceSelectionTests(TestCase):
     def test_general_question_explains_the_primary_and_secondary_baseline(self):
         selection = automatic_source_selection("What defenses can a tenant raise in an eviction?")
 
-        self.assertEqual(selection["source_ids"], ["ohio-statutes", "treatise"])
+        self.assertEqual(selection["source_ids"], ["ohio-statutes", "treatise", "ohio-cases"])
         self.assertIn("Primary-law baseline", selection["annotations"][0]["reason"])
         self.assertIn("Secondary-source baseline", selection["annotations"][1]["reason"])
+        self.assertIn("case-law", selection["annotations"][2]["reason"])
 
     def test_hud_question_explains_specialized_routing(self):
         selection = automatic_source_selection("What HUD voucher termination rules apply?")
@@ -587,6 +588,30 @@ class ConnectorRegistryTests(TestCase):
 
         self.assertEqual(seen["user"], user)
         self.assertEqual(seen["request"], request)
+
+    def test_registry_interleaves_results_across_source_kinds(self):
+        def make_connector(kind, count):
+            class FakeConnector:
+                def __init__(self):
+                    self.kind = kind
+
+                def search(self, query, **kwargs):
+                    return [
+                        SourceResult(id=f"{kind}-{index}", title=f"{kind} {index}", snippet="", source_kind=kind, source_label=kind)
+                        for index in range(count)
+                    ]
+            return FakeConnector()
+
+        registry = ConnectorRegistry()
+        registry.register(make_connector("rag", 3))
+        registry.register(make_connector("local_cases", 2))
+
+        results = registry.search("notice")
+
+        self.assertEqual(
+            [result.id for result in results],
+            ["rag-0", "local_cases-0", "rag-1", "local_cases-1", "rag-2"],
+        )
 
 
 class AugmentedSearchTests(TestCase):
@@ -671,6 +696,86 @@ class AugmentedSearchTests(TestCase):
 
         self.assertFalse(payload["augmentation"]["expanded"])
         self.assertEqual(calls, ["repair"])
+
+    def test_cases_only_search_never_expands_to_other_sources(self):
+        calls = []
+
+        class FakeRegistry:
+            def search(self, query, **kwargs):
+                calls.append((query, tuple(kwargs.get("source_ids") or [])))
+                return []
+
+        payload = augmented_search(
+            "deficient notice",
+            connector_registry=FakeRegistry(),
+            source_ids=["ohio-cases"],
+            kinds=["local_cases"],
+            allow_source_expansion=False,
+        )
+
+        self.assertEqual(payload["selected_source_ids"], ["ohio-cases"])
+        self.assertTrue(all(source_ids == ("ohio-cases",) for _query, source_ids in calls))
+        self.assertFalse(payload["augmentation"]["expanded"])
+
+    def test_cases_only_facet_followups_vary_query_within_selected_sources(self):
+        calls = []
+
+        class FakeRegistry:
+            def search(self, query, **kwargs):
+                calls.append((query, tuple(kwargs.get("source_ids") or [])))
+                if len(calls) == 1:
+                    return [
+                        SourceResult(
+                            id="local-case:1:1",
+                            title="Tenant v Landlord",
+                            snippet="Repair defects and rent escrow.",
+                            source_kind="local_cases",
+                            source_label="Local case law",
+                            metadata={
+                                "statutesCited": ["R.C. 5321.07"],
+                                "issues": ["rent deposit"],
+                                "casesCited": [],
+                                "regulationsCited": [],
+                            },
+                        )
+                    ]
+                return []
+
+        payload = augmented_search(
+            "repair escrow",
+            connector_registry=FakeRegistry(),
+            source_ids=["ohio-cases"],
+            kinds=["local_cases"],
+            allow_source_expansion=False,
+            max_rounds=2,
+        )
+
+        self.assertIn(("rent deposit", ("ohio-cases",)), calls)
+        self.assertTrue(all(source_ids == ("ohio-cases",) for _query, source_ids in calls))
+        self.assertEqual(payload["selected_source_ids"], ["ohio-cases"])
+
+    def test_single_source_selection_is_not_penalized_for_missing_diversity(self):
+        case_results = [
+            SourceResult(id=f"case-{index}", title="Notice case", snippet="deficient notice", source_kind="local_cases", source_label="Cases")
+            for index in range(4)
+        ]
+        calls = []
+
+        class FakeRegistry:
+            def search(self, query, **kwargs):
+                calls.append(query)
+                return list(case_results)
+
+        payload = augmented_search(
+            "deficient notice",
+            connector_registry=FakeRegistry(),
+            source_ids=["ohio-cases"],
+            kinds=["local_cases"],
+            allow_source_expansion=False,
+        )
+
+        self.assertEqual(calls, ["deficient notice"])
+        self.assertTrue(payload["augmentation"]["finalEvaluation"]["adequate"])
 
     def test_augmented_search_can_retry_same_query_against_new_sources(self):
         calls = []

@@ -24,6 +24,7 @@ from apps.matters.models import MatterFact, TriageRubric
 from apps.matters.seed import seed_matters
 from apps.matters.serializers import fact_to_dict, matter_to_dict, triage_assessment_to_dict, triage_rubric_to_dict
 from apps.matters.services import (
+    DEMO_SOURCE_SYSTEM,
     create_manual_matter_for_user,
     create_legalserver_draft_intake_from_manual_matter,
     legalserver_account_status,
@@ -66,11 +67,13 @@ def cases(request):
     if settings.ENABLE_DEMO_MATTERS and not sync.matters:
         seed_matters()
     local_matters = [] if query else local_matters_for_user(request.user)
+    matters_by_id = {matter.external_id: matter for matter in [*local_matters, *sync.matters]}
     if settings.ENABLE_DEMO_MATTERS:
-        matters = matter_for_demo_list()
-    else:
-        matters_by_id = {matter.external_id: matter for matter in [*local_matters, *sync.matters]}
-        matters = list(matters_by_id.values())
+        # Sample data supplements what the user can already reach; it never
+        # stands in for the access check on real cases.
+        for matter in demo_matters():
+            matters_by_id.setdefault(matter.external_id, matter)
+    matters = list(matters_by_id.values())
     account = legalserver_account_status(request.user)
     return JsonResponse(
         {
@@ -162,10 +165,10 @@ def create_manual_case(request):
     )
 
 
-def matter_for_demo_list():
+def demo_matters():
     from apps.matters.models import Matter
 
-    return Matter.objects.all()
+    return Matter.objects.filter(source_system=DEMO_SOURCE_SYSTEM)
 
 
 @api_login_required

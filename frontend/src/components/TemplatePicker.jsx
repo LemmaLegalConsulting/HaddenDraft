@@ -1,5 +1,7 @@
 import React from "react";
 
+import { templateChoices } from "./templateChoices.js";
+
 function fieldLabel(path) {
   const key = path.replace(/^fields\./, "");
   if (/^placeholder_\d+_\d+$/.test(key)) return "Additional template detail";
@@ -31,8 +33,10 @@ export function TemplatePicker({
       <label className="field">
         <span>Document template</span>
         <select value={selectedTemplateId || ""} onChange={(event) => onTemplateChange(event.target.value)}>
-          {templates.map((template) => (
-            <option key={template.id} value={template.id}>{template.title} · {template.jurisdiction || "Any jurisdiction"}</option>
+          {templateChoices(templates).map((choice) => (
+            <option key={choice.value || "placeholder"} value={choice.value}>
+              {choice.placeholder ? choice.label : `${choice.label} · ${choice.jurisdiction || "Any jurisdiction"}`}
+            </option>
           ))}
         </select>
       </label>

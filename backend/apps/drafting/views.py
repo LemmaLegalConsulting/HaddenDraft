@@ -16,6 +16,7 @@ from apps.drafting.services import (
     recommend_session_fact_ids,
     recommend_support_candidates,
     regenerate_draft_block,
+    template_for_reference,
 )
 from apps.exporting.services import export_docx
 from apps.matters.models import MatterFact
@@ -25,6 +26,9 @@ from apps.templates_app.models import DocumentTemplate
 from apps.validation.repair import validate_with_auto_repair
 from apps.validation.revision import apply_revision_plan, build_revision_plan
 from apps.validation.services import validate_document
+
+
+SHELL_TEMPLATE_SLUG = "novel-motion-shell"
 
 
 def _session_or_404(user, session_id, *, with_template=False):
@@ -46,7 +50,10 @@ def _draft_or_404(user, draft_id):
 
 def _advance_or_400(session, payload):
     try:
-        return advance(session, payload), None
+        session = advance(session, payload)
+        # Session setup runs inside the same guard: it reads the template the
+        # payload just selected, so an unusable reference must not escape as a 500.
+        return initialize_session(session), None
     except ValueError as exc:
         return None, JsonResponse({"error": str(exc)}, status=400)
 
@@ -66,9 +73,16 @@ def sessions(request):
         return JsonResponse({"error": "Case not found or not available to this user"}, status=404)
     template = None
     if body.get("templateId"):
-        template = DocumentTemplate.objects.get(id=body["templateId"])
+        template = template_for_reference(body["templateId"])
+        if not template:
+            return JsonResponse({"error": "Selected template was not found."}, status=404)
     elif body.get("mode") == "draft_from_scratch":
-        template = DocumentTemplate.objects.get(slug="novel-motion-shell")
+        template = DocumentTemplate.objects.filter(slug=SHELL_TEMPLATE_SLUG).first()
+        if not template:
+            return JsonResponse(
+                {"error": "The drafting shell template is not seeded yet. Load the app bootstrap first."},
+                status=503,
+            )
 
     session = DraftingSession.objects.create(
         mode=body.get("mode", "draft_from_template"),
@@ -105,7 +119,6 @@ def advance_session(request, session_id):
     session, error = _advance_or_400(session, json_body(request))
     if error:
         return error
-    initialize_session(session)
     return JsonResponse({"session": session_to_dict(session)})
 
 
@@ -232,11 +245,16 @@ def update_session_template_data(request, session_id):
 
 @api_login_required
 def generate_plan_drafts(request, session_id):
-    if request.method != "POST":
-        return method_not_allowed(["POST"])
+    if request.method not in {"GET", "POST"}:
+        return method_not_allowed(["GET", "POST"])
     session, error = _session_or_404(request.user, session_id, with_template=True)
     if error:
         return error
+    if request.method == "GET":
+        # A plan can produce several documents, so reopening a session has to be
+        # able to recover all of them, not just the one that was generated last.
+        drafts = session.drafts.select_related("template").order_by("created_at")
+        return JsonResponse({"drafts": [draft_to_dict(draft) for draft in drafts]})
     body = json_body(request)
     plan = session.draft_plan or {}
     blocking_missing = unanswered_missing_information(
@@ -251,7 +269,10 @@ def generate_plan_drafts(request, session_id):
             },
             status=400,
         )
-    drafts = create_drafts_from_plan(session, user=request.user, request=request)
+    try:
+        drafts = create_drafts_from_plan(session, user=request.user, request=request)
+    except ValueError as exc:
+        return JsonResponse({"error": str(exc)}, status=400)
     return JsonResponse({"drafts": [draft_to_dict(draft) for draft in drafts]}, status=201)
 
 
@@ -262,7 +283,10 @@ def generate_draft(request, session_id):
     session, error = _session_or_404(request.user, session_id, with_template=True)
     if error:
         return error
-    draft = create_draft(session, user=request.user, request=request)
+    try:
+        draft = create_draft(session, user=request.user, request=request)
+    except ValueError as exc:
+        return JsonResponse({"error": str(exc)}, status=400)
     return JsonResponse({"draft": draft_to_dict(draft)}, status=201)
 
 

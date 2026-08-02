@@ -67,6 +67,8 @@ INSTALLED_APPS = [
     "apps.ai",
 ]
 
+ENABLE_REMOTE_USER_AUTH = env_bool("ENABLE_REMOTE_USER_AUTH", False)
+
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
@@ -76,16 +78,19 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     *(
         ["django.contrib.auth.middleware.RemoteUserMiddleware"]
-        if env_bool("ENABLE_REMOTE_USER_AUTH", False)
+        if ENABLE_REMOTE_USER_AUTH
         else []
     ),
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
+# RemoteUserBackend trusts an upstream proxy to have authenticated the request.
+# It is only sound when the matching middleware is enabled, so the two are
+# configured from the same switch.
 AUTHENTICATION_BACKENDS = [
     "django.contrib.auth.backends.ModelBackend",
-    "django.contrib.auth.backends.RemoteUserBackend",
+    *(["django.contrib.auth.backends.RemoteUserBackend"] if ENABLE_REMOTE_USER_AUTH else []),
 ]
 
 ROOT_URLCONF = "config.urls"

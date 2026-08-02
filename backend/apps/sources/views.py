@@ -62,7 +62,11 @@ def _content_chunk(document_slug, chunk_id):
 def _content_file(source_path):
     if not source_path:
         return None
-    relative = [part for part in str(source_path).split("/") if part]
+    relative = [part for part in str(source_path).split("/") if part and part != "."]
+    # source_path comes from generated manifests rather than the request, but a
+    # traversal component would still resolve outside the content library.
+    if any(part == ".." for part in relative) or not relative:
+        return None
     for path in content_paths(*relative):
         if path.is_file():
             return path
@@ -210,6 +214,9 @@ def research(request):
             user=request.user,
             request=request,
             max_rounds=body.get("maxSearchRounds") or 2,
+            # Explicit modes ("Cases only" / manual pick) must never widen the
+            # search to sources the user excluded; only Auto may add sources.
+            allow_source_expansion=auto_mode,
         )
         results = search_payload["results"]
         source_ids = search_payload["selected_source_ids"]

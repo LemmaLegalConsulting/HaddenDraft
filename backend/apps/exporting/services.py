@@ -161,9 +161,14 @@ def _roman(number):
 
 
 def _draft_template(draft):
+    template = getattr(draft, "template", None)
+    if template:
+        return template
     session = getattr(draft, "session", None)
     if not session:
         return None
+    # Drafts created before the template column existed recorded it in
+    # editor_state, which the editor overwrites on every save.
     editor_state = getattr(draft, "editor_state", None) or {}
     template_id = editor_state.get("templateId")
     template_slug = editor_state.get("templateSlug")

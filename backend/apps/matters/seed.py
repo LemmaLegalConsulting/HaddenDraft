@@ -1,4 +1,5 @@
 from apps.matters.models import Matter, MatterFact
+from apps.matters.services import DEMO_SOURCE_SYSTEM
 
 
 SAMPLE_MATTERS = [
@@ -140,10 +141,16 @@ SAMPLE_FACTS = [
 
 def seed_matters():
     for item in SAMPLE_MATTERS:
-        matter, created = Matter.objects.get_or_create(external_id=item["external_id"], defaults=item)
+        defaults = {**item, "source_system": DEMO_SOURCE_SYSTEM}
+        matter, created = Matter.objects.get_or_create(external_id=item["external_id"], defaults=defaults)
         if not created and item.get("raw_payload") and not matter.raw_payload:
             matter.raw_payload = item["raw_payload"]
             matter.save(update_fields=["raw_payload"])
+        if not created and matter.source_system != DEMO_SOURCE_SYSTEM:
+            # Rows seeded before demo matters were labelled would otherwise be
+            # indistinguishable from real LegalServer cases.
+            matter.source_system = DEMO_SOURCE_SYSTEM
+            matter.save(update_fields=["source_system"])
         if matter.external_id == "LS-24018":
             for fact in SAMPLE_FACTS:
                 MatterFact.objects.get_or_create(matter=matter, slug=fact["slug"], defaults=fact)

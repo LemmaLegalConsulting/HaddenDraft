@@ -11,7 +11,26 @@ QUERY_STOPWORDS = {
     "into", "may", "must", "not", "of", "or", "the", "this", "to", "under", "what", "when", "with",
 }
 
+# Opinions rarely reuse a researcher's phrasing ("deficient notice" appears in
+# case text as "defective"/"invalid"/"failed to comply with R.C. 1923.04").
+# These neighbors are the keyword-index counterpart of the treatise
+# connector's concept expansions.
+CONCEPT_EXPANSIONS = {
+    "deficient": ("defective", "invalid", "insufficient", "improper", "inadequate"),
+    "deficiency": ("defective", "invalid", "insufficient", "improper"),
+    "defective": ("deficient", "invalid", "insufficient", "improper"),
+    "notice": ("notice to leave", "notice to vacate", "three-day", "3-day", "1923.04", "termination notice"),
+    "habitability": ("defective", "condition", "repair", "health", "safety", "premises", "5321.04"),
+    "eviction": ("forcible entry", "detainer", "1923"),
+    "subsidized": ("hud", "assisted", "section 8", "voucher"),
+    "voucher": ("hud", "section 8", "assisted housing"),
+    "deposit": ("security deposit", "escrow", "5321.16"),
+    "retaliation": ("retaliatory", "5321.02"),
+    "retaliatory": ("retaliation", "5321.02"),
+}
+
 DOCUMENT_TYPE_WEIGHTS = {
+    "keywords": 65,
     "issues": 60,
     "holdings": 55,
     "rules": 50,
@@ -25,6 +44,15 @@ DOCUMENT_TYPE_WEIGHTS = {
 
 def _terms(value):
     return [term for term in re.findall(r"[a-z0-9]+", (value or "").casefold()) if len(term) > 2 and term not in QUERY_STOPWORDS]
+
+
+def _expanded_terms(query):
+    """Return (original, expansion-only) terms for filtering and weighted scoring."""
+    original = _terms(query)
+    expansions = []
+    for term in original:
+        expansions.extend(expansion for expansion in CONCEPT_EXPANSIONS.get(term, ()) if expansion not in original)
+    return original, list(dict.fromkeys(expansions))
 
 
 def _snippet(text, terms, *, length=500):
@@ -71,6 +99,7 @@ def _metadata(decision, document_type):
         "approvedForDrafting": decision.approved_for_drafting,
         "documentType": document_type,
         "issues": decision.issues,
+        "searchKeywords": decision.search_keywords,
         "statutesCited": decision.statutes_cited,
         "regulationsCited": decision.regulations_cited,
         "casesCited": decision.cases_cited,
@@ -79,13 +108,14 @@ def _metadata(decision, document_type):
     }
 
 
-def _score(search_doc, terms, jurisdiction):
+def _score(search_doc, terms, expansions, jurisdiction):
     decision = search_doc.decision
     haystack = f"{search_doc.title}\n{search_doc.search_text}".casefold()
     hits = sum(term in haystack for term in terms)
-    if not hits:
+    expansion_hits = sum(expansion in haystack for expansion in expansions)
+    if not hits and not expansion_hits:
         return 0
-    score = DOCUMENT_TYPE_WEIGHTS.get(search_doc.document_type, 10) + hits * 8
+    score = DOCUMENT_TYPE_WEIGHTS.get(search_doc.document_type, 10) + hits * 8 + expansion_hits * 3
     exact_targets = [decision.title, decision.short_title, decision.docket_number, decision.case_number]
     query_phrase = " ".join(terms)
     if query_phrase and any(query_phrase in (target or "").casefold() for target in exact_targets):
@@ -106,12 +136,16 @@ class LocalCaseIndexConnector(SourceConnector):
     detail = "Postgres-backed local case-law decisions and OCR text"
 
     def search(self, query, *, matter=None, jurisdiction="", limit=5, user=None, request=None):
-        terms = _terms(query)
+        terms, expansions = _expanded_terms(query)
         if not terms:
             return []
         filters = Q()
         for term in terms:
             filters |= Q(search_text__icontains=term) | Q(title__icontains=term) | Q(decision__title__icontains=term) | Q(decision__docket_number__icontains=term)
+        # Expansion terms only reach the candidate pool; scoring keeps literal
+        # query hits dominant so synonyms cannot outrank direct matches.
+        for expansion in expansions:
+            filters |= Q(search_text__icontains=expansion) | Q(title__icontains=expansion)
         queryset = (
             CaseLawSearchDocument.objects
             .select_related("decision")
@@ -126,7 +160,7 @@ class LocalCaseIndexConnector(SourceConnector):
 
         ranked = []
         for search_doc in queryset[:500]:
-            score = _score(search_doc, terms, jurisdiction)
+            score = _score(search_doc, terms, expansions, jurisdiction)
             if score <= 0:
                 continue
             ranked.append((score, search_doc))
@@ -143,7 +177,7 @@ class LocalCaseIndexConnector(SourceConnector):
                 SourceResult(
                     id=f"local-case:{decision.id}:{search_doc.id}",
                     title=decision.title,
-                    snippet=_snippet(search_doc.search_text, terms),
+                    snippet=_snippet(search_doc.search_text, [*terms, *expansions]),
                     source_kind=self.kind,
                     source_label="Local case law",
                     citation=_citation(decision),

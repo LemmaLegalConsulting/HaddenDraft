@@ -1,6 +1,8 @@
 import React from "react";
 import { FileText, Layers3, Loader2, Sparkles } from "lucide-react";
 
+import { isTemplateChosen, templateChoices } from "./templateChoices.js";
+
 export function DraftGoalPanel({
   goal,
   onGoalChange,
@@ -22,7 +24,7 @@ export function DraftGoalPanel({
   onSelectGoalSuggestion,
 }) {
   const selectedTemplate = templates.find((template) => template.id === Number(selectedTemplateId));
-  const canMakePlan = Boolean(matter) && (planningMode === "known" ? Boolean(selectedTemplateId) : Boolean(goal.trim()));
+  const canMakePlan = Boolean(matter) && (planningMode === "known" ? isTemplateChosen(selectedTemplateId) : Boolean(goal.trim()));
 
   return (
     <section className="panel">
@@ -87,8 +89,8 @@ export function DraftGoalPanel({
         <label className="field">
           <span>Template</span>
           <select value={selectedTemplateId || ""} onChange={(event) => onTemplateChange(event.target.value)}>
-            {templates.filter((template) => template.kind !== "shell").map((template) => (
-              <option key={template.id} value={template.id}>{template.title}</option>
+            {templateChoices(templates, { excludeShells: true }).map((choice) => (
+              <option key={choice.value || "placeholder"} value={choice.value}>{choice.label}</option>
             ))}
           </select>
         </label>

@@ -23,8 +23,8 @@ services:
     env_file:
       - .env.azure
     environment:
-      - VIRTUAL_HOST=cle-draft.lemmalegal.com
-      - LETSENCRYPT_HOST=cle-draft.lemmalegal.com
+      - VIRTUAL_HOST=${VIRTUAL_HOST:-cle-draft.lemmalegal.com}
+      - LETSENCRYPT_HOST=${LETSENCRYPT_HOST:-cle-draft.lemmalegal.com}
     expose:
       - "80"
     volumes:

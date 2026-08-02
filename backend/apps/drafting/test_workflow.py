@@ -271,8 +271,10 @@ class DraftingMigrationCompatibilityTests(TestCase):
 
         loader = MigrationLoader(connection)
         self.assertNotIn("drafting", loader.detect_conflicts())
+        # Assert the history is unbranched rather than pinning the leaf by name,
+        # which would need editing for every migration added after this one.
         leaves = loader.graph.leaf_nodes("drafting")
-        self.assertEqual(leaves, [("drafting", "0006_drafting_plan_fields")])
+        self.assertEqual(len(leaves), 1, f"drafting migrations branched: {leaves}")
         state_model = loader.project_state(leaves).apps.get_model("drafting", "DraftingSession")
         self.assertEqual(state_model._meta.get_field("template_data").get_default(), {})
         self.assertEqual(state_model._meta.get_field("draft_plan").get_default(), {})

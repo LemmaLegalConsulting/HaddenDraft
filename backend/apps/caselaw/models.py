@@ -83,6 +83,9 @@ class CaseLawDecision(models.Model):
     statutes_cited = models.JSONField(default=list, blank=True)
     regulations_cited = models.JSONField(default=list, blank=True)
     cases_cited = models.JSONField(default=list, blank=True)
+    # Researcher-phrased retrieval keywords ("deficient notice", "improper
+    # service") that rarely appear verbatim in opinion text.
+    search_keywords = models.JSONField(default=list, blank=True)
 
     key_facts = models.TextField(blank=True)
     outcome = models.TextField(blank=True)

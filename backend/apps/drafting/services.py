@@ -2,6 +2,7 @@ import json
 import re
 
 from django.conf import settings
+from django.db import OperationalError, ProgrammingError
 from django.utils.text import slugify
 
 from apps.ai.openai_client import OpenAIBackendError, OpenAICompatibleClient
@@ -166,7 +167,16 @@ def advance(session, payload):
     if "instructions" in payload:
         session.instructions = payload["instructions"]
     if "template" in payload:
-        session.template_id = payload["template"]
+        # Assigning the raw value would persist an unusable foreign key and only
+        # fail later, when something first dereferences session.template.
+        reference = payload["template"]
+        if reference in (None, ""):
+            session.template = None
+        else:
+            template = template_for_reference(reference)
+            if not template:
+                raise ValueError("Selected template was not found.")
+            session.template = template
 
     current_status = normalize_status(session.status)
     requested_status = payload.get("status")
@@ -462,6 +472,17 @@ def apply_plan_edits(session, payload):
         session.selected_block_keys = first.get("selected_block_keys") or session.selected_block_keys
     session.save()
     return session
+
+
+def template_for_reference(value):
+    """Resolve a template id supplied by a client, without raising on junk input."""
+    if value in (None, ""):
+        return None
+    try:
+        template_id = int(value)
+    except (TypeError, ValueError):
+        return None
+    return DocumentTemplate.objects.filter(id=template_id).first()
 
 
 def _template_for_plan_item(item):
@@ -1276,6 +1297,10 @@ def create_draft(session, *, template=None, block_keys=None, title=None, instruc
     scoped_instructions = "\n\n".join(part for part in [instructions if instructions is not None else session.instructions, answered_context] if part)
     context = regeneration_context(session, template=template, instructions=scoped_instructions)
     active_template = template or session.template
+    if not active_template:
+        # compose_document walks template.blocks, so there is no usable
+        # template-less path here despite the fallbacks further down.
+        raise ValueError("Choose a template before generating a draft.")
     block_keys = block_keys or session.selected_block_keys or [block.key for block in active_template.blocks.all()]
     sections = drafting_ai.compose_document(context, block_keys)
     if missing_by_block:
@@ -1289,14 +1314,11 @@ def create_draft(session, *, template=None, block_keys=None, title=None, instruc
     plain_text = "\n\n".join(f"{section['label'].upper()}\n{section['body']}" for section in sections)
     draft = DraftDocument.objects.create(
         session=session,
-        title=title or (active_template.title if active_template else "Draft document"),
+        template=active_template,
+        title=title or active_template.title,
         sections=sections,
         plain_text=plain_text,
-        editor_state={
-            "format": "plain_text",
-            "templateId": active_template.id if active_template else None,
-            "templateSlug": active_template.slug if active_template else "",
-        },
+        editor_state={"format": "plain_text"},
     )
     session.status = "draft_review"
     session.save()
@@ -1393,12 +1415,13 @@ def regenerate_draft_block(draft, block_key, instruction=""):
 
 
 def outline_for_session(session):
-    issues = []
-    try:
-        from apps.issues.models import CandidateIssue
+    from apps.issues.models import CandidateIssue
 
+    try:
         issues = list(CandidateIssue.objects.filter(case_id=session.matter.external_id, status="approved"))
-    except Exception:
+    except (OperationalError, ProgrammingError):
+        # Tolerate an unmigrated issues table only. Swallowing everything here
+        # silently drops reviewer-approved issues from the outline.
         issues = []
     approved_issue_blocks = set()
     for issue in issues:

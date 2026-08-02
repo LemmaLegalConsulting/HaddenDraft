@@ -55,6 +55,17 @@ class DraftingSession(models.Model):
 
 class DraftDocument(models.Model):
     session = models.ForeignKey(DraftingSession, related_name="drafts", on_delete=models.CASCADE)
+    template = models.ForeignKey(
+        "templates_app.DocumentTemplate",
+        related_name="drafts",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        help_text=(
+            "Template this document was generated from. A session can produce several "
+            "documents from different templates, so export renders from this, not the session."
+        ),
+    )
     title = models.CharField(max_length=255)
     sections = models.JSONField(default=list)
     plain_text = models.TextField()

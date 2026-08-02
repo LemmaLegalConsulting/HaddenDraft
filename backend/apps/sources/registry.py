@@ -20,12 +20,12 @@ class ConnectorRegistry:
 
     def search(self, query, *, kinds=None, source_ids=None, matter=None, jurisdiction="", limit_per_source=5, user=None, request=None):
         selected = self.all() if not kinds else [self.get(kind) for kind in kinds if kind in self._connectors]
-        results = []
+        results_per_connector = []
         for connector in selected:
             # A single connector can expose several logical libraries.  Keep the
             # picker selection intact instead of treating every RAG library alike.
             source_kwargs = {"source_ids": source_ids} if connector.kind == "rag" else {}
-            results.extend(
+            results_per_connector.append(
                 connector.search(
                     query,
                     matter=matter,
@@ -36,7 +36,19 @@ class ConnectorRegistry:
                     **source_kwargs,
                 )
             )
-        return results
+        return _interleave(results_per_connector)
+
+
+def _interleave(results_per_connector):
+    """Merge per-connector rankings round-robin so no single source type
+    monopolizes the head of the list (the answer prompt and the UI both read
+    results in order)."""
+    merged = []
+    for rank in range(max((len(results) for results in results_per_connector), default=0)):
+        for results in results_per_connector:
+            if rank < len(results):
+                merged.append(results[rank])
+    return merged
 
 
 connector_registry = ConnectorRegistry()
