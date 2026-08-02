@@ -51,6 +51,9 @@ Keep changes aligned with the existing workflow boundaries:
 - Export formats belong behind `backend/apps/exporting/`.
 - Frontend API calls should go through `frontend/src/api/client.js`; avoid
   scattering fetch logic through components.
+- Frontend derivation and state logic belongs in plain `.js` modules with
+  `node --test` coverage under `frontend/test/`; keep `.jsx` components
+  presentational so the rules stay testable without a browser runtime.
 
 Do not replace reviewable workflow steps with a single free-form agent flow.
 Preserve human review points for facts, template choices, source support,

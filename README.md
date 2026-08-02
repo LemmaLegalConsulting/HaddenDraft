@@ -196,6 +196,7 @@ frontend/
     ├── App.jsx               Main workspace state and mode orchestration
     ├── api/client.js         Backend API client and CSRF header handling
     ├── components/           Case, fact, research, template, and workflow panels
+    ├── state/                Tested reducers for workspace state
     ├── editor/DraftEditor.jsx Lexical draft editor wrapper
     ├── main.jsx              React entry point
     └── styles/app.css        Application styling
@@ -209,6 +210,15 @@ Important frontend components:
 - `TemplatePicker`: selects templates and optional prewritten clauses.
 - `TemplateBuilder`: creates a structured template outline from example text.
 - `DraftEditor`: Lexical editing surface for generated draft text.
+- `DocumentHistoryPanel`: per-section version history, the sources each version relied on, and restoring an earlier version.
+- `PackagePanel`: the documents a plan produced, how they relate, and cross-document validation findings.
+
+Drafting state lives in `src/state/draftWorkspace.js`, a reducer covering the
+rules for a multi-document session: the document list and the open document
+move together, and validation state belongs to the document that produced it.
+Derivation logic for the panels lives in plain `.js` modules
+(`components/documentHistory.js`, `components/documentPackage.js`) so it is
+covered by `npm run test`; the `.jsx` components stay presentational.
 
 ## Current Prototype Notes
 

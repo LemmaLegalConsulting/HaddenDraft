@@ -40,6 +40,7 @@ import { FactReview } from "./components/FactReview.jsx";
 import { factRecommendationState } from "./components/factReviewState.js";
 import { mergeFactIds } from "./components/factReviewState.js";
 import { LawReview } from "./components/LawReview.jsx";
+import { PackagePanel } from "./components/PackagePanel.jsx";
 import { ResearchPanel } from "./components/ResearchPanel.jsx";
 import { RevisionPlanModal } from "./components/RevisionPlanModal.jsx";
 import { TemplatePicker } from "./components/TemplatePicker.jsx";
@@ -942,6 +943,13 @@ export function App() {
               }}
               onRegenerateBlock={regenerateDraftBlock}
               onFillMissingField={fillMissingField}
+            />
+            <PackagePanel
+              sessionId={session?.id ?? null}
+              drafts={drafts}
+              validatedDraftIds={workspace.validatedDraftIds}
+              activeDraftId={draft?.id ?? null}
+              onSelectDocument={(draftId) => dispatchWorkspace({ type: "documentSelected", draftId })}
             />
             <DocumentHistoryPanel
               draft={draft}

@@ -14,6 +14,9 @@ export const initialDraftWorkspace = {
   validationSummary: null,
   dirtySinceValidation: false,
   revisionPlan: null,
+  // Documents validated at least once. An empty findings list means "clean"
+  // only for these; for the rest it means "never checked".
+  validatedDraftIds: [],
 };
 
 export function activeDraft(state) {
@@ -22,6 +25,11 @@ export function activeDraft(state) {
 
 function replaceDraft(drafts, nextDraft) {
   return drafts.map((item) => (item.id === nextDraft.id ? nextDraft : item));
+}
+
+function withValidated(state, draft) {
+  if (!draft || state.validatedDraftIds.includes(draft.id)) return state.validatedDraftIds;
+  return [...state.validatedDraftIds, draft.id];
 }
 
 export function draftWorkspaceReducer(state, action) {
@@ -72,6 +80,7 @@ export function draftWorkspaceReducer(state, action) {
         drafts: action.draft ? replaceDraft(state.drafts, action.draft) : state.drafts,
         validationSummary: action.validation || null,
         dirtySinceValidation: false,
+        validatedDraftIds: withValidated(state, action.draft),
       };
     }
     case "documentEdited": {
@@ -99,6 +108,7 @@ export function draftWorkspaceReducer(state, action) {
         validationSummary: action.validation || null,
         dirtySinceValidation: false,
         revisionPlan: null,
+        validatedDraftIds: withValidated(state, action.draft),
       };
     case "reset":
       return initialDraftWorkspace;

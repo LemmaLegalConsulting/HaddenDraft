@@ -3161,6 +3161,141 @@ button:disabled {
   color: #4a5c68;
 }
 
+
+.package-panel {
+  border: 1px solid #dbe3ea;
+  border-radius: 8px;
+  margin-top: 14px;
+}
+
+.package-panel-header {
+  align-items: center;
+  background: #f6f9fb;
+  border: none;
+  border-radius: 8px;
+  color: #112029;
+  display: flex;
+  font-size: 14px;
+  font-weight: 600;
+  gap: 10px;
+  justify-content: space-between;
+  padding: 10px 12px;
+  width: 100%;
+}
+
+.package-panel-header > span:first-child {
+  align-items: center;
+  display: flex;
+  gap: 8px;
+}
+
+.package-finding-count {
+  align-items: center;
+  background: #fff7e6;
+  border-radius: 10px;
+  color: #8a6100;
+  display: flex;
+  font-size: 12px;
+  gap: 4px;
+  margin-left: auto;
+  padding: 1px 8px;
+}
+
+.package-panel-content {
+  display: grid;
+  gap: 12px;
+  padding: 12px;
+}
+
+.package-document-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.package-document {
+  align-items: center;
+  background: #fff;
+  border: 1px solid #dbe3ea;
+  border-radius: 6px;
+  display: flex;
+  gap: 8px;
+  padding: 6px 10px;
+}
+
+.package-document.active {
+  border-color: #17506e;
+  box-shadow: inset 0 0 0 1px #17506e;
+}
+
+.package-document-title {
+  color: #112029;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.package-role {
+  background: #eef5fb;
+  border-radius: 10px;
+  color: #17506e;
+  font-size: 11px;
+  padding: 1px 8px;
+}
+
+.package-relationships h4,
+.package-findings h4 {
+  color: #112029;
+  font-size: 13px;
+  margin: 0 0 6px;
+}
+
+.package-relationships ul,
+.package-findings ul {
+  display: grid;
+  gap: 6px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.package-relationships li {
+  color: #23323d;
+  font-size: 12px;
+}
+
+.package-findings li {
+  align-items: baseline;
+  display: flex;
+  flex-wrap: wrap;
+  font-size: 12px;
+  gap: 8px;
+}
+
+.package-finding-document {
+  background: none;
+  border: none;
+  color: #17506e;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 0;
+  text-decoration: underline;
+}
+
+.package-findings-clear {
+  color: #1f7a4d;
+  font-size: 12px;
+  margin: 0;
+}
+
+.package-findings-unchecked {
+  color: #8a6100;
+  font-size: 12px;
+  margin: 6px 0 0;
+}
+
 @media (max-width: 980px) {
   .app-shell,
   .two-col,
