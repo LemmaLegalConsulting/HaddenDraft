@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useReducer, useState } from "react";
 import {
   Archive,
   ChevronDown,
@@ -14,6 +14,7 @@ import {
   LogOut,
   Link2,
   Loader2,
+  Mail,
   MessageSquare,
   PenLine,
   Search,
@@ -25,6 +26,7 @@ import {
 
 import { api } from "./api/client.js";
 import { AuthorFields, emptyAuthorProfile } from "./components/AuthorFields.jsx";
+import { AdviceLetterPanel } from "./components/AdviceLetterPanel.jsx";
 import { AuthorProfile } from "./components/AuthorProfile.jsx";
 import { CaseChat } from "./components/CaseChat.jsx";
 import { CaseMaterialsPanel } from "./components/CaseMaterialsPanel.jsx";
@@ -33,18 +35,21 @@ import { CaseSelector } from "./components/CaseSelector.jsx";
 import { DraftSupportReview } from "./components/DraftSupportReview.jsx";
 import { DraftGoalPanel } from "./components/DraftGoalPanel.jsx";
 import { DraftPlanReview } from "./components/DraftPlanReview.jsx";
+import { DocumentHistoryPanel } from "./components/DocumentHistoryPanel.jsx";
 import { DraftSwitcher } from "./components/DraftSwitcher.jsx";
 import { DraftQuestionsReview, unansweredPlanQuestions } from "./components/DraftQuestionsReview.jsx";
 import { FactReview } from "./components/FactReview.jsx";
 import { factRecommendationState } from "./components/factReviewState.js";
 import { mergeFactIds } from "./components/factReviewState.js";
 import { LawReview } from "./components/LawReview.jsx";
+import { PackagePanel } from "./components/PackagePanel.jsx";
 import { ResearchPanel } from "./components/ResearchPanel.jsx";
 import { RevisionPlanModal } from "./components/RevisionPlanModal.jsx";
 import { TemplatePicker } from "./components/TemplatePicker.jsx";
 import { TriagePanel } from "./components/TriagePanel.jsx";
 import { ValidationPanel } from "./components/ValidationPanel.jsx";
 import { WorkflowStepper } from "./components/WorkflowStepper.jsx";
+import { activeDraft, draftWorkspaceReducer, initialDraftWorkspace } from "./state/draftWorkspace.js";
 
 const BASE_WORKFLOW_STEPS = [
   { id: "goal", label: "Goal" },
@@ -57,6 +62,7 @@ const modeOptions = [
   { id: "triage", label: "Triage", icon: ClipboardCheck },
   { id: "case_chat", label: "Chat", icon: MessageSquare },
   { id: "research", label: "Research", icon: Search },
+  { id: "advice_letter", label: "Advice letter", icon: Mail },
   { id: "draft", label: "Draft", icon: PenLine },
 ];
 
@@ -88,11 +94,7 @@ export function App() {
   const [sourceResults, setSourceResults] = useState([]);
   const [session, setSession] = useState(null);
   const [outline, setOutline] = useState(null);
-  const [draft, setDraft] = useState(null);
-  const [drafts, setDrafts] = useState([]);
-  const [validationSummary, setValidationSummary] = useState(null);
-  const [draftDirtySinceValidation, setDraftDirtySinceValidation] = useState(false);
-  const [revisionPlan, setRevisionPlan] = useState(null);
+  const [workspace, dispatchWorkspace] = useReducer(draftWorkspaceReducer, initialDraftWorkspace);
   const [revisionBusy, setRevisionBusy] = useState(false);
   const [triageAssessment, setTriageAssessment] = useState(null);
   const [triageHistory, setTriageHistory] = useState([]);
@@ -115,6 +117,12 @@ export function App() {
   const [connectionSettingsOpen, setConnectionSettingsOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const [error, setError] = useState("");
+
+  const drafts = workspace.drafts;
+  const draft = activeDraft(workspace);
+  const validationSummary = workspace.validationSummary;
+  const draftDirtySinceValidation = workspace.dirtySinceValidation;
+  const revisionPlan = workspace.revisionPlan;
 
   const pendingPlanQuestions = useMemo(() => unansweredPlanQuestions(draftPlan), [draftPlan]);
   const workflowSteps = useMemo(() => {
@@ -154,7 +162,9 @@ export function App() {
     let cancelled = false;
     api.sessionDrafts(session.id)
       .then((response) => {
-        if (!cancelled && response.drafts?.length) setGeneratedDrafts(response.drafts);
+        if (!cancelled && response.drafts?.length) {
+          dispatchWorkspace({ type: "documentsLoaded", drafts: response.drafts });
+        }
       })
       .catch(() => {});
     return () => {
@@ -620,7 +630,7 @@ export function App() {
       const response = await api.generatePlanDrafts(activeSession.id, {
         requireAllMissingInformation: clarifyMissingFactsBeforeDraft,
       });
-      setGeneratedDrafts(response.drafts);
+      dispatchWorkspace({ type: "documentsGenerated", drafts: response.drafts });
       setDraftStep("editor");
     } catch (err) {
       setError(err.message);
@@ -721,7 +731,7 @@ export function App() {
         ...(draftMode === "draft_from_template" ? { template: selectedTemplateId } : {}),
       });
       const response = await api.generateDraft(activeSession.id);
-      setGeneratedDrafts(response.draft ? [response.draft] : []);
+      dispatchWorkspace({ type: "documentsGenerated", drafts: response.draft ? [response.draft] : [] });
     } catch (err) {
       setError(err.message);
     } finally {
@@ -729,49 +739,12 @@ export function App() {
     }
   }
 
-  // `drafts` holds every document the plan produced; `draft` is the one on
-  // screen. Both have to move together or edits are lost when switching.
-  function applyDraftUpdate(nextDraft) {
-    if (!nextDraft) return;
-    setDraft(nextDraft);
-    setDrafts((current) => current.map((item) => (item.id === nextDraft.id ? nextDraft : item)));
-  }
-
-  function patchActiveDraft(patch) {
-    setDraft((current) => {
-      if (!current) return current;
-      const next = { ...current, ...patch };
-      setDrafts((items) => items.map((item) => (item.id === next.id ? next : item)));
-      return next;
-    });
-  }
-
-  function setGeneratedDrafts(generated) {
-    const list = generated || [];
-    setDrafts(list);
-    setDraft(list[0] || null);
-    setValidationSummary(null);
-    setDraftDirtySinceValidation(false);
-  }
-
-  function selectDraft(draftId) {
-    const next = drafts.find((item) => item.id === draftId);
-    if (!next || next.id === draft?.id) return;
-    setDraft(next);
-    // Validation state belongs to the document that produced it.
-    setValidationSummary(null);
-    setDraftDirtySinceValidation(false);
-    setRevisionPlan(null);
-  }
-
   async function validateDraft() {
     if (!draft) return;
     setBusy(true);
     try {
       const response = await api.validateDraft(draft.id);
-      applyDraftUpdate(response.draft);
-      setValidationSummary(response.validation || null);
-      setDraftDirtySinceValidation(false);
+      dispatchWorkspace({ type: "documentValidated", draft: response.draft, validation: response.validation });
     } catch (err) {
       setError(err.message);
     } finally {
@@ -785,8 +758,7 @@ export function App() {
     setError("");
     try {
       const response = await api.regenerateDraftBlock(draft.id, blockKey, { instruction });
-      applyDraftUpdate(response.draft);
-      setDraftDirtySinceValidation(true);
+      dispatchWorkspace({ type: "documentEdited", draft: response.draft });
     } catch (err) {
       setError(err.message);
     } finally {
@@ -805,9 +777,10 @@ export function App() {
       }
       if (draft) {
         const response = await api.updateDraft(draft.id, { sections, plainText, editorState });
-        applyDraftUpdate(response.draft);
+        dispatchWorkspace({ type: "documentEdited", draft: response.draft });
+      } else {
+        dispatchWorkspace({ type: "documentEdited" });
       }
-      setDraftDirtySinceValidation(true);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -821,7 +794,7 @@ export function App() {
     setError("");
     try {
       const response = await api.draftRevisionPlan(draft.id);
-      setRevisionPlan(response.revisionPlan);
+      dispatchWorkspace({ type: "revisionPlanLoaded", plan: response.revisionPlan });
     } catch (err) {
       setError(err.message);
     } finally {
@@ -830,11 +803,7 @@ export function App() {
   }
 
   function updateRevisionPlanItem(blockKey, patch) {
-    setRevisionPlan((current) => (
-      current
-        ? { ...current, plan: current.plan.map((item) => (item.blockKey === blockKey ? { ...item, ...patch } : item)) }
-        : current
-    ));
+    dispatchWorkspace({ type: "revisionPlanItemUpdated", blockKey, patch });
   }
 
   async function applyRevisionPlan() {
@@ -843,10 +812,7 @@ export function App() {
     setError("");
     try {
       const response = await api.applyDraftRevision(draft.id, revisionPlan.plan);
-      applyDraftUpdate(response.draft);
-      setValidationSummary(response.validation || null);
-      setDraftDirtySinceValidation(false);
-      setRevisionPlan(null);
+      dispatchWorkspace({ type: "revisionPlanApplied", draft: response.draft, validation: response.validation });
     } catch (err) {
       setError(err.message);
     } finally {
@@ -949,6 +915,7 @@ export function App() {
         {mode === "case" && <CaseSelector cases={cases} selectedMatterId={selectedMatterId} onSelect={setSelectedMatterId} matter={matter} legalserver={legalserver} legalserverLoading={legalserverLoading} search={caseSearch} onSearchChange={setCaseSearch} onSearch={handleCaseSearch} onSearchReset={handleCaseSearchReset} caseBusy={caseBusy} manualCaseBusy={manualCaseBusy} onCreateManualCase={handleCreateManualCase} onUpdateManualCase={handleUpdateManualCase} onModeChange={(nextMode) => nextMode === "draft" ? openDraft() : setMode(nextMode)} materialsPanel={<CaseMaterialsPanel matter={matter} selectedFactIds={selectedFactIds} onFactIdsAdded={(ids) => setSelectedFactIds((current) => mergeFactIds(current, ids))} onMatterChange={setMatter} />} />}
         {mode === "triage" && <TriagePanel matter={matter} rubrics={triageRubrics} selectedRubricId={selectedTriageRubricId} onSelectRubric={setSelectedTriageRubricId} assessment={triageAssessment} history={triageHistory} busy={busy} manualCaseBusy={manualCaseBusy} onRunTriage={runTriage} onCreateManualCase={handleCreateManualCase} />}
         {mode === "case_chat" && <CaseChat matter={matter} onAction={handleCaseAction} />}
+        {mode === "advice_letter" && <AdviceLetterPanel matter={matter} authorProfile={draftAuthorProfile} />}
         {mode === "research" && <ResearchPanel matter={matter} sources={boot?.sources || []} onResults={(results) => setSourceResults(results)} />}
         {mode === "draft" && draftStep === "goal" && <DraftGoalPanel goal={draftGoal} onGoalChange={(value) => { setDraftGoal(value); setInstructions(value); setSelectedGoalSuggestionId(""); }} planningMode={planningMode} onPlanningModeChange={setPlanningMode} allowMultiple={allowMultipleDocuments} onAllowMultipleChange={setAllowMultipleDocuments} selectedTemplateId={selectedTemplateId} onTemplateChange={selectDraftTemplate} templates={templates} matter={matter} busy={busy} onMakePlan={() => makeDraftPlan()} goalSuggestions={goalSuggestions} goalSuggestionGuidance={goalSuggestionGuidance} goalSuggestionsBusy={goalSuggestionsBusy} selectedGoalSuggestionId={selectedGoalSuggestionId} onSuggestGoals={suggestDraftGoals} onSelectGoalSuggestion={selectGoalSuggestion} />}
         {mode === "draft" && draftStep === "plan" && <DraftPlanReview plan={draftPlan} templates={templates} matter={matter} session={session} busy={busy} authorProfile={draftAuthorProfile} onAuthorProfileChange={setDraftAuthorProfile} selectedFactIds={selectedFactIds} selectedCuratedFacts={selectedCuratedFacts} onFactChange={setSelectedFactIds} onCuratedChange={setSelectedCuratedFacts} onMatterChange={setMatter} onFactIdsAdded={(ids) => setSelectedFactIds((current) => mergeFactIds(current, ids))} selectedResults={sourceResults} onSelectedResultsChange={setSourceResults} onSessionChange={setSession} candidateIssues={candidateIssues} onIssuesChange={setCandidateIssues} clarifyMissingFactsBeforeDraft={clarifyMissingFactsBeforeDraft} onClarifyMissingFactsBeforeDraftChange={setClarifyMissingFactsBeforeDraft} onPlanChange={setDraftPlan} onRegeneratePlan={regenerateDraftPlan} onContinue={goToQuestionsOrGenerate} />}
@@ -966,21 +933,32 @@ export function App() {
             <DraftSwitcher
               drafts={drafts}
               activeDraftId={draft?.id ?? null}
-              onSelect={selectDraft}
+              onSelect={(draftId) => dispatchWorkspace({ type: "documentSelected", draftId })}
               busy={busy}
             />
             <DraftEditor
               draft={draft}
               busy={busy}
-              onChange={(sections, plainText, editorState) => patchActiveDraft({ sections, plainText, editorState })}
+              onChange={(sections, plainText, editorState) => dispatchWorkspace({ type: "documentPatched", patch: { sections, plainText, editorState } })}
               onPersist={async () => {
                 if (!draft) return;
                 const response = await api.updateDraft(draft.id, { sections: draft.sections, plainText: draft.plainText, editorState: draft.editorState });
-                applyDraftUpdate(response.draft);
-                setDraftDirtySinceValidation(true);
+                dispatchWorkspace({ type: "documentEdited", draft: response.draft });
               }}
               onRegenerateBlock={regenerateDraftBlock}
               onFillMissingField={fillMissingField}
+            />
+            <PackagePanel
+              sessionId={session?.id ?? null}
+              drafts={drafts}
+              validatedDraftIds={workspace.validatedDraftIds}
+              activeDraftId={draft?.id ?? null}
+              onSelectDocument={(draftId) => dispatchWorkspace({ type: "documentSelected", draftId })}
+            />
+            <DocumentHistoryPanel
+              draft={draft}
+              busy={busy}
+              onDraftRestored={(restored) => dispatchWorkspace({ type: "documentEdited", draft: restored })}
             />
             {draft && (draft.validationFlags?.length > 0 || validationSummary) && (
               <ValidationPanel
@@ -1014,7 +992,7 @@ export function App() {
             <RevisionPlanModal
               plan={revisionPlan}
               busy={revisionBusy}
-              onClose={() => setRevisionPlan(null)}
+              onClose={() => dispatchWorkspace({ type: "revisionPlanLoaded", plan: null })}
               onUpdateItem={updateRevisionPlanItem}
               onApply={applyRevisionPlan}
             />

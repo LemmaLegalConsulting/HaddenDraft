@@ -1,8 +1,15 @@
+from django.conf import settings
 from django.db import models
 from django.core.validators import FileExtensionValidator
 
 
 word_template_validator = FileExtensionValidator(["docx", "dotx"])
+
+AI_LATITUDE_CHOICES = [
+    ("locked", "Locked - render the maintained wording verbatim"),
+    ("guided", "Guided - maintained wording, rewritable on review"),
+    ("generate", "Generate - the model writes this block"),
+]
 
 
 class DocumentTemplate(models.Model):
@@ -16,6 +23,7 @@ class DocumentTemplate(models.Model):
         ("brief", "Brief"),
         ("hearing_statement", "Hearing Statement"),
         ("shell", "Drafting shell"),
+        ("worksheet", "Spreadsheet exhibit"),
     ]
 
     title = models.CharField(max_length=255)
@@ -58,6 +66,190 @@ class DocumentTemplate(models.Model):
         return self.title
 
 
+class Letterhead(models.Model):
+    """An organization's stationery, parameterized by advocate.
+
+    One record serves every advocate. The masthead, margins, and section setup
+    come from the DOCX; the contact block is filled from the author's profile at
+    render time, so adding an advocate does not mean adding a document.
+    """
+
+    SOURCE_KIND_CHOICES = [
+        ("database", "Uploaded through admin"),
+        ("content_library", "Content library"),
+    ]
+
+    slug = models.SlugField(max_length=120, unique=True)
+    title = models.CharField(max_length=255)
+    description = models.TextField(blank=True)
+    organization = models.CharField(max_length=255, blank=True)
+    docx = models.FileField(
+        upload_to="letterheads/",
+        blank=True,
+        validators=[word_template_validator],
+        help_text=(
+            "A .docx/.dotx whose advocate contact lines are Jinja variables. "
+            "Upload an ordinary letterhead and the admin will parameterize it."
+        ),
+    )
+    content_path = models.CharField(
+        max_length=500,
+        blank=True,
+        help_text="Provider-relative path when the letterhead ships in the content library.",
+    )
+    source_kind = models.CharField(max_length=40, choices=SOURCE_KIND_CHOICES, default="database")
+    is_default = models.BooleanField(
+        default=False,
+        help_text="Used for letters when the advocate's office does not name its own.",
+    )
+    is_active = models.BooleanField(default=True)
+    is_placeholder = models.BooleanField(
+        default=False,
+        help_text="A neutral stand-in shipped so a fresh install can draft letters.",
+    )
+    variables = models.JSONField(default=list, blank=True)
+    preparation_report = models.JSONField(
+        default=dict,
+        blank=True,
+        help_text="What the parameterizer replaced, kept for auditing an upload.",
+    )
+    source_checksum = models.CharField(max_length=64, blank=True)
+    last_synced_at = models.DateTimeField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["-is_default", "title"]
+
+    def __str__(self):
+        return self.title
+
+
+class AdviceLetterSection(models.Model):
+    """One interchangeable piece of a client advice letter.
+
+    Kept separate from DocumentTemplate because these are not filings. A letter
+    is a wrapper plus however many of these the tenant's situation calls for, so
+    the unit that gets picked, ranked, and reviewed is the section rather than
+    the document.
+    """
+
+    ROLE_CHOICES = [
+        ("intro", "Opening"),
+        ("body", "Advice section"),
+        ("closing", "Closing"),
+    ]
+    LETTER_TYPE_CHOICES = [
+        ("brief_advice", "Brief advice"),
+        ("full_rep", "Full representation action item"),
+    ]
+    STATUS_CHOICES = [
+        ("ready", "Ready to send"),
+        ("needs_review", "Needs review - had tracked changes or comments"),
+        ("ai_drafted", "Drafted by AI - attorney review required"),
+        ("stub", "Stub - not enough content to send"),
+    ]
+
+    slug = models.SlugField(max_length=140, unique=True)
+    title = models.CharField(max_length=255)
+    role = models.CharField(max_length=20, choices=ROLE_CHOICES, default="body")
+    topic = models.CharField(max_length=120, blank=True)
+    letter_type = models.CharField(max_length=40, choices=LETTER_TYPE_CHOICES, default="brief_advice")
+    region = models.CharField(
+        max_length=20,
+        blank=True,
+        help_text='"CLE", "NEO", or blank when the section applies anywhere.',
+    )
+    cleveland_specific = models.BooleanField(default=False)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="ready")
+    body = models.TextField(blank=True)
+    editor_state = models.JSONField(
+        default=dict,
+        blank=True,
+        help_text="Initial Lexical state converted from the maintained section DOCX.",
+    )
+    content_path = models.CharField(max_length=500, blank=True)
+    order = models.PositiveIntegerField(default=0)
+    fields = models.JSONField(default=list, blank=True)
+    slots = models.JSONField(
+        default=list,
+        blank=True,
+        help_text="Authoring notes pointing at another section, e.g. [Insert next defense].",
+    )
+    variants = models.JSONField(default=list, blank=True)
+    selection_hints = models.JSONField(
+        default=dict,
+        blank=True,
+        help_text="Triggers, requirements, and conflicts used to rank this section.",
+    )
+    readability = models.JSONField(default=dict, blank=True)
+    copyedit = models.JSONField(
+        default=dict,
+        blank=True,
+        help_text="What the copy-edit pass fixed, and what it left for a human to read.",
+    )
+    notes = models.JSONField(default=list, blank=True)
+    word_count = models.PositiveIntegerField(default=0)
+
+    # Review tracking. Everything is loaded so attorneys can read it in place,
+    # so the flag rather than the absence of a row is what marks unchecked text.
+    needs_attorney_review = models.BooleanField(
+        default=False,
+        help_text=(
+            "Set on anything that was not ready as maintained: tracked changes "
+            "accepted here, text drafted here, or a passage a merge left doubtful."
+        ),
+    )
+    review_reason = models.CharField(
+        max_length=255,
+        blank=True,
+        help_text="Why this needs checking, in one line.",
+    )
+    reviewed_at = models.DateTimeField(null=True, blank=True)
+    reviewed_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="reviewed_advice_sections",
+    )
+    review_notes = models.TextField(blank=True)
+    is_locally_edited = models.BooleanField(
+        default=False,
+        help_text=(
+            "Edited here rather than in the content library. Re-ingesting will "
+            "not overwrite this section's text, status, or review state."
+        ),
+    )
+
+    source_kind = models.CharField(max_length=40, default="content_library")
+    source_checksum = models.CharField(max_length=64, blank=True)
+    is_active = models.BooleanField(default=True)
+    last_synced_at = models.DateTimeField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["topic", "order", "title"]
+
+    def __str__(self):
+        return self.title
+
+    @property
+    def sendable(self):
+        """Whether the section can be offered without a review warning."""
+        return self.is_active and not self.needs_attorney_review
+
+    @property
+    def review_summary(self):
+        """One line for the picker explaining why this still needs checking."""
+        if not self.needs_attorney_review:
+            return ""
+        if self.review_reason:
+            return self.review_reason
+        return dict(self.STATUS_CHOICES).get(self.status, self.status)
+
+
 class TemplateBlock(models.Model):
     BLOCK_TYPE_CHOICES = [
         ("caption", "Caption"),
@@ -82,6 +274,21 @@ class TemplateBlock(models.Model):
         help_text="Optional .docx/.dotx Jinja template rendered for this block during Word export.",
     )
     required = models.BooleanField(default=True)
+    ai_latitude = models.CharField(
+        max_length=20,
+        choices=AI_LATITUDE_CHOICES,
+        default="locked",
+        help_text=(
+            "How much of this block the model may write. Locked blocks render the "
+            "maintained wording verbatim; guided blocks render it but accept a "
+            "reviewed rewrite; generate blocks are written from the instructions."
+        ),
+    )
+    ai_instructions = models.JSONField(
+        default=list,
+        blank=True,
+        help_text="Drafting directions the template author wrote into this block.",
+    )
     ai_fill_mode = models.CharField(max_length=80, default="none")
     selection_rule = models.JSONField(default=dict, blank=True)
     supporting_sources = models.JSONField(default=list, blank=True)

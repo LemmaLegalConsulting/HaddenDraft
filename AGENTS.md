@@ -5,6 +5,9 @@ library, not inside a Django app or embedded in Python constants.
 
 - Put shared DOCX snippets in `content/docx-snippets/_shared/blocks/` and
   pathway overrides in `private-content/docx-snippets/<template-slug>/blocks/`.
+- Put organization letterheads in `<provider>/letterheads/<slug>/` with a
+  `manifest.yaml` and `letterhead.docx`. Real stationery is private; keep a
+  neutral placeholder in `content/letterheads/` so a fresh checkout can draft.
 - Put authoritative treatise PDFs under `content/treatises/source/`; keep
   generated Markdown under `content/treatises/markdown/` and do not hand-edit
   it.
@@ -41,13 +44,47 @@ Keep changes aligned with the existing workflow boundaries:
 - Retrieval/source integrations belong under `backend/apps/sources/`; new
   connectors should implement `SourceConnector.search()` and be registered in
   `backend/apps/sources/registry.py`.
-- Drafting orchestration belongs under `backend/apps/drafting/`.
+- Drafting orchestration belongs under `backend/apps/drafting/`. Write draft
+  section JSON only through `apps.drafting.components.record_sections()`, and
+  express changes to an existing document as `apps.drafting.operations`
+  proposals, so component history and provenance stay complete.
 - AI prompt execution and model-facing logic belong under `backend/apps/ai/`.
 - Template and reusable block behavior belongs under
   `backend/apps/templates_app/`.
+- A prepared template keeps the maintained original's wording. Convert only
+  language the author marked as variable (`[...]`, `____`, highlighting) through
+  `apps.templates_app.placeholders`; never rebind ordinary prose to a model-written
+  slot. Rewrite paragraphs run by run so inline formatting survives.
+- Express either/or clauses as a named choice with Docassemble/AssemblyLine
+  conventions: a snake_case variable, snake_case option values, and
+  paragraph-level `{%p if %}`/`{%p elif %}` tags. Make the first alternative the
+  default so an unanswered choice never deletes the passage.
+- Express how much the model may write as a block's `ai_latitude`
+  (`locked`/`guided`/`generate`). Latitude constrains the model only: a human
+  edit must always reach the export through `blocks[<key>]["revision"]`.
+- Client advice letters are catalogued as `AdviceLetterSection`, not as
+  `DocumentTemplate`. The unit that gets picked and reviewed is the section. Keep
+  assembly deterministic: the wording is what the working group revised for
+  readability, and regenerating it discards that work.
+- Offer every advice-letter section, and say which ones need checking. Text that
+  carries accepted tracked changes, a merge-boundary passage, or AI drafting is
+  flagged with `needs_attorney_review` and a one-line reason rather than hidden;
+  withholding it once hid the best match for a case behind a stale status.
+- Do not let `sync_advice_letters` overwrite a section marked `is_locally_edited`.
+  An attorney's read and correction must survive the next ingest.
+- Score client-facing text with `apps.validation.readability`, whose rules are
+  file-backed in `content/drafting-rules/checks/`. Report several formulas rather
+  than treating one as authoritative, and never rewrite text purely to move a
+  score.
+- Letterhead behavior belongs in `apps.templates_app.letterheads`. A letterhead
+  prepared for sharing must carry no trace of the advocate whose file seeded it,
+  including document properties and `mailto:`/`attachedTemplate` relationships.
 - Export formats belong behind `backend/apps/exporting/`.
 - Frontend API calls should go through `frontend/src/api/client.js`; avoid
   scattering fetch logic through components.
+- Frontend derivation and state logic belongs in plain `.js` modules with
+  `node --test` coverage under `frontend/test/`; keep `.jsx` components
+  presentational so the rules stay testable without a browser runtime.
 
 Do not replace reviewable workflow steps with a single free-form agent flow.
 Preserve human review points for facts, template choices, source support,

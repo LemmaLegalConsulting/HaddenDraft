@@ -5,16 +5,17 @@ from django.core.management.base import BaseCommand, CommandError
 from apps.core.content_library import organization_content_library_dir
 from apps.templates_app.content_library import sync_prepared_templates
 from apps.templates_app.ingestion import ingest_directory, ingest_docx
+from apps.templates_app.spreadsheets import ingest_xlsx
 
 
 class Command(BaseCommand):
-    help = "Convert original DOCX files into formatting-preserving Jinja2 template packages."
+    help = "Convert original DOCX and XLSX files into formatting-preserving Jinja2 template packages."
 
     def add_arguments(self, parser):
         parser.add_argument(
             "paths",
             nargs="*",
-            help="DOCX files or directories; defaults to ORGANIZATION_CONTENT_LIBRARY_DIR/original_templates.",
+            help="DOCX/XLSX files or directories; defaults to ORGANIZATION_CONTENT_LIBRARY_DIR/original_templates.",
         )
         parser.add_argument("--force", action="store_true", help="Regenerate packages even when the source checksum is unchanged.")
         parser.add_argument("--no-sync", action="store_true", help="Do not update the database index after conversion.")
@@ -34,9 +35,11 @@ class Command(BaseCommand):
                 manifests.extend(ingest_directory(path, prepared_root, snippets_root, force=options["force"]))
             elif path.suffix.lower() == ".docx":
                 manifests.append(ingest_docx(path, prepared_root, snippets_root, force=options["force"]))
+            elif path.suffix.lower() == ".xlsx":
+                manifests.append(ingest_xlsx(path, prepared_root, force=options["force"]))
             else:
                 self.stderr.write(f"Skipping unsupported template source: {path}")
 
         if not options["no_sync"]:
             sync_prepared_templates()
-        self.stdout.write(self.style.SUCCESS(f"Prepared {len(set(manifests))} DOCX template package(s)."))
+        self.stdout.write(self.style.SUCCESS(f"Prepared {len(set(manifests))} template package(s)."))

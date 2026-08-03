@@ -39,9 +39,21 @@ SYSTEM_ALIASES = {
     "advocate_organization",
     "advocate_email",
     "advocate_phone",
+    "advocate_fax",
+    "advocate_title",
+    "advocate_bar_number",
+    "advocate_name_and_bar",
+    "advocate_signature_block",
     "advocate_address",
     "advocate_contact",
     "advocate_signature_image",
+    "office_name",
+    "office_address",
+    "letter_subject",
+    "letter_date",
+    "matter_subject",
+    "case_reference",
+    "client_name",
 }
 
 LEGACY_LITERAL_FIELDS = {

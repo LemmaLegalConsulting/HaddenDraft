@@ -159,14 +159,266 @@ backend/
     └── validation/           Draft validation checks
 ```
 
+Inside `apps/drafting/`, the document artifact layer sits under `DraftDocument`:
+
+- `components.py`: each section is also a durable `DocumentComponent` with
+  append-only `ComponentVersion` history. `record_sections()` is the one write
+  path, so generation, editor saves, and auto-repair are all attributable.
+- `operations.py`: typed, reviewable changes (`replace`, `insert`, `delete`,
+  `move`, `revert`). Proposals are inert until applied.
+- `source_bindings.py`: which component version used which source, typed by
+  whether that source is record evidence, authority, procedure, or example
+  language only.
+- `packages.py`: the documents a plan generates, their package roles, and the
+  relationships between them.
+
+Validation rules for the last two live in `apps/validation/source_integrity.py`
+and `apps/validation/packages.py`. See [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md)
+for the model and API details.
+
 Key extension points:
 
 - Add a retrieval source by implementing `SourceConnector.search()` under `backend/apps/sources/connectors/` and registering it in `backend/apps/sources/registry.py`.
+- Declare a document's role in a filing package with `metadata.packageRole` on its template, so cross-document validation understands the package without new Python.
 - Add or change document structure through `DocumentTemplate` and `TemplateBlock` in `backend/apps/templates_app/models.py`.
+- Replace the organization's letterhead in Django admin under **Letterheads**; see [Letterheads and letters](#letterheads-and-letters).
 - Replace deterministic AI placeholders inside `backend/apps/ai/services.py`.
 - Maintain LLM system/user messages in `prompts/*.yaml`; see [`prompts/README.md`](prompts/README.md) for the schema, benchmark workflow, and database-override behavior.
 - Maintain reusable legal-content files in [`content/`](content/README.md). Run `.venv/bin/python backend/manage.py sync_content_library` to seed new triage-rubric files; use `--update-triage-rubrics` only when intentionally replacing existing database values.
 - Add export formats in `backend/apps/exporting/services.py`.
+
+## Prepared Templates
+
+`ingest_document_templates` converts maintained originals into template packages
+that keep the author's wording:
+
+```bash
+.venv/bin/python backend/manage.py ingest_document_templates --force
+```
+
+DOCX and XLSX sources are both supported. Conversion edits WordprocessingML in
+place, so styles, numbering, tables, headers, footers, and images survive. Only
+language the author marked as variable is rebound:
+
+| Marked as | Becomes |
+| --- | --- |
+| `[DATE]`, `[PHA]`, `[ADDRESS]` | `{{ fields.* }}` or a system alias such as `{{ defendant }}` |
+| `________` | the field the surrounding sentence implies |
+| A highlighted value | the matching field |
+| A highlighted sentence | `{% if include_… %}…{% endif %}`, keeping the original wording |
+| Two clauses separated by `[OR]` | `{%p if … %}` / `{%p elif … %}` / `{%p endif %}` over a named choice |
+
+Alternative clauses follow Docassemble/AssemblyLine conventions: a snake_case
+variable with snake_case option values, and paragraph-level `{%p %}` tags. A
+certificate of service written both ways becomes:
+
+```jinja
+{%p if service_method == "email" or not service_method %}
+Pursuant to Civ.R. 5(B)(4), I certify that on {{ fields.service_date }} … by email
+to {{ fields.plaintiff_email }}, pursuant to Civ.R. 5(B)(2)(f).
+{%p elif service_method == "mail" %}
+Pursuant to Civ.R. 5(B)(4), I certify that on {{ fields.service_date }} … by United
+States mail to {{ fields.plaintiff_address }}, pursuant to Civ.R. 5(B)(2)(c).
+{%p endif %}
+```
+
+The first alternative is also the default, so an unanswered choice still renders a
+complete certificate. Options are named for what distinguishes them (`email`,
+`mail`, `personal`, `courier`, `fax`) and fall back to `option_1`, `option_2`.
+Each choice is declared in the manifest, surfaced on the template as
+`metadata.choices`, and offered as a select under **Either/or clauses**; the
+advocate's answer travels in the session's template data.
+
+Every block records an `ai_latitude` that governs how much of it the model may
+write:
+
+- **locked** - captions, certificates of service, signature blocks, and passages
+  carrying quoted statutes or citations. Rendered verbatim.
+- **guided** - the maintained prose is a starting draft that still needs adapting.
+  It renders literally and accepts a reviewed rewrite.
+- **generate** - the original said "insert case specific facts"; the instruction
+  becomes the model's prompt and the model supplies the paragraphs.
+
+Latitude constrains the model, not the advocate. An edit made in the editor always
+reaches the export through `blocks[<key>]["revision"]`, whatever the latitude.
+Adjust a block's latitude in Django admin under **Template blocks**.
+
+## Letterheads and Letters
+
+One parameterized letterhead serves every advocate. Its contact block is filled
+from the author's profile at render time, so adding an advocate does not mean
+adding a document.
+
+```bash
+# Turn one advocate's letterhead into the organization-wide template.
+.venv/bin/python backend/manage.py prepare_letterhead path/to/letterhead.docx \
+    --slug my-org --title "My Legal Aid" --organization "My Legal Aid" --default
+
+# Regenerate the neutral placeholder a fresh checkout draws letters on.
+.venv/bin/python backend/manage.py build_placeholder_letterhead
+```
+
+Preparation replaces the advocate's name, phone, fax, and email lines with
+variables, parameterizes the continuation header, and strips the source
+advocate's identity from document properties and from `mailto:`/`attachedTemplate`
+relationships. The masthead image, margins, and page setup are untouched.
+
+Available variables: `advocate_name`, `advocate_title`, `advocate_phone`,
+`advocate_fax`, `advocate_email`, `office_name`, `office_address`,
+`letter_subject`, `letter_date`. An advocate with no fax gets no fax line rather
+than an empty label.
+
+Organization stationery is private, so it belongs under
+`ORGANIZATION_CONTENT_LIBRARY_DIR` (normally the `private-content/` submodule).
+A neutral `example-legal-aid` placeholder ships in `content/letterheads/` so a
+fresh install can draft and export a letter before anyone uploads their own.
+Non-technical staff replace it in Django admin under **Letterheads**, which
+explains the expected layout and reports which contact lines it found.
+
+Letter drafting lives in `backend/apps/drafting/letters.py` with its prompt in
+`prompts/drafting.letter.yaml`. The letterhead supplies the advocate's identity,
+so the drafted body never restates it.
+
+## Client Advice Letters
+
+Advice letters are catalogued separately from litigation templates, because the
+unit an advocate picks is the section rather than the document. A letter is the
+Model Letter's opening, however many sections the tenant's situation calls for,
+and its closing — composed onto the letterhead.
+
+```bash
+.venv/bin/python backend/manage.py ingest_advice_letters path/to/letter-folder
+```
+
+The source folder is the working group's own: `Client Letters.xlsx`,
+`Model Letter.docx`, and `Letter Sub-Sections/`. Ingestion handles three things
+the maintained files need before the text is usable:
+
+- **Tracked changes are accepted, then copy-edited.** Nine sections carry
+  unresolved edits. A run inside `w:ins` is not paragraph content, so reading
+  them naively yields shredded prose. The accepted text is written to
+  `advice-letters/accepted/` so a reviewer can open the resolved version in Word.
+- **Repeated wrappers are stripped.** Five sections restate the whole Model
+  Letter; assembling those as written would greet the client several times.
+- **Authoring notes become composition slots.** `[Insert next defense/advice]`
+  points at another section and must never print.
+
+### Using it
+
+The **Advice letter** mode in the app lists the catalog grouped by topic, with a
+"needs review" badge and reason on anything unverified. Set what is true about
+the case, ask for suggestions, then pick sections — they appear in the letter in
+the order you choose them, reorderable afterwards. The preview shows the
+assembled body with its reading grade and page estimate; **Download letter**
+renders it onto the organization's letterhead.
+
+| Endpoint | Purpose |
+| --- | --- |
+| `GET /api/advice-letters/sections/` | Catalog with review state, grouped topics |
+| `POST /api/advice-letters/recommend/` | Ranked sections for one case, with reasons |
+| `POST /api/advice-letters/preview/` | Assembled body, warnings, readability |
+| `GET /api/advice-letters/addressing/` | Recipient, address, and Re: line from the case |
+| `POST /api/advice-letters/export/` | The letter as DOCX on letterhead |
+
+Downloads are named to be findable later:
+
+```
+2026-08-02-garcia-robert-advice-letter-security-deposit-nonpayment-rent.docx
+```
+
+Date first so letters sort chronologically, then the client surname-first so a
+client's letters group together, then up to three section names. The advocate
+can rename any single letter before downloading. The pattern is editable at
+**Organization settings** in Django admin with `{date}`, `{client}`,
+`{sections}`, `{case}`, and `{kind}` — an organization that files by case number
+can use `{case}-{date}-{kind}` instead.
+
+### Attorney review
+
+Every section is loaded and offered, including ones the source documents never
+finished — the practical way to review this corpus is to read it in place.
+`needs_attorney_review`, not the absence of a row, marks unchecked text, and
+each flagged section carries a one-line `review_reason` shown next to it in the
+picker and in any letter that uses it.
+
+Withholding flagged sections was the earlier behaviour and it hid the best match
+for a case: the 3-day-notice defect scored highest but never appeared, because
+its file still had tracked changes.
+
+Sections are flagged when tracked changes were accepted here, when a passage sat
+on a merge boundary, when the text was drafted here rather than maintained, or
+when reviewer comments were dropped. Review them at
+**Templates › Advice letter sections** in Django admin, which explains each
+reason inline and shows the readability and copy-edit reports. Filter by
+**Needs attorney review**, edit the body if it needs it, clear the flag, and
+save — or use the **Mark as reviewed** bulk action.
+
+Saving in admin sets `is_locally_edited`, and `ingest_advice_letters` will not
+overwrite the text, status, or review state of such a section. Editing
+`advice-letters/catalog.yaml` and `selection-hints.yaml` in the private content
+repository remains the right path for a change the whole organization should
+keep; it simply will not undo anything already decided in admin.
+
+### Copy-editing accepted text
+
+Accepting an editor's marks reproduces their mistakes faithfully. In the
+security-deposit section the editor deleted "returning some or all of" and
+inserted "all", so the accepted text reads "explain why they're not all the
+deposit to you" — correct as a merge, and ungrammatical.
+
+So the copy-edit pass splits the work. Mechanical damage is repaired: 41
+non-breaking spaces and 7 doubled spaces across the corpus, plus spaces before
+punctuation, missing spaces after it, and doubled punctuation. Legal citations
+are protected, so `R.C. 5321.04` and `Civ.R. 5(B)(4)` survive intact.
+
+Anything needing judgment is reported and left alone. Every paragraph that sat
+on a merge boundary is flagged for a human read, because that is where a
+half-finished edit surfaces; a section with such a flag stays out of the default
+picker. Wording is never rewritten — a copy-edit that quietly changed the advice
+would be worse than the artifact it fixed. Sentences broken by the editor's own
+edit are repaired by name in `advice_letter_completions.MERGE_REPAIRS`, each
+recording what the accepted text said and why the replacement is what the editor
+meant.
+
+**Selection hints** live in `selection-hints.yaml` beside the catalog, written
+once and never overwritten so edits survive re-ingestion. Each says when to send
+a section — `triggers` matched against case facts, `requires` conditions that
+must hold, `excludes` sections that contradict it. Ranking runs through
+`recommend_advice_sections()`, alongside the litigation template scorer, and
+every result carries its reasons.
+
+## Plain-Language Checking
+
+Client-facing text is scored against
+`content/drafting-rules/checks/plain-language.yaml`, which encodes the working
+group's own guidance: sentences under 14 words, a jargon substitution list
+(premises→home, vacate→move), terms to define or avoid, and page targets.
+
+```bash
+.venv/bin/python backend/manage.py check_readability --advice-sections
+.venv/bin/python backend/manage.py check_readability letter.txt --verbose-findings
+```
+
+Several formulas run together — Flesch-Kincaid, SMOG, Flesch reading ease,
+Gunning fog — and are reported side by side rather than reconciled. None is
+authoritative: they count syllables and sentence length and cannot tell whether
+a word is familiar, so a disagreement between them is a reason to read the
+passage. The organization's concrete rules carry more weight than any score.
+The check is invoked deliberately — from review, the command, or advice-letter
+ingest — and is not folded into generation.
+
+## Advocate Profiles
+
+The letterhead and filing signature blocks need a title, direct phone, fax,
+office, and bar number. LegalServer's users endpoint carries all of them:
+
+```bash
+.venv/bin/python backend/manage.py sync_author_profiles --dry-run
+```
+
+The command fills blank profile fields and leaves an advocate's own corrections
+alone; pass `--overwrite` to replace them. Mapping lives in
+`backend/apps/core/legalserver_profile.py`.
 
 ## Frontend Layout
 
@@ -178,6 +430,7 @@ frontend/
     ├── App.jsx               Main workspace state and mode orchestration
     ├── api/client.js         Backend API client and CSRF header handling
     ├── components/           Case, fact, research, template, and workflow panels
+    ├── state/                Tested reducers for workspace state
     ├── editor/DraftEditor.jsx Lexical draft editor wrapper
     ├── main.jsx              React entry point
     └── styles/app.css        Application styling
@@ -191,6 +444,15 @@ Important frontend components:
 - `TemplatePicker`: selects templates and optional prewritten clauses.
 - `TemplateBuilder`: creates a structured template outline from example text.
 - `DraftEditor`: Lexical editing surface for generated draft text.
+- `DocumentHistoryPanel`: per-section version history, the sources each version relied on, and restoring an earlier version.
+- `PackagePanel`: the documents a plan produced, how they relate, and cross-document validation findings.
+
+Drafting state lives in `src/state/draftWorkspace.js`, a reducer covering the
+rules for a multi-document session: the document list and the open document
+move together, and validation state belongs to the document that produced it.
+Derivation logic for the panels lives in plain `.js` modules
+(`components/documentHistory.js`, `components/documentPackage.js`) so it is
+covered by `npm run test`; the `.jsx` components stay presentational.
 
 ## Current Prototype Notes
 

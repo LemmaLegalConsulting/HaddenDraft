@@ -124,10 +124,17 @@ export const api = {
   updateSessionTemplateData: (sessionId, templateData) =>
     request(`/drafting-sessions/${sessionId}/template-data/`, { method: "POST", body: JSON.stringify({ templateData }) }),
   sessionDrafts: (sessionId) => request(`/drafting-sessions/${sessionId}/drafts/`),
+  sessionPackage: (sessionId) => request(`/drafting-sessions/${sessionId}/package/`),
   generatePlanDrafts: (sessionId, payload = {}) =>
     request(`/drafting-sessions/${sessionId}/drafts/`, { method: "POST", body: JSON.stringify(payload) }),
   generateDraft: (sessionId) => request(`/drafting-sessions/${sessionId}/draft/`, { method: "POST" }),
   updateDraft: (draftId, payload) => request(`/drafts/${draftId}/`, { method: "PATCH", body: JSON.stringify(payload) }),
+  draftComponents: (draftId) => request(`/drafts/${draftId}/components/`),
+  draftOperations: (draftId) => request(`/drafts/${draftId}/operations/`),
+  proposeDraftOperation: (draftId, payload) =>
+    request(`/drafts/${draftId}/operations/`, { method: "POST", body: JSON.stringify(payload) }),
+  decideDraftOperation: (draftId, operationId, payload) =>
+    request(`/drafts/${draftId}/operations/${operationId}/decision/`, { method: "POST", body: JSON.stringify(payload) }),
   regenerateDraftBlock: (draftId, blockKey, payload) =>
     request(`/drafts/${draftId}/blocks/${blockKey}/regenerate/`, { method: "POST", body: JSON.stringify(payload) }),
   validateDraft: (draftId) => request(`/drafts/${draftId}/validate/`, { method: "POST" }),
@@ -135,5 +142,20 @@ export const api = {
   applyDraftRevision: (draftId, plan) =>
     request(`/drafts/${draftId}/revision/`, { method: "POST", body: JSON.stringify({ plan }) }),
   exportDraftUrl: (draftId) => `${API_BASE}/drafts/${draftId}/export/`,
+
+  adviceLetterSections: ({ region = "", letterType = "brief_advice", reviewedOnly = false } = {}) =>
+    request(`/advice-letters/sections/?${new URLSearchParams({ region, letterType, reviewedOnly: reviewedOnly ? "1" : "" })}`),
+  adviceLetterAddressing: (matterId) =>
+    request(`/advice-letters/addressing/?${new URLSearchParams({ matterId })}`),
+  adviceLetterRecommendations: (payload) =>
+    request("/advice-letters/recommend/", { method: "POST", body: JSON.stringify(payload) }),
+  adviceLetterPreview: (payload) =>
+    request("/advice-letters/preview/", { method: "POST", body: JSON.stringify(payload) }),
+  adviceLetterExport: (payload) =>
+    request("/advice-letters/export/", { method: "POST", body: JSON.stringify(payload) }),
+  adviceLetterDraft: (payload) =>
+    request("/advice-letters/drafts/", { method: "POST", body: JSON.stringify(payload) }),
+  adviceLetterDraftExport: (draftId, payload = {}) =>
+    request(`/advice-letters/drafts/${draftId}/export/`, { method: "POST", body: JSON.stringify(payload) }),
   adminUrl: () => "/admin/",
 };

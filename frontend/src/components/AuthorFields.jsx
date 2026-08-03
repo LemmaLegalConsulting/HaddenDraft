@@ -5,8 +5,12 @@ export const emptyAuthorProfile = {
   salutation: "",
   signoff: "Respectfully submitted,",
   organization: "",
+  title: "",
+  barNumber: "",
   phone: "",
+  fax: "",
   email: "",
+  officeName: "",
   address: "",
   signatureImage: "",
   defaultJurisdiction: "",
@@ -51,6 +55,18 @@ export function AuthorFields({ profile, onChange, onSignatureChange }) {
         <input value={value.organization || ""} onChange={(event) => updateField("organization", event.target.value)} />
       </label>
       <label className="field">
+        <span>Title</span>
+        <input value={value.title || ""} onChange={(event) => updateField("title", event.target.value)} placeholder="Staff Attorney" />
+      </label>
+      <label className="field">
+        <span>Bar number</span>
+        <input value={value.barNumber || ""} onChange={(event) => updateField("barNumber", event.target.value)} />
+      </label>
+      <label className="field">
+        <span>Office</span>
+        <input value={value.officeName || ""} onChange={(event) => updateField("officeName", event.target.value)} placeholder="Cleveland" />
+      </label>
+      <label className="field">
         <span>Default research jurisdiction</span>
         <input value={value.defaultJurisdiction || ""} onChange={(event) => updateField("defaultJurisdiction", event.target.value)} placeholder="Ohio" />
       </label>
@@ -61,6 +77,10 @@ export function AuthorFields({ profile, onChange, onSignatureChange }) {
       <label className="field">
         <span>Phone</span>
         <input value={value.phone || ""} onChange={(event) => updateField("phone", event.target.value)} />
+      </label>
+      <label className="field">
+        <span>Fax</span>
+        <input value={value.fax || ""} onChange={(event) => updateField("fax", event.target.value)} placeholder="Leave empty to hide the fax line on letterhead" />
       </label>
       <label className="field full-span">
         <span>Signature block contact info</span>

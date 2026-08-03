@@ -11,7 +11,8 @@ class AuthorProfileAdmin(admin.ModelAdmin):
 
 @admin.register(OrganizationSettings)
 class OrganizationSettingsAdmin(admin.ModelAdmin):
-    fields = ("default_jurisdiction",)
+    list_display = ("__str__", "default_jurisdiction", "letter_filename_pattern")
+    fields = ("default_jurisdiction", "letter_filename_pattern", "letter_filename_section_limit")
 
     def has_add_permission(self, request):
         return not OrganizationSettings.objects.exists()

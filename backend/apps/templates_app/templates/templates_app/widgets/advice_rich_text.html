@@ -1,0 +1,9 @@
+<div class="advice-rich-editor" data-advice-rich-editor data-body-field="id_body">
+  <div class="advice-rich-toolbar" role="toolbar" aria-label="Rich text formatting">
+    <button type="button" data-rich-command="bold"><strong>B</strong></button>
+    <button type="button" data-rich-command="italic"><em>I</em></button>
+    <button type="button" data-rich-command="underline"><u>U</u></button>
+  </div>
+  <div class="advice-rich-surface" contenteditable="true" role="textbox" aria-multiline="true"></div>
+  <textarea name="{{ widget.name }}" id="{{ widget.attrs.id }}" hidden>{{ widget.value }}</textarea>
+</div>

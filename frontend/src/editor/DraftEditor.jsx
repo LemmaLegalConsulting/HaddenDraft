@@ -13,6 +13,30 @@ function cleanBody(body = "") {
   return body.replace(/<br\s*\/?>/gi, "\n");
 }
 
+function fieldKeyForLabel(label) {
+  return label.toLowerCase().trim().replace(/[^a-z0-9]+/g, "_").replace(/^_+|_+$/g, "");
+}
+
+function replaceMissingValue(text, label, fieldKey, value) {
+  const bracket = `[${label}]`;
+  const expression = new RegExp(`\\{\\{\\s*fields\\.${fieldKey}\\s*\\}\\}`, "g");
+  return (text || "").split(bracket).join(value).replace(expression, value);
+}
+
+function replaceMissingValueInEditorState(state, label, fieldKey, value) {
+  if (!state || typeof state !== "object") return state;
+  const next = JSON.parse(JSON.stringify(state));
+  function visit(node) {
+    if (!node || typeof node !== "object") return;
+    if (node.type === "text") {
+      node.text = replaceMissingValue(node.text, label, fieldKey, value);
+    }
+    (node.children || []).forEach(visit);
+  }
+  visit(next.root);
+  return next;
+}
+
 function loadPlainText(body) {
   return () => {
     const root = $getRoot();
@@ -168,15 +192,22 @@ function DraftBlock({ block, blockState, disabled, onBlockChange, onFormatChange
       <div className="draft-block-header">
         <h4>{block.label}</h4>
         <div className="block-header-actions">
-          {(block.origin === "ai" || block.aiFillMode === "constrained_generation") && (
+          {(block.origin === "ai" || block.aiLatitude === "generate" || block.aiFillMode === "constrained_generation") && (
             <span className="ai-badge" title="AI-generated"><Sparkles size={13} /> AI</span>
+          )}
+          {block.aiLatitude === "locked" && (
+            <span className="ai-badge locked-badge" title="Maintained template wording. You can still edit it; the AI will not rewrite it.">
+              Template wording
+            </span>
           )}
           <button className="icon-button secondary" title="Actions" type="button" onClick={() => setMenuOpen((value) => !value)}>
             <MoreVertical size={16} />
           </button>
           {menuOpen && (
             <div className="block-menu">
-              <button type="button" onClick={() => { setMenuOpen(false); onOpenRefine(block); }}>Refine with AI</button>
+              {block.aiLatitude !== "locked" && (
+                <button type="button" onClick={() => { setMenuOpen(false); onOpenRefine(block); }}>Refine with AI</button>
+              )}
               <button type="button" onClick={() => onFormatChange(block.key, nextFormat(block, { style: format.style === "numbered" ? "plain" : "numbered" }))}>
                 {format.style === "numbered" ? "Use plain paragraphs" : "Number paragraphs"}
               </button>
@@ -313,6 +344,10 @@ function MissingFieldModal({ placeholder, disabled, onClose, onSubmit }) {
             if (event.key === "Enter" && value.trim()) onSubmit(placeholder.label, value.trim());
           }}
         />
+        <p className="muted missing-field-modal-note">
+          No deterministic value was found in this case record. Verify this value from the
+          source document or enter it yourself; it will be recorded as a human edit.
+        </p>
         <div className="button-row step-actions">
           <button className="secondary" type="button" onClick={onClose}>Cancel</button>
           <button className="primary" disabled={disabled || !value.trim()} type="button" onClick={() => onSubmit(placeholder.label, value.trim())}>
@@ -361,16 +396,21 @@ export function DraftEditor({ draft, busy, onChange, onPersist, onRegenerateBloc
   }
 
   function fillPlaceholder(label, value) {
-    const bracket = `[${label}]`;
+    const fieldKey = fieldKeyForLabel(label);
     const nextSections = sections.map((section) => ({
       ...section,
-      body: (section.body || "").split(bracket).join(value),
+      body: replaceMissingValue(section.body, label, fieldKey, value),
     }));
-    updateSections(nextSections);
-    const fieldKey = label.toLowerCase().trim().replace(/[^a-z0-9]+/g, "_").replace(/^_+|_+$/g, "");
+    const nextBlockStates = Object.fromEntries(
+      Object.entries(blockStates).map(([key, state]) => [
+        key,
+        replaceMissingValueInEditorState(state, label, fieldKey, value),
+      ]),
+    );
+    updateSections(nextSections, nextBlockStates);
     onFillMissingField?.(fieldKey, value, nextSections, plainTextFromSections(nextSections), {
       format: "lexical_blocks",
-      blocks: blockStates,
+      blocks: nextBlockStates,
     });
     setMissingFieldPrompt(null);
   }
@@ -431,7 +471,7 @@ export function DraftEditor({ draft, busy, onChange, onPersist, onRegenerateBloc
         </div>
         {missingPlaceholders.length > 0 && (
           <div className="missing-field-bar">
-            <span className="missing-field-bar-label"><AlertCircle size={14} /> Fill in before filing:</span>
+            <span className="missing-field-bar-label"><AlertCircle size={14} /> Not found in this case record — fill/check before filing:</span>
             {missingPlaceholders.map((item) => (
               <button
                 key={item.label}

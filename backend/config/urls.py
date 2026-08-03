@@ -8,6 +8,7 @@ from apps.drafting import views as drafting_views
 from apps.matters import views as matter_views
 from apps.rules import views as rule_views
 from apps.sources import views as source_views
+from apps.templates_app import advice_letter_views
 from apps.templates_app import views as template_views
 
 
@@ -41,6 +42,13 @@ urlpatterns = [
     path("api/cases/<str:matter_id>/run-issue-selection/", rule_views.run_case_issue_selection, name="api_run_issue_selection"),
     path("api/cases/<str:matter_id>/", matter_views.case_detail, name="api_case_detail"),
     path("api/candidate-issues/<int:issue_id>/review/", rule_views.candidate_issue_review, name="api_candidate_issue_review"),
+    path("api/advice-letters/sections/", advice_letter_views.advice_letter_sections, name="api_advice_letter_sections"),
+    path("api/advice-letters/addressing/", advice_letter_views.advice_letter_addressing, name="api_advice_letter_addressing"),
+    path("api/advice-letters/recommend/", advice_letter_views.advice_letter_recommendations, name="api_advice_letter_recommend"),
+    path("api/advice-letters/preview/", advice_letter_views.advice_letter_preview, name="api_advice_letter_preview"),
+    path("api/advice-letters/export/", advice_letter_views.advice_letter_export, name="api_advice_letter_export"),
+    path("api/advice-letters/drafts/", advice_letter_views.advice_letter_draft, name="api_advice_letter_draft"),
+    path("api/advice-letters/drafts/<int:draft_id>/export/", advice_letter_views.advice_letter_draft_export, name="api_advice_letter_draft_export"),
     path("api/sources/", source_views.sources, name="api_sources"),
     path("api/sources/content/<slug:document_slug>/<str:chunk_id>/", source_views.content_source, name="api_content_source"),
     path("api/sources/content/<slug:document_slug>/<str:chunk_id>/pdf/", source_views.content_source_pdf, name="api_content_source_pdf"),
@@ -64,8 +72,16 @@ urlpatterns = [
     path("api/drafting-sessions/<int:session_id>/plan/", drafting_views.draft_plan, name="api_draft_plan"),
     path("api/drafting-sessions/<int:session_id>/template-data/", drafting_views.update_session_template_data, name="api_session_template_data"),
     path("api/drafting-sessions/<int:session_id>/drafts/", drafting_views.generate_plan_drafts, name="api_generate_plan_drafts"),
+    path("api/drafting-sessions/<int:session_id>/package/", drafting_views.session_package, name="api_session_package"),
     path("api/drafting-sessions/<int:session_id>/draft/", drafting_views.generate_draft, name="api_generate_draft"),
     path("api/drafts/<int:draft_id>/", drafting_views.draft_detail, name="api_draft_detail"),
+    path("api/drafts/<int:draft_id>/components/", drafting_views.draft_components, name="api_draft_components"),
+    path("api/drafts/<int:draft_id>/operations/", drafting_views.draft_operations, name="api_draft_operations"),
+    path(
+        "api/drafts/<int:draft_id>/operations/<int:operation_id>/decision/",
+        drafting_views.draft_operation_decision,
+        name="api_draft_operation_decision",
+    ),
     path("api/drafts/<int:draft_id>/blocks/<slug:block_key>/regenerate/", drafting_views.regenerate_block, name="api_regenerate_block"),
     path("api/drafts/<int:draft_id>/validate/", drafting_views.validate_draft, name="api_validate_draft"),
     path("api/drafts/<int:draft_id>/revision-plan/", drafting_views.draft_revision_plan, name="api_draft_revision_plan"),

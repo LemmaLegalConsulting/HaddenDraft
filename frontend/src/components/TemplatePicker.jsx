@@ -19,6 +19,7 @@ export function TemplatePicker({
 }) {
   const selectedTemplate = templates.find((template) => template.id === Number(selectedTemplateId));
   const templateFields = selectedTemplate?.metadata?.fields || [];
+  const templateAlternatives = selectedTemplate?.metadata?.choices || [];
 
   function toggleBlock(key) {
     if (selectedBlockKeys.includes(key)) {
@@ -40,6 +41,27 @@ export function TemplatePicker({
           ))}
         </select>
       </label>
+
+      {templateAlternatives.length > 0 && (
+        <div className="template-field-list">
+          <h4>Either/or clauses</h4>
+          <p className="muted">The template offers alternative wording here. The first option is used unless you choose another.</p>
+          {templateAlternatives.map((choice) => (
+            <label className="field" key={choice.name}>
+              <span>{choice.label || choice.name}</span>
+              <select
+                value={templateData?.[choice.name] ?? ""}
+                onChange={(event) => onTemplateDataChange({ ...templateData, [choice.name]: event.target.value })}
+              >
+                <option value="">Use the default ({choice.default})</option>
+                {(choice.options || []).map((option) => (
+                  <option key={option} value={option}>{fieldLabel(option)}</option>
+                ))}
+              </select>
+            </label>
+          ))}
+        </div>
+      )}
 
       {templateFields.length > 0 && (
         <div className="template-field-list">

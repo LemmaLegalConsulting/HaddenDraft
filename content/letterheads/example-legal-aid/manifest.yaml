@@ -1,0 +1,20 @@
+schema_version: 1
+slug: example-legal-aid
+title: Example Legal Aid Society (placeholder)
+organization: Example Legal Aid Society
+description: Neutral letterhead shipped so a fresh install can draft letters. Replace
+  it with your organization's stationery in Django admin.
+docx: letterhead.docx
+default: true
+placeholder: true
+active: true
+variables:
+- advocate_name
+- advocate_title
+- advocate_phone
+- advocate_fax
+- advocate_email
+- office_name
+- office_address
+- letter_subject
+- letter_date

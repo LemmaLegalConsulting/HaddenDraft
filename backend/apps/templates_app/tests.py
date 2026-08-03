@@ -8,13 +8,23 @@ from django.db import connection
 from django.test import TestCase
 from django.test.utils import CaptureQueriesContext
 from docx import Document
+from docx.enum.text import WD_COLOR_INDEX
 
 from apps.core.content_library import organization_content_library_dir
 from apps.drafting.models import DraftDocument, DraftingSession
 from apps.exporting.services import _remove_editorial_caption_label, _render_docx_template, export_docx
 from apps.matters.models import Matter
 from apps.templates_app.content_library import sync_prepared_templates, sync_template_overrides
-from apps.templates_app.ingestion import convert_placeholder_text, discover_blocks, ingest_docx
+from apps.templates_app.ingestion import (
+    LATITUDE_GENERATE,
+    LATITUDE_GUIDED,
+    LATITUDE_LOCKED,
+    classify_latitude,
+    discover_blocks,
+    ingest_docx,
+    is_heading,
+)
+from apps.templates_app.placeholders import convert_paragraph, convert_text
 from apps.templates_app.jinja_filters import (
     as_noun,
     comma_and_list,
@@ -41,6 +51,279 @@ def make_source_docx(path: Path):
     table = document.add_table(rows=1, cols=1)
     table.cell(0, 0).text = "Case No. [CASE NUMBER]"
     document.save(path)
+
+
+def highlighted_run(paragraph, text):
+    run = paragraph.add_run(text)
+    run.font.highlight_color = WD_COLOR_INDEX.YELLOW
+    return run
+
+
+class PlaceholderConversionTests(TestCase):
+    """The maintained wording survives; only marked fill-ins become bindings."""
+
+    def test_conversion_keeps_run_formatting_on_surrounding_text(self):
+        document = Document()
+        paragraph = document.add_paragraph()
+        paragraph.add_run("Now comes ")
+        paragraph.add_run("Defendant ").bold = True
+        highlighted_run(paragraph, "[DEFENDANT NAME]")
+        paragraph.add_run(", by counsel.").italic = True
+
+        convert_paragraph(paragraph, "body_1")
+
+        self.assertIn("{{ defendant }}", paragraph.text)
+        self.assertIn("Now comes", paragraph.text)
+        self.assertIn(", by counsel.", paragraph.text)
+        bold_runs = [run.text for run in paragraph.runs if run.bold]
+        italic_runs = [run.text for run in paragraph.runs if run.italic]
+        self.assertIn("Defendant ", bold_runs)
+        self.assertIn(", by counsel.", italic_runs)
+
+    def test_placeholder_split_across_runs_is_still_converted(self):
+        # Word splits a bracketed placeholder across runs after a spell-check
+        # pass, which a run-at-a-time substitution would miss entirely.
+        document = Document()
+        paragraph = document.add_paragraph()
+        paragraph.add_run("Set for hearing on ")
+        highlighted_run(paragraph, "[")
+        highlighted_run(paragraph, "DATE] at [TIME]")
+        highlighted_run(paragraph, ".")
+
+        convert_paragraph(paragraph, "body_1")
+
+        self.assertIn("{{ fields.hearing_date }}", paragraph.text)
+        self.assertIn("{{ fields.hearing_time }}", paragraph.text)
+        self.assertTrue(paragraph.text.endswith("."))
+
+    def test_highlighted_sentence_keeps_its_wording_behind_a_toggle(self):
+        document = Document()
+        paragraph = document.add_paragraph()
+        paragraph.add_run("Plaintiff will not be prejudiced as ")
+        sentence = (
+            "Defendant will pay monthly bond while the case is pending and "
+            "Plaintiff retains rights in the second cause of action"
+        )
+        highlighted_run(paragraph, sentence)
+
+        conversion = convert_paragraph(paragraph, "body_1")
+
+        self.assertIn(sentence, paragraph.text)
+        self.assertEqual(len(conversion.flags), 1)
+        flag = next(iter(conversion.flags))
+        self.assertIn("{%% if %s %%}" % flag, paragraph.text)
+        self.assertIn("{% endif %}", paragraph.text)
+
+    def test_conversion_clears_the_authors_highlighting(self):
+        document = Document()
+        paragraph = document.add_paragraph()
+        highlighted_run(paragraph, "[DATE]")
+
+        convert_paragraph(paragraph, "body_1")
+
+        self.assertTrue(all(run.font.highlight_color is None for run in paragraph.runs))
+
+    def test_editorial_case_caption_marker_stays_literal(self):
+        document = Document()
+        paragraph = document.add_paragraph()
+        highlighted_run(paragraph, "Case Caption - Defendant's Motion for Bench Trial")
+
+        conversion = convert_paragraph(paragraph, "body_1")
+
+        self.assertTrue(paragraph.text.startswith("Case Caption"))
+        self.assertEqual(conversion.fields, set())
+        self.assertEqual(conversion.flags, set())
+
+    def test_mixed_prepared_and_legacy_placeholders_are_both_supported(self):
+        document = Document()
+        paragraph = document.add_paragraph("Served on {{ fields.plaintiff_name }} [DATE].")
+
+        convert_paragraph(paragraph, "body_1")
+
+        self.assertEqual(
+            paragraph.text,
+            "Served on {{ fields.plaintiff_name }} {{ fields.filing_date }}.",
+        )
+
+    def test_brackets_inside_jinja_control_tags_are_not_rebound(self):
+        converted, conversion = convert_text(
+            '{%p for item in blocks["statement-case"]["items"] %} [Filing Date]',
+            "body_1",
+        )
+
+        self.assertIn('blocks["statement-case"]["items"]', converted)
+        self.assertIn("{{ fields.filing_date }}", converted)
+        self.assertEqual(sorted(conversion.fields), ["fields.filing_date"])
+
+
+class HeadingAndLatitudeTests(TestCase):
+    def test_bold_normal_paragraph_is_recognized_as_a_heading(self):
+        document = Document()
+        paragraph = document.add_paragraph()
+        paragraph.add_run("Complexity of Legal and Factual Issues").bold = True
+
+        self.assertTrue(is_heading(paragraph))
+
+    def test_bold_sentence_is_not_a_heading(self):
+        document = Document()
+        paragraph = document.add_paragraph()
+        paragraph.add_run("The Court should grant this Motion because time is needed.").bold = True
+
+        self.assertFalse(is_heading(paragraph))
+
+    def test_quoted_authority_block_is_locked(self):
+        document = Document()
+        document.add_heading("STANDARD OF REVIEW", level=2)
+        document.add_paragraph(
+            "A court presented with a motion under Civ.R. 12(B)(1) must determine "
+            "whether Plaintiff alleges any cause of action. See R.C. 5321.04 and "
+            "24 C.F.R. 247.4(a)(2)."
+        )
+        block = discover_blocks(document)[0]
+
+        self.assertEqual(classify_latitude(document, block), LATITUDE_LOCKED)
+
+    def test_instruction_only_block_is_generated(self):
+        document = Document()
+        document.add_heading("FACTS", level=1)
+        document.add_paragraph("[Insert case specific facts]")
+        block = discover_blocks(document)[0]
+
+        self.assertEqual(classify_latitude(document, block), LATITUDE_GENERATE)
+
+    def test_block_with_fill_ins_is_guided(self):
+        document = Document()
+        document.add_heading("TIME NEEDED FOR DISCOVERY", level=2)
+        document.add_paragraph(
+            "Defendant anticipates propounding interrogatories to Plaintiff and "
+            "issuing a subpoena for records to [PHA]. Defendant anticipates "
+            "needing [X] days to complete discovery."
+        )
+        block = discover_blocks(document)[0]
+
+        self.assertEqual(classify_latitude(document, block), LATITUDE_GUIDED)
+
+
+class AlternativeClauseTests(TestCase):
+    """An editorial "[OR]" becomes a choice, not two certificates and a marker."""
+
+    def setUp(self):
+        self.temp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.temp.cleanup)
+        self.root = Path(self.temp.name)
+
+    def build(self, first, second, *, heading="CERTIFICATE OF SERVICE", marker="[OR]"):
+        source = self.root / "Alternatives.docx"
+        document = Document()
+        document.add_heading(heading, level=1)
+        document.add_paragraph(first)
+        document.add_paragraph(marker)
+        document.add_paragraph(second)
+        document.save(source)
+        manifest_path = ingest_docx(
+            source, self.root / "prepared", self.root / "snippets", force=True
+        )
+        return yaml.safe_load(manifest_path.read_text()), manifest_path.parent / "template.docx"
+
+    def render(self, template_path, manifest, **context):
+        values = {
+            "fields": template_field_values({}),
+            "blocks": {
+                block["key"]: {"body": "", "paragraphs": [], "items": [], "revision": ""}
+                for block in manifest["blocks"]
+            },
+            "defendant": "Jane Tenant",
+            "plaintiff": "Acme LLC",
+        }
+        values.update({flag: True for flag in manifest.get("flags", [])})
+        values.update(context)
+        output = self.root / "rendered.docx"
+        _render_docx_template(template_path, values, output)
+        return [p.text.strip() for p in Document(output).paragraphs if p.text.strip()]
+
+    def test_service_alternatives_become_a_named_choice(self):
+        manifest, _path = self.build(
+            "I certify that on [DATE] I served the motion on [PLAINTIFF] by email to [PLAINTIFF'S EMAIL].",
+            "I certify that on [DATE] I served the motion on [PLAINTIFF] by United States mail to [PLAINTIFF'S ADDRESS].",
+        )
+
+        choice = manifest["choices"][0]
+        self.assertEqual(choice["name"], "service_method")
+        self.assertEqual(choice["options"], ["email", "mail"])
+        self.assertEqual(choice["default"], "email")
+        self.assertEqual(choice["block"], "certificate-of-service")
+
+    def test_only_the_chosen_alternative_renders(self):
+        manifest, path = self.build(
+            "I certify that I served the motion by email to [PLAINTIFF'S EMAIL].",
+            "I certify that I served the motion by United States mail to [PLAINTIFF'S ADDRESS].",
+        )
+
+        mailed = self.render(path, manifest, service_method="mail")
+
+        self.assertTrue(any("United States mail" in line for line in mailed))
+        self.assertFalse(any("by email" in line for line in mailed))
+        self.assertNotIn("[OR]", mailed)
+
+    def test_an_unanswered_choice_falls_back_to_the_first_alternative(self):
+        """A certificate of service must never silently disappear."""
+        manifest, path = self.build(
+            "I certify that I served the motion by email to [PLAINTIFF'S EMAIL].",
+            "I certify that I served the motion by United States mail to [PLAINTIFF'S ADDRESS].",
+        )
+
+        rendered = self.render(path, manifest)
+
+        certificates = [line for line in rendered if "I certify" in line]
+        self.assertEqual(len(certificates), 1)
+        self.assertIn("by email", certificates[0])
+
+    def test_three_alternatives_chain_into_one_choice(self):
+        source = self.root / "Three.docx"
+        document = Document()
+        document.add_heading("CERTIFICATE OF SERVICE", level=1)
+        document.add_paragraph("I served the motion by email to [PLAINTIFF'S EMAIL].")
+        document.add_paragraph("[OR]")
+        document.add_paragraph("I served the motion by United States mail to [PLAINTIFF'S ADDRESS].")
+        document.add_paragraph("[OR]")
+        document.add_paragraph("I served the motion by personal service on [PLAINTIFF].")
+        document.save(source)
+        manifest_path = ingest_docx(
+            source, self.root / "prepared", self.root / "snippets", force=True
+        )
+        manifest = yaml.safe_load(manifest_path.read_text())
+
+        choice = manifest["choices"][0]
+        self.assertEqual(choice["options"], ["email", "mail", "personal"])
+
+        rendered = self.render(
+            manifest_path.parent / "template.docx", manifest, service_method="personal"
+        )
+        served = [line for line in rendered if "I served" in line]
+        self.assertEqual(len(served), 1)
+        self.assertIn("personal service", served[0])
+
+    def test_a_non_certificate_block_gets_a_block_scoped_variable(self):
+        manifest, _path = self.build(
+            "Defendant requests a stay of execution pending appeal.",
+            "Defendant requests dismissal of the complaint.",
+            heading="PRAYER FOR RELIEF",
+        )
+
+        choice = manifest["choices"][0]
+        self.assertEqual(choice["name"], "prayer_for_relief_option")
+        self.assertEqual(choice["options"], ["option_1", "option_2"])
+
+    def test_prose_containing_the_word_or_is_not_treated_as_a_marker(self):
+        manifest, path = self.build(
+            "Plaintiff served a notice by email.",
+            "Plaintiff served a notice by mail.",
+            marker="The notice was defective or untimely.",
+        )
+
+        self.assertEqual(manifest.get("choices"), [])
+        rendered = self.render(path, manifest)
+        self.assertTrue(any("defective or untimely" in line for line in rendered))
 
 
 class TemplatePhrasingFilterTests(TestCase):
@@ -110,6 +393,18 @@ class TemplateIngestionTests(TestCase):
             force=True,
         )
 
+    def content_library(self, public_root=None):
+        """Point both providers at this test's fixtures.
+
+        `ORGANIZATION_CONTENT_LIBRARY_DIR` defaults to the checkout's private
+        submodule. Leaving it alone let a developer's real prepared templates
+        into these assertions, so results depended on whose machine ran them.
+        """
+        return self.settings(
+            CONTENT_LIBRARY_DIR=public_root or self.content,
+            ORGANIZATION_CONTENT_LIBRARY_DIR=self.root / "private-content",
+        )
+
     def test_ingestion_preserves_word_structure_and_adds_list_loop(self):
         manifest_path = self.ingest()
         manifest = yaml.safe_load(manifest_path.read_text())
@@ -138,7 +433,7 @@ class TemplateIngestionTests(TestCase):
         self.assertIn("Further affiant sayeth naught.", xml)
 
     def test_ingestion_preserves_editorial_brackets_and_names_generic_inputs_from_context(self):
-        converted, fields = convert_placeholder_text(
+        converted, conversion = convert_text(
             "Equity [a]bhors forfeiture under note [216]. Hearing date: [INSERT]",
             "body_1",
         )
@@ -146,16 +441,27 @@ class TemplateIngestionTests(TestCase):
         self.assertIn("[a]bhors", converted)
         self.assertIn("[216]", converted)
         self.assertIn("{{ fields.hearing_date }}", converted)
-        self.assertEqual(fields, ["fields.hearing_date"])
+        self.assertEqual(sorted(conversion.fields), ["fields.hearing_date"])
 
     def test_blank_placeholder_uses_surrounding_party_context(self):
-        converted, fields = convert_placeholder_text(
+        converted, conversion = convert_text(
             "Now comes Defendant [ ] by and through counsel.",
             "caption_1",
         )
 
         self.assertIn("{{ defendant }}", converted)
-        self.assertEqual(fields, [])
+        self.assertEqual(sorted(conversion.fields), [])
+
+    def test_underscore_blanks_become_fields(self):
+        converted, conversion = convert_text(
+            "Case No. ________ served on ____________________.",
+            "body_1",
+        )
+
+        self.assertNotIn("___", converted)
+        self.assertIn("{{ case_number }}", converted)
+        self.assertIn("{{ fields.service_date }}", converted)
+        self.assertEqual(sorted(conversion.fields), ["fields.service_date"])
 
     def test_styled_email_placeholder_is_not_discovered_as_a_section(self):
         document = Document()
@@ -224,7 +530,7 @@ class TemplateIngestionTests(TestCase):
 
     def test_sync_indexes_manifests_and_preserves_admin_slug_conflicts(self):
         manifest_path = self.ingest()
-        with self.settings(CONTENT_LIBRARY_DIR=self.content):
+        with self.content_library():
             results = sync_prepared_templates()
             template = DocumentTemplate.objects.get(slug="test-motion")
             self.assertEqual(template.source_kind, "content_library")
@@ -250,7 +556,7 @@ class TemplateIngestionTests(TestCase):
         manifest.pop("goal")
         manifest["description"] = "Prepared from the maintained original Word template."
         manifest_path.write_text(yaml.safe_dump(manifest, sort_keys=False), encoding="utf-8")
-        with self.settings(CONTENT_LIBRARY_DIR=self.content):
+        with self.content_library():
             sync_prepared_templates()
             template = DocumentTemplate.objects.get(slug="test-motion")
             template.goal = ""
@@ -269,7 +575,7 @@ class TemplateIngestionTests(TestCase):
 
     def test_unchanged_sync_does_not_write_to_database(self):
         self.ingest()
-        with self.settings(CONTENT_LIBRARY_DIR=self.content):
+        with self.content_library():
             sync_prepared_templates()
 
             with CaptureQueriesContext(connection) as queries:
@@ -293,7 +599,7 @@ class TemplateIngestionTests(TestCase):
         )
         missing_root = self.root / "not-mounted"
 
-        with self.settings(CONTENT_LIBRARY_DIR=missing_root):
+        with self.content_library(missing_root):
             results = sync_prepared_templates()
 
         template.refresh_from_db()
@@ -373,7 +679,7 @@ class TemplateIngestionTests(TestCase):
         source_doc = Document(template_path)
         source_doc.add_paragraph("Numbered facts: {{ blocks.facts.numbered_items | join('; ') }}")
         source_doc.save(template_path)
-        with self.settings(CONTENT_LIBRARY_DIR=self.content):
+        with self.content_library():
             sync_prepared_templates()
             template = DocumentTemplate.objects.prefetch_related("blocks").get(slug="test-motion")
             matter = Matter.objects.create(
@@ -409,6 +715,58 @@ class TemplateIngestionTests(TestCase):
         self.assertIn("Edited certificate text.", xml)
         self.assertIn("Added overflow paragraph.", xml)
         self.assertNotIn("{%p", xml)
+
+    def test_unedited_block_renders_maintained_wording_not_its_plain_text_copy(self):
+        """An untouched section must come from the DOCX, keeping its formatting."""
+        manifest_path = self.ingest()
+        with self.content_library():
+            sync_prepared_templates()
+            template = DocumentTemplate.objects.prefetch_related("blocks").get(slug="test-motion")
+            certificate = template.blocks.get(key="certificate-of-service")
+            matter = Matter.objects.create(
+                external_id="2026-CVG-2",
+                client_name="Jane Tenant",
+                matter_type="Eviction",
+                jurisdiction="Housing Court",
+            )
+            session = DraftingSession.objects.create(
+                mode="draft_from_template",
+                matter=matter,
+                template=template,
+                template_data={"service_date": "June 28, 2026"},
+            )
+            draft = DraftDocument.objects.create(
+                session=session,
+                title="Test Motion",
+                # The editor round-trips the maintained body unchanged.
+                sections=[
+                    {
+                        "key": "certificate-of-service",
+                        "label": "Certificate of Service",
+                        "body": certificate.body,
+                    }
+                ],
+                plain_text="",
+            )
+
+            response = export_docx(draft)
+
+        with zipfile.ZipFile(BytesIO(response.content)) as archive:
+            xml = archive.read("word/document.xml").decode("utf-8")
+        self.assertIn("I served this document on", xml)
+        self.assertIn("June 28, 2026", xml)
+        self.assertNotIn("{{", xml)
+        self.assertNotIn("{%p", xml)
+
+    def test_maintained_wording_is_not_a_model_written_slot(self):
+        """The regression this replaced: prose rebound to blocks[...] paragraphs."""
+        manifest_path = self.ingest()
+        with zipfile.ZipFile(manifest_path.parent / "template.docx") as archive:
+            xml = archive.read("word/document.xml").decode("utf-8")
+
+        self.assertIn("Further affiant sayeth naught.", xml)
+        self.assertIn("I served this document on", xml)
+        self.assertNotIn('blocks["certificate-of-service"]["paragraphs"]', xml)
 
 
 class RepositorySnippetRenderingTests(TestCase):

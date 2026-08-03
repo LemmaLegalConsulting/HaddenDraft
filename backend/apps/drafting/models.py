@@ -6,6 +6,7 @@ class DraftingSession(models.Model):
         ("research", "Research"),
         ("draft_from_scratch", "Draft from scratch"),
         ("draft_from_template", "Draft from template"),
+        ("advice_letter", "Client advice letter"),
     ]
     STATUS_CHOICES = [
         ("setup", "Choose document"),
@@ -79,3 +80,212 @@ class DraftDocument(models.Model):
 
     def __str__(self):
         return self.title
+
+
+class DocumentComponent(models.Model):
+    """A durable, individually addressable part of a draft document.
+
+    `DraftDocument.sections` stays the shape the editor and export path read.
+    A component is the same section as a domain object: it keeps its identity,
+    history, and review state when the section JSON is rewritten.
+    """
+
+    document = models.ForeignKey(DraftDocument, related_name="components", on_delete=models.CASCADE)
+    stable_key = models.CharField(
+        max_length=160,
+        help_text="Identity of this component within the document, normally the template block key.",
+    )
+    component_type = models.CharField(max_length=80, blank=True)
+    label = models.CharField(max_length=255, blank=True)
+    position = models.PositiveIntegerField(default=0)
+    parent = models.ForeignKey("self", related_name="children", null=True, blank=True, on_delete=models.CASCADE)
+    removed_at = models.DateTimeField(
+        null=True,
+        blank=True,
+        help_text="Set when the component left the document. History is kept rather than deleted.",
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["position", "id"]
+        unique_together = [("document", "stable_key")]
+
+    def __str__(self):
+        return f"{self.document_id}:{self.stable_key}"
+
+    @property
+    def current_version(self):
+        return self.versions.order_by("-sequence").first()
+
+
+class ComponentVersion(models.Model):
+    ORIGIN_CHOICES = [
+        ("template", "Template"),
+        ("ai", "AI generation"),
+        ("human", "Human edit"),
+        ("validation_repair", "Validation repair"),
+        ("rollback", "Rollback"),
+    ]
+
+    component = models.ForeignKey(DocumentComponent, related_name="versions", on_delete=models.CASCADE)
+    sequence = models.PositiveIntegerField()
+    body = models.TextField(blank=True)
+    structured_content = models.JSONField(
+        default=dict,
+        blank=True,
+        help_text="Section fields other than key, label, and body, such as sources and formatting.",
+    )
+    origin = models.CharField(max_length=40, choices=ORIGIN_CHOICES, default="template")
+    instruction = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["component_id", "sequence"]
+        unique_together = [("component", "sequence")]
+
+    def __str__(self):
+        return f"{self.component}@{self.sequence}"
+
+
+class PackageRelationship(models.Model):
+    """How two documents in the same filing package depend on each other.
+
+    A plan can produce a motion, a memorandum, a declaration, and a proposed
+    order. They are filed together and have to agree with each other, so the
+    relationships between them are recorded rather than inferred at read time.
+    """
+
+    RELATIONSHIP_TYPES = [
+        ("cites", "Cites"),
+        ("authenticates_exhibit", "Authenticates exhibit"),
+        ("implements_relief", "Implements relief"),
+        ("incorporates", "Incorporates"),
+        ("depends_on", "Depends on"),
+    ]
+
+    source_document = models.ForeignKey(
+        DraftDocument,
+        related_name="outgoing_relationships",
+        on_delete=models.CASCADE,
+    )
+    target_document = models.ForeignKey(
+        DraftDocument,
+        related_name="incoming_relationships",
+        on_delete=models.CASCADE,
+    )
+    relationship_type = models.CharField(max_length=80, choices=RELATIONSHIP_TYPES)
+    metadata = models.JSONField(default=dict, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["source_document_id", "relationship_type"]
+        unique_together = [("source_document", "target_document", "relationship_type")]
+
+    def __str__(self):
+        return f"{self.source_document_id} {self.relationship_type} {self.target_document_id}"
+
+
+class SourceBinding(models.Model):
+    """What a specific version of a component relied on, and in what way.
+
+    Selected sources are a flat list on the session; a binding says which
+    component used which source and whether that source may be cited, relied on
+    for a fact, or only followed for style.
+    """
+
+    ROLE_CHOICES = [
+        ("record_evidence", "Record evidence"),
+        ("legal_authority", "Legal authority"),
+        ("procedural_rule", "Procedural rule"),
+        ("example_language", "Example language"),
+        ("background_reference", "Background reference"),
+    ]
+    SUPPORT_TYPE_CHOICES = [
+        ("direct", "Direct"),
+        ("inference", "Inference"),
+        ("background", "Background"),
+        ("style_only", "Style only"),
+    ]
+
+    component_version = models.ForeignKey(
+        ComponentVersion,
+        related_name="source_bindings",
+        on_delete=models.CASCADE,
+    )
+    source_key = models.CharField(max_length=255, help_text="Stable identifier of the source within its system.")
+    source_kind = models.CharField(max_length=80, blank=True)
+    role = models.CharField(max_length=40, choices=ROLE_CHOICES)
+    support_type = models.CharField(max_length=40, choices=SUPPORT_TYPE_CHOICES)
+    label = models.CharField(max_length=500, blank=True)
+    citation = models.CharField(max_length=500, blank=True)
+    locator = models.JSONField(
+        default=dict,
+        blank=True,
+        help_text="Where in the source the support is, such as a fact id, URL, or excerpt index.",
+    )
+    excerpt = models.TextField(blank=True)
+    verified = models.BooleanField(
+        default=False,
+        help_text="Set once the locator and quoted text have been checked against the source.",
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["component_version_id", "id"]
+
+    def __str__(self):
+        return f"{self.role}: {self.label or self.source_key}"
+
+
+class DraftOperation(models.Model):
+    """A proposed, reviewable change to one part of a document.
+
+    Changes are described before they are made, so a reviewer (or a later
+    model-driven stage) can see exactly what would move, and so an applied
+    change keeps a record of what it replaced.
+    """
+
+    OPERATION_TYPES = [
+        ("replace_component", "Replace component"),
+        ("insert_component", "Insert component"),
+        ("delete_component", "Delete component"),
+        ("move_component", "Move component"),
+        ("revert_component", "Revert component to an earlier version"),
+    ]
+    STATUS_CHOICES = [
+        ("proposed", "Proposed"),
+        ("applied", "Applied"),
+        ("rejected", "Rejected"),
+    ]
+
+    document = models.ForeignKey(DraftDocument, related_name="operations", on_delete=models.CASCADE)
+    operation_type = models.CharField(max_length=60, choices=OPERATION_TYPES)
+    target_component = models.ForeignKey(
+        DocumentComponent,
+        related_name="operations",
+        null=True,
+        blank=True,
+        on_delete=models.CASCADE,
+    )
+    payload = models.JSONField(default=dict, blank=True)
+    rationale = models.TextField(blank=True)
+    status = models.CharField(max_length=30, choices=STATUS_CHOICES, default="proposed")
+    origin = models.CharField(max_length=40, choices=ComponentVersion.ORIGIN_CHOICES, default="human")
+    decision_note = models.TextField(blank=True)
+    result = models.JSONField(default=dict, blank=True)
+    requested_by = models.ForeignKey(
+        "auth.User",
+        related_name="draft_operations",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    resolved_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        ordering = ["-created_at", "-id"]
+
+    def __str__(self):
+        return f"{self.operation_type} on {self.document_id} ({self.status})"

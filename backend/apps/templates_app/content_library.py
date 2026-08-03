@@ -9,7 +9,13 @@ from django.utils import timezone
 
 from apps.core.content_library import content_library_dir, content_library_roots
 from apps.templates_app.models import DocumentTemplate, TemplateBlock
+from apps.templates_app.placeholders import convert_text
 
+
+# v1 packages rebound every paragraph to an AI slot; v2 keeps the maintained
+# wording and records per-block `ai_latitude`. Both load so an existing library
+# keeps working until it is re-ingested.
+SUPPORTED_MANIFEST_VERSIONS = {1, 2}
 
 PREPARED_TEMPLATE_DIR = "document-templates"
 TEMPLATE_OVERRIDE_DIR = "template-overrides"
@@ -57,13 +63,25 @@ def load_manifest(path: Path) -> tuple[dict, str]:
     missing = sorted(required - set(data))
     if missing:
         raise TemplateManifestError(f"{path}: missing {', '.join(missing)}")
-    if data["schema_version"] != 1:
+    if data["schema_version"] not in SUPPORTED_MANIFEST_VERSIONS:
         raise TemplateManifestError(f"{path}: unsupported schema_version {data['schema_version']}")
-    if not isinstance(data["blocks"], list) or not data["blocks"]:
-        raise TemplateManifestError(f"{path}: blocks must be a non-empty list")
+    if not isinstance(data["blocks"], list):
+        raise TemplateManifestError(f"{path}: blocks must be a list")
     keys = [row.get("key") for row in data["blocks"]]
     if any(not key for key in keys) or len(keys) != len(set(keys)):
         raise TemplateManifestError(f"{path}: block keys must be present and unique")
+
+    if data["render"].get("strategy") == "workbook":
+        # A spreadsheet exhibit has no reviewable prose blocks; the advocate
+        # fills rows in the workbook, so only the workbook itself is validated.
+        workbook = (path.parent / (data["render"].get("xlsx") or "")).resolve()
+        if not data["render"].get("xlsx") or not workbook.is_file():
+            raise TemplateManifestError(f"{path}: render.xlsx does not exist")
+        logical_content_path(workbook)
+        return data, _checksum_bytes(raw)
+
+    if not data["blocks"]:
+        raise TemplateManifestError(f"{path}: blocks must be a non-empty list")
     render_path = data["render"].get("docx")
     prepared_docx = (path.parent / (render_path or "")).resolve()
     if not render_path or not prepared_docx.is_file():
@@ -114,6 +132,7 @@ def _template_metadata(manifest: dict) -> dict:
         "schemaVersion": manifest["schema_version"],
         "render": manifest.get("render", {}),
         "fields": manifest.get("fields", []),
+        "choices": manifest.get("choices", []),
         "source": manifest.get("source", {}),
     }
 
@@ -188,11 +207,22 @@ def sync_prepared_templates(*, deactivate_missing=False):
             continue
         manifest_block_keys = {row["key"] for row in manifest["blocks"]}
         defaults = _template_defaults(path, manifest, checksum)
+        expected_block_bodies = {
+            row["key"]: convert_text(
+                row.get("body", ""), f"{manifest['slug']}_{row['key']}"
+            )[0]
+            for row in manifest["blocks"]
+        }
+        existing_block_bodies = {
+            block.key: block.body
+            for block in existing.blocks.all()
+        } if existing else {}
         if (
             existing
             and existing.source_checksum == checksum
             and _template_matches_defaults(existing, defaults)
             and set(existing.blocks.values_list("key", flat=True)) == manifest_block_keys
+            and existing_block_bodies == expected_block_bodies
         ):
             results.append({"slug": slug, "status": "unchanged", "template": existing})
             continue
@@ -210,12 +240,17 @@ def sync_prepared_templates(*, deactivate_missing=False):
         block_keys = set()
         for row in manifest["blocks"]:
             block_keys.add(row["key"])
+            normalized_body, _conversion = convert_text(
+                row.get("body", ""), f"{manifest['slug']}_{row['key']}"
+            )
             block_defaults = {
                 "label": row.get("label") or row["key"].replace("-", " ").title(),
                 "block_type": row.get("type", "optional_clause"),
                 "order": int(row.get("order", 0)),
-                "body": row.get("body", ""),
+                "body": normalized_body,
                 "required": bool(row.get("required", True)),
+                "ai_latitude": row.get("ai_latitude", "locked"),
+                "ai_instructions": row.get("instructions", []),
                 "ai_fill_mode": row.get("ai_fill_mode", "none"),
                 "selection_rule": row.get("selection_rule", {}),
                 "supporting_sources": row.get("supporting_sources", []),
@@ -314,13 +349,20 @@ def sync_template_overrides():
                     for field in block_fields
                     if field in row
                 }
+                if "body" in create_values:
+                    create_values["body"] = convert_text(
+                        create_values["body"], f"{template.slug}_{key}"
+                    )[0]
                 block = TemplateBlock.objects.create(template=template, key=key, **create_values)
                 block_changes += 1
                 continue
             update_fields = []
             for field in block_fields:
                 if field in row and getattr(block, field) != row[field]:
-                    setattr(block, field, row[field])
+                    value = row[field]
+                    if field == "body":
+                        value = convert_text(value, f"{template.slug}_{key}")[0]
+                    setattr(block, field, value)
                     update_fields.append(field)
             if update_fields:
                 block.save(update_fields=update_fields)
