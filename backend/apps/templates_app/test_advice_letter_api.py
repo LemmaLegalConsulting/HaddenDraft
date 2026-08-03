@@ -168,13 +168,17 @@ class AdviceLetterApiTests(TestCase):
             {
                 "sectionSlugs": ["seal"],
                 "recipientName": "Ms. Alvarez",
+                "letterDate": "August 2, 2026",
                 "subject": "Sealing your eviction record",
                 "authorProfile": {"displayName": "Dana Ruiz", "title": "Staff Attorney"},
             },
         )
 
         self.assertEqual(response.status_code, 200)
-        self.assertIn("advice-letter.docx", response["Content-Disposition"])
+        self.assertIn(
+            'filename="2026-08-02-alvarez-advice-letter-motion-seal.docx"',
+            response["Content-Disposition"],
+        )
         with zipfile.ZipFile(BytesIO(response.content)) as archive:
             document = archive.read("word/document.xml").decode("utf-8")
         self.assertIn("Ms. Alvarez", document)

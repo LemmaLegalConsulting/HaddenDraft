@@ -70,22 +70,40 @@ class ClientLetterContextTests(TestCase):
 
         self.assertEqual(client_letter_context(self.matter)["recipientAddress"], "")
 
-    def test_the_subject_reads_as_a_sentence_fragment(self):
-        """It lands mid-sentence: "help with your ___"."""
-        self.assertEqual(matter_subject(self.matter, PAYLOAD), "bankruptcy/debtor relief")
+    def test_a_filing_category_is_not_printed_verbatim(self):
+        """"help with your private landlord/tenant" is what this prevents."""
+        bare = Matter(external_id="LS-3", client_name="X", matter_type="", jurisdiction="")
+        payload = {"legal_problem_code": "62 Private Landlord/Tenant"}
+
+        self.assertEqual(matter_subject(bare, payload), "housing matter")
 
     def test_an_eviction_case_is_named_plainly(self):
         payload = {**PAYLOAD, "legal_problem_code": "06 Eviction / Ejectment"}
 
         self.assertEqual(matter_subject(self.matter, payload), "eviction")
 
+    def test_a_forcible_entry_and_detainer_case_is_an_eviction(self):
+        bare = Matter(external_id="LS-4", client_name="X", matter_type="", jurisdiction="")
+
+        self.assertEqual(
+            matter_subject(bare, {"legal_problem_code": "Forcible Entry and Detainer"}), "eviction"
+        )
+
     def test_a_case_with_no_problem_code_falls_back_to_the_matter_type(self):
         self.assertEqual(matter_subject(self.matter, {}), "eviction")
 
-    def test_a_case_with_nothing_recorded_says_housing_issue(self):
+    def test_a_non_housing_case_says_legal_matter(self):
+        bare = Matter(external_id="LS-5", client_name="X", matter_type="", jurisdiction="")
+
+        self.assertEqual(
+            matter_subject(bare, {"legal_problem_code": "01 Bankruptcy/Debtor Relief"}),
+            "legal matter",
+        )
+
+    def test_a_case_with_nothing_recorded_still_completes_the_sentence(self):
         bare = Matter(external_id="LS-2", client_name="X", matter_type="", jurisdiction="")
 
-        self.assertEqual(matter_subject(bare, {}), "housing issue")
+        self.assertEqual(matter_subject(bare, {}), "legal matter")
 
     def test_the_re_line_names_the_case_and_court(self):
         reference = case_reference(self.matter, PAYLOAD)

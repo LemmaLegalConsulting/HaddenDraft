@@ -44,6 +44,19 @@ class OrganizationSettings(models.Model):
     """Single-row operational defaults, editable through Django admin."""
 
     default_jurisdiction = models.CharField(max_length=255, blank=True)
+    letter_filename_pattern = models.CharField(
+        max_length=255,
+        blank=True,
+        help_text=(
+            "Download name for advice letters. Placeholders: {date}, {client} "
+            "(surname-first), {sections} (up to three), {case}, {kind}. Empty "
+            "uses 2026-08-02-garcia-robert-advice-letter-security-deposit."
+        ),
+    )
+    letter_filename_section_limit = models.PositiveSmallIntegerField(
+        default=3,
+        help_text="How many section names to include before the filename gets unwieldy.",
+    )
 
     class Meta:
         verbose_name = "organization settings"

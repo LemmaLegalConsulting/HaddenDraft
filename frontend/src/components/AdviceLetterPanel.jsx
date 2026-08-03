@@ -41,8 +41,11 @@ export function AdviceLetterPanel({ matter, authorProfile }) {
     recipientName: "",
     recipientAddress: "",
     subject: "",
+    filename: "",
     letterDate: new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" }),
   });
+  // Once the advocate types a name, stop overwriting it with a suggestion.
+  const [filenameEdited, setFilenameEdited] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
 
@@ -97,11 +100,19 @@ export function AdviceLetterPanel({ matter, authorProfile }) {
           authorProfile,
         });
         setPreview(data.letter);
+        // Keep the suggestion in step with the sections chosen so far, unless
+        // the advocate has renamed it themselves.
+        if (!filenameEdited) {
+          setLetterFields((current) => ({
+            ...current,
+            filename: data.letter.suggestedFilename || current.filename,
+          }));
+        }
       } catch (err) {
         setError(err.message);
       }
     },
-    [matterId, authorProfile],
+    [matterId, authorProfile, filenameEdited],
   );
 
   useEffect(() => {
@@ -141,10 +152,12 @@ export function AdviceLetterPanel({ matter, authorProfile }) {
         ...letterFields,
       });
       const blob = await response.blob();
+      const disposition = response.headers.get("content-disposition") || "";
+      const named = /filename="([^"]+)"/.exec(disposition);
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
-      link.download = "advice-letter.docx";
+      link.download = named ? named[1] : letterFields.filename || "advice-letter.docx";
       link.click();
       URL.revokeObjectURL(url);
     } catch (err) {
@@ -373,6 +386,17 @@ export function AdviceLetterPanel({ matter, authorProfile }) {
             onChange={(event) =>
               setLetterFields({ ...letterFields, recipientAddress: event.target.value })
             }
+          />
+        </label>
+        <label className="field">
+          <span>File name</span>
+          <input
+            value={letterFields.filename}
+            onChange={(event) => {
+              setFilenameEdited(true);
+              setLetterFields({ ...letterFields, filename: event.target.value });
+            }}
+            placeholder="2026-08-02-garcia-robert-advice-letter-security-deposit"
           />
         </label>
         <label className="field">

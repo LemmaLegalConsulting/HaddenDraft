@@ -1,3 +1,4 @@
+import re
 import tempfile
 import zipfile
 from pathlib import Path
@@ -120,6 +121,35 @@ class LetterheadPreparationTests(TestCase):
         report = prepare_letterhead(plain, self.root / "out.docx")
 
         self.assertTrue(report.warnings)
+
+    def test_preparation_does_not_invent_header_or_footer_parts(self):
+        """Reading `section.first_page_header` creates the part it reports on.
+
+        Touching all six header/footer getters left the letterhead carrying
+        even-page references while `evenAndOddHeaders` stayed off, and Word
+        treats that contradiction as unreadable content.
+        """
+        output = self.root / "letterhead.docx"
+        prepare_letterhead(self.source, output)
+
+        def stories(path):
+            with zipfile.ZipFile(path) as archive:
+                return sorted(
+                    name
+                    for name in archive.namelist()
+                    if re.match(r"word/(header|footer)\d*\.xml$", name)
+                )
+
+        self.assertEqual(stories(output), stories(self.source))
+
+        document = Document(output)
+        section_properties = document.sections[0]._sectPr
+        types = [
+            child.get(qn("w:type"))
+            for child in section_properties
+            if child.tag in (qn("w:headerReference"), qn("w:footerReference"))
+        ]
+        self.assertNotIn("even", types)
 
     def test_no_relationship_reference_is_left_dangling(self):
         """Word reports an unresolvable r:id as unreadable content.

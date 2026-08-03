@@ -93,20 +93,23 @@ def _set_paragraph_text(paragraph_element, text: str):
 
 
 def _header_and_footer_parts(document):
-    parts = []
-    for section in document.sections:
-        for part in (
-            section.header,
-            section.footer,
-            section.first_page_header,
-            section.first_page_footer,
-            section.even_page_header,
-            section.even_page_footer,
-        ):
-            element = getattr(part, "_element", None)
-            if element is not None and element not in parts:
-                parts.append(element)
-    return parts
+    """Every header and footer story that already exists in the package.
+
+    Deliberately not `section.first_page_header` and friends. Those getters
+    *create* the part when it is absent and add a `headerReference` for it, so
+    reading all six left the letterhead carrying even-page references while
+    `evenAndOddHeaders` stayed off. Word treats that contradiction as unreadable
+    content and offers to repair every letter built from the file.
+    """
+    elements = []
+    for part in document.part.package.iter_parts():
+        name = str(getattr(part, "partname", ""))
+        if not re.match(r"/word/(header|footer)\d*\.xml$", name):
+            continue
+        element = getattr(part, "element", None)
+        if element is not None and element not in elements:
+            elements.append(element)
+    return elements
 
 
 def _leaf_paragraphs(root):

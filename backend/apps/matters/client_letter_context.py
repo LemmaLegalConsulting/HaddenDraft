@@ -60,19 +60,30 @@ def client_address(payload) -> str:
 def matter_subject(matter, payload) -> str:
     """A short phrase naming what the letter is about.
 
-    Used where the maintained wrapper says "help with your [eviction/housing
-    issue]", so it has to read naturally in the middle of a sentence.
+    It lands mid-sentence -- "help with your ___" -- where the maintained
+    wrapper said "[eviction/housing issue]".
+
+    LegalServer's problem code is a filing category, not English. Passing it
+    through produced "help with your private landlord/tenant", so codes are
+    mapped to a handful of readable categories instead. Each one is a complete
+    noun phrase, because the sentence has no other noun to lean on.
     """
-    problem = _clean(_display_value(payload.get("legal_problem_code")))
-    problem = PROBLEM_CODE_RE.sub("", problem)
-    candidate = problem or _clean(getattr(matter, "matter_type", ""))
-    if not candidate:
-        return "housing issue"
-    lowered = candidate.casefold()
-    if "evict" in lowered:
+    problem = PROBLEM_CODE_RE.sub("", _clean(_display_value(payload.get("legal_problem_code"))))
+    haystack = " ".join(
+        [problem, _clean(getattr(matter, "matter_type", "")), _clean(getattr(matter, "summary", ""))]
+    ).casefold()
+
+    if any(term in haystack for term in ("evict", "detainer", "forcible entry", "f.e.d")):
         return "eviction"
-    # These read as sentence fragments, not as titles.
-    return lowered
+    if any(
+        term in haystack
+        for term in (
+            "landlord", "tenant", "housing", "lease", "rent", "subsid", "voucher",
+            "foreclos", "habitab", "utilit", "mobile home",
+        )
+    ):
+        return "housing matter"
+    return "legal matter"
 
 
 def case_reference(matter, payload) -> str:

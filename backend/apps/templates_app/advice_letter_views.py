@@ -194,12 +194,13 @@ def advice_letter_preview(request):
     if request.method != "POST":
         return method_not_allowed(["POST"])
     body = json_body(request)
-    letter, _matter, error = _assemble(body, request.user)
+    letter, matter, error = _assemble(body, request.user)
     if error:
         return error
     return JsonResponse(
         {
             "letter": {
+                "suggestedFilename": _download_name(body, letter, matter),
                 "paragraphs": letter.paragraphs,
                 "body": letter.body,
                 "sections": letter.sections,
@@ -235,5 +236,66 @@ def advice_letter_export(request):
         io.BytesIO(payload),
         content_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
     )
-    response["Content-Disposition"] = 'attachment; filename="advice-letter.docx"'
+    response["Content-Disposition"] = f'attachment; filename="{_download_name(body, letter, matter)}"'
     return response
+
+
+def _download_name(body, letter, matter):
+    """Name the download so it is findable a month later.
+
+    An explicit `filename` from the caller wins outright: the advocate looking
+    at the letter knows better than a pattern what to call it.
+    """
+    from django.utils.text import slugify
+
+    explicit = str(body.get("filename") or "").strip()
+    if explicit:
+        stem = slugify(explicit.rsplit(".docx", 1)[0]) or "advice-letter"
+        return f"{stem}.docx"
+
+    from apps.core.models import OrganizationSettings
+    from apps.drafting.letter_filenames import letter_filename
+
+    pattern = body.get("filenamePattern", "")
+    limit = None
+    if not pattern:
+        try:
+            settings_row = OrganizationSettings.objects.first()
+        except Exception:  # noqa: BLE001 - naming must not break the download
+            settings_row = None
+        if settings_row:
+            pattern = settings_row.letter_filename_pattern or ""
+            limit = settings_row.letter_filename_section_limit or None
+
+    case = {}
+    if matter is not None:
+        from apps.matters.client_letter_context import client_letter_context
+
+        case = client_letter_context(matter)
+
+    titles = [
+        section["title"]
+        for section in letter.sections
+        if section.get("slug") not in {"letter-opening", "letter-closing"}
+    ]
+    parsed_date = _parse_letter_date(body.get("letterDate", ""))
+    return letter_filename(
+        pattern=pattern,
+        client_name=body.get("recipientName") or case.get("recipientName", ""),
+        section_titles=titles,
+        letter_date=parsed_date,
+        case_number=case.get("caseNumber", ""),
+        section_limit=limit or 3,
+    )
+
+
+def _parse_letter_date(value):
+    """Accept what the advocate typed; fall back to today rather than failing."""
+    from datetime import date, datetime
+
+    for fmt in ("%B %d, %Y", "%b %d, %Y", "%Y-%m-%d", "%m/%d/%Y"):
+        try:
+            return datetime.strptime(str(value).strip(), fmt).date()
+        except (ValueError, TypeError):
+            continue
+    return date.today()

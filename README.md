@@ -317,7 +317,21 @@ renders it onto the organization's letterhead.
 | `GET /api/advice-letters/sections/` | Catalog with review state, grouped topics |
 | `POST /api/advice-letters/recommend/` | Ranked sections for one case, with reasons |
 | `POST /api/advice-letters/preview/` | Assembled body, warnings, readability |
+| `GET /api/advice-letters/addressing/` | Recipient, address, and Re: line from the case |
 | `POST /api/advice-letters/export/` | The letter as DOCX on letterhead |
+
+Downloads are named to be findable later:
+
+```
+2026-08-02-garcia-robert-advice-letter-security-deposit-nonpayment-rent.docx
+```
+
+Date first so letters sort chronologically, then the client surname-first so a
+client's letters group together, then up to three section names. The advocate
+can rename any single letter before downloading. The pattern is editable at
+**Organization settings** in Django admin with `{date}`, `{client}`,
+`{sections}`, `{case}`, and `{kind}` — an organization that files by case number
+can use `{case}-{date}-{kind}` instead.
 
 ### Attorney review
 
