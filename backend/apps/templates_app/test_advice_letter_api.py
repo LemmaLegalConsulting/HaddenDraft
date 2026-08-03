@@ -1,10 +1,13 @@
 import json
 import zipfile
 from io import BytesIO
+from unittest.mock import patch
 
 from django.contrib.auth import get_user_model
 from django.test import TestCase
 
+from apps.ai.services import drafting_ai
+from apps.drafting.models import DraftDocument
 from apps.matters.models import Matter
 from apps.templates_app.models import AdviceLetterSection
 
@@ -57,6 +60,8 @@ class AdviceLetterApiTests(TestCase):
         AdviceLetterSection.objects.create(
             slug="seal", title="Motion to Seal", topic="Pro se How-To", region="CLE",
             body="You can ask the Court to seal the record.",
+            content_path="docx-snippets/advice/seal.md",
+            source_checksum="seal-checksum",
         )
 
     def post(self, path, payload):
@@ -162,6 +167,36 @@ class AdviceLetterApiTests(TestCase):
         self.assertIn("help with your eviction.", letter["body"])
         self.assertNotIn("[eviction/housing issue]", letter["body"])
 
+    def test_legacy_bracket_fields_are_resolved_before_the_advice_editor(self):
+        self.matter.raw_payload = {
+            **self.matter.raw_payload,
+            "custom_fields": {
+                "Plaintiff Name": "Example Homes LLC",
+                "Filing Date": "July 12, 2026",
+            },
+        }
+        self.matter.save(update_fields=["raw_payload", "updated_at"])
+        AdviceLetterSection.objects.filter(slug="seal").update(
+            body=(
+                "The Magistrate decided your landlord can evict you for [Plaintiff Name].\n\n"
+                "Objections are due by [Filing Date]. If the record lacks [Unknown Document Name], "
+                "ask your advocate."
+            )
+        )
+
+        response = self.post(
+            "/api/advice-letters/drafts/",
+            {"matterId": self.matter.external_id, "sectionSlugs": ["seal"]},
+        )
+
+        self.assertEqual(response.status_code, 201)
+        seal = next(section for section in response.json()["draft"]["sections"] if section["key"] == "seal")
+        self.assertIn("Example Homes LLC", seal["body"])
+        self.assertIn("July 12, 2026", seal["body"])
+        self.assertNotIn("[Plaintiff Name]", seal["body"])
+        self.assertNotIn("[Filing Date]", seal["body"])
+        self.assertIn("[Unknown Document Name]", seal["body"])
+
     def test_export_returns_a_word_document(self):
         response = self.post(
             "/api/advice-letters/export/",
@@ -183,6 +218,210 @@ class AdviceLetterApiTests(TestCase):
             document = archive.read("word/document.xml").decode("utf-8")
         self.assertIn("Ms. Alvarez", document)
         self.assertIn("seal the record", document)
+
+    def test_advice_draft_uses_shared_blocks_and_records_catalog_provenance(self):
+        fact = self.matter.facts.create(
+            slug="notice-party",
+            title="Notice names a different landlord",
+            text="The notice names a different landlord than the complaint.",
+            source_label="Client interview",
+        )
+        source = {
+            "id": "ohio-housing-rule",
+            "title": "Ohio housing rule",
+            "citation": "O.R.C. 5321.04",
+            "sourceKind": "court_rules",
+            "snippet": "A landlord must maintain fit premises.",
+            "metadata": {"contentPath": "rules/ohio-housing.md", "sourceChecksum": "rule-checksum"},
+        }
+
+        response = self.post(
+            "/api/advice-letters/drafts/",
+            {
+                "matterId": self.matter.external_id,
+                "sectionSlugs": ["seal"],
+                "goal": "Explain the next step.",
+                "selectedFactIds": [fact.id],
+                "selectedSourceResults": [source],
+            },
+        )
+
+        self.assertEqual(response.status_code, 201)
+        draft_payload = response.json()["draft"]
+        self.assertEqual(draft_payload["editorState"]["format"], "lexical_blocks")
+        self.assertEqual(
+            [section["key"] for section in draft_payload["sections"]],
+            ["letter-opening", "seal", "letter-closing"],
+        )
+        draft = DraftDocument.objects.get(id=draft_payload["id"])
+        self.assertEqual(draft.session.mode, "advice_letter")
+        seal_version = draft.components.get(stable_key="seal").current_version
+        bindings = {binding.source_key: binding for binding in seal_version.source_bindings.all()}
+        self.assertIn("advice-letter:seal", bindings)
+        self.assertEqual(bindings["advice-letter:seal"].locator["contentPath"], "docx-snippets/advice/seal.md")
+        self.assertEqual(bindings["advice-letter:seal"].locator["sourceChecksum"], "seal-checksum")
+
+    def test_advice_draft_carries_source_lexical_formatting_into_each_block(self):
+        state = {
+            "root": {
+                "children": [
+                    {
+                        "children": [
+                            {"text": "Heading.  ", "format": 1, "type": "text"},
+                            {"text": "Body.", "format": 0, "type": "text"},
+                        ],
+                        "type": "paragraph",
+                    },
+                    {"children": [], "type": "paragraph"},
+                ],
+                "type": "root",
+            }
+        }
+        AdviceLetterSection.objects.filter(slug="seal").update(editor_state=state)
+
+        response = self.post(
+            "/api/advice-letters/drafts/",
+            {"matterId": self.matter.external_id, "sectionSlugs": ["seal"]},
+        )
+
+        self.assertEqual(response.status_code, 201)
+        editor_state = response.json()["draft"]["editorState"]["blocks"]["seal"]
+        first = editor_state["root"]["children"][0]
+        self.assertEqual(first["children"][0]["format"], 1)
+        self.assertEqual(first["children"][0]["text"], "Heading.  ")
+        self.assertEqual(editor_state["root"]["children"][1]["children"], [])
+
+    def test_advice_draft_exposes_the_opening_issue_as_a_locked_block(self):
+        state = {
+            "root": {
+                "children": [
+                    {
+                        "children": [{"text": "The notice has a legal defect.", "format": 1, "type": "text"}],
+                        "type": "paragraph",
+                    },
+                    {"children": [], "type": "paragraph"},
+                    {
+                        "children": [{"text": "The notice and complaint name different parties.", "format": 0, "type": "text"}],
+                        "type": "paragraph",
+                    },
+                    {"children": [], "type": "paragraph"},
+                    {
+                        "children": [{"text": "Ask the Court to dismiss the case.", "format": 0, "type": "text"}],
+                        "type": "paragraph",
+                    },
+                ],
+                "type": "root",
+            }
+        }
+        AdviceLetterSection.objects.create(
+            slug="notice-issue",
+            title="Notice issue",
+            role="body",
+            body="The notice has a legal defect.\nThe notice and complaint name different parties.\nAsk the Court to dismiss the case.",
+            editor_state=state,
+        )
+
+        response = self.post(
+            "/api/advice-letters/drafts/",
+            {"matterId": self.matter.external_id, "sectionSlugs": ["notice-issue"]},
+        )
+
+        self.assertEqual(response.status_code, 201)
+        payload = response.json()
+        blocks = payload["draft"]["sections"]
+        self.assertEqual(
+            [section["key"] for section in blocks],
+            ["letter-opening", "issue-statement-notice-issue", "notice-issue", "letter-closing"],
+        )
+        issue = blocks[1]
+        self.assertEqual(issue["label"], "Notice issue: issue statement")
+        self.assertEqual(issue["aiLatitude"], "locked")
+        self.assertEqual(issue["adviceBlockRole"], "issue_statement")
+        self.assertEqual(issue["sourceEditorState"]["root"]["children"][0]["children"][0]["format"], 1)
+        self.assertIn("The notice has a legal defect.", issue["body"])
+        self.assertIn("The notice and complaint name different parties.", issue["body"])
+        self.assertNotIn("Ask the Court to dismiss", issue["body"])
+        self.assertEqual(
+            [section["slug"] for section in payload["letter"]["sections"]],
+            ["letter-opening", "notice-issue", "letter-closing"],
+        )
+        self.assertEqual(payload["letter"]["body"].count("The notice has a legal defect."), 1)
+        self.assertEqual(payload["letter"]["body"].count("Ask the Court to dismiss"), 1)
+
+    def test_advice_redraft_uses_the_shared_ai_operation_and_binds_support(self):
+        fact = self.matter.facts.create(
+            slug="notice-party",
+            title="Notice names a different landlord",
+            text="The notice names a different landlord than the complaint.",
+            source_label="Client interview",
+        )
+        source = {
+            "id": "ohio-housing-rule",
+            "title": "Ohio housing rule",
+            "citation": "O.R.C. 5321.04",
+            "sourceKind": "court_rules",
+            "snippet": "A landlord must maintain fit premises.",
+        }
+        draft = self.post(
+            "/api/advice-letters/drafts/",
+            {
+                "matterId": self.matter.external_id,
+                "sectionSlugs": ["seal"],
+                "selectedFactIds": [fact.id],
+                "selectedSourceResults": [source],
+            },
+        ).json()["draft"]
+
+        with patch.object(drafting_ai, "regenerate_section", return_value="AI redrafted advice."):
+            response = self.client.post(
+                f"/api/drafts/{draft['id']}/blocks/seal/regenerate/",
+                data=json.dumps({"instruction": "Make the next step clearer."}),
+                content_type="application/json",
+            )
+
+        self.assertEqual(response.status_code, 200)
+        document = DraftDocument.objects.get(id=draft["id"])
+        seal = document.components.get(stable_key="seal")
+        versions = list(seal.versions.order_by("sequence"))
+        self.assertEqual([version.origin for version in versions], ["template", "ai"])
+        self.assertEqual(versions[-1].body, "AI redrafted advice.")
+        source_keys = set(versions[-1].source_bindings.values_list("source_key", flat=True))
+        self.assertTrue({"advice-letter:seal", f"fact:{fact.id}", "ohio-housing-rule"}.issubset(source_keys))
+
+    def test_advice_editor_changes_are_exported_from_the_saved_draft(self):
+        draft_payload = self.post(
+            "/api/advice-letters/drafts/",
+            {"matterId": self.matter.external_id, "sectionSlugs": ["seal"]},
+        ).json()["draft"]
+        edited_sections = [
+            {**section, "body": "The Court can seal the record after you file the request."}
+            if section["key"] == "seal"
+            else section
+            for section in draft_payload["sections"]
+        ]
+        patch_response = self.client.patch(
+            f"/api/drafts/{draft_payload['id']}/",
+            data=json.dumps({"sections": edited_sections, "editorState": {"format": "lexical_blocks", "blocks": {}}}),
+            content_type="application/json",
+        )
+        self.assertEqual(patch_response.status_code, 200)
+
+        response = self.post(
+            f"/api/advice-letters/drafts/{draft_payload['id']}/export/",
+            {
+                "letterFields": {
+                    "recipientName": "Maria Alvarez",
+                    "letterDate": "August 2, 2026",
+                    "subject": "Sealing the record",
+                }
+            },
+        )
+
+        self.assertEqual(response.status_code, 200)
+        with zipfile.ZipFile(BytesIO(response.content)) as archive:
+            document = archive.read("word/document.xml").decode("utf-8")
+        self.assertIn("Court can seal the record", document)
+        self.assertIn("August 2, 2026", document)
 
     def test_endpoints_require_a_login(self):
         self.client.logout()

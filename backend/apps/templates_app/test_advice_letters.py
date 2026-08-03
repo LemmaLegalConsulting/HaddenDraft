@@ -22,6 +22,7 @@ from apps.templates_app.advice_letters import (
     is_wrapper_line,
     match_catalog_row,
     strip_wrapper,
+    write_section_docx,
 )
 from apps.templates_app.models import AdviceLetterSection
 from apps.templates_app.recommendations import recommend_advice_sections
@@ -216,6 +217,31 @@ class CatalogTests(TestCase):
 
         self.assertIsNotNone(match_catalog_row("Motion to Seal", rows))
         self.assertIsNone(match_catalog_row("Security Deposit", rows))
+
+    def test_source_run_formatting_and_blank_paragraphs_survive_ingest(self):
+        path = self.source / "Letter Sub-Sections" / "Formatted.docx"
+        document = Document()
+        paragraph = document.add_paragraph()
+        heading = paragraph.add_run("Issue heading.  ")
+        heading.bold = True
+        paragraph.add_run("The maintained body follows.")
+        document.add_paragraph("")
+        document.add_paragraph("A second paragraph.")
+        document.save(path)
+
+        draft = extract_section(path)
+        first = draft.editor_state["root"]["children"][0]
+        self.assertEqual(first["children"][0]["text"], "Issue heading.  ")
+        self.assertEqual(first["children"][0]["format"], 1)
+        self.assertEqual(first["children"][1]["format"], 0)
+        self.assertEqual(draft.editor_state["root"]["children"][1]["children"], [])
+
+        output = self.root / "formatted-section.docx"
+        write_section_docx(draft, output)
+        generated = Document(output)
+        self.assertTrue(generated.paragraphs[0].runs[0].bold)
+        self.assertEqual(generated.paragraphs[0].runs[0].text, "Issue heading.  ")
+        self.assertEqual(generated.paragraphs[1].text, "")
 
 
 class SelectionHintTests(TestCase):

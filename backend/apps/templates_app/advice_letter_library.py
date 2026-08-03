@@ -16,6 +16,7 @@ from django.utils import timezone
 from apps.core.content_library import content_library_roots
 from apps.templates_app.content_library import TemplateManifestError
 from apps.templates_app.models import AdviceLetterSection
+from apps.templates_app.placeholders import convert_editor_state, convert_text
 
 
 ADVICE_LETTER_DIR = "advice-letters"
@@ -97,6 +98,17 @@ def sync_advice_letters(*, deactivate_missing=True):
         for order, row in enumerate(data["sections"], start=1):
             slug = row["slug"]
             seen.add(slug)
+            normalized_body, body_conversion = convert_text(
+                row.get("body", ""), f"advice_{slug}"
+            )
+            normalized_state, state_conversion = convert_editor_state(
+                row.get("editor_state") or {}, f"advice_{slug}"
+            )
+            fields = sorted(
+                set(row.get("fields") or [])
+                | body_conversion.fields
+                | state_conversion.fields
+            )
             hints = {
                 key: row.get(key)
                 for key in ("triggers", "requires", "excludes", "summary", "usually_paired")
@@ -110,10 +122,11 @@ def sync_advice_letters(*, deactivate_missing=True):
                 "region": row.get("region", ""),
                 "cleveland_specific": bool(row.get("cleveland_specific", False)),
                 "status": row.get("status", "ready"),
-                "body": row.get("body", ""),
+                "body": normalized_body,
+                "editor_state": normalized_state or {},
                 "content_path": f"{ADVICE_LETTER_DIR}/{row.get('docx', '')}" if row.get("docx") else "",
                 "order": order * 10,
-                "fields": row.get("fields", []),
+                "fields": fields,
                 "slots": row.get("slots", []),
                 "variants": row.get("variants", []),
                 "selection_hints": hints,

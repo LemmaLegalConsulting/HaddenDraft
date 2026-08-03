@@ -307,7 +307,11 @@ def _docx_render_context(draft, section):
             "numbered_items": [f"{index}. {item}" for index, item in enumerate(items, start=1)] if numbered else items,
             "revision": _block_revision(body, maintained_bodies.get(key, "")),
         }
-    fields = template_field_values(session.template_data)
+    from apps.matters.client_letter_context import letter_template_fields
+
+    case_fields, _field_sources = letter_template_fields(matter)
+    template_values = {**case_fields, **(session.template_data or {})}
+    fields = template_field_values(template_values)
     client = {
         "name": matter_data["client_name"],
         "pronouns": (session.template_data or {}).get("client_pronouns", ""),
@@ -334,7 +338,11 @@ def _docx_render_context(draft, section):
         "court": matter_data["jurisdiction"] or getattr(template, "jurisdiction", ""),
         "plaintiff": fields["plaintiff_name"],
         "defendant": matter_data["client_name"],
-        "case_number": (session.template_data or {}).get("court_case_number") or "[Court Case Number]",
+        "case_number": (
+            (session.template_data or {}).get("court_case_number")
+            or template_values.get("case_number")
+            or "[Court Case Number]"
+        ),
         "advocate_name": author["display_name"],
         "advocate_signoff": author["signoff"],
         "advocate_salutation": author["salutation"],

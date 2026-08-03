@@ -52,6 +52,12 @@ SCRUBBED_PROPERTY_TAGS = {
     "category",
 }
 
+SCRUBBED_APPLICATION_PROPERTY_TAGS = {
+    # A source Word template can carry the advocate's name or a
+    # machine-specific template name into every generated letter.
+    "Template",
+}
+
 LETTERHEAD_VARIABLES = {
     "advocate_name": "Advocate's full name as it should appear on the letterhead.",
     "advocate_title": "Job title, e.g. \"Staff Attorney\" or \"Paralegal II\".",
@@ -228,13 +234,35 @@ def prepare_letterhead(source: Path, output: Path) -> LetterheadPreparation:
             "and fill in the variables by hand if the layout differs."
         )
 
-    _scrub_document_properties(document, preparation)
-    _scrub_external_links(document, preparation)
-    _drop_sharepoint_baggage(document, preparation)
+    _scrub_letterhead_package(document, preparation)
     preparation.variables = _bound_variables(document)
     output.parent.mkdir(parents=True, exist_ok=True)
     document.save(output)
     return preparation
+
+
+def sanitize_letterhead(source: Path, output: Path) -> LetterheadPreparation:
+    """Write a safe, temporary copy of an existing letterhead.
+
+    Letterheads that were prepared before the metadata cleanup was added may
+    still contain empty core-property elements or source-specific relationships.
+    Export should repair those legacy files without rewriting the maintained
+    private source on disk, so composition uses this copy at the package
+    boundary.
+    """
+    preparation = LetterheadPreparation()
+    document = Document(source)
+    _scrub_letterhead_package(document, preparation)
+    output.parent.mkdir(parents=True, exist_ok=True)
+    document.save(output)
+    return preparation
+
+
+def _scrub_letterhead_package(document, preparation):
+    _scrub_document_properties(document, preparation)
+    _scrub_application_properties(document, preparation)
+    _scrub_external_links(document, preparation)
+    _drop_sharepoint_baggage(document, preparation)
 
 
 def _scrub_document_properties(document, preparation):
@@ -250,15 +278,52 @@ def _scrub_document_properties(document, preparation):
     # as empty. Going through it here would silently leave the source advocate's
     # name in the shared letterhead.
     element = document.core_properties._element
-    for child in element:
+    for child in list(element):
         tag = etree.QName(child).localname
         if tag not in SCRUBBED_PROPERTY_TAGS:
             continue
         value = (child.text or "").strip()
-        if not value:
-            continue
-        preparation.replaced.append(f"document property {tag}: {value}")
-        child.text = ""
+        if value:
+            preparation.replaced.append(f"document property {tag}: {value}")
+        # Word rejects an empty core-property element such as
+        # <cp:lastPrinted/>. Removing an optional property is different from
+        # blanking its value and leaves a valid package for Word to open.
+        element.remove(child)
+
+
+def _scrub_application_properties(document, preparation):
+    """Remove source-specific extended and custom properties."""
+    package = document.part.package
+    app_part = next(
+        (
+            part
+            for part in package.iter_parts()
+            if str(getattr(part, "partname", "")) == "/docProps/app.xml"
+        ),
+        None,
+    )
+    if app_part is not None:
+        element = etree.fromstring(app_part.blob)
+        for child in list(element):
+            if etree.QName(child).localname not in SCRUBBED_APPLICATION_PROPERTY_TAGS:
+                continue
+            value = (child.text or "").strip()
+            if value:
+                preparation.replaced.append(
+                    f"application property {etree.QName(child).localname}: {value}"
+                )
+            element.remove(child)
+        app_part._blob = etree.tostring(
+            element, xml_declaration=True, encoding="UTF-8", standalone=True
+        )
+
+    # Custom properties in the maintained stationery are SharePoint library
+    # metadata, not letter content. Drop the package relationship as well as
+    # the XML part so the saved package cannot retain an orphaned part.
+    for rel_id, rel in list(package.rels.items()):
+        if rel.reltype.endswith("custom-properties"):
+            preparation.replaced.append("custom document properties")
+            package.rels.pop(rel_id)
 
 
 R_ID = "{http://schemas.openxmlformats.org/officeDocument/2006/relationships}id"

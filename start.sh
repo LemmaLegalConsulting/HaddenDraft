@@ -13,6 +13,10 @@ python manage.py ingest_document_templates
 # Sync the content library
 python manage.py sync_content_library --update-triage-rubrics
 
+# Prepare and index the modular advice-letter catalog, including the Lexical
+# formatting converted from the maintained source DOCX files.
+python manage.py ingest_advice_letters
+
 # Ingest caselaw artifacts
 python manage.py ingest_caselaw /app/private-content/caselaw-artifacts
 

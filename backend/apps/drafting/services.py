@@ -13,6 +13,7 @@ from apps.drafting.components import plain_text_from_sections, sync_components
 from apps.drafting.packages import derive_relationships
 from apps.drafting.source_bindings import bind_current_versions
 from apps.drafting.models import DraftDocument
+from apps.matters.client_letter_context import letter_template_fields
 from apps.matters.document_context import chunk_text, custom_fields_inventory, get_case_documents, get_document_text, search_chunks, summarize_text
 from apps.matters.models import MatterFact
 from apps.sources.models import SourceConfiguration
@@ -236,9 +237,12 @@ def _plan_missing_information(session, template):
             }
         )
     template_data = session.template_data or {}
+    case_fields, _field_sources = letter_template_fields(session.matter)
     for path in declared_template_fields(template):
         key = normalize_field_path(path)
-        if key in LEGACY_LITERAL_FIELDS or str(template_data.get(key, "")).strip():
+        if key in LEGACY_LITERAL_FIELDS or str(
+            template_data.get(key, case_fields.get(key, ""))
+        ).strip():
             continue
         missing.append(
             {
@@ -1394,16 +1398,27 @@ def regenerate_draft_block(draft, block_key, instruction=""):
     section = next((item for item in draft.sections or [] if item.get("key") == block_key), None)
     if section is None:
         return draft
+    if section.get("aiLatitude") == "locked":
+        # A locked template block is still human-editable, but a redraft request
+        # must not replace its maintained, case-bound wording with model prose.
+        return draft
     context = regeneration_context(draft.session)
     body = drafting_ai.regenerate_section(section=section, context=context, instruction=instruction)
     operations.propose_and_apply(
         draft,
         "replace_component",
-        payload={"stableKey": block_key, "body": body, "structuredContent": {"origin": "ai"}},
+        payload={
+            "stableKey": block_key,
+            "body": body,
+            "structuredContent": {"origin": "ai", "sourceEditorState": None},
+        },
         rationale=instruction,
         origin="ai",
     )
-    draft.editor_state = {"format": "lexical_blocks", "blocks": {}}
+    editor_state = draft.editor_state if isinstance(draft.editor_state, dict) else {}
+    blocks = dict(editor_state.get("blocks") or {})
+    blocks.pop(block_key, None)
+    draft.editor_state = {"format": "lexical_blocks", "blocks": blocks}
     draft.save(update_fields=["editor_state", "updated_at"])
     bind_current_versions(draft)
     return draft

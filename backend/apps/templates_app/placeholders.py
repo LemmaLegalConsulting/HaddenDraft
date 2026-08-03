@@ -15,6 +15,7 @@ text, which paragraph-level rewriting destroys.
 
 from __future__ import annotations
 
+from copy import deepcopy
 import re
 from dataclasses import dataclass, field
 
@@ -25,6 +26,7 @@ BRACKET_RE = re.compile(r"\[([^\[\]]*)\]")
 UNDERSCORE_RE = re.compile(r"_{3,}")
 # "202__" and "20__" are year stubs; the digits are part of the placeholder.
 YEAR_STUB_RE = re.compile(r"\b20\d?_{2,}")
+JINJA_TOKEN_RE = re.compile(r"\{\{.*?\}\}|\{%.*?%\}")
 
 EDITORIAL_BRACKETS = {"her", "his", "or", "s", "section", "x", "sic", "and"}
 PLACEHOLDER_CUE_RE = re.compile(
@@ -273,9 +275,11 @@ class _Replacement:
     drop_highlight: bool = True
 
 
-def _bracket_replacements(text, fallback_prefix, conversion):
+def _bracket_replacements(text, fallback_prefix, conversion, protected=()):
     replacements = []
     for index, match in enumerate(BRACKET_RE.finditer(text), start=1):
+        if any(match.start() >= start and match.end() <= end for start, end in protected):
+            continue
         label = match.group(1)
         if not looks_like_placeholder(label):
             continue
@@ -405,12 +409,14 @@ def convert_paragraph(paragraph, fallback_prefix):
     text = paragraph.text
     if not text.strip():
         return conversion
-    if "{{" in text or "{%" in text:
-        # Already prepared; converting twice would nest bindings.
-        return conversion
+    # A paragraph can contain both an already-prepared binding and an older
+    # bracket placeholder.  Converting only the latter is safe: the bracket
+    # and underscore patterns do not match Jinja syntax.  The old early return
+    # made mixed paragraphs impossible to repair on re-ingest.
 
-    taken: list[tuple[int, int]] = []
-    replacements = _bracket_replacements(text, fallback_prefix, conversion)
+    protected = [match.span() for match in JINJA_TOKEN_RE.finditer(text)]
+    taken: list[tuple[int, int]] = list(protected)
+    replacements = _bracket_replacements(text, fallback_prefix, conversion, protected)
     taken.extend((item.start, item.end) for item in replacements)
     replacements += _underscore_replacements(text, fallback_prefix, conversion, taken)
     replacements += _highlight_replacements(paragraph, text, fallback_prefix, conversion, taken)
@@ -422,10 +428,11 @@ def convert_paragraph(paragraph, fallback_prefix):
 def convert_text(text, fallback_prefix):
     """Placeholder conversion for plain strings (block `body` previews)."""
     conversion = ParagraphConversion()
-    if not text or "{{" in text or "{%" in text:
+    if not text:
         return text, conversion
-    replacements = _bracket_replacements(text, fallback_prefix, conversion)
-    taken = [(item.start, item.end) for item in replacements]
+    protected = [match.span() for match in JINJA_TOKEN_RE.finditer(text)]
+    replacements = _bracket_replacements(text, fallback_prefix, conversion, protected)
+    taken = [*protected, *((item.start, item.end) for item in replacements)]
     replacements += _underscore_replacements(text, fallback_prefix, conversion, taken)
     pieces = []
     cursor = 0
@@ -439,3 +446,39 @@ def convert_text(text, fallback_prefix):
     converted = "".join(pieces)
     conversion.changed = converted != text
     return converted, conversion
+
+
+def convert_editor_state(state, fallback_prefix):
+    """Convert legacy bracket fill-ins inside a Lexical JSON document.
+
+    Catalogs created before mixed Jinja/bracket repair can carry the old text
+    in their saved editor state even after the plain body is normalized.  Walk
+    text nodes only, so formatting, paragraph spacing, and every other Lexical
+    property remain unchanged.
+    """
+    if not isinstance(state, dict) or not isinstance(state.get("root"), dict):
+        return state, ParagraphConversion()
+
+    converted_state = deepcopy(state)
+    conversion = ParagraphConversion()
+    text_index = 0
+
+    def visit(node):
+        nonlocal text_index
+        if not isinstance(node, dict):
+            return
+        if node.get("type") == "text":
+            text_index += 1
+            converted, node_conversion = convert_text(
+                node.get("text", ""), f"{fallback_prefix}_{text_index}"
+            )
+            node["text"] = converted
+            conversion.fields.update(node_conversion.fields)
+            conversion.flags.update(node_conversion.flags)
+            conversion.instructions.extend(node_conversion.instructions)
+            conversion.changed = conversion.changed or node_conversion.changed
+        for child in node.get("children") or []:
+            visit(child)
+
+    visit(converted_state["root"])
+    return converted_state, conversion

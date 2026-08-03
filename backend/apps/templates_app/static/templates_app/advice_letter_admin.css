@@ -1,0 +1,40 @@
+.advice-rich-editor {
+  max-width: 72rem;
+}
+
+.advice-rich-toolbar {
+  display: flex;
+  gap: 0.25rem;
+  margin-bottom: 0.35rem;
+}
+
+.advice-rich-toolbar button {
+  background: #fff;
+  border: 1px solid #8b9aa5;
+  border-radius: 3px;
+  min-width: 2rem;
+  padding: 0.25rem 0.5rem;
+}
+
+.advice-rich-surface {
+  background: #fff;
+  border: 1px solid #8b9aa5;
+  border-radius: 3px;
+  box-sizing: border-box;
+  min-height: 16rem;
+  padding: 0.75rem;
+  white-space: pre-wrap;
+}
+
+.advice-rich-surface:focus {
+  border-color: #417690;
+  outline: 2px solid rgba(65, 118, 144, 0.2);
+}
+
+.advice-rich-surface p {
+  margin: 0 0 0.7rem;
+}
+
+.advice-rich-surface p:last-child {
+  margin-bottom: 0;
+}

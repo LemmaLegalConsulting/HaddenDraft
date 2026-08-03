@@ -75,6 +75,21 @@ class LetterheadPreparationTests(TestCase):
         self.assertNotIn("Julia Bertone", core)
         self.assertTrue(any("document property" in entry for entry in report.replaced))
 
+    def test_optional_core_properties_are_removed_instead_of_left_empty(self):
+        """Word rejects empty optional core-property elements in a DOCX."""
+        output, _report = self.prepare()
+
+        with zipfile.ZipFile(output) as archive:
+            core = archive.read("docProps/core.xml").decode("utf-8")
+            app = archive.read("docProps/app.xml").decode("utf-8")
+            names = set(archive.namelist())
+
+        self.assertNotIn("lastPrinted", core)
+        self.assertNotIn("<dc:title", core)
+        self.assertNotIn("<dc:creator", core)
+        self.assertNotIn("<Template", app)
+        self.assertNotIn("docProps/custom.xml", names)
+
     def test_rendering_fills_the_contact_block(self):
         output, _report = self.prepare()
         template = DocxTemplate(output)

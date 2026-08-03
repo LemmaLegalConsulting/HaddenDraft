@@ -1,3 +1,4 @@
+import json
 import tempfile
 from pathlib import Path
 
@@ -113,8 +114,122 @@ here.</p>
 """
 
 
+def _plain_editor_state(body):
+    children = []
+    for line in (body or "").split("\n"):
+        children.append(
+            {
+                "children": [] if not line else [{
+                    "detail": 0,
+                    "format": 0,
+                    "mode": "normal",
+                    "style": "",
+                    "text": line,
+                    "type": "text",
+                    "version": 1,
+                }],
+                "direction": "ltr",
+                "format": "",
+                "indent": 0,
+                "type": "paragraph",
+                "version": 1,
+            }
+        )
+    return {
+        "root": {
+            "children": children or [{
+                "children": [],
+                "direction": "ltr",
+                "format": "",
+                "indent": 0,
+                "type": "paragraph",
+                "version": 1,
+            }],
+            "direction": "ltr",
+            "format": "",
+            "indent": 0,
+            "type": "root",
+            "version": 1,
+        }
+    }
+
+
+def _plain_text_from_editor_state(state):
+    paragraphs = []
+    for node in (state.get("root") or {}).get("children") or []:
+        if node.get("type") != "paragraph":
+            continue
+        parts = []
+        for child in node.get("children") or []:
+            if child.get("type") == "text":
+                parts.append(child.get("text", ""))
+            elif child.get("type") == "linebreak":
+                parts.append("\n")
+        paragraphs.append("".join(parts))
+    return "\n".join(paragraphs)
+
+
+class AdviceRichTextWidget(forms.widgets.Widget):
+    template_name = "templates_app/widgets/advice_rich_text.html"
+
+    class Media:
+        css = {"all": ("templates_app/advice_letter_admin.css",)}
+        js = ("templates_app/advice_letter_admin.js",)
+
+    def format_value(self, value):
+        if not value:
+            return ""
+        if isinstance(value, str):
+            return value
+        return json.dumps(value, ensure_ascii=False, separators=(",", ":"))
+
+
+class AdviceLetterSectionAdminForm(forms.ModelForm):
+    """Edit the text and its Lexical formatting as one authoritative field."""
+
+    editor_state = forms.JSONField(
+        required=False,
+        widget=AdviceRichTextWidget,
+        label="Rich text",
+        help_text=(
+            "Edit the formatted text above. Bold, italic, underline, and blank "
+            "paragraphs are retained in the Lexical state used by the draft editor."
+        ),
+    )
+    body = forms.CharField(required=False, widget=forms.HiddenInput)
+
+    class Meta:
+        model = AdviceLetterSection
+        fields = "__all__"
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if not self.is_bound and not self.instance.editor_state:
+            self.initial["editor_state"] = _plain_editor_state(self.instance.body)
+
+    def clean_editor_state(self):
+        state = self.cleaned_data.get("editor_state")
+        if not isinstance(state, dict) or not isinstance(state.get("root"), dict):
+            if self.instance.editor_state:
+                raise forms.ValidationError(
+                    "The rich-text state is missing or invalid; the existing formatting was not changed."
+                )
+            return _plain_editor_state(self.cleaned_data.get("body", ""))
+        return state
+
+    def clean(self):
+        cleaned = super().clean()
+        state = cleaned.get("editor_state")
+        if isinstance(state, dict) and isinstance(state.get("root"), dict):
+            # Body is a derived plain-text projection. It is never allowed to
+            # overwrite the rich source on an admin save.
+            cleaned["body"] = _plain_text_from_editor_state(state)
+        return cleaned
+
+
 @admin.register(AdviceLetterSection)
 class AdviceLetterSectionAdmin(admin.ModelAdmin):
+    form = AdviceLetterSectionAdminForm
     list_display = (
         "title",
         "topic",
@@ -163,7 +278,7 @@ class AdviceLetterSectionAdmin(admin.ModelAdmin):
                 "reviewed_at",
             )
         }),
-        ("Section", {"fields": ("title", "slug", "body", "status", "is_active")}),
+        ("Section", {"fields": ("title", "slug", "editor_state", "body", "status", "is_active")}),
         ("Where it applies", {
             "fields": ("role", "topic", "letter_type", "region", "cleveland_specific", "order")
         }),

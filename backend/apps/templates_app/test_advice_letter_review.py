@@ -1,3 +1,4 @@
+import json
 import tempfile
 from pathlib import Path
 
@@ -7,7 +8,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.messages.storage.fallback import FallbackStorage
 from django.test import RequestFactory, TestCase
 
-from apps.templates_app.admin import AdviceLetterSectionAdmin
+from apps.templates_app.admin import AdviceLetterSectionAdmin, AdviceLetterSectionAdminForm
 from apps.templates_app.advice_letter_library import (
     _review_defaults,
     sections_awaiting_review,
@@ -133,6 +134,42 @@ class AdminReviewTests(TestCase):
         self.section.refresh_from_db()
         self.assertTrue(self.section.needs_attorney_review)
         self.assertIsNone(self.section.reviewed_at)
+
+    def test_rich_admin_form_round_trips_formatting_and_spacing(self):
+        state = {
+            "root": {
+                "children": [
+                    {
+                        "children": [
+                            {"text": "Heading.  ", "format": 1, "type": "text"},
+                            {"text": "Body.", "format": 0, "type": "text"},
+                        ],
+                        "type": "paragraph",
+                    },
+                    {"children": [], "type": "paragraph"},
+                ],
+                "type": "root",
+            }
+        }
+        self.section.editor_state = state
+        self.section.body = "Heading.  Body.\n"
+        self.section.save()
+
+        form = AdviceLetterSectionAdminForm(instance=self.section)
+        data = {}
+        for name in form.fields:
+            value = form.initial.get(name, "")
+            if name == "editor_state" or isinstance(value, (dict, list)):
+                value = json.dumps(value)
+            elif value is None:
+                value = ""
+            data[name] = value
+        bound = AdviceLetterSectionAdminForm(instance=self.section, data=data)
+
+        self.assertTrue(bound.is_valid(), bound.errors)
+        saved = bound.save(commit=False)
+        self.assertEqual(saved.editor_state, state)
+        self.assertEqual(saved.body, "Heading.  Body.\n")
 
 
 class LocalEditPreservationTests(TestCase):

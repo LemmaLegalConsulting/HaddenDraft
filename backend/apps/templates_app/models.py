@@ -163,6 +163,11 @@ class AdviceLetterSection(models.Model):
     cleveland_specific = models.BooleanField(default=False)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="ready")
     body = models.TextField(blank=True)
+    editor_state = models.JSONField(
+        default=dict,
+        blank=True,
+        help_text="Initial Lexical state converted from the maintained section DOCX.",
+    )
     content_path = models.CharField(max_length=500, blank=True)
     order = models.PositiveIntegerField(default=0)
     fields = models.JSONField(default=list, blank=True)

@@ -21,6 +21,74 @@ from apps.sources.connectors.legalserver import _display_value, _first_value
 # address when there is one.
 ADDRESS_KEYS = ("client_address_mailing", "client_address_home")
 
+# These are intentionally explicit aliases, not fuzzy matching.  A value is
+# safe to put into maintained prose only when LegalServer (or a normalized
+# custom field copied from it) names the same fact clearly enough for a human
+# to audit.
+LETTER_FIELD_ALIASES = {
+    "plaintiff_name": (
+        "plaintiff_name",
+        "plaintiff_full_name",
+        "landlord_name",
+        "landlord_full_name",
+        "opposing_party_name",
+        "opposing_party",
+        "plaintiff",
+    ),
+    "plaintiff_email": (
+        "plaintiff_email",
+        "plaintiff_email_address",
+        "landlord_email",
+        "landlord_email_address",
+        "opposing_party_email",
+    ),
+    "plaintiff_address": (
+        "plaintiff_address",
+        "landlord_address",
+        "opposing_party_address",
+    ),
+    "filing_date": (
+        "filing_date",
+        "filed_date",
+        "date_filed",
+        "complaint_filing_date",
+        "complaint_filed_date",
+        "complaint_date",
+    ),
+    "hearing_date": (
+        "hearing_date",
+        "next_hearing_date",
+        "court_hearing_date",
+        "scheduled_hearing_date",
+    ),
+    "service_date": (
+        "service_date",
+        "date_served",
+        "served_date",
+        "notice_service_date",
+    ),
+    "termination_date": (
+        "termination_date",
+        "lease_termination_date",
+        "notice_termination_date",
+        "move_out_date",
+    ),
+    "move_in_date": (
+        "move_in_date",
+        "move_in",
+        "tenancy_start_date",
+        "lease_start_date",
+    ),
+    "magistrate": (
+        "magistrate",
+        "magistrate_name",
+        "assigned_magistrate",
+        "judge",
+        "judge_name",
+    ),
+    "case_caption": ("case_caption", "case_title"),
+}
+
 # "01 Bankruptcy/Debtor Relief" -- the leading code is internal.
 PROBLEM_CODE_RE = re.compile(r"^\s*\d+\s+")
 
@@ -29,6 +97,76 @@ def _clean(value):
     if value in (None, "", "null"):
         return ""
     return re.sub(r"\s+", " ", str(value)).strip()
+
+
+def _field_key(value):
+    return re.sub(r"[^a-z0-9]+", "_", str(value or "").casefold()).strip("_")
+
+
+def _letter_field_candidates(payload):
+    """Flatten LegalServer's common custom-field shapes with provenance."""
+    candidates = {}
+
+    def add(key, value):
+        normalized = _field_key(key)
+        if not normalized or value in (None, "", [], {}):
+            return
+        if isinstance(value, dict) and "address" in normalized:
+            value = format_address(value)
+        else:
+            value = _display_value(value)
+        value = _clean(value)
+        if value and normalized not in candidates:
+            candidates[normalized] = (value, str(key))
+
+    for key, value in payload.items():
+        if key not in {"custom_fields", "customFields", "fields", "custom_fields_normalized"}:
+            add(key, value)
+
+    explicit = payload.get("custom_fields") or payload.get("customFields") or payload.get("fields")
+    if isinstance(explicit, dict):
+        for key, value in explicit.items():
+            add(key, value)
+    elif isinstance(explicit, list):
+        for item in explicit:
+            if not isinstance(item, dict):
+                continue
+            key = _first_value(item, "key", "name", "field_name", "slug", "id", default="")
+            value = _first_value(item, "value", "display_value", "text", "answer", default="")
+            add(key, value)
+
+    normalized = payload.get("custom_fields_normalized")
+    if isinstance(normalized, list):
+        for item in normalized:
+            if not isinstance(item, dict):
+                continue
+            add(item.get("key") or item.get("name"), item.get("value") or item.get("displayValue"))
+    elif isinstance(normalized, dict):
+        for key, value in normalized.items():
+            add(key, value)
+    return candidates
+
+
+def letter_template_fields(matter):
+    """Return deterministic maintained-template values and their source labels.
+
+    The second mapping is useful to a caller that wants to explain why a value
+    was inserted.  No semantic inference or LLM result is accepted here: an
+    unknown field remains unknown and is rendered as a visible placeholder.
+    """
+    payload = getattr(matter, "raw_payload", None) or {}
+    candidates = _letter_field_candidates(payload)
+    values = {}
+    sources = {}
+    for canonical, aliases in LETTER_FIELD_ALIASES.items():
+        for alias in aliases:
+            candidate = candidates.get(_field_key(alias))
+            if not candidate:
+                continue
+            values[canonical], source_key = candidate
+            sources[canonical] = f"LegalServer field: {source_key}"
+            break
+    return values, sources
 
 
 def format_address(address) -> str:

@@ -302,6 +302,38 @@ class DraftingServiceLLMTests(TestCase):
         self.assertIn("Template language is a form and drafting model, not evidence", captured_request["user"])
         self.assertIn("Case note 1", sections[0]["sources"])
 
+    def test_template_rendering_fills_named_case_fields_before_model_workflow(self):
+        matter = Matter.objects.create(
+            external_id="CASE-FIELDS-1",
+            client_name="Tenant",
+            jurisdiction="Housing Court",
+            raw_payload={
+                "custom_fields": {
+                    "Plaintiff Name": "Example Homes LLC",
+                    "Filing Date": "July 12, 2026",
+                }
+            },
+        )
+        context = GenerationContext(
+            matter=matter,
+            selected_facts=[],
+            selected_curated_facts=[],
+            selected_sources=[],
+            template=SimpleNamespace(jurisdiction="Housing Court"),
+            mode="draft_from_template",
+            template_data={},
+        )
+
+        rendered = ConstrainedDraftingService().render_template_body(
+            "The landlord is [Plaintiff Name]. Filing date: [Filing Date].",
+            context,
+        )
+
+        self.assertEqual(
+            rendered,
+            "The landlord is Example Homes LLC. Filing date: July 12, 2026.",
+        )
+
 
 class CaseChatTests(TestCase):
     def test_chat_text_normalizes_html_breaks(self):

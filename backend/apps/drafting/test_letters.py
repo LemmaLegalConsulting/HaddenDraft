@@ -1,4 +1,5 @@
 import tempfile
+import zipfile
 from pathlib import Path
 
 from django.test import TestCase, override_settings
@@ -138,3 +139,33 @@ class LetterDraftingTests(TestCase):
         body = "\n".join(p.text for p in Document(path).paragraphs)
         self.assertNotIn("Sample letter text", body)
         self.assertIn("Mr. Charles Mosby", body)
+
+    def test_export_sanitizes_a_legacy_letterhead_without_mutating_it(self):
+        source = self.root / "legacy.docx"
+        make_letterhead(source)
+        target = self.media / "legacy.docx"
+        target.write_bytes(source.read_bytes())
+        letterhead = Letterhead.objects.create(
+            slug="legacy",
+            title="Legacy Legal Aid",
+            docx="legacy.docx",
+            source_kind="database",
+            is_default=True,
+        )
+        original = target.read_bytes()
+        output = self.root / "legacy-export.docx"
+
+        path, selected = compose_letter_docx(
+            letter_fallback(self.request, self.context),
+            author_profile=AUTHOR,
+            request=self.request,
+            output_path=output,
+        )
+
+        self.assertEqual(selected.id, letterhead.id)
+        self.assertEqual(target.read_bytes(), original)
+        with zipfile.ZipFile(path) as archive:
+            core = archive.read("docProps/core.xml").decode("utf-8")
+        self.assertNotIn("lastPrinted", core)
+        self.assertNotIn("<dc:title", core)
+        self.assertIn("Mr. Charles Mosby", "\n".join(p.text for p in Document(path).paragraphs))

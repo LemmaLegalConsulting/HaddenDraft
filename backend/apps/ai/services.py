@@ -6,7 +6,9 @@ from jinja2 import ChainableUndefined
 
 from apps.ai.openai_client import OpenAIBackendError, OpenAICompatibleClient
 from apps.ai.prompt_catalog import render_prompt
+from apps.matters.client_letter_context import letter_template_fields
 from apps.sources.models import SourceConfiguration
+from apps.templates_app.placeholders import convert_text
 from apps.templates_app.template_variables import normalize_docxtpl_blocks, template_field_values
 from apps.templates_app.jinja_filters import TEMPLATE_HELPERS_GUIDE, listify, template_environment
 
@@ -90,7 +92,10 @@ class ConstrainedDraftingService:
             ]
             if item
         )
-        template_data = template_field_values(context.template_data)
+        case_fields, _field_sources = letter_template_fields(context.matter)
+        template_values = {**case_fields, **(context.template_data or {})}
+        normalized_body, _conversion = convert_text(body, "template_body")
+        template_data = template_field_values(template_values)
         client = {
             "name": context.matter.client_name,
             "pronouns": (context.template_data or {}).get("client_pronouns", ""),
@@ -106,7 +111,11 @@ class ConstrainedDraftingService:
             "court": context.matter.jurisdiction or getattr(context.template, "jurisdiction", ""),
             "plaintiff": template_data["plaintiff_name"],
             "defendant": context.matter.client_name,
-            "case_number": (context.template_data or {}).get("court_case_number") or "[Court Case Number]",
+            "case_number": (
+                (context.template_data or {}).get("court_case_number")
+                or template_values.get("case_number")
+                or "[Court Case Number]"
+            ),
             "advocate_name": author.get("displayName") or "Advocate",
             "advocate_signoff": author.get("signoff") or "Respectfully submitted,",
             "advocate_salutation": author.get("salutation") or "",
@@ -117,7 +126,7 @@ class ConstrainedDraftingService:
             "advocate_contact": contact,
             "advocate_signature_image": "[signature image]" if author.get("signatureImage") else "",
         }
-        normalized_body = normalize_docxtpl_blocks(body)
+        normalized_body = normalize_docxtpl_blocks(normalized_body)
         return template_environment(undefined=ChainableUndefined).from_string(normalized_body).render(values)
 
     def generate_curated_facts_section(self, facts, curated_facts):
@@ -188,6 +197,15 @@ class ConstrainedDraftingService:
 
     def regenerate_section(self, *, section, context, instruction=""):
         fallback = section.get("body", "")
+        prepared_fallback, _conversion = convert_text(
+            fallback, f"{section.get('key', 'section')}_template"
+        )
+        if (
+            prepared_fallback != fallback
+            or "{{" in prepared_fallback
+            or "{%" in prepared_fallback
+        ):
+            fallback = self.render_template_body(fallback, context)
         label = section.get("label", "Draft block")
         if instruction:
             scoped_context = GenerationContext(
@@ -218,6 +236,14 @@ class ConstrainedDraftingService:
         for block in context.template.blocks.all():
             if block.key not in selected_block_keys and not block.required:
                 continue
+            prepared_body, _conversion = convert_text(
+                block.body, f"{block.key}_template"
+            )
+            has_template_tokens = (
+                prepared_body != block.body
+                or "{{" in prepared_body
+                or "{%" in prepared_body
+            )
             if block.block_type == "facts" and block.ai_fill_mode == "constrained_generation":
                 evidence_fallback = self.generate_curated_facts_section(
                     selected_facts,
@@ -234,7 +260,7 @@ class ConstrainedDraftingService:
             elif block.block_type == "facts":
                 body = self.generate_curated_facts_section(selected_facts, context.selected_curated_facts)
             elif block.ai_fill_mode == "constrained_generation":
-                fallback = self.render_template_body(block.body, context) if "{{" in block.body or "{%" in block.body else block.body
+                fallback = self.render_template_body(block.body, context) if has_template_tokens else block.body
                 body = self.generate_constrained_section(
                     label=block.label,
                     context=context,
@@ -242,7 +268,7 @@ class ConstrainedDraftingService:
                     template_text=fallback,
                     section_kind=block.block_type,
                 )
-            elif "{{" in block.body or "{%" in block.body:
+            elif has_template_tokens:
                 body = self.render_template_body(block.body, context)
             else:
                 body = block.body

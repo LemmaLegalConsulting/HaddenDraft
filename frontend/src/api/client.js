@@ -153,5 +153,9 @@ export const api = {
     request("/advice-letters/preview/", { method: "POST", body: JSON.stringify(payload) }),
   adviceLetterExport: (payload) =>
     request("/advice-letters/export/", { method: "POST", body: JSON.stringify(payload) }),
+  adviceLetterDraft: (payload) =>
+    request("/advice-letters/drafts/", { method: "POST", body: JSON.stringify(payload) }),
+  adviceLetterDraftExport: (draftId, payload = {}) =>
+    request(`/advice-letters/drafts/${draftId}/export/`, { method: "POST", body: JSON.stringify(payload) }),
   adminUrl: () => "/admin/",
 };

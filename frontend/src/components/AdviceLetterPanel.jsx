@@ -1,7 +1,9 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AlertTriangle, ArrowDown, ArrowUp, Download, Sparkles } from "lucide-react";
 
 import { api } from "../api/client";
+import { DraftEditor } from "../editor/DraftEditor.jsx";
+import { DocumentHistoryPanel } from "./DocumentHistoryPanel.jsx";
 import {
   applyRecommendations,
   estimatePages,
@@ -37,6 +39,8 @@ export function AdviceLetterPanel({ matter, authorProfile }) {
   const [goal, setGoal] = useState("");
   const [recommendations, setRecommendations] = useState([]);
   const [preview, setPreview] = useState(null);
+  const [draft, setDraft] = useState(null);
+  const [draftDirty, setDraftDirty] = useState(false);
   const [letterFields, setLetterFields] = useState({
     recipientName: "",
     recipientAddress: "",
@@ -48,9 +52,43 @@ export function AdviceLetterPanel({ matter, authorProfile }) {
   const [filenameEdited, setFilenameEdited] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
+  const draftRef = useRef(null);
+  const letterFieldsRef = useRef(letterFields);
+  const filenameEditedRef = useRef(filenameEdited);
+  const goalRef = useRef(goal);
+  const conditionsRef = useRef(conditions);
+  const draftDirtyRef = useRef(false);
+
+  letterFieldsRef.current = letterFields;
+  filenameEditedRef.current = filenameEdited;
+  goalRef.current = goal;
+  conditionsRef.current = conditions;
+  draftDirtyRef.current = draftDirty;
 
   const sections = catalog?.sections || [];
   const matterId = matter?.externalId || matter?.id || "";
+
+  function setActiveDraft(nextDraft) {
+    draftRef.current = nextDraft;
+    setDraft(nextDraft);
+    if (nextDraft) {
+      setPreview((current) => {
+        if (!current) return current;
+        const paragraphs = (nextDraft.sections || []).flatMap((section) =>
+          (section.body || "").split("\n").map((line) => line.trim()).filter(Boolean),
+        );
+        return { ...current, paragraphs, body: paragraphs.join("\n") };
+      });
+    }
+  }
+
+  useEffect(() => {
+    draftRef.current = null;
+    setDraft(null);
+    setDraftDirty(false);
+    setPreview(null);
+    setSelected([]);
+  }, [matterId]);
 
   useEffect(() => {
     let cancelled = false;
@@ -91,20 +129,31 @@ export function AdviceLetterPanel({ matter, authorProfile }) {
     async (slugs) => {
       if (!slugs.length) {
         setPreview(null);
+        setDraft(null);
         return;
       }
       try {
-        const data = await api.adviceLetterPreview({
+        const data = await api.adviceLetterDraft({
           matterId,
           sectionSlugs: slugs,
           authorProfile,
+          goal: goalRef.current,
+          conditions: conditionsRef.current,
+          includeWrapper: true,
+          letterFields: letterFieldsRef.current,
+          draftId: draftRef.current?.id,
+          currentSections: draftRef.current?.sections,
+          currentEditorState: draftRef.current?.editorState,
         });
+        setActiveDraft(data.draft);
+        setDraftDirty(false);
         setPreview(data.letter);
         // Keep the suggestion in step with the sections chosen so far, unless
         // the advocate has renamed it themselves.
-        if (!filenameEdited) {
+        if (!filenameEditedRef.current) {
           setLetterFields((current) => ({
             ...current,
+            ...(data.letterFields || {}),
             filename: data.letter.suggestedFilename || current.filename,
           }));
         }
@@ -112,7 +161,7 @@ export function AdviceLetterPanel({ matter, authorProfile }) {
         setError(err.message);
       }
     },
-    [matterId, authorProfile, filenameEdited],
+    [matterId, authorProfile],
   );
 
   useEffect(() => {
@@ -145,11 +194,21 @@ export function AdviceLetterPanel({ matter, authorProfile }) {
     setBusy(true);
     setError("");
     try {
-      const response = await api.adviceLetterExport({
-        matterId,
-        sectionSlugs: selected,
+      let currentDraft = draftRef.current;
+      if (!currentDraft) throw new Error("Choose at least one section first.");
+      if (draftDirtyRef.current) {
+        const saved = await api.updateDraft(currentDraft.id, {
+          sections: currentDraft.sections,
+          plainText: currentDraft.plainText,
+          editorState: currentDraft.editorState,
+        });
+        currentDraft = saved.draft;
+        setActiveDraft(currentDraft);
+        setDraftDirty(false);
+      }
+      const response = await api.adviceLetterDraftExport(currentDraft.id, {
         authorProfile,
-        ...letterFields,
+        letterFields: letterFieldsRef.current,
       });
       const blob = await response.blob();
       const disposition = response.headers.get("content-disposition") || "";
@@ -165,6 +224,70 @@ export function AdviceLetterPanel({ matter, authorProfile }) {
     } finally {
       setBusy(false);
     }
+  }
+
+  async function persistDraft() {
+    const currentDraft = draftRef.current;
+    if (!currentDraft || !draftDirtyRef.current) return currentDraft;
+    setBusy(true);
+    setError("");
+    try {
+      const response = await api.updateDraft(currentDraft.id, {
+        sections: currentDraft.sections,
+        plainText: currentDraft.plainText,
+        editorState: currentDraft.editorState,
+      });
+      setActiveDraft(response.draft);
+      setDraftDirty(false);
+      return response.draft;
+    } catch (err) {
+      setError(err.message);
+      return null;
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function redraftBlock(blockKey, instruction = "") {
+    if (!draftRef.current) return;
+    setBusy(true);
+    setError("");
+    try {
+      const response = await api.regenerateDraftBlock(draftRef.current.id, blockKey, { instruction });
+      setActiveDraft(response.draft);
+      setDraftDirty(false);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function fillMissingField(_fieldKey, _value, sections, plainText, editorState) {
+    const currentDraft = draftRef.current;
+    if (!currentDraft) return;
+    setBusy(true);
+    setError("");
+    try {
+      const response = await api.updateDraft(currentDraft.id, {
+        sections,
+        plainText,
+        editorState,
+      });
+      setActiveDraft(response.draft);
+      setDraftDirty(false);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  function handleDraftChange(sections, plainText, editorState) {
+    const current = draftRef.current;
+    if (!current) return;
+    setActiveDraft({ ...current, sections, plainText, editorState });
+    setDraftDirty(true);
   }
 
   const grouped = useMemo(() => groupByTopic(sections), [sections]);
@@ -234,6 +357,12 @@ export function AdviceLetterPanel({ matter, authorProfile }) {
           </button>
         )}
       </div>
+      {!draft && selected.length === 0 && (
+        <p className="muted advice-editor-hint">
+          Choose a section under <strong>All sections</strong>, or use <strong>Suggest sections</strong>,
+          to open the rich-text editor.
+        </p>
+      )}
 
       {recommendations.length > 0 && (
         <section className="advice-recommendations">
@@ -341,21 +470,6 @@ export function AdviceLetterPanel({ matter, authorProfile }) {
         </section>
       )}
 
-      {preview && (
-        <section className="advice-preview">
-          <h4>Preview</h4>
-          <p className="muted">
-            {readingGradeLabel(preview.readability)}
-            {pages !== null && ` · about ${pages} page(s)`}
-          </p>
-          <div className="preview-body">
-            {preview.paragraphs.map((paragraph, index) => (
-              <p key={index}>{paragraph}</p>
-            ))}
-          </div>
-        </section>
-      )}
-
       <section className="advice-send">
         <h4>Addressing</h4>
         <div className="field-row">
@@ -381,7 +495,7 @@ export function AdviceLetterPanel({ matter, authorProfile }) {
         <label className="field">
           <span>Address</span>
           <textarea
-            rows={3}
+            rows={2}
             value={letterFields.recipientAddress}
             onChange={(event) =>
               setLetterFields({ ...letterFields, recipientAddress: event.target.value })
@@ -406,10 +520,36 @@ export function AdviceLetterPanel({ matter, authorProfile }) {
             onChange={(event) => setLetterFields({ ...letterFields, subject: event.target.value })}
           />
         </label>
-        <button type="button" onClick={download} disabled={busy || selected.length === 0}>
+        <button type="button" onClick={download} disabled={busy || !draft}>
           <Download size={14} /> Download letter
         </button>
       </section>
+
+      {draft && (
+        <section className="advice-editor-section">
+          <h4>Edit the letter</h4>
+          <p className="muted">
+            {readingGradeLabel(preview?.readability)}
+            {pages !== null && ` · about ${pages} page(s)`}
+          </p>
+          <DraftEditor
+            draft={draft}
+            busy={busy}
+            onChange={handleDraftChange}
+            onPersist={persistDraft}
+            onRegenerateBlock={redraftBlock}
+            onFillMissingField={fillMissingField}
+          />
+          <DocumentHistoryPanel
+            draft={draft}
+            busy={busy}
+            onDraftRestored={(restored) => {
+              setActiveDraft(restored);
+              setDraftDirty(false);
+            }}
+          />
+        </section>
+      )}
     </div>
   );
 }

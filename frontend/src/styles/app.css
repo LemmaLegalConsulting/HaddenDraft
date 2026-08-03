@@ -3515,6 +3515,14 @@ button:disabled {
   max-width: 900px;
 }
 
+.advice-editor-section .draft-editor-layout {
+  max-width: none;
+}
+
+.advice-editor-section .document-history-panel {
+  margin-top: 14px;
+}
+
 .advice-letter-panel .field-row {
   align-items: flex-end;
   display: flex;
@@ -3523,6 +3531,10 @@ button:disabled {
 
 .advice-letter-panel .field.grow {
   flex: 1;
+}
+
+.advice-send .field textarea {
+  min-height: 62px;
 }
 
 .advice-conditions summary {

@@ -53,6 +53,9 @@ from apps.templates_app.placeholders import (
 
 
 MANIFEST_VERSION = 2
+# Bump when conversion semantics change without changing the maintained source
+# file, so startup can refresh already-prepared packages safely.
+CONVERTER_VERSION = "2026-08-02-mixed-placeholder-bindings-v1"
 
 LATITUDE_LOCKED = "locked"
 LATITUDE_GUIDED = "guided"
@@ -637,7 +640,10 @@ def ingest_docx(source: Path, prepared_root: Path, snippets_root: Path, *, force
     source_checksum = sha256_file(source)
     if manifest_path.exists() and not force:
         existing = yaml.safe_load(manifest_path.read_text()) or {}
-        if existing.get("source", {}).get("sha256") == source_checksum:
+        if (
+            existing.get("source", {}).get("sha256") == source_checksum
+            and existing.get("source", {}).get("converter_version") == CONVERTER_VERSION
+        ):
             return manifest_path
 
     original = Document(source)
@@ -705,6 +711,7 @@ def ingest_docx(source: Path, prepared_root: Path, snippets_root: Path, *, force
             "sha256": source_checksum,
             "converted_at": datetime.now(timezone.utc).isoformat(),
             "converter": "apps.templates_app.ingestion",
+            "converter_version": CONVERTER_VERSION,
             "format_preservation": "in_place_ooxml",
         },
         "fields": discovery["fields"],

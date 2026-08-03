@@ -61,6 +61,8 @@ def _source_result_binding(version, source):
         locator={
             "url": source.get("url") or "",
             "sourceId": source.get("id") or "",
+            "contentPath": (source.get("metadata") or {}).get("contentPath", ""),
+            "sourceChecksum": (source.get("metadata") or {}).get("sourceChecksum", ""),
         },
         excerpt=str(source.get("snippet") or ""),
     )
@@ -96,6 +98,14 @@ def bindings_for_section(version, section, *, facts, source_results):
     if section.get("blockType") == "facts":
         bindings.extend(_fact_binding(version, fact) for fact in facts)
     if section.get("aiFillMode") == "constrained_generation":
+        bindings.extend(_source_result_binding(version, source) for source in source_results)
+
+    # Advice-letter sections start from maintained wording but can be
+    # redrafted through the same AI operation as filing blocks. An AI version
+    # needs the case facts and selected support recorded even though the
+    # maintained version itself is sourced from the advice-letter catalog.
+    if version.origin == "ai" and section.get("adviceSectionSlug"):
+        bindings.extend(_fact_binding(version, fact) for fact in facts)
         bindings.extend(_source_result_binding(version, source) for source in source_results)
 
     # Whatever is left in the section's own source list is template-declared

@@ -4,6 +4,7 @@ from apps.matters.client_letter_context import (
     case_reference,
     client_letter_context,
     format_address,
+    letter_template_fields,
     matter_subject,
     salutation_name,
 )
@@ -119,3 +120,26 @@ class ClientLetterContextTests(TestCase):
     def test_only_stray_whitespace_is_tidied(self):
         self.assertEqual(salutation_name("  Maria   Alvarez \n"), "Maria Alvarez")
         self.assertEqual(salutation_name(""), "")
+
+    def test_letter_template_fields_use_named_legalserver_fields_only(self):
+        self.matter.raw_payload = {
+            **PAYLOAD,
+            "custom_fields": {
+                "Plaintiff Name": "Example Homes LLC",
+                "Filing Date": "July 12, 2026",
+                "Magistrate Name": "Alex Judge",
+            },
+        }
+
+        fields, sources = letter_template_fields(self.matter)
+
+        self.assertEqual(fields["plaintiff_name"], "Example Homes LLC")
+        self.assertEqual(fields["filing_date"], "July 12, 2026")
+        self.assertEqual(fields["magistrate"], "Alex Judge")
+        self.assertEqual(sources["filing_date"], "LegalServer field: Filing Date")
+
+    def test_letter_template_fields_leave_unknown_facts_out(self):
+        fields, _sources = letter_template_fields(self.matter)
+
+        self.assertNotIn("filing_date", fields)
+        self.assertNotIn("plaintiff_name", fields)

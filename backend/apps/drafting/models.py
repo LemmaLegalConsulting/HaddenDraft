@@ -6,6 +6,7 @@ class DraftingSession(models.Model):
         ("research", "Research"),
         ("draft_from_scratch", "Draft from scratch"),
         ("draft_from_template", "Draft from template"),
+        ("advice_letter", "Client advice letter"),
     ]
     STATUS_CHOICES = [
         ("setup", "Choose document"),

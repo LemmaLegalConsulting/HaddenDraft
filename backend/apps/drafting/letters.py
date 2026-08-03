@@ -13,6 +13,8 @@ masthead, margins, and continuation header intact.
 from __future__ import annotations
 
 import re
+import shutil
+import tempfile
 from dataclasses import dataclass, field
 from pathlib import Path
 
@@ -23,7 +25,7 @@ from apps.ai.prompt_catalog import render_prompt
 from apps.ai.services import GenerationContext
 from apps.templates_app.jinja_filters import template_environment
 from apps.templates_app.letterhead_library import letterhead_for_author, letterhead_path
-from apps.templates_app.letterheads import letterhead_context
+from apps.templates_app.letterheads import letterhead_context, sanitize_letterhead
 from apps.templates_app.template_variables import normalize_docxtpl_blocks
 
 
@@ -168,7 +170,14 @@ def letter_fallback(request: LetterRequest, context: GenerationContext):
     return "\n".join(lines)
 
 
-def compose_letter_docx(body: str, *, author_profile=None, request: LetterRequest = None, output_path: Path):
+def compose_letter_docx(
+    body: str,
+    *,
+    author_profile=None,
+    request: LetterRequest = None,
+    output_path: Path,
+    formatted_body=None,
+):
     """Render the letter body onto the organization's letterhead."""
     request = request or LetterRequest()
     author_profile = author_profile or {}
@@ -184,8 +193,7 @@ def compose_letter_docx(body: str, *, author_profile=None, request: LetterReques
         # Without stationery the letter still has to be deliverable, so it is
         # written as a plain document rather than failing the draft.
         document = Document()
-        for paragraph in body.split("\n"):
-            document.add_paragraph(paragraph)
+        _append_body(document, body, formatted_body=formatted_body)
         output_path.parent.mkdir(parents=True, exist_ok=True)
         document.save(output_path)
         return output_path, None
@@ -194,17 +202,29 @@ def compose_letter_docx(body: str, *, author_profile=None, request: LetterReques
         def patch_xml(self, source_xml):
             return normalize_docxtpl_blocks(super().patch_xml(source_xml))
 
-    template = NormalizingDocxTemplate(path)
-    template.render(context, jinja_env=template_environment())
-    rendered = template.docx
+    # The library may contain a legacy file prepared before Word-compatible
+    # metadata scrubbing. Sanitize a disposable copy so an export never
+    # mutates private stationery while still producing a package Word opens.
+    with tempfile.TemporaryDirectory() as work:
+        safe_path = Path(work) / "letterhead.docx"
+        sanitize_letterhead(path, safe_path)
+        template = NormalizingDocxTemplate(safe_path)
+        template.render(context, jinja_env=template_environment())
+        rendered = template.docx
 
-    _append_body(rendered, body)
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    rendered.save(output_path)
+        _append_body(rendered, body, formatted_body=formatted_body)
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        rendered.save(output_path)
+        # python-docx/docxtpl may recreate empty optional core properties while
+        # saving the rendered package. Scrub the final artifact as well as the
+        # source copy, because Word validates the artifact it opens.
+        final_safe_path = Path(work) / "export-safe.docx"
+        sanitize_letterhead(output_path, final_safe_path)
+        shutil.copyfile(final_safe_path, output_path)
     return output_path, letterhead
 
 
-def _append_body(document, body: str):
+def _append_body(document, body: str, *, formatted_body=None):
     """Put the letter text in the stationery's body, keeping its empty layout."""
     existing = [paragraph for paragraph in document.paragraphs if paragraph.text.strip()]
     for paragraph in existing:
@@ -213,5 +233,27 @@ def _append_body(document, body: str):
         parent = paragraph._p.getparent()
         if parent is not None:
             parent.remove(paragraph._p)
-    for line in re.split(r"\n", body):
-        document.add_paragraph(line)
+    if formatted_body is None:
+        for line in re.split(r"\n", body):
+            document.add_paragraph(line)
+        return
+
+    for paragraph_data in formatted_body:
+        run_data = list(paragraph_data.get("runs") or [])
+        first_text = run_data[0].get("text", "") if run_data else ""
+        is_bullet = first_text.startswith("- ")
+        paragraph = document.add_paragraph(style="List Bullet" if is_bullet else None)
+        trim_prefix = 2 if is_bullet else 0
+        for item in run_data:
+            text = item.get("text", "")
+            if trim_prefix:
+                removed = min(trim_prefix, len(text))
+                text = text[removed:]
+                trim_prefix -= removed
+            if not text:
+                continue
+            run = paragraph.add_run(text)
+            format_value = int(item.get("format") or 0)
+            run.bold = bool(format_value & 1)
+            run.italic = bool(format_value & 2)
+            run.underline = bool(format_value & 8)

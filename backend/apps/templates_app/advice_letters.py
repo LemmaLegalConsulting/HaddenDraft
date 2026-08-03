@@ -36,7 +36,7 @@ from docx import Document
 from django.utils.text import slugify
 from lxml import etree
 
-from apps.templates_app.placeholders import convert_paragraph
+from apps.templates_app.placeholders import convert_editor_state, convert_paragraph, convert_text
 from apps.validation.copyedit import copyedit_lines
 from apps.validation.readability import check_readability
 
@@ -118,6 +118,7 @@ class SectionDraft:
     tracked_changes: int = 0
     comments: int = 0
     copyedit: dict = field(default_factory=dict)
+    editor_state: dict = field(default_factory=dict)
 
     @property
     def body(self):
@@ -260,6 +261,154 @@ def strip_slots(document) -> list[str]:
     return found
 
 
+# Lexical's text-format bitmask: bold, italic, and underline. Keeping this
+# conversion here means the maintained DOCX remains the formatting authority;
+# the browser receives a normal Lexical JSON state rather than a second hand-
+# authored representation of the same section.
+LEXICAL_BOLD = 1
+LEXICAL_ITALIC = 1 << 1
+LEXICAL_UNDERLINE = 1 << 3
+
+
+def _lexical_format(run):
+    value = 0
+    if run.bold:
+        value |= LEXICAL_BOLD
+    if run.italic:
+        value |= LEXICAL_ITALIC
+    if run.underline:
+        value |= LEXICAL_UNDERLINE
+    return value
+
+
+def _lexical_text_node(text, format_value=0):
+    return {
+        "detail": 0,
+        "format": format_value,
+        "mode": "normal",
+        "style": "",
+        "text": text,
+        "type": "text",
+        "version": 1,
+    }
+
+
+def _reflow_formatted_runs(runs, text):
+    """Fit a changed paragraph onto its source formatting boundaries.
+
+    The normal ingest path keeps the source text byte-for-byte (apart from
+    known placeholders), but copy-editing or a generated replacement can alter
+    its length. A proportional fallback is preferable to flattening a whole
+    paragraph to the first run's style.
+    """
+    if not text:
+        return []
+    source_length = sum(len(run_text) for run_text, _format in runs)
+    if not source_length:
+        return [_lexical_text_node(text)]
+    children = []
+    source_cursor = 0
+    target_length = len(text)
+    for run_text, format_value in runs:
+        start = round(source_cursor * target_length / source_length)
+        source_cursor += len(run_text)
+        end = round(source_cursor * target_length / source_length)
+        if end > start:
+            children.append(_lexical_text_node(text[start:end], format_value))
+    return children or [_lexical_text_node(text)]
+
+
+def _lexical_paragraph(paragraph, text_override=""):
+    """Serialize one DOCX paragraph, retaining inline run formatting."""
+    source_runs = [
+        (run.text, _lexical_format(run))
+        for run in paragraph.runs
+        if run.text
+    ]
+    source_text = "".join(run_text for run_text, _format in source_runs)
+    cleaned_source_text = substitute_known_placeholders(SLOT_RE.sub("", source_text))
+    desired = text_override
+    prefix = ""
+    if desired.startswith("- ") and not cleaned_source_text.startswith("- "):
+        prefix = "- "
+        desired = desired[2:]
+
+    if not desired and not cleaned_source_text.strip():
+        children = []
+    elif desired == source_text:
+        children = [_lexical_text_node(text, format_value) for text, format_value in source_runs]
+    elif desired == cleaned_source_text:
+        cleaned_runs = []
+        for run_text, format_value in source_runs:
+            run_text = substitute_known_placeholders(SLOT_RE.sub("", run_text))
+            if run_text:
+                cleaned_runs.append((run_text, format_value))
+        children = [_lexical_text_node(text, format_value) for text, format_value in cleaned_runs]
+    elif desired == source_text.strip():
+        leading = len(source_text) - len(source_text.lstrip())
+        trailing = len(source_text) - len(source_text.rstrip())
+        trimmed = source_text[leading : len(source_text) - trailing if trailing else None]
+        children = _reflow_formatted_runs(source_runs, trimmed)
+    elif desired:
+        children = _reflow_formatted_runs(source_runs, desired)
+    else:
+        children = []
+
+    if prefix:
+        children.insert(0, _lexical_text_node(prefix))
+    return {
+        "children": children,
+        "direction": "ltr",
+        "format": "",
+        "indent": 0,
+        "type": "paragraph",
+        "version": 1,
+    }
+
+
+def lexical_editor_state(entries):
+    """Create the initial Lexical state for ``[(paragraph, text), ...]``."""
+    children = [_lexical_paragraph(paragraph, text) for paragraph, text in entries]
+    return {
+        "root": {
+            "children": children,
+            "direction": "ltr",
+            "format": "",
+            "indent": 0,
+            "type": "root",
+            "version": 1,
+        }
+    }
+
+
+def _section_paragraph_entries(document, title):
+    """Keep the section's paragraphs, including intentional blank paragraphs."""
+    paragraphs = [paragraph for paragraph in document.paragraphs if not is_wrapper_line(paragraph.text)]
+    nonempty = [paragraph for paragraph in paragraphs if paragraph.text.strip()]
+    if nonempty and _title_key(nonempty[0].text.strip()) == _title_key(title):
+        paragraphs.remove(nonempty[0])
+
+    entries = []
+    for paragraph in paragraphs:
+        text = paragraph.text
+        if not text.strip():
+            entries.append((paragraph, ""))
+            continue
+        cleaned = substitute_known_placeholders(SLOT_RE.sub("", text))
+        if paragraph._p.find(f"{W}pPr/{W}numPr") is not None:
+            cleaned = f"- {cleaned.lstrip()}"
+        if cleaned:
+            entries.append((paragraph, cleaned))
+
+    # Wrapper removal can leave the blank paragraph that separated the wrapper
+    # from the section at either edge. It is not the section's own spacing.
+    while entries and not entries[0][1]:
+        entries.pop(0)
+    while entries and not entries[-1][1]:
+        entries.pop()
+    return entries
+
+
 def _paragraph_lines(document):
     lines = []
     for paragraph in document.paragraphs:
@@ -317,6 +466,12 @@ def extract_section(path: Path, *, slug="", title="") -> SectionDraft:
         cleaned, touched={index for index in edited_positions if index < len(cleaned)}
     )
     draft.copyedit = report.as_dict()
+    entries = _section_paragraph_entries(document, draft.title)
+    if entries:
+        # The source DOCX is the formatting authority. Keep its run boundaries
+        # and intentional blank paragraphs even when the plain-text copy-edit
+        # projection has trimmed or lightly changed a line.
+        draft.editor_state = lexical_editor_state(entries)
     if report.fixes:
         draft.notes.append(
             f"{len(report.fixes)} spacing/punctuation fix(es) applied during ingest."
@@ -363,20 +518,47 @@ def classify_status(draft: SectionDraft) -> str:
 def extract_wrapper(path: Path) -> list[SectionDraft]:
     """Split the Model Letter into its opening and closing sections."""
     document, _touched = accept_tracked_changes(Document(path))
-    rows = _paragraph_lines(document)
+    _paragraph_lines(document)
 
     intro, closing = [], []
+    intro_paragraphs, closing_paragraphs = [], []
     seen_closer = False
-    for text, _style, numbered, _found in rows:
+    for paragraph in document.paragraphs:
+        text = paragraph.text
         normalized = _normalized(text)
         if any(normalized.startswith(closer) for closer in WRAPPER_CLOSERS):
             seen_closer = True
         if seen_closer:
-            if not any(normalized.startswith(entry) for entry in WRAPPER_ADDRESS):
+            if not any(normalized.startswith(entry) for entry in WRAPPER_ADDRESS) and text.strip():
                 closing.append(substitute_known_placeholders(text))
+                closing_paragraphs.append(paragraph)
             continue
         if any(normalized.startswith(opener) for opener in WRAPPER_OPENERS):
             intro.append(substitute_known_placeholders(text))
+            intro_paragraphs.append(paragraph)
+
+    def with_spacing(selected):
+        if not selected:
+            return []
+        selected_ids = {id(paragraph._p) for paragraph in selected}
+        positions = [
+            index
+            for index, paragraph in enumerate(document.paragraphs)
+            if id(paragraph._p) in selected_ids
+        ]
+        if not positions:
+            return []
+        start, end = min(positions), max(positions)
+        return [
+            (
+                paragraph,
+                substitute_known_placeholders(paragraph.text)
+                if paragraph.text.strip()
+                else "",
+            )
+            for paragraph in document.paragraphs[start : end + 1]
+            if id(paragraph._p) in selected_ids or not paragraph.text.strip()
+        ]
 
     drafts = []
     if intro:
@@ -390,6 +572,7 @@ def extract_wrapper(path: Path) -> list[SectionDraft]:
                 source_file=path.name,
                 source_sha256=sha256_file(path),
                 status=STATUS_READY,
+                editor_state=lexical_editor_state(with_spacing(intro_paragraphs)),
             )
         )
     if closing:
@@ -403,6 +586,7 @@ def extract_wrapper(path: Path) -> list[SectionDraft]:
                 source_file=path.name,
                 source_sha256=sha256_file(path),
                 status=STATUS_READY,
+                editor_state=lexical_editor_state(with_spacing(closing_paragraphs)),
             )
         )
     return drafts
@@ -510,11 +694,39 @@ def match_catalog_row(section_title: str, rows: list[dict]) -> dict | None:
 def write_section_docx(draft: SectionDraft, path: Path):
     """Write a prepared section as a small DOCX for composition."""
     document = Document()
-    for line in draft.paragraphs:
-        if line.startswith("- "):
-            document.add_paragraph(line[2:], style="List Bullet")
-        else:
-            document.add_paragraph(line)
+    state = draft.editor_state or {}
+    root = state.get("root") if isinstance(state, dict) else None
+    if isinstance(root, dict) and isinstance(root.get("children"), list):
+        for node in root["children"]:
+            if node.get("type") != "paragraph":
+                continue
+            text_nodes = [
+                child for child in node.get("children", [])
+                if child.get("type") == "text"
+            ]
+            first_text = text_nodes[0].get("text", "") if text_nodes else ""
+            is_bullet = first_text.startswith("- ")
+            paragraph = document.add_paragraph(style="List Bullet" if is_bullet else None)
+            trim_prefix = 2 if is_bullet else 0
+            for child in text_nodes:
+                text = child.get("text", "")
+                if trim_prefix:
+                    removed = min(trim_prefix, len(text))
+                    text = text[removed:]
+                    trim_prefix -= removed
+                if not text:
+                    continue
+                run = paragraph.add_run(text)
+                format_value = int(child.get("format") or 0)
+                run.bold = bool(format_value & LEXICAL_BOLD)
+                run.italic = bool(format_value & LEXICAL_ITALIC)
+                run.underline = bool(format_value & LEXICAL_UNDERLINE)
+    else:
+        for line in draft.paragraphs:
+            if line.startswith("- "):
+                document.add_paragraph(line[2:], style="List Bullet")
+            else:
+                document.add_paragraph(line)
     path.parent.mkdir(parents=True, exist_ok=True)
     document.save(path)
     return path
@@ -537,6 +749,7 @@ def section_to_manifest_row(draft: SectionDraft, docx_path: str) -> dict:
         "variants": draft.variants,
         "notes": draft.notes,
         "copyedit": draft.copyedit,
+        "editor_state": draft.editor_state,
         "word_count": draft.word_count,
         "source": {
             "file": draft.source_file,
@@ -598,6 +811,10 @@ def build_catalog(
         if not completion:
             continue
         draft.paragraphs = completion["paragraphs"]
+        # The completion is a plain-text replacement, not the maintained DOCX
+        # state. Do not let the old rich state silently resurrect the replaced
+        # wording on export.
+        draft.editor_state = {}
         draft.title = completion.get("title", draft.title)
         draft.status = completion.get("status", STATUS_AI_DRAFTED)
         draft.notes.append(completion.get("note", "Completed during ingest; attorney review required."))
@@ -650,6 +867,24 @@ def build_catalog(
                     f"Merge repair no longer matches the source: \"{repair['broken']}\". "
                     "The maintained text may have been fixed upstream; re-check this section."
                 )
+
+    # Completions, repairs, and derived sections can be authored outside the
+    # DOCX converter. Normalize them too, so every catalog path presents the
+    # same Jinja field surface before it reaches the editor or exporter.
+    for draft in drafts:
+        normalized = []
+        fields = set(draft.fields or [])
+        for index, line in enumerate(draft.paragraphs, start=1):
+            converted, conversion = convert_text(line, f"{draft.slug}_{index}")
+            normalized.append(converted)
+            fields.update(conversion.fields)
+        draft.paragraphs = normalized
+        draft.fields = sorted(fields)
+        if draft.editor_state:
+            draft.editor_state, conversion = convert_editor_state(
+                draft.editor_state, draft.slug
+            )
+            draft.fields = sorted(set(draft.fields) | conversion.fields)
 
     # A readable record of what accepting the marks produced, so a reviewer can
     # open the resolved text in Word instead of re-deriving it from the

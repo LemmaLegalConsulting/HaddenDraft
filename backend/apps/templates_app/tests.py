@@ -134,13 +134,26 @@ class PlaceholderConversionTests(TestCase):
         self.assertEqual(conversion.fields, set())
         self.assertEqual(conversion.flags, set())
 
-    def test_already_prepared_paragraph_is_not_converted_twice(self):
+    def test_mixed_prepared_and_legacy_placeholders_are_both_supported(self):
         document = Document()
         paragraph = document.add_paragraph("Served on {{ fields.plaintiff_name }} [DATE].")
 
         convert_paragraph(paragraph, "body_1")
 
-        self.assertEqual(paragraph.text, "Served on {{ fields.plaintiff_name }} [DATE].")
+        self.assertEqual(
+            paragraph.text,
+            "Served on {{ fields.plaintiff_name }} {{ fields.filing_date }}.",
+        )
+
+    def test_brackets_inside_jinja_control_tags_are_not_rebound(self):
+        converted, conversion = convert_text(
+            '{%p for item in blocks["statement-case"]["items"] %} [Filing Date]',
+            "body_1",
+        )
+
+        self.assertIn('blocks["statement-case"]["items"]', converted)
+        self.assertIn("{{ fields.filing_date }}", converted)
+        self.assertEqual(sorted(conversion.fields), ["fields.filing_date"])
 
 
 class HeadingAndLatitudeTests(TestCase):
