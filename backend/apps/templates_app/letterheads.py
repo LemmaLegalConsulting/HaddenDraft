@@ -230,6 +230,7 @@ def prepare_letterhead(source: Path, output: Path) -> LetterheadPreparation:
 
     _scrub_document_properties(document, preparation)
     _scrub_external_links(document, preparation)
+    _drop_sharepoint_baggage(document, preparation)
     preparation.variables = _bound_variables(document)
     output.parent.mkdir(parents=True, exist_ok=True)
     document.save(output)
@@ -292,6 +293,37 @@ def _scrub_external_links(document, preparation):
             dropped.append(rel_id)
         if dropped:
             _remove_dangling_references(part, dropped)
+
+
+SHAREPOINT_RELTYPES = (
+    "customXml",
+    "customXmlProps",
+)
+
+
+def _drop_sharepoint_baggage(document, preparation):
+    """Remove the SharePoint metadata the letterhead picked up in OneDrive.
+
+    These files were downloaded from the organization's SharePoint, so each
+    carries `customXml` parts describing a library content type. None of it
+    means anything in a letter, it travels into every document built from the
+    letterhead, and a stale content-type binding is a known reason for Word to
+    announce unreadable content and offer to repair the file.
+    """
+    package = document.part.package
+    for part in list(package.iter_parts()):
+        rels = getattr(part, "rels", None)
+        if not rels:
+            continue
+        for rel_id, rel in list(rels.items()):
+            if rel.is_external:
+                continue
+            if not any(rel.reltype.endswith(name) for name in SHAREPOINT_RELTYPES):
+                continue
+            preparation.replaced.append(
+                f"SharePoint metadata: {rel.reltype.rsplit('/', 1)[-1]} {rel.target_ref}"
+            )
+            part.drop_rel(rel_id)
 
 
 def _remove_dangling_references(part, dropped_ids):

@@ -5,6 +5,8 @@ from pathlib import Path
 
 from django.test import TestCase
 from docx import Document
+from docx.opc.packuri import PackURI
+from docx.opc.part import Part
 from docx.oxml.ns import qn
 from lxml import etree
 from docxtpl import DocxTemplate
@@ -150,6 +152,37 @@ class LetterheadPreparationTests(TestCase):
             if child.tag in (qn("w:headerReference"), qn("w:footerReference"))
         ]
         self.assertNotIn("even", types)
+
+    def test_sharepoint_metadata_is_left_behind(self):
+        """The maintained files came from OneDrive carrying library metadata.
+
+        It means nothing in a letter, it travels into every document built from
+        the letterhead, and a stale content-type binding is a known reason for
+        Word to announce unreadable content.
+        """
+        source = self.root / "sharepointed.docx"
+        make_letterhead(source)
+        document = Document(source)
+        custom = Part(
+            PackURI("/customXml/item1.xml"),
+            "application/xml",
+            b"<root xmlns='urn:example'/>",
+            document.part.package,
+        )
+        document.part.relate_to(
+            custom,
+            "http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXml",
+        )
+        document.save(source)
+
+        output = self.root / "clean.docx"
+        report = prepare_letterhead(source, output)
+
+        with zipfile.ZipFile(output) as archive:
+            self.assertEqual(
+                [name for name in archive.namelist() if name.startswith("customXml")], []
+            )
+        self.assertTrue(any("SharePoint metadata" in entry for entry in report.replaced))
 
     def test_no_relationship_reference_is_left_dangling(self):
         """Word reports an unresolvable r:id as unreadable content.
