@@ -142,5 +142,14 @@ export const api = {
   applyDraftRevision: (draftId, plan) =>
     request(`/drafts/${draftId}/revision/`, { method: "POST", body: JSON.stringify({ plan }) }),
   exportDraftUrl: (draftId) => `${API_BASE}/drafts/${draftId}/export/`,
+
+  adviceLetterSections: ({ region = "", letterType = "brief_advice", reviewedOnly = false } = {}) =>
+    request(`/advice-letters/sections/?${new URLSearchParams({ region, letterType, reviewedOnly: reviewedOnly ? "1" : "" })}`),
+  adviceLetterRecommendations: (payload) =>
+    request("/advice-letters/recommend/", { method: "POST", body: JSON.stringify(payload) }),
+  adviceLetterPreview: (payload) =>
+    request("/advice-letters/preview/", { method: "POST", body: JSON.stringify(payload) }),
+  adviceLetterExport: (payload) =>
+    request("/advice-letters/export/", { method: "POST", body: JSON.stringify(payload) }),
   adminUrl: () => "/admin/",
 };

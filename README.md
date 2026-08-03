@@ -303,6 +303,22 @@ the maintained files need before the text is usable:
 - **Authoring notes become composition slots.** `[Insert next defense/advice]`
   points at another section and must never print.
 
+### Using it
+
+The **Advice letter** mode in the app lists the catalog grouped by topic, with a
+"needs review" badge and reason on anything unverified. Set what is true about
+the case, ask for suggestions, then pick sections — they appear in the letter in
+the order you choose them, reorderable afterwards. The preview shows the
+assembled body with its reading grade and page estimate; **Download letter**
+renders it onto the organization's letterhead.
+
+| Endpoint | Purpose |
+| --- | --- |
+| `GET /api/advice-letters/sections/` | Catalog with review state, grouped topics |
+| `POST /api/advice-letters/recommend/` | Ranked sections for one case, with reasons |
+| `POST /api/advice-letters/preview/` | Assembled body, warnings, readability |
+| `POST /api/advice-letters/export/` | The letter as DOCX on letterhead |
+
 ### Attorney review
 
 Every section is loaded and offered, including ones the source documents never

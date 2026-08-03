@@ -67,6 +67,11 @@ def modes(_request):
                     "description": "Linear workflow: select case, facts, template, law/source blocks, draft, validate, export.",
                 },
                 {
+                    "id": "advice_letter",
+                    "label": "Client advice letter",
+                    "description": "Assemble a plain-language letter to a client from maintained advice sections, on organization letterhead.",
+                },
+                {
                     "id": "draft_from_scratch",
                     "label": "Draft from scratch",
                     "description": "Use a pleading shell and constrained section generation for novel arguments.",

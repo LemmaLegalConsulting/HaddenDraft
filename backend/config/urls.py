@@ -8,6 +8,7 @@ from apps.drafting import views as drafting_views
 from apps.matters import views as matter_views
 from apps.rules import views as rule_views
 from apps.sources import views as source_views
+from apps.templates_app import advice_letter_views
 from apps.templates_app import views as template_views
 
 
@@ -41,6 +42,10 @@ urlpatterns = [
     path("api/cases/<str:matter_id>/run-issue-selection/", rule_views.run_case_issue_selection, name="api_run_issue_selection"),
     path("api/cases/<str:matter_id>/", matter_views.case_detail, name="api_case_detail"),
     path("api/candidate-issues/<int:issue_id>/review/", rule_views.candidate_issue_review, name="api_candidate_issue_review"),
+    path("api/advice-letters/sections/", advice_letter_views.advice_letter_sections, name="api_advice_letter_sections"),
+    path("api/advice-letters/recommend/", advice_letter_views.advice_letter_recommendations, name="api_advice_letter_recommend"),
+    path("api/advice-letters/preview/", advice_letter_views.advice_letter_preview, name="api_advice_letter_preview"),
+    path("api/advice-letters/export/", advice_letter_views.advice_letter_export, name="api_advice_letter_export"),
     path("api/sources/", source_views.sources, name="api_sources"),
     path("api/sources/content/<slug:document_slug>/<str:chunk_id>/", source_views.content_source, name="api_content_source"),
     path("api/sources/content/<slug:document_slug>/<str:chunk_id>/pdf/", source_views.content_source_pdf, name="api_content_source_pdf"),

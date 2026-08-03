@@ -14,6 +14,7 @@ import {
   LogOut,
   Link2,
   Loader2,
+  Mail,
   MessageSquare,
   PenLine,
   Search,
@@ -25,6 +26,7 @@ import {
 
 import { api } from "./api/client.js";
 import { AuthorFields, emptyAuthorProfile } from "./components/AuthorFields.jsx";
+import { AdviceLetterPanel } from "./components/AdviceLetterPanel.jsx";
 import { AuthorProfile } from "./components/AuthorProfile.jsx";
 import { CaseChat } from "./components/CaseChat.jsx";
 import { CaseMaterialsPanel } from "./components/CaseMaterialsPanel.jsx";
@@ -60,6 +62,7 @@ const modeOptions = [
   { id: "triage", label: "Triage", icon: ClipboardCheck },
   { id: "case_chat", label: "Chat", icon: MessageSquare },
   { id: "research", label: "Research", icon: Search },
+  { id: "advice_letter", label: "Advice letter", icon: Mail },
   { id: "draft", label: "Draft", icon: PenLine },
 ];
 
@@ -912,6 +915,7 @@ export function App() {
         {mode === "case" && <CaseSelector cases={cases} selectedMatterId={selectedMatterId} onSelect={setSelectedMatterId} matter={matter} legalserver={legalserver} legalserverLoading={legalserverLoading} search={caseSearch} onSearchChange={setCaseSearch} onSearch={handleCaseSearch} onSearchReset={handleCaseSearchReset} caseBusy={caseBusy} manualCaseBusy={manualCaseBusy} onCreateManualCase={handleCreateManualCase} onUpdateManualCase={handleUpdateManualCase} onModeChange={(nextMode) => nextMode === "draft" ? openDraft() : setMode(nextMode)} materialsPanel={<CaseMaterialsPanel matter={matter} selectedFactIds={selectedFactIds} onFactIdsAdded={(ids) => setSelectedFactIds((current) => mergeFactIds(current, ids))} onMatterChange={setMatter} />} />}
         {mode === "triage" && <TriagePanel matter={matter} rubrics={triageRubrics} selectedRubricId={selectedTriageRubricId} onSelectRubric={setSelectedTriageRubricId} assessment={triageAssessment} history={triageHistory} busy={busy} manualCaseBusy={manualCaseBusy} onRunTriage={runTriage} onCreateManualCase={handleCreateManualCase} />}
         {mode === "case_chat" && <CaseChat matter={matter} onAction={handleCaseAction} />}
+        {mode === "advice_letter" && <AdviceLetterPanel matter={matter} authorProfile={draftAuthorProfile} />}
         {mode === "research" && <ResearchPanel matter={matter} sources={boot?.sources || []} onResults={(results) => setSourceResults(results)} />}
         {mode === "draft" && draftStep === "goal" && <DraftGoalPanel goal={draftGoal} onGoalChange={(value) => { setDraftGoal(value); setInstructions(value); setSelectedGoalSuggestionId(""); }} planningMode={planningMode} onPlanningModeChange={setPlanningMode} allowMultiple={allowMultipleDocuments} onAllowMultipleChange={setAllowMultipleDocuments} selectedTemplateId={selectedTemplateId} onTemplateChange={selectDraftTemplate} templates={templates} matter={matter} busy={busy} onMakePlan={() => makeDraftPlan()} goalSuggestions={goalSuggestions} goalSuggestionGuidance={goalSuggestionGuidance} goalSuggestionsBusy={goalSuggestionsBusy} selectedGoalSuggestionId={selectedGoalSuggestionId} onSuggestGoals={suggestDraftGoals} onSelectGoalSuggestion={selectGoalSuggestion} />}
         {mode === "draft" && draftStep === "plan" && <DraftPlanReview plan={draftPlan} templates={templates} matter={matter} session={session} busy={busy} authorProfile={draftAuthorProfile} onAuthorProfileChange={setDraftAuthorProfile} selectedFactIds={selectedFactIds} selectedCuratedFacts={selectedCuratedFacts} onFactChange={setSelectedFactIds} onCuratedChange={setSelectedCuratedFacts} onMatterChange={setMatter} onFactIdsAdded={(ids) => setSelectedFactIds((current) => mergeFactIds(current, ids))} selectedResults={sourceResults} onSelectedResultsChange={setSourceResults} onSessionChange={setSession} candidateIssues={candidateIssues} onIssuesChange={setCandidateIssues} clarifyMissingFactsBeforeDraft={clarifyMissingFactsBeforeDraft} onClarifyMissingFactsBeforeDraftChange={setClarifyMissingFactsBeforeDraft} onPlanChange={setDraftPlan} onRegeneratePlan={regenerateDraftPlan} onContinue={goToQuestionsOrGenerate} />}
