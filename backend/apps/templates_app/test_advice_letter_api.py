@@ -132,7 +132,7 @@ class AdviceLetterApiTests(TestCase):
 
         self.assertEqual(response.status_code, 200)
         addressing = response.json()["addressing"]
-        self.assertEqual(addressing["recipientName"], "Maria Alvarez")
+        self.assertEqual(addressing["recipientName"], "MARIA ALVAREZ")
         self.assertIn("123 W 25th St", addressing["recipientAddress"])
         self.assertEqual(addressing["matterSubject"], "eviction")
 
@@ -145,7 +145,7 @@ class AdviceLetterApiTests(TestCase):
 
         with zipfile.ZipFile(BytesIO(response.content)) as archive:
             document = archive.read("word/document.xml").decode("utf-8")
-        self.assertIn("Dear Maria Alvarez:", document)
+        self.assertIn("Dear MARIA ALVAREZ:", document)
         self.assertNotIn("[Client]", document)
         self.assertIn("2026 CVG 011123", document)
 

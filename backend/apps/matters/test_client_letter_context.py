@@ -93,9 +93,11 @@ class ClientLetterContextTests(TestCase):
         self.assertIn("Case No. 14-0000005", reference)
         self.assertIn("Cleveland Municipal Court", reference)
 
-    def test_a_shouted_name_is_title_cased_for_the_salutation(self):
-        self.assertEqual(salutation_name("TEST TEST"), "Test Test")
-        self.assertEqual(salutation_name("maria alvarez"), "Maria Alvarez")
+    def test_a_name_is_never_re_cased(self):
+        """Restyling a name mangles the ones that are deliberately unusual."""
+        for name in ("TEST TEST", "maria alvarez", "DeCarlo", "McDONALD", "van der Berg", "O'Brien"):
+            self.assertEqual(salutation_name(name), name)
 
-    def test_a_correctly_cased_name_is_left_alone(self):
-        self.assertEqual(salutation_name("Maria de la Cruz"), "Maria de la Cruz")
+    def test_only_stray_whitespace_is_tidied(self):
+        self.assertEqual(salutation_name("  Maria   Alvarez \n"), "Maria Alvarez")
+        self.assertEqual(salutation_name(""), "")

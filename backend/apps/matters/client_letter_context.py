@@ -119,15 +119,12 @@ def client_letter_context(matter) -> dict:
 
 
 def salutation_name(name: str) -> str:
-    """"Dear Maria Alvarez" reads oddly; "Dear Ms. Alvarez" needs a title.
+    """The client's name as the case records it, with whitespace tidied.
 
-    Without a recorded title the full name is the honest choice, but an
-    all-caps LegalServer value ("TEST TEST") is not something to print, so it is
-    title-cased on the way out.
+    Capitalization is left exactly as entered, including all caps. A name is not
+    ours to restyle: "DeCarlo", "McDONALD", "van der Berg", and "O'Brien" all
+    lose something to title-casing, and a person who records their name in caps
+    has recorded it that way. Where the case data looks wrong, the fix belongs in
+    the case, not in a transformation applied on the way out.
     """
-    cleaned = _clean(name)
-    if not cleaned:
-        return ""
-    if cleaned.isupper() or cleaned.islower():
-        return cleaned.title()
-    return cleaned
+    return _clean(name)
