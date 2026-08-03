@@ -288,29 +288,36 @@ def _scrub_external_links(document, preparation):
             part.drop_rel(rel_id)
             dropped.append(rel_id)
         if dropped:
-            _unwrap_hyperlinks(part, dropped)
+            _remove_dangling_references(part, dropped)
 
 
-def _unwrap_hyperlinks(part, dropped_ids):
-    """Keep hyperlink text after its relationship is gone.
+def _remove_dangling_references(part, dropped_ids):
+    """Delete whatever still points at a relationship that was removed.
 
-    A `w:hyperlink` whose `r:id` no longer resolves makes Word treat the file as
-    corrupt, so the runs are lifted out and the wrapper removed. The visible text
-    is the `{{ advocate_email }}` binding, which is what should remain.
+    Dropping the relationship is only half the job. An `r:id` left behind with
+    nothing to resolve to is what Word reports as unreadable content, and it
+    offers to repair the file -- which is alarming on a letter going to a client
+    even though the recovered document is fine.
+
+    A hyperlink is unwrapped so its text survives; the text is the
+    `{{ advocate_email }}` binding. Anything else -- `w:attachedTemplate`, which
+    recorded a path on the authoring machine -- is removed outright, because the
+    element exists only to carry the reference.
     """
     element = getattr(part, "element", None)
     if element is None:
         return
-    for hyperlink in list(element.iter(W + "hyperlink")):
-        if hyperlink.get(R_ID) not in dropped_ids:
+    for node in list(element.iter()):
+        if node.get(R_ID) not in dropped_ids:
             continue
-        parent = hyperlink.getparent()
+        parent = node.getparent()
         if parent is None:
             continue
-        index = list(parent).index(hyperlink)
-        for offset, run in enumerate(list(hyperlink)):
-            parent.insert(index + offset, run)
-        parent.remove(hyperlink)
+        if etree.QName(node).localname == "hyperlink":
+            index = list(parent).index(node)
+            for offset, child in enumerate(list(node)):
+                parent.insert(index + offset, child)
+        parent.remove(node)
 
 
 VARIABLE_RE = re.compile(r"\{\{\s*([A-Za-z_][\w.]*)")

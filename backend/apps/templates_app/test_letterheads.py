@@ -5,6 +5,7 @@ from pathlib import Path
 from django.test import TestCase
 from docx import Document
 from docx.oxml.ns import qn
+from lxml import etree
 from docxtpl import DocxTemplate
 
 from apps.templates_app.jinja_filters import template_environment
@@ -119,6 +120,56 @@ class LetterheadPreparationTests(TestCase):
         report = prepare_letterhead(plain, self.root / "out.docx")
 
         self.assertTrue(report.warnings)
+
+    def test_no_relationship_reference_is_left_dangling(self):
+        """Word reports an unresolvable r:id as unreadable content.
+
+        Dropping the `attachedTemplate` relationship removed the authoring
+        machine's path, but left `<w:attachedTemplate r:id="rId1"/>` in
+        settings.xml pointing at nothing, so Word offered to repair every letter.
+        """
+        source = self.root / "attached.docx"
+        make_letterhead(source)
+        document = Document(source)
+        settings_part = next(
+            part
+            for part in document.part.package.iter_parts()
+            if str(part.partname).endswith("settings.xml")
+        )
+        settings = settings_part.element
+        attached = settings.makeelement(qn("w:attachedTemplate"), {})
+        rel_id = settings_part.relate_to(
+            "file:///C:/Users/someone/Letterhead.dotx",
+            "http://schemas.openxmlformats.org/officeDocument/2006/relationships/attachedTemplate",
+            is_external=True,
+        )
+        attached.set(
+            "{http://schemas.openxmlformats.org/officeDocument/2006/relationships}id", rel_id
+        )
+        settings.insert(0, attached)
+        document.save(source)
+
+        output = self.root / "prepared.docx"
+        prepare_letterhead(source, output)
+
+        relationship_ns = "{http://schemas.openxmlformats.org/officeDocument/2006/relationships}id"
+        with zipfile.ZipFile(output) as archive:
+            for name in archive.namelist():
+                if not name.startswith("word/") or not name.endswith(".xml"):
+                    continue
+                rels_name = f"word/_rels/{name.split('/')[-1]}.rels"
+                declared = set()
+                if rels_name in archive.namelist():
+                    declared = {
+                        node.get("Id")
+                        for node in etree.fromstring(archive.read(rels_name))
+                    }
+                used = {
+                    node.get(relationship_ns)
+                    for node in etree.fromstring(archive.read(name)).iter()
+                    if node.get(relationship_ns)
+                }
+                self.assertEqual(used - declared, set(), f"{name} references a missing relationship")
 
     def test_mailto_hyperlink_is_dropped_without_orphaning_its_runs(self):
         """A `w:hyperlink` whose relationship is gone makes Word report damage."""

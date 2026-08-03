@@ -21,6 +21,17 @@ class AdviceLetterApiTests(TestCase):
             matter_type="Eviction",
             jurisdiction="Cleveland Municipal Court",
             summary="The 3-day notice names a different landlord than the complaint.",
+            raw_payload={
+                "client_full_name": "MARIA ALVAREZ",
+                "case_number": "2026 CVG 011123",
+                "legal_problem_code": "06 Eviction / Ejectment",
+                "client_address_home": {
+                    "street": "123 W 25th St",
+                    "city": "Cleveland",
+                    "state": "OH",
+                    "zip": "44113",
+                },
+            },
         )
         AdviceLetterSection.objects.create(
             slug="letter-opening", title="Opening", role="intro", body="Thank you for asking Legal Aid."
@@ -115,6 +126,41 @@ class AdviceLetterApiTests(TestCase):
 
         self.assertEqual(response.status_code, 404)
         self.assertIn("nope", response.json()["error"])
+
+    def test_addressing_is_prefilled_from_the_case(self):
+        response = self.client.get("/api/advice-letters/addressing/?matterId=2026-CVG-77")
+
+        self.assertEqual(response.status_code, 200)
+        addressing = response.json()["addressing"]
+        self.assertEqual(addressing["recipientName"], "Maria Alvarez")
+        self.assertIn("123 W 25th St", addressing["recipientAddress"])
+        self.assertEqual(addressing["matterSubject"], "eviction")
+
+    def test_the_letter_greets_the_client_by_name(self):
+        """It shipped saying "Dear [Client]:" because nothing read the case."""
+        response = self.post(
+            "/api/advice-letters/export/",
+            {"matterId": "2026-CVG-77", "sectionSlugs": ["seal"]},
+        )
+
+        with zipfile.ZipFile(BytesIO(response.content)) as archive:
+            document = archive.read("word/document.xml").decode("utf-8")
+        self.assertIn("Dear Maria Alvarez:", document)
+        self.assertNotIn("[Client]", document)
+        self.assertIn("2026 CVG 011123", document)
+
+    def test_the_opening_names_what_the_case_is_about(self):
+        AdviceLetterSection.objects.filter(slug="letter-opening").update(
+            body="Thank you for asking Legal Aid for help with your {{ matter_subject }}."
+        )
+
+        letter = self.post(
+            "/api/advice-letters/preview/",
+            {"matterId": "2026-CVG-77", "sectionSlugs": ["seal"]},
+        ).json()["letter"]
+
+        self.assertIn("help with your eviction.", letter["body"])
+        self.assertNotIn("[eviction/housing issue]", letter["body"])
 
     def test_export_returns_a_word_document(self):
         response = self.post(

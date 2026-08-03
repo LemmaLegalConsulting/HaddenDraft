@@ -47,6 +47,7 @@ export function AdviceLetterPanel({ matter, authorProfile }) {
   const [error, setError] = useState("");
 
   const sections = catalog?.sections || [];
+  const matterId = matter?.externalId || matter?.id || "";
 
   useEffect(() => {
     let cancelled = false;
@@ -61,6 +62,28 @@ export function AdviceLetterPanel({ matter, authorProfile }) {
     };
   }, [region]);
 
+  // The case already knows who the letter goes to; making the advocate retype
+  // it is how a letter ends up addressed to "[Client]".
+  useEffect(() => {
+    if (!matterId) return undefined;
+    let cancelled = false;
+    api
+      .adviceLetterAddressing(matterId)
+      .then(({ addressing }) => {
+        if (cancelled) return;
+        setLetterFields((current) => ({
+          ...current,
+          recipientName: current.recipientName || addressing.recipientName || "",
+          recipientAddress: current.recipientAddress || addressing.recipientAddress || "",
+          subject: current.subject || addressing.caseReference || "",
+        }));
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, [matterId]);
+
   const runPreview = useCallback(
     async (slugs) => {
       if (!slugs.length) {
@@ -69,7 +92,7 @@ export function AdviceLetterPanel({ matter, authorProfile }) {
       }
       try {
         const data = await api.adviceLetterPreview({
-          matterId: matter?.externalId || matter?.id || "",
+          matterId,
           sectionSlugs: slugs,
           authorProfile,
         });
@@ -78,7 +101,7 @@ export function AdviceLetterPanel({ matter, authorProfile }) {
         setError(err.message);
       }
     },
-    [matter, authorProfile],
+    [matterId, authorProfile],
   );
 
   useEffect(() => {
@@ -112,7 +135,7 @@ export function AdviceLetterPanel({ matter, authorProfile }) {
     setError("");
     try {
       const response = await api.adviceLetterExport({
-        matterId: matter?.externalId || matter?.id || "",
+        matterId,
         sectionSlugs: selected,
         authorProfile,
         ...letterFields,

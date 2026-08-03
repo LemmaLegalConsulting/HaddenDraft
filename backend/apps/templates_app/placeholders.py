@@ -29,7 +29,7 @@ YEAR_STUB_RE = re.compile(r"\b20\d?_{2,}")
 EDITORIAL_BRACKETS = {"her", "his", "or", "s", "section", "x", "sic", "and"}
 PLACEHOLDER_CUE_RE = re.compile(
     r"address|applicant|application|attorney|bar|case|caption|client|copy|count|court|date|deadline|"
-    r"defendant|describe|document|email|fax|filing|hearing|insert|judge|landlord|lease|list|magistrate|"
+    r"defendant|describe|document|email|eviction|fax|filing|hearing|housing|insert|judge|landlord|lease|list|magistrate|"
     r"mail|month|name|notice|number|occupant|opposing|payment|phone|plaintiff|premises|program|rent|"
     r"section|select|signature|subsidy|term|time|tenancy|title|voucher|what|when|where|who|why",
     re.I,
@@ -63,6 +63,10 @@ PLACEHOLDER_ALIASES = {
     "plaintiff's address": "fields.plaintiff_address",
     "other occupants": "fields.other_occupants",
     "copy from noa": "fields.service_recipients",
+    # The wrapper's "help with your [eviction/housing issue]" names what the
+    # case is about, which the case record already knows.
+    "eviction/housing issue": "matter_subject",
+    "eviction/housing matter": "matter_subject",
     "pha": "fields.housing_authority",
     "magistrate": "fields.magistrate",
 }

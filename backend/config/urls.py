@@ -43,6 +43,7 @@ urlpatterns = [
     path("api/cases/<str:matter_id>/", matter_views.case_detail, name="api_case_detail"),
     path("api/candidate-issues/<int:issue_id>/review/", rule_views.candidate_issue_review, name="api_candidate_issue_review"),
     path("api/advice-letters/sections/", advice_letter_views.advice_letter_sections, name="api_advice_letter_sections"),
+    path("api/advice-letters/addressing/", advice_letter_views.advice_letter_addressing, name="api_advice_letter_addressing"),
     path("api/advice-letters/recommend/", advice_letter_views.advice_letter_recommendations, name="api_advice_letter_recommend"),
     path("api/advice-letters/preview/", advice_letter_views.advice_letter_preview, name="api_advice_letter_preview"),
     path("api/advice-letters/export/", advice_letter_views.advice_letter_export, name="api_advice_letter_export"),

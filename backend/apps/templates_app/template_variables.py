@@ -51,6 +51,9 @@ SYSTEM_ALIASES = {
     "office_address",
     "letter_subject",
     "letter_date",
+    "matter_subject",
+    "case_reference",
+    "client_name",
 }
 
 LEGACY_LITERAL_FIELDS = {

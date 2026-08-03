@@ -82,6 +82,21 @@ def advice_letter_sections(request):
 
 
 @api_login_required
+def advice_letter_addressing(request):
+    """What the case already knows about who this letter is going to."""
+    if request.method != "GET":
+        return method_not_allowed(["GET"])
+    from apps.matters.client_letter_context import client_letter_context, salutation_name
+
+    matter = Matter.objects.filter(external_id=request.GET.get("matterId", "")).first()
+    if not matter:
+        return JsonResponse({"error": "Select a case first."}, status=404)
+    case = client_letter_context(matter)
+    case["recipientName"] = salutation_name(case.get("recipientName", ""))
+    return JsonResponse({"addressing": case})
+
+
+@api_login_required
 def advice_letter_recommendations(request):
     """Rank sections for one tenant, with the reason for each."""
     if request.method != "POST":
@@ -123,16 +138,23 @@ def advice_letter_recommendations(request):
     )
 
 
-def _letter_request(body):
+def _letter_request(body, matter=None):
+    """Fall back to the case for anything the advocate did not type."""
+    case = {}
+    if matter is not None:
+        from apps.matters.client_letter_context import client_letter_context, salutation_name
+
+        case = client_letter_context(matter)
+        case["recipientName"] = salutation_name(case.get("recipientName", ""))
     return LetterRequest(
         letter_kind=body.get("letterKind", "advice"),
-        recipient_name=body.get("recipientName", ""),
+        recipient_name=body.get("recipientName") or case.get("recipientName", ""),
         recipient_role=body.get("recipientRole", "client"),
-        recipient_address=body.get("recipientAddress", ""),
+        recipient_address=body.get("recipientAddress") or case.get("recipientAddress", ""),
         purpose=body.get("purpose", ""),
         deadline=body.get("letterDate", ""),
         delivery=body.get("delivery") or [],
-        subject=body.get("subject", ""),
+        subject=body.get("subject") or case.get("caseReference", ""),
     )
 
 
@@ -194,7 +216,7 @@ def advice_letter_export(request):
     if request.method != "POST":
         return method_not_allowed(["POST"])
     body = json_body(request)
-    letter, _matter, error = _assemble(body, request.user)
+    letter, matter, error = _assemble(body, request.user)
     if error:
         return error
 
@@ -204,7 +226,7 @@ def advice_letter_export(request):
         compose_advice_letter_docx(
             letter,
             author_profile=author,
-            request=_letter_request(body),
+            request=_letter_request(body, matter),
             output_path=output,
         )
         payload = output.read_bytes()

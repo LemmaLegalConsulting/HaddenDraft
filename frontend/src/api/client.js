@@ -145,6 +145,8 @@ export const api = {
 
   adviceLetterSections: ({ region = "", letterType = "brief_advice", reviewedOnly = false } = {}) =>
     request(`/advice-letters/sections/?${new URLSearchParams({ region, letterType, reviewedOnly: reviewedOnly ? "1" : "" })}`),
+  adviceLetterAddressing: (matterId) =>
+    request(`/advice-letters/addressing/?${new URLSearchParams({ matterId })}`),
   adviceLetterRecommendations: (payload) =>
     request("/advice-letters/recommend/", { method: "POST", body: JSON.stringify(payload) }),
   adviceLetterPreview: (payload) =>

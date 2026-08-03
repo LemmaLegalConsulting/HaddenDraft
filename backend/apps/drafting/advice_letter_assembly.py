@@ -46,14 +46,25 @@ def _render(text, context):
 
 
 def render_context(*, author_profile=None, matter=None, template_data=None):
+    """Values the maintained section text binds to.
+
+    Client details come from the case rather than from the advocate retyping
+    them; a letter that greets "[Client]" is the failure this prevents.
+    """
+    from apps.matters.client_letter_context import client_letter_context, salutation_name
+
     author = author_profile or {}
     data = template_data or {}
+    case = client_letter_context(matter) if matter is not None else {}
     return {
+        "client_name": salutation_name(case.get("recipientName", "")),
+        "matter_subject": case.get("matterSubject", "housing issue"),
+        "case_reference": case.get("caseReference", ""),
         "fields": template_field_values(data),
         "client": {"name": getattr(matter, "client_name", "")},
-        "defendant": getattr(matter, "client_name", ""),
+        "defendant": salutation_name(case.get("recipientName", "")) or getattr(matter, "client_name", ""),
         "court": getattr(matter, "jurisdiction", ""),
-        "case_number": data.get("court_case_number", ""),
+        "case_number": data.get("court_case_number") or case.get("caseNumber", ""),
         "advocate_name": author.get("displayName", ""),
         "advocate_title": author.get("title", ""),
         "advocate_phone": author.get("phone", ""),
