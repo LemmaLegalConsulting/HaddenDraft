@@ -1,4 +1,5 @@
-from urllib.parse import urljoin
+import re
+from urllib.parse import quote, urljoin, urlparse
 
 import requests
 from django.conf import settings
@@ -102,6 +103,21 @@ def _legalserver_response_detail(response):
     return detail[:500]
 
 
+def legalserver_matter_database_id(payload):
+    """Return the sequential database ID used by LegalServer profile URLs."""
+    if not isinstance(payload, dict):
+        return ""
+    for key in ("database_id", "matter_database_id", "id"):
+        value = payload.get(key)
+        if isinstance(value, int) or (isinstance(value, str) and value.strip().isdigit()):
+            return str(int(value))
+    case_number = _display_value(
+        _first_value(payload, "case_number", "matter_identification_number", "case_id", default="")
+    )
+    match = re.search(r"(\d+)$", case_number)
+    return str(int(match.group(1))) if match else ""
+
+
 class LegalServerClient:
     search_fields = ("case_number", "case_title", "external_id", "first", "last")
     user_search_fields = ("email", "user_email", "user_name", "username", "login")
@@ -130,6 +146,7 @@ class LegalServerClient:
         self.matter_documents_path = config["matter_documents_path"]
         self.users_path = config.get("users_path") or settings.LEGALSERVER_USERS_PATH
         self.user_filter_param = config["user_filter_param"]
+        self.matter_profile_path = settings.LEGALSERVER_MATTER_PROFILE_PATH
         self.session = session or requests.Session()
 
     @property
@@ -138,6 +155,29 @@ class LegalServerClient:
 
     def _url(self, path):
         return urljoin(self.base_url, path.lstrip("/"))
+
+    def matter_profile_url(self, payload):
+        """Return a browser URL for the official LegalServer matter profile."""
+        if not self.base_url or not isinstance(payload, dict):
+            return ""
+        base = urlparse(self.base_url)
+        for key in ("profile_url", "matter_url", "web_url"):
+            value = _display_value(payload.get(key))
+            if not value:
+                continue
+            parsed = urlparse(value)
+            if parsed.scheme == base.scheme and parsed.netloc == base.netloc:
+                return value
+            if not parsed.scheme and not parsed.netloc:
+                return self._url(value)
+        matter_id = legalserver_matter_database_id(payload)
+        if not matter_id:
+            return ""
+        try:
+            path = self.matter_profile_path.format(matter_id=quote(str(matter_id), safe=""))
+        except (KeyError, ValueError):
+            return ""
+        return self._url(path)
 
     def _headers(self):
         headers = {"Accept": "application/json"}

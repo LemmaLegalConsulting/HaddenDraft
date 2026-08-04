@@ -5,6 +5,8 @@ from django.conf import settings
 
 from apps.ai.openai_client import OpenAIBackendError, OpenAICompatibleClient
 from apps.ai.prompt_catalog import render_prompt
+from apps.ai.tool_loop import ToolEvaluation, run_tool_with_repair
+from apps.matters.document_context import get_case_documents as get_case_material_documents
 from apps.matters.serializers import matter_details, readable_summary
 from apps.sources.connectors.legalserver import LegalServerClient, LegalServerError, _display_value, _first_value
 from apps.sources.document_text import DocumentExtractionError, extract_text
@@ -87,13 +89,14 @@ def compact_case_context(matter):
 
 
 def document_to_dict(doc, matter_id):
-    title = _display_value(_first_value(doc, "title", "name", "filename", "subject", default="Document"))
+    title = _display_value(_first_value(doc, "title", "name", "filename", "file_name", "subject", default="Document"))
     doc_id = _display_value(_first_value(doc, "id", "document_id", "uuid", "external_id", default=title))
     return {
         "id": doc_id,
         "title": title,
         "date": _display_value(_first_value(doc, "date", "date_posted", "created_at", "updated_at", default="")),
         "type": _display_value(_first_value(doc, "type", "note_type", "document_type", "storage_provider", default="")),
+        "mimeType": _display_value(_first_value(doc, "mime_type", "content_type", default="")),
         "url": _display_value(_first_value(doc, "download_url", "url", "web_url", "sharepoint_url", default="")),
         "snippet": _display_value(_first_value(doc, "summary", "description", "body", "snippet", default="")),
         "matter": matter_id,
@@ -112,18 +115,6 @@ def note_to_dict(note, matter_id):
         "hasDocumentAttached": bool(note.get("note_has_document_attached")),
         "matter": matter_id,
     }
-
-
-def document_candidates_from_raw_payload(matter):
-    candidates = []
-    for key in ("documents", "notes", "events"):
-        values = matter.raw_payload.get(key) if matter.raw_payload else None
-        if not isinstance(values, list):
-            continue
-        for value in values[:20]:
-            if isinstance(value, dict):
-                candidates.append(document_to_dict(value, matter.external_id))
-    return candidates
 
 
 def notes_from_payload(payload, matter_id):
@@ -162,21 +153,24 @@ def get_case_notes(matter):
 
 
 def get_case_documents(matter):
-    identifiers = [
-        matter.external_id,
-        matter.raw_payload.get("matter_uuid") if matter.raw_payload else "",
-        matter.raw_payload.get("case_number") if matter.raw_payload else "",
-    ]
     client = LegalServerClient()
-    if client.configured:
-        for identifier in [item for item in identifiers if item]:
-            try:
-                docs = client.get_matter_documents(identifier)
-                if docs:
-                    return [document_to_dict(doc, matter.external_id) for doc in docs[:20]]
-            except LegalServerError:
-                continue
-    return document_candidates_from_raw_payload(matter)
+    materials = get_case_material_documents(matter, client=client)
+    documents = []
+    for material in materials:
+        if material.get("kind") != "case_document":
+            continue
+        document = document_to_dict(material.get("raw") or {}, matter.external_id)
+        document.update(
+            {
+                "id": material.get("id") or document["id"],
+                "title": material.get("title") or document["title"],
+                "type": material.get("source") or document["type"],
+                "mimeType": material.get("mimeType") or document["mimeType"],
+                "snippet": material.get("snippet") or document["snippet"],
+            }
+        )
+        documents.append(document)
+    return documents[:20]
 
 
 def should_fetch_documents(message):
@@ -217,6 +211,239 @@ def should_summarize_document_text(message):
     return any(term in text for term in SUMMARY_TERMS) and not any(term in text for term in RAW_TEXT_TERMS)
 
 
+def is_collective_document_request(message):
+    return bool(re.search(r"\b(documents|files|attachments|pdfs|photos|images)\b", message.casefold()))
+
+
+def requests_salience_ranking(message):
+    text = message.casefold()
+    return bool(
+        re.search(
+            r"\b(most important|most relevant|highest priority|high[- ]salience|key documents?|critical documents?)\b",
+            text,
+        )
+    )
+
+
+def _document_summary_key(document, matter):
+    title = re.sub(r"\.[a-z0-9]{1,6}$", "", document.get("title", "").casefold())
+    client_tokens = set(re.findall(r"[a-z0-9]+", matter.client_name.casefold()))
+    format_tokens = {"image", "photo", "scan", "scanned"}
+    tokens = [
+        token
+        for token in re.findall(r"[a-z0-9]+", title)
+        if token not in client_tokens and token not in format_tokens
+    ]
+    return " ".join(tokens) or title
+
+
+def _document_extraction_preference(document, matter):
+    title = document.get("title", "").casefold()
+    mime_type = document.get("mimeType", "").casefold()
+    if mime_type.startswith("text/") or title.endswith((".txt", ".md", ".html", ".htm")):
+        score = 5
+    elif "wordprocessingml" in mime_type or title.endswith(".docx"):
+        score = 4
+    elif mime_type == "application/pdf" or title.endswith(".pdf"):
+        score = 3
+    elif mime_type.startswith("image/") or title.endswith((".png", ".jpg", ".jpeg", ".gif", ".webp")):
+        score = 1
+    else:
+        score = 2
+    client_tokens = set(re.findall(r"[a-z0-9]+", matter.client_name.casefold()))
+    title_tokens = set(re.findall(r"[a-z0-9]+", title))
+    return score + (1 if client_tokens and client_tokens.issubset(title_tokens) else 0)
+
+
+def document_groups_for_collective_summary(documents, matter, *, limit=12):
+    grouped = {}
+    for document in documents:
+        key = _document_summary_key(document, matter)
+        grouped.setdefault(key, []).append(document)
+    groups = []
+    for index, (key, copies) in enumerate(grouped.items(), start=1):
+        copies.sort(key=lambda item: _document_extraction_preference(item, matter), reverse=True)
+        groups.append(
+            {
+                "id": f"document-group-{index}",
+                "key": key,
+                "representative": copies[0],
+                "copies": copies,
+            }
+        )
+    return groups[:limit]
+
+
+def build_document_tool_plan(message, *, extracting=False):
+    rank_by_salience = requests_salience_ranking(message)
+    return {
+        "operation": "summarize" if should_summarize_document_text(message) else "extract" if extracting else "list",
+        "scope": "collection" if is_collective_document_request(message) or rank_by_salience else "single",
+        "query": message,
+        "require_match": bool(extracting),
+        "rank_by_salience": rank_by_salience,
+    }
+
+
+def select_documents_with_repair(inventory, plan):
+    def execute(current_plan):
+        return select_relevant_documents(
+            inventory,
+            current_plan["query"],
+            require_match=current_plan["require_match"],
+        )
+
+    def evaluate(_current_plan, selected):
+        if not inventory:
+            return ToolEvaluation(False, "documents_unavailable", "LegalServer returned no case documents.")
+        if not selected:
+            return ToolEvaluation(
+                False,
+                "overconstrained_document_match",
+                "Documents were retrieved, but the query filter removed every result.",
+            )
+        return ToolEvaluation(True, "documents_selected", f"Selected {len(selected)} of {len(inventory)} documents.")
+
+    def repair(current_plan, _selected, evaluation):
+        if evaluation.code != "overconstrained_document_match" or current_plan["scope"] != "collection":
+            return None
+        return {**current_plan, "require_match": False, "repair": "relax_query_filter"}
+
+    return run_tool_with_repair(
+        plan,
+        execute=execute,
+        evaluate=evaluate,
+        repair=repair,
+        max_attempts=2,
+    )
+
+
+def _json_object(text):
+    match = re.search(r"\{.*\}", text or "", flags=re.DOTALL)
+    if not match:
+        return {}
+    try:
+        payload = json.loads(match.group(0))
+    except (TypeError, ValueError):
+        return {}
+    return payload if isinstance(payload, dict) else {}
+
+
+def _fallback_salience_score(group):
+    title = group["representative"].get("title", "").casefold()
+    weights = {
+        "judgment": 14,
+        "order": 13,
+        "complaint": 12,
+        "summons": 11,
+        "petition": 11,
+        "notice": 10,
+        "answer": 9,
+        "counterclaim": 9,
+        "motion": 8,
+        "lease": 7,
+        "ledger": 6,
+        "intake": 1,
+    }
+    return max((score for term, score in weights.items() if term in title), default=3)
+
+
+def rank_document_groups_by_salience(groups, case_context, user_request, *, llm_client=None):
+    valid_ids = {group["id"] for group in groups}
+    ai_config = SourceConfiguration.effective_settings("openai", {"enabled": settings.AI_DRAFTING_ENABLED})
+    ai_enabled = str(ai_config.get("enabled", "")).lower() not in {"0", "false", "no", "off"}
+    initial_method = "llm" if ai_enabled else "deterministic"
+    initial_plan = {"method": initial_method, "max_documents": min(4, len(groups))}
+
+    def deterministic_ranking(limit):
+        ranked = sorted(groups, key=_fallback_salience_score, reverse=True)
+        return {
+            "document_ids": [group["id"] for group in ranked[: min(3, limit)]],
+            "reasons": {},
+            "method": "deterministic",
+        }
+
+    def execute(plan):
+        if plan["method"] == "deterministic":
+            return deterministic_ranking(plan["max_documents"])
+        prompt = render_prompt(
+            "case_chat.document_ranking",
+            case_context=json.dumps(case_context, indent=2),
+            user_request=user_request,
+            document_candidates=json.dumps(
+                [
+                    {
+                        "id": group["id"],
+                        "title": group["representative"].get("title", "Document"),
+                        "date": group["representative"].get("date", ""),
+                        "type": group["representative"].get("type", ""),
+                        "snippet": group["representative"].get("snippet", ""),
+                        "alternateCopies": [copy.get("title", "Document") for copy in group["copies"][1:]],
+                    }
+                    for group in groups
+                ],
+                indent=2,
+            ),
+            max_documents=plan["max_documents"],
+        )
+        try:
+            client = llm_client or OpenAICompatibleClient()
+            response = client.complete(
+                system=prompt.system,
+                user=prompt.user,
+                temperature=0.1,
+                model=prompt.default_model,
+                reasoning_level=prompt.default_reasoning_level,
+            )
+        except OpenAIBackendError:
+            return {"document_ids": [], "reasons": {}, "method": "llm"}
+        payload = _json_object(response)
+        ranked = payload.get("ranked_documents") if isinstance(payload.get("ranked_documents"), list) else []
+        selected_ids = []
+        reasons = {}
+        for item in ranked:
+            if not isinstance(item, dict) or item.get("id") not in valid_ids or item["id"] in selected_ids:
+                continue
+            selected_ids.append(item["id"])
+            reasons[item["id"]] = str(item.get("reason") or "").strip()
+            if len(selected_ids) >= plan["max_documents"]:
+                break
+        return {"document_ids": selected_ids, "reasons": reasons, "method": "llm"}
+
+    def evaluate(_plan, ranking):
+        selected_ids = ranking.get("document_ids") or []
+        if not selected_ids:
+            return ToolEvaluation(False, "salience_ranking_empty", "The ranking did not select any valid documents.")
+        return ToolEvaluation(True, "salience_ranking_complete", f"Ranked {len(selected_ids)} high-salience documents.")
+
+    def repair(plan, _ranking, evaluation):
+        if evaluation.code != "salience_ranking_empty" or plan["method"] == "deterministic":
+            return None
+        return {**plan, "method": "deterministic", "repair": "fallback_salience_ranking"}
+
+    loop = run_tool_with_repair(
+        initial_plan,
+        execute=execute,
+        evaluate=evaluate,
+        repair=repair,
+        max_attempts=2,
+    )
+    selected_ids = loop.result.get("document_ids") or []
+    selected_groups = [group for document_id in selected_ids for group in groups if group["id"] == document_id]
+    return selected_groups, {
+        "method": loop.result.get("method"),
+        "selected": [
+            {
+                "id": group["id"],
+                "title": group["representative"].get("title", "Document"),
+                "reason": loop.result.get("reasons", {}).get(group["id"], ""),
+            }
+            for group in selected_groups
+        ],
+        "trace": loop.trace(),
+    }
+
+
 def recent_conversation_text(messages, *, limit=4):
     return "\n".join(
         item.get("content", "")
@@ -252,14 +479,14 @@ def should_build_timeline(message):
     return any(term in text for term in TIMELINE_TERMS)
 
 
-def extract_document_text_for_chat(document):
+def extract_document_text_for_chat(document, *, client=None):
     url = document.get("url")
     if not url:
         return {
             "document": document,
             "error": "No downloadable URL is available for this document.",
         }
-    client = LegalServerClient()
+    client = client or LegalServerClient()
     try:
         downloaded = client.download_document(url)
         extracted = extract_text(
@@ -274,6 +501,58 @@ def extract_document_text_for_chat(document):
         "extractor": extracted["extractor"],
         "text": extracted["text"][:12000],
     }
+
+
+def extract_document_group_with_repair(group, *, client=None):
+    client = client or LegalServerClient()
+    copies = group.get("copies") or []
+    initial_plan = {"copy_index": 0, "document_id": copies[0].get("id", "") if copies else ""}
+
+    def execute(plan):
+        if not copies or plan["copy_index"] >= len(copies):
+            return {"document": group.get("representative") or {}, "error": "No document copy is available."}
+        extraction = extract_document_text_for_chat(copies[plan["copy_index"]], client=client)
+        if extraction.get("text"):
+            extraction["text"] = extraction["text"][:7000]
+        return extraction
+
+    def evaluate(_plan, extraction):
+        if extraction.get("text", "").strip():
+            return ToolEvaluation(True, "document_text_extracted", "Document text was extracted successfully.")
+        return ToolEvaluation(
+            False,
+            "document_extraction_failed",
+            extraction.get("error") or "The selected copy did not contain extractable text.",
+        )
+
+    def repair(plan, _extraction, evaluation):
+        next_index = plan["copy_index"] + 1
+        if evaluation.code != "document_extraction_failed" or next_index >= len(copies):
+            return None
+        return {
+            "copy_index": next_index,
+            "document_id": copies[next_index].get("id", ""),
+            "repair": "try_alternate_document_copy",
+        }
+
+    return run_tool_with_repair(
+        initial_plan,
+        execute=execute,
+        evaluate=evaluate,
+        repair=repair,
+        max_attempts=min(3, max(1, len(copies))),
+    )
+
+
+def extract_document_groups_for_chat(groups):
+    client = LegalServerClient()
+    extractions = []
+    traces = []
+    for group in groups:
+        loop = extract_document_group_with_repair(group, client=client)
+        extractions.append(loop.result)
+        traces.append({"groupId": group["id"], "attempts": loop.trace()})
+    return extractions, traces
 
 
 def extractive_summary(text, *, max_sentences=5):
@@ -297,6 +576,54 @@ def summarize_document_text(extraction, *, llm_client=None):
         "case_chat.document_summary",
         document_title=extraction.get("document", {}).get("title", "Document"),
         document_text=text[:12000],
+    )
+    try:
+        client = llm_client or OpenAICompatibleClient()
+        return client.complete(
+            system=prompt.system,
+            user=prompt.user,
+            temperature=0.1,
+            model=prompt.default_model,
+            reasoning_level=prompt.default_reasoning_level,
+        )
+    except OpenAIBackendError:
+        return fallback
+
+
+def summarize_document_set(extractions, case_context, *, user_request="", ranking=None, llm_client=None):
+    successful = [extraction for extraction in extractions if extraction.get("text")]
+    failed = [extraction for extraction in extractions if extraction.get("error")]
+    fallback_lines = [
+        f"- {extraction['document'].get('title', 'Document')}: {extractive_summary(extraction['text'], max_sentences=3)}"
+        for extraction in successful
+    ]
+    fallback_lines.extend(
+        f"- {extraction['document'].get('title', 'Document')}: text could not be extracted ({extraction['error']})."
+        for extraction in failed
+    )
+    fallback = "\n".join(fallback_lines) or "No document text could be extracted."
+    if not successful:
+        return fallback
+    ai_config = SourceConfiguration.effective_settings("openai", {"enabled": settings.AI_DRAFTING_ENABLED})
+    if str(ai_config.get("enabled", "")).lower() in {"0", "false", "no", "off"}:
+        return fallback
+    remaining = 28000
+    prompt_documents = []
+    for extraction in successful:
+        text = extraction["text"][:remaining]
+        if not text:
+            break
+        prompt_documents.append(f"DOCUMENT: {extraction['document'].get('title', 'Document')}\n{text}")
+        remaining -= len(text)
+    prompt = render_prompt(
+        "case_chat.document_set_summary",
+        case_context=json.dumps(case_context, indent=2),
+        user_request=user_request,
+        ranking_context=json.dumps(ranking or {}, indent=2),
+        document_texts="\n\n".join(prompt_documents),
+        extraction_errors="\n".join(
+            f"- {extraction['document'].get('title', 'Document')}: {extraction['error']}" for extraction in failed
+        ) or "None",
     )
     try:
         client = llm_client or OpenAICompatibleClient()
@@ -437,6 +764,23 @@ def deterministic_case_answer(message, case_context, tool_results):
         return "Here is the case timeline so far:\n" + "\n".join(lines)
     if tool_results.get("suggested_actions") is not None:
         return normalize_ai_text(tool_results["suggested_actions"]["summary"])
+    if tool_results.get("document_texts") is not None:
+        summary = tool_results.get("document_set_summary")
+        if summary:
+            heading = (
+                "Summary of the highest-salience case documents"
+                if tool_results.get("document_ranking")
+                else "Summary of the case documents"
+            )
+            return normalize_ai_text(f"{heading}:\n{summary}")
+        lines = []
+        for extraction in tool_results["document_texts"]:
+            title = extraction.get("document", {}).get("title", "Document")
+            if extraction.get("error"):
+                lines.append(f"- {title}: text could not be extracted ({extraction['error']}).")
+            else:
+                lines.append(f"- {title}: {extraction.get('text', '')[:1500]}")
+        return "Extracted text from the case documents:\n" + "\n".join(lines)
     if tool_results.get("document_text") is not None:
         extraction = tool_results["document_text"]
         if extraction.get("error"):
@@ -484,19 +828,46 @@ def case_chat_reply(*, matter, messages, llm_client=None):
         tools_used.append("legalserver.case_notes")
     if should_fetch_documents(latest) or should_extract_from_context(latest, messages):
         extracting_document = should_extract_from_context(latest, messages)
-        documents = select_relevant_documents(
-            get_case_documents(matter),
-            document_query,
-            require_match=extracting_document,
-        )
+        document_plan = build_document_tool_plan(document_query, extracting=extracting_document)
+        document_inventory = get_case_documents(matter)
+        selection_loop = select_documents_with_repair(document_inventory, document_plan)
+        documents = selection_loop.result or []
         tool_results["documents"] = documents
+        tool_results.setdefault("toolTrace", {})["documentSelection"] = selection_loop.trace()
         tools_used.append("legalserver.documents")
         if extracting_document and documents:
-            tool_results["document_text"] = extract_document_text_for_chat(documents[0])
-            tools_used.append("document.extract_text")
-            if should_summarize_document_text(document_query):
-                tool_results["document_summary"] = summarize_document_text(tool_results["document_text"], llm_client=llm_client)
-                tools_used.append("document.summarize")
+            document_groups = document_groups_for_collective_summary(documents, matter)
+            if document_plan["scope"] == "collection":
+                summary_groups = document_groups[:8]
+                if document_plan["rank_by_salience"]:
+                    summary_groups, ranking = rank_document_groups_by_salience(
+                        document_groups,
+                        case_context,
+                        document_query,
+                        llm_client=llm_client,
+                    )
+                    tool_results["document_ranking"] = ranking
+                    tools_used.append("document.rank_salience")
+                tool_results["document_texts"], extraction_trace = extract_document_groups_for_chat(summary_groups)
+                tool_results.setdefault("toolTrace", {})["documentExtraction"] = extraction_trace
+                tools_used.append("document.extract_text")
+                if should_summarize_document_text(document_query):
+                    tool_results["document_set_summary"] = summarize_document_set(
+                        tool_results["document_texts"],
+                        case_context,
+                        user_request=document_query,
+                        ranking=tool_results.get("document_ranking"),
+                        llm_client=llm_client,
+                    )
+                    tools_used.append("document.summarize")
+            else:
+                extraction_loop = extract_document_group_with_repair(document_groups[0])
+                tool_results["document_text"] = extraction_loop.result
+                tool_results.setdefault("toolTrace", {})["documentExtraction"] = extraction_loop.trace()
+                tools_used.append("document.extract_text")
+                if should_summarize_document_text(document_query):
+                    tool_results["document_summary"] = summarize_document_text(tool_results["document_text"], llm_client=llm_client)
+                    tools_used.append("document.summarize")
     if should_build_timeline(latest):
         if "case_notes" not in tool_results:
             tool_results["case_notes"] = get_case_notes(matter)

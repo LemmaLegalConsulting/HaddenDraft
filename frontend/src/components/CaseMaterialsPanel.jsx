@@ -1,38 +1,39 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { Check, ClipboardList, FileText, Loader2, Plus, Search, TextSelect } from "lucide-react";
+import { Check, Eye, FileText, Loader2, Plus, Search, TextSelect } from "lucide-react";
 
 import { api } from "../api/client.js";
-
-const tabs = [
-  ["overview", "Overview"],
-  ["notes", "Notes"],
-  ["documents", "Documents"],
-  ["fields", "Custom Fields"],
-  ["facts", "Drafting Facts"],
-];
+import { CaseDocumentPreviewModal } from "./CaseDocumentPreviewModal.jsx";
+import { caseDocumentPreviewKind } from "./casePresentation.js";
 
 function sourceLabel(item) {
   return item.citation || item.source || item.title || "Case material";
 }
 
-export function CaseMaterialsPanel({ matter, selectedFactIds = [], onFactIdsAdded, onMatterChange }) {
+export function CaseMaterialsPanel({ matter, selectedFactIds = [], onFactIdsAdded, onMatterChange, readOnly = false, embedded = false }) {
   const [activeTab, setActiveTab] = useState("overview");
   const [materials, setMaterials] = useState(null);
   const [contextById, setContextById] = useState({});
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
+  const [previewDocument, setPreviewDocument] = useState(null);
 
   useEffect(() => {
     if (!matter?.id) {
       setMaterials(null);
       return;
     }
+    setActiveTab("overview");
+    setContextById({});
+    setPreviewDocument(null);
+    setMaterials(null);
     setBusy(true);
     setError("");
+    let cancelled = false;
     api.caseMaterials(matter.id)
-      .then(setMaterials)
-      .catch((err) => setError(err.message))
-      .finally(() => setBusy(false));
+      .then((response) => { if (!cancelled) setMaterials(response); })
+      .catch((err) => { if (!cancelled) setError(err.message); })
+      .finally(() => { if (!cancelled) setBusy(false); });
+    return () => { cancelled = true; };
   }, [matter?.id]);
 
   const selected = useMemo(() => new Set(selectedFactIds), [selectedFactIds]);
@@ -67,26 +68,17 @@ export function CaseMaterialsPanel({ matter, selectedFactIds = [], onFactIdsAdde
         query: "notice rent payment repair disability assistance hearing deadline subsidy voucher conditions relief",
         limit: 5,
       });
-      setContextById((current) => ({ ...current, [item.id]: { ...(current[item.id] || {}), ...response, loading: false } }));
+      setContextById((current) => ({
+        ...current,
+        [item.id]: {
+          ...(current[item.id] || {}),
+          ...response,
+          loading: false,
+          expanded: level === "full" ? true : current[item.id]?.expanded,
+        },
+      }));
     } catch (err) {
       setContextById((current) => ({ ...current, [item.id]: { ...(current[item.id] || {}), loading: false, error: err.message } }));
-    }
-  }
-
-  async function fetchField(field) {
-    setBusy(true);
-    setError("");
-    try {
-      const response = await api.fetchCustomFields(matter.id, {
-        fieldKeys: [field.key],
-        reason: "Need full custom field value for drafting facts.",
-      });
-      setMaterials((current) => current ? { ...current, customFields: response.fields?.length ? response.fields : current.customFields } : current);
-      if (response.errors?.length) setError(response.errors.join(" "));
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setBusy(false);
     }
   }
 
@@ -96,11 +88,31 @@ export function CaseMaterialsPanel({ matter, selectedFactIds = [], onFactIdsAdde
   const documents = materials?.documents || [];
   const customFields = materials?.customFields || [];
   const draftingFacts = materials?.draftingFacts || matter.facts || [];
+  const materialTabs = [
+    ["overview", "Overview"],
+    ["notes", `Case notes (${summary.noteCount || 0})`],
+    ["documents", `Documents (${summary.documentCount || 0})`],
+    ["fields", `Custom fields (${summary.customFieldCount || 0})`],
+    ["facts", `Drafting facts (${summary.draftingFactCount || 0})`],
+  ];
+
+  function toggleDocumentText(item) {
+    const state = contextById[item.id] || {};
+    if (!state.text) {
+      loadContext(item, "full");
+      return;
+    }
+    setContextById((current) => ({
+      ...current,
+      [item.id]: { ...current[item.id], expanded: !current[item.id]?.expanded },
+    }));
+  }
 
   function MaterialCard({ item, type }) {
     const state = contextById[item.id] || {};
     const isNote = type === "note";
     const attachments = item.attachedDocuments || [];
+    const previewKind = caseDocumentPreviewKind(item);
     return (
       <article className="document-card">
         <div className="document-card-heading">
@@ -110,11 +122,8 @@ export function CaseMaterialsPanel({ matter, selectedFactIds = [], onFactIdsAdde
           </div>
           {isNote ? <TextSelect size={18} /> : <FileText size={18} />}
         </div>
-        {item.isWebhookDocumentNotice ? (
-          <p className="document-snippet">This note was created by a document webhook. It may not contain useful narrative text, but it may have attached documents.</p>
-        ) : (
-          item.snippet && <p className="document-snippet">{item.snippet}</p>
-        )}
+        {isNote && item.text && <p className="case-note-text">{item.text}</p>}
+        {!isNote && item.snippet && <p className="document-snippet">{item.snippet}</p>}
         {attachments.length > 0 && (
           <div className="chunk-list">
             <strong>Attached documents</strong>
@@ -124,27 +133,31 @@ export function CaseMaterialsPanel({ matter, selectedFactIds = [], onFactIdsAdde
         {item.isWebhookDocumentNotice && !attachments.length && (
           <p className="muted">This note says documents were received, but no attached document metadata was returned by LegalServer. Try refreshing case documents.</p>
         )}
-        <div className="button-row compact document-actions">
-          <button className="secondary" type="button" onClick={() => loadContext(item, "full")} disabled={state.loading}>
-            {state.loading ? <Loader2 className="spin" size={16} /> : <FileText size={16} />} View full text
-          </button>
-          <button className="secondary" type="button" onClick={() => loadContext(item, "search")} disabled={state.loading}>
-            {state.loading ? <Loader2 className="spin" size={16} /> : <Search size={16} />} Find useful excerpts
-          </button>
-          <button className="secondary" type="button" disabled={busy || !(state.summary || item.snippet)} onClick={() => addDraftingFact({ title: item.title, text: state.summary || item.snippet, source: sourceLabel(item) })}>
-            <Plus size={16} /> Add summary to drafting facts
-          </button>
-        </div>
-        {state.text && <p className="document-snippet">{state.text}</p>}
+        {(!isNote || !readOnly) && <div className="button-row compact document-actions">
+          {!isNote && previewKind && item.hasFile && <button className="secondary" type="button" onClick={() => setPreviewDocument(item)}>
+              <Eye size={16} /> Preview {previewKind === "pdf" ? "PDF" : "image"}
+            </button>}
+          {!isNote && (!previewKind || !item.hasFile) && <button className="secondary" type="button" onClick={() => toggleDocumentText(item)} disabled={state.loading}>
+            {state.loading ? <Loader2 className="spin" size={16} /> : <FileText size={16} />}
+            {state.loading ? "Loading document text" : state.text && state.expanded ? "Hide document text" : state.text ? "Show document text" : "Load document text"}
+          </button>}
+          {!readOnly && <button className="secondary" type="button" onClick={() => loadContext(item, "search")} disabled={state.loading}>
+              {state.loading ? <Loader2 className="spin" size={16} /> : <Search size={16} />} Find useful excerpts
+            </button>}
+          {!readOnly && <button className="secondary" type="button" disabled={busy || !(state.summary || item.snippet)} onClick={() => addDraftingFact({ title: item.title, text: state.summary || item.snippet, source: sourceLabel(item) })}>
+              <Plus size={16} /> Add summary to drafting facts
+            </button>}
+        </div>}
+        {!isNote && state.text && state.expanded && <div className="document-full-text"><strong>Document text</strong><p>{state.text}</p></div>}
         {state.error && <div className="inline-error">{state.error}</div>}
-        {state.chunks?.length > 0 && (
+        {!readOnly && state.chunks?.length > 0 && (
           <div className="chunk-list">
             {state.chunks.map((chunk) => (
               <div className="chunk-row" key={chunk.id}>
                 <p>{chunk.text}</p>
-                <button className="secondary" type="button" disabled={busy} onClick={() => addDraftingFact({ title: `${item.title}, excerpt ${chunk.index}`, text: chunk.text, source: `${sourceLabel(item)}, excerpt ${chunk.index}` })}>
-                  <Plus size={16} /> Add excerpt to drafting facts
-                </button>
+                {!readOnly && <button className="secondary" type="button" disabled={busy} onClick={() => addDraftingFact({ title: `${item.title}, excerpt ${chunk.index}`, text: chunk.text, source: `${sourceLabel(item)}, excerpt ${chunk.index}` })}>
+                    <Plus size={16} /> Add excerpt to drafting facts
+                  </button>}
               </div>
             ))}
           </div>
@@ -154,48 +167,59 @@ export function CaseMaterialsPanel({ matter, selectedFactIds = [], onFactIdsAdde
   }
 
   return (
-    <section className="panel case-materials-panel">
+    <section className={`${embedded ? "case-materials-embedded" : "panel"} case-materials-panel`}>
       <div className="document-card-heading">
         <div>
           <strong>Case materials</strong>
-          <small>Drafting facts are statements selected from the case record that the AI can rely on when drafting.</small>
+          <small>{readOnly ? "Review the notes, documents, and case data available to the drafting tool." : "Drafting facts are statements selected from the case record that the AI can rely on when drafting."}</small>
         </div>
         {busy && <Loader2 className="spin" size={18} />}
       </div>
       {error && <div className="inline-error">{error}</div>}
       <div className="support-tabs">
-        {tabs.map(([id, label]) => (
+        {materialTabs.map(([id, label]) => (
           <button key={id} className={activeTab === id ? "selected" : ""} type="button" onClick={() => setActiveTab(id)}>{label}</button>
         ))}
       </div>
 
+      {busy && !materials && <p className="muted">Loading case notes and documents…</p>}
       {activeTab === "overview" && (
-        <div className="selected-support-summary">
-          <strong>{summary.noteCount || 0} case notes</strong>
-          <strong>{summary.documentCount || 0} documents</strong>
-          <strong>{summary.customFieldCount || 0} custom fields with values</strong>
-          <strong>{summary.draftingFactCount || 0} drafting facts selected</strong>
-          <p>Notes, documents, and custom fields are source materials. Add useful summaries, excerpts, or field values to drafting facts when they should be used in a draft.</p>
+        <div className="case-materials-overview">
+          <div className="selected-support-summary">
+            <strong>{summary.noteCount || 0} case notes</strong>
+            <strong>{summary.documentCount || 0} documents</strong>
+            <strong>{summary.customFieldCount || 0} custom fields with values</strong>
+            <strong>{summary.draftingFactCount || 0} drafting facts selected</strong>
+            {!readOnly && <p>Notes, documents, and custom fields are source materials. Add useful summaries, excerpts, or field values to drafting facts when they should be used in a draft.</p>}
+          </div>
+          {materials && (
+            <div className="case-material-index">
+              <section>
+                <div className="case-material-index-heading"><h4>Case notes</h4><button className="text-link-button" type="button" onClick={() => setActiveTab("notes")}>Explore notes</button></div>
+                {notes.length ? <ul>{notes.map((item) => <li key={item.id}><TextSelect size={15} /><span><strong>{item.title}</strong>{item.date && <small>{item.date}</small>}</span></li>)}</ul> : <p className="muted">No case notes were returned.</p>}
+              </section>
+              <section>
+                <div className="case-material-index-heading"><h4>Documents</h4><button className="text-link-button" type="button" onClick={() => setActiveTab("documents")}>Explore documents</button></div>
+                {documents.length ? <ul>{documents.map((item) => <li key={item.id}><FileText size={15} /><span><strong>{item.title}</strong>{(item.filename || item.source) && <small>{item.filename || item.source}</small>}</span></li>)}</ul> : <p className="muted">No case documents were returned.</p>}
+              </section>
+            </div>
+          )}
         </div>
       )}
       {activeTab === "notes" && <div className="document-list">{notes.length ? notes.map((item) => <MaterialCard key={item.id} item={item} type="note" />) : <p className="muted">No case notes were returned.</p>}</div>}
       {activeTab === "documents" && <div className="document-list">{documents.length ? documents.map((item) => <MaterialCard key={item.id} item={item} type="document" />) : <p className="muted">No case documents were returned.</p>}</div>}
       {activeTab === "fields" && (
-        <div className="document-list">
-          {customFields.length ? customFields.map((field) => (
-            <article className="document-card" key={field.key}>
-              <div className="document-card-heading"><div><strong>{field.label}</strong><small>{field.category} · {field.confidence}</small></div><ClipboardList size={18} /></div>
-              <p className="document-snippet">{field.valuePreview || field.value}</p>
-              <small>{field.reason}</small>
-              <div className="button-row compact document-actions">
-                <button className="secondary" type="button" onClick={() => fetchField(field)}>Fetch full value</button>
-                <button className="secondary" type="button" disabled={busy || !field.value} onClick={() => addDraftingFact({ title: field.label, text: field.value, source: `Custom field: ${field.label}` })}>
-                  <Plus size={16} /> Add value to drafting facts
-                </button>
-              </div>
-            </article>
-          )) : <p className="muted">No custom fields with values were found.</p>}
-        </div>
+        customFields.length ? <dl className="custom-field-list">{customFields.map((field) => (
+          <div key={field.key}>
+            <dt>{field.label}</dt>
+            <dd>
+              <span className="custom-field-value">{field.value}</span>
+              {!readOnly && <button className="text-link-button" type="button" disabled={busy || !field.value} onClick={() => addDraftingFact({ title: field.label, text: field.value, source: `Custom field: ${field.label}` })}>
+                  <Plus size={14} /> Add to drafting facts
+                </button>}
+            </dd>
+          </div>
+        ))}</dl> : <p className="muted">No custom fields with values were found.</p>
       )}
       {activeTab === "facts" && (
         <div className="check-list">
@@ -208,6 +232,7 @@ export function CaseMaterialsPanel({ matter, selectedFactIds = [], onFactIdsAdde
           ))}
         </div>
       )}
+      <CaseDocumentPreviewModal matterId={matter.id} document={previewDocument} onClose={() => setPreviewDocument(null)} />
     </section>
   );
 }

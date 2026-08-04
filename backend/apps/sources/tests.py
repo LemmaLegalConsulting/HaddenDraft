@@ -50,6 +50,47 @@ class LegalServerClientTests(TestCase):
     @override_settings(
         LEGALSERVER_BASE_URL="https://example.legalserver.org",
         LEGALSERVER_API_TOKEN="token",
+        LEGALSERVER_MATTER_PROFILE_PATH="/matter/dynamic-profile/view/{matter_id}",
+    )
+    def test_matter_profile_url_uses_database_id_on_configured_site(self):
+        client = LegalServerClient(session=FakeSession({}))
+
+        url = client.matter_profile_url({"id": 34, "case_number": "26-000034"})
+
+        self.assertEqual(url, "https://example.legalserver.org/matter/dynamic-profile/view/34")
+
+    @override_settings(
+        LEGALSERVER_BASE_URL="https://lemma-demo.legalserver.org",
+        LEGALSERVER_API_TOKEN="token",
+        LEGALSERVER_MATTER_PROFILE_PATH="/matter/dynamic-profile/view/{matter_id}",
+    )
+    def test_matter_profile_url_derives_sequential_id_from_case_number(self):
+        client = LegalServerClient(session=FakeSession({}))
+
+        url = client.matter_profile_url(
+            {
+                "id": "d019be06-6d12-47a5-bdfb-2a8a6f71d9ac",
+                "case_number": "26-0000085",
+            }
+        )
+
+        self.assertEqual(url, "https://lemma-demo.legalserver.org/matter/dynamic-profile/view/85")
+
+    @override_settings(
+        LEGALSERVER_BASE_URL="https://example.legalserver.org",
+        LEGALSERVER_API_TOKEN="token",
+        LEGALSERVER_MATTER_PROFILE_PATH="/matter/dynamic-profile/view/{matter_id}",
+    )
+    def test_matter_profile_url_rejects_foreign_payload_url(self):
+        client = LegalServerClient(session=FakeSession({}))
+
+        url = client.matter_profile_url({"id": 34, "web_url": "https://malicious.example/matter/34"})
+
+        self.assertEqual(url, "https://example.legalserver.org/matter/dynamic-profile/view/34")
+
+    @override_settings(
+        LEGALSERVER_BASE_URL="https://example.legalserver.org",
+        LEGALSERVER_API_TOKEN="token",
         LEGALSERVER_MATTERS_PATH="/api/v2/matters",
         LEGALSERVER_MATTERS_RESULTS="full",
     )

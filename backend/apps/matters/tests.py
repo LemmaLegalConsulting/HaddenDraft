@@ -8,9 +8,12 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase, override_settings
 
 from apps.matters.models import Matter, MatterFact, TriageAssessment, TriageRubric
+from apps.matters.document_context import case_materials_payload
+from apps.matters.serializers import matter_to_dict
 from apps.matters.services import legalserver_id, upsert_matter_from_legalserver
 from apps.matters.triage import load_triage_rubric_file, normalize_triage_payload, sync_triage_rubric_seeds
 from apps.sources.models import UserSourceIdentity
+from apps.sources.connectors.legalserver import LegalServerClient, LegalServerError
 
 
 class FakeLegalServerClient:
@@ -135,6 +138,71 @@ class CaseConnectionTests(TestCase):
 
         self.assertEqual(legalserver_id(payload), "25-000085")
 
+    @override_settings(
+        LEGALSERVER_BASE_URL="https://example.legalserver.org",
+        LEGALSERVER_API_TOKEN="token",
+        LEGALSERVER_MATTER_PROFILE_PATH="/matter/dynamic-profile/view/{matter_id}",
+    )
+    def test_case_detail_includes_title_basic_information_and_legalserver_url(self):
+        matter = Matter.objects.create(
+            external_id="26-000034",
+            client_name="Jordan Tenant",
+            matter_type="Eviction defense",
+            jurisdiction="Housing Court",
+            posture="Open",
+            source_system="LegalServer",
+            raw_payload={
+                "id": "d019be06-6d12-47a5-bdfb-2a8a6f71d9ac",
+                "case_title": "Jordan Tenant v. Acme Properties",
+                "date_opened": "2026-07-15",
+            },
+        )
+
+        payload = matter_to_dict(matter, legalserver_client=LegalServerClient())
+
+        self.assertEqual(payload["title"], "Jordan Tenant v. Acme Properties")
+        self.assertEqual(payload["legalserverUrl"], "https://example.legalserver.org/matter/dynamic-profile/view/34")
+        details = {item["label"]: item["value"] for item in payload["details"]}
+        self.assertEqual(details["Client or household"], "Jordan Tenant")
+        self.assertEqual(details["Opened"], "2026-07-15")
+
+    def test_case_materials_refreshes_legalserver_notes_and_tries_stable_document_ids(self):
+        matter = Matter.objects.create(
+            external_id="26-000035",
+            client_name="Case Materials Client",
+            matter_type="Conditions",
+            jurisdiction="Housing Court",
+            source_system="LegalServer",
+            raw_payload={"matter_uuid": "matter-uuid-35", "case_number": "26-000035"},
+        )
+
+        class MaterialsClient:
+            configured = True
+
+            def get_matter(self, identifier):
+                if identifier == "26-000035":
+                    raise LegalServerError("Case-number lookup is unavailable")
+                return {
+                    "id": 35,
+                    "matter_uuid": "matter-uuid-35",
+                    "case_number": "26-000035",
+                    "notes": [{"id": "note-35", "subject": "Status update", "body": "The hearing is August 10."}],
+                }
+
+            def get_matter_documents(self, identifier):
+                if identifier != "matter-uuid-35":
+                    return []
+                return [{"id": "doc-35", "filename": "Notice.pdf", "download_url": "https://files.example/notice.pdf"}]
+
+        payload = case_materials_payload(matter, client=MaterialsClient())
+
+        self.assertEqual(payload["summary"]["noteCount"], 1)
+        self.assertEqual(payload["summary"]["documentCount"], 1)
+        self.assertEqual(payload["notes"][0]["title"], "Status update")
+        self.assertEqual(payload["documents"][0]["title"], "Notice.pdf")
+        matter.refresh_from_db()
+        self.assertEqual(matter.raw_payload["notes"][0]["id"], "note-35")
+
     def test_legalserver_upsert_renames_existing_guid_keyed_matter_to_case_number(self):
         existing = Matter.objects.create(
             external_id="d019be06-6d12-47a5-bdfb-2a8a6f71d9ac",
@@ -203,6 +271,46 @@ class CaseConnectionTests(TestCase):
         payload = context_response.json()
         self.assertIn("disability", payload["summary"])
         self.assertEqual(payload["chunks"][0]["index"], 1)
+
+    @patch("apps.matters.document_context.LegalServerClient")
+    def test_case_document_file_streams_an_authenticated_pdf_inline(self, client_class):
+        legalserver = client_class.return_value
+        legalserver.configured = False
+        legalserver.download_document.return_value = {
+            "content": b"%PDF-1.7 preview bytes",
+            "content_type": "application/pdf",
+            "filename": "notice.pdf",
+        }
+        matter = Matter.objects.create(
+            external_id="MANUAL-PREVIEW-1",
+            client_name="Preview Client",
+            matter_type="Eviction",
+            jurisdiction="Housing Court",
+            source_system="Manual",
+            raw_payload={
+                "created_by_user_id": self.user.id,
+                "documents": [
+                    {
+                        "id": "pdf-1",
+                        "filename": "Notice of Hearing.pdf",
+                        "download_url": "https://files.example/notice.pdf",
+                        "mime_type": "application/pdf",
+                    }
+                ],
+            },
+        )
+        documents = self.client.get(f"/api/cases/{matter.external_id}/documents/").json()["documents"]
+
+        response = self.client.get(
+            f"/api/cases/{matter.external_id}/documents/{documents[0]['id']}/file/"
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.content, b"%PDF-1.7 preview bytes")
+        self.assertEqual(response["Content-Type"], "application/pdf")
+        self.assertIn("inline", response["Content-Disposition"])
+        self.assertIn("Notice of Hearing.pdf", response["Content-Disposition"])
+        self.assertEqual(response["X-Frame-Options"], "SAMEORIGIN")
 
     def test_case_fact_recommendations_select_relevant_and_default_facts(self):
         matter = Matter.objects.create(
@@ -542,6 +650,7 @@ class CaseConnectionTests(TestCase):
         payload = response.json()
         self.assertEqual(payload["summary"], {"noteCount": 1, "documentCount": 1, "customFieldCount": 2, "draftingFactCount": 1})
         self.assertTrue(payload["notes"][0]["isWebhookDocumentNotice"])
+        self.assertEqual(payload["notes"][0]["text"], "Documents received via webhook.")
         self.assertEqual(payload["notes"][0]["attachedDocuments"][0]["filename"], "Rent Ledger.pdf")
         self.assertEqual(payload["customFields"][0]["key"], "case_narrative")
         self.assertEqual(payload["customFields"][0]["confidence"], "likely_useful")

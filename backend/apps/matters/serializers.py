@@ -31,11 +31,14 @@ def readable_summary(matter):
 def matter_details(matter):
     raw = matter.raw_payload or {}
     details = [
+        ("Client or household", matter.client_name),
+        ("Case title", _first_display(raw, "case_title")),
         ("Case number", _first_display(raw, "case_number", "matter_identification_number", "case_id") or matter.external_id),
         ("Status", matter.posture or _first_display(raw, "case_status", "case_disposition")),
         ("Opened", _first_display(raw, "date_opened", "intake_date", "created_at")),
         ("Legal problem", matter.matter_type),
-        ("County", matter.jurisdiction or _first_display(raw, "county_of_dispute", "county_of_residence")),
+        ("Court or county", matter.jurisdiction or _first_display(raw, "county_of_dispute", "county_of_residence")),
+        ("Priority or risk", matter.risk),
     ]
     assignments = []
     for assignment in raw.get("assignments") or []:
@@ -129,10 +132,13 @@ def triage_assessment_to_dict(assessment):
     }
 
 
-def matter_to_dict(matter, include_facts=False):
+def matter_to_dict(matter, include_facts=False, *, legalserver_client=None):
+    raw = matter.raw_payload or {}
+    title = _first_display(raw, "case_title") or matter.client_name
     data = {
         "id": matter.external_id,
         "databaseId": matter.id,
+        "title": title,
         "client": matter.client_name,
         "caseNumber": matter_case_number(matter),
         "matter": matter.matter_type,
@@ -144,6 +150,15 @@ def matter_to_dict(matter, include_facts=False):
         "lastActivityAt": matter_last_activity_at(matter),
         "sourceSystem": matter.source_system,
     }
+    if matter.source_system.casefold() == "legalserver":
+        if legalserver_client is None:
+            from apps.sources.connectors.legalserver import LegalServerClient
+
+            legalserver_client = LegalServerClient()
+        profile_url = getattr(legalserver_client, "matter_profile_url", None)
+        profile_payload = {**raw}
+        profile_payload.setdefault("case_number", matter_case_number(matter))
+        data["legalserverUrl"] = profile_url(profile_payload) if profile_url else ""
     if include_facts:
         data["facts"] = [fact_to_dict(fact) for fact in matter.facts.all()]
     return data

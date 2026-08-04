@@ -154,8 +154,48 @@ def _raw_documents(raw_payload):
     return documents
 
 
-def get_case_documents(matter, *, client=None, include_remote=True):
+def _legalserver_identifiers(matter):
     raw_payload = matter.raw_payload or {}
+    seen = set()
+    for value in (
+        matter.external_id,
+        raw_payload.get("matter_uuid"),
+        raw_payload.get("database_id"),
+        raw_payload.get("id"),
+        raw_payload.get("case_number"),
+    ):
+        value = _clean(value)
+        if value and value not in seen:
+            seen.add(value)
+            yield value
+
+
+def _refresh_legalserver_matter_payload(matter, legalserver):
+    raw_payload = matter.raw_payload or {}
+    if matter.source_system.casefold() != "legalserver" or any(key in raw_payload for key in NOTE_KEYS):
+        return raw_payload
+    for identifier in _legalserver_identifiers(matter):
+        try:
+            payload = legalserver.get_matter(identifier)
+        except LegalServerError:
+            continue
+        if isinstance(payload, dict) and payload:
+            matter.raw_payload = {**raw_payload, **payload}
+            matter.save(update_fields=["raw_payload", "updated_at"])
+            return matter.raw_payload
+    return raw_payload
+
+
+def get_case_documents(matter, *, client=None, include_remote=True):
+    legalserver = client or LegalServerClient()
+    raw_payload = matter.raw_payload or {}
+    remote_available = (
+        include_remote
+        and matter.source_system.casefold() == "legalserver"
+        and legalserver.configured
+    )
+    if remote_available:
+        raw_payload = _refresh_legalserver_matter_payload(matter, legalserver)
     documents = []
 
     note_texts = _note_items(raw_payload)
@@ -176,6 +216,7 @@ def get_case_documents(matter, *, client=None, include_remote=True):
                 "citation": f"{title}, {matter.external_id}",
                 "source": "LegalServer case note" if matter.source_system == "LegalServer" else "Case note",
                 "snippet": summarize_text(text, max_sentences=1),
+                "text": text,
                 "size": len(text),
                 "hasText": True,
                 "needsDownload": False,
@@ -188,13 +229,14 @@ def get_case_documents(matter, *, client=None, include_remote=True):
         )
 
     raw_documents = _raw_documents(raw_payload)
-    if include_remote and not raw_documents:
-        try:
-            legalserver = client or LegalServerClient()
-            if legalserver.configured:
-                raw_documents = legalserver.get_matter_documents(matter.external_id)
-        except LegalServerError:
-            raw_documents = []
+    if remote_available and not raw_documents:
+        for identifier in _legalserver_identifiers(matter):
+            try:
+                raw_documents = legalserver.get_matter_documents(identifier)
+            except LegalServerError:
+                continue
+            if raw_documents:
+                break
 
     for raw in raw_documents:
         title = _document_title(raw)
@@ -209,9 +251,11 @@ def get_case_documents(matter, *, client=None, include_remote=True):
                 "filename": _clean(_first_value(raw, "filename", "file_name", default=title)),
                 "citation": title,
                 "source": _clean(_first_value(raw, "storage", "storage_provider", "source", default="Case document")),
+                "mimeType": _clean(_first_value(raw, "mime_type", "content_type", "type", default="")),
                 "snippet": summarize_text(inline_text, max_sentences=1) if inline_text else _clean(_first_value(raw, "description", "snippet", default="")),
                 "size": len(inline_text) if inline_text else raw.get("size") or raw.get("byte_size") or None,
                 "hasText": bool(inline_text or url),
+                "hasFile": bool(url),
                 "needsDownload": bool(url and not inline_text),
                 "raw": raw,
             }
@@ -297,10 +341,10 @@ def custom_fields_inventory(matter):
     return sorted(fields, key=lambda item: (-item["score"], item["label"]))
 
 
-def case_materials_payload(matter):
+def case_materials_payload(matter, *, client=None):
     from apps.matters.serializers import fact_to_dict
 
-    materials = get_case_documents(matter)
+    materials = get_case_documents(matter, client=client)
     notes = [document_to_public_dict(item) for item in materials if item["kind"] == "case_note"]
     documents = [document_to_public_dict(item) for item in materials if item["kind"] == "case_document"]
     custom_fields = custom_fields_inventory(matter)
@@ -346,6 +390,14 @@ def get_document_text(document, *, client=None):
         return result["text"]
     except (LegalServerError, DocumentExtractionError):
         return document.get("snippet") or ""
+
+
+def get_document_file(document, *, client=None):
+    url = _document_url(document.get("raw") or {})
+    if not url:
+        raise LegalServerError("No viewable file is available for this document")
+    legalserver = client or LegalServerClient()
+    return legalserver.download_document(url)
 
 
 def summarize_text(text, *, max_sentences=4, max_chars=900):

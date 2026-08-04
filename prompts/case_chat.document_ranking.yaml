@@ -1,0 +1,16 @@
+system prompt: |
+  You rank legal case documents by likely substantive importance using only the supplied metadata and case context.
+user prompt: |
+  Select only the documents with high legal salience for the user's request. Prefer documents that define claims, defenses, operative rights or obligations, deadlines, requested relief, or binding rulings. Omit administrative files, intake notes, and duplicate-format copies unless they are independently important. Return valid JSON only in this shape: {{"ranked_documents": [{{"id": "document-group-1", "reason": "Brief source-bound reason"}}]}}. Select between one and {max_documents} documents. Use only candidate IDs supplied below.
+
+  User request:
+  {user_request}
+
+  Case context:
+  {case_context}
+
+  Candidate document groups:
+  {document_candidates}
+settings:
+  default model: gpt-5.4-mini
+  default reasoning level: low

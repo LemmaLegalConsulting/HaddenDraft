@@ -12,6 +12,7 @@ from apps.ai.openai_client import OpenAICompatibleClient
 from apps.ai.models import PromptOverride
 from apps.ai.prompt_catalog import PromptCatalogError, PromptRenderError, get_prompt, load_file_prompts, render_prompt
 from apps.ai.services import ConstrainedDraftingService, GenerationContext
+from apps.ai.tool_loop import ToolEvaluation, run_tool_with_repair
 from apps.matters.models import Matter
 from apps.matters.serializers import matter_to_dict
 from apps.sources.document_text import extract_text
@@ -124,7 +125,9 @@ class PromptCatalogTests(TestCase):
                 "drafting.letter",
                 "drafting.plan",
                 "triage.apply_rubric",
+                "case_chat.document_ranking",
                 "case_chat.document_summary",
+                "case_chat.document_set_summary",
                 "case_chat.suggest_actions",
                 "case_chat.reply",
                 "caselaw.search_keywords",
@@ -200,6 +203,27 @@ class PromptCatalogTests(TestCase):
             with self.settings(PROMPT_CATALOG_DIR=Path(directory)):
                 with self.assertRaisesRegex(PromptCatalogError, "user prompt"):
                     get_prompt("anything", allow_database_override=False)
+
+
+class ToolLoopTests(TestCase):
+    def test_failed_postcondition_can_repair_and_retry_once(self):
+        def execute(plan):
+            return [] if plan["strict"] else ["document-1"]
+
+        def evaluate(_plan, result):
+            return ToolEvaluation(bool(result), "found" if result else "empty")
+
+        loop = run_tool_with_repair(
+            {"strict": True},
+            execute=execute,
+            evaluate=evaluate,
+            repair=lambda plan, _result, _evaluation: {**plan, "strict": False},
+            max_attempts=2,
+        )
+
+        self.assertTrue(loop.success)
+        self.assertEqual(loop.result, ["document-1"])
+        self.assertEqual([attempt["code"] for attempt in loop.trace()], ["empty", "found"])
 
 
 class DraftingServiceLLMTests(TestCase):
@@ -479,6 +503,123 @@ class CaseChatTests(TestCase):
         self.assertIn("This lease is for unit 56", reply["message"])
         self.assertIn("document.extract_text", reply["toolsUsed"])
         self.assertIn("document.summarize", reply["toolsUsed"])
+
+    @override_settings(AI_DRAFTING_ENABLED=False)
+    def test_collective_document_summary_does_not_treat_importance_words_as_a_filename(self):
+        matter = Matter.objects.create(
+            external_id="26-0000045",
+            client_name="Eleanor Vance",
+            matter_type="Private Landlord/Tenant",
+            jurisdiction="Housing Court",
+        )
+        documents = [
+            {"title": "Summons_and_Complaint_Eleanor_Vance.txt", "id": "doc-1", "url": "https://legalserver.example/complaint.txt", "mimeType": "text/plain"},
+            {"title": "Summons_and_Complaint_Eleanor_Vance.pdf", "id": "doc-2", "url": "https://legalserver.example/complaint.pdf", "mimeType": "application/pdf"},
+            {"title": "Lease_Agreement_Eleanor_Vance.txt", "id": "doc-3", "url": "https://legalserver.example/lease.txt", "mimeType": "text/plain"},
+        ]
+
+        def download(url):
+            if url.endswith("complaint.txt"):
+                return {"content": b"The complaint seeks possession. The answer is due August 10.", "content_type": "text/plain", "filename": "complaint.txt"}
+            return {"content": b"The lease states monthly rent is $900.", "content_type": "text/plain", "filename": "lease.txt"}
+
+        with patch("apps.ai.case_chat.get_case_documents", return_value=documents), patch(
+            "apps.ai.case_chat.LegalServerClient"
+        ) as client_class:
+            client_class.return_value.download_document.side_effect = download
+            reply = case_chat_reply(
+                matter=matter,
+                messages=[{"role": "user", "content": "summarize the most important documents in this matter"}],
+            )
+
+        self.assertIn("Summary of the highest-salience case documents", reply["message"])
+        self.assertIn("complaint seeks possession", reply["message"])
+        self.assertIn("lease states monthly rent", reply["message"])
+        self.assertNotIn("could not find a matching case document", reply["message"])
+        self.assertEqual(len(reply["toolResults"]["documents"]), 3)
+        self.assertEqual(len(reply["toolResults"]["document_texts"]), 2)
+        self.assertEqual(
+            [attempt["code"] for attempt in reply["toolResults"]["toolTrace"]["documentSelection"]],
+            ["overconstrained_document_match", "documents_selected"],
+        )
+        self.assertEqual(
+            reply["toolsUsed"],
+            ["legalserver.documents", "document.rank_salience", "document.extract_text", "document.summarize"],
+        )
+
+    @override_settings(AI_DRAFTING_ENABLED=True)
+    def test_most_important_uses_llm_ranking_and_extracts_only_high_salience_groups(self):
+        matter = Matter.objects.create(
+            external_id="LS-RANK-1",
+            client_name="Eleanor Vance",
+            matter_type="Private Landlord/Tenant",
+            jurisdiction="Housing Court",
+        )
+        documents = [
+            {"title": "Intake_Notes.txt", "id": "intake", "url": "https://legalserver.example/intake.txt", "mimeType": "text/plain"},
+            {"title": "Summons_and_Complaint.txt", "id": "complaint", "url": "https://legalserver.example/complaint.txt", "mimeType": "text/plain"},
+            {"title": "Notice_to_Quit.txt", "id": "notice", "url": "https://legalserver.example/notice.txt", "mimeType": "text/plain"},
+        ]
+        responses = iter(
+            [
+                '{"ranked_documents": [{"id": "document-group-2", "reason": "Defines the claims and response deadline."}, {"id": "document-group-3", "reason": "States the asserted termination basis."}]}',
+                "The complaint and notice are the high-salience documents for the response.",
+            ]
+        )
+        llm_client = SimpleNamespace(complete=lambda **_kwargs: next(responses))
+
+        def download(url):
+            filename = url.rsplit("/", 1)[-1]
+            return {"content": f"Extracted text for {filename}.".encode(), "content_type": "text/plain", "filename": filename}
+
+        with patch("apps.ai.case_chat.get_case_documents", return_value=documents), patch(
+            "apps.ai.case_chat.LegalServerClient"
+        ) as client_class:
+            client_class.return_value.download_document.side_effect = download
+            reply = case_chat_reply(
+                matter=matter,
+                messages=[{"role": "user", "content": "Summarize the most important documents in this matter"}],
+                llm_client=llm_client,
+            )
+
+        extracted_titles = [item["document"]["title"] for item in reply["toolResults"]["document_texts"]]
+        self.assertEqual(extracted_titles, ["Summons_and_Complaint.txt", "Notice_to_Quit.txt"])
+        self.assertNotIn("Intake_Notes.txt", extracted_titles)
+        self.assertEqual(reply["toolResults"]["document_ranking"]["method"], "llm")
+        self.assertIn("complaint and notice", reply["message"])
+
+    @override_settings(AI_DRAFTING_ENABLED=False)
+    def test_document_extraction_retries_an_alternate_copy_after_empty_text(self):
+        matter = Matter.objects.create(
+            external_id="LS-RETRY-1",
+            client_name="Eleanor Vance",
+            matter_type="Private Landlord/Tenant",
+            jurisdiction="Housing Court",
+        )
+        documents = [
+            {"title": "Lease_Agreement_Eleanor_Vance.txt", "id": "named-copy", "url": "https://legalserver.example/named.txt", "mimeType": "text/plain"},
+            {"title": "Lease_Agreement.txt", "id": "plain-copy", "url": "https://legalserver.example/plain.txt", "mimeType": "text/plain"},
+        ]
+
+        def download(url):
+            content = b"" if url.endswith("named.txt") else b"The alternate copy contains the lease terms."
+            return {"content": content, "content_type": "text/plain", "filename": url.rsplit("/", 1)[-1]}
+
+        with patch("apps.ai.case_chat.get_case_documents", return_value=documents), patch(
+            "apps.ai.case_chat.LegalServerClient"
+        ) as client_class:
+            client_class.return_value.download_document.side_effect = download
+            reply = case_chat_reply(
+                matter=matter,
+                messages=[{"role": "user", "content": "Summarize the lease documents"}],
+            )
+
+        extraction_attempts = reply["toolResults"]["toolTrace"]["documentExtraction"][0]["attempts"]
+        self.assertEqual(
+            [attempt["code"] for attempt in extraction_attempts],
+            ["document_extraction_failed", "document_text_extracted"],
+        )
+        self.assertIn("alternate copy contains the lease terms", reply["message"])
 
     @override_settings(AI_DRAFTING_ENABLED=True)
     def test_document_summary_can_use_llm_without_returning_full_text(self):

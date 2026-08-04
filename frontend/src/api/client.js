@@ -84,6 +84,8 @@ export const api = {
     request(`/cases/${matterId}/facts/`, { method: "POST", body: formData }),
   caseDocumentContext: (matterId, documentId, payload) =>
     request(`/cases/${matterId}/documents/${documentId}/context/`, { method: "POST", body: JSON.stringify(payload) }),
+  caseDocumentFileUrl: (matterId, documentId) =>
+    `${API_BASE}/cases/${encodeURIComponent(matterId)}/documents/${encodeURIComponent(documentId)}/file/`,
   candidateIssues: (matterId) => request(`/cases/${matterId}/candidate-issues/`),
   runIssueSelection: (matterId, payload) =>
     request(`/cases/${matterId}/run-issue-selection/`, { method: "POST", body: JSON.stringify(payload) }),

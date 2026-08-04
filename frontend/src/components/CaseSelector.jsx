@@ -1,37 +1,13 @@
 import React from "react";
-import { ClipboardCheck, FilePlus2, FileText, Loader2, MessageSquare, Pencil, RotateCcw, Search, Upload } from "lucide-react";
+import { CheckCircle2, FilePlus2, FolderOpen, Loader2, RotateCcw, Search, Upload } from "lucide-react";
 
-function detailValue(item, label) {
-  return (item.details || []).find((detail) => detail.label === label)?.value || "";
-}
-
-function caseNumberFor(item) {
-  return item.caseNumber || detailValue(item, "Case number") || item.id;
-}
-
-function isLegalServerCase(item) {
-  return (item.sourceSystem || "LegalServer").toLowerCase() === "legalserver";
-}
-
-function isQuickCase(item) {
-  return (item.sourceSystem || "").toLowerCase() === "manual";
-}
-
-function lastActivityLabel(item) {
-  if (!isLegalServerCase(item) || !item.lastActivityAt) return "";
-  const lastActivity = new Date(item.lastActivityAt);
-  if (Number.isNaN(lastActivity.getTime())) return "";
-  const days = Math.max(0, Math.floor((Date.now() - lastActivity.getTime()) / 86400000));
-  if (days === 0) return "Active today";
-  if (days === 1) return "1 day inactive";
-  return `${days} days inactive`;
-}
+import { caseNumberFor, caseTitleFor, detailValue, isLegalServerCase, lastActivityLabel } from "./casePresentation.js";
 
 export function CaseSelector({
   cases,
   selectedMatterId,
   onSelect,
-  matter,
+  onPreview,
   legalserver,
   legalserverLoading = false,
   search,
@@ -41,12 +17,8 @@ export function CaseSelector({
   caseBusy,
   manualCaseBusy,
   onCreateManualCase,
-  onUpdateManualCase,
-  onModeChange,
-  materialsPanel,
 }) {
   const [manualCaseOpen, setManualCaseOpen] = React.useState(false);
-  const [editCaseOpen, setEditCaseOpen] = React.useState(false);
   const [caseSource, setCaseSource] = React.useState("legalserver");
   const [manualCase, setManualCase] = React.useState({
     clientName: "",
@@ -196,23 +168,46 @@ export function CaseSelector({
         </form>
       )}
       <div className="case-list">
+        {visibleCases.length > 0 && (
+          <div className="case-list-header" aria-hidden="true">
+            <span>Case title</span><span>Case number</span><span>Legal problem</span><span>Status</span><span>Recent activity</span><span>Actions</span>
+          </div>
+        )}
         {visibleCases.map((item) => {
           const activity = lastActivityLabel(item);
           const status = item.posture || detailValue(item, "Status");
           return (
-            <button
+            <article
               key={item.id}
-              className={`case-card ${selectedMatterId === item.id ? "selected" : ""}`}
-              onClick={() => onSelect(item.id)}
-              type="button"
-              aria-label={`${item.client || "Unnamed client"}, case ${caseNumberFor(item)}`}
+              className={`case-card case-card-activatable ${selectedMatterId === item.id ? "selected" : ""}`}
+              aria-current={selectedMatterId === item.id ? "true" : undefined}
+              title={selectedMatterId === item.id ? "Active case" : "Make this the active case"}
+              onClick={() => { if (selectedMatterId !== item.id) onSelect(item.id); }}
             >
-              <strong className="case-client">{item.client || "Unnamed client"}</strong>
+              <strong className="case-client">{caseTitleFor(item)}</strong>
               <span className="case-number">{caseNumberFor(item)}</span>
               <span className="case-muted case-type">{item.matter || "Case"}</span>
               <span className="case-muted case-status">{status}</span>
-              {activity && <span className="case-muted case-activity">{activity}</span>}
-            </button>
+              <span className="case-muted case-activity">{activity}</span>
+              <span className="case-row-actions">
+                {selectedMatterId === item.id ? (
+                  <span className="active-case-indicator"><CheckCircle2 size={15} /> Active</span>
+                ) : (
+                  <button className="secondary case-activate-button" type="button" onClick={(event) => { event.stopPropagation(); onSelect(item.id); }}>
+                    Make active
+                  </button>
+                )}
+                <button
+                  className="secondary icon-button"
+                  type="button"
+                  aria-label={`Open case preview for ${caseTitleFor(item)}`}
+                  title="Open case preview"
+                  onClick={(event) => { event.stopPropagation(); onPreview(item.id); }}
+                >
+                  <FolderOpen size={17} />
+                </button>
+              </span>
+            </article>
           );
         })}
         {!visibleCases.length && (
@@ -232,72 +227,6 @@ export function CaseSelector({
           </div>
         )}
       </div>
-      {matter && (
-        <div className="matter-summary">
-          <dl className="case-details">
-            {(matter.details || []).map((item) => (
-              <div key={item.label}>
-                <dt>{item.label}</dt>
-                <dd>{item.value}</dd>
-              </div>
-            ))}
-          </dl>
-          {matter.summary && <p>{matter.summary}</p>}
-          <div className="case-actions">
-            {isQuickCase(matter) && (
-              <button className="secondary" type="button" onClick={() => setEditCaseOpen((current) => !current)}>
-                <Pencil size={16} /> Edit quick case
-              </button>
-            )}
-            {isQuickCase(matter) && (
-              <button className="secondary" type="button" disabled title="LegalServer draft-intake preview is backend-only until posting is configured">
-                <FilePlus2 size={16} /> Create LegalServer draft intake
-              </button>
-            )}
-            <button className="primary" type="button" onClick={() => onModeChange("case_chat")}>
-              <MessageSquare size={16} /> Chat
-            </button>
-            <button className="secondary" type="button" onClick={() => onModeChange("research")}>
-              <Search size={16} /> Search sources
-            </button>
-            <button className="secondary" type="button" onClick={() => onModeChange("triage")}>
-              <ClipboardCheck size={16} /> Triage
-            </button>
-            <button className="secondary" type="button" onClick={() => onModeChange("draft")}>
-              <FileText size={16} /> Draft
-            </button>
-          </div>
-          {editCaseOpen && isQuickCase(matter) && (
-            <form
-              className="manual-case-form edit-case-form"
-              onSubmit={async (event) => {
-                event.preventDefault();
-                const form = new FormData(event.currentTarget);
-                const saved = await onUpdateManualCase?.({
-                  clientName: form.get("clientName"),
-                  matterType: form.get("matterType"),
-                  jurisdiction: form.get("jurisdiction"),
-                  posture: form.get("posture"),
-                  summary: form.get("summary"),
-                });
-                if (saved) setEditCaseOpen(false);
-              }}
-            >
-              <div className="manual-case-grid">
-                <label className="field"><span>Client or household</span><input name="clientName" defaultValue={matter.client || ""} /></label>
-                <label className="field"><span>Legal problem</span><input name="matterType" defaultValue={matter.matter || ""} /></label>
-                <label className="field"><span>Court or county</span><input name="jurisdiction" defaultValue={matter.jurisdiction || ""} /></label>
-                <label className="field"><span>Posture</span><input name="posture" defaultValue={matter.posture || ""} /></label>
-              </div>
-              <label className="field"><span>Case description or intake notes</span><textarea name="summary" defaultValue={matter.summary || ""} rows={5} /></label>
-              <button className="primary full" type="submit" disabled={manualCaseBusy}>
-                {manualCaseBusy ? <Loader2 className="spin" size={16} /> : <Pencil size={16} />} Save quick case
-              </button>
-            </form>
-          )}
-          {materialsPanel}
-        </div>
-      )}
     </div>
   );
 }

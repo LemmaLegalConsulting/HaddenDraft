@@ -1,8 +1,11 @@
 import json
+import mimetypes
 import re
 
 from django.conf import settings
-from django.http import JsonResponse
+from django.http import HttpResponse, JsonResponse
+from django.utils.http import content_disposition_header
+from django.views.decorators.clickjacking import xframe_options_sameorigin
 
 from apps.ai.case_chat import case_chat_reply
 from apps.ai.chat_history import append_message, archive_current_conversation, clear_messages, conversation_list, messages_for_user
@@ -16,10 +19,12 @@ from apps.matters.document_context import (
     document_to_public_dict,
     get_case_document,
     get_case_documents,
+    get_document_file,
     get_document_text,
     search_chunks,
     summarize_text,
 )
+from apps.matters import services as matter_services
 from apps.matters.models import MatterFact, TriageRubric
 from apps.matters.seed import seed_matters
 from apps.matters.serializers import fact_to_dict, matter_to_dict, triage_assessment_to_dict, triage_rubric_to_dict
@@ -36,6 +41,7 @@ from apps.matters.services import (
 )
 from apps.matters.triage import ensure_default_triage_rubric, run_triage
 from apps.sources.document_text import DocumentExtractionError, extract_text
+from apps.sources.connectors.legalserver import LegalServerError
 from apps.sources.models import UserSourceIdentity
 
 
@@ -63,7 +69,13 @@ def cases(request):
         return JsonResponse({"error": "GET or POST required"}, status=405)
 
     query = request.GET.get("q", "").strip()
-    sync = sync_legalserver_matters_for_user(request.user, query=query, restrict_to_user=not bool(query))
+    legalserver_client = matter_services.LegalServerClient()
+    sync = sync_legalserver_matters_for_user(
+        request.user,
+        query=query,
+        restrict_to_user=not bool(query),
+        client=legalserver_client,
+    )
     if settings.ENABLE_DEMO_MATTERS and not sync.matters:
         seed_matters()
     local_matters = [] if query else local_matters_for_user(request.user)
@@ -74,10 +86,10 @@ def cases(request):
         for matter in demo_matters():
             matters_by_id.setdefault(matter.external_id, matter)
     matters = list(matters_by_id.values())
-    account = legalserver_account_status(request.user)
+    account = legalserver_account_status(request.user, client=legalserver_client)
     return JsonResponse(
         {
-            "cases": [matter_to_dict(matter) for matter in matters],
+            "cases": [matter_to_dict(matter, legalserver_client=legalserver_client) for matter in matters],
             "legalserver": {
                 **account,
                 "syncError": sync.error,
@@ -311,6 +323,33 @@ def case_document_context(request, matter_id, document_id):
     else:
         payload["summary"] = summarize_text(text)
     return JsonResponse(payload)
+
+
+@xframe_options_sameorigin
+@api_login_required
+def case_document_file(request, matter_id, document_id):
+    if request.method != "GET":
+        return JsonResponse({"error": "GET required"}, status=405)
+    matter, error = _matter_or_404(request.user, matter_id)
+    if error:
+        return error
+    document = get_case_document(matter, document_id)
+    if not document:
+        return JsonResponse({"error": "Document not found"}, status=404)
+    try:
+        downloaded = get_document_file(document)
+    except LegalServerError as exc:
+        return JsonResponse({"error": str(exc)}, status=502)
+    filename = document.get("filename") or downloaded.get("filename") or "case-document"
+    content_type = downloaded.get("content_type") or ""
+    if content_type in ("", "application/octet-stream"):
+        content_type = document.get("mimeType") or mimetypes.guess_type(filename)[0] or "application/octet-stream"
+    response = HttpResponse(
+        downloaded["content"],
+        content_type=content_type,
+    )
+    response["Content-Disposition"] = content_disposition_header(False, filename)
+    return response
 
 
 def _fact_slug(matter, title):

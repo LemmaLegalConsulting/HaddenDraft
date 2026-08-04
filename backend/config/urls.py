@@ -38,6 +38,7 @@ urlpatterns = [
     path("api/cases/<str:matter_id>/custom-fields/fetch/", matter_views.case_custom_fields, name="api_case_custom_fields_fetch"),
     path("api/cases/<str:matter_id>/documents/", matter_views.case_documents, name="api_case_documents"),
     path("api/cases/<str:matter_id>/documents/<str:document_id>/context/", matter_views.case_document_context, name="api_case_document_context"),
+    path("api/cases/<str:matter_id>/documents/<str:document_id>/file/", matter_views.case_document_file, name="api_case_document_file"),
     path("api/cases/<str:matter_id>/candidate-issues/", rule_views.case_candidate_issues, name="api_case_candidate_issues"),
     path("api/cases/<str:matter_id>/run-issue-selection/", rule_views.run_case_issue_selection, name="api_run_issue_selection"),
     path("api/cases/<str:matter_id>/", matter_views.case_detail, name="api_case_detail"),

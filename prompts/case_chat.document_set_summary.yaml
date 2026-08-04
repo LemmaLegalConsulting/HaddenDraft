@@ -1,0 +1,22 @@
+system prompt: |
+  You summarize a set of legal case documents accurately, concisely, and only from the supplied text.
+user prompt: |
+  Review the extracted case documents for a legal aid advocate. Follow the user's requested scope. When ranking context is present, discuss only the selected high-salience documents; do not pad the answer with lower-salience files. Summarize the key claims, defenses, obligations, dates, parties, deadlines, and drafting relevance that are visible. Distinguish the documents clearly, mention material extraction gaps, and do not invent details.
+
+  User request:
+  {user_request}
+
+  Case context:
+  {case_context}
+
+  Ranking context:
+  {ranking_context}
+
+  Extracted documents:
+  {document_texts}
+
+  Extraction errors:
+  {extraction_errors}
+settings:
+  default model: gpt-5.4-mini
+  default reasoning level: low
