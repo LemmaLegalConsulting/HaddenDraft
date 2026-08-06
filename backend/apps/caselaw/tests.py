@@ -195,3 +195,53 @@ class CaseLawApiTests(TestCase):
         self.assertEqual(payload["seed"]["title"], "Tenant v. Landlord")
         self.assertEqual(facet_response.status_code, 200)
         self.assertGreaterEqual(facet_response.json()["totalCandidates"], 1)
+
+
+class LocalCaseJurisdictionFilterTests(TestCase):
+    """The matter and the corpus punctuate the same court differently.
+
+    A matter created from LegalServer carries a jurisdiction a person typed;
+    the corpus carries what the publisher wrote. Before punctuation was
+    normalized, the mismatch removed local case law from the results entirely
+    while the treatise -- which applies no such filter -- still returned hits,
+    so a search looked like it had worked.
+    """
+
+    def setUp(self):
+        decision = CaseLawDecision.objects.create(
+            title="Tenant v. Landlord",
+            court="Cleveland Municipal Court, Housing Division",
+            county="Cuyahoga",
+            jurisdiction="Ohio Municipal Court, Cuyahoga County",
+            source_sha256="b" * 64,
+            approved_for_search=True,
+        )
+        CaseLawSearchDocument.objects.create(
+            decision=decision,
+            document_type="holdings",
+            title=decision.title,
+            search_text="Rent abatement was allowed where habitability repairs went unmade.",
+        )
+
+    def _titles(self, jurisdiction):
+        return [
+            result.title
+            for result in LocalCaseIndexConnector().search("habitability repairs", jurisdiction=jurisdiction)
+        ]
+
+    def test_court_name_punctuated_differently_still_matches(self):
+        self.assertEqual(self._titles("Cleveland Municipal Court - Housing Division"), ["Tenant v. Landlord"])
+        self.assertEqual(self._titles("Cleveland Municipal Court, Housing Division"), ["Tenant v. Landlord"])
+        self.assertEqual(self._titles("cleveland municipal court housing division"), ["Tenant v. Landlord"])
+
+    def test_state_and_county_forms_still_match(self):
+        self.assertEqual(self._titles("Ohio"), ["Tenant v. Landlord"])
+        self.assertEqual(self._titles("Cuyahoga"), ["Tenant v. Landlord"])
+
+    def test_a_different_jurisdiction_still_excludes_the_case(self):
+        self.assertEqual(self._titles("Michigan"), [])
+        self.assertEqual(self._titles("Franklin County"), [])
+
+    def test_no_jurisdiction_searches_everywhere(self):
+        self.assertEqual(self._titles(""), ["Tenant v. Landlord"])
+        self.assertEqual(self._titles("  -,  "), ["Tenant v. Landlord"])

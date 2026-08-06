@@ -15,6 +15,7 @@ from apps.sources.connectors.sharepoint import SharePointClient, SharePointConne
 from apps.sources.connectors.user_resources import UserResourceConnector
 from apps.sources.connectors.rag import ContentLibraryTreatiseConnector
 from apps.sources.models import SourceConfiguration, UserOAuthConnection, UserResource
+from apps.sources import jurisdiction
 from apps.sources.augmentation import augmented_search, evaluate_search_results
 from apps.sources.registry import ConnectorRegistry
 from apps.sources.selection import automatic_source_selection
@@ -840,3 +841,43 @@ class AugmentedSearchTests(TestCase):
 
         self.assertTrue(payload["augmentation"]["expanded"])
         self.assertIn(("repair", ("ohio-cases",)), calls)
+
+
+class JurisdictionMatchingTests(TestCase):
+    """A matter's jurisdiction and a decision's rarely agree on punctuation."""
+
+    def test_normalize_drops_punctuation_spacing_and_case(self):
+        self.assertEqual(
+            jurisdiction.normalize("Cleveland Municipal Court - Housing Division"),
+            jurisdiction.normalize("cleveland municipal court, housing division"),
+        )
+        self.assertEqual(jurisdiction.normalize("St. Mary's/Auglaize"), "stmarysauglaize")
+        self.assertEqual(jurisdiction.normalize(""), "")
+        self.assertEqual(jurisdiction.normalize(None), "")
+
+    def test_hyphen_and_comma_forms_of_the_same_court_match(self):
+        self.assertTrue(
+            jurisdiction.matches(
+                "Cleveland Municipal Court - Housing Division",
+                "Cleveland Municipal Court, Housing Division, Cuyahoga County, Ohio",
+            )
+        )
+
+    def test_curly_and_straight_apostrophes_match(self):
+        self.assertTrue(jurisdiction.matches("St. Mary’s", "Court of St. Mary's County"))
+
+    def test_containment_still_narrows_to_the_right_state(self):
+        self.assertTrue(jurisdiction.matches("Ohio", "Ohio Municipal Court, Cuyahoga County"))
+        self.assertFalse(jurisdiction.matches("Michigan", "Ohio Municipal Court, Cuyahoga County"))
+
+    def test_any_haystack_may_carry_the_match(self):
+        self.assertTrue(jurisdiction.matches("Cuyahoga", "Ohio", "Cleveland Municipal Court", "Cuyahoga"))
+        self.assertFalse(jurisdiction.matches("Cuyahoga", "Ohio", "Franklin County Municipal Court", ""))
+
+    def test_a_needle_with_no_letters_matches_nothing(self):
+        # Callers must decide for themselves that "no jurisdiction" means
+        # "search everywhere"; matching must not quietly wave everything through.
+        self.assertFalse(jurisdiction.matches("", "Ohio"))
+        self.assertFalse(jurisdiction.matches("  --, ", "Ohio"))
+        self.assertFalse(jurisdiction.is_usable("  --, "))
+        self.assertTrue(jurisdiction.is_usable("Ohio"))

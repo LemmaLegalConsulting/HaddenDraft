@@ -3,6 +3,7 @@ import re
 from django.db.models import Q
 
 from apps.caselaw.models import CaseLawSearchDocument
+from apps.sources import jurisdiction as jurisdiction_matching
 from apps.sources.connectors.base import SourceConnector, SourceResult
 
 
@@ -28,6 +29,11 @@ CONCEPT_EXPANSIONS = {
     "retaliation": ("retaliatory", "5321.02"),
     "retaliatory": ("retaliation", "5321.02"),
 }
+
+# How many search documents are scored, and how many rows may be examined to
+# find them. The scan bound matters because jurisdiction is filtered in Python.
+CANDIDATE_LIMIT = 500
+CANDIDATE_SCAN_LIMIT = 5000
 
 DOCUMENT_TYPE_WEIGHTS = {
     "keywords": 65,
@@ -120,7 +126,7 @@ def _score(search_doc, terms, expansions, jurisdiction):
     query_phrase = " ".join(terms)
     if query_phrase and any(query_phrase in (target or "").casefold() for target in exact_targets):
         score += 100
-    if jurisdiction and jurisdiction.casefold() in (decision.jurisdiction or decision.court or "").casefold():
+    if jurisdiction_matching.matches(jurisdiction, decision.jurisdiction, decision.court, decision.county):
         score += 10
     if decision.treatment_status == "unchecked":
         score -= 5
@@ -151,19 +157,28 @@ class LocalCaseIndexConnector(SourceConnector):
             .select_related("decision")
             .filter(filters, decision__approved_for_search=True)
         )
-        if jurisdiction:
-            queryset = queryset.filter(
-                Q(decision__jurisdiction__icontains=jurisdiction)
-                | Q(decision__court__icontains=jurisdiction)
-                | Q(decision__county__icontains=jurisdiction)
-            )
+        # The jurisdiction test is applied here rather than in SQL so that a
+        # court name punctuated differently from the corpus still matches; see
+        # apps.sources.jurisdiction. That means scanning past rows the database
+        # used to exclude, so the scan is bounded separately from the number of
+        # candidates kept. If the corpus outgrows a scan of this size, the next
+        # step is a normalized, indexed column on CaseLawDecision rather than a
+        # bigger bound here.
+        restrict_to_jurisdiction = jurisdiction_matching.is_usable(jurisdiction)
 
         ranked = []
-        for search_doc in queryset[:500]:
+        for search_doc in queryset[:CANDIDATE_SCAN_LIMIT]:
+            decision = search_doc.decision
+            if restrict_to_jurisdiction and not jurisdiction_matching.matches(
+                jurisdiction, decision.jurisdiction, decision.court, decision.county
+            ):
+                continue
             score = _score(search_doc, terms, expansions, jurisdiction)
             if score <= 0:
                 continue
             ranked.append((score, search_doc))
+            if len(ranked) >= CANDIDATE_LIMIT:
+                break
         ranked.sort(key=lambda item: (-item[0], item[1].decision.title, item[1].id))
 
         results = []
