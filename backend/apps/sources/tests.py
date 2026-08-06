@@ -875,9 +875,6 @@ class JurisdictionMatchingTests(TestCase):
         self.assertFalse(jurisdiction.matches("Cuyahoga", "Ohio", "Franklin County Municipal Court", ""))
 
     def test_a_needle_with_no_letters_matches_nothing(self):
-        # Callers must decide for themselves that "no jurisdiction" means
-        # "search everywhere"; matching must not quietly wave everything through.
+        # "No jurisdiction given" is not a reason to hand out a relevance bonus.
         self.assertFalse(jurisdiction.matches("", "Ohio"))
         self.assertFalse(jurisdiction.matches("  --, ", "Ohio"))
-        self.assertFalse(jurisdiction.is_usable("  --, "))
-        self.assertTrue(jurisdiction.is_usable("Ohio"))

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import {
   Bot,
   BookOpen,
@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 
 import { api } from "../api/client.js";
+import { caseCount, jurisdictionFacets, narrowResults, selectionAfterNarrowing } from "./caseJurisdictionFacets.js";
 import { CaseFacetBrowser, CitationPreviewModal, MarkdownResponse, SourceBrowserModal, SourceFullViewButton } from "./MarkdownResponse.jsx";
 
 const SOURCE_GROUPS = [
@@ -83,6 +84,7 @@ export function ResearchPanel({ matter, sources, onResults }) {
   const [sourceDecision, setSourceDecision] = useState(null);
   const [searchAugmentation, setSearchAugmentation] = useState(null);
   const [selectedResultIds, setSelectedResultIds] = useState([]);
+  const [caseJurisdiction, setCaseJurisdiction] = useState("");
   const [messages, setMessages] = useState([]);
   const [useAi, setUseAi] = useState(true);
   const [sourceMode, setSourceMode] = useState("auto");
@@ -94,6 +96,9 @@ export function ResearchPanel({ matter, sources, onResults }) {
   const [resourceType, setResourceType] = useState("case");
   const [resourceFile, setResourceFile] = useState(null);
   const [busy, setBusy] = useState(false);
+  const jurisdictionChips = useMemo(() => jurisdictionFacets(results), [results]);
+  const totalCaseCount = useMemo(() => caseCount(results), [results]);
+  const visibleResults = useMemo(() => narrowResults(results, caseJurisdiction), [results, caseJurisdiction]);
   const [historyLoading, setHistoryLoading] = useState(true);
   const [uploadBusy, setUploadBusy] = useState(false);
   const [showUploadForm, setShowUploadForm] = useState(false);
@@ -170,6 +175,7 @@ export function ResearchPanel({ matter, sources, onResults }) {
       } else {
         setSourceDecision(null);
       }
+      setCaseJurisdiction("");
       setSelectedResultIds(response.results.map((result) => result.id));
       onResults(response.results);
       if (useAi && response.answer) {
@@ -186,12 +192,28 @@ export function ResearchPanel({ matter, sources, onResults }) {
     }
   }
 
+  // onResults reaches into the parent, so it must not run inside a state
+  // updater: React calls those during render, and updating another component
+  // from there warns and can drop the update.
+  function applySelection(nextIds) {
+    setSelectedResultIds(nextIds);
+    onResults(results.filter((item) => nextIds.includes(item.id)));
+  }
+
   function toggleResult(result) {
-    setSelectedResultIds((current) => {
-      const nextIds = current.includes(result.id) ? current.filter((id) => id !== result.id) : [...current, result.id];
-      onResults(results.filter((item) => nextIds.includes(item.id)));
-      return nextIds;
-    });
+    applySelection(
+      selectedResultIds.includes(result.id)
+        ? selectedResultIds.filter((id) => id !== result.id)
+        : [...selectedResultIds, result.id],
+    );
+  }
+
+  // Narrowing hides cases, so it has to unselect them too: a source the reader
+  // has visibly set aside must not still reach the draft.
+  function narrowToJurisdiction(value) {
+    const next = value === caseJurisdiction ? "" : value;
+    setCaseJurisdiction(next);
+    applySelection(selectionAfterNarrowing(results, next, selectedResultIds));
   }
 
   async function clearHistory() {
@@ -409,8 +431,33 @@ export function ResearchPanel({ matter, sources, onResults }) {
           onOpenSource={setCaseSourceCitation}
         />
       )}
+      {jurisdictionChips.length > 0 && (
+        <div className="jurisdiction-narrowing">
+          <span className="jurisdiction-narrowing-label">Cases from</span>
+          <button
+            type="button"
+            className={`jurisdiction-chip ${caseJurisdiction ? "" : "active"}`}
+            aria-pressed={!caseJurisdiction}
+            onClick={() => narrowToJurisdiction("")}
+          >
+            Everywhere <span className="jurisdiction-chip-count">{totalCaseCount}</span>
+          </button>
+          {jurisdictionChips.map((chip) => (
+            <button
+              key={chip.value || "unattributed"}
+              type="button"
+              className={`jurisdiction-chip ${caseJurisdiction === chip.value ? "active" : ""}`}
+              aria-pressed={caseJurisdiction === chip.value}
+              onClick={() => narrowToJurisdiction(chip.value)}
+            >
+              {chip.label} <span className="jurisdiction-chip-count">{chip.count}</span>
+            </button>
+          ))}
+          <small>These are persuasive, not binding — a case from another county may still be the best one.</small>
+        </div>
+      )}
       <div className="result-list">
-        {results.map((result) => (
+        {visibleResults.map((result) => (
           <article key={result.id} className="result-card">
             <label className="result-select">
               <input

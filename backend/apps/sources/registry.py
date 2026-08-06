@@ -30,7 +30,7 @@ class ConnectorRegistry:
                     query,
                     matter=matter,
                     jurisdiction=jurisdiction,
-                    limit=limit_per_source,
+                    limit=limit_per_source * getattr(connector, "limit_multiplier", 1),
                     user=user,
                     request=request,
                     **source_kwargs,

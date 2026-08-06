@@ -93,7 +93,7 @@ class CaseLawImportTests(TestCase):
         self.assertTrue(decision.search_documents.exclude(document_type="ocr_chunk").exists())
 
     @override_settings(CASELAW_STORAGE_BACKEND="filesystem")
-    def test_connector_returns_real_database_cases_with_metadata_and_jurisdiction_filter(self):
+    def test_connector_returns_real_database_cases_with_metadata(self):
         with override_settings(CASELAW_STORAGE_ROOT=self.storage):
             ingest_caselaw_directory(self.corpus)
 
@@ -105,7 +105,16 @@ class CaseLawImportTests(TestCase):
         self.assertEqual(results[0].metadata["treatmentStatus"], "unchecked")
         self.assertTrue(results[0].metadata["metadataVerified"])
         self.assertIn("warning", results[0].metadata)
-        self.assertEqual(LocalCaseIndexConnector().search("habitability repair", jurisdiction="Michigan"), [])
+
+    def test_a_jurisdiction_from_elsewhere_does_not_hide_the_case(self):
+        # Trial-court decisions are persuasive, not binding. Jurisdiction orders
+        # them; it is the reader who narrows, and only in the result list.
+        with override_settings(CASELAW_STORAGE_ROOT=self.storage):
+            ingest_caselaw_directory(self.corpus)
+
+        results = LocalCaseIndexConnector().search("habitability repair", jurisdiction="Michigan")
+
+        self.assertEqual([result.title for result in results], ["Tenant v. Landlord"])
 
     @override_settings(CASELAW_STORAGE_BACKEND="filesystem")
     def test_search_keywords_metadata_is_ingested_and_retrievable(self):
@@ -197,23 +206,41 @@ class CaseLawApiTests(TestCase):
         self.assertGreaterEqual(facet_response.json()["totalCandidates"], 1)
 
 
-class LocalCaseJurisdictionFilterTests(TestCase):
-    """The matter and the corpus punctuate the same court differently.
+class LocalCaseJurisdictionRankingTests(TestCase):
+    """Where a trial-court decision was decided orders results; it never hides them.
 
-    A matter created from LegalServer carries a jurisdiction a person typed;
-    the corpus carries what the publisher wrote. Before punctuation was
-    normalized, the mismatch removed local case law from the results entirely
-    while the treatise -- which applies no such filter -- still returned hits,
-    so a search looked like it had worked.
+    These are municipal and common pleas decisions -- persuasive everywhere,
+    binding nowhere -- so a case from the next county over is worth reading.
+    The connector used to filter them out by jurisdiction, which also meant a
+    matter punctuating its court differently from the corpus
+    ("Cleveland Municipal Court - Housing Division" against
+    "Cleveland Municipal Court, Housing Division") lost local case law entirely
+    while the treatise still answered, so the search looked like it had worked.
     """
 
     def setUp(self):
-        decision = CaseLawDecision.objects.create(
-            title="Tenant v. Landlord",
+        self.local = self._decision(
+            title="Tenant v. Cleveland Landlord",
             court="Cleveland Municipal Court, Housing Division",
             county="Cuyahoga",
             jurisdiction="Ohio Municipal Court, Cuyahoga County",
-            source_sha256="b" * 64,
+            sha="b",
+        )
+        self.elsewhere = self._decision(
+            title="Renter v. Columbus Landlord",
+            court="Franklin County Municipal Court",
+            county="Franklin",
+            jurisdiction="Ohio Municipal Court, Franklin County",
+            sha="c",
+        )
+
+    def _decision(self, *, title, court, county, jurisdiction, sha):
+        decision = CaseLawDecision.objects.create(
+            title=title,
+            court=court,
+            county=county,
+            jurisdiction=jurisdiction,
+            source_sha256=sha * 64,
             approved_for_search=True,
         )
         CaseLawSearchDocument.objects.create(
@@ -222,6 +249,7 @@ class LocalCaseJurisdictionFilterTests(TestCase):
             title=decision.title,
             search_text="Rent abatement was allowed where habitability repairs went unmade.",
         )
+        return decision
 
     def _titles(self, jurisdiction):
         return [
@@ -229,19 +257,31 @@ class LocalCaseJurisdictionFilterTests(TestCase):
             for result in LocalCaseIndexConnector().search("habitability repairs", jurisdiction=jurisdiction)
         ]
 
-    def test_court_name_punctuated_differently_still_matches(self):
-        self.assertEqual(self._titles("Cleveland Municipal Court - Housing Division"), ["Tenant v. Landlord"])
-        self.assertEqual(self._titles("Cleveland Municipal Court, Housing Division"), ["Tenant v. Landlord"])
-        self.assertEqual(self._titles("cleveland municipal court housing division"), ["Tenant v. Landlord"])
+    def test_a_case_from_another_county_is_still_returned(self):
+        self.assertCountEqual(
+            self._titles("Cleveland Municipal Court - Housing Division"),
+            ["Tenant v. Cleveland Landlord", "Renter v. Columbus Landlord"],
+        )
 
-    def test_state_and_county_forms_still_match(self):
-        self.assertEqual(self._titles("Ohio"), ["Tenant v. Landlord"])
-        self.assertEqual(self._titles("Cuyahoga"), ["Tenant v. Landlord"])
+    def test_an_unrelated_state_does_not_hide_anything_either(self):
+        self.assertCountEqual(
+            self._titles("Michigan"),
+            ["Tenant v. Cleveland Landlord", "Renter v. Columbus Landlord"],
+        )
 
-    def test_a_different_jurisdiction_still_excludes_the_case(self):
-        self.assertEqual(self._titles("Michigan"), [])
-        self.assertEqual(self._titles("Franklin County"), [])
+    def test_the_matters_own_court_leads_despite_different_punctuation(self):
+        # The matter writes a hyphen where the corpus writes a comma. The two
+        # cases are otherwise identical in text, so only the jurisdiction
+        # nudge can decide the order.
+        self.assertEqual(self._titles("Cleveland Municipal Court - Housing Division")[0], "Tenant v. Cleveland Landlord")
+        self.assertEqual(self._titles("Franklin County Municipal Court")[0], "Renter v. Columbus Landlord")
+        self.assertEqual(self._titles("Cuyahoga")[0], "Tenant v. Cleveland Landlord")
 
-    def test_no_jurisdiction_searches_everywhere(self):
-        self.assertEqual(self._titles(""), ["Tenant v. Landlord"])
-        self.assertEqual(self._titles("  -,  "), ["Tenant v. Landlord"])
+    def test_results_carry_the_court_and_county_the_reader_narrows_by(self):
+        results = LocalCaseIndexConnector().search("habitability repairs", jurisdiction="Ohio")
+        courts = {result.metadata["court"] for result in results}
+        self.assertEqual(courts, {"Cleveland Municipal Court, Housing Division", "Franklin County Municipal Court"})
+        self.assertEqual({result.metadata["county"] for result in results}, {"Cuyahoga", "Franklin"})
+
+    def test_a_deeper_pool_is_returned_than_other_sources_so_it_can_be_narrowed(self):
+        self.assertGreater(LocalCaseIndexConnector.limit_multiplier, 1)

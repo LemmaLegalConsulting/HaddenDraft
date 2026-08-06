@@ -4068,3 +4068,64 @@ button:disabled {
 .advice-preview .preview-body p {
   margin: 0 0 10px;
 }
+
+/* Narrowing case-law results by the court that decided them. The connector
+   returns cases from everywhere because trial-court decisions are persuasive
+   rather than binding; these chips are how a reader narrows, with counts so
+   they can see what they are setting aside. Styled after .case-facet-chip so
+   the two ways of slicing case law look like the same idea. */
+.jurisdiction-narrowing {
+  align-items: center;
+  background: var(--bux-gray-light-90);
+  border: 1px solid var(--bux-gray-light-60);
+  border-radius: 8px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  /* Kept clear of the case facet browser above it: that one browses the whole
+     corpus, this one narrows the results in hand, and they must not read as
+     one control. */
+  margin: 12px 0 10px;
+  max-height: 160px;
+  overflow-y: auto;
+  padding: 8px 10px;
+}
+
+.jurisdiction-narrowing-label {
+  color: var(--bux-gray-dark-40);
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.jurisdiction-narrowing > small {
+  color: var(--bux-gray-dark-40);
+  flex-basis: 100%;
+  font-size: 11px;
+}
+
+.jurisdiction-chip {
+  background: #eef5f2;
+  border: 1px solid #cfe1dc;
+  border-radius: 999px;
+  color: #174d45;
+  font-size: 12px;
+  min-height: 28px;
+  padding: 4px 10px;
+}
+
+.jurisdiction-chip:hover {
+  border-color: #9cc3b8;
+}
+
+.jurisdiction-chip.active {
+  background: #174d45;
+  border-color: #174d45;
+  color: var(--bux-white);
+}
+
+.jurisdiction-chip-count {
+  font-weight: 700;
+  margin-left: 4px;
+  opacity: 0.75;
+}

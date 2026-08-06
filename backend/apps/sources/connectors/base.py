@@ -30,6 +30,10 @@ class SourceConnector:
     label = "Base source"
     status = "Not configured"
     detail = ""
+    # Multiplies the caller's per-source limit. A connector raises this when its
+    # results are meant to be narrowed after the fact rather than read straight
+    # down, so there is a pool worth narrowing.
+    limit_multiplier = 1
 
     def metadata(self):
         return {

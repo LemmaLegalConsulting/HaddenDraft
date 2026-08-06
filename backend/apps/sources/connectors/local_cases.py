@@ -30,10 +30,7 @@ CONCEPT_EXPANSIONS = {
     "retaliatory": ("retaliation", "5321.02"),
 }
 
-# How many search documents are scored, and how many rows may be examined to
-# find them. The scan bound matters because jurisdiction is filtered in Python.
 CANDIDATE_LIMIT = 500
-CANDIDATE_SCAN_LIMIT = 5000
 
 DOCUMENT_TYPE_WEIGHTS = {
     "keywords": 65,
@@ -136,10 +133,23 @@ def _score(search_doc, terms, expansions, jurisdiction):
 
 
 class LocalCaseIndexConnector(SourceConnector):
+    """Local trial-court decisions, unfiltered by where they were decided.
+
+    These are municipal and common pleas decisions: persuasive everywhere and
+    binding nowhere, so a case from another county is worth reading and a hard
+    jurisdiction filter would only hide it. Jurisdiction is a ranking signal
+    instead -- a decision from the matter's own court wins a near-tie -- and
+    narrowing is left to the reader, who can see what they are excluding.
+
+    Because those results are meant to be narrowed rather than read straight
+    down, this connector returns a deeper pool than the caller asked for.
+    """
+
     kind = "local_cases"
     label = "Local archived cases"
     status = "Indexed"
     detail = "Postgres-backed local case-law decisions and OCR text"
+    limit_multiplier = 4
 
     def search(self, query, *, matter=None, jurisdiction="", limit=5, user=None, request=None):
         terms, expansions = _expanded_terms(query)
@@ -157,28 +167,12 @@ class LocalCaseIndexConnector(SourceConnector):
             .select_related("decision")
             .filter(filters, decision__approved_for_search=True)
         )
-        # The jurisdiction test is applied here rather than in SQL so that a
-        # court name punctuated differently from the corpus still matches; see
-        # apps.sources.jurisdiction. That means scanning past rows the database
-        # used to exclude, so the scan is bounded separately from the number of
-        # candidates kept. If the corpus outgrows a scan of this size, the next
-        # step is a normalized, indexed column on CaseLawDecision rather than a
-        # bigger bound here.
-        restrict_to_jurisdiction = jurisdiction_matching.is_usable(jurisdiction)
-
         ranked = []
-        for search_doc in queryset[:CANDIDATE_SCAN_LIMIT]:
-            decision = search_doc.decision
-            if restrict_to_jurisdiction and not jurisdiction_matching.matches(
-                jurisdiction, decision.jurisdiction, decision.court, decision.county
-            ):
-                continue
+        for search_doc in queryset[:CANDIDATE_LIMIT]:
             score = _score(search_doc, terms, expansions, jurisdiction)
             if score <= 0:
                 continue
             ranked.append((score, search_doc))
-            if len(ranked) >= CANDIDATE_LIMIT:
-                break
         ranked.sort(key=lambda item: (-item[0], item[1].decision.title, item[1].id))
 
         results = []
