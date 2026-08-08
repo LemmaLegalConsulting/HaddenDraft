@@ -38,7 +38,8 @@ import { DraftGoalPanel } from "./components/DraftGoalPanel.jsx";
 import { DraftPlanReview } from "./components/DraftPlanReview.jsx";
 import { DocumentHistoryPanel } from "./components/DocumentHistoryPanel.jsx";
 import { DraftSwitcher } from "./components/DraftSwitcher.jsx";
-import { DraftQuestionsReview, unansweredPlanQuestions } from "./components/DraftQuestionsReview.jsx";
+import { DraftQuestionsReview } from "./components/DraftQuestionsReview.jsx";
+import { planQuestionsForReview } from "./components/planQuestions.js";
 import { FactReview } from "./components/FactReview.jsx";
 import { factRecommendationState } from "./components/factReviewState.js";
 import { mergeFactIds } from "./components/factReviewState.js";
@@ -128,7 +129,7 @@ export function App() {
   const casePreviewListMatter = cases.find((item) => item.id === casePreviewMatterId) || null;
   const casePreviewMatter = matter?.id === casePreviewMatterId ? matter : casePreviewListMatter;
 
-  const pendingPlanQuestions = useMemo(() => unansweredPlanQuestions(draftPlan), [draftPlan]);
+  const pendingPlanQuestions = useMemo(() => planQuestionsForReview(draftPlan), [draftPlan]);
   const workflowSteps = useMemo(() => {
     if (!clarifyMissingFactsBeforeDraft || pendingPlanQuestions.length === 0) return BASE_WORKFLOW_STEPS;
     return [
@@ -648,7 +649,7 @@ export function App() {
   }
 
   function goToQuestionsOrGenerate() {
-    if (clarifyMissingFactsBeforeDraft && unansweredPlanQuestions(draftPlan).length > 0) {
+    if (clarifyMissingFactsBeforeDraft && planQuestionsForReview(draftPlan).length > 0) {
       setDraftStep("questions");
       return;
     }

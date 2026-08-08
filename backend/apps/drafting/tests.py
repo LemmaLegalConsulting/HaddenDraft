@@ -19,6 +19,7 @@ from apps.drafting.services import (
     apply_plan_edits,
     create_drafts_from_plan,
     create_or_update_plan,
+    missing_information_items,
     recommend_goal_candidates,
     unanswered_missing_information,
 )
@@ -622,6 +623,81 @@ class DraftRenderingTests(TestCase):
         self.assertEqual(unanswered_missing_information(plan), [])
         self.assertEqual(len(unanswered_missing_information(plan, require_all=True)), 1)
 
+    def test_skipping_every_question_stops_blocking_generation(self):
+        plan = {
+            "document_items": [
+                {
+                    "missing_information": [
+                        {"field": "fields.hearing_date", "question": "When is the hearing?", "not_needed": True},
+                        {"field": "fields.time", "question": "What time?", "not_needed": True},
+                    ]
+                }
+            ],
+            # The flat copy is written when the plan is built and never carries
+            # the reviewer's skips.
+            "missing_information": [
+                {"field": "fields.hearing_date", "question": "When is the hearing?"},
+                {"field": "fields.time", "question": "What time?"},
+            ],
+        }
+
+        self.assertEqual(missing_information_items(plan), [])
+        self.assertEqual(unanswered_missing_information(plan, require_all=True), [])
+
+    def test_drafting_directions_never_block_generation(self):
+        plan = {
+            "document_items": [
+                {
+                    "missing_information": [
+                        {
+                            "field": "fields.describe_occupants",
+                            "question": "Describe occupants.",
+                            "kind": "narrative",
+                            "ai_completable": True,
+                        },
+                        {
+                            "field": "fields.hearing_date",
+                            "question": "When is the hearing?",
+                            "kind": "value",
+                        },
+                    ]
+                }
+            ]
+        }
+
+        blocking = unanswered_missing_information(plan, require_all=True)
+
+        self.assertEqual([item["field"] for item in blocking], ["fields.hearing_date"])
+
+    def test_one_answer_fills_every_binding_of_the_same_fact(self):
+        matter = Matter.objects.create(
+            external_id="CASE-ALIASED-FIELD",
+            client_name="Jane Tenant",
+            matter_type="Eviction",
+            jurisdiction="Housing Court",
+        )
+        template = DocumentTemplate.objects.create(slug="aliased-field-template", title="Aliased", kind="motion")
+        session = DraftingSession.objects.create(mode="draft_from_template", matter=matter, template=template)
+        plan = {
+            "document_items": [
+                {
+                    "template_id": template.id,
+                    "missing_information": [
+                        {
+                            "field": "fields.plaintiff_name",
+                            "question": "What is the plaintiff's name?",
+                            "answer": "Acme Realty LLC",
+                        }
+                    ],
+                }
+            ]
+        }
+
+        session = apply_plan_edits(session, {"draftPlan": plan})
+
+        self.assertEqual(session.template_data["plaintiff_name"], "Acme Realty LLC")
+        self.assertEqual(session.template_data["landlord"], "Acme Realty LLC")
+
     def test_plan_missing_information_answers_populate_template_fields(self):
         matter = Matter.objects.create(
             external_id="CASE-QUESTION-ANSWER",
@@ -677,6 +753,7 @@ class DraftRenderingTests(TestCase):
         self.assertEqual(session.template_data["hearing_date"], "August 1, 2026")
         self.assertIn("August 1, 2026", drafts[0].sections[0]["body"])
 
+    @override_settings(AI_DRAFTING_ENABLED=False)
     def test_plan_missing_information_includes_unset_template_field_question(self):
         matter = Matter.objects.create(
             external_id="CASE-FIELD-QUESTION",
@@ -701,9 +778,11 @@ class DraftRenderingTests(TestCase):
 
         session = create_or_update_plan(session, {"selectedTemplateIds": [template.id]})
 
-        questions = [item["question"] for item in session.missing_information]
-        self.assertTrue(any("plaintiff name" in question.casefold() for question in questions), questions)
+        questions = {item["field"]: item["question"] for item in session.missing_information}
+        self.assertIn("fields.plaintiff_name", questions)
+        self.assertIn("plaintiff", questions["fields.plaintiff_name"].casefold())
 
+    @override_settings(AI_DRAFTING_ENABLED=False)
     def test_plan_missing_information_omits_already_answered_template_field(self):
         matter = Matter.objects.create(
             external_id="CASE-FIELD-ANSWERED",

@@ -2257,6 +2257,37 @@ button:disabled {
   margin: 4px 0 0;
 }
 
+.missing-info-group {
+  display: grid;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.missing-info-group h4 {
+  margin: 0;
+}
+
+.missing-info-group > p {
+  margin: -4px 0 0;
+}
+
+.missing-info-context {
+  border-left: 2px solid #dbe4e8;
+  font-style: italic;
+  padding-left: 8px;
+}
+
+.missing-info-basis {
+  align-items: center;
+  background: #f1f7f4;
+  border-radius: 6px;
+  color: #2f6b4f;
+  display: flex;
+  gap: 6px;
+  font-size: 12px;
+  padding: 6px 8px;
+}
+
 .revision-plan-modal {
   max-width: 640px;
   width: 100%;

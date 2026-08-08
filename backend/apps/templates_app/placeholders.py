@@ -87,6 +87,13 @@ CONTEXT_FIELD_HINTS = (
     ("terminate", "date", "fields.termination_date"),
 )
 
+# Wording that puts a blank on the signature rule rather than in a sentence.
+# "/s/" is deliberately absent: it introduces the signer's name on the same
+# line, so a blank after it is the name, not the whole block.
+SIGNATURE_CUE_RE = re.compile(
+    r"respectfully submitted|attorney for|counsel for|signature of", re.I
+)
+
 # A highlighted span this long with no fill-in cue is alternative wording the
 # advocate keeps or deletes, not a value to supply.
 OPTIONAL_PROSE_MIN_WORDS = 8
@@ -125,6 +132,16 @@ def _field_name(label: str, fallback: str) -> str:
     # Long instruction text makes an unusable identifier; keep the leading terms.
     name = "_".join(parts[:4])
     return f"field_{name}" if name[:1].isdigit() else name
+
+
+def field_name_for_label(label: str) -> str:
+    """The `fields.<name>` a piece of fill-in text converts to.
+
+    Exposed so a caller holding a block's recorded drafting instruction can find
+    the field that instruction produced, and treat it as drafting work rather
+    than as a question of fact.
+    """
+    return _field_name(label, "")
 
 
 def _normalize(label: str) -> str:
@@ -168,16 +185,29 @@ def context_label(text: str, start: int, fallback: str) -> str:
     return fallback
 
 
-def placeholder_expression(label: str, fallback: str, *, context: str = "") -> str:
-    """Map one fill-in to the Jinja path that should replace it."""
+def placeholder_expression(label: str, fallback: str, *, context: str = "", nearby: str = "") -> str:
+    """Map one fill-in to the Jinja path that should replace it.
+
+    ``nearby`` is the wording of the surrounding lines. It is deliberately not
+    used for naming -- a blank is named after the sentence it sits in, and
+    borrowing the neighbours' words produces fields like `fields.sincerely` --
+    but a blank standing alone on its own line has no sentence, and the lines
+    around it are the only thing that says whether it is a signature rule.
+    """
     normalized = _normalize(label).casefold()
     context_normalized = " ".join(str(context or "").lower().split())
+    nearby_normalized = " ".join(str(nearby or "").lower().split())
 
     alias = PLACEHOLDER_ALIASES.get(normalized)
     if alias:
         return "{{ " + alias + " }}"
 
     if not normalized:
+        if SIGNATURE_CUE_RE.search(context_normalized) or (
+            context == fallback and SIGNATURE_CUE_RE.search(nearby_normalized)
+        ):
+            # The rule an advocate signs on, not a value anyone types.
+            return "{{ advocate_signature_block }}"
         if "defendant" in context_normalized or "client" in context_normalized:
             return "{{ defendant }}"
         if "plaintiff" in context_normalized or "landlord" in context_normalized:
@@ -275,7 +305,7 @@ class _Replacement:
     drop_highlight: bool = True
 
 
-def _bracket_replacements(text, fallback_prefix, conversion, protected=()):
+def _bracket_replacements(text, fallback_prefix, conversion, protected=(), nearby=""):
     replacements = []
     for index, match in enumerate(BRACKET_RE.finditer(text), start=1):
         if any(match.start() >= start and match.end() <= end for start, end in protected):
@@ -287,13 +317,13 @@ def _bracket_replacements(text, fallback_prefix, conversion, protected=()):
         context = context_label(text, match.start(), fallback)
         if is_instruction(label):
             conversion.instructions.append(_normalize(label))
-        expression = placeholder_expression(label, fallback, context=context)
+        expression = placeholder_expression(label, fallback, context=context, nearby=nearby)
         _record(conversion, expression)
         replacements.append(_Replacement(match.start(), match.end(), expression))
     return replacements
 
 
-def _underscore_replacements(text, fallback_prefix, conversion, taken):
+def _underscore_replacements(text, fallback_prefix, conversion, taken, nearby=""):
     replacements = []
     index = 0
     for pattern in (YEAR_STUB_RE, UNDERSCORE_RE):
@@ -307,7 +337,7 @@ def _underscore_replacements(text, fallback_prefix, conversion, taken):
             if label == "year":
                 expression = "{{ fields.filing_year }}"
             else:
-                expression = placeholder_expression("", fallback, context=context)
+                expression = placeholder_expression("", fallback, context=context, nearby=nearby)
             _record(conversion, expression)
             replacements.append(_Replacement(match.start(), match.end(), expression))
             taken.append((match.start(), match.end()))
@@ -319,7 +349,7 @@ def _flag_name(text, fallback):
     return "include_" + ("_".join(words) if words else fallback)
 
 
-def _highlight_replacements(paragraph, text, fallback_prefix, conversion, taken):
+def _highlight_replacements(paragraph, text, fallback_prefix, conversion, taken, nearby=""):
     """Highlighted spans become values, or keep their wording behind a toggle."""
     replacements = []
     for index, (start, end) in enumerate(_highlight_spans(_run_spans(paragraph)), start=1):
@@ -355,7 +385,7 @@ def _highlight_replacements(paragraph, text, fallback_prefix, conversion, taken)
         context = context_label(text, start, fallback)
         if is_instruction(stripped):
             conversion.instructions.append(_normalize(stripped))
-        expression = placeholder_expression(stripped, fallback, context=context)
+        expression = placeholder_expression(stripped, fallback, context=context, nearby=nearby)
         _record(conversion, expression)
         replacements.append(_Replacement(start, end, expression))
         taken.append((start, end))
@@ -403,8 +433,12 @@ def _apply_replacements(paragraph, replacements):
     return True
 
 
-def convert_paragraph(paragraph, fallback_prefix):
-    """Replace every fill-in in one paragraph, preserving run formatting."""
+def convert_paragraph(paragraph, fallback_prefix, nearby=""):
+    """Replace every fill-in in one paragraph, preserving run formatting.
+
+    ``nearby`` carries the wording of the surrounding paragraphs, which is the
+    only context a fill-in standing alone on its own line has.
+    """
     conversion = ParagraphConversion()
     text = paragraph.text
     if not text.strip():
@@ -416,24 +450,24 @@ def convert_paragraph(paragraph, fallback_prefix):
 
     protected = [match.span() for match in JINJA_TOKEN_RE.finditer(text)]
     taken: list[tuple[int, int]] = list(protected)
-    replacements = _bracket_replacements(text, fallback_prefix, conversion, protected)
+    replacements = _bracket_replacements(text, fallback_prefix, conversion, protected, nearby)
     taken.extend((item.start, item.end) for item in replacements)
-    replacements += _underscore_replacements(text, fallback_prefix, conversion, taken)
-    replacements += _highlight_replacements(paragraph, text, fallback_prefix, conversion, taken)
+    replacements += _underscore_replacements(text, fallback_prefix, conversion, taken, nearby)
+    replacements += _highlight_replacements(paragraph, text, fallback_prefix, conversion, taken, nearby)
 
     conversion.changed = _apply_replacements(paragraph, replacements)
     return conversion
 
 
-def convert_text(text, fallback_prefix):
+def convert_text(text, fallback_prefix, nearby=""):
     """Placeholder conversion for plain strings (block `body` previews)."""
     conversion = ParagraphConversion()
     if not text:
         return text, conversion
     protected = [match.span() for match in JINJA_TOKEN_RE.finditer(text)]
-    replacements = _bracket_replacements(text, fallback_prefix, conversion, protected)
+    replacements = _bracket_replacements(text, fallback_prefix, conversion, protected, nearby)
     taken = [*protected, *((item.start, item.end) for item in replacements)]
-    replacements += _underscore_replacements(text, fallback_prefix, conversion, taken)
+    replacements += _underscore_replacements(text, fallback_prefix, conversion, taken, nearby)
     pieces = []
     cursor = 0
     for replacement in sorted(replacements, key=lambda item: item.start):

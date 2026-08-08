@@ -145,6 +145,26 @@ class PlaceholderConversionTests(TestCase):
             "Served on {{ fields.plaintiff_name }} {{ fields.filing_date }}.",
         )
 
+    def test_a_blank_on_its_own_line_is_named_from_the_lines_around_it(self):
+        converted, conversion = convert_text(
+            "______________________",
+            "law_and_argument_32",
+            nearby="Respectfully submitted,\nAttorney for Defendant",
+        )
+
+        self.assertEqual(converted, "{{ advocate_signature_block }}")
+        self.assertEqual(conversion.fields, set())
+
+    def test_a_blank_with_its_own_wording_ignores_the_neighbouring_lines(self):
+        converted, _conversion = convert_text(
+            "The hearing is set for ______.",
+            "body_1",
+            nearby="Respectfully submitted,",
+        )
+
+        self.assertNotIn("advocate_signature_block", converted)
+        self.assertIn("{{ fields.hearing_", converted)
+
     def test_brackets_inside_jinja_control_tags_are_not_rebound(self):
         converted, conversion = convert_text(
             '{%p for item in blocks["statement-case"]["items"] %} [Filing Date]',

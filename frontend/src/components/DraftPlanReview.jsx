@@ -3,7 +3,7 @@ import { CheckCircle2, ClipboardList, FileText, Loader2, Sparkles, UserRound } f
 
 import { AuthorFields } from "./AuthorFields.jsx";
 import { CaseMaterialsPanel } from "./CaseMaterialsPanel.jsx";
-import { unansweredPlanQuestions } from "./DraftQuestionsReview.jsx";
+import { planQuestionsForReview, unansweredPlanQuestions } from "./planQuestions.js";
 import { DraftSupportReview } from "./DraftSupportReview.jsx";
 import { FactReview } from "./FactReview.jsx";
 import { LawReview } from "./LawReview.jsx";
@@ -47,6 +47,7 @@ export function DraftPlanReview({
   const templateBySlug = useMemo(() => new Map(templates.map((template) => [template.slug, template])), [templates]);
   const documentItems = plan?.document_items || [];
   const unansweredQuestions = unansweredPlanQuestions(plan);
+  const reviewQuestions = planQuestionsForReview(plan);
 
   if (!plan) {
     return (
@@ -131,17 +132,20 @@ export function DraftPlanReview({
               checked={clarifyMissingFactsBeforeDraft}
               onChange={(event) => onClarifyMissingFactsBeforeDraftChange(event.target.checked)}
             />
-            <span>Pause for unanswered drafting questions before generating</span>
+            <span>Pause to review the template's blanks before generating</span>
           </label>
-          {unansweredQuestions.length > 0 && (
+          {reviewQuestions.length > 0 && (
             <div className="question-gate-summary">
               {clarifyMissingFactsBeforeDraft ? (
                 <>
-                  <strong>{unansweredQuestions.length} question{unansweredQuestions.length === 1 ? "" : "s"} need an answer or skip decision.</strong>
-                  <span>You'll be asked to answer or skip them on the next step before the draft is generated.</span>
+                  <strong>
+                    {reviewQuestions.length} blank{reviewQuestions.length === 1 ? "" : "s"} to review
+                    {unansweredQuestions.length > 0 && `, ${unansweredQuestions.length} of which only you can answer`}.
+                  </strong>
+                  <span>The next step shows each one with the template wording around it, and what the case record already answers.</span>
                 </>
               ) : (
-                <span>{unansweredQuestions.length} question{unansweredQuestions.length === 1 ? " is" : "s are"} unanswered. Since the pause is off, unanswered fields will appear as placeholder text (like [Plaintiff Name]) in the draft.</span>
+                <span>{unansweredQuestions.length} blank{unansweredQuestions.length === 1 ? " is" : "s are"} unanswered. Since the pause is off, they will appear as placeholder text (like [Plaintiff Name]) in the draft.</span>
               )}
             </div>
           )}
@@ -159,7 +163,7 @@ export function DraftPlanReview({
           </button>
           <button className="btn btn-primary" type="button" disabled={busy || !documentItems.length} onClick={onContinue}>
             {busy ? <Loader2 className="spin" size={16} /> : <CheckCircle2 size={16} />}{" "}
-            {clarifyMissingFactsBeforeDraft && unansweredQuestions.length > 0 ? "Review questions" : "Generate draft"}
+            {clarifyMissingFactsBeforeDraft && reviewQuestions.length > 0 ? "Review questions" : "Generate draft"}
           </button>
         </div>
       </div>

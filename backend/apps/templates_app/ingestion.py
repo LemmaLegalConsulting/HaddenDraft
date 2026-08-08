@@ -55,7 +55,7 @@ from apps.templates_app.placeholders import (
 MANIFEST_VERSION = 2
 # Bump when conversion semantics change without changing the maintained source
 # file, so startup can refresh already-prepared packages safely.
-CONVERTER_VERSION = "2026-08-02-mixed-placeholder-bindings-v1"
+CONVERTER_VERSION = "2026-08-08-signature-rule-bindings-v1"
 
 LATITUDE_LOCKED = "locked"
 LATITUDE_GUIDED = "guided"
@@ -293,13 +293,23 @@ def _all_story_paragraphs(document):
 
 def _converted_block_body(document, block: BlockDefinition) -> str:
     lines = []
-    for index in range(block.body_start, block.end):
-        text = document.paragraphs[index].text.strip()
+    texts = [document.paragraphs[index].text.strip() for index in range(block.body_start, block.end)]
+    for offset, text in enumerate(texts):
         if not text:
             continue
-        converted, _conversion = convert_text(text, f"{block.key}_{index}")
+        index = block.body_start + offset
+        converted, _conversion = convert_text(
+            text, f"{block.key}_{index}", _nearby_text(texts, offset)
+        )
         lines.append(converted)
     return "\n".join(lines)
+
+
+def _nearby_text(texts, position) -> str:
+    """The lines either side of one line, for a fill-in that stands alone."""
+    previous = next((text for text in reversed(texts[:position]) if text.strip()), "")
+    following = next((text for text in texts[position + 1 :] if text.strip()), "")
+    return "\n".join(text for text in (previous, following) if text)
 
 
 def block_instructions(document, block: BlockDefinition) -> list[str]:
@@ -541,8 +551,12 @@ def annotate_document(document, blocks: list[BlockDefinition]) -> dict:
                 paragraph._p.getparent().remove(paragraph._p)
 
     # Every surviving paragraph keeps its wording; only fill-ins are rebound.
-    for index, paragraph in enumerate(_all_story_paragraphs(document)):
-        conversion = convert_paragraph(paragraph, f"placeholder_{index + 1}")
+    story = list(_all_story_paragraphs(document))
+    story_texts = [paragraph.text for paragraph in story]
+    for index, paragraph in enumerate(story):
+        conversion = convert_paragraph(
+            paragraph, f"placeholder_{index + 1}", _nearby_text(story_texts, index)
+        )
         fields.update(conversion.fields)
         flags.update(conversion.flags)
 

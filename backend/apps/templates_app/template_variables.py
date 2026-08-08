@@ -65,6 +65,35 @@ LEGACY_LITERAL_FIELDS = {
 }
 
 
+# Field names the Word conversion produced by accident rather than from the
+# template author's intent: an unlabelled run of underscores becomes
+# "placeholder_14_blank_1", and one named after the words in front of it becomes
+# "law_argument_32_blank". Neither names a value anybody can supply.
+UNUSABLE_FIELD_KEY_RES = (
+    re.compile(r"^placeholder_\d+"),
+    re.compile(r"_blank(_\d+)?$"),
+    re.compile(r"^field_\d"),
+)
+# A blank named after a citation to an exhibit is naming the sentence it sits
+# in: "See, Exhibit [X], Defendant's Gas Bill" is not a question.
+UNUSABLE_FIELD_KEY_TOKENS = {"exhibit", "see", "supra", "infra", "ibid"}
+
+# What an unusable placeholder renders as. The Word original showed the advocate
+# a blank line here, and a blank line is honest; "[Law Argument 32 Blank]" reads
+# like a field somebody forgot to fill.
+UNUSABLE_FIELD_MARKER = "__________"
+
+
+def is_unusable_field_key(key) -> bool:
+    """True when a field name is conversion debris, not something to ask about."""
+    name = str(key or "").strip().casefold()
+    if not name:
+        return True
+    if any(pattern.search(name) for pattern in UNUSABLE_FIELD_KEY_RES):
+        return True
+    return bool(UNUSABLE_FIELD_KEY_TOKENS.intersection(name.split("_")))
+
+
 def template_field_label(key):
     return re.sub(r"\s+", " ", str(key or "").replace("_", " ")).strip().title() or "Required field"
 
@@ -75,6 +104,8 @@ class TemplateFieldValues(dict):
     def __missing__(self, key):
         if key in LEGACY_LITERAL_FIELDS:
             return LEGACY_LITERAL_FIELDS[key]
+        if is_unusable_field_key(key):
+            return UNUSABLE_FIELD_MARKER
         return f"[{template_field_label(key)}]"
 
 

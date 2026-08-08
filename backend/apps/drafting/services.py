@@ -10,6 +10,7 @@ from apps.ai.prompt_catalog import PromptCatalogError, PromptRenderError, render
 from apps.ai.services import GenerationContext, drafting_ai
 from apps.drafting import operations
 from apps.drafting.components import plain_text_from_sections, sync_components
+from apps.drafting.field_answers import resolve_field_requests
 from apps.drafting.packages import derive_relationships
 from apps.drafting.source_bindings import bind_current_versions
 from apps.drafting.models import DraftDocument
@@ -17,10 +18,16 @@ from apps.matters.client_letter_context import letter_template_fields
 from apps.matters.document_context import chunk_text, custom_fields_inventory, get_case_documents, get_document_text, search_chunks, summarize_text
 from apps.matters.models import MatterFact
 from apps.sources.models import SourceConfiguration
+from apps.templates_app.field_questions import (
+    KIND_NARRATIVE,
+    KIND_UNUSABLE,
+    KIND_VALUE,
+    field_keys_for_answer,
+    template_field_requests,
+)
 from apps.templates_app.models import DocumentTemplate
 from apps.templates_app.recommendations import recommend_templates
 from apps.templates_app.serializers import template_to_dict
-from apps.templates_app.template_variables import LEGACY_LITERAL_FIELDS, declared_template_fields, normalize_field_path, template_field_label
 
 
 WORKFLOW_STEPS = [
@@ -218,6 +225,26 @@ def _available_templates():
     return DocumentTemplate.objects.filter(is_active=True).prefetch_related("blocks").order_by("title")
 
 
+def _unfilled_field_requests(session, template):
+    """Template blanks that still need an answer from somebody.
+
+    Blanks the Word conversion invented are dropped rather than asked about, and
+    a blank the case record or a previous answer already fills is not asked
+    again under any of the names the template binds it to.
+    """
+    template_data = session.template_data or {}
+    case_fields, _field_sources = letter_template_fields(session.matter)
+    return [
+        request
+        for request in template_field_requests(template)
+        if request.kind != KIND_UNUSABLE
+        and not any(
+            str(template_data.get(key, case_fields.get(key, ""))).strip()
+            for key in field_keys_for_answer(request.key)
+        )
+    ]
+
+
 def _plan_missing_information(session, template):
     missing = []
     if not session.author_profile or not (session.author_profile.get("displayName") or session.author_profile.get("email")):
@@ -225,29 +252,36 @@ def _plan_missing_information(session, template):
             {
                 "field": "author_profile",
                 "question": "Who should appear in the signature block?",
+                "kind": KIND_VALUE,
                 "required_for_generation": False,
             }
         )
-    if template and template.kind == "motion" and "hearing" in (session.goal or session.instructions or "").casefold():
+    requests = _unfilled_field_requests(session, template)
+    # The case record answers a good share of these, so read it before handing
+    # the list to a person.
+    resolved = resolve_field_requests(
+        session,
+        template,
+        requests,
+        facts=_selected_facts(session) or list(session.matter.facts.all()),
+        enabled=_ai_review_enabled(),
+    )
+    for request in requests:
+        answer = resolved.get(request.key) or {}
+        value = answer.get("value") or ""
         missing.append(
             {
-                "field": "hearing_date",
-                "question": "What is the current hearing date?",
-                "required_for_generation": False,
-            }
-        )
-    template_data = session.template_data or {}
-    case_fields, _field_sources = letter_template_fields(session.matter)
-    for path in declared_template_fields(template):
-        key = normalize_field_path(path)
-        if key in LEGACY_LITERAL_FIELDS or str(
-            template_data.get(key, case_fields.get(key, ""))
-        ).strip():
-            continue
-        missing.append(
-            {
-                "field": f"fields.{key}",
-                "question": f"What is the {template_field_label(key).lower()}?",
+                "field": request.path,
+                "question": answer.get("question") or request.question,
+                "context": request.context,
+                "section": request.block_label,
+                "kind": request.kind,
+                "answer": value,
+                "answer_source": "case_record" if value else "",
+                "basis": answer.get("basis") or "",
+                # A drafting direction is the model's to carry out, so leaving it
+                # blank is a choice to let the draft write it, not an omission.
+                "ai_completable": request.kind == KIND_NARRATIVE,
                 "required_for_generation": False,
             }
         )
@@ -372,23 +406,42 @@ def _fallback_plan(session, *, allow_multiple=False):
 
 
 def missing_information_items(plan):
+    """The plan's live questions, dropping the ones a reviewer skipped.
+
+    The per-document lists are authoritative whenever the plan has documents:
+    the reviewer edits those, and the plan's flat `missing_information` copy is
+    only a summary written when the plan was built. Falling back to the summary
+    when the per-document lists come back empty is what made skipping every
+    question resurrect all of them.
+    """
     document_items = plan.get("document_items") if isinstance(plan, dict) else []
-    missing = [
+    if document_items:
+        return [
+            item
+            for document in document_items
+            for item in (document.get("missing_information") or [])
+            if not item.get("not_needed")
+        ]
+    return [
         item
-        for document in (document_items or [])
-        for item in (document.get("missing_information") or [])
+        for item in (plan.get("missing_information") or [] if isinstance(plan, dict) else [])
         if not item.get("not_needed")
     ]
-    return missing or (plan.get("missing_information", []) if isinstance(plan, dict) else [])
 
 
 def unanswered_missing_information(plan, *, require_all=False):
+    """Questions that should stop generation.
+
+    A blank the draft can write for itself never stops it, even when the
+    reviewer asked to answer everything first: it is a drafting direction the
+    template author left behind, not a fact the reviewer is withholding.
+    """
     return [
         item
         for item in missing_information_items(plan)
         if not item.get("answer")
         and not item.get("not_needed")
-        and (require_all or item.get("required_for_generation"))
+        and (item.get("required_for_generation") or (require_all and not item.get("ai_completable")))
     ]
 
 
@@ -404,21 +457,38 @@ def _template_data_with_missing_information_answers(template_data, missing_infor
     for item in missing_information or []:
         answer = str(item.get("answer") or "").strip()
         field_key = _field_key_for_missing_information(item)
-        if answer and field_key and field_key not in merged:
-            merged[field_key] = answer
+        if not answer or not field_key or item.get("not_needed"):
+            continue
+        # One answer fills every binding of the same fact, so a template that
+        # says "landlord" in one paragraph and "plaintiff" in the next does not
+        # print a placeholder in one of them.
+        for key in field_keys_for_answer(field_key):
+            merged.setdefault(key, answer)
     return merged
 
 
 def _missing_information_answer_text(missing_information):
-    lines = []
+    answers = []
+    directions = []
     for item in missing_information or []:
+        if item.get("not_needed"):
+            continue
+        question = item.get("question") or item.get("field") or "Missing information"
         answer = str(item.get("answer") or "").strip()
-        if answer and not item.get("not_needed"):
-            question = item.get("question") or item.get("field") or "Missing information"
-            lines.append(f"- {question}: {answer}")
-    if not lines:
-        return ""
-    return "User-provided answers to drafting questions:\n" + "\n".join(lines)
+        if answer:
+            answers.append(f"- {question}: {answer}")
+        elif item.get("ai_completable"):
+            # An unanswered drafting direction stays the model's to carry out.
+            directions.append(f"- {question}")
+    sections = []
+    if answers:
+        sections.append("Reviewer-approved answers to drafting questions:\n" + "\n".join(answers))
+    if directions:
+        sections.append(
+            "Drafting directions from the template, to be written from the selected facts "
+            "and left as a bracketed note when the facts do not support them:\n" + "\n".join(directions)
+        )
+    return "\n\n".join(sections)
 
 
 def create_or_update_plan(session, payload):
@@ -456,9 +526,13 @@ def apply_plan_edits(session, payload):
     plan = payload.get("draftPlan") or payload.get("plan") or payload
     if not isinstance(plan, dict):
         raise ValueError("Draft plan must be an object.")
+    document_items = plan.get("document_items") or []
+    if document_items:
+        # The reviewer edits the per-document lists; the plan's flat copy is a
+        # summary, and a stale summary is indistinguishable from unanswered work.
+        plan = {**plan, "missing_information": missing_information_items(plan)}
     session.draft_plan = plan
     session.goal = payload.get("goal", session.goal)
-    document_items = plan.get("document_items") or []
     session.selected_template_ids = [
         item.get("template_id")
         for item in document_items
@@ -1240,7 +1314,9 @@ def _missing_information_gap_query(session, missing_information):
     questions = [
         item.get("question") or item.get("field") or ""
         for item in missing_information or []
-        if not item.get("answer") and not item.get("not_needed")
+        # A drafting direction is written from the case record, so it points at
+        # no gap in the authorities.
+        if not item.get("answer") and not item.get("not_needed") and not item.get("ai_completable")
     ]
     questions = [question.strip() for question in questions if question and question.strip()]
     if not questions:

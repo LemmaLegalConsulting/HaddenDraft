@@ -124,6 +124,7 @@ class PromptCatalogTests(TestCase):
                 "drafting.goal_recommendations",
                 "drafting.letter",
                 "drafting.plan",
+                "drafting.template_fields",
                 "triage.apply_rubric",
                 "case_chat.document_ranking",
                 "case_chat.document_summary",
