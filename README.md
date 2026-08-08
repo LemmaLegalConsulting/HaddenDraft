@@ -42,7 +42,7 @@ Runtime settings are loaded from `.env` in the repository root. `.env` is intent
 - AI prompts are file-backed YAML entries in [`prompts/`](prompts/README.md). Set `PROMPT_CATALOG_DIR` to a directory containing a benchmark variant catalog; enabled **Prompt overrides** in Django admin take precedence for operational edits.
 - Research is constrained to a jurisdiction. Set the organization fallback with `DEFAULT_JURISDICTION`; Django admin's **Organization settings** can override it, and each user can set a **Default research jurisdiction** in Profile. A selected matter's jurisdiction takes precedence over both.
 - Public reusable legal-content defaults are maintained in [`content/`](content/README.md). Private organization templates live outside source control under `ORGANIZATION_CONTENT_LIBRARY_DIR` (default `private-content/`) and override public defaults; `CONTENT_LIBRARY_DIR` configures only the public provider. Triage YAML seeds new database records without replacing admin edits.
-- Case-law PDFs and sidecar artifacts are side-loaded outside git through the caselaw storage backend. Local development uses `CASELAW_STORAGE_BACKEND=filesystem` and `CASELAW_STORAGE_ROOT=private-content/caselaw-artifacts`; production can use S3-compatible object storage. See [`docs/CASELAW_INGESTION.md`](docs/CASELAW_INGESTION.md).
+- Case-law PDFs, sidecar artifacts, and private organization content are side-loaded outside git through the document storage layer in [`apps.core.storage`](backend/apps/core/storage.py). Every store is split into a `raw/` area you upload into and a `published/` area the application reads, so a partial upload is never visible to a running replica. Local development uses `DOCUMENT_STORAGE_BACKEND=filesystem`; `s3` targets any S3-compatible endpoint and is a configuration change rather than a code change. See [`docs/CASELAW_INGESTION.md`](docs/CASELAW_INGESTION.md).
 - Case chat document text extraction uses `DOCUMENT_TEXT_EXTRACTOR=stdlib` by default. Optional values are `markitdown` or `docling` when those packages are installed; the extractor interface is intentionally pluggable for custom backends.
 - LegalServer uses `LEGALSERVER_BASE_URL`, `LEGALSERVER_API_TOKEN`, `LEGALSERVER_MATTERS_PATH`, `LEGALSERVER_MATTERS_RESULTS`, `LEGALSERVER_MATTER_DOCUMENTS_PATH`, and `LEGALSERVER_MATTER_PROFILE_PATH`. Matter search uses the v2 `/api/v2/matters` endpoint with `results=full`, `page_size`, and the documented text search keys. `LEGALSERVER_MATTER_PROFILE_PATH` controls the in-app deep link to the official case profile and receives the LegalServer database ID as `{matter_id}`. User access filtering is applied inside the app after LegalServer returns authorized records.
 - SharePoint Online uses Microsoft Graph with `SHAREPOINT_SITE_ID`, `SHAREPOINT_DRIVE_ID`, and either a delegated `ms_graph_access_token` in the Django session or a service token in `SHAREPOINT_ACCESS_TOKEN`. Case document lookup uses `SHAREPOINT_CASE_FOLDER_TEMPLATE`.
@@ -119,6 +119,26 @@ cd frontend
 npm run build
 ```
 
+## Deployment
+
+Production runs on Azure Container Apps with a managed PostgreSQL Flexible
+Server, at https://cle-draft.lemmalegal.com.
+
+**Code changes deploy themselves.** Merging to `main` runs
+[`.github/workflows/deploy.yml`](.github/workflows/deploy.yml), which tests,
+builds, migrates, rolls the app, and verifies the live site. It updates only the
+container image, so no production configuration lives in GitHub.
+
+**Configuration changes need the script.** New environment variables or scale
+changes come from `.env.containerapps` and only apply when you run:
+
+```bash
+./scripts/deploy_azure_containerapps.sh
+```
+
+See [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md) for the topology, the `raw/` vs
+`published/` document storage boundary, and DNS.
+
 ## Repository Layout
 
 ```text
@@ -128,7 +148,8 @@ npm run build
 ├── brainstorming/            Original planning documents
 ├── clickable_prototype.js    Original clickable React prototype
 ├── content/                  Maintained DOCX snippets, treatise source/Markdown, and triage rubrics
-├── docs/                     Architecture notes
+├── docker/                   Container entrypoints: bootstrap (migrate/ingest) and web (nginx + gunicorn)
+├── docs/                     Architecture and deployment notes
 ├── frontend/                 Vite + React + Lexical frontend
 ├── private-content/          Private organization templates
 ├── prompts/                  LLM system/user messages

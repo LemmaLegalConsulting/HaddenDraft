@@ -1,0 +1,283 @@
+# Deployment
+
+The application runs on **Azure Container Apps** with a managed **Azure Database
+for PostgreSQL Flexible Server**. The earlier single-VM Docker Compose
+deployment is documented at the end as the rollback path.
+
+## Topology
+
+Everything lives in the `agentic-housing-rg` resource group in `centralus`, on
+the pre-existing `AIDraftingTool-vnet` (`10.0.0.0/16`).
+
+| Resource | Name | Notes |
+| --- | --- | --- |
+| Container Apps environment | `agentic-housing-env` | VNet-injected into `containerapps-subnet` (`10.0.1.0/24`) |
+| Container app | `agentic-housing-app` | External ingress, TLS terminated by Azure |
+| Bootstrap job | `agentic-housing-bootstrap` | Manual trigger; migrations and content ingestion |
+| Registry | `agentichousingacr` | Basic tier |
+| Database | `agentic-housing-db` | PostgreSQL 16, `Standard_B1ms`, private access in `postgres-subnet` (`10.0.2.0/24`) |
+| Files | `ahfiles1786114234` | SMB shares `raw`, `published`, and `media` |
+| Pull identity | `agentic-housing-identity` | User-assigned, `AcrPull` on the registry |
+| Legacy VM | `AIDraftingTool` | In `default` subnet (`10.0.0.0/24`) |
+
+The database has **no public endpoint**. It is reachable only from inside the
+VNet. The private DNS zone `privatelink.postgres.database.azure.com` is linked to
+the VNet, so anything in it resolves the server's FQDN to its private address
+(`10.0.2.4`).
+
+**Ad-hoc database access.** Once the legacy VM is deleted, nothing outside the
+Container Apps environment can reach the server — the VM was the only other host
+in the VNet. To run a query or a one-off management command, use a Container Apps
+job (the bootstrap job already has the credentials and the network path):
+
+```bash
+az containerapp job start -g agentic-housing-rg -n agentic-housing-bootstrap
+```
+
+For an interactive shell, `az containerapp exec -g agentic-housing-rg -n
+agentic-housing-app` attaches to a running replica — but note the app scales to
+zero, so send a request first to wake one. A temporary jumpbox in the `default`
+subnet is the fallback if you need `psql` directly.
+
+## What differs from the VM deployment
+
+- **Migrations do not run at container start.** `docker/bootstrap.sh` runs as a
+  Container Apps job that must succeed before a new revision is created. On the
+  VM every container start ran migrations plus four ingestion commands, which
+  cannot work once more than one replica exists.
+- **Static files are collected at image build time**, not at start.
+- **TLS is handled by Container Apps ingress.** There is no `nginx-proxy` or
+  `acme-companion`; certificates for the custom domain are Azure-managed and
+  renew automatically.
+- **Side-loaded documents live on Azure Files shares**, not host volumes or
+  image layers. Keeping the ~530 MB corpus out of the image is what makes the
+  build and pull times reasonable — doubly so now that the app scales to zero
+  and every cold start pulls the image.
+- **The app scales to zero.** There is no always-warm replica, so the first
+  request after an idle period pays a cold start of several seconds.
+- Django is told to trust `X-Forwarded-Proto` via
+  `DJANGO_TRUST_PROXY_SSL_HEADER=true`, because TLS terminates upstream.
+
+## Configuration
+
+`.env.containerapps` in the repository root holds production settings. It is
+gitignored, and every key in it is pushed to Container Apps as a *secret* — none
+of the values appear in plain text in `az containerapp show` or in the portal.
+
+`POSTGRES_HOST` is filled in by the deploy script from the live server, so it is
+not stored in the file.
+
+Settings that matter for this topology:
+
+```
+POSTGRES_SSLMODE=require            # Flexible Server rejects plaintext
+DJANGO_TRUST_PROXY_SSL_HEADER=true  # TLS terminates at ingress
+DJANGO_SESSION_COOKIE_SECURE=true
+DJANGO_CSRF_COOKIE_SECURE=true
+DJANGO_CSRF_TRUSTED_ORIGINS=https://<app fqdn>,https://cle-draft.lemmalegal.com
+DOCUMENT_STORAGE_BACKEND=filesystem
+DOCUMENT_STORAGE_ROOT=/app/storage
+ORGANIZATION_CONTENT_LIBRARY_DIR=/app/storage/published/private-content
+```
+
+## Document storage
+
+Side-loaded documents — the case-law corpus and private organization content —
+go through [`apps.core.storage`](../backend/apps/core/storage.py), which splits
+every store into two areas:
+
+```text
+/app/storage/raw/caselaw/...              you upload here; nothing serves from it
+/app/storage/raw/private-content/...
+/app/storage/published/caselaw/...        written by ingestion; served by the app
+/app/storage/published/private-content/   written by publish_private_content
+```
+
+`raw` and `published` are **separate Azure Files shares** mounted under one root,
+so the filesystem backend sees them as ordinary directories. Separate shares
+rather than two directories in one share keeps the operator-writable area and the
+application-served area independently sized and permissionable.
+
+The boundary is what makes a slow upload safe. Thousands of small files can
+accumulate under `raw/` for as long as the transfer takes without a running
+replica ever seeing a half-finished corpus; ingestion or publishing is the single
+moment the change becomes visible.
+
+To upload new material:
+
+```bash
+SYNC_CASELAW=true CASELAW_DIR=~/downloaded_cases \
+  ./scripts/deploy_azure_containerapps.sh      # → raw/caselaw/, then ingested
+
+SYNC_PRIVATE_CONTENT=true \
+  ./scripts/deploy_azure_containerapps.sh      # → raw/private-content/, then published
+```
+
+Switching to S3 is configuration, not code: set `DOCUMENT_STORAGE_BACKEND=s3`
+with a bucket and keys, and install `boto3`. See
+[`docs/CASELAW_INGESTION.md`](CASELAW_INGESTION.md) for the one caveat about
+`ORGANIZATION_CONTENT_LIBRARY_DIR` under object storage.
+
+`DJANGO_SECURE_HSTS_SECONDS` is deliberately `0`. Enabling HSTS is difficult to
+reverse in browsers that have cached the policy, so turn it on as its own change
+once the custom domain has been stable on HTTPS for a while.
+
+## Deploying
+
+There are two paths, and the difference between them matters.
+
+### Code changes: merge to main
+
+[`.github/workflows/deploy.yml`](../.github/workflows/deploy.yml) deploys on every
+push to `main`. It runs the backend and frontend test suites, builds the image in
+ACR tagged with the commit SHA, runs the bootstrap job, waits for it to succeed,
+rolls the app, and then verifies the live site.
+
+The workflow updates **only the container image** (`az containerapp update
+--image`). It never applies a full spec. Two consequences worth understanding:
+
+- **No production configuration lives in GitHub.** Secrets, env vars, volume
+  mounts, scale rules, and the bound custom domain all stay as they are, so the
+  repository needs none of them. Verified: an image-only update leaves all 27
+  secrets, all three mounts, `minReplicas: 0`, and the `SniEnabled` custom domain
+  binding untouched.
+- **Configuration changes will not deploy themselves.** Adding an environment
+  variable or changing scale settings requires the local script below.
+
+CI needs no submodule credentials: `private-content` is a private repository, but
+production reads organization content from the published storage share rather than
+from the image, and the test suite passes without it.
+
+### Configuration changes: the local script
+
+```bash
+./scripts/deploy_azure_containerapps.sh
+```
+
+This renders and applies the *full* app and job specs from
+`.env.containerapps`, so it is what picks up new settings. It reads the live
+`ingress.customDomains` and echoes them back, so applying a full spec does not
+unbind the hostname.
+
+Run it whenever `.env.containerapps` changes; otherwise let CI deploy.
+
+### Required GitHub secrets
+
+Authentication is federated (OIDC) — there is no client secret to rotate.
+
+| Secret | Value |
+| --- | --- |
+| `AZURE_CLIENT_ID` | `f7554e71-ab71-4b95-9814-e69e7dcc847a` |
+| `AZURE_TENANT_ID` | `95fa40d6-b304-4081-bb6a-48d99c2b75ad` |
+| `AZURE_SUBSCRIPTION_ID` | `4f62b1f4-b38c-44f3-9c3f-aedaf2d12d2a` |
+
+The app registration is `HaddenDraft-GitHubActions-Deploy`. Its service principal
+holds `Contributor` scoped to exactly three resources — the registry, the
+container app, and the bootstrap job — and nothing at subscription or resource
+group level. Registry access is `Contributor` rather than `AcrPush` because
+`az acr build` needs `registries/scheduleRun/action`, which `AcrPush` lacks.
+
+Two federated credentials exist:
+
+- `gh-main` — `repo:LemmaLegalConsulting/HaddenDraft:ref:refs/heads/main`, used by
+  the workflow as written.
+- `gh-env-production` — `repo:LemmaLegalConsulting/HaddenDraft:environment:production`,
+  unused until you uncomment `environment: production` in the deploy job. Do that
+  to require manual approval before production, configuring reviewers on a
+  `production` environment in repository settings.
+
+To also re-upload the caselaw corpus (slow — thousands of small files, and only
+necessary when the corpus itself changes):
+
+```bash
+SYNC_CASELAW=true ./scripts/deploy_azure_containerapps.sh
+```
+
+## Verifying a deployment
+
+The deploy script polls `/healthz`, but that only proves nginx is up. A fuller
+check, against the app's default hostname:
+
+```bash
+FQDN=agentic-housing-app.victorioussea-d703d3b6.centralus.azurecontainerapps.io
+
+curl -s -o /dev/null -w '%{http_code}\n' "https://$FQDN/healthz"            # 200
+curl -s -o /dev/null -w '%{http_code}\n' "https://$FQDN/admin/login/"       # 200, proves the database is reachable
+curl -s -o /dev/null -w '%{http_code}\n' "https://$FQDN/static/admin/css/base.css"  # 200, proves build-time collectstatic
+curl -s -o /dev/null -w '%{http_code} %{redirect_url}\n' "https://$FQDN/admin/"     # 302 to an https:// URL
+```
+
+The last one is the one worth reading closely. If the redirect target comes back
+as `http://`, Django is not honouring `X-Forwarded-Proto` and
+`DJANGO_TRUST_PROXY_SSL_HEADER` is not set — which breaks secure cookies and
+CSRF in ways that are awkward to diagnose from the browser.
+
+## DNS and the custom domain
+
+The Container Apps environment has its own static IP. **The VM's public IP
+(`20.118.35.106`) cannot be carried over** — Container Apps does not accept a
+bring-your-own public IP, and neither does Container Instances. Preserving it
+would require putting an Application Gateway in front of an internal
+environment, which costs several times more than the application itself.
+
+`cle-draft.lemmalegal.com` is **bound** with an Azure-managed certificate
+(`mc-agentic-housin-cle-draft-lemmal-6817`), which renews automatically.
+
+The deploy script reads the live `ingress.customDomains` and echoes them back
+into the rendered spec. That matters because the spec replaces the ingress block
+wholesale — without it, a deploy would silently unbind the hostname and its
+certificate, leaving the site answering on its default FQDN while failing on the
+real one.
+
+To attach a further hostname:
+
+1. Create these two records:
+
+   ```text
+   CNAME  cle-draft.lemmalegal.com        →  agentic-housing-app.victorioussea-d703d3b6.centralus.azurecontainerapps.io
+   TXT    asuid.cle-draft.lemmalegal.com  →  7B899F654280032793A07DBA3A18119DA1E90BE0015178ADADFE6EB39C11419C
+   ```
+
+   The TXT value is the app's `customDomainVerificationId`. Re-read it rather
+   than trusting this copy if the app is ever recreated:
+
+   ```bash
+   az containerapp show -g agentic-housing-rg -n agentic-housing-app \
+     --query properties.customDomainVerificationId -o tsv
+   ```
+
+2. Once they resolve, add and bind the hostname. `bind` provisions a free
+   managed certificate that renews automatically:
+
+   ```bash
+   az containerapp hostname add -g agentic-housing-rg -n agentic-housing-app \
+     --hostname cle-draft.lemmalegal.com
+   az containerapp hostname bind -g agentic-housing-rg -n agentic-housing-app \
+     --hostname cle-draft.lemmalegal.com --environment agentic-housing-env \
+     --validation-method CNAME
+   ```
+
+An `A` record to the environment's static IP (`20.118.11.206`) also works, but
+the CNAME is safer: that IP is stable for the environment's lifetime, not
+guaranteed beyond it.
+
+## History: the single-VM deployment
+
+This application previously ran on one VM (`AIDraftingTool`, `20.118.35.106`)
+with Postgres in a container, `nginx-proxy` and `acme-companion` for TLS, and
+`scripts/deploy_azure.sh` deploying over SSH. That VM was decommissioned on
+2026-08-07 after its database was copied into the managed server.
+
+Two things from that era are worth knowing:
+
+- `scripts/deploy_azure.sh` and `scripts/migrate_vm_database.sh` both target a
+  host that no longer exists. They are kept for reference; neither will run.
+- `compose.yaml` still describes the VM stack and is the only way to run the
+  full production shape locally. It bind-mounts
+  `private-content/caselaw-artifacts` rather than baking it into the image, which
+  matches how Container Apps mounts the published area.
+
+The old ordering constraint no longer applies, but the reason it existed is worth
+remembering: the database copy had to happen *before* the first bootstrap run,
+because a dump from the VM (which had zero case-law decisions) would otherwise
+have wiped the corpus the bootstrap job had just ingested.

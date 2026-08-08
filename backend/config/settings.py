@@ -122,6 +122,11 @@ if os.environ.get("POSTGRES_HOST"):
             "HOST": os.environ["POSTGRES_HOST"],
             "PORT": os.environ.get("POSTGRES_PORT", "5432"),
             "CONN_MAX_AGE": int(os.environ.get("POSTGRES_CONN_MAX_AGE", "60")),
+            # Managed Postgres (Azure Flexible Server, RDS) requires TLS, and
+            # the libpq default of "prefer" downgrades without complaint. The
+            # default keeps a sidecar Postgres container working; deployments
+            # against a managed server set POSTGRES_SSLMODE=require.
+            "OPTIONS": {"sslmode": os.environ.get("POSTGRES_SSLMODE", "prefer")},
         }
     }
 else:
@@ -150,6 +155,14 @@ MEDIA_URL = "media/"
 MEDIA_ROOT = REPO_DIR / "media"
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
+# When TLS terminates upstream (Container Apps ingress, nginx-proxy, App
+# Gateway), Django only learns the request was HTTPS from X-Forwarded-Proto.
+# Without this, secure cookies, CSRF referer checks, and absolute URLs all
+# behave as though the site were plain HTTP. Only trust the header when the
+# deployment actually puts a proxy in front, since a client can forge it.
+if env_bool("DJANGO_TRUST_PROXY_SSL_HEADER", False):
+    SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+
 SESSION_COOKIE_SECURE = env_bool("DJANGO_SESSION_COOKIE_SECURE", not DEBUG)
 CSRF_COOKIE_SECURE = env_bool("DJANGO_CSRF_COOKIE_SECURE", not DEBUG)
 SESSION_COOKIE_HTTPONLY = True
@@ -175,15 +188,24 @@ ORGANIZATION_CONTENT_LIBRARY_DIR = Path(
 )
 if not ORGANIZATION_CONTENT_LIBRARY_DIR.is_absolute():
     ORGANIZATION_CONTENT_LIBRARY_DIR = REPO_DIR / ORGANIZATION_CONTENT_LIBRARY_DIR
-CASELAW_STORAGE_BACKEND = os.environ.get("CASELAW_STORAGE_BACKEND", "filesystem")
-CASELAW_STORAGE_ROOT = Path(os.environ.get("CASELAW_STORAGE_ROOT", REPO_DIR / "private-content" / "caselaw-artifacts"))
-if not CASELAW_STORAGE_ROOT.is_absolute():
-    CASELAW_STORAGE_ROOT = REPO_DIR / CASELAW_STORAGE_ROOT
-CASELAW_STORAGE_BUCKET = os.environ.get("CASELAW_STORAGE_BUCKET", "")
-CASELAW_STORAGE_ENDPOINT_URL = os.environ.get("CASELAW_STORAGE_ENDPOINT_URL", "")
-CASELAW_STORAGE_ACCESS_KEY_ID = os.environ.get("CASELAW_STORAGE_ACCESS_KEY_ID", "")
-CASELAW_STORAGE_SECRET_ACCESS_KEY = os.environ.get("CASELAW_STORAGE_SECRET_ACCESS_KEY", "")
-CASELAW_STORAGE_REGION = os.environ.get("CASELAW_STORAGE_REGION", "")
+# Side-loaded document storage. See apps.core.storage: every store is split into
+# a raw/ area an operator uploads into and a published/ area the application
+# reads. "filesystem" points at a local directory or a mounted file share;
+# "s3" targets any S3-compatible endpoint and needs only a bucket and keys.
+DOCUMENT_STORAGE_BACKEND = os.environ.get("DOCUMENT_STORAGE_BACKEND", "filesystem")
+DOCUMENT_STORAGE_ROOT = Path(os.environ.get("DOCUMENT_STORAGE_ROOT", REPO_DIR / "private-content" / "storage"))
+if not DOCUMENT_STORAGE_ROOT.is_absolute():
+    DOCUMENT_STORAGE_ROOT = REPO_DIR / DOCUMENT_STORAGE_ROOT
+DOCUMENT_STORAGE_BUCKET = os.environ.get("DOCUMENT_STORAGE_BUCKET", "")
+DOCUMENT_STORAGE_ENDPOINT_URL = os.environ.get("DOCUMENT_STORAGE_ENDPOINT_URL", "")
+DOCUMENT_STORAGE_ACCESS_KEY_ID = os.environ.get("DOCUMENT_STORAGE_ACCESS_KEY_ID", "")
+DOCUMENT_STORAGE_SECRET_ACCESS_KEY = os.environ.get("DOCUMENT_STORAGE_SECRET_ACCESS_KEY", "")
+DOCUMENT_STORAGE_REGION = os.environ.get("DOCUMENT_STORAGE_REGION", "")
+
+# Key prefixes inside the published area. Case-law artifacts keep the "caselaw"
+# prefix they already carry in CaseLawArtifact.storage_key rows.
+CASELAW_STORAGE_PREFIX = os.environ.get("CASELAW_STORAGE_PREFIX", "caselaw")
+PRIVATE_CONTENT_STORAGE_PREFIX = os.environ.get("PRIVATE_CONTENT_STORAGE_PREFIX", "private-content")
 CASELAW_IMPORT_REQUIRE_VERIFIED = env_bool("CASELAW_IMPORT_REQUIRE_VERIFIED", False)
 CASELAW_IMPORT_APPROVE_VERIFIED_FOR_SEARCH = env_bool("CASELAW_IMPORT_APPROVE_VERIFIED_FOR_SEARCH", True)
 CASELAW_IMPORT_APPROVE_UNVERIFIED_FOR_SEARCH = env_bool("CASELAW_IMPORT_APPROVE_UNVERIFIED_FOR_SEARCH", False)

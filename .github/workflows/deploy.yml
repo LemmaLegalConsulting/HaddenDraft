@@ -1,0 +1,190 @@
+name: Deploy to Azure
+
+# Deploys on merge to main. Merging is the trigger, so a pull request that never
+# lands never deploys, and every deployed commit is one that passed review.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# Serialize deploys. Two merges in quick succession must not race to update the
+# same revision, and cancel-in-progress would be wrong here: a half-finished
+# deploy that has run migrations but not yet rolled the app is worse than a slow
+# queue.
+concurrency:
+  group: deploy-azure
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  id-token: write   # required for federated (OIDC) login to Azure
+
+env:
+  AZURE_RESOURCE_GROUP: agentic-housing-rg
+  REGISTRY: agentichousingacr
+  IMAGE_REPO: agentic-housing-drafting
+  CONTAINER_APP: agentic-housing-app
+  BOOTSTRAP_JOB: agentic-housing-bootstrap
+  SITE_URL: https://cle-draft.lemmalegal.com
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      # No submodules. private-content is a private repo, and production reads
+      # organization content from the published storage share rather than from
+      # the image — so CI needs no deploy key. The suite passes without it.
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+
+      - name: Install backend dependencies
+        run: pip install -r requirements.txt
+
+      - name: Django system checks
+        run: python backend/manage.py check
+        env:
+          DJANGO_DEBUG: 'true'
+
+      - name: Backend tests
+        run: |
+          python backend/manage.py test \
+            apps.ai apps.sources apps.core apps.matters \
+            apps.caselaw apps.drafting apps.templates_app
+        env:
+          DJANGO_DEBUG: 'true'
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install frontend dependencies
+        run: npm ci
+        working-directory: frontend
+
+      - name: Frontend tests
+        run: npm run test
+        working-directory: frontend
+
+  deploy:
+    needs: test
+    runs-on: ubuntu-latest
+    # To require manual approval before production, create a "production"
+    # environment in repo settings with required reviewers and uncomment the
+    # line below. The federated credential for it already exists.
+    # environment: production
+    outputs:
+      image: ${{ steps.build.outputs.image }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Log in to Azure
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Build image in ACR
+        id: build
+        run: |
+          set -Eeuo pipefail
+          TAG="${GITHUB_SHA::12}"
+          IMAGE="${REGISTRY}.azurecr.io/${IMAGE_REPO}:${TAG}"
+          # Built in ACR rather than on the runner: the build context stays in
+          # Azure and no large layers are pushed back out over the network.
+          az acr build --registry "$REGISTRY" \
+            --image "${IMAGE_REPO}:${TAG}" \
+            --image "${IMAGE_REPO}:latest" \
+            --file Dockerfile . -o none
+          echo "image=$IMAGE" >> "$GITHUB_OUTPUT"
+          echo "Built $IMAGE"
+
+      # Migrations and content ingestion run once, here, and must succeed before
+      # the app is rolled. A failed migration therefore never reaches a revision
+      # that serves traffic.
+      - name: Run migrations and content ingestion
+        run: |
+          set -Eeuo pipefail
+          IMAGE="${{ steps.build.outputs.image }}"
+
+          az containerapp job update -g "$AZURE_RESOURCE_GROUP" -n "$BOOTSTRAP_JOB" \
+            --image "$IMAGE" -o none
+
+          EXECUTION="$(az containerapp job start -g "$AZURE_RESOURCE_GROUP" -n "$BOOTSTRAP_JOB" \
+            --query name -o tsv)"
+          echo "Job execution: $EXECUTION"
+
+          for attempt in $(seq 1 120); do
+            STATUS="$(az containerapp job execution show -g "$AZURE_RESOURCE_GROUP" \
+              -n "$BOOTSTRAP_JOB" --job-execution-name "$EXECUTION" \
+              --query properties.status -o tsv 2>/dev/null || echo Unknown)"
+            case "$STATUS" in
+              Succeeded)
+                echo "Bootstrap succeeded."
+                exit 0 ;;
+              Failed|Degraded)
+                echo "::error::Bootstrap job $STATUS. Logs follow."
+                az containerapp job logs show -g "$AZURE_RESOURCE_GROUP" -n "$BOOTSTRAP_JOB" \
+                  --container bootstrap --execution "$EXECUTION" --tail 200 || true
+                exit 1 ;;
+              *) sleep 10 ;;
+            esac
+          done
+          echo "::error::Bootstrap job did not finish within 20 minutes."
+          exit 1
+
+      # Only the image changes. The app's secrets, env vars, volume mounts,
+      # scale rules, and bound custom domain all stay as they are — which is why
+      # no production configuration needs to live in GitHub. Changing any of
+      # those is a deliberate act: run scripts/deploy_azure_containerapps.sh.
+      - name: Roll the container app to the new image
+        run: |
+          az containerapp update -g "$AZURE_RESOURCE_GROUP" -n "$CONTAINER_APP" \
+            --image "${{ steps.build.outputs.image }}" -o none
+
+      - name: Verify the site is serving
+        run: |
+          set -Eeuo pipefail
+          # The app scales to zero, so the first request also pays a cold start.
+          for attempt in $(seq 1 45); do
+            CODE="$(curl -s -o /dev/null -m 30 -w '%{http_code}' "$SITE_URL/healthz" || echo 000)"
+            if [ "$CODE" = "200" ]; then
+              echo "Healthy: $SITE_URL"
+              break
+            fi
+            [ "$attempt" -eq 45 ] && { echo "::error::$SITE_URL/healthz never returned 200 (last: $CODE)"; exit 1; }
+            sleep 4
+          done
+
+          # Django rendering a login page proves the managed database is
+          # reachable, which /healthz (answered by nginx) deliberately does not.
+          LOGIN="$(curl -s -o /dev/null -m 30 -w '%{http_code}' "$SITE_URL/admin/login/")"
+          [ "$LOGIN" = "200" ] || { echo "::error::/admin/login/ returned $LOGIN"; exit 1; }
+          echo "Database-backed page renders."
+
+          # A redirect to http:// here means Django stopped honouring
+          # X-Forwarded-Proto, which silently breaks secure cookies and CSRF.
+          TARGET="$(curl -s -o /dev/null -m 30 -w '%{redirect_url}' "$SITE_URL/admin/")"
+          case "$TARGET" in
+            https://*) echo "HTTPS redirect intact: $TARGET" ;;
+            *) echo "::error::/admin/ redirected to a non-HTTPS URL: $TARGET"; exit 1 ;;
+          esac
+
+      - name: Summary
+        if: always()
+        run: |
+          {
+            echo "### Deploy"
+            echo ""
+            echo "| | |"
+            echo "|---|---|"
+            echo "| Image | \`${{ steps.build.outputs.image }}\` |"
+            echo "| Commit | ${GITHUB_SHA::12} |"
+            echo "| Site | $SITE_URL |"
+          } >> "$GITHUB_STEP_SUMMARY"

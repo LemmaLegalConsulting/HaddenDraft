@@ -28,8 +28,15 @@ COPY --from=frontend /app/frontend/dist /app/frontend/dist
 # Configure Nginx
 COPY nginx.conf /etc/nginx/sites-available/default
 
-# Set permissions for start script
-RUN chmod +x /app/start.sh
+# Set permissions for entrypoint scripts
+RUN chmod +x /app/start.sh /app/docker/bootstrap.sh /app/docker/web.sh
+
+# Collect Django's static files at build time. They are the same for every
+# replica and depend only on the code, so baking them in keeps startup fast and
+# keeps replicas from racing to write the same directory. Settings are only
+# imported here, and no database is configured during the build.
+RUN cd /app/backend \
+    && DJANGO_DEBUG=true POSTGRES_HOST= python manage.py collectstatic --noinput
 
 # Expose HTTP port
 EXPOSE 80

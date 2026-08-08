@@ -1,30 +1,11 @@
 #!/bin/bash
-set -e
+# Single-container entrypoint for the Docker Compose deployment, where one
+# container both prepares the database and serves traffic.
+#
+# Azure Container Apps splits these: docker/bootstrap.sh runs as a job and
+# docker/web.sh is the container command. Both deployments therefore run the
+# same code for the same step.
+set -Eeuo pipefail
 
-# Change to backend directory to run manage.py commands
-cd /app/backend
-
-# Run migrations
-python manage.py migrate
-
-# Run ingest document templates after their database tables exist.
-python manage.py ingest_document_templates
-
-# Sync the content library
-python manage.py sync_content_library --update-triage-rubrics
-
-# Prepare and index the modular advice-letter catalog, including the Lexical
-# formatting converted from the maintained source DOCX files.
-python manage.py ingest_advice_letters
-
-# Ingest caselaw artifacts
-python manage.py ingest_caselaw /app/private-content/caselaw-artifacts
-
-# Collect static files for Django admin
-python manage.py collectstatic --noinput
-
-# Start Nginx in background
-nginx -g "daemon off;" &
-
-# Start Django backend in foreground
-exec gunicorn config.wsgi:application --bind 127.0.0.1:8000 --workers 3
+/app/docker/bootstrap.sh
+exec /app/docker/web.sh

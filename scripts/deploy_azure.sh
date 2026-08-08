@@ -1,6 +1,31 @@
 #!/usr/bin/env bash
 set -Eeuo pipefail
 
+# SUPERSEDED. This deployed the application to a single VM (AIDraftingTool),
+# which was decommissioned on 2026-08-07 in favour of Azure Container Apps with a
+# managed PostgreSQL Flexible Server. Use scripts/deploy_azure_containerapps.sh.
+#
+# The guard exists because this script *creates* infrastructure: running it would
+# provision a fresh VM and public IP alongside the real deployment, and its
+# Compose stack would come up against its own throwaway Postgres container rather
+# than the managed server. Kept for reference only.
+if [[ "${ALLOW_LEGACY_VM_DEPLOY:-false}" != "true" ]]; then
+  cat >&2 <<'SUPERSEDED'
+scripts/deploy_azure.sh is superseded and will not run.
+
+The single-VM deployment it targets was deleted on 2026-08-07. Running this would
+create a new VM and public IP, and serve from a throwaway Postgres container
+instead of the managed server.
+
+Use:  ./scripts/deploy_azure_containerapps.sh
+Docs: docs/DEPLOYMENT.md
+
+Set ALLOW_LEGACY_VM_DEPLOY=true only if you genuinely intend to build a second,
+parallel VM deployment.
+SUPERSEDED
+  exit 1
+fi
+
 SUBSCRIPTION_ID="${AZURE_SUBSCRIPTION_ID:-4f62b1f4-b38c-44f3-9c3f-aedaf2d12d2a}"
 EXPECTED_USER="${AZURE_EXPECTED_USER:-quinten@nonprofittechy.com}"
 RESOURCE_GROUP="${AZURE_RESOURCE_GROUP:-agentic-housing-rg}"

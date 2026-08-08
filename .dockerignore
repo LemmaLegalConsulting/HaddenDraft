@@ -9,5 +9,9 @@ build
 logs
 downloaded_cases
 media
+# ~530MB of PDFs and sidecars. Both deployments mount these as a volume rather
+# than baking them into the image: a bind mount under Compose, an Azure Files
+# share under Container Apps.
+private-content/caselaw-artifacts
 **/__pycache__
 *.pyc

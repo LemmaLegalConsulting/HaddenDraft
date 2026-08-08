@@ -86,26 +86,55 @@ def canonical_stem(path):
     return path.stem
 
 
+# Two sidecar namings are in circulation and both have to be readable.
+#
+# Downloaded bundles keep the PDF's full name and append to it:
+#     Smith v Jones.pdf, Smith v Jones.pdf.txt, Smith v Jones.pdf.json
+# Published artifacts are named by content hash with a plain extension, because
+# the storage layer splits them across directories by artifact type:
+#     originals/<sha>.pdf, ocr-text/<sha>.txt, metadata/<sha>.json
+#
+# Recognizing only the first naming is what silently reduced a full corpus to
+# "missing_text" for every group: the PDFs matched, the .verified.json matched,
+# and the plain .txt beside them was invisible.
+# Ordered most specific first. The index doubles as a precedence rank, so a
+# directory holding both namings for one case resolves to the specific one
+# regardless of the order the filesystem hands paths over.
+SIDECAR_SUFFIXES = (
+    (".verified.json", "verified_json_path"),
+    (".pdf.json", "json_path"),
+    (".pdf.txt", "txt_path"),
+    (".pdf", "pdf_path"),
+    (".json", "json_path"),
+    (".txt", "txt_path"),
+)
+
+
+def sidecar_artifact_type(name):
+    """Return ``(artifact_type, rank)`` for a sidecar filename, or ``None``."""
+    for rank, (suffix, artifact_type) in enumerate(SIDECAR_SUFFIXES):
+        if name.endswith(suffix):
+            return artifact_type, rank
+    return None
+
+
 def discover_case_groups(root):
     root = Path(root)
     groups = {}
+    ranks = {}
     total_files = 0
     for path in sorted(item for item in root.rglob("*") if item.is_file()):
-        artifact_type = None
-        if path.name.endswith(".verified.json"):
-            artifact_type = "verified_json_path"
-        elif path.name.endswith(".pdf.json"):
-            artifact_type = "json_path"
-        elif path.name.endswith(".pdf.txt"):
-            artifact_type = "txt_path"
-        elif path.name.endswith(".pdf"):
-            artifact_type = "pdf_path"
-        if not artifact_type:
+        matched = sidecar_artifact_type(path.name)
+        if not matched:
             continue
+        artifact_type, rank = matched
         total_files += 1
         stem = canonical_stem(path)
         group = groups.setdefault(stem, CaseFileGroup(stem=stem))
-        setattr(group, artifact_type, path)
+        slot = (stem, artifact_type)
+        if slot not in ranks or rank < ranks[slot]:
+            ranks[slot] = rank
+            setattr(group, artifact_type, path)
     return list(groups.values()), total_files
 
 
@@ -279,6 +308,31 @@ def decision_defaults(metadata, group, source_sha256, metadata_verified, *, allo
     values["short_title"] = values["short_title"] or values["title"]
     values["normalized_title"] = values["normalized_title"] or re.sub(r"\s+", " ", values["title"].casefold()).strip()
     values["source_sha256"] = source_sha256
+    return clamp_to_field_widths(values)
+
+
+def clamp_to_field_widths(values):
+    """Truncate text values that exceed their column width.
+
+    Sidecar metadata is largely model-generated, so a field meant to hold a short
+    classification label sometimes comes back as a sentence: a corpus of 1,215
+    cases lost 17 of them outright to `value too long for type character
+    varying(120)`, 15 on `tenant_landlord_role` and 2 on `publication_status`.
+
+    Dropping an entire decision because one descriptive field ran long is the
+    wrong trade. Nothing is permanently lost either way — the full sidecar JSON
+    is kept as a stored artifact, so a widened column and a re-ingest can recover
+    the untruncated value.
+    """
+    widths = {
+        field.name: field.max_length
+        for field in CaseLawDecision._meta.fields
+        if getattr(field, "max_length", None)
+    }
+    for name, limit in widths.items():
+        value = values.get(name)
+        if isinstance(value, str) and len(value) > limit:
+            values[name] = value[:limit]
     return values
 
 

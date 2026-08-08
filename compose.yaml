@@ -29,6 +29,9 @@ services:
       - "80"
     volumes:
       - app_media:/app/media
+      # Caselaw artifacts are no longer baked into the image; the deploy script
+      # sideloads them here and the container reads them from the host.
+      - ./private-content/caselaw-artifacts:/app/private-content/caselaw-artifacts
 
   nginx-proxy:
     image: nginxproxy/nginx-proxy:alpine

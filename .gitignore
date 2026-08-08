@@ -5,11 +5,12 @@ ENV/
 env/
 
 # Environment Variables
+# Ignore every .env variant and re-admit the documented template, so a new
+# deployment-specific file (.env.azure, .env.containerapps) cannot be committed
+# by accident.
 .env
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
+.env.*
+!.env.example
 
 # Python
 __pycache__/
@@ -77,3 +78,5 @@ content/docx-snippets/*/
 !content/docx-snippets/_shared/
 # content/treatises/ (now a submodule)
 ssh/
+
+docs/slides

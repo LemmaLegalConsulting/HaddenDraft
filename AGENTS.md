@@ -16,6 +16,18 @@ library, not inside a Django app or embedded in Python constants.
 - Treat `CONTENT_LIBRARY_DIR` as a content-provider boundary. Future SharePoint
   support must preserve the same logical paths and record remote provenance
   before writing derived data.
+- Side-loaded documents go through `apps.core.storage`, never through direct
+  filesystem or SDK calls. Every store has a `raw/` area an operator uploads into
+  and a `published/` area the application reads; nothing serves out of `raw/`,
+  and only an ingest or publish step writes to `published/`. Keep provider APIs
+  behind `DocumentStorage` so moving between a mounted share and S3 stays a
+  configuration change.
+- Keep the published layout re-ingestable. Ingestion once recognized only the
+  download naming (`*.pdf.txt`) while storage wrote the published naming
+  (`<sha>.txt`), so a complete corpus reported `missing_text` on every group and
+  imported nothing, silently. A round trip through storage must be a no-op, not a
+  loss — and a corpus that reports itself incomplete deserves suspicion of the
+  reader before the data.
 
 See [`content/README.md`](content/README.md) for the complete maintenance,
 precedence, and future SharePoint-provider guidance.

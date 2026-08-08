@@ -37,13 +37,79 @@ class CaseLawImportTests(TestCase):
         self.assertTrue(group.verified_json_path.name.endswith(".verified.json"))
         self.assertEqual(group.metadata_path, group.verified_json_path)
 
+    def test_file_grouping_recognizes_published_artifact_layout(self):
+        """The published layout must be re-ingestable.
+
+        Published artifacts are hash-named with plain extensions and split
+        across per-type directories. Recognizing only the download naming made
+        every group report missing_text, which is how a 1,215-case corpus
+        ingested as zero decisions.
+        """
+        published = Path(self.tmp.name) / "published"
+        sha = "a" * 64
+        for subdir, suffix in (("originals", ".pdf"), ("ocr-text", ".txt"),
+                               ("metadata", ".json"), ("metadata", ".verified.json")):
+            target = published / subdir / f"{sha}{suffix}"
+            target.parent.mkdir(parents=True, exist_ok=True)
+            target.write_bytes(b"x")
+
+        groups, total_files = discover_case_groups(published)
+
+        self.assertEqual(total_files, 4)
+        self.assertEqual(len(groups), 1)
+        group = groups[0]
+        self.assertEqual(group.stem, sha)
+        self.assertEqual(group.incomplete_reasons(), [])
+        self.assertTrue(group.txt_path.name.endswith(".txt"))
+        self.assertTrue(group.json_path.name.endswith(".json"))
+        self.assertEqual(group.metadata_path, group.verified_json_path)
+
+    @override_settings(DOCUMENT_STORAGE_BACKEND="filesystem")
+    def test_overlong_metadata_values_are_truncated_not_fatal(self):
+        """A verbose classification label must not cost the whole decision.
+
+        Model-generated sidecars put sentences in fields sized for short labels,
+        which dropped 17 of 1,215 cases with "value too long for type character
+        varying(120)".
+        """
+        metadata_path = self.corpus / "sample-case.pdf.json"
+        metadata = json.loads(metadata_path.read_text())
+        metadata["tenant_landlord_role"] = "Tenant/Appellant asserting habitability " * 6
+        metadata["publication_status"] = "Unpublished judgment entry under App.R. 11.1(E) " * 4
+        metadata_path.write_text(json.dumps(metadata))
+        # The verified sidecar would otherwise take precedence over this file.
+        (self.corpus / "sample-case.verified.json").unlink()
+
+        with override_settings(DOCUMENT_STORAGE_ROOT=self.storage):
+            report = ingest_caselaw_directory(self.corpus)
+
+        self.assertEqual(report["failed"], [])
+        self.assertEqual(len(report["imported"]), 1)
+        decision = CaseLawDecision.objects.get()
+        self.assertEqual(len(decision.tenant_landlord_role), 120)
+        self.assertEqual(len(decision.publication_status), 80)
+        self.assertTrue(decision.tenant_landlord_role.startswith("Tenant/Appellant"))
+
+    def test_specific_sidecar_naming_wins_over_plain_extension(self):
+        """A directory carrying both namings resolves to the specific one."""
+        mixed = Path(self.tmp.name) / "mixed"
+        mixed.mkdir(parents=True)
+        (mixed / "case.pdf").write_bytes(b"x")
+        (mixed / "case.pdf.txt").write_bytes(b"specific")
+        (mixed / "case.txt").write_bytes(b"plain")
+
+        groups, _ = discover_case_groups(mixed)
+
+        self.assertEqual(len(groups), 1)
+        self.assertEqual(groups[0].txt_path.name, "case.pdf.txt")
+
     @override_settings(
-        CASELAW_STORAGE_BACKEND="filesystem",
+        DOCUMENT_STORAGE_BACKEND="filesystem",
         CASELAW_IMPORT_APPROVE_VERIFIED_FOR_SEARCH=True,
         CASELAW_IMPORT_APPROVE_UNVERIFIED_FOR_SEARCH=False,
     )
     def test_ingestion_prefers_verified_metadata_and_copies_artifacts(self):
-        with override_settings(CASELAW_STORAGE_ROOT=self.storage):
+        with override_settings(DOCUMENT_STORAGE_ROOT=self.storage):
             report = ingest_caselaw_directory(self.corpus, allow_missing_text=False)
 
         self.assertEqual(len(report["imported"]), 1)
@@ -55,11 +121,14 @@ class CaseLawImportTests(TestCase):
         self.assertEqual(decision.pages.count(), 1)
         self.assertGreater(CaseLawSearchDocument.objects.count(), 1)
         self.assertTrue(CaseLawArtifact.objects.filter(artifact_type="original_pdf").exists())
-        self.assertTrue((self.storage / "caselaw" / "originals").exists())
+        # Derived artifacts land in the published area, never at the store root:
+        # raw uploads and served files have to stay on opposite sides of it.
+        self.assertTrue((self.storage / "published" / "caselaw" / "originals").exists())
+        self.assertFalse((self.storage / "caselaw").exists())
 
-    @override_settings(CASELAW_STORAGE_BACKEND="filesystem")
+    @override_settings(DOCUMENT_STORAGE_BACKEND="filesystem")
     def test_ingestion_is_idempotent_and_updates_verified_json(self):
-        with override_settings(CASELAW_STORAGE_ROOT=self.storage):
+        with override_settings(DOCUMENT_STORAGE_ROOT=self.storage):
             ingest_caselaw_directory(self.corpus)
             verified = self.corpus / "sample-case.verified.json"
             payload = json.loads(verified.read_text(encoding="utf-8"))
@@ -71,20 +140,20 @@ class CaseLawImportTests(TestCase):
         self.assertEqual(CaseLawDecision.objects.get().judge, "Updated Judge")
         self.assertEqual(CaseLawArtifact.objects.filter(artifact_type="verified_metadata_json").count(), 1)
 
-    @override_settings(CASELAW_STORAGE_BACKEND="filesystem")
+    @override_settings(DOCUMENT_STORAGE_BACKEND="filesystem")
     def test_missing_pdf_can_be_allowed(self):
         (self.corpus / "sample-case.pdf").unlink()
-        with override_settings(CASELAW_STORAGE_ROOT=self.storage):
+        with override_settings(DOCUMENT_STORAGE_ROOT=self.storage):
             report = ingest_caselaw_directory(self.corpus, allow_missing_pdf=True)
 
         self.assertEqual(len(report["imported"]), 1)
         self.assertEqual(CaseLawDecision.objects.count(), 1)
         self.assertIn("missing_pdf", report["imported"][0]["incomplete"])
 
-    @override_settings(CASELAW_STORAGE_BACKEND="filesystem")
+    @override_settings(DOCUMENT_STORAGE_BACKEND="filesystem")
     def test_missing_text_creates_metadata_only_case_when_allowed(self):
         (self.corpus / "sample-case.pdf.txt").unlink()
-        with override_settings(CASELAW_STORAGE_ROOT=self.storage):
+        with override_settings(DOCUMENT_STORAGE_ROOT=self.storage):
             report = ingest_caselaw_directory(self.corpus, allow_missing_text=True)
 
         self.assertEqual(len(report["imported"]), 1)
@@ -92,9 +161,9 @@ class CaseLawImportTests(TestCase):
         self.assertEqual(decision.pages.count(), 0)
         self.assertTrue(decision.search_documents.exclude(document_type="ocr_chunk").exists())
 
-    @override_settings(CASELAW_STORAGE_BACKEND="filesystem")
+    @override_settings(DOCUMENT_STORAGE_BACKEND="filesystem")
     def test_connector_returns_real_database_cases_with_metadata(self):
-        with override_settings(CASELAW_STORAGE_ROOT=self.storage):
+        with override_settings(DOCUMENT_STORAGE_ROOT=self.storage):
             ingest_caselaw_directory(self.corpus)
 
         results = LocalCaseIndexConnector().search("habitability repair", jurisdiction="Ohio")
@@ -109,16 +178,16 @@ class CaseLawImportTests(TestCase):
     def test_a_jurisdiction_from_elsewhere_does_not_hide_the_case(self):
         # Trial-court decisions are persuasive, not binding. Jurisdiction orders
         # them; it is the reader who narrows, and only in the result list.
-        with override_settings(CASELAW_STORAGE_ROOT=self.storage):
+        with override_settings(DOCUMENT_STORAGE_ROOT=self.storage):
             ingest_caselaw_directory(self.corpus)
 
         results = LocalCaseIndexConnector().search("habitability repair", jurisdiction="Michigan")
 
         self.assertEqual([result.title for result in results], ["Tenant v. Landlord"])
 
-    @override_settings(CASELAW_STORAGE_BACKEND="filesystem")
+    @override_settings(DOCUMENT_STORAGE_BACKEND="filesystem")
     def test_search_keywords_metadata_is_ingested_and_retrievable(self):
-        with override_settings(CASELAW_STORAGE_ROOT=self.storage):
+        with override_settings(DOCUMENT_STORAGE_ROOT=self.storage):
             ingest_caselaw_directory(self.corpus)
 
         decision = CaseLawDecision.objects.get()
@@ -165,9 +234,9 @@ class CaseLawApiTests(TestCase):
     def tearDown(self):
         self.tmp.cleanup()
 
-    @override_settings(CASELAW_STORAGE_BACKEND="filesystem")
+    @override_settings(DOCUMENT_STORAGE_BACKEND="filesystem")
     def test_decision_detail_and_artifacts_endpoints_return_json(self):
-        with override_settings(CASELAW_STORAGE_ROOT=self.storage):
+        with override_settings(DOCUMENT_STORAGE_ROOT=self.storage):
             ingest_caselaw_directory(self.corpus)
             decision = CaseLawDecision.objects.get()
 
@@ -188,9 +257,9 @@ class CaseLawApiTests(TestCase):
         self.assertEqual(detail_response.json()["decision"]["title"], "Tenant v. Landlord")
         self.assertGreaterEqual(len(artifacts_response.json()["artifacts"]), 3)
 
-    @override_settings(CASELAW_STORAGE_BACKEND="filesystem")
+    @override_settings(DOCUMENT_STORAGE_BACKEND="filesystem")
     def test_case_browse_returns_facets_and_source_results(self):
-        with override_settings(CASELAW_STORAGE_ROOT=self.storage):
+        with override_settings(DOCUMENT_STORAGE_ROOT=self.storage):
             ingest_caselaw_directory(self.corpus)
         decision = CaseLawDecision.objects.get()
 
