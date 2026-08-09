@@ -24,6 +24,7 @@ from apps.matters.document_context import (
     search_chunks,
     summarize_text,
 )
+from apps.matters import case_list
 from apps.matters import services as matter_services
 from apps.matters.models import MatterFact, TriageRubric
 from apps.matters.seed import seed_matters
@@ -69,10 +70,18 @@ def cases(request):
         return JsonResponse({"error": "GET or POST required"}, status=405)
 
     query = request.GET.get("q", "").strip()
+    status = case_list.normalize_status(request.GET.get("status"), searching=bool(query))
+    assigned = case_list.normalize_assigned(request.GET.get("assigned"))
+    problem_code = request.GET.get("problem", "").strip()
+    sort = case_list.normalize_sort(request.GET.get("sort"))
+    limit = case_list.normalize_page_size(request.GET.get("limit"))
+    offset = case_list.normalize_offset(request.GET.get("offset"))
+
     legalserver_client = matter_services.LegalServerClient()
     sync = sync_legalserver_matters_for_user(
         request.user,
         query=query,
+        limit=case_list.SYNC_FETCH_LIMIT,
         restrict_to_user=not bool(query),
         client=legalserver_client,
     )
@@ -87,9 +96,38 @@ def cases(request):
             matters_by_id.setdefault(matter.external_id, matter)
     matters = list(matters_by_id.values())
     account = legalserver_account_status(request.user, client=legalserver_client)
+    serialized = [
+        matter_to_dict(
+            matter,
+            legalserver_client=legalserver_client,
+            viewer=request.user,
+            viewer_identifier=account.get("identifier", ""),
+        )
+        for matter in matters
+    ]
+    # Facets describe everything the viewer can reach, not the current page, so
+    # the filter does not lose the option that would widen the list again.
+    problem_codes = case_list.legal_problem_options(serialized)
+    matched = case_list.sort_cases(
+        case_list.filter_cases(serialized, status=status, assigned=assigned, problem_code=problem_code),
+        sort=sort,
+    )
+    page, has_more = case_list.paginate(matched, limit=limit, offset=offset)
     return JsonResponse(
         {
-            "cases": [matter_to_dict(matter, legalserver_client=legalserver_client) for matter in matters],
+            "cases": page,
+            "total": len(matched),
+            "hasMore": has_more,
+            "problemCodes": problem_codes,
+            "filters": {
+                "q": query,
+                "status": status,
+                "assigned": assigned,
+                "problem": problem_code,
+                "sort": sort,
+                "limit": limit,
+                "offset": offset,
+            },
             "legalserver": {
                 **account,
                 "syncError": sync.error,

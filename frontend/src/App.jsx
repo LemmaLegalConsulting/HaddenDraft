@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useReducer, useState } from "react";
+import React, { useEffect, useMemo, useReducer, useRef, useState } from "react";
 import {
   Archive,
   ChevronDown,
@@ -59,6 +59,11 @@ const BASE_WORKFLOW_STEPS = [
   { id: "editor", label: "Draft" },
 ];
 
+// One screen of cases; "Show more" asks for the next page of the same size.
+const CASE_PAGE_SIZE = 20;
+// Open cases the advocate is working, most recently active first.
+const DEFAULT_CASE_FILTERS = { status: "open", assigned: "all", problem: "", sort: "activity" };
+
 const modeOptions = [
   { id: "case", label: "Case", icon: ClipboardList },
   { id: "triage", label: "Triage", icon: ClipboardCheck },
@@ -110,6 +115,9 @@ export function App() {
   const [legalserver, setLegalserver] = useState(null);
   const [legalserverIdentifier, setLegalserverIdentifier] = useState("");
   const [caseSearch, setCaseSearch] = useState("");
+  const [caseFilters, setCaseFilters] = useState(DEFAULT_CASE_FILTERS);
+  const caseRequestRef = useRef(0);
+  const [caseListMeta, setCaseListMeta] = useState({ total: 0, hasMore: false, problemCodes: [] });
   const [caseBusy, setCaseBusy] = useState(false);
   const [manualCaseBusy, setManualCaseBusy] = useState(false);
   const [accountBusy, setAccountBusy] = useState(false);
@@ -198,34 +206,59 @@ export function App() {
     }
   }
 
-  function applyCaseResponse(caseResponse) {
-    const nextCases = caseResponse.cases || [];
-    setCases(nextCases);
+  function applyCaseResponse(caseResponse, { append = false } = {}) {
+    const incoming = caseResponse.cases || [];
+    setCases((current) => {
+      if (!append) return incoming;
+      const known = new Set(current.map((item) => item.id));
+      return [...current, ...incoming.filter((item) => !known.has(item.id))];
+    });
+    setCaseListMeta({
+      total: caseResponse.total ?? incoming.length,
+      hasMore: Boolean(caseResponse.hasMore),
+      problemCodes: caseResponse.problemCodes || [],
+    });
     setLegalserver(caseResponse.legalserver || null);
     setLegalserverIdentifier(caseResponse.legalserver?.identifier || caseResponse.legalserver?.suggestedIdentifier || "");
-    setSelectedMatterId((current) => {
-      if (current && nextCases.some((item) => item.id === current)) {
-        return current;
-      }
-      return nextCases[0]?.id ?? null;
-    });
-    if (!nextCases.length) {
+    if (append) return;
+    // A filter narrows what is listed, not what is being worked on: the active
+    // case stays active even when the current filter would not show it.
+    setSelectedMatterId((current) => current ?? incoming[0]?.id ?? null);
+    if (!incoming.length && !selectedMatterId) {
       setMatter(null);
       setSelectedFactIds([]);
     }
   }
 
-  async function loadCases(query = "") {
+  async function loadCases({ query = caseSearch, filters = caseFilters, append = false } = {}) {
+    // A round trip to LegalServer takes seconds, which is long enough for an
+    // advocate to change a second filter before the first one answers. Without
+    // this, the slower reply lands last and the list shows a filter nobody has
+    // selected any more.
+    const requestId = caseRequestRef.current + 1;
+    caseRequestRef.current = requestId;
     setCaseBusy(true);
     setError("");
     try {
-      const caseResponse = await api.cases(query.trim());
-      applyCaseResponse(caseResponse);
+      const caseResponse = await api.cases({
+        query: query.trim(),
+        ...filters,
+        limit: CASE_PAGE_SIZE,
+        offset: append ? cases.length : 0,
+      });
+      if (caseRequestRef.current !== requestId) return;
+      applyCaseResponse(caseResponse, { append });
     } catch (err) {
+      if (caseRequestRef.current !== requestId) return;
       setError(err.message);
     } finally {
-      setCaseBusy(false);
+      if (caseRequestRef.current === requestId) setCaseBusy(false);
     }
+  }
+
+  async function applyCaseFilters(nextFilters) {
+    setCaseFilters(nextFilters);
+    await loadCases({ filters: nextFilters });
   }
 
   async function handleLogin(event) {
@@ -355,12 +388,13 @@ export function App() {
 
   async function handleCaseSearch(event) {
     event.preventDefault();
-    await loadCases(caseSearch);
+    await loadCases({ query: caseSearch });
   }
 
   async function handleCaseSearchReset() {
     setCaseSearch("");
-    await loadCases("");
+    await loadCases({ query: "", filters: DEFAULT_CASE_FILTERS });
+    setCaseFilters(DEFAULT_CASE_FILTERS);
   }
 
   async function handleCreateManualCase(payload) {
@@ -921,7 +955,7 @@ export function App() {
         {profileOpen && <div className="modal-backdrop" role="presentation"><div className="profile-modal" role="dialog" aria-modal="true" aria-label="Profile"><div className="modal-heading"><h4>Profile</h4><button className="btn btn-outline-secondary icon-button" type="button" onClick={() => setProfileOpen(false)} title="Close"><X size={16} /></button></div><AuthorProfile user={auth} onSaved={(profile) => { updateAuthProfile(profile); setProfileOpen(false); }} /></div></div>}
         {connectionSettingsOpen && <div className="modal-backdrop" role="presentation"><form className="profile-modal connection-modal" role="dialog" aria-modal="true" aria-label="LegalServer connection settings" onSubmit={handleLegalServerConnect}><div className="modal-heading"><div><h4>LegalServer Connection</h4><p className="modal-subtitle">{legalserverLoading ? "Checking your saved account." : legalserverConnected ? `Connected as ${legalserver.identifier}` : "Connect a LegalServer account to load assigned matters."}</p></div><button className="btn btn-outline-secondary icon-button" type="button" onClick={() => setConnectionSettingsOpen(false)} title="Close"><X size={16} /></button></div>{!legalserverConfigured && <div className="inline-error">LegalServer API credentials are not configured for this environment.</div>}{legalserver?.syncError && legalserver.syncError !== "not_connected" && <div className="inline-error">LegalServer sync: {legalserver.syncError}</div>}{legalserverConfigured && <><label className="field"><span>{legalserverConnected ? "Connected as" : "LegalServer username or email"}</span><input aria-label="LegalServer identifier" disabled={legalserverLoading || accountBusy} placeholder={legalserver?.suggestedIdentifier || "LegalServer username or email"} value={legalserverIdentifier} onChange={(event) => setLegalserverIdentifier(event.target.value)} /></label><div className="button-row"><button className="primary" type="submit" disabled={legalserverLoading || accountBusy || !legalserverIdentifier.trim()}>{accountBusy ? <Loader2 className="spin" size={16} /> : <Link2 size={16} />}{legalserverConnected ? "Update connection" : "Connect LegalServer"}</button>{legalserverConnected && <button className="secondary" type="button" disabled={accountBusy} onClick={handleLegalServerDisconnect}>{accountBusy ? <Loader2 className="spin" size={16} /> : <Unplug size={16} />} Disconnect</button>}</div></>}</form></div>}
         {error && <div className="error-banner alert alert-danger">{error}</div>}
-        {mode === "case" && <CaseSelector cases={cases} selectedMatterId={selectedMatterId} onSelect={setSelectedMatterId} onPreview={setCasePreviewMatterId} legalserver={legalserver} legalserverLoading={legalserverLoading} search={caseSearch} onSearchChange={setCaseSearch} onSearch={handleCaseSearch} onSearchReset={handleCaseSearchReset} caseBusy={caseBusy} manualCaseBusy={manualCaseBusy} onCreateManualCase={handleCreateManualCase} />}
+        {mode === "case" && <CaseSelector cases={cases} selectedMatterId={selectedMatterId} onSelect={setSelectedMatterId} onPreview={setCasePreviewMatterId} legalserver={legalserver} legalserverLoading={legalserverLoading} search={caseSearch} onSearchChange={setCaseSearch} onSearch={handleCaseSearch} onSearchReset={handleCaseSearchReset} filters={caseFilters} onFiltersChange={applyCaseFilters} listMeta={caseListMeta} onShowMore={() => loadCases({ append: true })} caseBusy={caseBusy} manualCaseBusy={manualCaseBusy} onCreateManualCase={handleCreateManualCase} />}
         {mode === "triage" && <TriagePanel matter={matter} rubrics={triageRubrics} selectedRubricId={selectedTriageRubricId} onSelectRubric={setSelectedTriageRubricId} assessment={triageAssessment} history={triageHistory} busy={busy} manualCaseBusy={manualCaseBusy} onRunTriage={runTriage} onCreateManualCase={handleCreateManualCase} />}
         {mode === "case_chat" && <CaseChat matter={matter} onAction={handleCaseAction} />}
         {mode === "advice_letter" && <AdviceLetterPanel matter={matter} authorProfile={draftAuthorProfile} />}

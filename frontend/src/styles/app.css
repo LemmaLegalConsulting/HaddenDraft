@@ -636,8 +636,53 @@ button:disabled {
 .case-search {
   display: grid;
   gap: 8px;
-  grid-template-columns: minmax(0, 1fr) auto auto;
+  grid-template-columns: minmax(0, 1fr) auto auto auto;
   margin-bottom: 8px;
+}
+
+.case-filter-toggle {
+  align-items: center;
+  display: inline-flex;
+  gap: 6px;
+  white-space: nowrap;
+}
+
+.case-filter-toggle.has-filters {
+  border-color: #2f6b4f;
+  color: #2f6b4f;
+}
+
+.case-filter-count {
+  background: #2f6b4f;
+  border-radius: 9px;
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 600;
+  min-width: 18px;
+  padding: 1px 6px;
+  text-align: center;
+}
+
+.case-filter-panel {
+  background: #f7fafb;
+  border: 1px solid #dbe4e8;
+  border-radius: 8px;
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  margin-bottom: 8px;
+  padding: 12px;
+}
+
+.case-list-summary {
+  font-size: 12px;
+  margin: 0 0 6px;
+}
+
+.case-list-more {
+  display: flex;
+  justify-content: center;
+  padding-top: 10px;
 }
 
 .case-source-row {

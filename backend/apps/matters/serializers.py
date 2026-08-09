@@ -73,6 +73,55 @@ def _parse_payload_date(value):
     return None
 
 
+# A disposition that means the case is no longer being worked. LegalServer
+# spells the open ones "Open" and "Pending"; anything here is finished, and a
+# close date settles it regardless of what the disposition says.
+CLOSED_DISPOSITIONS = {"closed", "rejected", "withdrawn", "transferred", "denied"}
+
+
+def matter_opened_at(matter):
+    raw = matter.raw_payload or {}
+    for key in ("date_opened", "intake_date", "created_at"):
+        parsed = _parse_payload_date(_display_value(raw.get(key)) or _raw_date_value(raw.get(key)))
+        if parsed:
+            return parsed.isoformat()
+    return matter.created_at.isoformat() if matter.created_at else ""
+
+
+def matter_closed_at(matter):
+    raw = matter.raw_payload or {}
+    for key in ("date_closed", "close_date"):
+        parsed = _parse_payload_date(_raw_date_value(raw.get(key)) or _display_value(raw.get(key)))
+        if parsed:
+            return parsed.isoformat()
+    return ""
+
+
+def _raw_date_value(value):
+    """LegalServer wraps dates as {"raw_value": ..., "text_value": "N/A"}."""
+    if isinstance(value, dict):
+        return value.get("raw_value") or ""
+    return ""
+
+
+def matter_is_open(matter):
+    """Whether a case is still being worked.
+
+    A case with no disposition at all is open: quick cases carry none, and a
+    LegalServer matter that has not been dispositioned has not been closed.
+    """
+    if matter_closed_at(matter):
+        return False
+    raw = matter.raw_payload or {}
+    disposition = _first_display(raw, "case_disposition", "case_status").strip().casefold()
+    return disposition not in CLOSED_DISPOSITIONS
+
+
+def matter_case_status(matter):
+    raw = matter.raw_payload or {}
+    return _first_display(raw, "case_disposition", "case_status") or ("Open" if matter_is_open(matter) else "Closed")
+
+
 def matter_last_activity_at(matter):
     raw = matter.raw_payload or {}
     for key in (
@@ -86,7 +135,14 @@ def matter_last_activity_at(matter):
         parsed = _parse_payload_date(_display_value(raw.get(key)))
         if parsed:
             return parsed.isoformat()
-    return ""
+    # A quick case carries no LegalServer activity dates, and sorting it to the
+    # bottom would bury the case an advocate created a minute ago; the row's own
+    # timestamp is the last thing that happened to it. A LegalServer matter that
+    # reports no activity date gets none: our sync time says when we last
+    # fetched the case, not when anyone last worked it.
+    if matter.source_system.casefold() == "legalserver":
+        return ""
+    return matter.updated_at.isoformat() if matter.updated_at else ""
 
 
 def fact_to_dict(fact):
@@ -132,7 +188,26 @@ def triage_assessment_to_dict(assessment):
     }
 
 
-def matter_to_dict(matter, include_facts=False, *, legalserver_client=None):
+def matter_assigned_to_viewer(matter, *, viewer=None, viewer_identifier=""):
+    """Whether the signed-in advocate is on this case.
+
+    A quick case has no LegalServer assignments, so the person who created it is
+    the one working it; filtering to "assigned to me" must not hide their own
+    notes-and-files cases.
+    """
+    raw = matter.raw_payload or {}
+    viewer_id = getattr(viewer, "id", None)
+    if viewer_id is not None and raw.get("created_by_user_id") == viewer_id:
+        return True
+    if not viewer_identifier:
+        return False
+    # Imported here because services imports this module for serialization.
+    from apps.matters.services import payload_matches_legalserver_identifier
+
+    return payload_matches_legalserver_identifier(raw, viewer_identifier)
+
+
+def matter_to_dict(matter, include_facts=False, *, legalserver_client=None, viewer=None, viewer_identifier=""):
     raw = matter.raw_payload or {}
     title = _first_display(raw, "case_title") or matter.client_name
     data = {
@@ -148,8 +223,18 @@ def matter_to_dict(matter, include_facts=False, *, legalserver_client=None):
         "summary": readable_summary(matter),
         "details": matter_details(matter),
         "lastActivityAt": matter_last_activity_at(matter),
+        "openedAt": matter_opened_at(matter),
+        "closedAt": matter_closed_at(matter),
+        "isOpen": matter_is_open(matter),
+        "caseStatus": matter_case_status(matter),
+        "legalProblemCode": _first_display(raw, "legal_problem_code") or matter.matter_type,
+        "legalProblemCategory": _first_display(raw, "legal_problem_category"),
         "sourceSystem": matter.source_system,
     }
+    if viewer is not None or viewer_identifier:
+        data["assignedToViewer"] = matter_assigned_to_viewer(
+            matter, viewer=viewer, viewer_identifier=viewer_identifier
+        )
     if matter.source_system.casefold() == "legalserver":
         if legalserver_client is None:
             from apps.sources.connectors.legalserver import LegalServerClient

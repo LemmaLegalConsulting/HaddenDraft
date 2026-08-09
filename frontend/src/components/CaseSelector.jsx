@@ -1,7 +1,24 @@
 import React from "react";
-import { CheckCircle2, FilePlus2, FolderOpen, Loader2, RotateCcw, Search, Upload } from "lucide-react";
+import { CheckCircle2, ChevronDown, FilePlus2, FolderOpen, ListFilter, Loader2, RotateCcw, Search, Upload } from "lucide-react";
 
 import { caseNumberFor, caseTitleFor, detailValue, isLegalServerCase, lastActivityLabel } from "./casePresentation.js";
+import { DEFAULT_CASE_FILTERS, activeFilterCount, describeFilters } from "./caseFilters.js";
+
+const STATUS_OPTIONS = [
+  ["open", "Open cases"],
+  ["closed", "Closed cases"],
+  ["all", "Open and closed"],
+];
+
+const ASSIGNED_OPTIONS = [
+  ["all", "All cases I can see"],
+  ["mine", "Only cases I handle"],
+];
+
+const SORT_OPTIONS = [
+  ["activity", "Last activity"],
+  ["opened", "Date opened"],
+];
 
 export function CaseSelector({
   cases,
@@ -14,6 +31,10 @@ export function CaseSelector({
   onSearchChange,
   onSearch,
   onSearchReset,
+  filters,
+  onFiltersChange,
+  listMeta,
+  onShowMore,
   caseBusy,
   manualCaseBusy,
   onCreateManualCase,
@@ -28,10 +49,22 @@ export function CaseSelector({
     notes: "",
   });
   const [manualFiles, setManualFiles] = React.useState([]);
+  const [filtersOpen, setFiltersOpen] = React.useState(false);
   const connected = Boolean(legalserver?.connected);
   const legalserverCases = cases.filter(isLegalServerCase);
   const localCases = cases.filter((item) => !isLegalServerCase(item));
   const visibleCases = caseSource === "local" ? localCases : legalserverCases;
+  const activeFilters = { ...DEFAULT_CASE_FILTERS, ...(filters || {}) };
+  const filterCount = activeFilterCount(activeFilters);
+  const problemCodes = listMeta?.problemCodes || [];
+  const total = listMeta?.total ?? visibleCases.length;
+  // Quick cases are held entirely in this browser's list, so paging through the
+  // server's results only applies to the LegalServer tab.
+  const showMoreAvailable = caseSource === "legalserver" && Boolean(listMeta?.hasMore);
+
+  function updateFilter(key, value) {
+    onFiltersChange?.({ ...activeFilters, [key]: value });
+  }
 
   React.useEffect(() => {
     if (!legalserverLoading && !connected && caseSource === "legalserver" && !legalserverCases.length && localCases.length) {
@@ -152,20 +185,69 @@ export function CaseSelector({
         )}
       </div>
       {connected && caseSource === "legalserver" && !legalserverLoading && (
-        <form className="case-search" onSubmit={onSearch}>
-          <input
-            aria-label="Search LegalServer matters"
-            placeholder="Party, matter, or case ID"
-            value={search}
-            onChange={(event) => onSearchChange(event.target.value)}
-          />
-          <button className="secondary" type="submit" disabled={caseBusy}>
-            {caseBusy ? <Loader2 className="spin" size={16} /> : <Search size={16} />} Search
-          </button>
-          <button className="secondary icon-button" type="button" disabled={caseBusy || !search} onClick={onSearchReset} title="Show assigned matters">
-            <RotateCcw size={16} />
-          </button>
-        </form>
+        <>
+          <form className="case-search" onSubmit={onSearch}>
+            <input
+              aria-label="Search LegalServer matters"
+              placeholder="Party, matter, or case ID"
+              value={search}
+              onChange={(event) => onSearchChange(event.target.value)}
+            />
+            <button className="secondary" type="submit" disabled={caseBusy}>
+              {caseBusy ? <Loader2 className="spin" size={16} /> : <Search size={16} />} Search
+            </button>
+            <button
+              className={filterCount ? "secondary case-filter-toggle has-filters" : "secondary case-filter-toggle"}
+              type="button"
+              aria-expanded={filtersOpen}
+              aria-controls="case-filter-panel"
+              onClick={() => setFiltersOpen((current) => !current)}
+            >
+              <ListFilter size={16} /> Filter
+              {filterCount > 0 && <span className="case-filter-count">{filterCount}</span>}
+              <ChevronDown className={filtersOpen ? "chevron open" : "chevron"} size={15} />
+            </button>
+            <button className="secondary icon-button" type="button" disabled={caseBusy || (!search && !filterCount)} onClick={onSearchReset} title="Reset search and filters">
+              <RotateCcw size={16} />
+            </button>
+          </form>
+          {filtersOpen && (
+            <div className="case-filter-panel" id="case-filter-panel">
+              <label className="field compact-field">
+                <span>Status</span>
+                <select value={activeFilters.status} onChange={(event) => updateFilter("status", event.target.value)}>
+                  {STATUS_OPTIONS.map(([value, label]) => <option key={value} value={value}>{label}</option>)}
+                </select>
+              </label>
+              <label className="field compact-field">
+                <span>Case handler</span>
+                <select value={activeFilters.assigned} onChange={(event) => updateFilter("assigned", event.target.value)}>
+                  {ASSIGNED_OPTIONS.map(([value, label]) => <option key={value} value={value}>{label}</option>)}
+                </select>
+              </label>
+              <label className="field compact-field">
+                <span>Legal problem</span>
+                <select value={activeFilters.problem} onChange={(event) => updateFilter("problem", event.target.value)}>
+                  <option value="">Every legal problem</option>
+                  {problemCodes.map((code) => <option key={code} value={code}>{code}</option>)}
+                </select>
+              </label>
+              <label className="field compact-field">
+                <span>Sort by</span>
+                <select value={activeFilters.sort} onChange={(event) => updateFilter("sort", event.target.value)}>
+                  {SORT_OPTIONS.map(([value, label]) => <option key={value} value={value}>{label}</option>)}
+                </select>
+              </label>
+            </div>
+          )}
+          {visibleCases.length > 0 && (
+            <p className="case-list-summary muted">
+              {/* The total spans quick cases too, so it is only quoted when
+                  there is genuinely another page to fetch. */}
+              {describeFilters(activeFilters, { total: showMoreAvailable ? total : 0, shown: visibleCases.length })}
+            </p>
+          )}
+        </>
       )}
       <div className="case-list">
         {visibleCases.length > 0 && (
@@ -213,20 +295,38 @@ export function CaseSelector({
         {!visibleCases.length && (
           <div className="empty-state compact-empty">
             <strong className="empty-state-title">
-              {caseSource === "legalserver" ? (legalserverLoading ? "Checking LegalServer" : connected ? "No matters found" : "No LegalServer cases") : "No quick cases yet"}
+              {caseSource !== "legalserver"
+                ? "No quick cases yet"
+                : legalserverLoading
+                ? "Checking LegalServer"
+                : !connected
+                ? "No LegalServer cases"
+                : filterCount > 0
+                ? "No cases match these filters"
+                : "No matters found"}
             </strong>
             <p>
-              {caseSource === "legalserver"
-                ? legalserverLoading
-                  ? "Checking your LegalServer connection and assigned matters."
-                  : connected
-                  ? "LegalServer did not return matters for this identifier."
-                  : "Connect LegalServer to load assigned matters."
-                : "Create a quick case with notes or files."}
+              {caseSource !== "legalserver"
+                ? "Create a quick case with notes or files."
+                : legalserverLoading
+                ? "Checking your LegalServer connection and assigned matters."
+                : !connected
+                ? "Connect LegalServer to load assigned matters."
+                : filterCount > 0
+                ? "Widen the filter to see closed cases, a colleague's caseload, or every legal problem."
+                : "LegalServer did not return matters for this identifier."}
             </p>
           </div>
         )}
       </div>
+      {showMoreAvailable && (
+        <div className="case-list-more">
+          <button className="secondary" type="button" disabled={caseBusy} onClick={onShowMore}>
+            {caseBusy ? <Loader2 className="spin" size={16} /> : <ChevronDown size={16} />}
+            {" "}Show {Math.min(20, Math.max(total - visibleCases.length, 0)) || 20} more
+          </button>
+        </div>
+      )}
     </div>
   );
 }

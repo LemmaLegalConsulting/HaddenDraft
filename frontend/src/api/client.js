@@ -54,7 +54,18 @@ export const api = {
   login: (payload) => request("/auth/login/", { method: "POST", body: JSON.stringify(payload) }),
   logout: () => request("/auth/logout/", { method: "POST" }),
   startOffice365Login: () => request("/auth/office365/start/"),
-  cases: (query = "") => request(`/cases/${query ? `?${new URLSearchParams({ q: query })}` : ""}`),
+  cases: ({ query = "", status = "", assigned = "", problem = "", sort = "", limit = 0, offset = 0 } = {}) => {
+    const params = new URLSearchParams();
+    if (query) params.set("q", query);
+    if (status) params.set("status", status);
+    if (assigned) params.set("assigned", assigned);
+    if (problem) params.set("problem", problem);
+    if (sort) params.set("sort", sort);
+    if (limit) params.set("limit", String(limit));
+    if (offset) params.set("offset", String(offset));
+    const search = params.toString();
+    return request(`/cases/${search ? `?${search}` : ""}`);
+  },
   createManualCase: (formData) => request("/cases/", { method: "POST", body: formData }),
   updateManualCase: (matterId, payload) =>
     request(`/cases/${matterId}/`, { method: "PATCH", body: JSON.stringify(payload) }),
