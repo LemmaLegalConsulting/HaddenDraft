@@ -119,3 +119,29 @@ materialization step rather than pointing into the published area.
 ## Research
 
 Imported decisions are exposed through the existing `local_cases` source connector. The research UI has a cases-only mode for exploring imported cases without secondary materials, and manual source selection can search cases alongside treatises and statutes for cross-reference work.
+
+## What is actually in the corpus
+
+The artifact bundle holds two different kinds of document, and counting them
+together gives a badly wrong picture of the corpus.
+
+| | bundles | median PDF | median OCR text | in the database |
+|---|---|---|---|---|
+| Scanned decisions | 532 | ~900 KB, DigiPath | 4,908 bytes | yes |
+| Citation stubs | 683 | 6–8 KB, WeasyPrint | 95 bytes | no |
+
+The stubs are single-page PDFs *generated* from HTML, not scans. Each contains a
+case caption and a citation line and nothing else — the opinion was never
+obtained. OCR read them correctly; there was one line to read. Their metadata
+sidecars say so plainly ("Holdings cannot be determined from the provided OCR
+excerpt; full opinion text is required"), so nothing was invented from them.
+
+The scanned decisions are image-only (`pdftotext` returns nothing but form
+feeds) and were OCR'd completely: median 1,437 characters per page, and not one
+of the 532 falls below 413 characters per page. There is no truncation anywhere
+in the corpus, which is what a rate-limited or partially failed OCR run would
+have left behind.
+
+So a document with no text is not an OCR failure to retry. It is a document that
+was never fetched, and re-running OCR over it — with any engine — returns the
+same caption and citation. Filling that gap means acquiring the opinions.

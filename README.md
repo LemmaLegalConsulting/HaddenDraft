@@ -519,9 +519,13 @@ across a space (`MAR 1 6 2005`), missing punctuation, two-digit years. Roughly
 three quarters of dated decisions are corroborated this way.
 
 `corroborated` means the document contains the date, not that the date has been
-confirmed to mean what its field says. More than half of these scans have no
-usable text layer at all, so an uncorroborated date is unverifiable here rather
-than wrong — which is why it is shown with that caveat instead of hidden.
+confirmed to mean what its field says. Every scanned decision in the database
+carries complete OCR — median 1,437 characters per page, none truncated — so an
+uncorroborated date is one the document does not print in a readable form, not
+evidence of a missing text layer. Usually the document shows other dates from
+the same year or month, which is what OCR damage to a file stamp looks like, and
+what a date recorded from a docket rather than from the page looks like. It is
+shown with that caveat instead of hidden.
 Review them at **Case law › Case law date provenances** in Django admin, or
 inline on the decision.
 

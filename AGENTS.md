@@ -135,8 +135,8 @@ other confidential material.
   `CaseLawDateProvenance` row per field carrying the source sidecar, its checksum,
   and the passage in the document's own OCR text that shows the date. Corroborated
   means the text contains it, never that it has been confirmed to mean what the
-  field says; more than half this corpus has no usable text layer, so say
-  "unverifiable here" rather than implying a date is wrong.
+  field says. An uncorroborated date is unverifiable, not wrong: the scans carry
+  complete OCR, so the date is simply not printed on the page in readable form.
 - Preserve provenance for legal authorities and remote/private content,
   including source path, checksum, modified time, fetch/import time, and remote
   IDs where available.

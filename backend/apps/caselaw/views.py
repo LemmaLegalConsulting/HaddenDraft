@@ -161,9 +161,9 @@ def date_provenance(decision):
 
     ``corroborated`` means the document's own OCR text contains this date, with
     the passage that shows it — not that the date has been confirmed to mean
-    what the field says it means. Much of this corpus was scanned without a
-    usable text layer, so an uncorroborated date is unverifiable here rather
-    than wrong.
+    what the field says it means. An uncorroborated date is unverifiable rather
+    than wrong: the scans carry complete OCR, so the date is simply not printed
+    on the page in a form the scan preserved.
     """
     return [
         {
