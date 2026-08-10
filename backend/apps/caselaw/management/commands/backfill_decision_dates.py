@@ -26,26 +26,40 @@ METADATA_ARTIFACTS = ("verified_metadata_json", "metadata_json")
 def metadata_for(decision, storage):
     """The decision's metadata sidecar, preferring the verified one.
 
-    A verified sidecar that holds only a reviewer's note rather than metadata
-    falls back to the unverified one, exactly as ingestion does.
+    Returns ``(payload, artifact, reason)``. The reason distinguishes failures
+    that look identical in a total but are not the same problem at all: no
+    artifact row, a key the store cannot open, content that is not JSON, and a
+    sidecar that is perfectly readable but carries no dates. Reporting those as
+    one number is what made a production run of this command unreadable.
+
+    Every artifact row of each type is tried, not just the first: a corpus that
+    has been re-ingested can carry more than one row per type, and giving up on
+    the first unreadable one hides a readable sibling.
     """
+    reason = "no_artifact"
     for artifact_type in METADATA_ARTIFACTS:
-        artifact = decision.artifacts.filter(artifact_type=artifact_type).first()
-        if not artifact:
-            continue
-        try:
-            raw = storage.open(artifact.storage_key).read()
-        except (OSError, ValueError):
-            continue
-        try:
-            payload = json.loads(raw.decode("utf-8", "replace"))
-        except (json.JSONDecodeError, UnicodeDecodeError):
-            continue
-        if isinstance(payload, dict) and isinstance(payload.get("metadata"), dict):
-            payload = {**payload["metadata"], **{k: v for k, v in payload.items() if k != "metadata"}}
-        if isinstance(payload, dict) and any(payload.get(field) for field in PROVENANCE_FIELDS):
-            return payload, artifact
-    return None, None
+        for artifact in decision.artifacts.filter(artifact_type=artifact_type):
+            try:
+                raw = storage.open(artifact.storage_key).read()
+            except (OSError, ValueError):
+                reason = "unreadable_key"
+                continue
+            try:
+                payload = json.loads(raw.decode("utf-8", "replace"))
+            except (json.JSONDecodeError, UnicodeDecodeError):
+                # The verified sidecar is a reviewer's note rather than metadata
+                # in most of this corpus, so this is expected, not a failure.
+                reason = "not_json" if reason == "no_artifact" else reason
+                continue
+            if isinstance(payload, dict) and isinstance(payload.get("metadata"), dict):
+                payload = {**payload["metadata"], **{k: v for k, v in payload.items() if k != "metadata"}}
+            if not isinstance(payload, dict):
+                reason = "not_an_object"
+                continue
+            if any(payload.get(field) for field in PROVENANCE_FIELDS):
+                return payload, artifact, "ok"
+            reason = "sidecar_has_no_dates"
+    return None, None, reason
 
 
 class Command(BaseCommand):
@@ -66,15 +80,20 @@ class Command(BaseCommand):
         if options["limit"]:
             decisions = decisions[: options["limit"]]
 
-        counts = {"scanned": 0, "no_sidecar": 0, "no_dates": 0, "dated": 0, "skipped_existing": 0}
+        counts = {"scanned": 0, "dated": 0, "skipped_existing": 0}
+        reasons = {}
+        examples = []
         corroborated = 0
         provenance_rows = 0
 
         for decision in decisions:
             counts["scanned"] += 1
-            metadata, artifact = metadata_for(decision, storage)
+            metadata, artifact, reason = metadata_for(decision, storage)
             if not metadata:
-                counts["no_sidecar"] += 1
+                reasons[reason] = reasons.get(reason, 0) + 1
+                if len(examples) < 10:
+                    keys = list(decision.artifacts.values_list("artifact_type", "storage_key"))
+                    examples.append((decision.id, reason, keys[:2]))
                 continue
 
             updates = {}
@@ -87,7 +106,13 @@ class Command(BaseCommand):
                     continue
                 updates[field] = value
             if not updates:
-                counts["no_dates"] += 1
+                # The sidecar had dates but none survived parsing, which is a
+                # different fault from having none to begin with.
+                label = "unparsable_dates" if any(metadata.get(f) for f in PROVENANCE_FIELDS) else "sidecar_has_no_dates"
+                reasons[label] = reasons.get(label, 0) + 1
+                if len(examples) < 10:
+                    raw = {f: metadata.get(f) for f in PROVENANCE_FIELDS if metadata.get(f)}
+                    examples.append((decision.id, label, raw))
                 continue
 
             page = decision.pages.first()
@@ -113,9 +138,16 @@ class Command(BaseCommand):
 
         self.stdout.write(f"Decisions scanned:        {counts['scanned']}")
         self.stdout.write(f"  dated from sidecar:     {counts['dated']}")
-        self.stdout.write(f"  no readable sidecar:    {counts['no_sidecar']}")
-        self.stdout.write(f"  sidecar carried none:   {counts['no_dates']}")
         self.stdout.write(f"  left alone (had dates): {counts['skipped_existing']}")
+        for reason, count in sorted(reasons.items(), key=lambda item: -item[1]):
+            self.stdout.write(f"  {reason:24s}{count}")
+        if examples and counts["dated"] == 0:
+            # A run that dated nothing has to say why, per decision. Aggregate
+            # counters alone cannot be diagnosed from a deployment log.
+            self.stdout.write("")
+            self.stdout.write("Nothing was dated. First few, with what was found:")
+            for decision_id, reason, detail in examples:
+                self.stdout.write(f"  decision {decision_id}: {reason} {detail}")
         if not options["dry_run"]:
             self.stdout.write(f"Provenance rows written:  {provenance_rows}")
             share = f" ({corroborated / provenance_rows:.0%})" if provenance_rows else ""
