@@ -123,6 +123,6 @@ class Command(BaseCommand):
                 f"  corroborated in OCR text: {corroborated}{share}"
             )
             self.stdout.write(
-                "A date that is not corroborated is not wrong: this corpus holds no readable "
-                "text for many scans. It means the document cannot confirm it."
+                "A date that is not corroborated is not wrong: it means the document does not "
+                "print it in a form the scan preserved."
             )

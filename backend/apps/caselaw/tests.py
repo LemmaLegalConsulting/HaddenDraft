@@ -624,3 +624,139 @@ class DecisionDateImportTests(TestCase):
 
         self.assertEqual(rows["decision_date"].context_label, "decided")
         self.assertIn("decided", rows["decision_date"].snippet)
+
+
+class CapCitationTests(TestCase):
+    """Resolving a citation-only record against the Caselaw Access Project.
+
+    A citation is not nothing -- it confirms a cited case exists -- but the
+    opinion is what can be read and quoted. These cover the parsing and matching
+    rules; the network is never touched.
+    """
+
+    def test_reporters_this_corpus_cites_map_to_the_right_bulk_directory(self):
+        from apps.caselaw.cap import parse_citation
+
+        self.assertEqual(parse_citation("104 Ohio St. 372"), {
+            "citation": "104 Ohio St. 372", "reporter": "ohio-st", "volume": "104", "page": "372",
+        })
+        self.assertEqual(parse_citation("126 Ohio Misc.2d 84")["reporter"], "ohio-misc-2d")
+        self.assertEqual(parse_citation("109 Ohio App.3d 401")["reporter"], "ohio-app-3d")
+        self.assertEqual(parse_citation("87 B.R. 14")["reporter"], "br")
+        self.assertEqual(parse_citation("701 F.2d 1093")["reporter"], "f2d")
+        # Spacing varies in the corpus and must not change the reporter.
+        self.assertEqual(parse_citation("62 Ohio St. 3d 24")["reporter"], "ohio-st-3d")
+
+    def test_a_citation_that_cannot_be_resolved_says_so_rather_than_guessing(self):
+        from apps.caselaw.cap import parse_citation
+
+        # A reporter CAP does not publish must not be mapped to a near neighbour.
+        self.assertIsNone(parse_citation("2019 WL 12345"))
+        self.assertIsNone(parse_citation("No. 87-CVG-06464"))
+        self.assertIsNone(parse_citation("123 Fictional Rep. 4"))
+        self.assertIsNone(parse_citation(""))
+        self.assertIsNone(parse_citation(None))
+
+    def test_the_citation_decides_the_case_not_the_page_number(self):
+        # Page matching alone picks the wrong case where a volume's numbering
+        # restarts, so the citation is matched first.
+        from apps.caselaw.cap import find_case
+
+        cases = [
+            {"first_page": 372, "citations": [{"cite": "104 Ohio St. 999"}], "file_name": "wrong"},
+            {"first_page": 999, "citations": [{"cite": "104 Ohio St. 372"}], "file_name": "right"},
+        ]
+        parsed = {"citation": "104 Ohio St. 372", "page": "372", "reporter": "ohio-st", "volume": "104"}
+
+        self.assertEqual(find_case(cases, parsed)["file_name"], "right")
+
+    def test_the_first_page_still_matches_when_the_cite_is_written_differently(self):
+        from apps.caselaw.cap import find_case
+
+        cases = [{"first_page": 372, "citations": [{"cite": "104 OhioSt 372"}], "file_name": "spaced"}]
+        parsed = {"citation": "104 Ohio St. 372", "page": "372", "reporter": "ohio-st", "volume": "104"}
+
+        self.assertEqual(find_case(cases, parsed)["file_name"], "spaced")
+
+    def test_the_opinion_text_keeps_the_head_matter_and_every_opinion(self):
+        from apps.caselaw.cap import opinion_text
+
+        text = opinion_text({"casebody": {
+            "head_matter": "Ketcham v. Miller. Syllabus by the Court.",
+            "opinions": [
+                {"author": "Robinson, J.", "text": "The amended petition alleges title."},
+                {"author": "Wanamaker, J.", "text": "I dissent."},
+            ],
+        }})
+
+        self.assertIn("Syllabus by the Court", text)
+        self.assertIn("Robinson, J.", text)
+        self.assertIn("I dissent.", text)
+
+    def test_a_fetched_case_carries_its_source_and_an_unchecked_treatment_note(self):
+        from apps.caselaw.cap import case_metadata
+
+        metadata = case_metadata(
+            {
+                "id": 12345,
+                "name": "Ketcham v. Miller et al.",
+                "name_abbreviation": "Ketcham v. Miller",
+                "decision_date": "1922-04-11",
+                "citations": [{"cite": "104 Ohio St. 372"}, {"cite": "135 N.E. 536"}],
+                "court": {"name": "Supreme Court of Ohio"},
+                "jurisdiction": {"name_long": "Ohio"},
+                "casebody": {"judges": ["Robinson, J."]},
+            },
+            {"citation": "104 Ohio St. 372", "reporter": "ohio-st", "volume": "104", "page": "372"},
+            source_url="https://static.case.law/ohio-st/104/cases/0372-01.json",
+        )
+
+        self.assertEqual(metadata["decision_date"], "1922-04-11")
+        self.assertEqual(metadata["citation_string"], "104 Ohio St. 372")
+        self.assertEqual(metadata["parallel_citations"], ["135 N.E. 536"])
+        self.assertEqual(metadata["external_source_id"], "cap:12345")
+        self.assertEqual(metadata["metadata_source"], "caselaw_access_project")
+        self.assertIn("static.case.law", metadata["source_url"])
+        # Nothing fetched here has had its currentness checked.
+        self.assertEqual(metadata["treatment_status"], "unchecked")
+        self.assertIn("not been checked", metadata["treatment_notes"])
+
+    def test_resolution_reports_each_way_a_lookup_can_come_up_empty(self):
+        from apps.caselaw.cap import CapClient
+
+        volume = json.dumps([{"first_page": 372, "citations": [{"cite": "104 Ohio St. 372"}], "file_name": "0372-01"}]).encode()
+        case = json.dumps({"id": 1, "name": "Ketcham v. Miller", "casebody": {"opinions": [{"text": "Opinion."}]}}).encode()
+
+        def opener(url):
+            if url.endswith("CasesMetadata.json"):
+                return volume if "/104/" in url else None
+            if url.endswith("cases/0372-01.json"):
+                return case
+            return None
+
+        client = CapClient(opener=opener)
+        self.assertEqual(client.resolve("104 Ohio St. 372")["status"], "found")
+        self.assertEqual(client.resolve("999 Ohio St. 372")["status"], "volume_not_published")
+        self.assertEqual(client.resolve("104 Ohio St. 5")["status"], "case_not_in_volume")
+        self.assertEqual(client.resolve("2019 WL 1")["status"], "unparsed_citation")
+
+    def test_a_volume_index_is_fetched_once_however_many_citations_need_it(self):
+        from apps.caselaw.cap import CapClient
+
+        calls = []
+        volume = json.dumps([
+            {"first_page": 372, "citations": [{"cite": "104 Ohio St. 372"}], "file_name": "0372-01"},
+            {"first_page": 400, "citations": [{"cite": "104 Ohio St. 400"}], "file_name": "0400-01"},
+        ]).encode()
+
+        def opener(url):
+            calls.append(url)
+            if url.endswith("CasesMetadata.json"):
+                return volume
+            return json.dumps({"id": 1, "casebody": {"opinions": [{"text": "Opinion."}]}}).encode()
+
+        client = CapClient(opener=opener)
+        client.resolve("104 Ohio St. 372")
+        client.resolve("104 Ohio St. 400")
+
+        self.assertEqual(sum(1 for url in calls if url.endswith("CasesMetadata.json")), 1)

@@ -119,3 +119,74 @@ materialization step rather than pointing into the published area.
 ## Research
 
 Imported decisions are exposed through the existing `local_cases` source connector. The research UI has a cases-only mode for exploring imported cases without secondary materials, and manual source selection can search cases alongside treatises and statutes for cross-reference work.
+
+## What is actually in the corpus
+
+The artifact bundle holds two different kinds of document, and counting them
+together gives a badly wrong picture of the corpus.
+
+| | bundles | median PDF | median OCR text | in the database |
+|---|---|---|---|---|
+| Scanned decisions | 532 | ~900 KB, DigiPath | 4,908 bytes | yes |
+| Citation stubs | 683 | 6–8 KB, WeasyPrint | 95 bytes | no |
+
+The stubs are single-page PDFs *generated* from HTML, not scans. Each contains a
+case caption and a citation line and nothing else — the opinion was never
+obtained. OCR read them correctly; there was one line to read. Their metadata
+sidecars say so plainly ("Holdings cannot be determined from the provided OCR
+excerpt; full opinion text is required"), so nothing was invented from them.
+
+The scanned decisions are image-only (`pdftotext` returns nothing but form
+feeds) and were OCR'd completely: median 1,437 characters per page, and not one
+of the 532 falls below 413 characters per page. There is no truncation anywhere
+in the corpus, which is what a rate-limited or partially failed OCR run would
+have left behind.
+
+So a document with no text is not an OCR failure to retry. It is a document that
+was never fetched, and re-running OCR over it — with any engine — returns the
+same caption and citation. Filling that gap means acquiring the opinions.
+
+## Filling citation-only records from the Caselaw Access Project
+
+CAP publishes its scanned reporters as static files — no API key, no request
+signing — laid out by reporter and volume:
+
+```
+/<reporter>/<volume>/CasesMetadata.json    every case in the volume
+/<reporter>/<volume>/cases/<file>.json     one case, with opinion text
+/<reporter>/<volume>/case-pdfs/<file>.pdf  the reporter pages themselves
+```
+
+A reporter citation is a volume and a first page, which is enough to find a case
+without searching. So a citation stub can be turned back into a readable
+opinion:
+
+```bash
+python manage.py fetch_cap_opinions --dry-run    # resolve, write nothing
+python manage.py fetch_cap_opinions              # stage bundles into raw/caselaw/
+python manage.py ingest_caselaw --from-raw-storage
+```
+
+Staging and ingestion stay separate so an operator can look at what arrived
+before it reaches the database. Bundles are written in the naming ingestion
+already reads (`<stem>.pdf`, `<stem>.pdf.txt`, `<stem>.pdf.json`), the stem
+identifying the CAP case (`cap-ohio-st-104-0372-01`), so a re-run skips what is
+already staged.
+
+Each fetched sidecar records where it came from — `external_source_id`
+(`cap:<id>`), the source URL, and CAP's own provenance block — and carries
+`treatment_status: unchecked` with a note saying currentness has not been
+checked. Where the record answers an existing stub, `replaces_source_sha256`
+names it, so the stub can be retired deliberately instead of being left as a
+silent duplicate.
+
+Two limits worth knowing before running it:
+
+- **CAP's coverage ends where its scanning did**, around 2018-2020. A citation
+  newer than its reporter's run is not a failure to retry; it stays a
+  citation-only record. That is still worth having: it confirms the cited case
+  exists, which is what most of a citation check needs.
+- **Fetched cases import with `approved_for_search` off**, because no one has
+  reviewed them — they are what CAP published, not what a person checked. They
+  stay out of research until approved at **Case law › Case law decisions** in
+  admin, or ingested with `CASELAW_IMPORT_APPROVE_UNVERIFIED_FOR_SEARCH=true`.
