@@ -5,13 +5,13 @@ from __future__ import annotations
 import json
 import re
 
-import yaml
 from django.conf import settings
 
 from apps.ai.openai_client import OpenAIBackendError, OpenAICompatibleClient
 from apps.ai.prompt_catalog import render_prompt
 from apps.core.content_library import content_path
 from apps.sources.connectors.base import SourceConnector, SourceResult
+from apps.sources.library import load_manifest
 
 
 QUERY_STOPWORDS = {
@@ -126,9 +126,8 @@ class ContentLibraryTreatiseConnector(SourceConnector):
 
         chunks = []
         for manifest_path in manifests:
-            try:
-                manifest = yaml.safe_load(manifest_path.read_text(encoding="utf-8")) or {}
-            except (OSError, yaml.YAMLError):
+            manifest = load_manifest(manifest_path)
+            if not manifest:
                 continue
             for item in manifest.get("chunks", []):
                 if not isinstance(item, dict) or not item.get("file"):

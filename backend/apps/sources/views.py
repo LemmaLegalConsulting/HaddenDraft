@@ -16,6 +16,7 @@ from apps.sources.library import (
     filter_chunks,
     find_document,
     library_documents,
+    load_manifest,
     manifest_paths,
     section_tree,
 )
@@ -23,8 +24,6 @@ from apps.sources.models import RetrievedDocument, UserResource
 from apps.sources.augmentation import augmented_search
 from apps.sources.registry import connector_registry
 from apps.sources.selection import automatic_source_selection, source_decision_with_counts, source_kinds
-
-import yaml
 
 
 def _truthy(value):
@@ -42,9 +41,8 @@ def _source_text(path):
 
 def _content_chunk(document_slug, chunk_id):
     for manifest_path in manifest_paths():
-        try:
-            manifest = yaml.safe_load(manifest_path.read_text(encoding="utf-8")) or {}
-        except (OSError, yaml.YAMLError):
+        manifest = load_manifest(manifest_path)
+        if not manifest:
             continue
         if manifest.get("document_slug") != document_slug:
             continue

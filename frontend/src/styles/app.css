@@ -4356,6 +4356,7 @@ button:disabled {
 .case-catalog-results {
   display: grid;
   gap: 10px;
+  position: relative;
 }
 
 .case-catalog-summary {
@@ -4418,9 +4419,14 @@ button:disabled {
   padding: 0;
 }
 
-.library-tree.root {
+.library-tree-viewport {
   border: 1px solid #dbe4e8;
   border-radius: 6px;
+  min-height: 120px;
+  position: relative;
+}
+
+.library-tree.root {
   max-height: 560px;
   overflow-y: auto;
   padding: 6px;
@@ -4495,4 +4501,66 @@ button:disabled {
   .case-catalog-facets {
     max-height: 300px;
   }
+}
+
+/* A wait with a name. Scoped to the region that is loading rather than made
+   app-modal: opening a code takes long enough to look like nothing happened,
+   but the reader should still be able to read what is already on screen and
+   switch away mid-load. The card only appears after a short delay, because a
+   cached document arrives in milliseconds and a flashed spinner reads as a
+   glitch. */
+.loading-overlay {
+  align-items: center;
+  background: rgb(255 255 255 / 78%);
+  border-radius: 6px;
+  display: flex;
+  inset: 0;
+  justify-content: center;
+  padding: 16px;
+  position: absolute;
+  z-index: 2;
+}
+
+.loading-overlay-card {
+  align-items: center;
+  background: var(--bux-white);
+  border: 1px solid #dbe4e8;
+  border-radius: 8px;
+  box-shadow: 0 6px 18px rgb(23 77 69 / 12%);
+  display: grid;
+  gap: 6px;
+  justify-items: center;
+  max-width: 420px;
+  padding: 16px 20px;
+  text-align: center;
+}
+
+.loading-overlay-card strong {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.loading-overlay-card small {
+  color: var(--bux-gray-dark-40);
+  font-size: 11px;
+}
+
+.loading-notice {
+  align-items: center;
+  color: var(--bux-gray-dark-40);
+  display: flex;
+  flex-wrap: wrap;
+  font-size: 13px;
+  gap: 6px;
+  margin: 0;
+}
+
+.loading-notice small {
+  flex-basis: 100%;
+  font-size: 11px;
+}
+
+.case-catalog-results.busy .result-card,
+.library-tree-viewport.busy .library-tree {
+  opacity: 0.45;
 }

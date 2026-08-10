@@ -16,6 +16,16 @@ import yaml
 
 from apps.core.content_library import content_paths
 
+# A code manifest is megabytes of generated YAML.  The pure-Python parser spends
+# seconds on one, which every reader then waits through; libyaml does the same
+# work about fifteen times faster and is what ships with PyYAML wheels.
+_LOADER = getattr(yaml, "CSafeLoader", yaml.SafeLoader)
+
+# Parsed manifests, keyed by the file's identity on disk.  Ingestion rewrites
+# manifests in place, so the cache has to notice a regenerated file rather than
+# hold the shape of the corpus from process start.
+_MANIFEST_CACHE = {}
+
 
 def manifest_paths():
     """Generated manifests, private overrides first, one entry per file."""
@@ -26,12 +36,24 @@ def manifest_paths():
     return list(dict.fromkeys(paths))
 
 
-def _read_manifest(path):
+def load_manifest(path):
+    """Parse a generated manifest, reusing the last parse of an unchanged file."""
     try:
-        manifest = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
+        status = path.stat()
+    except OSError:
+        return None
+    fingerprint = (status.st_mtime_ns, status.st_size)
+    cached = _MANIFEST_CACHE.get(str(path))
+    if cached and cached[0] == fingerprint:
+        return cached[1]
+    try:
+        manifest = yaml.load(path.read_text(encoding="utf-8"), Loader=_LOADER) or {}
     except (OSError, yaml.YAMLError):
         return None
-    return manifest if isinstance(manifest, dict) else None
+    if not isinstance(manifest, dict):
+        return None
+    _MANIFEST_CACHE[str(path)] = (fingerprint, manifest)
+    return manifest
 
 
 def library_manifests():
@@ -43,7 +65,7 @@ def library_manifests():
     """
     found = {}
     for path in manifest_paths():
-        manifest = _read_manifest(path)
+        manifest = load_manifest(path)
         slug = (manifest or {}).get("document_slug")
         if not slug or slug in found:
             continue

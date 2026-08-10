@@ -504,6 +504,14 @@ spelling the documents use most; narrowing by either finds both. Facets a corpus
 never filled in are not offered — an import with no extracted decision dates
 shows no year facet rather than an empty one.
 
+Opening a document is fast because parsed manifests are cached per process,
+keyed by each file's modification time and size — a regenerated manifest is
+picked up on the next request, never served stale. That parse is not cheap: the
+Ohio Revised Code manifest is 2.5 MB of generated YAML, and the pure-Python
+parser spent nearly four seconds on it alone. Reads go through
+`apps.sources.library.load_manifest()`, which also uses libyaml where PyYAML
+provides it; do not parse a manifest directly.
+
 **Treatises and handbooks** and **Statutes** open a document as a tree built
 from the same generated manifests retrieval reads, so a section reached by
 walking the contents opens the chunk a citation points at, with the same

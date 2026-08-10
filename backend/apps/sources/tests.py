@@ -14,6 +14,7 @@ from apps.sources.connectors.legalserver import LegalServerClient, LegalServerCo
 from apps.sources.connectors.sharepoint import SharePointClient, SharePointConnector, graph_token_for_request
 from apps.sources.connectors.user_resources import UserResourceConnector
 from apps.sources.connectors.rag import ContentLibraryTreatiseConnector
+from apps.sources.library import library_documents, load_manifest
 from apps.sources.models import SourceConfiguration, UserOAuthConnection, UserResource
 from apps.sources import jurisdiction
 from apps.sources.augmentation import augmented_search, evaluate_search_results
@@ -1032,3 +1033,52 @@ class ContentLibraryBrowseTests(TestCase):
                 response = self.client.get("/api/library/no-such-book/")
 
         self.assertEqual(response.status_code, 404)
+
+
+class ContentLibraryManifestCacheTests(TestCase):
+    """Parsed manifests are reused, but a regenerated one is never served stale.
+
+    A code manifest is megabytes of generated YAML and parsing it took seconds,
+    which every reader waited through on every request.  Caching that parse is
+    only safe if ingestion rewriting the file is noticed.
+    """
+
+    def _write(self, version, path, title):
+        (version / "manifest.yaml").write_text(
+            "document_slug: sample-book\n"
+            f"document_title: {title}\n"
+            "chunks:\n"
+            "- id: '0001'\n"
+            f"  file: {path}\n"
+            "  heading: Repairs\n"
+            "  path: [Chapter 1, Repairs]\n",
+            encoding="utf-8",
+        )
+
+    def test_a_regenerated_manifest_replaces_the_cached_parse(self):
+        with tempfile.TemporaryDirectory() as directory:
+            library = Path(directory)
+            version = library / "treatises" / "markdown" / "sample-book" / "2026"
+            (version / "chunks").mkdir(parents=True)
+            (version / "chunks" / "0001.md").write_text("# Repairs\n\n## Source text\n\nText.\n", encoding="utf-8")
+            self._write(version, "chunks/0001.md", "Sample Book")
+            with override_settings(CONTENT_LIBRARY_DIR=library, ORGANIZATION_CONTENT_LIBRARY_DIR=library / "private-missing"):
+                first = library_documents()
+                second = library_documents()
+                self._write(version, "chunks/0001.md", "Sample Book, Second Edition")
+                after_regeneration = library_documents()
+
+        self.assertEqual(first[0]["title"], "Sample Book")
+        self.assertEqual(second[0]["title"], "Sample Book")
+        self.assertEqual(after_regeneration[0]["title"], "Sample Book, Second Edition")
+
+    def test_an_unreadable_manifest_is_skipped_rather_than_raised(self):
+        with tempfile.TemporaryDirectory() as directory:
+            library = Path(directory)
+            version = library / "statutes" / "broken-code"
+            version.mkdir(parents=True)
+            (version / "manifest.yaml").write_text("document_slug: [unclosed\n", encoding="utf-8")
+            with override_settings(CONTENT_LIBRARY_DIR=library, ORGANIZATION_CONTENT_LIBRARY_DIR=library / "private-missing"):
+                self.assertEqual(library_documents(), [])
+                self.assertIsNone(load_manifest(version / "manifest.yaml"))
+                self.assertIsNone(load_manifest(version / "does-not-exist.yaml"))

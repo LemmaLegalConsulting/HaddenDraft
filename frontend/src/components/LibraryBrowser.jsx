@@ -22,6 +22,8 @@ import {
   shelves,
   toggleNode,
 } from "./libraryBrowse.js";
+import { LoadingNotice, LoadingOverlay } from "./LoadingOverlay.jsx";
+import { catalogLabel, documentLoadLabel, filterLabel } from "./loadingStatus.js";
 import { SourceFullViewButton } from "./MarkdownResponse.jsx";
 
 const TABS = [
@@ -38,10 +40,17 @@ function CaseCatalog({ onOpenSource }) {
   const [results, setResults] = useState([]);
   const [payload, setPayload] = useState(null);
   const [busy, setBusy] = useState(true);
+  const [busyLabel, setBusyLabel] = useState(catalogLabel({}));
   const [error, setError] = useState("");
 
   async function load({ nextQuery = query, nextFilters = filters, nextSort = sort, offset = 0 } = {}) {
     setBusy(true);
+    setBusyLabel(catalogLabel({
+      query: nextQuery,
+      filterCount: filterCount(nextFilters),
+      corpusTotal: payload?.corpusTotal || 0,
+      appending: Boolean(offset),
+    }));
     setError("");
     try {
       const response = await api.caselawCatalog(
@@ -170,7 +179,8 @@ function CaseCatalog({ onOpenSource }) {
             </details>
           ))}
         </aside>
-        <div className="case-catalog-results">
+        <div className={`case-catalog-results ${busy ? "busy" : ""}`} aria-busy={busy}>
+          <LoadingOverlay busy={busy} label={busyLabel} kind="catalog" />
           <p className="case-catalog-summary">{summary}</p>
           {results.map((result) => (
             <article key={result.id} className="result-card">
@@ -257,6 +267,7 @@ function DocumentShelf({ shelf, loading, onOpenSource }) {
   const [contents, setContents] = useState(null);
   const [expandedIds, setExpandedIds] = useState([]);
   const [busy, setBusy] = useState(false);
+  const [busyLabel, setBusyLabel] = useState("");
   const [error, setError] = useState("");
 
   const activeDocument = useMemo(
@@ -266,7 +277,11 @@ function DocumentShelf({ shelf, loading, onOpenSource }) {
 
   async function load(slug, filterText) {
     if (!slug) return;
+    const target = shelf.documents.find((item) => item.slug === slug);
     setBusy(true);
+    // Name the document being opened, not the one still on screen: switching
+    // books is exactly when a reader needs to know which wait this is.
+    setBusyLabel(filterText ? filterLabel(target, filterText) : documentLoadLabel(target));
     setError("");
     try {
       const response = await api.libraryDocument(slug, filterText);
@@ -281,6 +296,9 @@ function DocumentShelf({ shelf, loading, onOpenSource }) {
 
   useEffect(() => {
     setDraftFilter("");
+    // The previous document's contents must not sit under the new document's
+    // name while it loads; an empty tree is honest, a stale one is not.
+    setContents(null);
     load(activeDocument?.slug, "");
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeDocument?.slug]);
@@ -288,7 +306,7 @@ function DocumentShelf({ shelf, loading, onOpenSource }) {
   if (!shelf.documents.length) {
     // An empty shelf and a shelf that has not arrived yet are different facts.
     return loading
-      ? <p className="library-empty"><Loader2 className="spin" size={14} /> Loading the library</p>
+      ? <LoadingNotice busy label="Loading the library" kind="document" delayMs={0} />
       : <p className="library-empty">{shelf.empty}</p>;
   }
 
@@ -335,19 +353,26 @@ function DocumentShelf({ shelf, loading, onOpenSource }) {
           : `${countSections(tree)} section${countSections(tree) === 1 ? "" : "s"}`}
         {contents?.document?.version ? ` · ${contents.document.version}` : ""}
       </p>
-      {!busy && !tree.length && <p className="library-empty">Nothing here matches that filter.</p>}
-      <ul className="library-tree root">
-        {tree.map((node) => (
-          <TreeNode
-            key={node.id}
-            node={node}
-            depth={0}
-            expandedIds={expandedIds}
-            onToggle={(nodeId) => setExpandedIds((current) => toggleNode(current, nodeId))}
-            onOpen={(leaf) => onOpenSource(sectionCitation(contents?.document || activeDocument, leaf))}
-          />
-        ))}
-      </ul>
+      {!busy && !tree.length && (
+        <p className="library-empty">
+          {contents?.query ? "Nothing here matches that filter." : "This document has no readable sections."}
+        </p>
+      )}
+      <div className={`library-tree-viewport ${busy ? "busy" : ""}`} aria-busy={busy}>
+        <LoadingOverlay busy={busy} label={busyLabel} kind="document" />
+        <ul className="library-tree root">
+          {tree.map((node) => (
+            <TreeNode
+              key={node.id}
+              node={node}
+              depth={0}
+              expandedIds={expandedIds}
+              onToggle={(nodeId) => setExpandedIds((current) => toggleNode(current, nodeId))}
+              onOpen={(leaf) => onOpenSource(sectionCitation(contents?.document || activeDocument, leaf))}
+            />
+          ))}
+        </ul>
+      </div>
     </div>
   );
 }
