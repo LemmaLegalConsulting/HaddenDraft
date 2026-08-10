@@ -13,6 +13,11 @@ library, not inside a Django app or embedded in Python constants.
   it.
 - Put default triage rubrics in `content/triage-rubrics/*.yaml`. Seed new files
   into the database; do not silently overwrite existing admin-managed records.
+- Read generated manifests through `apps.sources.library.load_manifest()`, never
+  with a bare `yaml.safe_load`. It caches each parse against the file's mtime and
+  size and uses libyaml when available; a code manifest is megabytes of YAML that
+  the pure-Python parser needs seconds to read, and browsing, retrieval, and every
+  citation preview all parse the same files.
 - Treat `CONTENT_LIBRARY_DIR` as a content-provider boundary. Future SharePoint
   support must preserve the same logical paths and record remote provenance
   before writing derived data.

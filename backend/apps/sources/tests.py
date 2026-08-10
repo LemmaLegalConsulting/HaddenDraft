@@ -14,6 +14,7 @@ from apps.sources.connectors.legalserver import LegalServerClient, LegalServerCo
 from apps.sources.connectors.sharepoint import SharePointClient, SharePointConnector, graph_token_for_request
 from apps.sources.connectors.user_resources import UserResourceConnector
 from apps.sources.connectors.rag import ContentLibraryTreatiseConnector
+from apps.sources.library import library_documents, load_manifest
 from apps.sources.models import SourceConfiguration, UserOAuthConnection, UserResource
 from apps.sources import jurisdiction
 from apps.sources.augmentation import augmented_search, evaluate_search_results
@@ -878,3 +879,206 @@ class JurisdictionMatchingTests(TestCase):
         # "No jurisdiction given" is not a reason to hand out a relevance bonus.
         self.assertFalse(jurisdiction.matches("", "Ohio"))
         self.assertFalse(jurisdiction.matches("  --, ", "Ohio"))
+
+
+class ContentLibraryBrowseTests(TestCase):
+    """Reading the library as a shelf: what is on it, and what is inside one book.
+
+    The tree is built from the same generated manifests retrieval reads, so a
+    section found by walking it opens the chunk a citation would.
+    """
+
+    def setUp(self):
+        self.user = User.objects.create_user(username="reader", password="password")
+        self.client.force_login(self.user)
+
+    def _library(self, directory):
+        library = Path(directory)
+        treatise = library / "treatises" / "markdown" / "sample-book" / "2026" / "chunks"
+        treatise.mkdir(parents=True)
+        for name in ("0001", "0002", "0003"):
+            (treatise / f"{name}.md").write_text(f"# {name}\n\n## Source text\n\nText {name}.\n", encoding="utf-8")
+        (treatise.parent / "manifest.yaml").write_text(
+            "document_slug: sample-book\n"
+            "document_title: Sample Book\n"
+            "document_version: 2026\n"
+            "source_path: treatises/source/sample-book/2026.pdf\n"
+            "chunk_count: 4\n"
+            "chunks:\n"
+            "- id: '0001'\n"
+            "  file: chunks/0001.md\n"
+            "  heading: Repairs\n"
+            "  path: [Chapter 1, Repairs]\n"
+            "- id: '0002'\n"
+            "  file: chunks/0002.md\n"
+            "  heading: Eviction defenses, part 1\n"
+            "  path: [Chapter 2, Eviction defenses]\n"
+            "- id: '0003'\n"
+            "  file: chunks/0003.md\n"
+            "  heading: Eviction defenses, part 2\n"
+            "  path: [Chapter 2, Eviction defenses]\n"
+            "- id: '0004'\n"
+            "  file: chunks/missing.md\n"
+            "  heading: Section whose file never landed\n"
+            "  path: [Chapter 2, Missing]\n",
+            encoding="utf-8",
+        )
+        statute = library / "statutes" / "sample-code" / "chunks"
+        statute.mkdir(parents=True)
+        (statute / "s-1.md").write_text("# 5321.04\n\n## Source text\n\nLandlord obligations.\n", encoding="utf-8")
+        (statute.parent / "manifest.yaml").write_text(
+            "document_slug: sample-code\n"
+            "document_title: Sample Revised Code\n"
+            "jurisdiction: Ohio\n"
+            "content_kind: statute\n"
+            "chunks:\n"
+            "- id: s-1\n"
+            "  file: chunks/s-1.md\n"
+            "  heading: Sample Code § 5321.04 - Landlord obligations\n"
+            "  path: [Sample Revised Code, Chapter 5321, § 5321.04]\n"
+            "  citation: Sample Code § 5321.04\n"
+            "  effective_date: March 27, 1985\n",
+            encoding="utf-8",
+        )
+        return library
+
+    def test_library_lists_treatises_and_statutes_a_reader_can_open(self):
+        with tempfile.TemporaryDirectory() as directory:
+            library = self._library(directory)
+            with override_settings(CONTENT_LIBRARY_DIR=library, ORGANIZATION_CONTENT_LIBRARY_DIR=library / "private-missing"):
+                payload = self.client.get("/api/library/").json()
+
+        documents = {item["slug"]: item for item in payload["documents"]}
+        self.assertEqual(set(documents), {"sample-book", "sample-code"})
+        self.assertEqual(documents["sample-code"]["contentKind"], "statute")
+        self.assertEqual(documents["sample-code"]["jurisdiction"], "Ohio")
+        self.assertEqual(documents["sample-book"]["contentKind"], "treatise")
+        self.assertEqual(documents["sample-book"]["version"], "2026")
+
+    def test_a_document_opens_as_a_tree_that_mirrors_the_document(self):
+        with tempfile.TemporaryDirectory() as directory:
+            library = self._library(directory)
+            with override_settings(CONTENT_LIBRARY_DIR=library, ORGANIZATION_CONTENT_LIBRARY_DIR=library / "private-missing"):
+                payload = self.client.get("/api/library/sample-book/").json()
+
+        chapters = {node["label"]: node for node in payload["tree"]}
+        self.assertEqual(set(chapters), {"Chapter 1", "Chapter 2"})
+        # A section that produced one chunk is the row itself.
+        repairs = chapters["Chapter 1"]["children"][0]
+        self.assertEqual((repairs["label"], repairs["chunkId"], repairs["children"]), ("Repairs", "0001", []))
+        # A section split across chunks keeps one row per part.
+        defenses = chapters["Chapter 2"]["children"][0]
+        self.assertEqual(defenses["label"], "Eviction defenses")
+        self.assertEqual([child["chunkId"] for child in defenses["children"]], ["0002", "0003"])
+        self.assertEqual(chapters["Chapter 2"]["count"], 2)
+        # A manifest row with no generated file behind it would be a heading
+        # that opens nothing, so it is not offered.
+        self.assertNotIn("Missing", [child["label"] for child in chapters["Chapter 2"]["children"]])
+        self.assertEqual(payload["document"]["readableCount"], 3)
+        self.assertTrue(payload["document"]["hasPdf"] is False)
+
+    def test_a_code_opens_on_its_chapters_and_carries_the_official_citation(self):
+        with tempfile.TemporaryDirectory() as directory:
+            library = self._library(directory)
+            with override_settings(CONTENT_LIBRARY_DIR=library, ORGANIZATION_CONTENT_LIBRARY_DIR=library / "private-missing"):
+                payload = self.client.get("/api/library/sample-code/").json()
+
+        # The single root that names the code itself is not a row the reader
+        # has to expand before seeing any chapter.
+        self.assertEqual([node["label"] for node in payload["tree"]], ["Chapter 5321"])
+        section = payload["tree"][0]["children"][0]
+        self.assertEqual(section["label"], "§ 5321.04")
+        self.assertEqual(section["chunkId"], "s-1")
+        self.assertEqual(section["citation"], "Sample Code § 5321.04")
+        self.assertEqual(section["effectiveDate"], "March 27, 1985")
+
+    def test_filtering_narrows_the_contents_and_keeps_the_structure(self):
+        with tempfile.TemporaryDirectory() as directory:
+            library = self._library(directory)
+            with override_settings(CONTENT_LIBRARY_DIR=library, ORGANIZATION_CONTENT_LIBRARY_DIR=library / "private-missing"):
+                payload = self.client.get("/api/library/sample-book/?q=eviction").json()
+
+        self.assertEqual(payload["matchCount"], 2)
+        self.assertEqual([node["label"] for node in payload["tree"]], ["Chapter 2"])
+        self.assertEqual(payload["tree"][0]["children"][0]["label"], "Eviction defenses")
+
+    def test_a_private_edition_shadows_the_public_one_as_it_does_in_search(self):
+        with tempfile.TemporaryDirectory() as directory:
+            public = self._library(directory)
+            private = Path(directory) / "private"
+            version = private / "treatises" / "markdown" / "sample-book" / "2027" / "chunks"
+            version.mkdir(parents=True)
+            (version / "0001.md").write_text("# Repairs\n\n## Source text\n\nPrivate text.\n", encoding="utf-8")
+            (version.parent / "manifest.yaml").write_text(
+                "document_slug: sample-book\n"
+                "document_title: Sample Book\n"
+                "document_version: 2027 organization edition\n"
+                "chunks:\n"
+                "- id: '0001'\n"
+                "  file: chunks/0001.md\n"
+                "  heading: Repairs\n"
+                "  path: [Chapter 1, Repairs]\n",
+                encoding="utf-8",
+            )
+            with override_settings(CONTENT_LIBRARY_DIR=public, ORGANIZATION_CONTENT_LIBRARY_DIR=private):
+                payload = self.client.get("/api/library/").json()
+
+        editions = [item["version"] for item in payload["documents"] if item["slug"] == "sample-book"]
+        self.assertEqual(editions, ["2027 organization edition"])
+
+    def test_an_unknown_document_is_not_found_rather_than_empty(self):
+        with tempfile.TemporaryDirectory() as directory:
+            library = self._library(directory)
+            with override_settings(CONTENT_LIBRARY_DIR=library, ORGANIZATION_CONTENT_LIBRARY_DIR=library / "private-missing"):
+                response = self.client.get("/api/library/no-such-book/")
+
+        self.assertEqual(response.status_code, 404)
+
+
+class ContentLibraryManifestCacheTests(TestCase):
+    """Parsed manifests are reused, but a regenerated one is never served stale.
+
+    A code manifest is megabytes of generated YAML and parsing it took seconds,
+    which every reader waited through on every request.  Caching that parse is
+    only safe if ingestion rewriting the file is noticed.
+    """
+
+    def _write(self, version, path, title):
+        (version / "manifest.yaml").write_text(
+            "document_slug: sample-book\n"
+            f"document_title: {title}\n"
+            "chunks:\n"
+            "- id: '0001'\n"
+            f"  file: {path}\n"
+            "  heading: Repairs\n"
+            "  path: [Chapter 1, Repairs]\n",
+            encoding="utf-8",
+        )
+
+    def test_a_regenerated_manifest_replaces_the_cached_parse(self):
+        with tempfile.TemporaryDirectory() as directory:
+            library = Path(directory)
+            version = library / "treatises" / "markdown" / "sample-book" / "2026"
+            (version / "chunks").mkdir(parents=True)
+            (version / "chunks" / "0001.md").write_text("# Repairs\n\n## Source text\n\nText.\n", encoding="utf-8")
+            self._write(version, "chunks/0001.md", "Sample Book")
+            with override_settings(CONTENT_LIBRARY_DIR=library, ORGANIZATION_CONTENT_LIBRARY_DIR=library / "private-missing"):
+                first = library_documents()
+                second = library_documents()
+                self._write(version, "chunks/0001.md", "Sample Book, Second Edition")
+                after_regeneration = library_documents()
+
+        self.assertEqual(first[0]["title"], "Sample Book")
+        self.assertEqual(second[0]["title"], "Sample Book")
+        self.assertEqual(after_regeneration[0]["title"], "Sample Book, Second Edition")
+
+    def test_an_unreadable_manifest_is_skipped_rather_than_raised(self):
+        with tempfile.TemporaryDirectory() as directory:
+            library = Path(directory)
+            version = library / "statutes" / "broken-code"
+            version.mkdir(parents=True)
+            (version / "manifest.yaml").write_text("document_slug: [unclosed\n", encoding="utf-8")
+            with override_settings(CONTENT_LIBRARY_DIR=library, ORGANIZATION_CONTENT_LIBRARY_DIR=library / "private-missing"):
+                self.assertEqual(library_documents(), [])
+                self.assertIsNone(load_manifest(version / "manifest.yaml"))
+                self.assertIsNone(load_manifest(version / "does-not-exist.yaml"))

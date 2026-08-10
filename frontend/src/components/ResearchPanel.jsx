@@ -22,6 +22,7 @@ import {
 
 import { api } from "../api/client.js";
 import { caseCount, jurisdictionFacets, narrowResults, selectionAfterNarrowing } from "./caseJurisdictionFacets.js";
+import { LibraryBrowser } from "./LibraryBrowser.jsx";
 import { CaseFacetBrowser, CitationPreviewModal, MarkdownResponse, SourceBrowserModal, SourceFullViewButton } from "./MarkdownResponse.jsx";
 
 const SOURCE_GROUPS = [
@@ -105,6 +106,9 @@ export function ResearchPanel({ matter, sources, onResults }) {
   const [error, setError] = useState("");
   const [previewCitation, setPreviewCitation] = useState(null);
   const [caseSourceCitation, setCaseSourceCitation] = useState(null);
+  // Asking and browsing are different jobs: one starts from a question, the
+  // other from the shelf. They share the source viewer, not the panel.
+  const [view, setView] = useState("ask");
 
   React.useEffect(() => {
     let cancelled = false;
@@ -262,6 +266,17 @@ export function ResearchPanel({ matter, sources, onResults }) {
 
   return (
     <div className="panel">
+      <div className="research-view-tabs" role="tablist" aria-label="Research view">
+        <button type="button" role="tab" aria-selected={view === "ask"} className={view === "ask" ? "selected" : ""} onClick={() => setView("ask")}>
+          <Search size={15} /> Ask a question
+        </button>
+        <button type="button" role="tab" aria-selected={view === "browse"} className={view === "browse" ? "selected" : ""} onClick={() => setView("browse")}>
+          <Library size={15} /> Browse the library
+        </button>
+      </div>
+      {view === "browse" && <LibraryBrowser onOpenSource={setCaseSourceCitation} />}
+      {view === "ask" && (
+      <>
       <div className="private-reference-panel">
         {resources.length > 0 && (
           <div className="reference-list">
@@ -480,6 +495,8 @@ export function ResearchPanel({ matter, sources, onResults }) {
           </article>
         ))}
       </div>
+      </>
+      )}
       <CitationPreviewModal citation={previewCitation} onClose={() => setPreviewCitation(null)} />
       <SourceBrowserModal citation={caseSourceCitation} onClose={() => setCaseSourceCitation(null)} />
     </div>

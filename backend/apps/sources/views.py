@@ -10,12 +10,20 @@ from apps.core.content_library import content_paths
 from apps.core.views import default_jurisdiction_for_user
 from apps.matters.services import matter_for_user
 from apps.sources.document_text import DocumentExtractionError, extract_text
+from apps.sources.library import (
+    document_chunks,
+    document_summary,
+    filter_chunks,
+    find_document,
+    library_documents,
+    load_manifest,
+    manifest_paths,
+    section_tree,
+)
 from apps.sources.models import RetrievedDocument, UserResource
 from apps.sources.augmentation import augmented_search
 from apps.sources.registry import connector_registry
 from apps.sources.selection import automatic_source_selection, source_decision_with_counts, source_kinds
-
-import yaml
 
 
 def _truthy(value):
@@ -31,19 +39,10 @@ def _source_text(path):
     return text.split(marker, 1)[-1].strip() if marker in text else text.strip()
 
 
-def _manifest_paths():
-    paths = []
-    for root in content_paths():
-        paths.extend(root.joinpath("treatises", "markdown").glob("*/*/manifest.yaml"))
-        paths.extend(root.joinpath("statutes").glob("*/manifest.yaml"))
-    return list(dict.fromkeys(paths))
-
-
 def _content_chunk(document_slug, chunk_id):
-    for manifest_path in _manifest_paths():
-        try:
-            manifest = yaml.safe_load(manifest_path.read_text(encoding="utf-8")) or {}
-        except (OSError, yaml.YAMLError):
+    for manifest_path in manifest_paths():
+        manifest = load_manifest(manifest_path)
+        if not manifest:
             continue
         if manifest.get("document_slug") != document_slug:
             continue
@@ -113,6 +112,36 @@ def _research_answer(*, query, matter, results, messages, jurisdiction):
 @api_login_required
 def sources(_request):
     return JsonResponse({"sources": [connector.metadata() for connector in connector_registry.all()]})
+
+
+@api_login_required
+def library(request):
+    """Every document on the shelf, so a reader can browse without a query."""
+    if request.method != "GET":
+        return method_not_allowed(["GET"])
+    return JsonResponse({"documents": library_documents()})
+
+
+@api_login_required
+def library_document(request, document_slug):
+    if request.method != "GET":
+        return method_not_allowed(["GET"])
+    manifest_path, manifest = find_document(document_slug)
+    if not manifest:
+        return JsonResponse({"error": "Document not found"}, status=404)
+    query = (request.GET.get("q") or "").strip()
+    chunks = document_chunks(manifest_path, manifest)
+    matched = filter_chunks(chunks, query)
+    return JsonResponse({
+        "document": {
+            **document_summary(manifest_path, manifest),
+            "hasPdf": bool(_content_file(manifest.get("source_path", ""))),
+            "readableCount": len(chunks),
+        },
+        "query": query,
+        "matchCount": len(matched),
+        "tree": section_tree(matched, document_title=manifest.get("document_title", "")),
+    })
 
 
 @api_login_required

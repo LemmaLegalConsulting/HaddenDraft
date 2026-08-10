@@ -109,6 +109,12 @@ export const api = {
   caselawDecision: (decisionId) => request(`/caselaw/decisions/${decisionId}/`),
   caselawDecisionPdfUrl: (decisionId) => `${API_BASE}/caselaw/decisions/${decisionId}/pdf/`,
   caselawBrowse: (params = {}) => request(`/caselaw/browse/${Object.keys(params).length ? `?${new URLSearchParams(Object.entries(params).filter(([, value]) => value !== undefined && value !== ""))}` : ""}`),
+  // Facet narrowing repeats a parameter name per selected value, so the catalog
+  // takes pairs rather than an object.
+  caselawCatalog: (params = []) => request(`/caselaw/catalog/${params.length ? `?${new URLSearchParams(params)}` : ""}`),
+  library: () => request("/library/"),
+  libraryDocument: (documentSlug, query = "") =>
+    request(`/library/${encodeURIComponent(documentSlug)}/${query ? `?${new URLSearchParams({ q: query })}` : ""}`),
   contentSource: (documentSlug, chunkId) => request(`/sources/content/${encodeURIComponent(documentSlug)}/${encodeURIComponent(chunkId)}/`),
   contentSourcePdfUrl: (documentSlug, chunkId, page) =>
     `${API_BASE}/sources/content/${encodeURIComponent(documentSlug)}/${encodeURIComponent(chunkId)}/pdf/${page ? `#page=${page}` : ""}`,

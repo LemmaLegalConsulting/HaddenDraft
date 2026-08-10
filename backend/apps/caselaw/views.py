@@ -5,6 +5,7 @@ from django.db.models import Q
 from django.http import FileResponse, JsonResponse
 from django.shortcuts import get_object_or_404
 
+from apps.caselaw.catalog import ROW_FIELDS, browse_catalog, read_filters
 from apps.caselaw.models import CaseLawDecision, CaseLawSimilarityEdge
 from apps.caselaw.storage import get_caselaw_storage
 from apps.core.http import api_login_required, method_not_allowed
@@ -285,6 +286,30 @@ def browse(request):
         "totalCandidates": len(candidates),
         "seed": decision_summary(seed) if seed else None,
     })
+
+
+@api_login_required
+def catalog(request):
+    """The whole approved corpus, narrowed by metadata rather than by a query."""
+    if request.method != "GET":
+        return method_not_allowed(["GET"])
+    rows = list(CaseLawDecision.objects.filter(approved_for_search=True).values(*ROW_FIELDS))
+    payload = browse_catalog(
+        rows,
+        query=request.GET.get("q", ""),
+        filters=read_filters(request.GET),
+        sort=request.GET.get("sort", "newest"),
+        limit=request.GET.get("limit", 25),
+        offset=request.GET.get("offset", 0),
+    )
+    page_ids = payload.pop("ids")
+    decisions = {decision.id: decision for decision in CaseLawDecision.objects.filter(pk__in=page_ids)}
+    payload["results"] = [
+        decision_source_result(decisions[decision_id])
+        for decision_id in page_ids
+        if decision_id in decisions
+    ]
+    return JsonResponse(payload)
 
 
 @api_login_required
