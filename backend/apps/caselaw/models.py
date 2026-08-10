@@ -144,6 +144,53 @@ class CaseLawDecision(models.Model):
         return self.title
 
 
+class CaseLawDateProvenance(models.Model):
+    """Where one date on one decision came from, and whether the page shows it.
+
+    Every date here was read out of a scanned document by a model, so on its own
+    it is an assertion.  This is the record that makes it checkable: the wording
+    the sidecar carried, and — when the OCR text actually contains the date —
+    the passage that supports it.  A row with ``corroborated`` false is not
+    wrong; it means the text this corpus holds cannot confirm it, which is a
+    different thing a reader deserves to be told.
+    """
+
+    SOURCE_CHOICES = [
+        ("metadata_sidecar", "Metadata sidecar"),
+        ("ocr_text", "OCR text"),
+    ]
+
+    decision = models.ForeignKey(CaseLawDecision, on_delete=models.CASCADE, related_name="date_provenance")
+    field = models.CharField(max_length=40)
+    value = models.DateField(null=True, blank=True)
+    raw_value = models.CharField(max_length=255, blank=True)
+
+    source = models.CharField(max_length=40, choices=SOURCE_CHOICES, default="metadata_sidecar")
+    source_key = models.TextField(blank=True)
+    source_sha256 = models.CharField(max_length=64, blank=True)
+
+    corroborated = models.BooleanField(default=False)
+    page_number = models.PositiveIntegerField(null=True, blank=True)
+    matched_text = models.CharField(max_length=255, blank=True)
+    match_kind = models.CharField(max_length=40, blank=True)
+    context_label = models.CharField(max_length=40, blank=True)
+    snippet = models.TextField(blank=True)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["decision_id", "field"]
+        unique_together = [("decision", "field")]
+        indexes = [
+            models.Index(fields=["field"]),
+            models.Index(fields=["corroborated"]),
+        ]
+
+    def __str__(self):
+        return f"{self.decision}: {self.field}={self.value or 'none'}"
+
+
 class CaseLawArtifact(models.Model):
     decision = models.ForeignKey(CaseLawDecision, on_delete=models.CASCADE, related_name="artifacts")
     artifact_type = models.CharField(max_length=80)

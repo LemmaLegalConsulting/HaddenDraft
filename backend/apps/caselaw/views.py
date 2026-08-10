@@ -156,9 +156,37 @@ def _score_related(candidate, seed, query_terms):
     return score, list(dict.fromkeys(reasons))
 
 
+def date_provenance(decision):
+    """Where each date came from, so an extracted date stays checkable.
+
+    ``corroborated`` means the document's own OCR text contains this date, with
+    the passage that shows it — not that the date has been confirmed to mean
+    what the field says it means. Much of this corpus was scanned without a
+    usable text layer, so an uncorroborated date is unverifiable here rather
+    than wrong.
+    """
+    return [
+        {
+            "field": row.field,
+            "value": _date(row.value),
+            "rawValue": row.raw_value,
+            "source": row.source,
+            "sourceKey": row.source_key,
+            "sourceSha256": row.source_sha256,
+            "corroborated": row.corroborated,
+            "matchedText": row.matched_text,
+            "matchKind": row.match_kind,
+            "contextLabel": row.context_label,
+            "snippet": row.snippet,
+        }
+        for row in decision.date_provenance.all()
+    ]
+
+
 def decision_detail_payload(decision):
     return {
         **decision_summary(decision),
+        "dateProvenance": date_provenance(decision),
         "parties": decision.parties,
         "partyRoles": decision.party_roles,
         "issues": decision.issues,

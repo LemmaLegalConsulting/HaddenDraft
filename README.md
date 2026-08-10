@@ -501,8 +501,34 @@ Metadata came out of documents rather than a controlled vocabulary, so the same
 county arrives as "Cuyahoga" and "Cuyahoga County" and the same judge with and
 without the honorific. Those are grouped as one value, labelled with the
 spelling the documents use most; narrowing by either finds both. Facets a corpus
-never filled in are not offered — an import with no extracted decision dates
-shows no year facet rather than an empty one.
+never filled in are not offered — a field no document supplied shows no chips
+rather than an empty group.
+
+### Where a date came from
+
+Every date on a decision was read out of a scanned document by a model, so on
+its own it is an assertion. `CaseLawDateProvenance` records one row per date
+field: the wording the metadata sidecar carried, the sidecar's storage key and
+checksum, and — where the document's own OCR text contains the date — the
+passage that shows it, how it was written, and the label beside it.
+
+The scanner reads the orders courts actually write dates in, including the
+clerk's file stamp (`2009 FEB 17 PM 2:47`) that carries most trial-court
+decision dates, and tolerates the ways this corpus was scanned: days split
+across a space (`MAR 1 6 2005`), missing punctuation, two-digit years. Roughly
+three quarters of dated decisions are corroborated this way.
+
+`corroborated` means the document contains the date, not that the date has been
+confirmed to mean what its field says. More than half of these scans have no
+usable text layer at all, so an uncorroborated date is unverifiable here rather
+than wrong — which is why it is shown with that caveat instead of hidden.
+Review them at **Case law › Case law date provenances** in Django admin, or
+inline on the decision.
+
+`python backend/manage.py backfill_decision_dates` fills dates that an earlier
+import dropped and records their provenance. It leaves a date that is already
+set alone, so it is a no-op once the corpus is dated; `--overwrite` regenerates,
+and `--dry-run` reports without writing.
 
 Opening a document is fast because parsed manifests are cached per process,
 keyed by each file's modification time and size — a regenerated manifest is
