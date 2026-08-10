@@ -190,3 +190,36 @@ Two limits worth knowing before running it:
   reviewed them — they are what CAP published, not what a person checked. They
   stay out of research until approved at **Case law › Case law decisions** in
   admin, or ingested with `CASELAW_IMPORT_APPROVE_UNVERIFIED_FOR_SEARCH=true`.
+
+### Summarizing what was fetched
+
+A fetched opinion arrives as text. The analytical fields research depends on —
+issues, holdings, statutes cited, key facts, outcome — come from the same two
+passes that built the rest of this corpus:
+
+```bash
+python manage.py enrich_caselaw_metadata --dry-run
+python manage.py enrich_caselaw_metadata   # gpt-5-mini drafts, deepseek-v4 checks
+python manage.py ingest_caselaw --from-raw-storage
+```
+
+One model drafts metadata from the text; a second reads the text and the draft,
+corrects it, and a `.verified.json` marker records that the second pass ran.
+That marker is what ingestion reads to approve a bundle for search, so a
+summarized bundle imports searchable while an unsummarized one does not.
+
+**What `.verified.json` means.** A second model reviewed the first model's work.
+Not that a lawyer approved it. Ingestion treats it as fit for *search*, not as
+fit to rely on; `approved_for_drafting` remains a separate, human decision.
+
+Fetched bundles differ from the original scans in one way that matters. The
+reporter already states the title, citation, deciding court, and decision date.
+Those are given to both models as facts to repeat rather than fields to infer,
+and are written back afterwards, so a summarizer cannot talk the corpus out of a
+date the reporter printed. Only the analytical fields are taken from the models,
+and each sidecar records which model drafted, which verified, and where the
+authoritative fields came from.
+
+Prompts are file-backed at `prompts/caselaw.metadata_extract.yaml` and
+`prompts/caselaw.metadata_verify.yaml`, so the wording and the model defaults are
+reviewable and versioned rather than buried in a script.

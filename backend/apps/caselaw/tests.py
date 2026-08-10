@@ -760,3 +760,69 @@ class CapCitationTests(TestCase):
         client.resolve("104 Ohio St. 400")
 
         self.assertEqual(sum(1 for url in calls if url.endswith("CasesMetadata.json")), 1)
+
+
+class CaselawMetadataEnrichmentTests(TestCase):
+    """Summarizing a fetched opinion the way the rest of the corpus was summarized.
+
+    One model drafts, a second checks it against the text, and a marker records
+    that the second pass happened. What a reporter already stated is not up for
+    revision by either of them.
+    """
+
+    def _sidecar(self):
+        return {
+            "title": "Ketcham v. Miller et al.",
+            "citation_string": "104 Ohio St. 372",
+            "decision_date": "1922-04-11",
+            "court": "Supreme Court of Ohio",
+            "external_source_id": "cap:12345",
+            "source_url": "https://static.case.law/ohio-st/104/cases/0372-01.json",
+            "key_facts": "",
+        }
+
+    def test_reporter_facts_are_offered_to_the_model_as_facts(self):
+        from apps.caselaw.management.commands.enrich_caselaw_metadata import known_facts
+
+        facts = known_facts(self._sidecar())
+
+        self.assertEqual(facts["citation_string"], "104 Ohio St. 372")
+        self.assertEqual(facts["decision_date"], "1922-04-11")
+        # An empty field is not a fact to repeat.
+        self.assertNotIn("key_facts", facts)
+
+    def test_a_summarizer_cannot_overwrite_what_the_reporter_printed(self):
+        from apps.caselaw.management.commands.enrich_caselaw_metadata import merge
+
+        merged = merge(self._sidecar(), {
+            "decision_date": "1922-04-12",
+            "citation_string": "104 Ohio St. 999",
+            "title": "Ketcham versus Miller",
+            "key_facts": "The amended petition alleged execution of a lease.",
+            "issues": ["Whether the petition sounds in contract or in tort."],
+        })
+
+        self.assertEqual(merged["decision_date"], "1922-04-11")
+        self.assertEqual(merged["citation_string"], "104 Ohio St. 372")
+        self.assertEqual(merged["title"], "Ketcham v. Miller et al.")
+        # The analysis is exactly what the pipeline is for, and it is kept.
+        self.assertIn("amended petition", merged["key_facts"])
+        self.assertEqual(len(merged["issues"]), 1)
+
+    def test_fields_outside_the_schema_are_not_smuggled_in(self):
+        from apps.caselaw.management.commands.enrich_caselaw_metadata import merge
+
+        merged = merge(self._sidecar(), {"approved_for_search": True, "source_sha256": "x" * 64})
+
+        self.assertNotIn("approved_for_search", merged)
+        self.assertNotIn("source_sha256", merged)
+
+    def test_a_model_that_wraps_its_json_in_prose_or_fences_is_still_read(self):
+        from apps.caselaw.management.commands.enrich_caselaw_metadata import _json_object
+
+        self.assertEqual(_json_object('```json\n{"issues": ["a"]}\n```')["issues"], ["a"])
+        self.assertEqual(_json_object('Here it is:\n{"issues": ["b"]}\nHope that helps.')["issues"], ["b"])
+        with self.assertRaises(ValueError):
+            _json_object("I could not determine the metadata.")
+        with self.assertRaises(ValueError):
+            _json_object('["not", "an", "object"]')
