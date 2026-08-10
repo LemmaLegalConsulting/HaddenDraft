@@ -11,7 +11,7 @@ The implementation is intentionally modular so real integrations can replace the
 ## Requirements
 
 - Python 3.12+
-- Node.js 22+
+- Node.js 24+ (the active LTS line; the image builds the frontend on `node:24-slim`)
 - npm 11+
 
 ## First-Time Setup
