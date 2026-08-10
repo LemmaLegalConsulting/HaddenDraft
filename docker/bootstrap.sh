@@ -47,4 +47,13 @@ if [ -n "$CASELAW_DIR" ] && [ -d "$CASELAW_DIR" ]; then
   python manage.py ingest_caselaw "$CASELAW_DIR"
 fi
 
+# Dates were dropped on import for as long as as_date() was a stub, and
+# re-ingestion does not fix them: ingest_group skips a decision whose
+# source_sha256 is already recorded, so an existing corpus keeps its empty date
+# columns. This reads the metadata sidecar each decision already points at and
+# fills only what is missing, recording where every date came from. It leaves a
+# date that is already set alone, so it is a no-op once the corpus is dated.
+echo "==> Backfilling decision dates and their provenance"
+python manage.py backfill_decision_dates
+
 echo "==> Bootstrap complete"

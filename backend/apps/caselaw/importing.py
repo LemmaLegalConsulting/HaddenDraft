@@ -19,6 +19,7 @@ from apps.caselaw.models import (
     CaseLawPage,
     CaseLawSearchDocument,
 )
+from apps.caselaw.dates import record_date_provenance
 from apps.caselaw.storage import get_caselaw_storage, sha256_file
 
 
@@ -229,26 +230,25 @@ def as_bool(value):
 
 
 def as_date(value):
-    if not value:
-        return None
+    """Parse a sidecar date, or return None.
 
-
-def as_datetime(value):
+    This body once sat below a ``return`` inside ``as_datetime`` where nothing
+    could reach it, leaving ``as_date`` a stub that answered None for every
+    value. Every date field in the corpus imported empty, silently, and the
+    absence looked like documents that simply had no dates.
+    """
     if not value:
         return None
     if isinstance(value, datetime):
+        return value.date()
+    if isinstance(value, date):
         return value
     text = str(value).strip()
-    try:
-        parsed = datetime.fromisoformat(text.replace("Z", "+00:00"))
-        return parsed if timezone.is_aware(parsed) else timezone.make_aware(parsed)
-    except ValueError:
-        parsed_date = as_date(text)
-        return timezone.make_aware(datetime.combine(parsed_date, datetime.min.time())) if parsed_date else None
-    if isinstance(value, date) and not isinstance(value, datetime):
-        return value
-    text = str(value).strip()
-    for fmt in ("%Y-%m-%d", "%m/%d/%Y", "%m/%d/%y", "%B %d, %Y", "%b %d, %Y"):
+    # A sidecar may carry several dates in one field ("1991-08-12; 1991-08-20")
+    # where the document held several hearings. The field takes one; the raw
+    # wording is kept in the provenance record beside it.
+    text = text.split(";")[0].strip()
+    for fmt in ("%Y-%m-%d", "%m/%d/%Y", "%m/%d/%y", "%B %d, %Y", "%b %d, %Y", "%d %B %Y"):
         try:
             return datetime.strptime(text, fmt).date()
         except ValueError:
@@ -257,6 +257,20 @@ def as_datetime(value):
         return date.fromisoformat(text[:10])
     except ValueError:
         return None
+
+
+def as_datetime(value):
+    if not value:
+        return None
+    if isinstance(value, datetime):
+        return value if timezone.is_aware(value) else timezone.make_aware(value)
+    text = str(value).strip()
+    try:
+        parsed = datetime.fromisoformat(text.replace("Z", "+00:00"))
+        return parsed if timezone.is_aware(parsed) else timezone.make_aware(parsed)
+    except ValueError:
+        parsed_date = as_date(text)
+        return timezone.make_aware(datetime.combine(parsed_date, datetime.min.time())) if parsed_date else None
 
 
 def normalized_case_hash(metadata, group):
@@ -499,6 +513,16 @@ def ingest_group(group, *, storage, storage_prefix, require_verified, allow_miss
         decision.pages.all().delete()
         if text:
             CaseLawPage.objects.create(decision=decision, page_number=1, text=text)
+        # Dates arrive from a sidecar a model wrote while reading this document.
+        # Recording where each one came from, and whether the document's own
+        # text shows it, is what keeps an extracted date checkable.
+        record_date_provenance(
+            decision,
+            metadata,
+            source_key=str(metadata_path) if metadata_path else "",
+            source_sha256=sha256_file(metadata_path) if metadata_path else "",
+            text=text,
+        )
         rebuild_search_documents(decision, text)
 
     return {

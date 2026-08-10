@@ -463,3 +463,164 @@ class CaseLawCatalogTests(TestCase):
         self.assertEqual(payload["total"], 1)
         self.assertEqual(payload["corpusTotal"], 3)
         self.assertEqual({item["value"] for item in payload["facets"]["county"]}, {"Franklin County"})
+
+
+class DecisionDateScanningTests(TestCase):
+    """Reading dates out of scanned trial-court paper.
+
+    OCR of this corpus splits digits, drops punctuation, and stamps dates in
+    orders no prose uses. A date that cannot be found in the text is not thereby
+    wrong -- it is unconfirmable, which the reader has to be told.
+    """
+
+    def test_the_orders_a_court_writes_dates_in_are_all_read(self):
+        from apps.caselaw.dates import scan_dates
+
+        found = {item["matchedText"]: item["value"] for item in scan_dates(
+            "Decided March 9, 2005. Hearing was 4/26/2006. Entry 2009-02-17. "
+            "Signed this 3rd day of June 2013."
+        )}
+
+        self.assertEqual(found["March 9, 2005"], date(2005, 3, 9))
+        self.assertEqual(found["4/26/2006"], date(2006, 4, 26))
+        self.assertEqual(found["2009-02-17"], date(2009, 2, 17))
+        self.assertEqual(found["3rd day of June 2013"], date(2013, 6, 3))
+
+    def test_a_clerks_file_stamp_is_read_despite_the_scan_splitting_it(self):
+        # "2009 FEB 17 PM 2:47" is where a trial-court date actually lives, and
+        # the scan routinely puts a space through the day.
+        from apps.caselaw.dates import scan_dates
+
+        stamped = scan_dates("CUYAHOGA CTY. MUN. COURT 2009 FEB 17 PH 2:47 FILED")
+        split_day = scan_dates("EARLE B. TURNER, CLERK MAR 1 6 2005 RECEIVED")
+
+        self.assertEqual(stamped[0]["value"], date(2009, 2, 17))
+        self.assertEqual(stamped[0]["kind"], "file-stamp")
+        # A bare stamp carries no label word, but its shape says "filed".
+        self.assertEqual(stamped[0]["label"], "filed")
+        self.assertEqual(split_day[0]["value"], date(2005, 3, 16))
+
+    def test_the_wording_around_a_date_is_kept_because_dates_look_alike(self):
+        from apps.caselaw.dates import scan_dates
+
+        scanned = {item["value"]: item["label"] for item in scan_dates(
+            "The matter came on for hearing on August 12, 1991. "
+            "Journalized October 25, 1991. Served on the tenant November 1, 1991."
+        )}
+
+        self.assertEqual(scanned[date(1991, 8, 12)], "hearing")
+        self.assertEqual(scanned[date(1991, 10, 25)], "entry")
+        self.assertEqual(scanned[date(1991, 11, 1)], "service")
+
+    def test_nonsense_that_looks_like_a_date_is_not_one(self):
+        from apps.caselaw.dates import scan_dates
+
+        self.assertEqual(scan_dates("Case No. 13/45/2001 and 2005-19-40"), [])
+        self.assertEqual(scan_dates(""), [])
+        self.assertEqual(scan_dates(None), [])
+
+    def test_one_date_is_reported_once_however_many_patterns_could_read_it(self):
+        from apps.caselaw.dates import scan_dates
+
+        self.assertEqual(len(scan_dates("Decided March 9, 2005.")), 1)
+
+    def test_corroboration_returns_the_passage_that_supports_a_date(self):
+        from apps.caselaw.dates import corroborate
+
+        supported = corroborate(date(2005, 3, 9), "DATE: March 9, 2005 CASE NO.: 2004 CVG 28660")
+        unsupported = corroborate(date(1996, 2, 1), "The hearing was held December 7, 1995.")
+
+        self.assertIn("March 9, 2005", supported["snippet"])
+        self.assertEqual(supported["label"], "dated")
+        self.assertIsNone(unsupported)
+
+
+class DecisionDateImportTests(TestCase):
+    """Dates reach the database, and each one says where it came from.
+
+    ``as_date`` was a stub returning None for every value, so every date field
+    imported empty and the corpus looked like documents without dates.
+    """
+
+    def test_sidecar_date_formats_all_parse(self):
+        from apps.caselaw.importing import as_date
+
+        self.assertEqual(as_date("1991-10-25"), date(1991, 10, 25))
+        self.assertEqual(as_date("10/25/1991"), date(1991, 10, 25))
+        self.assertEqual(as_date("October 25, 1991"), date(1991, 10, 25))
+        self.assertEqual(as_date("Oct 25, 1991"), date(1991, 10, 25))
+        self.assertEqual(as_date(date(1991, 10, 25)), date(1991, 10, 25))
+        self.assertIsNone(as_date(""))
+        self.assertIsNone(as_date(None))
+        self.assertIsNone(as_date("sometime in 1991"))
+
+    def test_a_field_holding_two_hearing_dates_takes_the_first_and_keeps_both(self):
+        # A document with two hearings produces "1991-08-12; 1991-08-20". The
+        # column takes one date; the wording is preserved in the provenance row.
+        from apps.caselaw.dates import record_date_provenance
+        from apps.caselaw.importing import as_date
+
+        decision = CaseLawDecision.objects.create(title="Two hearings", source_sha256="d" * 64)
+        rows = record_date_provenance(
+            decision,
+            {"hearing_date": "1991-08-12; 1991-08-20"},
+            text="The matter was heard August 12, 1991.",
+        )
+
+        self.assertEqual(as_date("1991-08-12; 1991-08-20"), date(1991, 8, 12))
+        self.assertEqual(rows[0].value, date(1991, 8, 12))
+        self.assertEqual(rows[0].raw_value, "1991-08-12; 1991-08-20")
+
+    def test_provenance_records_whether_the_document_itself_shows_the_date(self):
+        from apps.caselaw.dates import record_date_provenance
+
+        decision = CaseLawDecision.objects.create(title="Provenance", source_sha256="e" * 64)
+        rows = {row.field: row for row in record_date_provenance(
+            decision,
+            {"decision_date": "2005-03-09", "filed_date": "1996-02-01"},
+            source_key="caselaw/metadata/abc.json",
+            source_sha256="abc123",
+            text="DATE: March 9, 2005 CASE NO.: 2004 CVG 28660",
+        )}
+
+        self.assertTrue(rows["decision_date"].corroborated)
+        self.assertEqual(rows["decision_date"].matched_text, "March 9, 2005")
+        self.assertEqual(rows["decision_date"].source_key, "caselaw/metadata/abc.json")
+        self.assertEqual(rows["decision_date"].source_sha256, "abc123")
+        self.assertIn("March 9, 2005", rows["decision_date"].snippet)
+        # The filed date is in the sidecar but not in the text. It is still
+        # recorded, marked as unconfirmed rather than dropped or asserted.
+        self.assertFalse(rows["filed_date"].corroborated)
+        self.assertEqual(rows["filed_date"].value, date(1996, 2, 1))
+        self.assertEqual(rows["filed_date"].snippet, "")
+
+    def test_re_recording_replaces_rows_rather_than_accumulating_them(self):
+        from apps.caselaw.dates import record_date_provenance
+        from apps.caselaw.models import CaseLawDateProvenance
+
+        decision = CaseLawDecision.objects.create(title="Rerun", source_sha256="f" * 64)
+        record_date_provenance(decision, {"decision_date": "2005-03-09"}, text="")
+        record_date_provenance(decision, {"decision_date": "2006-04-26"}, text="")
+
+        rows = CaseLawDateProvenance.objects.filter(decision=decision)
+        self.assertEqual(rows.count(), 1)
+        self.assertEqual(rows.first().value, date(2006, 4, 26))
+
+    def test_the_recorded_passage_is_the_one_that_fits_the_field(self):
+        # The same date can appear as a hearing mention and as the entry. The
+        # snippet a reader is shown should be the supporting passage, not
+        # whichever occurrence happened to come first in the scan.
+        from apps.caselaw.dates import record_date_provenance
+
+        decision = CaseLawDecision.objects.create(title="Two mentions", source_sha256="a1" * 32)
+        rows = {row.field: row for row in record_date_provenance(
+            decision,
+            {"decision_date": "1989-03-06"},
+            text=(
+                "The hearing previously scheduled for Monday, March 6, 1989, was cancelled. "
+                "This cause was decided March 6, 1989 upon the pleadings."
+            ),
+        )}
+
+        self.assertEqual(rows["decision_date"].context_label, "decided")
+        self.assertIn("decided", rows["decision_date"].snippet)

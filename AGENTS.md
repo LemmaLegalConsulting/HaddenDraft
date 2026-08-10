@@ -130,6 +130,13 @@ other confidential material.
 - Do not hand-edit generated Markdown, generated statute chunks, generated
   manifests, or ingested template package outputs. Fix the source document,
   converter, or ingestion script and regenerate.
+- Record where an extracted date came from, not just its value. Dates on case-law
+  decisions are model-read out of scanned paper, so `apps.caselaw.dates` writes a
+  `CaseLawDateProvenance` row per field carrying the source sidecar, its checksum,
+  and the passage in the document's own OCR text that shows the date. Corroborated
+  means the text contains it, never that it has been confirmed to mean what the
+  field says; more than half this corpus has no usable text layer, so say
+  "unverifiable here" rather than implying a date is wrong.
 - Preserve provenance for legal authorities and remote/private content,
   including source path, checksum, modified time, fetch/import time, and remote
   IDs where available.

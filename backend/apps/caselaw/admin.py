@@ -3,6 +3,7 @@ from django.contrib import admin
 from apps.caselaw.models import (
     CaseLawArtifact,
     CaseLawChunk,
+    CaseLawDateProvenance,
     CaseLawDecision,
     CaseLawImportBatch,
     CaseLawPage,
@@ -36,6 +37,19 @@ class CaseLawArtifactInline(admin.TabularInline):
     extra = 0
     fields = ("artifact_type", "original_filename", "storage_backend", "storage_key", "content_type", "size_bytes", "sha256")
     readonly_fields = ("storage_key", "size_bytes", "sha256")
+
+
+class CaseLawDateProvenanceInline(admin.TabularInline):
+    """Where each date came from, next to the dates themselves.
+
+    Reviewing an extracted date means reading the passage it came from, so the
+    supporting snippet belongs on the decision page rather than a screen away.
+    """
+
+    model = CaseLawDateProvenance
+    extra = 0
+    fields = ("field", "value", "raw_value", "corroborated", "context_label", "match_kind", "matched_text", "snippet", "source_key")
+    readonly_fields = ("raw_value", "corroborated", "context_label", "match_kind", "matched_text", "snippet", "source_key")
 
 
 class CaseLawPageInline(admin.TabularInline):
@@ -84,7 +98,7 @@ class CaseLawDecisionAdmin(admin.ModelAdmin):
         "outcome",
     )
     actions = [approve_for_search, approve_for_drafting, mark_treatment_unchecked]
-    inlines = [CaseLawArtifactInline, CaseLawPageInline]
+    inlines = [CaseLawDateProvenanceInline, CaseLawArtifactInline, CaseLawPageInline]
 
 
 @admin.register(CaseLawArtifact)
@@ -128,3 +142,12 @@ class CaseLawSimilarityEdgeAdmin(admin.ModelAdmin):
     list_display = ("from_decision", "to_decision", "relation_type", "score", "created_at")
     list_filter = ("relation_type",)
     search_fields = ("from_decision__title", "to_decision__title")
+
+
+@admin.register(CaseLawDateProvenance)
+class CaseLawDateProvenanceAdmin(admin.ModelAdmin):
+    list_display = ("decision", "field", "value", "corroborated", "context_label", "match_kind", "matched_text")
+    list_filter = ("field", "corroborated", "match_kind", "context_label", "source")
+    search_fields = ("decision__title", "raw_value", "matched_text", "snippet")
+    readonly_fields = ("decision", "field", "value", "raw_value", "source", "source_key", "source_sha256",
+                       "corroborated", "page_number", "matched_text", "match_kind", "context_label", "snippet")
