@@ -461,6 +461,7 @@ Important frontend components:
 
 - `CaseSelector`: selects and displays LegalServer-style matters.
 - `ResearchPanel`: queries source connectors and shows retrieved support.
+- `LibraryBrowser`: browses the imported corpus without a query — faceted case law, and treatises and statutes as a table of contents.
 - `FactReview`: lets a human select candidate facts before drafting.
 - `TemplatePicker`: selects templates and optional prewritten clauses.
 - `TemplateBuilder`: creates a structured template outline from example text.
@@ -472,8 +473,45 @@ Drafting state lives in `src/state/draftWorkspace.js`, a reducer covering the
 rules for a multi-document session: the document list and the open document
 move together, and validation state belongs to the document that produced it.
 Derivation logic for the panels lives in plain `.js` modules
-(`components/documentHistory.js`, `components/documentPackage.js`) so it is
+(`components/documentHistory.js`, `components/documentPackage.js`,
+`components/caseCatalog.js`, `components/libraryBrowse.js`) so it is
 covered by `npm run test`; the `.jsx` components stay presentational.
+
+## Browsing the Library
+
+Research has two views. **Ask a question** runs the connectors and returns cited
+results. **Browse the library** opens the same material without a question,
+because a reader who does not yet know what to ask still needs to see what has
+been imported.
+
+| Endpoint | Purpose |
+| --- | --- |
+| `GET /api/caselaw/catalog/` | The whole approved corpus, narrowed by metadata, with facet counts and paging |
+| `GET /api/library/` | Every indexed treatise, handbook, and statute collection |
+| `GET /api/library/<document-slug>/` | One document's table of contents as a tree, optionally filtered |
+
+**Cases** lists every decision approved for search and narrows by county, court,
+judge, year, authority level, publication and treatment status, case type,
+subsidy program, and the statutes, regulations, issues, and cases each decision
+cites. Values inside one facet are alternatives; facets combine. Each facet is
+counted against the *other* narrowing in force, so the alternatives on offer are
+the ones that would actually return something.
+
+Metadata came out of documents rather than a controlled vocabulary, so the same
+county arrives as "Cuyahoga" and "Cuyahoga County" and the same judge with and
+without the honorific. Those are grouped as one value, labelled with the
+spelling the documents use most; narrowing by either finds both. Facets a corpus
+never filled in are not offered — an import with no extracted decision dates
+shows no year facet rather than an empty one.
+
+**Treatises and handbooks** and **Statutes** open a document as a tree built
+from the same generated manifests retrieval reads, so a section reached by
+walking the contents opens the chunk a citation points at, with the same
+identifiers, PDF page, and provenance. A section that produced one chunk is the
+row itself; a section split across several keeps one row per part. Filtering
+matches headings, section paths, and citations — full-text lookup is what the
+research search is for. A private edition of a document shadows the public one
+here exactly as it does during retrieval.
 
 ## Current Prototype Notes
 

@@ -1,6 +1,7 @@
 import json
 import shutil
 import tempfile
+from datetime import date
 from pathlib import Path
 
 from django.contrib.auth.models import User
@@ -354,3 +355,111 @@ class LocalCaseJurisdictionRankingTests(TestCase):
 
     def test_a_deeper_pool_is_returned_than_other_sources_so_it_can_be_narrowed(self):
         self.assertGreater(LocalCaseIndexConnector.limit_multiplier, 1)
+
+
+class CaseLawCatalogTests(TestCase):
+    """Browsing the corpus without a question in hand.
+
+    Search answers "what is on point"; the catalog answers "what is in here",
+    so it has to page the whole approved corpus and count facets against
+    everything else the reader has already narrowed by.
+    """
+
+    def setUp(self):
+        self.user = User.objects.create_user(username="browser", password="password")
+        self.client.force_login(self.user)
+        self._decision(
+            title="Tenant v. Cleveland Landlord",
+            county="Cuyahoga County",
+            judge="Judge Raymond L. Pianka",
+            decision_date=date(2015, 4, 1),
+            statutes=["Ohio Rev. Code § 1923.04"],
+            sha="a",
+        )
+        self._decision(
+            title="Renter v. Cleveland Owner",
+            county="Cuyahoga",
+            judge="Raymond L. Pianka",
+            decision_date=date(2016, 6, 2),
+            statutes=["Ohio Rev. Code § 5321.04"],
+            sha="b",
+        )
+        self._decision(
+            title="Occupant v. Columbus Landlord",
+            county="Franklin County",
+            judge="W. David Branstool",
+            decision_date=date(2016, 8, 3),
+            statutes=["Ohio Rev. Code § 1923.04"],
+            sha="c",
+        )
+
+    def _decision(self, *, title, county, judge, decision_date, statutes, sha):
+        return CaseLawDecision.objects.create(
+            title=title,
+            county=county,
+            judge=judge,
+            court="Municipal Court",
+            decision_date=decision_date,
+            statutes_cited=statutes,
+            key_facts="Rent was withheld over unmade repairs.",
+            source_sha256=sha * 64,
+            approved_for_search=True,
+        )
+
+    def test_catalog_lists_the_whole_corpus_with_facet_counts(self):
+        payload = self.client.get("/api/caselaw/catalog/").json()
+
+        self.assertEqual(payload["total"], 3)
+        self.assertEqual(payload["corpusTotal"], 3)
+        self.assertEqual(len(payload["results"]), 3)
+        self.assertEqual(
+            {item["value"]: item["count"] for item in payload["facets"]["decisionYear"]},
+            {"2016": 2, "2015": 1},
+        )
+        self.assertEqual(payload["facets"]["statute"][0]["value"], "Ohio Rev. Code § 1923.04")
+
+    def test_one_county_spelled_two_ways_is_one_shelf(self):
+        # The metadata came out of documents, so "Cuyahoga" and "Cuyahoga
+        # County" are the same county written twice; splitting them would hide
+        # a case from a reader who narrowed correctly.
+        counties = {item["value"]: item["count"] for item in self.client.get("/api/caselaw/catalog/").json()["facets"]["county"]}
+        narrowed = self.client.get("/api/caselaw/catalog/?county=Cuyahoga").json()
+
+        self.assertEqual(counties, {"Cuyahoga County": 2, "Franklin County": 1})
+        self.assertEqual(narrowed["total"], 2)
+        # One judge, written with and without the honorific, is likewise one
+        # entry -- labelled with a spelling that appears in the documents.
+        self.assertEqual(len(narrowed["facets"]["judge"]), 1)
+        self.assertEqual(narrowed["facets"]["judge"][0]["count"], 2)
+        self.assertIn("Raymond L. Pianka", narrowed["facets"]["judge"][0]["value"])
+
+    def test_facets_combine_and_alternatives_within_one_facet_stay_countable(self):
+        both_years = self.client.get("/api/caselaw/catalog/?decisionYear=2015&decisionYear=2016").json()
+        crossed = self.client.get("/api/caselaw/catalog/?decisionYear=2016&county=Franklin County").json()
+
+        self.assertEqual(both_years["total"], 3)
+        self.assertEqual(crossed["total"], 1)
+        self.assertEqual(crossed["results"][0]["title"], "Occupant v. Columbus Landlord")
+        # The year counts are still measured against the county narrowing, but
+        # not against the year narrowing itself, so the other year is offered
+        # with the number of cases it would actually show.
+        self.assertEqual(
+            {item["value"]: item["count"] for item in crossed["facets"]["decisionYear"]},
+            {"2016": 1},
+        )
+
+    def test_paging_and_sorting_cover_the_corpus_in_a_stated_order(self):
+        newest = self.client.get("/api/caselaw/catalog/?limit=2").json()
+        oldest = self.client.get("/api/caselaw/catalog/?sort=oldest&limit=2&offset=2").json()
+
+        self.assertEqual([item["title"] for item in newest["results"]], ["Occupant v. Columbus Landlord", "Renter v. Cleveland Owner"])
+        self.assertEqual(newest["total"], 3)
+        self.assertEqual([item["title"] for item in oldest["results"]], ["Occupant v. Columbus Landlord"])
+        self.assertEqual(oldest["offset"], 2)
+
+    def test_a_query_narrows_the_catalog_and_its_facets_together(self):
+        payload = self.client.get("/api/caselaw/catalog/?q=columbus").json()
+
+        self.assertEqual(payload["total"], 1)
+        self.assertEqual(payload["corpusTotal"], 3)
+        self.assertEqual({item["value"] for item in payload["facets"]["county"]}, {"Franklin County"})
