@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useRef, useState } from "react";
 import { $createParagraphNode, $createTextNode, $getRoot, FORMAT_TEXT_COMMAND } from "lexical";
 import { AlertCircle, Bold, ExternalLink, Italic, MoreVertical, Plus, Save, Sparkles, Underline, X } from "lucide-react";
 import { LexicalComposer } from "@lexical/react/LexicalComposer";
@@ -8,6 +8,7 @@ import { HistoryPlugin } from "@lexical/react/LexicalHistoryPlugin";
 import { OnChangePlugin } from "@lexical/react/LexicalOnChangePlugin";
 import { RichTextPlugin } from "@lexical/react/LexicalRichTextPlugin";
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
+import { useModalDismiss } from "../hooks/useModalDismiss.js";
 
 function cleanBody(body = "") {
   return body.replace(/<br\s*\/?>/gi, "\n");
@@ -63,6 +64,7 @@ function BlockToolbar() {
           className="btn btn-outline-secondary icon-button"
           key={format}
           title={label}
+          aria-label={label}
           type="button"
           onClick={() => editor.dispatchCommand(FORMAT_TEXT_COMMAND, format)}
         >
@@ -200,7 +202,7 @@ function DraftBlock({ block, blockState, disabled, onBlockChange, onFormatChange
               Template wording
             </span>
           )}
-          <button className="btn btn-outline-secondary icon-button" title="Actions" type="button" onClick={() => setMenuOpen((value) => !value)}>
+          <button className="btn btn-outline-secondary icon-button" title="Actions" aria-label="Section actions" aria-expanded={menuOpen} type="button" onClick={() => setMenuOpen((value) => !value)}>
             <MoreVertical size={16} />
           </button>
           {menuOpen && (
@@ -294,16 +296,18 @@ function DraftBlock({ block, blockState, disabled, onBlockChange, onFormatChange
 
 function RefineModal({ block, disabled, onClose, onSubmit }) {
   const [instruction, setInstruction] = useState(block?.pendingInstruction || "");
+  const dialogRef = useRef(null);
+  useModalDismiss(dialogRef, onClose, { active: Boolean(block) });
   React.useEffect(() => {
     setInstruction(block?.pendingInstruction || "");
   }, [block]);
   if (!block) return null;
   return (
     <div className="modal-backdrop" role="presentation">
-      <div className="editor-modal" role="dialog" aria-modal="true" aria-label="Refine section">
+      <div className="editor-modal" ref={dialogRef} role="dialog" aria-modal="true" aria-label="Refine section">
         <div className="modal-heading">
           <h4>Refine {block.label}</h4>
-          <button className="btn btn-outline-secondary icon-button" type="button" onClick={onClose} title="Close"><X size={16} /></button>
+          <button className="btn btn-outline-secondary icon-button" type="button" onClick={onClose} title="Close" aria-label="Close"><X size={16} /></button>
         </div>
         <textarea className="form-control"
           value={instruction}
@@ -323,16 +327,18 @@ function RefineModal({ block, disabled, onClose, onSubmit }) {
 
 function MissingFieldModal({ placeholder, disabled, onClose, onSubmit }) {
   const [value, setValue] = useState("");
+  const dialogRef = useRef(null);
+  useModalDismiss(dialogRef, onClose, { active: Boolean(placeholder) });
   React.useEffect(() => {
     setValue("");
   }, [placeholder]);
   if (!placeholder) return null;
   return (
     <div className="modal-backdrop" role="presentation">
-      <div className="editor-modal" role="dialog" aria-modal="true" aria-label={`Fill in ${placeholder.label}`}>
+      <div className="editor-modal" ref={dialogRef} role="dialog" aria-modal="true" aria-label={`Fill in ${placeholder.label}`}>
         <div className="modal-heading">
           <h4>Fill in: {placeholder.label}</h4>
-          <button className="btn btn-outline-secondary icon-button" type="button" onClick={onClose} title="Close"><X size={16} /></button>
+          <button className="btn btn-outline-secondary icon-button" type="button" onClick={onClose} title="Close" aria-label="Close"><X size={16} /></button>
         </div>
         <input
           className="form-control"
@@ -368,7 +374,7 @@ function CitationPreview({ citation, onClose }) {
           <span className="block-kicker">{citation.sourceLabel || "Support"}</span>
           <h4>{citation.title || citation.label}</h4>
         </div>
-        <button className="btn btn-outline-secondary icon-button" type="button" onClick={onClose} title="Close"><X size={16} /></button>
+        <button className="btn btn-outline-secondary icon-button" type="button" onClick={onClose} title="Close" aria-label="Close citation preview"><X size={16} /></button>
       </div>
       <p>{citation.snippet || "No preview text is available for this citation yet."}</p>
       {citation.url && (

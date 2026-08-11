@@ -1,9 +1,10 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import ReactMarkdown, { defaultUrlTransform } from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { ExternalLink, FileText, Loader2, Maximize2, Minimize2, Search, X } from "lucide-react";
 
 import { api } from "../api/client.js";
+import { useModalDismiss } from "../hooks/useModalDismiss.js";
 
 function citationMap(citations) {
   return new Map((citations || []).map((citation, index) => [String(index + 1), citation]));
@@ -238,6 +239,8 @@ export function CaseLawSourceModal({ citation, onClose, onOpenSource = () => {} 
   const [error, setError] = useState("");
   const [readingMode, setReadingMode] = useState(false);
   const decisionId = citation?.metadata?.decisionId;
+  const dialogRef = useRef(null);
+  useModalDismiss(dialogRef, onClose, { active: Boolean(citation && decisionId) });
 
   React.useEffect(() => {
     let cancelled = false;
@@ -273,6 +276,7 @@ export function CaseLawSourceModal({ citation, onClose, onOpenSource = () => {} 
   return (
     <div className="modal-backdrop case-source-backdrop" role="presentation" onMouseDown={onClose}>
       <section
+        ref={dialogRef}
         className={`editor-modal case-source-modal ${readingMode ? "reading-mode" : ""}`}
         role="dialog"
         aria-modal="true"
@@ -359,6 +363,8 @@ export function ContentLibrarySourceModal({ citation, onClose, onOpenSource }) {
   const [readingMode, setReadingMode] = useState(false);
   const documentSlug = citation?.metadata?.documentSlug;
   const chunkId = citation?.metadata?.chunkId;
+  const dialogRef = useRef(null);
+  useModalDismiss(dialogRef, onClose, { active: Boolean(citation && documentSlug && chunkId) });
 
   React.useEffect(() => {
     let cancelled = false;
@@ -396,6 +402,7 @@ export function ContentLibrarySourceModal({ citation, onClose, onOpenSource }) {
   return (
     <div className="modal-backdrop case-source-backdrop" role="presentation" onMouseDown={onClose}>
       <section
+        ref={dialogRef}
         className={`editor-modal case-source-modal ${readingMode ? "reading-mode" : ""}`}
         role="dialog"
         aria-modal="true"
@@ -501,12 +508,15 @@ export function SourceFullViewButton({ citation, onOpen }) {
 
 export function CitationPreviewModal({ citation, onClose }) {
   const [caseSource, setCaseSource] = useState(null);
+  const dialogRef = useRef(null);
+  useModalDismiss(dialogRef, onClose, { active: Boolean(citation) });
   if (!citation) return null;
   const label = citation.citation || citation.title || "Source";
   return (
     <>
       <div className="modal-backdrop" role="presentation" onMouseDown={onClose}>
         <section
+          ref={dialogRef}
           className="editor-modal citation-modal"
           role="dialog"
           aria-modal="true"

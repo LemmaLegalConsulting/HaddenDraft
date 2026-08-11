@@ -436,6 +436,7 @@ export function AdviceLetterPanel({ matter, authorProfile }) {
                     disabled={index === 0}
                     onClick={() => setSelected(moveSection(selected, section.slug, -1))}
                     title="Move up"
+                    aria-label={`Move ${section.title} up`}
                   >
                     <ArrowUp size={14} />
                   </button>
@@ -445,6 +446,7 @@ export function AdviceLetterPanel({ matter, authorProfile }) {
                     disabled={index === chosen.length - 1}
                     onClick={() => setSelected(moveSection(selected, section.slug, 1))}
                     title="Move down"
+                    aria-label={`Move ${section.title} down`}
                   >
                     <ArrowDown size={14} />
                   </button>

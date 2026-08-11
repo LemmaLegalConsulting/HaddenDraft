@@ -207,7 +207,7 @@ export function CaseSelector({
               {filterCount > 0 && <span className="case-filter-count">{filterCount}</span>}
               <ChevronDown className={filtersOpen ? "chevron open" : "chevron"} size={15} />
             </button>
-            <button className="btn btn-outline-secondary icon-button" type="button" disabled={caseBusy || (!search && !filterCount)} onClick={onSearchReset} title="Reset search and filters">
+            <button className="btn btn-outline-secondary icon-button" type="button" disabled={caseBusy || (!search && !filterCount)} onClick={onSearchReset} title="Reset search and filters" aria-label="Reset search and filters">
               <RotateCcw size={16} />
             </button>
           </form>

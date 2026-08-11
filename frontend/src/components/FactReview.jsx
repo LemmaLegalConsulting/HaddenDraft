@@ -1,8 +1,9 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Check, FileText, Loader2, Plus, Search, TextSelect, Upload, X } from "lucide-react";
 
 import { api } from "../api/client.js";
 import { mergeFactIds } from "./factReviewState.js";
+import { useModalDismiss } from "../hooks/useModalDismiss.js";
 
 function citationForFact(fact) {
   return fact.source || fact.citation || "Case record";
@@ -20,6 +21,8 @@ export function FactReview({ matter, facts, selectedFactIds, selectedCuratedFact
   const [uploadingFact, setUploadingFact] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState("fact");
+  const modalRef = useRef(null);
+  useModalDismiss(modalRef, () => setModalOpen(false), { active: modalOpen });
   const [newFact, setNewFact] = useState({ title: "", text: "", source: "" });
   const [uploadTitle, setUploadTitle] = useState("");
   const [uploadFile, setUploadFile] = useState(null);
@@ -262,13 +265,13 @@ export function FactReview({ matter, facts, selectedFactIds, selectedCuratedFact
 
       {modalOpen && (
         <div className="modal-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) setModalOpen(false); }}>
-          <div className="profile-modal fact-add-modal" role="dialog" aria-modal="true" aria-label="Add fact or source document">
+          <div className="profile-modal fact-add-modal" ref={modalRef} role="dialog" aria-modal="true" aria-label="Add fact or source document">
             <div className="modal-heading">
               <div>
                 <h4>Add a fact or document</h4>
                 <p className="modal-subtitle">Use this when the case file is missing a fact the draft needs.</p>
               </div>
-              <button className="btn btn-outline-secondary icon-button" type="button" onClick={() => setModalOpen(false)} title="Close">
+              <button className="btn btn-outline-secondary icon-button" type="button" onClick={() => setModalOpen(false)} title="Close" aria-label="Close">
                 <X size={16} />
               </button>
             </div>
