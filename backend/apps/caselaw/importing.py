@@ -248,7 +248,10 @@ def as_date(value):
     # where the document held several hearings. The field takes one; the raw
     # wording is kept in the provenance record beside it.
     text = text.split(";")[0].strip()
-    for fmt in ("%Y-%m-%d", "%m/%d/%Y", "%m/%d/%y", "%B %d, %Y", "%b %d, %Y", "%d %B %Y"):
+    # Appellate reporters write a hearing date as "Argued April 18, 2005" or
+    # "Submitted October 8, 2008" rather than the bare date.
+    text = re.sub(r"^(argued|submitted|decided|filed|heard)\s+", "", text, flags=re.IGNORECASE)
+    for fmt in ("%Y-%m-%d", "%m/%d/%Y", "%m/%d/%y", "%B %d, %Y", "%b %d, %Y", "%b. %d, %Y", "%d %B %Y"):
         try:
             return datetime.strptime(text, fmt).date()
         except ValueError:

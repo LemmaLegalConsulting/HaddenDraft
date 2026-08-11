@@ -132,6 +132,8 @@ class PromptCatalogTests(TestCase):
                 "case_chat.suggest_actions",
                 "case_chat.reply",
                 "caselaw.search_keywords",
+                "caselaw.metadata_extract",
+                "caselaw.metadata_verify",
                 "research.answer",
                 "research.treatise_relevance",
             },

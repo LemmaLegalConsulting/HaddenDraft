@@ -97,22 +97,35 @@ class Command(BaseCommand):
                 continue
 
             updates = {}
+            skipped_as_existing = False
+            unparsable = False
             for field in PROVENANCE_FIELDS:
-                value = as_date(as_text(metadata_value(metadata, field)))
-                if not value:
+                raw = as_text(metadata_value(metadata, field))
+                if not raw:
                     continue
+                value = as_date(raw)
                 if getattr(decision, field) and not options["overwrite"]:
                     counts["skipped_existing"] += 1
+                    skipped_as_existing = True
+                    continue
+                if not value:
+                    # A non-empty field the sidecar carried that as_date could
+                    # not read, distinct from a decision that is simply already
+                    # dated -- the two look identical as an empty `updates`.
+                    unparsable = True
                     continue
                 updates[field] = value
             if not updates:
-                # The sidecar had dates but none survived parsing, which is a
-                # different fault from having none to begin with.
-                label = "unparsable_dates" if any(metadata.get(f) for f in PROVENANCE_FIELDS) else "sidecar_has_no_dates"
+                if skipped_as_existing and not unparsable:
+                    label = "already_dated"
+                elif unparsable:
+                    label = "unparsable_dates"
+                else:
+                    label = "sidecar_has_no_dates"
                 reasons[label] = reasons.get(label, 0) + 1
-                if len(examples) < 10:
-                    raw = {f: metadata.get(f) for f in PROVENANCE_FIELDS if metadata.get(f)}
-                    examples.append((decision.id, label, raw))
+                if label != "already_dated" and len(examples) < 10:
+                    raw_fields = {f: metadata.get(f) for f in PROVENANCE_FIELDS if metadata.get(f)}
+                    examples.append((decision.id, label, raw_fields))
                 continue
 
             page = decision.pages.first()
@@ -141,9 +154,11 @@ class Command(BaseCommand):
         self.stdout.write(f"  left alone (had dates): {counts['skipped_existing']}")
         for reason, count in sorted(reasons.items(), key=lambda item: -item[1]):
             self.stdout.write(f"  {reason:24s}{count}")
-        if examples and counts["dated"] == 0:
-            # A run that dated nothing has to say why, per decision. Aggregate
-            # counters alone cannot be diagnosed from a deployment log.
+        if examples and counts["dated"] == 0 and counts["skipped_existing"] == 0:
+            # A run that dated nothing AND found nothing already dated has to
+            # say why, per decision -- that combination means every decision
+            # hit a real failure. Aggregate counters alone cannot be diagnosed
+            # from a deployment log.
             self.stdout.write("")
             self.stdout.write("Nothing was dated. First few, with what was found:")
             for decision_id, reason, detail in examples:

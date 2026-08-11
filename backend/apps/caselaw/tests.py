@@ -554,6 +554,23 @@ class DecisionDateImportTests(TestCase):
         self.assertIsNone(as_date(None))
         self.assertIsNone(as_date("sometime in 1991"))
 
+    def test_a_hearing_date_written_as_argued_or_submitted_still_parses(self):
+        # Appellate reporters write "Argued April 18, 2005" rather than the
+        # bare date; the verb is not part of the date.
+        from apps.caselaw.importing import as_date
+
+        self.assertEqual(as_date("Argued April 18, 2005"), date(2005, 4, 18))
+        self.assertEqual(as_date("Submitted October 8, 2008"), date(2008, 10, 8))
+        self.assertEqual(as_date("Decided Jan. 16, 1978"), date(1978, 1, 16))
+
+    def test_a_month_only_date_is_left_unparsed_rather_than_guessing_a_day(self):
+        # "1883-01" and "1891" are the precision the reporter actually gives;
+        # inventing a day would assert something the source does not support.
+        from apps.caselaw.importing import as_date
+
+        self.assertIsNone(as_date("1883-01"))
+        self.assertIsNone(as_date("1891"))
+
     def test_a_field_holding_two_hearing_dates_takes_the_first_and_keeps_both(self):
         # A document with two hearings produces "1991-08-12; 1991-08-20". The
         # column takes one date; the wording is preserved in the provenance row.
