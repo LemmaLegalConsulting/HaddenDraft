@@ -13,6 +13,10 @@ library, not inside a Django app or embedded in Python constants.
   it.
 - Put default triage rubrics in `content/triage-rubrics/*.yaml`. Seed new files
   into the database; do not silently overwrite existing admin-managed records.
+- Put the rules mapping a triage outcome to LegalServer case properties in
+  `content/legalserver-field-maps/*.yaml`. Which fields an outcome should change
+  is office policy about a site's own schema, not application logic; ship new
+  maps disabled and in dry run so the hook exists before the fields do.
 - Read generated manifests through `apps.sources.library.load_manifest()`, never
   with a bare `yaml.safe_load`. It caches each parse against the file's mtime and
   size and uses libyaml when available; a code manifest is megabytes of YAML that
@@ -97,6 +101,12 @@ Keep changes aligned with the existing workflow boundaries:
   prepared for sharing must carry no trace of the advocate whose file seeded it,
   including document properties and `mailto:`/`attachedTemplate` relationships.
 - Export formats belong behind `backend/apps/exporting/`.
+- Write work product back to LegalServer through `apps.matters.legalserver_delivery`,
+  never by calling the client from a view. Every attempt is recorded as a
+  `LegalServerDelivery`, and a delivery must never raise into its caller: an
+  advocate who exported a document still gets the document when the upload
+  fails, and hears that it failed. Documents save by default; research answers
+  and triage assessments do not.
 - Frontend API calls should go through `frontend/src/api/client.js`; avoid
   scattering fetch logic through components.
 - Frontend derivation and state logic belongs in plain `.js` modules with

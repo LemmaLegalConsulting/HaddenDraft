@@ -50,6 +50,26 @@ def legalserver_matter_identifier(payload):
     return str(value) if value not in (None, "") else ""
 
 
+UUID_RE = re.compile(r"^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$")
+
+
+def legalserver_matter_uuid(payload):
+    """Return the matter UUID that v2 write endpoints address a matter by.
+
+    The v2 API identifies a matter by UUID, not by the case number this app
+    stores as a matter's external id. Anything that is not a UUID is rejected
+    rather than sent: posting a case number into a `module_id` field would
+    either fail confusingly or, worse, match a different record.
+    """
+    if not isinstance(payload, dict):
+        return ""
+    for key in ("matter_uuid", "uuid"):
+        value = payload.get(key)
+        if isinstance(value, str) and UUID_RE.match(value.strip()):
+            return value.strip()
+    return ""
+
+
 def legalserver_matter_identifier_candidates(payload):
     seen = set()
     for key in (*LEGALSERVER_PRIMARY_MATTER_ID_FIELDS, *LEGALSERVER_FALLBACK_MATTER_ID_FIELDS):
@@ -103,11 +123,35 @@ def _legalserver_response_detail(response):
     return detail[:500]
 
 
+MATTER_DATABASE_ID_FIELDS = ("database_id", "matter_database_id", "case_id", "id")
+
+
+def legalserver_matter_write_id(payload):
+    """Return the matter's numeric id for writes, or "" if it is not stated.
+
+    Deliberately stricter than `legalserver_matter_database_id`, which falls
+    back to the digits on the end of a case number. That guess is harmless in a
+    profile link -- a wrong link is visibly wrong -- but a write addressed by a
+    guessed id attaches a note to someone else's case. Case numbers restart each
+    year, so "27-0000009" and "26-0000009" trail the same digits and are
+    different matters.
+    """
+    if not isinstance(payload, dict):
+        return ""
+    for key in MATTER_DATABASE_ID_FIELDS:
+        value = payload.get(key)
+        if isinstance(value, bool):
+            continue
+        if isinstance(value, int) or (isinstance(value, str) and value.strip().isdigit()):
+            return str(int(value))
+    return ""
+
+
 def legalserver_matter_database_id(payload):
     """Return the sequential database ID used by LegalServer profile URLs."""
     if not isinstance(payload, dict):
         return ""
-    for key in ("database_id", "matter_database_id", "id"):
+    for key in MATTER_DATABASE_ID_FIELDS:
         value = payload.get(key)
         if isinstance(value, int) or (isinstance(value, str) and value.strip().isdigit()):
             return str(int(value))
@@ -133,6 +177,9 @@ class LegalServerClient:
                 "matters_path": settings.LEGALSERVER_MATTERS_PATH,
                 "matters_results": settings.LEGALSERVER_MATTERS_RESULTS,
                 "matter_documents_path": settings.LEGALSERVER_MATTER_DOCUMENTS_PATH,
+                "notes_path": settings.LEGALSERVER_NOTES_PATH,
+                "documents_path": settings.LEGALSERVER_DOCUMENTS_PATH,
+                "matter_update_path": settings.LEGALSERVER_MATTER_UPDATE_PATH,
                 "users_path": settings.LEGALSERVER_USERS_PATH,
                 "user_filter_param": settings.LEGALSERVER_USER_FILTER_PARAM,
             },
@@ -144,6 +191,12 @@ class LegalServerClient:
         self.matters_path = config["matters_path"]
         self.matters_results = config.get("matters_results", "")
         self.matter_documents_path = config["matter_documents_path"]
+        self.notes_path = config.get("notes_path") or settings.LEGALSERVER_NOTES_PATH
+        self.documents_path = config.get("documents_path") or settings.LEGALSERVER_DOCUMENTS_PATH
+        self.matter_update_path = config.get("matter_update_path") or settings.LEGALSERVER_MATTER_UPDATE_PATH
+        self.matter_update_method = (settings.LEGALSERVER_MATTER_UPDATE_METHOD or "PATCH").upper()
+        self.document_type = settings.LEGALSERVER_DOCUMENT_TYPE
+        self.case_note_type = settings.LEGALSERVER_CASE_NOTE_TYPE
         self.users_path = config.get("users_path") or settings.LEGALSERVER_USERS_PATH
         self.user_filter_param = config["user_filter_param"]
         self.matter_profile_path = settings.LEGALSERVER_MATTER_PROFILE_PATH
@@ -210,6 +263,105 @@ class LegalServerClient:
         if "json" not in content_type.lower():
             raise LegalServerError("LegalServer returned a non-JSON response")
         return response.json()
+
+    def _write(self, method, path, *, json_body=None, files=None, data=None):
+        """Send a write request and return the parsed body, if there is one.
+
+        Unlike a read, a write may legitimately answer with 201 and an empty
+        body or a bare id, so a non-JSON response is reported as an empty
+        payload rather than treated as a failure.
+        """
+        if not self.configured:
+            raise LegalServerError("LegalServer is not configured")
+        response = self.session.request(
+            method,
+            self._url(path),
+            headers=self._headers(),
+            json=json_body,
+            files=files,
+            data=data,
+            timeout=60 if files else 30,
+            **self._request_kwargs(),
+        )
+        if response.status_code >= 400:
+            detail = _legalserver_response_detail(response)
+            message = f"LegalServer {method} failed with status {response.status_code}"
+            if detail:
+                message = f"{message}: {detail}"
+            raise LegalServerError(message, status_code=response.status_code, detail=detail)
+        try:
+            payload = response.json()
+        except ValueError:
+            return {}
+        if not isinstance(payload, dict):
+            return {"data": payload}
+        # v2 wraps a created or updated record in `data`; hand back the record
+        # itself so callers read `id` rather than digging through the envelope.
+        record = payload.get("data")
+        return record if isinstance(record, dict) else payload
+
+    def create_note(self, matter_database_id, *, subject, body, is_html=False, note_type="", extra_fields=None):
+        """Create a note against a matter.
+
+        Uses the generic v2 `/api/v2/notes` endpoint, which attaches a note to
+        any module. Two details differ from the published request schema, and
+        both were confirmed against a live site:
+
+        - `module_id` must be the matter's numeric database id. The schema
+          documents it as a UUID, but a UUID is rejected with `invalid_values`.
+          Note that the document endpoint is the other way round: it takes the
+          UUID, in `module_uuid`.
+        - `note_type` is required. The schema marks it required only on the
+          response, but omitting it fails with `missing_arguments`.
+
+        The site must grant the API user the "API Create Note" role permission,
+        or it answers 403.
+        """
+        payload = {
+            "module": "matter",
+            "module_id": matter_database_id,
+            "subject": subject,
+            "body": body,
+            "note_type": note_type or self.case_note_type,
+            "is_html": bool(is_html),
+        }
+        payload.update(extra_fields or {})
+        return self._write("POST", self.notes_path, json_body=payload)
+
+    def upload_matter_document(self, matter_uuid, *, filename, content, content_type="", title="", extra_fields=None):
+        """Upload a document and attach it to a matter.
+
+        Follows the documented v2 Upload Document contract: one endpoint that
+        attaches a document to any module, sent as multipart/form-data with the
+        file alongside its metadata. The module is named explicitly and
+        addressed by UUID. Answers 201 for a new document, or 200 when an
+        `update` object matched an existing one. Requires the API Create
+        Document permission.
+        """
+        fields = {
+            "module": "matter",
+            "module_uuid": str(matter_uuid),
+            "name": title or filename,
+            "title": title or filename,
+        }
+        if self.document_type:
+            fields["type"] = self.document_type
+        fields.update({key: str(value) for key, value in (extra_fields or {}).items() if value not in (None, "")})
+        files = {"file": (filename, content, content_type or "application/octet-stream")}
+        return self._write("POST", self.documents_path, files=files, data=fields)
+
+    def update_matter(self, matter_uuid, fields):
+        """Set case properties on a matter.
+
+        Update A Matter is a Premium API, addressed by the case UUID. Custom
+        fields go in a `custom_fields` object keyed by database name, which is
+        what the triage field map produces. Requires the API Matter: Update
+        permission.
+        """
+        if not fields:
+            return {}
+        path = self.matter_update_path.format(case_uuid=quote(str(matter_uuid), safe=""))
+        return self._write(self.matter_update_method, path, json_body=dict(fields))
 
     def download_document(self, url):
         if not self.configured:

@@ -22,6 +22,8 @@ import {
 
 import { api } from "../api/client.js";
 import { caseCount, jurisdictionFacets, narrowResults, selectionAfterNarrowing } from "./caseJurisdictionFacets.js";
+import LegalServerSaveToggle from "./LegalServerSaveToggle.jsx";
+import { saveDefault } from "./legalServerSave.js";
 import { LibraryBrowser } from "./LibraryBrowser.jsx";
 import { CaseFacetBrowser, CitationPreviewModal, MarkdownResponse, SourceBrowserModal, SourceFullViewButton } from "./MarkdownResponse.jsx";
 
@@ -77,7 +79,7 @@ function availableSourceGroups(sources) {
     .filter((group) => group.options.length);
 }
 
-export function ResearchPanel({ matter, sources, onResults }) {
+export function ResearchPanel({ matter, sources, onResults, legalserverSave = null }) {
   const [query, setQuery] = useState("");
   const [lastQuery, setLastQuery] = useState("");
   const [selectedSourceIds, setSelectedSourceIds] = useState([]);
@@ -97,6 +99,8 @@ export function ResearchPanel({ matter, sources, onResults }) {
   const [resourceType, setResourceType] = useState("case");
   const [resourceFile, setResourceFile] = useState(null);
   const [busy, setBusy] = useState(false);
+  const [saveToLegalServer, setSaveToLegalServer] = useState(saveDefault(legalserverSave, "research"));
+  const [delivery, setDelivery] = useState(null);
   const jurisdictionChips = useMemo(() => jurisdictionFacets(results), [results]);
   const totalCaseCount = useMemo(() => caseCount(results), [results]);
   const visibleResults = useMemo(() => narrowResults(results, caseJurisdiction), [results, caseJurisdiction]);
@@ -169,7 +173,9 @@ export function ResearchPanel({ matter, sources, onResults }) {
         sourceIds: sourceMode === "cases" ? ["ohio-cases"] : sourceMode === "manual" && selectedSourceIds.length ? selectedSourceIds : undefined,
         sourceMode,
         useAi,
+        saveToLegalServer: Boolean(matter) && saveToLegalServer,
       });
+      setDelivery(response.legalserver || null);
       setLastQuery(trimmedQuery);
       setResults(response.results);
       setSearchAugmentation(response.searchAugmentation || null);
@@ -403,6 +409,16 @@ export function ResearchPanel({ matter, sources, onResults }) {
             />
           </label>
           <p className="field-example">Example: Can a tenant raise habitability conditions as a defense when rent is disputed and rental assistance is pending?</p>
+          {matter && (
+            <LegalServerSaveToggle
+              kind="research"
+              checked={saveToLegalServer}
+              onChange={setSaveToLegalServer}
+              bootstrapSave={legalserverSave}
+              delivery={delivery}
+              disabled={busy}
+            />
+          )}
         </div>
         {sourceMode === "manual" && sourceGroups.length > 0 && (
           <div className="source-picker" aria-label="Research sources">

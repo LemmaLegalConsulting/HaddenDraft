@@ -26,6 +26,18 @@ from apps.matters.document_context import (
 )
 from apps.matters import case_list
 from apps.matters import services as matter_services
+from apps.matters.legalserver_delivery import (
+    REASON_LABELS,
+    apply_triage_outcome,
+    can_deliver,
+    deliveries_for_matter,
+    delivery_defaults,
+    delivery_to_dict,
+    save_case_note,
+    save_document,
+    wants_delivery,
+)
+from apps.matters.legalserver_notes import triage_case_note_body
 from apps.matters.models import MatterFact, TriageRubric
 from apps.matters.seed import seed_matters
 from apps.matters.serializers import fact_to_dict, matter_to_dict, triage_assessment_to_dict, triage_rubric_to_dict
@@ -275,6 +287,70 @@ def case_detail(request, matter_id):
             return JsonResponse({"error": str(exc)}, status=403)
         return JsonResponse({"legalserverDraftIntake": preview})
     return JsonResponse({"error": "GET, PATCH, or POST required"}, status=405)
+
+
+@api_login_required
+def case_legalserver(request, matter_id):
+    """Report whether this case can be written to, and what has been sent."""
+    if request.method != "GET":
+        return JsonResponse({"error": "GET required"}, status=405)
+    matter, error = _matter_or_404(request.user, matter_id)
+    if error:
+        return error
+    can_save, reason = can_deliver(matter)
+    return JsonResponse(
+        {
+            "canSave": can_save,
+            "reason": reason,
+            "message": REASON_LABELS.get(reason, ""),
+            "defaults": delivery_defaults(),
+            "deliveries": [delivery_to_dict(delivery) for delivery in deliveries_for_matter(matter)],
+        }
+    )
+
+
+@api_login_required
+def case_legalserver_casenote(request, matter_id):
+    """Save a case note. Used by research, triage, and case chat."""
+    if request.method != "POST":
+        return JsonResponse({"error": "POST required"}, status=405)
+    matter, error = _matter_or_404(request.user, matter_id)
+    if error:
+        return error
+    body = json_body(request)
+    delivery = save_case_note(
+        matter,
+        user=request.user,
+        title=str(body.get("title") or "Note from the drafting tool"),
+        body=str(body.get("body") or body.get("note") or ""),
+        origin=str(body.get("origin") or "manual")[:60],
+        requested=True,
+    )
+    return JsonResponse({"delivery": delivery_to_dict(delivery)}, status=201)
+
+
+@api_login_required
+def case_legalserver_document(request, matter_id):
+    """Upload a document the advocate is holding in the browser."""
+    if request.method != "POST":
+        return JsonResponse({"error": "POST required"}, status=405)
+    matter, error = _matter_or_404(request.user, matter_id)
+    if error:
+        return error
+    upload = request.FILES.get("file")
+    if not upload:
+        return JsonResponse({"error": "A file is required"}, status=400)
+    delivery = save_document(
+        matter,
+        user=request.user,
+        filename=upload.name,
+        content=upload.read(),
+        content_type=upload.content_type or "",
+        title=str(request.POST.get("title") or upload.name),
+        origin=str(request.POST.get("origin") or "manual")[:60],
+        requested=True,
+    )
+    return JsonResponse({"delivery": delivery_to_dict(delivery)}, status=201)
 
 
 @api_login_required
@@ -537,7 +613,32 @@ def case_triage(request, matter_id):
         return JsonResponse({"error": "Active triage rubric not found"}, status=404)
 
     assessment = run_triage(matter, rubric=rubric, user=request.user)
-    return JsonResponse({"assessment": triage_assessment_to_dict(assessment)}, status=201)
+
+    # A triage assessment is a working judgment, so the case note is opt-in.
+    # The case-property update is governed by the field map instead of a
+    # checkbox: until an office fills the map in, it evaluates to a preview.
+    note = None
+    if wants_delivery(body, "triage"):
+        note = save_case_note(
+            matter,
+            user=request.user,
+            title=f"AI triage: {assessment.priority_label or assessment.confidence or rubric.name}",
+            body=triage_case_note_body(assessment),
+            origin="triage",
+        )
+    case_update = None
+    if body.get("applyCaseProperties", True):
+        case_update = apply_triage_outcome(matter, assessment, user=request.user)
+    return JsonResponse(
+        {
+            "assessment": triage_assessment_to_dict(assessment),
+            "legalserver": {
+                "casenote": delivery_to_dict(note),
+                "caseUpdate": delivery_to_dict(case_update),
+            },
+        },
+        status=201,
+    )
 
 
 @api_login_required

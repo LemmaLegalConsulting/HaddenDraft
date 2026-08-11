@@ -82,6 +82,11 @@ export const api = {
   newCaseChat: (matterId) => request(`/cases/${matterId}/chat/`, { method: "POST", body: JSON.stringify({ action: "new_thread" }) }),
   clearCaseChatHistory: (matterId) => request(`/cases/${matterId}/chat/`, { method: "DELETE" }),
   caseChat: (matterId, payload) => request(`/cases/${matterId}/chat/`, { method: "POST", body: JSON.stringify(payload) }),
+  caseLegalServer: (matterId) => request(`/cases/${matterId}/legalserver/`),
+  saveCaseNoteToLegalServer: (matterId, payload) =>
+    request(`/cases/${matterId}/legalserver/casenote/`, { method: "POST", body: JSON.stringify(payload) }),
+  saveDocumentToLegalServer: (matterId, formData) =>
+    request(`/cases/${matterId}/legalserver/document/`, { method: "POST", body: formData }),
   caseDocuments: (matterId) => request(`/cases/${matterId}/documents/`),
   caseMaterials: (matterId) => request(`/cases/${matterId}/materials/`),
   customFields: (matterId) => request(`/cases/${matterId}/custom-fields/`),
@@ -160,7 +165,11 @@ export const api = {
   draftRevisionPlan: (draftId) => request(`/drafts/${draftId}/revision-plan/`, { method: "POST" }),
   applyDraftRevision: (draftId, plan) =>
     request(`/drafts/${draftId}/revision/`, { method: "POST", body: JSON.stringify({ plan }) }),
-  exportDraftUrl: (draftId) => `${API_BASE}/drafts/${draftId}/export/`,
+  // The export is a download, so the LegalServer opt-out rides along as a query
+  // parameter and the outcome comes back in response headers.
+  exportDraftUrl: (draftId, { saveToLegalServer = true } = {}) =>
+    `${API_BASE}/drafts/${draftId}/export/${saveToLegalServer ? "" : "?saveToLegalServer=0"}`,
+  exportDraft: (draftId, options = {}) => request(api.exportDraftUrl(draftId, options).replace(API_BASE, "")),
 
   adviceLetterSections: ({ region = "", letterType = "brief_advice", reviewedOnly = false } = {}) =>
     request(`/advice-letters/sections/?${new URLSearchParams({ region, letterType, reviewedOnly: reviewedOnly ? "1" : "" })}`),

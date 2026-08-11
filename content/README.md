@@ -22,6 +22,7 @@ content/                       # public, safe-to-commit defaults
 ├── statutes/
 │   └── ohio-revised-code/    # configured official-code scope and generated section index
 ├── research-sources/         # reviewable Auto-research routing policy
+├── legalserver-field-maps/   # triage outcome to LegalServer case-property rules
 └── triage-rubrics/           # YAML files seeded into TriageRubric records
 
 private-content/               # organization provider; ignored by git
@@ -151,6 +152,26 @@ seeded into the database only when their slug does not already exist, so an
 admin-managed record is never silently overwritten. To intentionally apply a
 changed file to an existing database record, use the content synchronization
 command with its explicit update option.
+
+## LegalServer field maps
+
+`legalserver-field-maps/triage-outcome.yaml` decides which case properties a
+triage outcome sets on the LegalServer matter. Which fields those are is office
+policy, and a site rejects a write to a field it does not have, so the rules are
+file-backed rather than written in code and the shipped map is turned off and
+names no fields.
+
+A map declares `enabled`, `dry_run`, and a list of `rules`. Each rule has an
+optional `when` block, and `set` (top-level matter fields) and `custom_fields`
+mappings; a rule with no `when` block always applies, and later rules win on a
+conflicting key. Conditions are `priority`, `priority_label`, `confidence`,
+`case_type`, `rubric`, `matched_criteria_contains`, and `missing_information`.
+Values may embed assessment fields in `{braces}`. An unknown condition or
+placeholder fails when the file loads, not against a case.
+
+Adopt a map in two steps: set `enabled: true` while leaving `dry_run: true` and
+read back the previewed values the triage panel lists, then turn `dry_run` off
+once they are right. Nothing reaches a case file until both flags say so.
 
 ## Auto research sources
 

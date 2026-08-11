@@ -45,6 +45,7 @@ Runtime settings are loaded from `.env` in the repository root. `.env` is intent
 - Case-law PDFs, sidecar artifacts, and private organization content are side-loaded outside git through the document storage layer in [`apps.core.storage`](backend/apps/core/storage.py). Every store is split into a `raw/` area you upload into and a `published/` area the application reads, so a partial upload is never visible to a running replica. Local development uses `DOCUMENT_STORAGE_BACKEND=filesystem`; `s3` targets any S3-compatible endpoint and is a configuration change rather than a code change. See [`docs/CASELAW_INGESTION.md`](docs/CASELAW_INGESTION.md).
 - Case chat document text extraction uses `DOCUMENT_TEXT_EXTRACTOR=stdlib` by default. Optional values are `markitdown` or `docling` when those packages are installed; the extractor interface is intentionally pluggable for custom backends.
 - LegalServer uses `LEGALSERVER_BASE_URL`, `LEGALSERVER_API_TOKEN`, `LEGALSERVER_MATTERS_PATH`, `LEGALSERVER_MATTERS_RESULTS`, `LEGALSERVER_MATTER_DOCUMENTS_PATH`, and `LEGALSERVER_MATTER_PROFILE_PATH`. Matter search uses the v2 `/api/v2/matters` endpoint with `results=full`, `page_size`, and the documented text search keys. `LEGALSERVER_MATTER_PROFILE_PATH` controls the in-app deep link to the official case profile and receives the LegalServer database ID as `{matter_id}`. User access filtering is applied inside the app after LegalServer returns authorized records.
+- Writing back to LegalServer uses `LEGALSERVER_NOTES_PATH`, `LEGALSERVER_DOCUMENTS_PATH`, and `LEGALSERVER_MATTER_UPDATE_PATH` (with `LEGALSERVER_MATTER_UPDATE_METHOD` and the optional `LEGALSERVER_DOCUMENT_TYPE`). All three address a matter by its UUID, which is how the v2 API identifies one. See [Saving work back to LegalServer](#saving-work-back-to-legalserver).
 - SharePoint Online uses Microsoft Graph with `SHAREPOINT_SITE_ID`, `SHAREPOINT_DRIVE_ID`, and either a delegated `ms_graph_access_token` in the Django session or a service token in `SHAREPOINT_ACCESS_TOKEN`. Case document lookup uses `SHAREPOINT_CASE_FOLDER_TEMPLATE`.
 
 Authentication uses Django's standard auth framework. Manual accounts authenticate through `/api/auth/login/`; Office 365 SSO can be fronted by an upstream OIDC/proxy layer and passed into Django with `ENABLE_REMOTE_USER_AUTH=true`.
@@ -427,6 +428,102 @@ a word is familiar, so a disagreement between them is a reason to read the
 passage. The organization's concrete rules carry more weight than any score.
 The check is invoked deliberately — from review, the command, or advice-letter
 ingest — and is not folded into generation.
+
+## Saving Work Back To LegalServer
+
+Anything the tool produces can be written to the LegalServer case file: a
+generated document as an uploaded case document, and a research answer or triage
+assessment as a case note.
+
+The defaults differ because the risks differ. A generated document is lost work
+if it is not filed, so **document exports default to saving** and the advocate
+clears the checkbox to opt out. A research answer or a triage assessment is a
+working judgment that may not belong on a client's file, so those **default to
+not saving** and the advocate ticks the box to opt in. Change the defaults with
+`LEGALSERVER_SAVE_DOCUMENTS_DEFAULT`, `LEGALSERVER_SAVE_RESEARCH_DEFAULT`, and
+`LEGALSERVER_SAVE_TRIAGE_DEFAULT`.
+
+Every case note the tool writes ends with a line saying it was machine-written
+and has not been reviewed by an attorney.
+
+`LEGALSERVER_ALLOW_WRITES=false` turns off every write while leaving retrieval
+working. It is forced off while the test suite runs: a developer's `.env` points
+at a real site, and a document uploaded to a client's file cannot be taken
+back.
+
+### Endpoints and permissions
+
+Each write follows its published v2 contract, and each needs its own role
+permission on the site. A missing permission answers 403, which the delivery
+record reports verbatim.
+
+| Write | Endpoint | Names the matter by | Permission |
+| --- | --- | --- | --- |
+| Case note | `POST /api/v2/notes` | `module_id`, the **numeric** matter id | API Create Note |
+| Document | `POST /api/v2/documents`, multipart | `module_uuid`, the matter **UUID** | API Create Document |
+| Case properties | `PATCH /api/v2/matters/{case_uuid}` | the matter **UUID** in the path | API Matter: Update (Premium) |
+
+Note the inconsistency in the middle column, which was confirmed against a live
+site: the notes endpoint wants the numeric matter id and rejects a UUID with
+`invalid_values`, even though the published request schema types `module_id` as
+a UUID. The notes endpoint also requires `note_type`, which the schema marks
+required only on the response; set it with `LEGALSERVER_CASE_NOTE_TYPE` and see
+`/api/v2/lookups/note_type` for a site's values.
+
+Neither identifier is the case number this app stores as a matter's external id.
+A case whose synced payload carries neither a `matter_uuid` nor a numeric id is
+not written to at all, and each write checks for the one it needs. In
+particular, a numeric id is never derived from the digits on the end of a case
+number: case numbers restart each year, so that guess would eventually file a
+note on a different client's case. Re-syncing the case from LegalServer
+populates both identifiers.
+
+Uploads send the file as multipart alongside its metadata and answer 201 for a
+new document, or 200 when an upsert matched an existing one. Set
+`LEGALSERVER_DOCUMENT_TYPE` to file every upload under a document-type lookup
+value such as `Brief`; leave it blank to keep the site's default.
+
+An upload never stands between an advocate and their document. If LegalServer is
+unreachable, misconfigured, or rejects the write, the export still downloads and
+the response carries `X-LegalServer-Delivery: failed` with a readable message.
+Each attempt — saved, skipped, failed, or previewed — is recorded as a
+`LegalServerDelivery` row, readable in Django admin under **LegalServer
+deliveries** and over the API at `/api/cases/<matter_id>/legalserver/`. Cases
+typed in by hand and seeded samples have no LegalServer matter behind them, so
+the control says so instead of offering a save that would do nothing.
+
+### Triage outcomes and case properties
+
+A triage outcome can also set case properties on the matter. Which properties,
+and to what, is office policy and depends on fields a site may not have yet, so
+the rules are file-backed in `content/legalserver-field-maps/triage-outcome.yaml`
+rather than written in Python:
+
+```yaml
+enabled: false   # nothing is sent while this is false
+dry_run: true    # evaluate and record the values, but do not write
+rules:
+  - name: priority-full-representation
+    when:
+      priority_label: [Full rep]
+    custom_fields:
+      ai_triage_outcome: "{priority_label} ({confidence})"
+```
+
+The shipped map is turned off and names no fields, so the hook is in place and
+inert. To adopt it: fill in the field names your site actually uses, set
+`enabled: true` while leaving `dry_run: true`, run a triage, and read the
+previewed values the triage panel lists back. Turn `dry_run` off once they are
+right. A rule may test `priority`, `priority_label`, `confidence`, `case_type`,
+`rubric`, `matched_criteria_contains`, and `missing_information`; values may
+embed any assessment field in `{braces}`. An unknown condition or placeholder is
+rejected when the file loads rather than sent to LegalServer.
+
+`set:` names ordinary matter fields from the Update A Matter body, such as
+`case_status` or `legal_problem_code`. `custom_fields:` names custom fields **by
+their database name** — `ai_triage_outcome_24`, not the label shown in the UI —
+which is what the API matches on. A `null` value is ignored by the API rather
+than clearing the field; map an empty string to blank one.
 
 ## Advocate Profiles
 

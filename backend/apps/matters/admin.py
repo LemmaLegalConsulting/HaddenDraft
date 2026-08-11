@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from apps.matters.models import Matter, MatterFact, TriageAssessment, TriageRubric
+from apps.matters.models import LegalServerDelivery, Matter, MatterFact, TriageAssessment, TriageRubric
 
 
 class MatterFactInline(admin.TabularInline):
@@ -43,6 +43,19 @@ class TriageRubricAdmin(admin.ModelAdmin):
     list_filter = ("active",)
     search_fields = ("name", "slug", "description", "standard")
     prepopulated_fields = {"slug": ("name",)}
+
+
+@admin.register(LegalServerDelivery)
+class LegalServerDeliveryAdmin(admin.ModelAdmin):
+    list_display = ("matter", "kind", "origin", "status", "title", "created_by", "created_at")
+    list_filter = ("kind", "status", "origin")
+    search_fields = ("matter__external_id", "matter__client_name", "title", "filename", "remote_id")
+    # An attempt to write to a case file is a historical record; it is read in
+    # the admin, never edited there.
+    readonly_fields = tuple(field.name for field in LegalServerDelivery._meta.fields)
+
+    def has_add_permission(self, request):
+        return False
 
 
 @admin.register(TriageAssessment)

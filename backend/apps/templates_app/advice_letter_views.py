@@ -28,6 +28,7 @@ from apps.drafting.letters import LETTER_KINDS, RECIPIENT_ROLES, LetterRequest
 from apps.drafting.models import DraftDocument, DraftingSession
 from apps.drafting.serializers import draft_to_dict
 from apps.drafting.source_bindings import bind_current_versions
+from apps.matters.legalserver_delivery import attach_delivery_headers, save_document, wants_delivery
 from apps.matters.models import MatterFact
 from apps.matters.services import matter_for_user, user_can_access_matter
 from apps.templates_app.advice_letter_library import (
@@ -606,14 +607,24 @@ def advice_letter_draft_export(request, draft_id):
         )
         file_payload = output.read_bytes()
 
+    filename = _download_name(payload, letter, draft.session.matter)
     response = HttpResponse(
         io.BytesIO(file_payload),
         content_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
     )
-    response["Content-Disposition"] = (
-        f'attachment; filename="{_download_name(payload, letter, draft.session.matter)}"'
+    response["Content-Disposition"] = f'attachment; filename="{filename}"'
+    if not wants_delivery(payload, "documents"):
+        return response
+    delivery = save_document(
+        draft.session.matter,
+        user=request.user,
+        filename=filename,
+        content=file_payload,
+        content_type=response["Content-Type"],
+        title=draft.title or "Client advice letter",
+        origin="advice_letter",
     )
-    return response
+    return attach_delivery_headers(response, delivery)
 
 
 @api_login_required
@@ -637,12 +648,24 @@ def advice_letter_export(request):
         )
         payload = output.read_bytes()
 
+    filename = _download_name(body, letter, matter)
     response = HttpResponse(
         io.BytesIO(payload),
         content_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
     )
-    response["Content-Disposition"] = f'attachment; filename="{_download_name(body, letter, matter)}"'
-    return response
+    response["Content-Disposition"] = f'attachment; filename="{filename}"'
+    if matter is None or not wants_delivery(body, "documents"):
+        return response
+    delivery = save_document(
+        matter,
+        user=request.user,
+        filename=filename,
+        content=payload,
+        content_type=response["Content-Type"],
+        title=str(body.get("title") or "Client advice letter"),
+        origin="advice_letter",
+    )
+    return attach_delivery_headers(response, delivery)
 
 
 def _download_name(body, letter, matter):

@@ -44,6 +44,9 @@ import { FactReview } from "./components/FactReview.jsx";
 import { factRecommendationState } from "./components/factReviewState.js";
 import { mergeFactIds } from "./components/factReviewState.js";
 import { LawReview } from "./components/LawReview.jsx";
+import LegalServerSaveToggle from "./components/LegalServerSaveToggle.jsx";
+import { deliveryFromHeaders, saveDefault } from "./components/legalServerSave.js";
+import { saveResponseAsFile } from "./components/downloadFile.js";
 import { PackagePanel } from "./components/PackagePanel.jsx";
 import { ResearchPanel } from "./components/ResearchPanel.jsx";
 import { RevisionPlanModal } from "./components/RevisionPlanModal.jsx";
@@ -105,6 +108,10 @@ export function App() {
   const [workspace, dispatchWorkspace] = useReducer(draftWorkspaceReducer, initialDraftWorkspace);
   const [revisionBusy, setRevisionBusy] = useState(false);
   const [triageAssessment, setTriageAssessment] = useState(null);
+  const [triageDelivery, setTriageDelivery] = useState(null);
+  const [saveDraftToLegalServer, setSaveDraftToLegalServer] = useState(true);
+  const [draftDelivery, setDraftDelivery] = useState(null);
+  const [exportBusy, setExportBusy] = useState(false);
   const [triageHistory, setTriageHistory] = useState([]);
   const [selectedTriageRubricId, setSelectedTriageRubricId] = useState("");
   const [draftAuthorProfile, setDraftAuthorProfile] = useState(emptyAuthorProfile);
@@ -200,6 +207,7 @@ export function App() {
         api.triageRubrics(),
       ]);
       setBoot(bootstrap);
+      setSaveDraftToLegalServer(saveDefault(bootstrap.legalserverSave, "documents"));
       applyCaseResponse(caseResponse);
       setTemplates(templateResponse.templates);
       setTriageRubrics(rubricResponse.rubrics || []);
@@ -448,13 +456,30 @@ export function App() {
     }
   }
 
-  async function runTriage(rubricId = selectedTriageRubricId) {
+  async function exportDraftToWord(draftDocument) {
+    if (!draftDocument) return;
+    setExportBusy(true);
+    setError("");
+    setDraftDelivery(null);
+    try {
+      const response = await api.exportDraft(draftDocument.id, { saveToLegalServer: saveDraftToLegalServer });
+      await saveResponseAsFile(response, `draft-${draftDocument.id}.docx`);
+      setDraftDelivery(deliveryFromHeaders(response));
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setExportBusy(false);
+    }
+  }
+
+  async function runTriage(rubricId = selectedTriageRubricId, { saveToLegalServer = false } = {}) {
     if (!matter) return;
     setBusy(true);
     setError("");
     try {
-      const response = await api.runCaseTriage(matter.id, { rubricId });
+      const response = await api.runCaseTriage(matter.id, { rubricId, saveToLegalServer });
       setTriageAssessment(response.assessment);
+      setTriageDelivery(response.legalserver || null);
       setTriageHistory((current) => [response.assessment, ...current.filter((item) => item.id !== response.assessment.id)]);
     } catch (err) {
       setError(err.message);
@@ -961,10 +986,10 @@ export function App() {
         {connectionSettingsOpen && <div className="modal-backdrop" role="presentation"><form className="profile-modal connection-modal" ref={connectionModalRef} role="dialog" aria-modal="true" aria-label="LegalServer connection settings" onSubmit={handleLegalServerConnect}><div className="modal-heading"><div><h4>LegalServer Connection</h4><p className="modal-subtitle">{legalserverLoading ? "Checking your saved account." : legalserverConnected ? `Connected as ${legalserver.identifier}` : "Connect a LegalServer account to load assigned matters."}</p></div><button className="btn btn-outline-secondary icon-button" type="button" onClick={() => setConnectionSettingsOpen(false)} title="Close" aria-label="Close"><X size={16} /></button></div>{!legalserverConfigured && <div className="inline-error">LegalServer API credentials are not configured for this environment.</div>}{legalserver?.syncError && legalserver.syncError !== "not_connected" && <div className="inline-error">LegalServer sync: {legalserver.syncError}</div>}{legalserverConfigured && <><label className="field"><span>{legalserverConnected ? "Connected as" : "LegalServer username or email"}</span><input className="form-control" aria-label="LegalServer identifier" disabled={legalserverLoading || accountBusy} placeholder={legalserver?.suggestedIdentifier || "LegalServer username or email"} value={legalserverIdentifier} onChange={(event) => setLegalserverIdentifier(event.target.value)} /></label><div className="button-row"><button className="btn btn-primary" type="submit" disabled={legalserverLoading || accountBusy || !legalserverIdentifier.trim()}>{accountBusy ? <Loader2 className="spin" size={16} /> : <Link2 size={16} />}{legalserverConnected ? "Update connection" : "Connect LegalServer"}</button>{legalserverConnected && <button className="btn btn-outline-secondary" type="button" disabled={accountBusy} onClick={handleLegalServerDisconnect}>{accountBusy ? <Loader2 className="spin" size={16} /> : <Unplug size={16} />} Disconnect</button>}</div></>}</form></div>}
         {error && <div className="error-banner alert alert-danger">{error}</div>}
         {mode === "case" && <CaseSelector cases={cases} selectedMatterId={selectedMatterId} onSelect={setSelectedMatterId} onPreview={setCasePreviewMatterId} legalserver={legalserver} legalserverLoading={legalserverLoading} search={caseSearch} onSearchChange={setCaseSearch} onSearch={handleCaseSearch} onSearchReset={handleCaseSearchReset} filters={caseFilters} onFiltersChange={applyCaseFilters} listMeta={caseListMeta} onShowMore={() => loadCases({ append: true })} caseBusy={caseBusy} manualCaseBusy={manualCaseBusy} onCreateManualCase={handleCreateManualCase} />}
-        {mode === "triage" && <TriagePanel matter={matter} rubrics={triageRubrics} selectedRubricId={selectedTriageRubricId} onSelectRubric={setSelectedTriageRubricId} assessment={triageAssessment} history={triageHistory} busy={busy} manualCaseBusy={manualCaseBusy} onRunTriage={runTriage} onCreateManualCase={handleCreateManualCase} />}
+        {mode === "triage" && <TriagePanel matter={matter} rubrics={triageRubrics} selectedRubricId={selectedTriageRubricId} onSelectRubric={setSelectedTriageRubricId} assessment={triageAssessment} history={triageHistory} busy={busy} manualCaseBusy={manualCaseBusy} onRunTriage={runTriage} onCreateManualCase={handleCreateManualCase} legalserverSave={boot?.legalserverSave} legalserverDelivery={triageDelivery} />}
         {mode === "case_chat" && <CaseChat matter={matter} onAction={handleCaseAction} />}
-        {mode === "advice_letter" && <AdviceLetterPanel matter={matter} authorProfile={draftAuthorProfile} />}
-        {mode === "research" && <ResearchPanel matter={matter} sources={boot?.sources || []} onResults={(results) => setSourceResults(results)} />}
+        {mode === "advice_letter" && <AdviceLetterPanel matter={matter} authorProfile={draftAuthorProfile} legalserverSave={boot?.legalserverSave} />}
+        {mode === "research" && <ResearchPanel matter={matter} sources={boot?.sources || []} onResults={(results) => setSourceResults(results)} legalserverSave={boot?.legalserverSave} />}
         {mode === "draft" && draftStep === "goal" && <DraftGoalPanel goal={draftGoal} onGoalChange={(value) => { setDraftGoal(value); setInstructions(value); setSelectedGoalSuggestionId(""); }} planningMode={planningMode} onPlanningModeChange={setPlanningMode} allowMultiple={allowMultipleDocuments} onAllowMultipleChange={setAllowMultipleDocuments} selectedTemplateId={selectedTemplateId} onTemplateChange={selectDraftTemplate} templates={templates} matter={matter} busy={busy} onMakePlan={() => makeDraftPlan()} goalSuggestions={goalSuggestions} goalSuggestionGuidance={goalSuggestionGuidance} goalSuggestionsBusy={goalSuggestionsBusy} selectedGoalSuggestionId={selectedGoalSuggestionId} onSuggestGoals={suggestDraftGoals} onSelectGoalSuggestion={selectGoalSuggestion} />}
         {mode === "draft" && draftStep === "plan" && <DraftPlanReview plan={draftPlan} templates={templates} matter={matter} session={session} busy={busy} authorProfile={draftAuthorProfile} onAuthorProfileChange={setDraftAuthorProfile} selectedFactIds={selectedFactIds} selectedCuratedFacts={selectedCuratedFacts} onFactChange={setSelectedFactIds} onCuratedChange={setSelectedCuratedFacts} onMatterChange={setMatter} onFactIdsAdded={(ids) => setSelectedFactIds((current) => mergeFactIds(current, ids))} selectedResults={sourceResults} onSelectedResultsChange={setSourceResults} onSessionChange={setSession} candidateIssues={candidateIssues} onIssuesChange={setCandidateIssues} clarifyMissingFactsBeforeDraft={clarifyMissingFactsBeforeDraft} onClarifyMissingFactsBeforeDraftChange={setClarifyMissingFactsBeforeDraft} onPlanChange={setDraftPlan} onRegeneratePlan={regenerateDraftPlan} onContinue={goToQuestionsOrGenerate} />}
         {mode === "draft" && draftStep === "questions" && (
@@ -1016,6 +1041,16 @@ export function App() {
                 reviseBusy={revisionBusy}
               />
             )}
+            {draft && (
+              <LegalServerSaveToggle
+                kind="documents"
+                checked={saveDraftToLegalServer}
+                onChange={setSaveDraftToLegalServer}
+                bootstrapSave={boot?.legalserverSave}
+                delivery={draftDelivery}
+                disabled={exportBusy}
+              />
+            )}
             <div className="button-row step-actions bottom-step-actions">
               <button className="btn btn-outline-secondary" onClick={() => setDraftStep("plan")}>Back to plan</button>
               {draft && (
@@ -1023,9 +1058,14 @@ export function App() {
                   {draftDirtySinceValidation && validationSummary && (
                     <span className="recheck-hint">You've made changes since the last check.</span>
                   )}
-                  <a className="btn btn-outline-secondary link-button" href={api.exportDraftUrl(draft.id)}>
-                    <Download size={16} /> Export to Word
-                  </a>
+                  <button
+                    className="btn btn-outline-secondary"
+                    type="button"
+                    disabled={exportBusy}
+                    onClick={() => exportDraftToWord(draft)}
+                  >
+                    {exportBusy ? <Loader2 className="spin" size={16} /> : <Download size={16} />} Export to Word
+                  </button>
                   <button
                     className={`btn btn-primary${draftDirtySinceValidation ? " suggested-next-step" : ""}`}
                     disabled={busy}

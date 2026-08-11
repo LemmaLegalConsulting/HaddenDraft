@@ -8,6 +8,8 @@ from apps.ai.prompt_catalog import render_prompt
 from apps.core.http import api_login_required, json_body, method_not_allowed
 from apps.core.content_library import content_paths
 from apps.core.views import default_jurisdiction_for_user
+from apps.matters.legalserver_delivery import delivery_to_dict, save_case_note, wants_delivery
+from apps.matters.legalserver_notes import research_case_note_body
 from apps.matters.services import matter_for_user
 from apps.sources.document_text import DocumentExtractionError, extract_text
 from apps.sources.library import (
@@ -301,6 +303,23 @@ def research(request):
             )
         except OpenAIBackendError as exc:
             return JsonResponse({"error": f"AI research failed: {exc}"}, status=502)
+
+    # Research is exploratory, so saving the answer to the case file is opt-in
+    # and only possible when the search was run against a case.
+    if matter is not None and wants_delivery(body, "research"):
+        delivery = save_case_note(
+            matter,
+            user=request.user,
+            title=f"AI research: {query}"[:200],
+            body=research_case_note_body(
+                question=query,
+                answer=payload.get("answer", ""),
+                citations=payload["results"],
+                jurisdiction=jurisdiction,
+            ),
+            origin="research",
+        )
+        payload["legalserver"] = delivery_to_dict(delivery)
     return JsonResponse(payload)
 
 

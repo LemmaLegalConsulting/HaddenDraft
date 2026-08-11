@@ -4,6 +4,9 @@ import { AlertTriangle, ArrowDown, ArrowUp, Download, Sparkles } from "lucide-re
 import { api } from "../api/client";
 import { DraftEditor } from "../editor/DraftEditor.jsx";
 import { DocumentHistoryPanel } from "./DocumentHistoryPanel.jsx";
+import LegalServerSaveToggle from "./LegalServerSaveToggle.jsx";
+import { deliveryFromHeaders, saveDefault } from "./legalServerSave.js";
+import { saveResponseAsFile } from "./downloadFile.js";
 import {
   applyRecommendations,
   estimatePages,
@@ -31,8 +34,10 @@ const CONDITIONS = [
   { key: "admission_denied", label: "Denied for subsidized housing" },
 ];
 
-export function AdviceLetterPanel({ matter, authorProfile }) {
+export function AdviceLetterPanel({ matter, authorProfile, legalserverSave = null }) {
   const [catalog, setCatalog] = useState(null);
+  const [saveToLegalServer, setSaveToLegalServer] = useState(saveDefault(legalserverSave, "documents"));
+  const [delivery, setDelivery] = useState(null);
   const [region, setRegion] = useState("CLE");
   const [selected, setSelected] = useState([]);
   const [conditions, setConditions] = useState({});
@@ -209,16 +214,10 @@ export function AdviceLetterPanel({ matter, authorProfile }) {
       const response = await api.adviceLetterDraftExport(currentDraft.id, {
         authorProfile,
         letterFields: letterFieldsRef.current,
+        saveToLegalServer,
       });
-      const blob = await response.blob();
-      const disposition = response.headers.get("content-disposition") || "";
-      const named = /filename="([^"]+)"/.exec(disposition);
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = named ? named[1] : letterFields.filename || "advice-letter.docx";
-      link.click();
-      URL.revokeObjectURL(url);
+      await saveResponseAsFile(response, letterFields.filename || "advice-letter.docx");
+      setDelivery(deliveryFromHeaders(response));
     } catch (err) {
       setError(err.message);
     } finally {
@@ -522,6 +521,14 @@ export function AdviceLetterPanel({ matter, authorProfile }) {
             onChange={(event) => setLetterFields({ ...letterFields, subject: event.target.value })}
           />
         </label>
+        <LegalServerSaveToggle
+          kind="documents"
+          checked={saveToLegalServer}
+          onChange={setSaveToLegalServer}
+          bootstrapSave={legalserverSave}
+          delivery={delivery}
+          disabled={busy || !matter}
+        />
         <button type="button" onClick={download} disabled={busy || !draft}>
           <Download size={14} /> Download letter
         </button>

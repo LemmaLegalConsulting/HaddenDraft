@@ -1,3 +1,5 @@
+import re
+
 from django.http import JsonResponse
 
 from apps.core.http import api_login_required, json_body, method_not_allowed
@@ -23,6 +25,7 @@ from apps.drafting.services import (
     template_for_reference,
 )
 from apps.exporting.services import export_docx
+from apps.matters.legalserver_delivery import attach_delivery_headers, save_document, wants_delivery
 from apps.matters.models import MatterFact
 from apps.matters.serializers import fact_to_dict, matter_to_dict
 from apps.matters.services import accessible_matters_for_user, matter_for_user, user_can_access_matter
@@ -470,4 +473,24 @@ def export_draft(request, draft_id):
         return error
     draft.session.status = "export"
     draft.session.save(update_fields=["status", "updated_at"])
-    return export_docx(draft)
+    response = export_docx(draft)
+    # The export is a plain download link, so the opt-out travels as a query
+    # parameter rather than a request body.
+    requested = wants_delivery(request.GET.dict(), "documents")
+    if not requested:
+        return response
+    delivery = save_document(
+        draft.session.matter,
+        user=request.user,
+        filename=_download_filename(response, fallback=f"draft-{draft.id}.docx"),
+        content=response.content,
+        content_type=response["Content-Type"],
+        title=draft.title or getattr(draft.session.template, "name", "") or f"Draft {draft.id}",
+        origin="draft_export",
+    )
+    return attach_delivery_headers(response, delivery)
+
+
+def _download_filename(response, *, fallback):
+    match = re.search(r'filename="([^"]+)"', response.get("Content-Disposition", ""))
+    return match.group(1) if match else fallback
