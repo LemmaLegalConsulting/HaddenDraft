@@ -93,7 +93,7 @@ def parse_citation(citation):
     }
 
 
-def _normalized_cite(value):
+def normalize_citation(value):
     return re.sub(r"[\s.]+", "", str(value or "")).casefold()
 
 
@@ -103,10 +103,10 @@ def find_case(cases, parsed):
     Matched on the citation itself first, and only then on the first page, so a
     volume whose page numbering restarts cannot hand back the wrong case.
     """
-    wanted = _normalized_cite(parsed["citation"])
+    wanted = normalize_citation(parsed["citation"])
     for case in cases:
         for cite in case.get("citations") or []:
-            if _normalized_cite(cite.get("cite")) == wanted:
+            if normalize_citation(cite.get("cite")) == wanted:
                 return case
     for case in cases:
         if str(case.get("first_page")) == parsed["page"]:

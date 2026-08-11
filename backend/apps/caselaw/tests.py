@@ -2,13 +2,15 @@ import json
 import shutil
 import tempfile
 from datetime import date
+from io import StringIO
 from pathlib import Path
 
 from django.contrib.auth.models import User
+from django.core.management import call_command
 from django.test import TestCase, override_settings
 
 from apps.caselaw.importing import discover_case_groups, ingest_caselaw_directory
-from apps.caselaw.models import CaseLawArtifact, CaseLawDecision, CaseLawSearchDocument
+from apps.caselaw.models import CaseLawArtifact, CaseLawDateProvenance, CaseLawDecision, CaseLawPage, CaseLawSearchDocument
 from apps.sources.connectors.local_cases import LocalCaseIndexConnector
 
 
@@ -851,3 +853,107 @@ class CaselawMetadataEnrichmentTests(TestCase):
         from apps.caselaw.cap import parse_citation
 
         self.assertEqual(parse_citation("175 Ohio St. at 130"), parse_citation("175 Ohio St. 130"))
+
+
+class RetireStubDecisionsTests(TestCase):
+    """Removing a citation-only stub once its citation has a full opinion.
+
+    Production ingested the original corpus's 683 citation stubs as real
+    decision rows through a directory-based import path that never checked for
+    a fuller sibling. Once fetch_cap_opinions supplies the real opinion, the
+    stub is a strictly worse duplicate of a citation the corpus already has in
+    full, and it must not just sit there next to the real one.
+    """
+
+    def _decision(self, *, title, citation, text, sha, external_source_id=""):
+        decision = CaseLawDecision.objects.create(
+            title=title,
+            citation_string=citation,
+            source_sha256=sha * 64,
+            external_source_id=external_source_id,
+            approved_for_search=True,
+        )
+        if text:
+            CaseLawPage.objects.create(decision=decision, page_number=1, text=text)
+        return decision
+
+    def test_a_stub_with_a_full_sibling_is_retired_in_favor_of_the_full_one(self):
+        from apps.caselaw.management.commands.retire_stub_decisions import stub_replacements
+
+        stub = self._decision(
+            title="Ketcham v. Miller et al.", citation="104 Ohio St. 372",
+            text="Ketcham v. Miller et al.\nCitation: 104 Ohio St. 372", sha="a",
+        )
+        full = self._decision(
+            title="Ketcham v. Miller et al.", citation="104 Ohio St. 372",
+            text="Robinson, J. " * 2000, sha="b", external_source_id="cap:12345",
+        )
+
+        pairs = stub_replacements(CaseLawDecision.objects.all())
+
+        self.assertEqual(pairs, [(stub, full)])
+
+    def test_citation_formatting_differences_do_not_hide_the_match(self):
+        # A stub's citation and CAP's official citation rarely have byte-
+        # identical punctuation or spacing.
+        from apps.caselaw.management.commands.retire_stub_decisions import stub_replacements
+
+        stub = self._decision(title="A", citation="175  Ohio St 130", text="stub only", sha="c")
+        full = self._decision(title="A", citation="175 Ohio St. 130", text="x" * 3000, sha="d")
+
+        pairs = stub_replacements(CaseLawDecision.objects.all())
+
+        self.assertEqual(pairs, [(stub, full)])
+
+    def test_a_short_decision_with_no_fuller_sibling_is_left_alone(self):
+        # A short decision on its own might be a genuinely short opinion, not
+        # a stub; nothing here says otherwise.
+        from apps.caselaw.management.commands.retire_stub_decisions import stub_replacements
+
+        self._decision(title="Only one", citation="1 Ohio St. 1", text="short but alone", sha="e")
+
+        self.assertEqual(stub_replacements(CaseLawDecision.objects.all()), [])
+
+    def test_two_full_decisions_sharing_a_citation_are_never_touched(self):
+        # The rule only fires when one side of the pair is stub-length. Two
+        # substantial decisions sharing a citation is a data question for a
+        # person, not something this command should silently resolve.
+        from apps.caselaw.management.commands.retire_stub_decisions import stub_replacements
+
+        self._decision(title="A", citation="1 Ohio St. 1", text="x" * 3000, sha="f")
+        self._decision(title="A", citation="1 Ohio St. 1", text="y" * 3000, sha="g")
+
+        self.assertEqual(stub_replacements(CaseLawDecision.objects.all()), [])
+
+    def test_the_command_only_deletes_on_request_and_reports_first(self):
+        stub = self._decision(title="Ketcham", citation="104 Ohio St. 372", text="stub", sha="h")
+        self._decision(
+            title="Ketcham", citation="104 Ohio St. 372", text="z" * 3000, sha="i",
+            external_source_id="cap:1",
+        )
+
+        out = StringIO()
+        call_command("retire_stub_decisions", "--dry-run", stdout=out)
+        self.assertEqual(CaseLawDecision.objects.count(), 2)
+        self.assertIn("Stubs with a full-text sibling: 1", out.getvalue())
+
+        out = StringIO()
+        call_command("retire_stub_decisions", stdout=out)
+        self.assertEqual(CaseLawDecision.objects.count(), 1)
+        self.assertFalse(CaseLawDecision.objects.filter(id=stub.id).exists())
+        self.assertIn("Retired 1 stub decision", out.getvalue())
+
+    def test_retiring_a_stub_cleans_up_its_pages_and_provenance_too(self):
+        from apps.caselaw.dates import record_date_provenance
+
+        stub = self._decision(title="Ketcham", citation="104 Ohio St. 372", text="stub", sha="j")
+        record_date_provenance(stub, {"decision_date": "1990-01-01"}, text="stub")
+        self._decision(
+            title="Ketcham", citation="104 Ohio St. 372", text="w" * 3000, sha="k",
+            external_source_id="cap:2",
+        )
+
+        call_command("retire_stub_decisions")
+
+        self.assertFalse(CaseLawPage.objects.filter(decision_id=stub.id).exists())
+        self.assertFalse(CaseLawDateProvenance.objects.filter(decision_id=stub.id).exists())

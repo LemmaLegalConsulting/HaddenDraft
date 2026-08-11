@@ -47,6 +47,14 @@ if [ -n "$CASELAW_DIR" ] && [ -d "$CASELAW_DIR" ]; then
   python manage.py ingest_caselaw "$CASELAW_DIR"
 fi
 
+# CASELAW_INGEST_DIR points at the original corpus bundle, which still holds
+# every citation-only stub CAP has since supplied a full opinion for. That
+# directory reappears on every deploy, so a stub removed once would just be
+# re-imported by the step above next time -- this has to run after caselaw
+# ingestion on every bootstrap, not once as a migration.
+echo "==> Retiring citation stubs that now have a full opinion"
+python manage.py retire_stub_decisions
+
 # Dates were dropped on import for as long as as_date() was a stub, and
 # re-ingestion does not fix them: ingest_group skips a decision whose
 # source_sha256 is already recorded, so an existing corpus keeps its empty date

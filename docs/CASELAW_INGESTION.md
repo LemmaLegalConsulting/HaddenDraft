@@ -223,3 +223,19 @@ authoritative fields came from.
 Prompts are file-backed at `prompts/caselaw.metadata_extract.yaml` and
 `prompts/caselaw.metadata_verify.yaml`, so the wording and the model defaults are
 reviewable and versioned rather than buried in a script.
+
+### Retiring superseded citation stubs
+
+`CASELAW_INGEST_DIR` (see above) imports every bundle in the original corpus
+directory, including citation-only stubs that predate CAP fetching. Once
+`fetch_cap_opinions` supplies a real opinion for one of those citations, the
+stub is a strictly worse duplicate of a case the corpus already has in full --
+and because `CASELAW_INGEST_DIR` reappears on every deploy, a stub deleted once
+would just come back.
+
+`manage.py retire_stub_decisions` runs after every caselaw ingestion step in
+`bootstrap.sh`, not as a one-time migration. It deletes a decision only when
+another decision's citation normalizes to the same string (ignoring spacing,
+punctuation, and case) *and* that other decision holds substantially more text
+-- both checks have to hold, so a short decision with no fuller sibling, or two
+substantial decisions that happen to share a citation, are both left alone.
