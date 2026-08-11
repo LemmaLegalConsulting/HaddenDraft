@@ -59,7 +59,7 @@ export function CasePreviewModal({
         <div className="modal-heading case-preview-heading">
           <div>
             <span className="block-kicker">Case preview</span>
-            <h3 id="case-preview-title">{caseTitleFor(matter)}</h3>
+            <h4 id="case-preview-title">{caseTitleFor(matter)}</h4>
             {matter.title && matter.client && matter.title !== matter.client && <p>Client or household: {matter.client}</p>}
           </div>
           <div className="modal-heading-actions">

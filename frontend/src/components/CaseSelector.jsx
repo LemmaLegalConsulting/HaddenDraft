@@ -74,6 +74,12 @@ export function CaseSelector({
 
   return (
     <div className="panel">
+      <div className="panel-heading">
+        <div>
+          <p className="eyebrow">Case</p>
+          <h3>Cases</h3>
+        </div>
+      </div>
       <div className="case-source-row">
         <div className="case-source-toggle" role="radiogroup" aria-label="Case source">
           <label className={caseSource === "legalserver" ? "selected" : ""}>
@@ -249,10 +255,10 @@ export function CaseSelector({
           )}
         </>
       )}
-      <div className="case-list">
+      <div className="case-list" role="table" aria-label="Cases">
         {visibleCases.length > 0 && (
-          <div className="case-list-header" aria-hidden="true">
-            <span>Case title</span><span>Case number</span><span>Legal problem</span><span>Status</span><span>Recent activity</span><span>Actions</span>
+          <div className="case-list-header" role="row">
+            <span role="columnheader">Case title</span><span role="columnheader">Case number</span><span role="columnheader">Legal problem</span><span role="columnheader">Status</span><span role="columnheader">Recent activity</span><span role="columnheader">Actions</span>
           </div>
         )}
         {visibleCases.map((item) => {
@@ -262,16 +268,17 @@ export function CaseSelector({
             <article
               key={item.id}
               className={`case-card case-card-activatable ${selectedMatterId === item.id ? "selected" : ""}`}
+              role="row"
               aria-current={selectedMatterId === item.id ? "true" : undefined}
               title={selectedMatterId === item.id ? "Active case" : "Make this the active case"}
               onClick={() => { if (selectedMatterId !== item.id) onSelect(item.id); }}
             >
-              <strong className="case-client">{caseTitleFor(item)}</strong>
-              <span className="case-number">{caseNumberFor(item)}</span>
-              <span className="case-muted case-type">{item.matter || "Case"}</span>
-              <span className="case-muted case-status">{status}</span>
-              <span className="case-muted case-activity">{activity}</span>
-              <span className="case-row-actions">
+              <strong className="case-client" role="cell">{caseTitleFor(item)}</strong>
+              <span className="case-number" role="cell">{caseNumberFor(item)}</span>
+              <span className="case-muted case-type" role="cell">{item.matter || "Case"}</span>
+              <span className="case-muted case-status" role="cell">{status}</span>
+              <span className="case-muted case-activity" role="cell">{activity}</span>
+              <span className="case-row-actions" role="cell">
                 {selectedMatterId === item.id ? (
                   <span className="active-case-indicator"><CheckCircle2 size={15} /> Active</span>
                 ) : (
