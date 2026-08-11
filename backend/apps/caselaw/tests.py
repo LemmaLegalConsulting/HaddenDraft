@@ -843,3 +843,11 @@ class CaselawMetadataEnrichmentTests(TestCase):
             _json_object("I could not determine the metadata.")
         with self.assertRaises(ValueError):
             _json_object('["not", "an", "object"]')
+
+    def test_a_page_pincite_written_with_at_is_still_a_citation(self):
+        # "175 Ohio St. at 130" is how a citation reads when it is quoted from
+        # within a paragraph rather than typed as a standalone cite; "at" is
+        # not part of the reporter name.
+        from apps.caselaw.cap import parse_citation
+
+        self.assertEqual(parse_citation("175 Ohio St. at 130"), parse_citation("175 Ohio St. 130"))

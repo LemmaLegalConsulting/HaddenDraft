@@ -64,7 +64,7 @@ REPORTER_SLUGS = {
     "s.ct.": "s-ct",
 }
 
-CITATION = re.compile(r"^\s*(?P<volume>\d+)\s+(?P<reporter>.+?)\s+(?P<page>\d+)\s*$")
+CITATION = re.compile(r"^\s*(?P<volume>\d+)\s+(?P<reporter>.+?)\s+(?:at\s+)?(?P<page>\d+)\s*$")
 
 
 class CapError(Exception):
