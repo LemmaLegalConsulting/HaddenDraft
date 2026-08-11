@@ -67,7 +67,7 @@ export function DraftGoalPanel({
                 {suggestion.reason && <small>{suggestion.reason}</small>}
               </div>
               <button
-                className="secondary"
+                className="btn btn-outline-secondary"
                 type="button"
                 onClick={() => onSelectGoalSuggestion(suggestion)}
               >
@@ -88,7 +88,7 @@ export function DraftGoalPanel({
       {planningMode === "known" && (
         <label className="field">
           <span>Template</span>
-          <select value={selectedTemplateId || ""} onChange={(event) => onTemplateChange(event.target.value)}>
+          <select className="form-select" value={selectedTemplateId || ""} onChange={(event) => onTemplateChange(event.target.value)}>
             {templateChoices(templates, { excludeShells: true }).map((choice) => (
               <option key={choice.value || "placeholder"} value={choice.value}>{choice.label}</option>
             ))}

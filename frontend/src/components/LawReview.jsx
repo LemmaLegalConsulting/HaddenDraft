@@ -66,7 +66,7 @@ export function LawReview({ matter, session, onIssuesChange }) {
           Approve only the issues the draft should use; approved issues can activate draft sections.
         </p>
       </div>
-      <button className="primary full" disabled={busy || !matter} onClick={runIssueSelection}>
+      <button className="btn btn-primary full" disabled={busy || !matter} onClick={runIssueSelection}>
         {busy ? <Loader2 className="spin" size={16} /> : <Scale size={16} />}
         Map selected facts and support to legal issues
       </button>
@@ -113,10 +113,10 @@ export function LawReview({ matter, session, onIssuesChange }) {
               <small>{issue.sourceTableKey} v{issue.sourceTableVersion} · {issue.sourceRowId}</small>
             </div>
             <div className="button-row compact">
-              <button className="secondary" disabled={busy || issue.status === "approved"} onClick={() => reviewIssue(issue, "approve")}>
+              <button className="btn btn-outline-secondary" disabled={busy || issue.status === "approved"} onClick={() => reviewIssue(issue, "approve")}>
                 <CheckCircle2 size={16} /> Approve
               </button>
-              <button className="secondary danger" disabled={busy || issue.status === "rejected"} onClick={() => reviewIssue(issue, "reject")}>
+              <button className="btn btn-outline-danger" disabled={busy || issue.status === "rejected"} onClick={() => reviewIssue(issue, "reject")}>
                 <XCircle size={16} /> Reject
               </button>
             </div>

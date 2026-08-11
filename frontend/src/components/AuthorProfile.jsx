@@ -34,7 +34,7 @@ export function AuthorProfile({ user, onSaved }) {
         <AuthorFields profile={profile} onChange={setProfile} />
         {error && <div className="inline-error full-span">{error}</div>}
         <div className="button-row step-actions full-span">
-          <button className="primary" disabled={busy}>
+          <button className="btn btn-primary" disabled={busy}>
             {busy ? <Loader2 className="spin" size={16} /> : <Save size={16} />} Save profile
           </button>
         </div>

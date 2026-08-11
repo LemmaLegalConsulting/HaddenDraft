@@ -111,7 +111,7 @@ export function CaseChat({ matter, onAction }) {
       {matter && (
         <>
           <div className="chat-history-actions">
-            <select aria-label="Case chat threads" value={selectedThreadId} onChange={selectThread}>
+            <select className="form-select" aria-label="Case chat threads" value={selectedThreadId} onChange={selectThread}>
               <option value="">Current chat</option>
               {threads.filter((thread) => !thread.active).map((thread) => <option key={thread.id} value={thread.id}>{thread.preview}</option>)}
             </select>
@@ -153,12 +153,12 @@ export function CaseChat({ matter, onAction }) {
           </div>
           {error && <div className="inline-error">{error}</div>}
           <form className="chat-compose" onSubmit={sendMessage}>
-            <input
+            <input className="form-control"
               value={input}
               onChange={(event) => setInput(event.target.value)}
               placeholder="Ask about documents, case posture, parties, or drafting strategy"
             />
-            <button className="primary" disabled={busy || historyLoading || !!selectedThreadId || !input.trim()}>
+            <button className="btn btn-primary" disabled={busy || historyLoading || !!selectedThreadId || !input.trim()}>
               {busy ? <Loader2 className="spin" size={16} /> : <Send size={16} />} Send
             </button>
           </form>

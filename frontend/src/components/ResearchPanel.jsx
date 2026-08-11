@@ -298,12 +298,12 @@ export function ResearchPanel({ matter, sources, onResults }) {
             <div className="reference-upload-grid">
               <label className="field">
                 <span>Private reference</span>
-                <input value={resourceTitle} onChange={(event) => setResourceTitle(event.target.value)} />
+                <input className="form-control" value={resourceTitle} onChange={(event) => setResourceTitle(event.target.value)} />
                 <small className="field-help">Optional. If blank, the file name will be used.</small>
               </label>
               <label className="field">
                 <span>Type</span>
-                <select value={resourceType} onChange={(event) => setResourceType(event.target.value)}>
+                <select className="form-select" value={resourceType} onChange={(event) => setResourceType(event.target.value)}>
                   <option value="case">Case</option>
                   <option value="brief">Example brief</option>
                   <option value="example">Example filing</option>
@@ -319,7 +319,7 @@ export function ResearchPanel({ matter, sources, onResults }) {
                 onChange={(event) => setResourceFile(event.target.files?.[0] || null)}
               />
             </label>
-            <button className="secondary full" type="submit" disabled={uploadBusy || !resourceFile}>
+            <button className="btn btn-outline-secondary full" type="submit" disabled={uploadBusy || !resourceFile}>
               {uploadBusy ? <Loader2 className="spin" size={16} /> : <Upload size={16} />} Upload private reference
             </button>
           </form>
@@ -327,7 +327,7 @@ export function ResearchPanel({ matter, sources, onResults }) {
       </div>
       <form className="research-chat-form" onSubmit={runSearch}>
         <div className="chat-history-actions">
-          <select aria-label="Research chat threads" value={selectedThreadId} onChange={selectThread}>
+          <select className="form-select" aria-label="Research chat threads" value={selectedThreadId} onChange={selectThread}>
             <option value="">Current chat</option>
             {threads.filter((thread) => !thread.active).map((thread) => <option key={thread.id} value={thread.id}>{thread.preview}</option>)}
           </select>
@@ -397,7 +397,7 @@ export function ResearchPanel({ matter, sources, onResults }) {
         <div className="research-question">
           <label className="field">
             <span>Research question</span>
-            <textarea
+            <textarea className="form-control"
               value={query}
               onChange={(event) => setQuery(event.target.value)}
             />
@@ -432,7 +432,7 @@ export function ResearchPanel({ matter, sources, onResults }) {
             </div>
           </div>
         )}
-        <button className="primary full" type="submit" disabled={busy || historyLoading || !!selectedThreadId || !query.trim()}>
+        <button className="btn btn-primary full" type="submit" disabled={busy || historyLoading || !!selectedThreadId || !query.trim()}>
           {busy ? <Loader2 className="spin" size={16} /> : useAi ? <Send size={16} /> : <Search size={16} />}
           {useAi ? "Ask sources" : "Search sources"}
         </button>

@@ -69,7 +69,7 @@ export function DraftPlanReview({
         </div>
         <label className="field">
           <span>Overall goal</span>
-          <textarea value={plan.summary || ""} onChange={(event) => onPlanChange({ ...plan, summary: event.target.value })} rows={3} />
+          <textarea className="form-control" value={plan.summary || ""} onChange={(event) => onPlanChange({ ...plan, summary: event.target.value })} rows={3} />
         </label>
         <div className="plan-document-list">
           {documentItems.map((item) => {
@@ -80,11 +80,11 @@ export function DraftPlanReview({
               <article className="result-card plan-document-card" key={item.id}>
                 <label className="field compact-field">
                   <span>Document title</span>
-                  <input value={item.title || ""} onChange={(event) => onPlanChange(updateDocument(plan, item.id, { title: event.target.value }))} />
+                  <input className="form-control" value={item.title || ""} onChange={(event) => onPlanChange(updateDocument(plan, item.id, { title: event.target.value }))} />
                 </label>
                 <label className="field compact-field">
                   <span>Recommended template</span>
-                  <select value={item.template_slug || ""} onChange={(event) => {
+                  <select className="form-select" value={item.template_slug || ""} onChange={(event) => {
                     const nextTemplate = templateBySlug.get(event.target.value);
                     onPlanChange(updateDocument(plan, item.id, {
                       template_slug: event.target.value,
@@ -101,7 +101,7 @@ export function DraftPlanReview({
                 <p>{item.reason}</p>
                 <label className="field compact-field">
                   <span>Drafting instructions</span>
-                  <textarea value={item.drafting_instructions || ""} onChange={(event) => onPlanChange(updateDocument(plan, item.id, { drafting_instructions: event.target.value }))} rows={3} />
+                  <textarea className="form-control" value={item.drafting_instructions || ""} onChange={(event) => onPlanChange(updateDocument(plan, item.id, { drafting_instructions: event.target.value }))} rows={3} />
                 </label>
                 <div className="block-picker-list">
                   {blocks.map((block) => (
@@ -155,7 +155,7 @@ export function DraftPlanReview({
         )}
         <label className="field">
           <span>Regenerate plan with guidance</span>
-          <textarea value={guidance} onChange={(event) => setGuidance(event.target.value)} rows={2} />
+          <textarea className="form-control" value={guidance} onChange={(event) => setGuidance(event.target.value)} rows={2} />
         </label>
         <div className="button-row step-actions">
           <button className="btn btn-outline-secondary" type="button" disabled={busy} onClick={() => onRegeneratePlan(guidance)}>

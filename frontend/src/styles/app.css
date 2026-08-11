@@ -557,20 +557,6 @@ button:disabled {
   padding: 12px;
 }
 
-.primary {
-  background: #22645c;
-  color: white;
-}
-
-.secondary {
-  background: #e8eef1;
-  color: #26343c;
-}
-
-.secondary.danger {
-  color: #8b1e1e;
-}
-
 .full {
   width: 100%;
 }
@@ -1468,17 +1454,6 @@ button:disabled {
 .field-example {
   color: #667782;
   font-size: 12px;
-}
-
-.field input,
-.field select,
-.field textarea {
-  border: 1px solid #cfd9de;
-  border-radius: 6px;
-  min-height: 38px;
-  min-width: 0;
-  padding: 9px 10px;
-  width: 100%;
 }
 
 .field textarea {

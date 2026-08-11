@@ -167,7 +167,7 @@ export function FactReview({ matter, facts, selectedFactIds, selectedCuratedFact
           <p>A drafting fact is a statement selected from the case record that the AI can rely on when drafting. It should have a source, like a case note, uploaded document, custom field, or user-entered note.</p>
         </div>
         <div className="button-row panel-actions">
-          <button className="secondary" type="button" onClick={() => setModalOpen(true)}>
+          <button className="btn btn-outline-secondary" type="button" onClick={() => setModalOpen(true)}>
             <Plus size={16} /> Add drafting fact or document
           </button>
           <span className="muted-inline">{selectedFactIds.length + selectedCuratedFacts.length} selected</span>
@@ -212,10 +212,10 @@ export function FactReview({ matter, facts, selectedFactIds, selectedCuratedFact
                 </div>
                 {(document.snippet || state.summary) && <p className="document-snippet">{state.summary || document.snippet}</p>}
                 <div className="button-row compact document-actions">
-                  <button className="secondary" type="button" onClick={() => inspectDocument(document)} disabled={state.loading}>
+                  <button className="btn btn-outline-secondary" type="button" onClick={() => inspectDocument(document)} disabled={state.loading}>
                     {state.loading ? <Loader2 className="spin" size={16} /> : <Search size={16} />} Find useful excerpts
                   </button>
-                  <button className={summarySelected ? "primary" : "secondary"} type="button" onClick={() => addDocumentSummary(document, state)} disabled={!(state.summary || document.snippet)}>
+                  <button className={summarySelected ? "btn btn-primary" : "btn btn-outline-secondary"} type="button" onClick={() => addDocumentSummary(document, state)} disabled={!(state.summary || document.snippet)}>
                     {summarySelected ? <Check size={16} /> : <Plus size={16} />} {summarySelected ? "Summary selected" : "Add summary to drafting facts"}
                   </button>
                 </div>
@@ -227,7 +227,7 @@ export function FactReview({ matter, facts, selectedFactIds, selectedCuratedFact
                       return (
                         <div className="chunk-row fact-with-citation" key={chunk.id} title={`${document.citation || document.title}, excerpt ${chunk.index}`}>
                           <p>{chunk.text}</p>
-                          <button className={chunkSelected ? "primary" : "secondary"} type="button" onClick={() => addChunkFact(document, chunk)}>
+                          <button className={chunkSelected ? "btn btn-primary" : "btn btn-outline-secondary"} type="button" onClick={() => addChunkFact(document, chunk)}>
                             {chunkSelected ? <X size={16} /> : <Plus size={16} />} {chunkSelected ? "Remove" : "Add excerpt to drafting facts"}
                           </button>
                         </div>
@@ -251,7 +251,7 @@ export function FactReview({ matter, facts, selectedFactIds, selectedCuratedFact
                   <p>{fact.text}</p>
                   <small>{fact.citation || fact.source}</small>
                 </div>
-                <button className="secondary icon-button" type="button" aria-label="Remove selected document fact" onClick={() => toggleCuratedFact(fact)}>
+                <button className="btn btn-outline-secondary icon-button" type="button" aria-label="Remove selected document fact" onClick={() => toggleCuratedFact(fact)}>
                   <X size={16} />
                 </button>
               </div>
@@ -278,16 +278,16 @@ export function FactReview({ matter, facts, selectedFactIds, selectedCuratedFact
             </div>
             {modalMode === "fact" ? (
               <form className="fact-entry-form" onSubmit={submitTypedFact}>
-                <label className="field"><span>Title</span><input value={newFact.title} onChange={(event) => setNewFact((current) => ({ ...current, title: event.target.value }))} placeholder="Repair request, payment, notice problem..." /></label>
-                <label className="field"><span>Fact text</span><textarea value={newFact.text} onChange={(event) => setNewFact((current) => ({ ...current, text: event.target.value }))} placeholder="Type a fact that should be available for drafting." rows={4} /></label>
-                <label className="field"><span>Source</span><input value={newFact.source} onChange={(event) => setNewFact((current) => ({ ...current, source: event.target.value }))} placeholder="Client update, intake call, advocate note..." /></label>
-                <button className="primary" type="submit" disabled={!newFact.text.trim() || addingFact}>{addingFact ? <Loader2 className="spin" size={16} /> : <Plus size={16} />} Add and select</button>
+                <label className="field"><span>Title</span><input className="form-control" value={newFact.title} onChange={(event) => setNewFact((current) => ({ ...current, title: event.target.value }))} placeholder="Repair request, payment, notice problem..." /></label>
+                <label className="field"><span>Fact text</span><textarea className="form-control" value={newFact.text} onChange={(event) => setNewFact((current) => ({ ...current, text: event.target.value }))} placeholder="Type a fact that should be available for drafting." rows={4} /></label>
+                <label className="field"><span>Source</span><input className="form-control" value={newFact.source} onChange={(event) => setNewFact((current) => ({ ...current, source: event.target.value }))} placeholder="Client update, intake call, advocate note..." /></label>
+                <button className="btn btn-primary" type="submit" disabled={!newFact.text.trim() || addingFact}>{addingFact ? <Loader2 className="spin" size={16} /> : <Plus size={16} />} Add and select</button>
               </form>
             ) : (
               <form className="fact-upload-form" onSubmit={submitUploadedFact}>
                 <label className="field"><span>Upload source document</span><input type="file" accept=".txt,.md,.csv,.json,.html,.htm,.docx,.pdf,text/*,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document" onChange={(event) => setUploadFile(event.target.files?.[0] || null)} /></label>
-                <label className="field"><span>Fact title</span><input value={uploadTitle} onChange={(event) => setUploadTitle(event.target.value)} placeholder="Optional title for the extracted text" /></label>
-                <button className="secondary" type="submit" disabled={!uploadFile || uploadingFact}>{uploadingFact ? <Loader2 className="spin" size={16} /> : <Upload size={16} />} Extract and select</button>
+                <label className="field"><span>Fact title</span><input className="form-control" value={uploadTitle} onChange={(event) => setUploadTitle(event.target.value)} placeholder="Optional title for the extracted text" /></label>
+                <button className="btn btn-outline-secondary" type="submit" disabled={!uploadFile || uploadingFact}>{uploadingFact ? <Loader2 className="spin" size={16} /> : <Upload size={16} />} Extract and select</button>
               </form>
             )}
           </div>

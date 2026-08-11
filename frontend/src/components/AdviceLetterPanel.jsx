@@ -310,7 +310,7 @@ export function AdviceLetterPanel({ matter, authorProfile }) {
       <div className="field-row">
         <label className="field">
           <span>Region</span>
-          <select value={region} onChange={(event) => setRegion(event.target.value)}>
+          <select className="form-select" value={region} onChange={(event) => setRegion(event.target.value)}>
             <option value="">Anywhere</option>
             <option value="CLE">Cleveland</option>
             <option value="NEO">Northeast Ohio</option>
@@ -318,7 +318,7 @@ export function AdviceLetterPanel({ matter, authorProfile }) {
         </label>
         <label className="field grow">
           <span>What is this letter about?</span>
-          <input
+          <input className="form-control"
             value={goal}
             onChange={(event) => setGoal(event.target.value)}
             placeholder="e.g. the 3-day notice names a different landlord than the complaint"
@@ -345,7 +345,7 @@ export function AdviceLetterPanel({ matter, authorProfile }) {
       </details>
 
       <div className="panel-actions">
-        <button type="button" className="secondary" onClick={suggest} disabled={busy}>
+        <button type="button" className="btn btn-outline-secondary" onClick={suggest} disabled={busy}>
           <Sparkles size={14} /> Suggest sections
         </button>
         {recommendations.length > 0 && (
@@ -475,7 +475,7 @@ export function AdviceLetterPanel({ matter, authorProfile }) {
         <div className="field-row">
           <label className="field">
             <span>Recipient</span>
-            <input
+            <input className="form-control"
               value={letterFields.recipientName}
               onChange={(event) =>
                 setLetterFields({ ...letterFields, recipientName: event.target.value })
@@ -484,7 +484,7 @@ export function AdviceLetterPanel({ matter, authorProfile }) {
           </label>
           <label className="field">
             <span>Date</span>
-            <input
+            <input className="form-control"
               value={letterFields.letterDate}
               onChange={(event) =>
                 setLetterFields({ ...letterFields, letterDate: event.target.value })
@@ -494,7 +494,7 @@ export function AdviceLetterPanel({ matter, authorProfile }) {
         </div>
         <label className="field">
           <span>Address</span>
-          <textarea
+          <textarea className="form-control"
             rows={2}
             value={letterFields.recipientAddress}
             onChange={(event) =>
@@ -504,7 +504,7 @@ export function AdviceLetterPanel({ matter, authorProfile }) {
         </label>
         <label className="field">
           <span>File name</span>
-          <input
+          <input className="form-control"
             value={letterFields.filename}
             onChange={(event) => {
               setFilenameEdited(true);
@@ -515,7 +515,7 @@ export function AdviceLetterPanel({ matter, authorProfile }) {
         </label>
         <label className="field">
           <span>Re:</span>
-          <input
+          <input className="form-control"
             value={letterFields.subject}
             onChange={(event) => setLetterFields({ ...letterFields, subject: event.target.value })}
           />

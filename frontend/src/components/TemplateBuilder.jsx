@@ -18,7 +18,7 @@ export function TemplateBuilder({ onCreated }) {
   return (
     <section className="panel">
       <div className="button-row panel-actions">
-        <button className="secondary" onClick={() => setOpen((value) => !value)}>
+        <button className="btn btn-outline-secondary" onClick={() => setOpen((value) => !value)}>
           <Upload size={16} /> {open ? "Close" : "Open"}
         </button>
       </div>
@@ -26,17 +26,17 @@ export function TemplateBuilder({ onCreated }) {
         <div className="template-builder">
           <label className="field">
             <span>Template title</span>
-            <input value={title} onChange={(event) => setTitle(event.target.value)} />
+            <input className="form-control" value={title} onChange={(event) => setTitle(event.target.value)} />
           </label>
           <label className="field">
             <span>Jurisdiction</span>
-            <input value={jurisdiction} onChange={(event) => setJurisdiction(event.target.value)} />
+            <input className="form-control" value={jurisdiction} onChange={(event) => setJurisdiction(event.target.value)} />
           </label>
           <label className="field">
             <span>Example text</span>
-            <textarea value={exampleText} onChange={(event) => setExampleText(event.target.value)} />
+            <textarea className="form-control" value={exampleText} onChange={(event) => setExampleText(event.target.value)} />
           </label>
-          <button className="primary" onClick={createTemplate}>Create template</button>
+          <button className="btn btn-primary" onClick={createTemplate}>Create template</button>
         </div>
       )}
     </section>

@@ -187,8 +187,8 @@ export function CaseFacetBrowser({ decisionId = "", initialQuery = "", onOpenSou
         <>
           {!decisionId && (
             <form className="case-facet-search" onSubmit={(event) => { event.preventDefault(); load({ query }); }}>
-              <input value={query} placeholder="Search imported cases" onChange={(event) => setQuery(event.target.value)} />
-              <button className="secondary" type="submit" disabled={busy}>{busy ? <Loader2 className="spin" size={14} /> : <Search size={14} />}</button>
+              <input className="form-control" value={query} placeholder="Search imported cases" onChange={(event) => setQuery(event.target.value)} />
+              <button className="btn btn-outline-secondary" type="submit" disabled={busy}>{busy ? <Loader2 className="spin" size={14} /> : <Search size={14} />}</button>
             </form>
           )}
           {facet.value && (

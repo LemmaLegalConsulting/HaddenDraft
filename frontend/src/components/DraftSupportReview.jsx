@@ -69,7 +69,7 @@ export function DraftSupportReview({ session, selectedResults, onSelectedResults
       </div>
 
       <div className="button-row compact">
-        <button className="secondary" type="button" disabled={busy || !session?.id} onClick={loadRecommendations}>
+        <button className="btn btn-outline-secondary" type="button" disabled={busy || !session?.id} onClick={loadRecommendations}>
           {busy ? <Loader2 className="spin" size={16} /> : <RefreshCw size={16} />} Refresh AI suggestions
         </button>
         <span className="muted-inline">{selectedResults.length} selected</span>

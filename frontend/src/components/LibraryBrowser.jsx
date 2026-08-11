@@ -109,18 +109,18 @@ function CaseCatalog({ onOpenSource }) {
           load({ nextQuery: draftQuery });
         }}
       >
-        <input
+        <input className="form-control"
           aria-label="Search the case catalog"
           placeholder="Search case names, dockets, facts, and citations"
           value={draftQuery}
           onChange={(event) => setDraftQuery(event.target.value)}
         />
-        <button className="secondary" type="submit" disabled={busy}>
+        <button className="btn btn-outline-secondary" type="submit" disabled={busy}>
           {busy ? <Loader2 className="spin" size={14} /> : <Search size={14} />}
         </button>
         <label className="case-catalog-sort">
           <span>Sort</span>
-          <select
+          <select className="form-select"
             value={sort}
             onChange={(event) => {
               setSort(event.target.value);
@@ -200,7 +200,7 @@ function CaseCatalog({ onOpenSource }) {
           ))}
           {hasMore({ total: payload?.total || 0, offset: 0, shown: results.length }) && (
             <button
-              className="secondary full"
+              className="btn btn-outline-secondary full"
               type="button"
               disabled={busy}
               onClick={() => load({ offset: results.length })}
@@ -336,13 +336,13 @@ function DocumentShelf({ shelf, loading, onOpenSource }) {
           load(activeDocument?.slug, draftFilter.trim());
         }}
       >
-        <input
+        <input className="form-control"
           aria-label={`Filter the contents of ${activeDocument?.title || "this document"}`}
           placeholder="Filter by section heading or citation"
           value={draftFilter}
           onChange={(event) => setDraftFilter(event.target.value)}
         />
-        <button className="secondary" type="submit" disabled={busy}>
+        <button className="btn btn-outline-secondary" type="submit" disabled={busy}>
           {busy ? <Loader2 className="spin" size={14} /> : <Search size={14} />}
         </button>
       </form>

@@ -134,17 +134,17 @@ export function CaseMaterialsPanel({ matter, selectedFactIds = [], onFactIdsAdde
           <p className="muted">This note says documents were received, but no attached document metadata was returned by LegalServer. Try refreshing case documents.</p>
         )}
         {(!isNote || !readOnly) && <div className="button-row compact document-actions">
-          {!isNote && previewKind && item.hasFile && <button className="secondary" type="button" onClick={() => setPreviewDocument(item)}>
+          {!isNote && previewKind && item.hasFile && <button className="btn btn-outline-secondary" type="button" onClick={() => setPreviewDocument(item)}>
               <Eye size={16} /> Preview {previewKind === "pdf" ? "PDF" : "image"}
             </button>}
-          {!isNote && (!previewKind || !item.hasFile) && <button className="secondary" type="button" onClick={() => toggleDocumentText(item)} disabled={state.loading}>
+          {!isNote && (!previewKind || !item.hasFile) && <button className="btn btn-outline-secondary" type="button" onClick={() => toggleDocumentText(item)} disabled={state.loading}>
             {state.loading ? <Loader2 className="spin" size={16} /> : <FileText size={16} />}
             {state.loading ? "Loading document text" : state.text && state.expanded ? "Hide document text" : state.text ? "Show document text" : "Load document text"}
           </button>}
-          {!readOnly && <button className="secondary" type="button" onClick={() => loadContext(item, "search")} disabled={state.loading}>
+          {!readOnly && <button className="btn btn-outline-secondary" type="button" onClick={() => loadContext(item, "search")} disabled={state.loading}>
               {state.loading ? <Loader2 className="spin" size={16} /> : <Search size={16} />} Find useful excerpts
             </button>}
-          {!readOnly && <button className="secondary" type="button" disabled={busy || !(state.summary || item.snippet)} onClick={() => addDraftingFact({ title: item.title, text: state.summary || item.snippet, source: sourceLabel(item) })}>
+          {!readOnly && <button className="btn btn-outline-secondary" type="button" disabled={busy || !(state.summary || item.snippet)} onClick={() => addDraftingFact({ title: item.title, text: state.summary || item.snippet, source: sourceLabel(item) })}>
               <Plus size={16} /> Add summary to drafting facts
             </button>}
         </div>}
@@ -155,7 +155,7 @@ export function CaseMaterialsPanel({ matter, selectedFactIds = [], onFactIdsAdde
             {state.chunks.map((chunk) => (
               <div className="chunk-row" key={chunk.id}>
                 <p>{chunk.text}</p>
-                {!readOnly && <button className="secondary" type="button" disabled={busy} onClick={() => addDraftingFact({ title: `${item.title}, excerpt ${chunk.index}`, text: chunk.text, source: `${sourceLabel(item)}, excerpt ${chunk.index}` })}>
+                {!readOnly && <button className="btn btn-outline-secondary" type="button" disabled={busy} onClick={() => addDraftingFact({ title: `${item.title}, excerpt ${chunk.index}`, text: chunk.text, source: `${sourceLabel(item)}, excerpt ${chunk.index}` })}>
                     <Plus size={16} /> Add excerpt to drafting facts
                   </button>}
               </div>
