@@ -74,6 +74,12 @@ export function CaseSelector({
 
   return (
     <div className="panel">
+      <div className="panel-heading">
+        <div>
+          <p className="eyebrow">Case</p>
+          <h3>Cases</h3>
+        </div>
+      </div>
       <div className="case-source-row">
         <div className="case-source-toggle" role="radiogroup" aria-label="Case source">
           <label className={caseSource === "legalserver" ? "selected" : ""}>
@@ -99,7 +105,7 @@ export function CaseSelector({
           </label>
         </div>
         <button
-          className="primary new-local-case-button"
+          className="btn btn-primary new-local-case-button"
           type="button"
           aria-expanded={manualCaseOpen}
           onClick={() => {
@@ -129,7 +135,7 @@ export function CaseSelector({
             <div className="manual-case-grid">
               <label className="field">
                 <span>Client or household</span>
-                <input
+                <input className="form-control"
                   value={manualCase.clientName}
                   onChange={(event) => setManualCase((current) => ({ ...current, clientName: event.target.value }))}
                   placeholder="Client name"
@@ -137,7 +143,7 @@ export function CaseSelector({
               </label>
               <label className="field">
                 <span>Legal problem</span>
-                <input
+                <input className="form-control"
                   value={manualCase.matterType}
                   onChange={(event) => setManualCase((current) => ({ ...current, matterType: event.target.value }))}
                   placeholder="Eviction, conditions, subsidy..."
@@ -145,7 +151,7 @@ export function CaseSelector({
               </label>
               <label className="field">
                 <span>Court or county</span>
-                <input
+                <input className="form-control"
                   value={manualCase.jurisdiction}
                   onChange={(event) => setManualCase((current) => ({ ...current, jurisdiction: event.target.value }))}
                   placeholder="Optional"
@@ -153,7 +159,7 @@ export function CaseSelector({
               </label>
               <label className="field">
                 <span>Posture</span>
-                <input
+                <input className="form-control"
                   value={manualCase.posture}
                   onChange={(event) => setManualCase((current) => ({ ...current, posture: event.target.value }))}
                   placeholder="Intake, pre-hearing..."
@@ -162,7 +168,7 @@ export function CaseSelector({
             </div>
             <label className="field">
               <span>Case description or intake notes</span>
-              <textarea
+              <textarea className="form-control"
                 value={manualCase.notes}
                 onChange={(event) => setManualCase((current) => ({ ...current, notes: event.target.value }))}
                 placeholder="Type the facts, timeline, defenses, relief requested, or raw intake notes."
@@ -178,7 +184,7 @@ export function CaseSelector({
                 onChange={(event) => setManualFiles(Array.from(event.target.files || []))}
               />
             </label>
-            <button className="primary full" type="submit" disabled={manualCaseBusy || (!manualCase.notes.trim() && manualFiles.length === 0)}>
+            <button className="btn btn-primary full" type="submit" disabled={manualCaseBusy || (!manualCase.notes.trim() && manualFiles.length === 0)}>
               {manualCaseBusy ? <Loader2 className="spin" size={16} /> : <Upload size={16} />} Create and select
             </button>
           </form>
@@ -187,17 +193,17 @@ export function CaseSelector({
       {connected && caseSource === "legalserver" && !legalserverLoading && (
         <>
           <form className="case-search" onSubmit={onSearch}>
-            <input
+            <input className="form-control"
               aria-label="Search LegalServer matters"
               placeholder="Party, matter, or case ID"
               value={search}
               onChange={(event) => onSearchChange(event.target.value)}
             />
-            <button className="secondary" type="submit" disabled={caseBusy}>
+            <button className="btn btn-outline-secondary" type="submit" disabled={caseBusy}>
               {caseBusy ? <Loader2 className="spin" size={16} /> : <Search size={16} />} Search
             </button>
             <button
-              className={filterCount ? "secondary case-filter-toggle has-filters" : "secondary case-filter-toggle"}
+              className={filterCount ? "btn btn-outline-secondary case-filter-toggle has-filters" : "btn btn-outline-secondary case-filter-toggle"}
               type="button"
               aria-expanded={filtersOpen}
               aria-controls="case-filter-panel"
@@ -207,7 +213,7 @@ export function CaseSelector({
               {filterCount > 0 && <span className="case-filter-count">{filterCount}</span>}
               <ChevronDown className={filtersOpen ? "chevron open" : "chevron"} size={15} />
             </button>
-            <button className="secondary icon-button" type="button" disabled={caseBusy || (!search && !filterCount)} onClick={onSearchReset} title="Reset search and filters">
+            <button className="btn btn-outline-secondary icon-button" type="button" disabled={caseBusy || (!search && !filterCount)} onClick={onSearchReset} title="Reset search and filters" aria-label="Reset search and filters">
               <RotateCcw size={16} />
             </button>
           </form>
@@ -215,26 +221,26 @@ export function CaseSelector({
             <div className="case-filter-panel" id="case-filter-panel">
               <label className="field compact-field">
                 <span>Status</span>
-                <select value={activeFilters.status} onChange={(event) => updateFilter("status", event.target.value)}>
+                <select className="form-select" value={activeFilters.status} onChange={(event) => updateFilter("status", event.target.value)}>
                   {STATUS_OPTIONS.map(([value, label]) => <option key={value} value={value}>{label}</option>)}
                 </select>
               </label>
               <label className="field compact-field">
                 <span>Case handler</span>
-                <select value={activeFilters.assigned} onChange={(event) => updateFilter("assigned", event.target.value)}>
+                <select className="form-select" value={activeFilters.assigned} onChange={(event) => updateFilter("assigned", event.target.value)}>
                   {ASSIGNED_OPTIONS.map(([value, label]) => <option key={value} value={value}>{label}</option>)}
                 </select>
               </label>
               <label className="field compact-field">
                 <span>Legal problem</span>
-                <select value={activeFilters.problem} onChange={(event) => updateFilter("problem", event.target.value)}>
+                <select className="form-select" value={activeFilters.problem} onChange={(event) => updateFilter("problem", event.target.value)}>
                   <option value="">Every legal problem</option>
                   {problemCodes.map((code) => <option key={code} value={code}>{code}</option>)}
                 </select>
               </label>
               <label className="field compact-field">
                 <span>Sort by</span>
-                <select value={activeFilters.sort} onChange={(event) => updateFilter("sort", event.target.value)}>
+                <select className="form-select" value={activeFilters.sort} onChange={(event) => updateFilter("sort", event.target.value)}>
                   {SORT_OPTIONS.map(([value, label]) => <option key={value} value={value}>{label}</option>)}
                 </select>
               </label>
@@ -249,10 +255,10 @@ export function CaseSelector({
           )}
         </>
       )}
-      <div className="case-list">
+      <div className="case-list" role="table" aria-label="Cases">
         {visibleCases.length > 0 && (
-          <div className="case-list-header" aria-hidden="true">
-            <span>Case title</span><span>Case number</span><span>Legal problem</span><span>Status</span><span>Recent activity</span><span>Actions</span>
+          <div className="case-list-header" role="row">
+            <span role="columnheader">Case title</span><span role="columnheader">Case number</span><span role="columnheader">Legal problem</span><span role="columnheader">Status</span><span role="columnheader">Recent activity</span><span role="columnheader">Actions</span>
           </div>
         )}
         {visibleCases.map((item) => {
@@ -262,25 +268,26 @@ export function CaseSelector({
             <article
               key={item.id}
               className={`case-card case-card-activatable ${selectedMatterId === item.id ? "selected" : ""}`}
+              role="row"
               aria-current={selectedMatterId === item.id ? "true" : undefined}
               title={selectedMatterId === item.id ? "Active case" : "Make this the active case"}
               onClick={() => { if (selectedMatterId !== item.id) onSelect(item.id); }}
             >
-              <strong className="case-client">{caseTitleFor(item)}</strong>
-              <span className="case-number">{caseNumberFor(item)}</span>
-              <span className="case-muted case-type">{item.matter || "Case"}</span>
-              <span className="case-muted case-status">{status}</span>
-              <span className="case-muted case-activity">{activity}</span>
-              <span className="case-row-actions">
+              <strong className="case-client" role="cell">{caseTitleFor(item)}</strong>
+              <span className="case-number" role="cell">{caseNumberFor(item)}</span>
+              <span className="case-muted case-type" role="cell">{item.matter || "Case"}</span>
+              <span className="case-muted case-status" role="cell">{status}</span>
+              <span className="case-muted case-activity" role="cell">{activity}</span>
+              <span className="case-row-actions" role="cell">
                 {selectedMatterId === item.id ? (
                   <span className="active-case-indicator"><CheckCircle2 size={15} /> Active</span>
                 ) : (
-                  <button className="secondary case-activate-button" type="button" onClick={(event) => { event.stopPropagation(); onSelect(item.id); }}>
+                  <button className="btn btn-outline-secondary case-activate-button" type="button" onClick={(event) => { event.stopPropagation(); onSelect(item.id); }}>
                     Make active
                   </button>
                 )}
                 <button
-                  className="secondary icon-button"
+                  className="btn btn-outline-secondary icon-button"
                   type="button"
                   aria-label={`Open case preview for ${caseTitleFor(item)}`}
                   title="Open case preview"
@@ -321,7 +328,7 @@ export function CaseSelector({
       </div>
       {showMoreAvailable && (
         <div className="case-list-more">
-          <button className="secondary" type="button" disabled={caseBusy} onClick={onShowMore}>
+          <button className="btn btn-outline-secondary" type="button" disabled={caseBusy} onClick={onShowMore}>
             {caseBusy ? <Loader2 className="spin" size={16} /> : <ChevronDown size={16} />}
             {" "}Show {Math.min(20, Math.max(total - visibleCases.length, 0)) || 20} more
           </button>

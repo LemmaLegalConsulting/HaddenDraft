@@ -86,7 +86,7 @@ export function TriagePanel({
           <form className="manual-case-form triage-upload-panel" onSubmit={submitManualCase}>
             <label className="field">
               <span>Notes</span>
-              <textarea
+              <textarea className="form-control"
                 value={manualCase.notes}
                 onChange={(event) => setManualCase((current) => ({ ...current, notes: event.target.value }))}
                 rows={5}
@@ -102,7 +102,7 @@ export function TriagePanel({
                 onChange={(event) => setManualFiles(Array.from(event.target.files || []))}
               />
             </label>
-            <button className="primary full" type="submit" disabled={manualCaseBusy || (!manualCase.notes.trim() && manualFiles.length === 0)}>
+            <button className="btn btn-primary full" type="submit" disabled={manualCaseBusy || (!manualCase.notes.trim() && manualFiles.length === 0)}>
               {manualCaseBusy ? <Loader2 className="spin" size={16} /> : <Upload size={16} />} Create intake
             </button>
           </form>
@@ -110,7 +110,7 @@ export function TriagePanel({
 
         <label className="field">
           <span>Rubric standard</span>
-          <select value={selectedRubricId || activeRubric?.id || ""} onChange={(event) => onSelectRubric(event.target.value)}>
+          <select className="form-select" value={selectedRubricId || activeRubric?.id || ""} onChange={(event) => onSelectRubric(event.target.value)}>
             {rubrics.map((rubric) => (
               <option key={rubric.id} value={rubric.id}>{rubric.name}</option>
             ))}
@@ -123,7 +123,7 @@ export function TriagePanel({
           </div>
         )}
 
-        <button className="primary full" type="button" disabled={!canRun} onClick={() => onRunTriage?.(activeRubric.id)}>
+        <button className="btn btn-primary full" type="button" disabled={!canRun} onClick={() => onRunTriage?.(activeRubric.id)}>
           {busy ? <Loader2 className="spin" size={16} /> : <Play size={16} />} Run triage
         </button>
 

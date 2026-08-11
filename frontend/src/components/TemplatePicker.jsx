@@ -33,7 +33,7 @@ export function TemplatePicker({
     <div className="template-picker">
       <label className="field">
         <span>Document template</span>
-        <select value={selectedTemplateId || ""} onChange={(event) => onTemplateChange(event.target.value)}>
+        <select className="form-select" value={selectedTemplateId || ""} onChange={(event) => onTemplateChange(event.target.value)}>
           {templateChoices(templates).map((choice) => (
             <option key={choice.value || "placeholder"} value={choice.value}>
               {choice.placeholder ? choice.label : `${choice.label} · ${choice.jurisdiction || "Any jurisdiction"}`}
@@ -49,7 +49,7 @@ export function TemplatePicker({
           {templateAlternatives.map((choice) => (
             <label className="field" key={choice.name}>
               <span>{choice.label || choice.name}</span>
-              <select
+              <select className="form-select"
                 value={templateData?.[choice.name] ?? ""}
                 onChange={(event) => onTemplateDataChange({ ...templateData, [choice.name]: event.target.value })}
               >
@@ -79,7 +79,7 @@ export function TemplatePicker({
               return (
                 <label className="field" key={path}>
                   <span>{label}</span>
-                  <select
+                  <select className="form-select"
                     value={value}
                     onChange={(event) => onTemplateDataChange({ ...templateData, [key]: event.target.value })}
                   >
@@ -112,7 +112,7 @@ export function TemplatePicker({
               return (
                 <label className="field" key={path}>
                   <span>{label}</span>
-                  <select
+                  <select className="form-select"
                     value={value}
                     onChange={(event) => onTemplateDataChange({ ...templateData, [key]: event.target.value })}
                   >
@@ -129,7 +129,7 @@ export function TemplatePicker({
             return (
               <label className="field" key={path}>
                 <span>{label}</span>
-                <input
+                <input className="form-control"
                   value={value}
                   onChange={(event) => onTemplateDataChange({ ...templateData, [key]: event.target.value })}
                 />

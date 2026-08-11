@@ -3,6 +3,14 @@
   background: #eef2f4;
   font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   line-height: 1.4;
+
+  /* Shared spacing scale for panels/modals/fields, so padding and gaps
+     stay consistent instead of accreting one-off pixel values. */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
 }
 
 * {
@@ -71,10 +79,10 @@ button:disabled {
   border: 1px solid #dce3e8;
   border-radius: 8px;
   display: grid;
-  gap: 14px;
+  gap: var(--space-4);
   margin: 0 auto;
   max-width: 420px;
-  padding: 24px;
+  padding: var(--space-5);
   width: 100%;
 }
 
@@ -554,21 +562,7 @@ button:disabled {
 
 .panel {
   min-width: 0;
-  padding: 12px;
-}
-
-.primary {
-  background: #22645c;
-  color: white;
-}
-
-.secondary {
-  background: #e8eef1;
-  color: #26343c;
-}
-
-.secondary.danger {
-  color: #8b1e1e;
+  padding: var(--space-4);
 }
 
 .full {
@@ -716,8 +710,8 @@ button:disabled {
 
 .case-source-toggle label.selected {
   background: #ffffff;
-  border-color: #22645c;
-  box-shadow: inset 3px 0 0 #22645c;
+  border-color: var(--bux-scarlet);
+  box-shadow: inset 3px 0 0 var(--bux-scarlet);
 }
 
 .case-source-toggle label:has(input:disabled) {
@@ -840,7 +834,7 @@ button:disabled {
 
 .active-case-indicator {
   align-items: center;
-  color: #22645c;
+  color: var(--bux-scarlet-dark-40);
   display: inline-flex;
   font-size: 12px;
   font-weight: 750;
@@ -849,8 +843,8 @@ button:disabled {
 }
 
 .case-card.selected {
-  border-color: #22645c;
-  box-shadow: inset 3px 0 0 #22645c;
+  border-color: var(--bux-scarlet);
+  box-shadow: inset 3px 0 0 var(--bux-scarlet);
 }
 
 .case-card-activatable {
@@ -1199,7 +1193,7 @@ button:disabled {
   width: 100vw;
 }
 
-.case-preview-heading h3 {
+.case-preview-heading h4 {
   font-size: 22px;
   margin: 2px 0 0;
 }
@@ -1265,7 +1259,7 @@ button:disabled {
 }
 
 .case-materials-embedded .support-tabs button.selected {
-  border-bottom-color: #22645c;
+  border-bottom-color: var(--bs-success);
   color: #174d45;
   font-weight: 750;
 }
@@ -1454,8 +1448,8 @@ button:disabled {
 
 .field {
   display: grid;
-  gap: 6px;
-  margin-bottom: 12px;
+  gap: var(--space-2);
+  margin-bottom: var(--space-4);
 }
 
 .field span {
@@ -1468,17 +1462,6 @@ button:disabled {
 .field-example {
   color: #667782;
   font-size: 12px;
-}
-
-.field input,
-.field select,
-.field textarea {
-  border: 1px solid #cfd9de;
-  border-radius: 6px;
-  min-height: 38px;
-  min-width: 0;
-  padding: 9px 10px;
-  width: 100%;
 }
 
 .field textarea {
@@ -1917,7 +1900,7 @@ button:disabled {
 }
 
 .case-facet-chip small {
-  color: #22645c;
+  color: var(--bs-success);
   font-size: 11px;
   font-weight: 700;
 }
@@ -2043,13 +2026,13 @@ button:disabled {
 }
 
 .source-toggles button.selected {
-  background: #d7eee7;
-  border-color: #22645c;
-  color: #174d45;
+  background: var(--bux-white);
+  border-color: var(--bux-scarlet);
+  color: var(--bux-scarlet-dark-40);
 }
 
 .source-toggles button.selected small {
-  color: #22645c;
+  color: var(--bux-scarlet-dark-40);
 }
 
 .step-screen {
@@ -2073,9 +2056,9 @@ button:disabled {
 }
 
 .draft-mode-switch button.selected {
-  background: #d7eee7;
-  border-color: #22645c;
-  color: #174d45;
+  background: var(--bux-white);
+  border-color: var(--bux-scarlet);
+  color: var(--bux-scarlet-dark-40);
 }
 
 .draft-switcher {
@@ -2107,7 +2090,7 @@ button:disabled {
 
 .draft-switcher-tab.selected {
   background: #d7eee7;
-  border-color: #22645c;
+  border-color: var(--bs-success);
   color: #174d45;
   font-weight: 600;
 }
@@ -2153,7 +2136,7 @@ button:disabled {
 
 .goal-suggestion-card.selected {
   background: #d7eee7;
-  border-color: #22645c;
+  border-color: var(--bs-success);
 }
 
 .goal-suggestion-card strong,
@@ -2410,7 +2393,7 @@ button:disabled {
 
 .text-link-button {
   background: transparent;
-  color: #22645c;
+  color: var(--bs-link-color);
   justify-self: start;
   min-height: 0;
   padding: 0;
@@ -2466,7 +2449,7 @@ button:disabled {
   align-items: start;
   background: #f7fafb;
   border: 1px solid #dbe4e8;
-  border-left: 3px solid #22645c;
+  border-left: 3px solid var(--bux-scarlet);
   border-radius: 6px;
   display: grid;
   gap: 12px;
@@ -2497,7 +2480,7 @@ button:disabled {
 
 .standard-fact-map {
   background: #f7fafb;
-  border-left: 3px solid #22645c;
+  border-left: 3px solid var(--bux-scarlet);
   margin-top: 8px;
   padding: 8px 10px;
 }
@@ -2850,7 +2833,7 @@ button:disabled {
   align-items: center;
   background: #e9f7f1;
   border-radius: 999px;
-  color: #22645c;
+  color: var(--bux-scarlet-dark-40);
   display: inline-flex;
   font-size: 12px;
   font-weight: 700;
@@ -3037,9 +3020,9 @@ button:disabled {
   border-radius: 8px;
   box-shadow: 0 22px 60px rgba(17, 32, 41, 0.24);
   display: grid;
-  gap: 12px;
+  gap: var(--space-3);
   max-width: 520px;
-  padding: 16px;
+  padding: var(--space-4);
   width: calc(100vw - 36px);
 }
 
@@ -3048,11 +3031,11 @@ button:disabled {
   border-radius: 8px;
   box-shadow: 0 22px 60px rgba(17, 32, 41, 0.24);
   display: grid;
-  gap: 12px;
+  gap: var(--space-3);
   max-height: calc(100vh - 36px);
   max-width: 760px;
   overflow: auto;
-  padding: 16px;
+  padding: var(--space-4);
   width: calc(100vw - 36px);
 }
 
@@ -4465,7 +4448,7 @@ button:disabled {
   align-items: center;
   background: transparent;
   border: none;
-  color: #22645c;
+  color: var(--bs-link-color);
   display: inline-flex;
   font-size: 13px;
   gap: 6px;

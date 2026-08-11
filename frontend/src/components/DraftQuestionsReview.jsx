@@ -33,7 +33,7 @@ function QuestionCard({ question, onChange, onSkip }) {
       )}
       <label className="field missing-info-answer">
         <span>{question.ai_completable ? "Text for the draft" : "Answer"}</span>
-        <textarea
+        <textarea className="form-control"
           placeholder={question.ai_completable
             ? "Leave blank to let the draft write this from the selected facts."
             : "Add the missing detail here."}
@@ -43,7 +43,7 @@ function QuestionCard({ question, onChange, onSkip }) {
         />
       </label>
       <div className="button-row compact">
-        <button className="secondary" type="button" onClick={onSkip}>
+        <button className="btn btn-outline-secondary" type="button" onClick={onSkip}>
           {question.ai_completable ? "Skip — leave this to the draft" : "Skip — leave as placeholder"}
         </button>
       </div>

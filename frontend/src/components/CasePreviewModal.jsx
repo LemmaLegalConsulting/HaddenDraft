@@ -59,7 +59,7 @@ export function CasePreviewModal({
         <div className="modal-heading case-preview-heading">
           <div>
             <span className="block-kicker">Case preview</span>
-            <h3 id="case-preview-title">{caseTitleFor(matter)}</h3>
+            <h4 id="case-preview-title">{caseTitleFor(matter)}</h4>
             {matter.title && matter.client && matter.title !== matter.client && <p>Client or household: {matter.client}</p>}
           </div>
           <div className="modal-heading-actions">
@@ -82,16 +82,16 @@ export function CasePreviewModal({
           {isActive ? (
             <span className="active-case-indicator"><CheckCircle2 size={16} /> Active case</span>
           ) : (
-            <button className="secondary" type="button" onClick={() => onMakeActive(matter.id)}>
+            <button className="btn btn-outline-secondary" type="button" onClick={() => onMakeActive(matter.id)}>
               <CheckCircle2 size={16} /> Make active case
             </button>
           )}
           {isLegalServerCase(matter) && matter.legalserverUrl && (
-            <a className="secondary link-button" href={matter.legalserverUrl} target="_blank" rel="noreferrer noopener">
+            <a className="btn btn-outline-secondary link-button" href={matter.legalserverUrl} target="_blank" rel="noreferrer noopener">
               <ExternalLink size={16} /> Open in LegalServer
             </a>
           )}
-          <button className="primary" type="button" onClick={() => activateAndGo("case_chat")}>
+          <button className="btn btn-primary" type="button" onClick={() => activateAndGo("case_chat")}>
             <MessageSquare size={16} /> Chat with case
           </button>
         </div>
@@ -109,10 +109,10 @@ export function CasePreviewModal({
             {matter.summary && <section className="case-summary"><h4>Case summary</h4><p>{matter.summary}</p></section>}
             {isActive && isQuickCase(matter) && (
               <div className="case-actions">
-                <button className="secondary" type="button" onClick={() => setEditCaseOpen((current) => !current)}>
+                <button className="btn btn-outline-secondary" type="button" onClick={() => setEditCaseOpen((current) => !current)}>
                   <Pencil size={16} /> Edit quick case
                 </button>
-                <button className="secondary" type="button" disabled title="LegalServer draft-intake preview is backend-only until posting is configured">
+                <button className="btn btn-outline-secondary" type="button" disabled title="LegalServer draft-intake preview is backend-only until posting is configured">
                   <FilePlus2 size={16} /> Create LegalServer draft intake
                 </button>
               </div>
@@ -134,13 +134,13 @@ export function CasePreviewModal({
                 }}
               >
                 <div className="manual-case-grid">
-                  <label className="field"><span>Client or household</span><input name="clientName" defaultValue={matter.client || ""} /></label>
-                  <label className="field"><span>Legal problem</span><input name="matterType" defaultValue={matter.matter || ""} /></label>
-                  <label className="field"><span>Court or county</span><input name="jurisdiction" defaultValue={matter.jurisdiction || ""} /></label>
-                  <label className="field"><span>Posture</span><input name="posture" defaultValue={matter.posture || ""} /></label>
+                  <label className="field"><span>Client or household</span><input className="form-control" name="clientName" defaultValue={matter.client || ""} /></label>
+                  <label className="field"><span>Legal problem</span><input className="form-control" name="matterType" defaultValue={matter.matter || ""} /></label>
+                  <label className="field"><span>Court or county</span><input className="form-control" name="jurisdiction" defaultValue={matter.jurisdiction || ""} /></label>
+                  <label className="field"><span>Posture</span><input className="form-control" name="posture" defaultValue={matter.posture || ""} /></label>
                 </div>
-                <label className="field"><span>Case description or intake notes</span><textarea name="summary" defaultValue={matter.summary || ""} rows={5} /></label>
-                <button className="primary full" type="submit" disabled={manualCaseBusy}>
+                <label className="field"><span>Case description or intake notes</span><textarea className="form-control" name="summary" defaultValue={matter.summary || ""} rows={5} /></label>
+                <button className="btn btn-primary full" type="submit" disabled={manualCaseBusy}>
                   <Pencil size={16} /> Save quick case
                 </button>
               </form>
