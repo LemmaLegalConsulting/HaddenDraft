@@ -2,13 +2,15 @@ import json
 import shutil
 import tempfile
 from datetime import date
+from io import StringIO
 from pathlib import Path
 
 from django.contrib.auth.models import User
+from django.core.management import call_command
 from django.test import TestCase, override_settings
 
 from apps.caselaw.importing import discover_case_groups, ingest_caselaw_directory
-from apps.caselaw.models import CaseLawArtifact, CaseLawDecision, CaseLawSearchDocument
+from apps.caselaw.models import CaseLawArtifact, CaseLawDateProvenance, CaseLawDecision, CaseLawPage, CaseLawSearchDocument
 from apps.sources.connectors.local_cases import LocalCaseIndexConnector
 
 
@@ -554,6 +556,23 @@ class DecisionDateImportTests(TestCase):
         self.assertIsNone(as_date(None))
         self.assertIsNone(as_date("sometime in 1991"))
 
+    def test_a_hearing_date_written_as_argued_or_submitted_still_parses(self):
+        # Appellate reporters write "Argued April 18, 2005" rather than the
+        # bare date; the verb is not part of the date.
+        from apps.caselaw.importing import as_date
+
+        self.assertEqual(as_date("Argued April 18, 2005"), date(2005, 4, 18))
+        self.assertEqual(as_date("Submitted October 8, 2008"), date(2008, 10, 8))
+        self.assertEqual(as_date("Decided Jan. 16, 1978"), date(1978, 1, 16))
+
+    def test_a_month_only_date_is_left_unparsed_rather_than_guessing_a_day(self):
+        # "1883-01" and "1891" are the precision the reporter actually gives;
+        # inventing a day would assert something the source does not support.
+        from apps.caselaw.importing import as_date
+
+        self.assertIsNone(as_date("1883-01"))
+        self.assertIsNone(as_date("1891"))
+
     def test_a_field_holding_two_hearing_dates_takes_the_first_and_keeps_both(self):
         # A document with two hearings produces "1991-08-12; 1991-08-20". The
         # column takes one date; the wording is preserved in the provenance row.
@@ -760,3 +779,181 @@ class CapCitationTests(TestCase):
         client.resolve("104 Ohio St. 400")
 
         self.assertEqual(sum(1 for url in calls if url.endswith("CasesMetadata.json")), 1)
+
+
+class CaselawMetadataEnrichmentTests(TestCase):
+    """Summarizing a fetched opinion the way the rest of the corpus was summarized.
+
+    One model drafts, a second checks it against the text, and a marker records
+    that the second pass happened. What a reporter already stated is not up for
+    revision by either of them.
+    """
+
+    def _sidecar(self):
+        return {
+            "title": "Ketcham v. Miller et al.",
+            "citation_string": "104 Ohio St. 372",
+            "decision_date": "1922-04-11",
+            "court": "Supreme Court of Ohio",
+            "external_source_id": "cap:12345",
+            "source_url": "https://static.case.law/ohio-st/104/cases/0372-01.json",
+            "key_facts": "",
+        }
+
+    def test_reporter_facts_are_offered_to_the_model_as_facts(self):
+        from apps.caselaw.management.commands.enrich_caselaw_metadata import known_facts
+
+        facts = known_facts(self._sidecar())
+
+        self.assertEqual(facts["citation_string"], "104 Ohio St. 372")
+        self.assertEqual(facts["decision_date"], "1922-04-11")
+        # An empty field is not a fact to repeat.
+        self.assertNotIn("key_facts", facts)
+
+    def test_a_summarizer_cannot_overwrite_what_the_reporter_printed(self):
+        from apps.caselaw.management.commands.enrich_caselaw_metadata import merge
+
+        merged = merge(self._sidecar(), {
+            "decision_date": "1922-04-12",
+            "citation_string": "104 Ohio St. 999",
+            "title": "Ketcham versus Miller",
+            "key_facts": "The amended petition alleged execution of a lease.",
+            "issues": ["Whether the petition sounds in contract or in tort."],
+        })
+
+        self.assertEqual(merged["decision_date"], "1922-04-11")
+        self.assertEqual(merged["citation_string"], "104 Ohio St. 372")
+        self.assertEqual(merged["title"], "Ketcham v. Miller et al.")
+        # The analysis is exactly what the pipeline is for, and it is kept.
+        self.assertIn("amended petition", merged["key_facts"])
+        self.assertEqual(len(merged["issues"]), 1)
+
+    def test_fields_outside_the_schema_are_not_smuggled_in(self):
+        from apps.caselaw.management.commands.enrich_caselaw_metadata import merge
+
+        merged = merge(self._sidecar(), {"approved_for_search": True, "source_sha256": "x" * 64})
+
+        self.assertNotIn("approved_for_search", merged)
+        self.assertNotIn("source_sha256", merged)
+
+    def test_a_model_that_wraps_its_json_in_prose_or_fences_is_still_read(self):
+        from apps.caselaw.management.commands.enrich_caselaw_metadata import _json_object
+
+        self.assertEqual(_json_object('```json\n{"issues": ["a"]}\n```')["issues"], ["a"])
+        self.assertEqual(_json_object('Here it is:\n{"issues": ["b"]}\nHope that helps.')["issues"], ["b"])
+        with self.assertRaises(ValueError):
+            _json_object("I could not determine the metadata.")
+        with self.assertRaises(ValueError):
+            _json_object('["not", "an", "object"]')
+
+    def test_a_page_pincite_written_with_at_is_still_a_citation(self):
+        # "175 Ohio St. at 130" is how a citation reads when it is quoted from
+        # within a paragraph rather than typed as a standalone cite; "at" is
+        # not part of the reporter name.
+        from apps.caselaw.cap import parse_citation
+
+        self.assertEqual(parse_citation("175 Ohio St. at 130"), parse_citation("175 Ohio St. 130"))
+
+
+class RetireStubDecisionsTests(TestCase):
+    """Removing a citation-only stub once its citation has a full opinion.
+
+    Production ingested the original corpus's 683 citation stubs as real
+    decision rows through a directory-based import path that never checked for
+    a fuller sibling. Once fetch_cap_opinions supplies the real opinion, the
+    stub is a strictly worse duplicate of a citation the corpus already has in
+    full, and it must not just sit there next to the real one.
+    """
+
+    def _decision(self, *, title, citation, text, sha, external_source_id=""):
+        decision = CaseLawDecision.objects.create(
+            title=title,
+            citation_string=citation,
+            source_sha256=sha * 64,
+            external_source_id=external_source_id,
+            approved_for_search=True,
+        )
+        if text:
+            CaseLawPage.objects.create(decision=decision, page_number=1, text=text)
+        return decision
+
+    def test_a_stub_with_a_full_sibling_is_retired_in_favor_of_the_full_one(self):
+        from apps.caselaw.management.commands.retire_stub_decisions import stub_replacements
+
+        stub = self._decision(
+            title="Ketcham v. Miller et al.", citation="104 Ohio St. 372",
+            text="Ketcham v. Miller et al.\nCitation: 104 Ohio St. 372", sha="a",
+        )
+        full = self._decision(
+            title="Ketcham v. Miller et al.", citation="104 Ohio St. 372",
+            text="Robinson, J. " * 2000, sha="b", external_source_id="cap:12345",
+        )
+
+        pairs = stub_replacements(CaseLawDecision.objects.all())
+
+        self.assertEqual(pairs, [(stub, full)])
+
+    def test_citation_formatting_differences_do_not_hide_the_match(self):
+        # A stub's citation and CAP's official citation rarely have byte-
+        # identical punctuation or spacing.
+        from apps.caselaw.management.commands.retire_stub_decisions import stub_replacements
+
+        stub = self._decision(title="A", citation="175  Ohio St 130", text="stub only", sha="c")
+        full = self._decision(title="A", citation="175 Ohio St. 130", text="x" * 3000, sha="d")
+
+        pairs = stub_replacements(CaseLawDecision.objects.all())
+
+        self.assertEqual(pairs, [(stub, full)])
+
+    def test_a_short_decision_with_no_fuller_sibling_is_left_alone(self):
+        # A short decision on its own might be a genuinely short opinion, not
+        # a stub; nothing here says otherwise.
+        from apps.caselaw.management.commands.retire_stub_decisions import stub_replacements
+
+        self._decision(title="Only one", citation="1 Ohio St. 1", text="short but alone", sha="e")
+
+        self.assertEqual(stub_replacements(CaseLawDecision.objects.all()), [])
+
+    def test_two_full_decisions_sharing_a_citation_are_never_touched(self):
+        # The rule only fires when one side of the pair is stub-length. Two
+        # substantial decisions sharing a citation is a data question for a
+        # person, not something this command should silently resolve.
+        from apps.caselaw.management.commands.retire_stub_decisions import stub_replacements
+
+        self._decision(title="A", citation="1 Ohio St. 1", text="x" * 3000, sha="f")
+        self._decision(title="A", citation="1 Ohio St. 1", text="y" * 3000, sha="g")
+
+        self.assertEqual(stub_replacements(CaseLawDecision.objects.all()), [])
+
+    def test_the_command_only_deletes_on_request_and_reports_first(self):
+        stub = self._decision(title="Ketcham", citation="104 Ohio St. 372", text="stub", sha="h")
+        self._decision(
+            title="Ketcham", citation="104 Ohio St. 372", text="z" * 3000, sha="i",
+            external_source_id="cap:1",
+        )
+
+        out = StringIO()
+        call_command("retire_stub_decisions", "--dry-run", stdout=out)
+        self.assertEqual(CaseLawDecision.objects.count(), 2)
+        self.assertIn("Stubs with a full-text sibling: 1", out.getvalue())
+
+        out = StringIO()
+        call_command("retire_stub_decisions", stdout=out)
+        self.assertEqual(CaseLawDecision.objects.count(), 1)
+        self.assertFalse(CaseLawDecision.objects.filter(id=stub.id).exists())
+        self.assertIn("Retired 1 stub decision", out.getvalue())
+
+    def test_retiring_a_stub_cleans_up_its_pages_and_provenance_too(self):
+        from apps.caselaw.dates import record_date_provenance
+
+        stub = self._decision(title="Ketcham", citation="104 Ohio St. 372", text="stub", sha="j")
+        record_date_provenance(stub, {"decision_date": "1990-01-01"}, text="stub")
+        self._decision(
+            title="Ketcham", citation="104 Ohio St. 372", text="w" * 3000, sha="k",
+            external_source_id="cap:2",
+        )
+
+        call_command("retire_stub_decisions")
+
+        self.assertFalse(CaseLawPage.objects.filter(decision_id=stub.id).exists())
+        self.assertFalse(CaseLawDateProvenance.objects.filter(decision_id=stub.id).exists())
