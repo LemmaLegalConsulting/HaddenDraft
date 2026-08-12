@@ -24,8 +24,13 @@ from apps.drafting.services import (
     regenerate_draft_block,
     template_for_reference,
 )
-from apps.exporting.services import export_docx
-from apps.matters.legalserver_delivery import attach_delivery_headers, save_document, wants_delivery
+from apps.exporting.services import export_document
+from apps.matters.legalserver_delivery import (
+    attach_delivery_headers,
+    save_document,
+    save_draft_ai_audit,
+    wants_delivery,
+)
 from apps.matters.models import MatterFact
 from apps.matters.serializers import fact_to_dict, matter_to_dict
 from apps.matters.services import accessible_matters_for_user, matter_for_user, user_can_access_matter
@@ -473,7 +478,7 @@ def export_draft(request, draft_id):
         return error
     draft.session.status = "export"
     draft.session.save(update_fields=["status", "updated_at"])
-    response = export_docx(draft)
+    response = export_document(draft)
     # The export is a plain download link, so the opt-out travels as a query
     # parameter rather than a request body.
     requested = wants_delivery(request.GET.dict(), "documents")
@@ -487,8 +492,11 @@ def export_draft(request, draft_id):
         content_type=response["Content-Type"],
         title=draft.title or getattr(draft.session.template, "name", "") or f"Draft {draft.id}",
         origin="draft_export",
+        scope_key=f"draft-export:draft:{draft.id}",
+        remote_name=f"{draft.title or 'Draft'} [draft-{draft.id}]",
     )
-    return attach_delivery_headers(response, delivery)
+    audit_delivery = save_draft_ai_audit(draft, user=request.user)
+    return attach_delivery_headers(response, delivery, audit_delivery=audit_delivery)
 
 
 def _download_filename(response, *, fallback):

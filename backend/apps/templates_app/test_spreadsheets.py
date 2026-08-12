@@ -6,6 +6,12 @@ from xml.etree import ElementTree as ET
 import yaml
 from django.test import TestCase
 
+from apps.drafting.models import DraftDocument, DraftingSession
+from apps.drafting.serializers import draft_to_dict
+from apps.exporting.services import export_document
+from apps.matters.models import Matter
+from apps.templates_app.content_library import sync_prepared_templates
+from apps.templates_app.models import DocumentTemplate
 from apps.templates_app.spreadsheets import (
     SHEET_NS,
     convert_caps_placeholders,
@@ -108,6 +114,45 @@ class SpreadsheetTemplateTests(TestCase):
         self.assertIn("RENT LEDGER - Jane Tenant | 123 Main St", shared_strings(output))
         with zipfile.ZipFile(output) as archive:
             self.assertIn("<f>C3-D3</f>", archive.read("xl/worksheets/sheet1.xml").decode("utf-8"))
+
+    def test_draft_export_preserves_the_workbook_format(self):
+        ingest_xlsx(self.source, self.root / "document-templates")
+        private_root = self.root / "private-content"
+        with self.settings(
+            CONTENT_LIBRARY_DIR=self.root,
+            ORGANIZATION_CONTENT_LIBRARY_DIR=private_root,
+        ):
+            sync_prepared_templates()
+            template = DocumentTemplate.objects.get(slug="rent-ledger-template")
+            matter = Matter.objects.create(
+                external_id="26-0001",
+                client_name="Jane Tenant",
+                matter_type="Eviction",
+            )
+            session = DraftingSession.objects.create(
+                mode="draft_from_template",
+                matter=matter,
+                template=template,
+                template_data={"premises_address": "123 Main St"},
+            )
+            draft = DraftDocument.objects.create(
+                session=session,
+                template=template,
+                title=template.title,
+                sections=[],
+            )
+
+            response = export_document(draft)
+
+        self.assertEqual(
+            response["Content-Type"],
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        )
+        self.assertIn('.xlsx"', response["Content-Disposition"])
+        exported = self.root / "exported.xlsx"
+        exported.write_bytes(response.content)
+        self.assertIn("RENT LEDGER - Jane Tenant | 123 Main St", shared_strings(exported))
+        self.assertEqual(draft_to_dict(draft)["exportFormat"], "xlsx")
 
     def test_reingest_is_skipped_when_the_source_is_unchanged(self):
         first = ingest_xlsx(self.source, self.root / "prepared")

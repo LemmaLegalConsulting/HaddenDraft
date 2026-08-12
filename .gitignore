@@ -34,6 +34,8 @@ staticfiles/
 # Node / Frontend
 frontend/node_modules/
 frontend/dist/
+frontend/playwright-report/
+frontend/test-results/
 node_modules/
 dist/
 npm-debug.log*

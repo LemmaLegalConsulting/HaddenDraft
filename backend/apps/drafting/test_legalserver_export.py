@@ -50,7 +50,26 @@ class DraftExportDeliveryTests(TestCase):
         self.assertTrue(response.content)
         self.assertEqual(response["X-LegalServer-Delivery"], "saved")
         self.assertEqual(upload.call_args.kwargs["filename"], f"draft-{self.draft.id}.docx")
-        self.assertEqual(LegalServerDelivery.objects.get().origin, "draft_export")
+        delivery = LegalServerDelivery.objects.get()
+        self.assertEqual(delivery.origin, "draft_export")
+        self.assertEqual(delivery.scope_key, f"draft-export:draft:{self.draft.id}")
+
+    def test_repeated_export_replaces_the_same_remote_document(self):
+        with patch("apps.sources.connectors.legalserver.LegalServerClient.upload_matter_document") as upload:
+            upload.return_value = {"id": "doc-1"}
+            self.client.get(f"/api/drafts/{self.draft.id}/export/")
+            self.client.get(f"/api/drafts/{self.draft.id}/export/")
+
+        self.assertEqual(upload.call_count, 2)
+        self.assertEqual(upload.call_args.kwargs["replace_name"], f"Answer and counterclaims [draft-{self.draft.id}]")
+        self.assertEqual(
+            upload.call_args.kwargs["extra_fields"]["name"],
+            f"Answer and counterclaims [draft-{self.draft.id}]",
+        )
+        deliveries = list(LegalServerDelivery.objects.order_by("id"))
+        self.assertFalse(deliveries[0].updated_existing)
+        self.assertTrue(deliveries[1].updated_existing)
+        self.assertEqual(deliveries[0].scope_key, deliveries[1].scope_key)
 
     def test_opting_out_downloads_without_uploading(self):
         with patch("apps.sources.connectors.legalserver.LegalServerClient.upload_matter_document") as upload:

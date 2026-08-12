@@ -28,6 +28,7 @@ class FakeResponse:
         self.status_code = status_code
         self.headers = headers or {"content-type": "application/json"}
         self.text = text
+        self.content = payload if isinstance(payload, bytes) else b""
 
     def json(self):
         if isinstance(self.payload, BaseException):
@@ -49,6 +50,32 @@ class FakeSession:
 
 
 class LegalServerClientTests(TestCase):
+    @override_settings(
+        LEGALSERVER_BASE_URL="https://example.legalserver.org",
+        LEGALSERVER_API_TOKEN="token",
+    )
+    def test_document_download_resolves_relative_legalserver_url(self):
+        session = FakeSession(b"document bytes", headers={"content-type": "application/pdf"})
+        client = LegalServerClient(session=session)
+
+        result = client.download_document("/modules/document/download.php?id=7")
+
+        self.assertEqual(session.calls[0]["url"], "https://example.legalserver.org/modules/document/download.php?id=7")
+        self.assertEqual(result["content"], b"document bytes")
+
+    @override_settings(
+        LEGALSERVER_BASE_URL="https://example.legalserver.org",
+        LEGALSERVER_API_TOKEN="token",
+    )
+    def test_document_download_rejects_foreign_host_before_sending_credentials(self):
+        session = FakeSession(b"document bytes")
+        client = LegalServerClient(session=session)
+
+        with self.assertRaises(LegalServerError):
+            client.download_document("https://attacker.example/client-file")
+
+        self.assertEqual(session.calls, [])
+
     @override_settings(
         LEGALSERVER_BASE_URL="https://example.legalserver.org",
         LEGALSERVER_API_TOKEN="token",
@@ -184,6 +211,63 @@ class LegalServerClientTests(TestCase):
         client.search_matters(user_email="advocate@example.org")
 
         self.assertEqual(session.calls[0]["params"], {"page_size": 25, "results": "full"})
+
+    @override_settings(
+        LEGALSERVER_BASE_URL="https://example.legalserver.org",
+        LEGALSERVER_API_TOKEN="token",
+        LEGALSERVER_MATTERS_PATH="/api/v2/matters",
+        LEGALSERVER_MATTERS_RESULTS="full",
+    )
+    def test_case_number_search_makes_one_exact_api_request(self):
+        session = FakeSession({"data": [{"matter_uuid": "matter-1", "case_number": "26-0000045"}]})
+        client = LegalServerClient(session=session)
+
+        matters = client.search_matters(query="26-0000045")
+
+        self.assertEqual(len(matters), 1)
+        self.assertEqual(len(session.calls), 1)
+        self.assertEqual(session.calls[0]["params"]["case_number"], "26-0000045")
+
+    @override_settings(
+        LEGALSERVER_BASE_URL="https://example.legalserver.org",
+        LEGALSERVER_API_TOKEN="token",
+        LEGALSERVER_MATTERS_PATH="/api/v2/matters",
+        LEGALSERVER_DOCUMENTS_PATH="/api/v2/documents",
+    )
+    def test_v2_detail_and_matter_documents_unwrap_data_envelopes(self):
+        matter_uuid = "d019be06-6d12-47a5-bdfb-2a8a6f71d9ac"
+        session = FakeSession({"data": {"matter_uuid": matter_uuid, "case_number": "26-000035"}})
+        client = LegalServerClient(session=session)
+
+        matter = client.get_matter(matter_uuid)
+
+        self.assertEqual(matter["case_number"], "26-000035")
+        session.payload = {"data": [{"uuid": "doc-uuid", "title": "Notice.pdf"}]}
+        documents = client.get_matter_documents(matter_uuid)
+        self.assertEqual(documents[0]["title"], "Notice.pdf")
+        self.assertEqual(session.calls[-1]["url"], "https://example.legalserver.org/api/v2/documents")
+        self.assertEqual(
+            session.calls[-1]["params"],
+            {"module": "matter", "module_uuid": matter_uuid, "page_size": 100},
+        )
+
+    @override_settings(
+        LEGALSERVER_BASE_URL="https://example.legalserver.org",
+        LEGALSERVER_API_TOKEN="token",
+        LEGALSERVER_MATTERS_PATH="/api/v2/matters",
+    )
+    def test_matter_notes_use_the_v2_uuid_scoped_endpoint(self):
+        matter_uuid = "d019be06-6d12-47a5-bdfb-2a8a6f71d9ac"
+        session = FakeSession({"data": [{"casenote_uuid": "note-1", "subject": "Intake"}]})
+        client = LegalServerClient(session=session)
+
+        notes = client.get_matter_notes(matter_uuid)
+
+        self.assertEqual(notes[0]["subject"], "Intake")
+        self.assertEqual(
+            session.calls[0]["url"],
+            f"https://example.legalserver.org/api/v2/matters/{matter_uuid}/notes",
+        )
 
 
 class LegalServerConnectorTests(TestCase):

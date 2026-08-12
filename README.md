@@ -459,6 +459,23 @@ unscoped name match, posted from a different case, was observed to match a
 document on the first case and reattach it to the second, moving one client's
 document onto another client's file.
 
+When a draft with recorded AI component versions is filed, the app also creates
+an **AI usage audit** case note. Refiling the same draft updates that note by its
+stable `ai-audit:draft:<id>` external id. The note lists each model-written
+component version (including versions later superseded by an attorney edit),
+the output paragraph by paragraph, the refinement instruction when one was
+recorded, and its typed source bindings. The document upload remains available
+if this second write fails, and the export response reports the note failure
+separately.
+
+Every DOCX exported from a saved draft carries the same structured record in
+the `Legal Drafting Tool AI Audit JSON` OOXML custom property. Companion custom
+properties expose the schema version and interaction, paragraph, and source
+counts. An empty versioned payload means no AI component version was recorded;
+the absence of the property means the document did not pass through this export
+pipeline. Custom properties preserve the full provenance record without adding
+audit text to the document's visible or filed prose.
+
 Starting a new chat thread starts a new note.
 
 Every case note the tool writes ends with a line saying it was machine-written

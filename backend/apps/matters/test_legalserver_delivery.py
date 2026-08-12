@@ -18,9 +18,12 @@ from apps.matters.legalserver_delivery import (
     can_deliver,
     delivery_defaults,
     save_case_note,
+    save_draft_ai_audit,
     save_document,
     wants_delivery,
 )
+from apps.drafting.components import record_sections
+from apps.drafting.models import DraftDocument, DraftingSession
 from apps.matters.legalserver_field_map import load_field_map, triage_outcome_updates
 from apps.matters.legalserver_notes import triage_case_note_body
 from apps.matters.models import LegalServerDelivery, Matter, TriageAssessment, TriageRubric
@@ -262,6 +265,34 @@ class CaseNoteDeliveryTests(TestCase):
         self.assertIsNone(delivery)
         self.assertEqual(LegalServerDelivery.objects.count(), 0)
 
+    def test_a_draft_ai_audit_note_is_updated_by_stable_external_id(self):
+        session = DraftingSession.objects.create(mode="draft_from_template", matter=self.matter)
+        draft = DraftDocument.objects.create(session=session, title="Answer", sections=[], plain_text="")
+        record_sections(
+            draft,
+            [{"key": "argument", "label": "Argument", "body": "AI-created paragraph."}],
+            origin="ai",
+        )
+        first_session = RecordingSession({"data": {"id": 4242}})
+        first = save_draft_ai_audit(
+            draft,
+            user=self.user,
+            client=LegalServerClient(session=first_session),
+        )
+        second_session = RecordingSession({"data": {"id": 4242}})
+        second = save_draft_ai_audit(
+            draft,
+            user=self.user,
+            client=LegalServerClient(session=second_session),
+        )
+
+        scope = f"ai-audit:draft:{draft.id}"
+        self.assertEqual(first.scope_key, scope)
+        self.assertTrue(second.updated_existing)
+        self.assertEqual(second_session.calls[0]["json"]["external_id"], scope)
+        self.assertEqual(second_session.calls[0]["json"]["update"], {"external_id": scope})
+        self.assertIn("AI-created paragraph.", second_session.calls[0]["json"]["body"])
+
 
 @override_settings(**CONFIGURED)
 class DocumentDeliveryTests(TestCase):
@@ -293,6 +324,25 @@ class DocumentDeliveryTests(TestCase):
         self.assertEqual(call["data"]["module_uuid"], "1f689912-a490-4ced-a99d-a21d7a5caeb2")
         self.assertEqual(call["data"]["name"], "Answer and counterclaims")
         self.assertNotIn("type", call["data"])
+
+    def test_a_document_can_use_a_unique_remote_name_while_keeping_its_title(self):
+        session = RecordingSession({"data": {"id": "doc-10"}})
+
+        delivery = save_document(
+            self.matter,
+            user=self.user,
+            filename="answer.docx",
+            content=b"docx bytes",
+            title="Answer and counterclaims",
+            remote_name="Answer and counterclaims [draft-42]",
+            scope_key="draft-export:draft:42",
+            origin="draft_export",
+            client=LegalServerClient(session=session),
+        )
+
+        self.assertEqual(session.calls[0]["data"]["name"], "Answer and counterclaims [draft-42]")
+        self.assertEqual(session.calls[0]["data"]["title"], "Answer and counterclaims")
+        self.assertEqual(delivery.request_payload["remoteName"], "Answer and counterclaims [draft-42]")
 
     @override_settings(LEGALSERVER_DOCUMENT_TYPE="Brief")
     def test_a_configured_document_type_is_applied_to_the_upload(self):

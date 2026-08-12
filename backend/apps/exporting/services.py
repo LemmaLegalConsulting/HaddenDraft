@@ -3,6 +3,7 @@ import re
 import tempfile
 import zipfile
 from html import escape
+from pathlib import Path
 
 from django.http import HttpResponse
 from docx import Document
@@ -17,7 +18,8 @@ from apps.templates_app.word_templates import (
     has_word_template_assets,
     style_template_path,
 )
-from apps.templates_app.content_library import full_template_path
+from apps.templates_app.content_library import full_template_path, resolve_content_asset
+from apps.templates_app.spreadsheets import render_workbook
 from apps.templates_app.template_variables import normalize_docxtpl_blocks, template_field_values
 from apps.templates_app.jinja_filters import listify, template_environment
 
@@ -506,23 +508,29 @@ def _full_template_docx(draft, template_path):
 def render_docx_bytes(draft):
     selected_full_template = full_template_path(_draft_template(draft))
     if selected_full_template:
-        return _full_template_docx(draft, selected_full_template)
+        content = _full_template_docx(draft, selected_full_template)
 
-    if _has_word_template_assets(draft):
-        return _composed_docx(draft)
+    elif _has_word_template_assets(draft):
+        content = _composed_docx(draft)
 
-    document_xml, num_count = _doc_xml(draft)
-    output = io.BytesIO()
-    with zipfile.ZipFile(output, "w", zipfile.ZIP_DEFLATED) as docx:
-        docx.writestr("[Content_Types].xml", CONTENT_TYPES)
-        docx.writestr("_rels/.rels", ROOT_RELS)
-        docx.writestr("docProps/app.xml", APP_PROPS)
-        docx.writestr("docProps/core.xml", CORE_PROPS.format(title=_xml_text(draft.title)))
-        docx.writestr("word/document.xml", document_xml)
-        docx.writestr("word/_rels/document.xml.rels", _document_rels())
-        docx.writestr("word/numbering.xml", _numbering(num_count))
-        docx.writestr("word/styles.xml", STYLES)
-    return output.getvalue()
+    else:
+        document_xml, num_count = _doc_xml(draft)
+        output = io.BytesIO()
+        with zipfile.ZipFile(output, "w", zipfile.ZIP_DEFLATED) as docx:
+            docx.writestr("[Content_Types].xml", CONTENT_TYPES)
+            docx.writestr("_rels/.rels", ROOT_RELS)
+            docx.writestr("docProps/app.xml", APP_PROPS)
+            docx.writestr("docProps/core.xml", CORE_PROPS.format(title=_xml_text(draft.title)))
+            docx.writestr("word/document.xml", document_xml)
+            docx.writestr("word/_rels/document.xml.rels", _document_rels())
+            docx.writestr("word/numbering.xml", _numbering(num_count))
+            docx.writestr("word/styles.xml", STYLES)
+        content = output.getvalue()
+
+    from apps.drafting.audit import draft_ai_audit
+    from apps.exporting.docx_metadata import embed_ai_audit_metadata
+
+    return embed_ai_audit_metadata(content, draft_ai_audit(draft))
 
 
 def export_docx(draft):
@@ -531,6 +539,34 @@ def export_docx(draft):
         content_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
     )
     response["Content-Disposition"] = f'attachment; filename="draft-{draft.id}.docx"'
+    return response
+
+
+def _workbook_template_path(draft):
+    template = _draft_template(draft)
+    metadata = (template.metadata or {}) if template else {}
+    render = metadata.get("render") or {}
+    if render.get("strategy") != "workbook" or not render.get("xlsx") or not template.content_path:
+        return None
+    logical_path = Path(template.content_path).parent / render["xlsx"]
+    path = resolve_content_asset(logical_path.as_posix())
+    return path if path.is_file() else None
+
+
+def export_document(draft):
+    """Export a draft in the maintained template's native Office format."""
+    workbook_path = _workbook_template_path(draft)
+    if not workbook_path:
+        return export_docx(draft)
+    with tempfile.TemporaryDirectory() as temp_dir:
+        output_path = Path(temp_dir) / f"draft-{draft.id}.xlsx"
+        render_workbook(workbook_path, _docx_render_context(draft, {}), output_path)
+        content = output_path.read_bytes()
+    response = HttpResponse(
+        content,
+        content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    )
+    response["Content-Disposition"] = f'attachment; filename="draft-{draft.id}.xlsx"'
     return response
 
 

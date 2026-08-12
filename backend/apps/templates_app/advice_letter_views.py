@@ -23,12 +23,14 @@ from apps.drafting.advice_letter_assembly import (
     compose_advice_letter_docx,
     letter_from_draft_sections,
 )
+from apps.drafting.audit import draft_ai_audit
 from apps.drafting.components import record_sections
 from apps.drafting.letters import LETTER_KINDS, RECIPIENT_ROLES, LetterRequest
 from apps.drafting.models import DraftDocument, DraftingSession
 from apps.drafting.serializers import draft_to_dict
 from apps.drafting.source_bindings import bind_current_versions
-from apps.matters.legalserver_delivery import delivery_to_dict, save_document
+from apps.exporting.docx_metadata import embed_ai_audit_metadata
+from apps.matters.legalserver_delivery import delivery_to_dict, save_document, save_draft_ai_audit
 from apps.matters.models import MatterFact
 from apps.matters.services import matter_for_user, user_can_access_matter
 from apps.templates_app.advice_letter_library import (
@@ -605,7 +607,7 @@ def advice_letter_draft_export(request, draft_id):
             request=_letter_request(payload, draft.session.matter),
             output_path=output,
         )
-        file_payload = output.read_bytes()
+        file_payload = embed_ai_audit_metadata(output.read_bytes(), draft_ai_audit(draft))
 
     filename = _download_name(payload, letter, draft.session.matter)
     response = HttpResponse(
@@ -647,7 +649,7 @@ def advice_letter_draft_legalserver(request, draft_id):
             request=_letter_request(payload, draft.session.matter),
             output_path=output,
         )
-        file_payload = output.read_bytes()
+        file_payload = embed_ai_audit_metadata(output.read_bytes(), draft_ai_audit(draft))
 
     delivery = save_document(
         draft.session.matter,
@@ -659,7 +661,14 @@ def advice_letter_draft_legalserver(request, draft_id):
         origin="advice_letter",
         scope_key=f"advice-letter:draft:{draft.id}",
     )
-    return JsonResponse({"delivery": delivery_to_dict(delivery)}, status=201)
+    audit_delivery = save_draft_ai_audit(draft, user=request.user)
+    return JsonResponse(
+        {
+            "delivery": delivery_to_dict(delivery),
+            "auditDelivery": delivery_to_dict(audit_delivery),
+        },
+        status=201,
+    )
 
 
 @api_login_required

@@ -376,7 +376,12 @@ def case_materials(request, matter_id):
     if error:
         return error
     matter = matter.__class__.objects.prefetch_related("facts").get(id=matter.id)
-    return JsonResponse(case_materials_payload(matter))
+    return JsonResponse(
+        case_materials_payload(
+            matter,
+            force_refresh=request.GET.get("refresh", "").strip().lower() in {"1", "true", "yes"},
+        )
+    )
 
 
 @api_login_required

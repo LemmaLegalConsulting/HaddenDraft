@@ -46,7 +46,15 @@ export function deliveryFromHeaders(response) {
   if (!headers || typeof headers.get !== "function") return null;
   const status = headers.get("X-LegalServer-Delivery");
   if (!status) return null;
-  return { status, message: headers.get("X-LegalServer-Delivery-Message") || "" };
+  const auditStatus = headers.get("X-LegalServer-AI-Audit");
+  const messages = [
+    headers.get("X-LegalServer-Delivery-Message") || "",
+    headers.get("X-LegalServer-AI-Audit-Message") || "",
+  ].filter(Boolean);
+  const combinedStatus = auditStatus === "failed" ? "failed" : status;
+  const delivery = { status: combinedStatus, message: messages.join(" ") };
+  if (auditStatus) delivery.auditStatus = auditStatus;
+  return delivery;
 }
 
 export function deliveryTone(delivery) {

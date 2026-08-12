@@ -402,8 +402,13 @@ class LegalServerClient:
     def download_document(self, url):
         if not self.configured:
             raise LegalServerError("LegalServer is not configured")
+        resolved_url = self._url(url)
+        configured_origin = urlparse(self.base_url)
+        download_origin = urlparse(resolved_url)
+        if (download_origin.scheme, download_origin.netloc) != (configured_origin.scheme, configured_origin.netloc):
+            raise LegalServerError("LegalServer returned a document URL on an unexpected host")
         response = self.session.get(
-            url,
+            resolved_url,
             headers=self._headers(),
             timeout=30,
             **self._request_kwargs(),
@@ -413,7 +418,7 @@ class LegalServerClient:
         return {
             "content": response.content,
             "content_type": response.headers.get("content-type", ""),
-            "filename": url.rsplit("/", 1)[-1].split("?", 1)[0],
+            "filename": resolved_url.rsplit("/", 1)[-1].split("?", 1)[0],
         }
 
     def _search_params(self, *, user_email="", limit=25):
@@ -426,7 +431,11 @@ class LegalServerClient:
         params = self._search_params(user_email=user_email, limit=limit)
         if query:
             matters_by_id = {}
-            for field in self.search_fields:
+            # A case number is already a stable, exact identifier. Trying it
+            # against party-name and title fields adds four slow API calls and
+            # can exhaust a site's rate limit during ordinary case switching.
+            search_fields = ("case_number",) if re.fullmatch(r"\d{2,4}-\d+", query.strip()) else self.search_fields
+            for field in search_fields:
                 payload = self._get(self.matters_path, params={**params, field: query})
                 for matter in self._matter_list_from_payload(payload):
                     matter_key = _first_value(
@@ -458,14 +467,40 @@ class LegalServerClient:
 
     def get_matter(self, matter_id):
         path = f"{self.matters_path.rstrip('/')}/{matter_id}"
-        return self._get(path)
+        payload = self._get(path)
+        record = payload.get("data") if isinstance(payload, dict) else None
+        return record if isinstance(record, dict) else payload
 
     def get_matter_documents(self, matter_id):
+        # Core API v2 searches documents by the parent module's UUID. The
+        # legacy matter-documents route instead expects a site-specific matter
+        # id and returns 404 when given the human case number stored as this
+        # app's external_id.
+        if isinstance(matter_id, str) and UUID_RE.match(matter_id.strip()):
+            payload = self._get(
+                self.documents_path,
+                params={"module": "matter", "module_uuid": matter_id.strip(), "page_size": 100},
+            )
+            if isinstance(payload, list):
+                return payload
+            return payload.get("results") or payload.get("data") or payload.get("documents") or []
         path = self.matter_documents_path.format(matter_id=matter_id)
         payload = self._get(path)
         if isinstance(payload, list):
             return payload
         return payload.get("results") or payload.get("data") or payload.get("documents") or []
+
+    def get_matter_notes(self, matter_uuid):
+        """Return direct and related case notes through Core API v2."""
+        if not isinstance(matter_uuid, str) or not UUID_RE.match(matter_uuid.strip()):
+            return []
+        payload = self._get(
+            f"{self.matters_path.rstrip('/')}/{quote(matter_uuid.strip(), safe='')}/notes",
+            params={"page_size": 100},
+        )
+        if isinstance(payload, list):
+            return payload
+        return payload.get("results") or payload.get("data") or payload.get("notes") or []
 
     def find_user(self, identifier):
         if not identifier or not self.users_path:
@@ -578,7 +613,12 @@ class LegalServerConnector(SourceConnector):
         if not self.client.configured:
             return []
         try:
-            documents = self.client.get_matter_documents(matter.external_id) if matter else []
+            matter_reference = (
+                legalserver_matter_uuid(matter.raw_payload or {}) or matter.external_id
+                if matter
+                else ""
+            )
+            documents = self.client.get_matter_documents(matter_reference) if matter else []
             matters = []
             if not matter:
                 from apps.matters.services import legalserver_access_profile_for_user, payload_matches_legalserver_identifier

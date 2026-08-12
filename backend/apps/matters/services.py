@@ -435,8 +435,13 @@ def sync_legalserver_matters_for_user(user, *, query="", limit=50, restrict_to_u
             else:
                 payloads = [payload] if payload and payload_matches_legalserver_identifier(payload, access_profile.identifier) else []
     except LegalServerError as exc:
+        # A transient LegalServer failure should not blank an exact case-number
+        # search when this user has already synchronized and remains authorized
+        # for that matter. Keep the error visible so the UI does not imply the
+        # cached record is fresh.
+        cached = matter_for_user(user, query) if query else None
         return LegalServerSyncResult(
-            matters=[],
+            matters=[cached] if cached else [],
             connected=True,
             configured=True,
             identifier=access_profile.identifier,

@@ -66,6 +66,23 @@ test("a download reports its upload result through response headers", () => {
   });
 });
 
+test("a download also reports when its AI audit case note failed", () => {
+  const response = {
+    headers: headers({
+      "X-LegalServer-Delivery": "saved",
+      "X-LegalServer-Delivery-Message": "Saved the document to LegalServer.",
+      "X-LegalServer-AI-Audit": "failed",
+      "X-LegalServer-AI-Audit-Message": "Could not save the AI audit case note.",
+    }),
+  };
+
+  assert.deepEqual(deliveryFromHeaders(response), {
+    status: "failed",
+    message: "Saved the document to LegalServer. Could not save the AI audit case note.",
+    auditStatus: "failed",
+  });
+});
+
 test("a download with no delivery headers reports nothing rather than a false success", () => {
   assert.equal(deliveryFromHeaders({ headers: headers({}) }), null);
   assert.equal(deliveryFromHeaders(null), null);

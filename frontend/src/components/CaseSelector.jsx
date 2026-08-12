@@ -51,6 +51,7 @@ export function CaseSelector({
   const [manualFiles, setManualFiles] = React.useState([]);
   const [filtersOpen, setFiltersOpen] = React.useState(false);
   const connected = Boolean(legalserver?.connected);
+  const syncFailed = Boolean(legalserver?.syncError && legalserver.syncError !== "not_connected");
   const legalserverCases = cases.filter(isLegalServerCase);
   const localCases = cases.filter((item) => !isLegalServerCase(item));
   const visibleCases = caseSource === "local" ? localCases : legalserverCases;
@@ -308,6 +309,8 @@ export function CaseSelector({
                 ? "Checking LegalServer"
                 : !connected
                 ? "No LegalServer cases"
+                : syncFailed
+                ? "LegalServer sync failed"
                 : filterCount > 0
                 ? "No cases match these filters"
                 : "No matters found"}
@@ -319,6 +322,8 @@ export function CaseSelector({
                 ? "Checking your LegalServer connection and assigned matters."
                 : !connected
                 ? "Connect LegalServer to load assigned matters."
+                : syncFailed
+                ? "Open Connections for the LegalServer error, then try the search again."
                 : filterCount > 0
                 ? "Widen the filter to see closed cases, a colleague's caseload, or every legal problem."
                 : "LegalServer did not return matters for this identifier."}
