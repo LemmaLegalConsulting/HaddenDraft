@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import { History, Loader2, Plus, Send, Trash2 } from "lucide-react";
 
 import { api } from "../api/client.js";
+import LegalServerSaveButton from "./LegalServerSaveButton.jsx";
+import { chatTranscriptNote } from "./chatTranscript.js";
 import { MarkdownResponse } from "./MarkdownResponse.jsx";
 
 const starterPrompts = [
@@ -14,7 +16,7 @@ function cleanMessage(text = "") {
   return text.replace(/<br\s*\/?>/gi, "\n");
 }
 
-export function CaseChat({ matter, onAction }) {
+export function CaseChat({ matter, onAction, legalserverSave = null }) {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [busy, setBusy] = useState(false);
@@ -23,6 +25,8 @@ export function CaseChat({ matter, onAction }) {
   const [showHistory, setShowHistory] = useState(true);
   const [threads, setThreads] = useState([]);
   const [selectedThreadId, setSelectedThreadId] = useState("");
+  const [delivery, setDelivery] = useState(null);
+  const [savingToLegalServer, setSavingToLegalServer] = useState(false);
 
   useEffect(() => {
     setInput("");
@@ -93,9 +97,30 @@ export function CaseChat({ matter, onAction }) {
     finally { setBusy(false); }
   }
 
+  async function saveToLegalServer() {
+    if (!matter || !messages.length) return;
+    setSavingToLegalServer(true);
+    setError("");
+    try {
+      // One note per thread. Saving the same conversation again after a few
+      // more questions replaces it, so the case file holds the whole exchange
+      // once rather than a note per round trip.
+      const response = await api.saveCaseNoteToLegalServer(matter.id, {
+        ...chatTranscriptNote(messages, { matterId: matter.id, threadId: selectedThreadId }),
+        origin: "case_chat",
+      });
+      setDelivery(response.delivery);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setSavingToLegalServer(false);
+    }
+  }
+
   async function selectThread(event) {
     const threadId = event.target.value;
     setSelectedThreadId(threadId);
+    setDelivery(null);
     const response = await api.caseChatHistory(matter.id, threadId);
     setMessages(response.messages || []);
   }
@@ -119,6 +144,13 @@ export function CaseChat({ matter, onAction }) {
             <button className="text-link-button" type="button" disabled={busy} onClick={newChat}><Plus size={15} /> New chat</button>
             <button className="text-link-button danger" type="button" disabled={busy || !!selectedThreadId || !messages.length} onClick={clearHistory}><Trash2 size={15} /> Clear</button>
           </div>
+          <LegalServerSaveButton
+            onSave={saveToLegalServer}
+            busy={savingToLegalServer}
+            delivery={delivery}
+            bootstrapSave={legalserverSave}
+            disabled={busy || historyLoading || !messages.length}
+          />
           <div className="chat-transcript">
             {(!messages.length || !showHistory) && (
               <div className="empty-state compact-empty">

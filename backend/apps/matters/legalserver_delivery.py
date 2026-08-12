@@ -127,6 +127,19 @@ def can_deliver(matter, *, client=None):
     return True, ""
 
 
+def previous_delivery(matter, *, kind, scope_key):
+    """The record this save should replace, if this session already made one."""
+    if not scope_key:
+        return None
+    return (
+        matter.legalserver_deliveries.filter(
+            kind=kind, scope_key=scope_key, status=LegalServerDelivery.SAVED
+        )
+        .exclude(remote_id="")
+        .first()
+    )
+
+
 def _record(matter, *, user, kind, origin, status, reason="", **extra):
     return LegalServerDelivery.objects.create(
         matter=matter,
@@ -139,7 +152,7 @@ def _record(matter, *, user, kind, origin, status, reason="", **extra):
     )
 
 
-def _skip(matter, *, user, kind, origin, reason, title="", filename="", request_payload=None):
+def _skip(matter, *, user, kind, origin, reason, title="", filename="", scope_key="", request_payload=None):
     return _record(
         matter,
         user=user,
@@ -149,11 +162,23 @@ def _skip(matter, *, user, kind, origin, reason, title="", filename="", request_
         reason=reason,
         title=title[:500],
         filename=filename[:500],
+        scope_key=scope_key[:255],
         request_payload=request_payload or {},
     )
 
 
-def save_case_note(matter, *, user, title, body, origin, requested=True, extra_fields=None, client=None):
+def save_case_note(
+    matter,
+    *,
+    user,
+    title,
+    body,
+    origin,
+    requested=True,
+    scope_key="",
+    extra_fields=None,
+    client=None,
+):
     """Post a case note.
 
     Returns the delivery record, or None when the advocate opted out -- an
@@ -172,14 +197,19 @@ def save_case_note(matter, *, user, title, body, origin, requested=True, extra_f
         return _skip(matter, user=user, kind=kind, origin=origin, reason=reason, title=title)
     database_id = matter_database_id_for(matter)
     if not database_id:
-        return _skip(matter, user=user, kind=kind, origin=origin, reason="no_matter_id", title=title)
+        return _skip(
+            matter, user=user, kind=kind, origin=origin, reason="no_matter_id", title=title, scope_key=scope_key
+        )
 
-    request_payload = {"title": title, "characters": len(body)}
+    earlier = previous_delivery(matter, kind=kind, scope_key=scope_key)
+    request_payload = {"title": title, "characters": len(body), "scopeKey": scope_key}
     try:
         response = client.create_note(
             database_id,
             subject=title,
             body=body,
+            external_id=scope_key,
+            upsert=bool(earlier),
             extra_fields=extra_fields,
         )
     except LegalServerError as exc:
@@ -201,6 +231,8 @@ def save_case_note(matter, *, user, title, body, origin, requested=True, extra_f
         origin=origin,
         status=LegalServerDelivery.SAVED,
         title=title[:500],
+        scope_key=scope_key[:255],
+        updated_existing=bool(earlier),
         remote_id=_remote_id(response),
         remote_url=_remote_url(response),
         request_payload=request_payload,
@@ -218,6 +250,7 @@ def save_document(
     title="",
     origin,
     requested=True,
+    scope_key="",
     extra_fields=None,
     client=None,
 ):
@@ -241,7 +274,14 @@ def save_document(
             matter, user=user, kind=kind, origin=origin, reason="no_matter_uuid", title=title, filename=filename
         )
 
-    request_payload = {"filename": filename, "title": title, "bytes": len(content), "contentType": content_type}
+    earlier = previous_delivery(matter, kind=kind, scope_key=scope_key)
+    request_payload = {
+        "filename": filename,
+        "title": title,
+        "bytes": len(content),
+        "contentType": content_type,
+        "scopeKey": scope_key,
+    }
     try:
         response = client.upload_matter_document(
             matter_uuid_for(matter),
@@ -249,6 +289,9 @@ def save_document(
             content=content,
             content_type=content_type,
             title=title,
+            # Replace by the name we gave it last time, which may differ from
+            # the name being sent now.
+            replace_name=(earlier.title if earlier else ""),
             extra_fields=extra_fields,
         )
     except LegalServerError as exc:
@@ -272,6 +315,8 @@ def save_document(
         status=LegalServerDelivery.SAVED,
         title=title[:500],
         filename=filename[:500],
+        scope_key=scope_key[:255],
+        updated_existing=bool(earlier),
         remote_id=_remote_id(response),
         remote_url=_remote_url(response),
         request_payload=request_payload,
@@ -398,6 +443,8 @@ def delivery_to_dict(delivery):
         "message": delivery_message(delivery),
         "title": delivery.title,
         "filename": delivery.filename,
+        "scopeKey": delivery.scope_key,
+        "updatedExisting": delivery.updated_existing,
         "remoteId": delivery.remote_id,
         "remoteUrl": delivery.remote_url,
         "fields": (delivery.request_payload or {}).get("fields") or {},
@@ -414,6 +461,8 @@ def delivery_message(delivery):
         LegalServerDelivery.CASE_UPDATE: "case property update",
     }.get(delivery.kind, "record")
     if delivery.status == LegalServerDelivery.SAVED:
+        if delivery.updated_existing:
+            return f"Updated the {label} already on the LegalServer case file."
         return f"Saved the {label} to LegalServer."
     if delivery.status == LegalServerDelivery.DRY_RUN:
         return f"Previewed the {label}; the field map is in dry-run mode, so LegalServer was not changed."

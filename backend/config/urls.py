@@ -61,6 +61,11 @@ urlpatterns = [
     path("api/advice-letters/export/", advice_letter_views.advice_letter_export, name="api_advice_letter_export"),
     path("api/advice-letters/drafts/", advice_letter_views.advice_letter_draft, name="api_advice_letter_draft"),
     path("api/advice-letters/drafts/<int:draft_id>/export/", advice_letter_views.advice_letter_draft_export, name="api_advice_letter_draft_export"),
+    path(
+        "api/advice-letters/drafts/<int:draft_id>/legalserver/",
+        advice_letter_views.advice_letter_draft_legalserver,
+        name="api_advice_letter_draft_legalserver",
+    ),
     path("api/sources/", source_views.sources, name="api_sources"),
     path("api/library/", source_views.library, name="api_library"),
     path("api/library/<slug:document_slug>/", source_views.library_document, name="api_library_document"),

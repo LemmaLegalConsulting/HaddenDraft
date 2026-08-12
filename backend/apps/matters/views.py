@@ -324,6 +324,9 @@ def case_legalserver_casenote(request, matter_id):
         title=str(body.get("title") or "Note from the drafting tool"),
         body=str(body.get("body") or body.get("note") or ""),
         origin=str(body.get("origin") or "manual")[:60],
+        # A scope key names the artifact rather than the moment, so saving the
+        # same chat thread twice updates one note instead of leaving two.
+        scope_key=str(body.get("scopeKey") or "")[:255],
         requested=True,
     )
     return JsonResponse({"delivery": delivery_to_dict(delivery)}, status=201)
@@ -348,6 +351,7 @@ def case_legalserver_document(request, matter_id):
         content_type=upload.content_type or "",
         title=str(request.POST.get("title") or upload.name),
         origin=str(request.POST.get("origin") or "manual")[:60],
+        scope_key=str(request.POST.get("scopeKey") or "")[:255],
         requested=True,
     )
     return JsonResponse({"delivery": delivery_to_dict(delivery)}, status=201)

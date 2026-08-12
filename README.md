@@ -435,13 +435,31 @@ Anything the tool produces can be written to the LegalServer case file: a
 generated document as an uploaded case document, and a research answer or triage
 assessment as a case note.
 
-The defaults differ because the risks differ. A generated document is lost work
-if it is not filed, so **document exports default to saving** and the advocate
-clears the checkbox to opt out. A research answer or a triage assessment is a
-working judgment that may not belong on a client's file, so those **default to
-not saving** and the advocate ticks the box to opt in. Change the defaults with
-`LEGALSERVER_SAVE_DOCUMENTS_DEFAULT`, `LEGALSERVER_SAVE_RESEARCH_DEFAULT`, and
-`LEGALSERVER_SAVE_TRIAGE_DEFAULT`.
+Two controls, chosen by how the work is produced:
+
+- **A checkbox on the action**, for one-shot work. The draft export defaults to
+  saving, because a generated document is lost work if it is not filed; the
+  advocate clears the box to opt out. Triage and research default to not
+  saving, because an assessment or a search answer is a working judgment that
+  may not belong on a client's file. Change these with
+  `LEGALSERVER_SAVE_DOCUMENTS_DEFAULT`, `LEGALSERVER_SAVE_RESEARCH_DEFAULT`, and
+  `LEGALSERVER_SAVE_TRIAGE_DEFAULT`.
+- **An explicit Save to LegalServer button**, for work revised in place: the
+  advice letter and case chat. Downloading an advice letter does not file it.
+  These get a button instead of a checkbox because they are rewritten several
+  times in a sitting, and a checkbox on each download would leave five letters
+  on the case with no way to tell which was sent.
+
+A repeat save from the button **updates what it filed before** rather than
+adding a copy. Each artifact carries a scope key — one advice-letter draft, one
+chat thread — and the button reads "Update in LegalServer" once this session has
+filed one. Notes are matched by an `external_id` the tool sets; documents are
+matched by name **scoped to the matter**. That scoping is not optional: an
+unscoped name match, posted from a different case, was observed to match a
+document on the first case and reattach it to the second, moving one client's
+document onto another client's file.
+
+Starting a new chat thread starts a new note.
 
 Every case note the tool writes ends with a line saying it was machine-written
 and has not been reviewed by an attorney.

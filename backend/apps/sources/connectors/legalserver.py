@@ -300,7 +300,18 @@ class LegalServerClient:
         record = payload.get("data")
         return record if isinstance(record, dict) else payload
 
-    def create_note(self, matter_database_id, *, subject, body, is_html=False, note_type="", extra_fields=None):
+    def create_note(
+        self,
+        matter_database_id,
+        *,
+        subject,
+        body,
+        is_html=False,
+        note_type="",
+        external_id="",
+        upsert=False,
+        extra_fields=None,
+    ):
         """Create a note against a matter.
 
         Uses the generic v2 `/api/v2/notes` endpoint, which attaches a note to
@@ -325,10 +336,26 @@ class LegalServerClient:
             "note_type": note_type or self.case_note_type,
             "is_html": bool(is_html),
         }
+        if external_id:
+            payload["external_id"] = external_id
+            if upsert:
+                # external_id is ours to choose and unique to one artifact, so
+                # it identifies the note to replace exactly.
+                payload["update"] = {"external_id": external_id}
         payload.update(extra_fields or {})
         return self._write("POST", self.notes_path, json_body=payload)
 
-    def upload_matter_document(self, matter_uuid, *, filename, content, content_type="", title="", extra_fields=None):
+    def upload_matter_document(
+        self,
+        matter_uuid,
+        *,
+        filename,
+        content,
+        content_type="",
+        title="",
+        replace_name="",
+        extra_fields=None,
+    ):
         """Upload a document and attach it to a matter.
 
         Follows the documented v2 Upload Document contract: one endpoint that
@@ -347,6 +374,15 @@ class LegalServerClient:
         if self.document_type:
             fields["type"] = self.document_type
         fields.update({key: str(value) for key, value in (extra_fields or {}).items() if value not in (None, "")})
+        if replace_name:
+            # Upsert. The match MUST be scoped to this matter: posting an
+            # unscoped update[name] against a different matter was observed to
+            # match a document on another case and reattach it to the matter in
+            # the request, moving one client's document onto another's file.
+            # Multipart cannot nest an object, so the API takes bracket keys.
+            fields["update[module]"] = "matter"
+            fields["update[module_uuid]"] = str(matter_uuid)
+            fields["update[name]"] = replace_name
         files = {"file": (filename, content, content_type or "application/octet-stream")}
         return self._write("POST", self.documents_path, files=files, data=fields)
 

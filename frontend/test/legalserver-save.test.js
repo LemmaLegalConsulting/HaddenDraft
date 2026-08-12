@@ -10,6 +10,7 @@ import {
   saveDefault,
   triageDeliveryLines,
 } from "../src/components/legalServerSave.js";
+import { saveButtonLabel, saveButtonTitle } from "../src/components/legalServerSave.js";
 import { filenameFromDisposition } from "../src/components/downloadFile.js";
 
 function headers(entries) {
@@ -113,4 +114,20 @@ test("the download filename comes from the server, not the guess", () => {
     "2026-08-11-garcia-advice-letter.docx",
   );
   assert.equal(filenameFromDisposition("", "fallback.docx"), "fallback.docx");
+});
+
+test("the save button says update once this session already filed one", () => {
+  assert.equal(saveButtonLabel({}), "Save to LegalServer");
+  assert.equal(saveButtonLabel({ delivery: { status: "saved" } }), "Update in LegalServer");
+  assert.equal(saveButtonLabel({ busy: true }), "Saving\u2026");
+});
+
+test("a failed save still offers to save, not to update", () => {
+  assert.equal(saveButtonLabel({ delivery: { status: "failed" } }), "Save to LegalServer");
+});
+
+test("the button explains that a second save replaces rather than duplicates", () => {
+  assert.match(saveButtonTitle({ delivery: { status: "saved" } }), /Replaces/);
+  assert.match(saveButtonTitle({}), /Files this/);
+  assert.equal(saveButtonTitle({ available: false, hint: "no case" }), "no case");
 });

@@ -185,5 +185,7 @@ export const api = {
     request("/advice-letters/drafts/", { method: "POST", body: JSON.stringify(payload) }),
   adviceLetterDraftExport: (draftId, payload = {}) =>
     request(`/advice-letters/drafts/${draftId}/export/`, { method: "POST", body: JSON.stringify(payload) }),
+  adviceLetterDraftToLegalServer: (draftId, payload = {}) =>
+    request(`/advice-letters/drafts/${draftId}/legalserver/`, { method: "POST", body: JSON.stringify(payload) }),
   adminUrl: () => "/admin/",
 };

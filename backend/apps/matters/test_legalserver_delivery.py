@@ -581,3 +581,85 @@ class TriageEndpointDeliveryTests(TestCase):
         case_update = response.json()["legalserver"]["caseUpdate"]
         self.assertEqual(case_update["status"], "skipped")
         self.assertEqual(case_update["reason"], "no_updates")
+
+
+@override_settings(**CONFIGURED)
+class ScopedUpdateTests(TestCase):
+    """A revised artifact replaces what it filed before, rather than adding a copy.
+
+    An advocate rewrites an advice letter several times in one sitting. Each
+    revision filing itself separately would leave the case holding five letters
+    with no way to tell which one was sent.
+    """
+
+    def setUp(self):
+        self.user = get_user_model().objects.create_user("bob", "bob@example.org", "pw")
+        self.matter = legalserver_matter()
+
+    def test_a_second_note_under_one_scope_key_replaces_the_first(self):
+        session = RecordingSession({"data": {"id": 4176}})
+        client = LegalServerClient(session=session)
+
+        first = save_case_note(
+            self.matter, user=self.user, title="Case chat", body="One",
+            origin="case_chat", scope_key="case-chat:LS-1:7", client=client,
+        )
+        second = save_case_note(
+            self.matter, user=self.user, title="Case chat", body="One and two",
+            origin="case_chat", scope_key="case-chat:LS-1:7", client=client,
+        )
+
+        self.assertFalse(first.updated_existing)
+        self.assertTrue(second.updated_existing)
+        # The first call claims the external id; the second asks to replace it.
+        self.assertEqual(session.calls[0]["json"]["external_id"], "case-chat:LS-1:7")
+        self.assertNotIn("update", session.calls[0]["json"])
+        self.assertEqual(session.calls[1]["json"]["update"], {"external_id": "case-chat:LS-1:7"})
+
+    def test_a_different_thread_files_its_own_note(self):
+        client = LegalServerClient(session=RecordingSession({"data": {"id": 1}}))
+
+        save_case_note(
+            self.matter, user=self.user, title="Chat", body="One",
+            origin="case_chat", scope_key="case-chat:LS-1:7", client=client,
+        )
+        other = save_case_note(
+            self.matter, user=self.user, title="Chat", body="Two",
+            origin="case_chat", scope_key="case-chat:LS-1:8", client=client,
+        )
+
+        self.assertFalse(other.updated_existing)
+
+    def test_a_replaced_document_scopes_the_match_to_this_matter(self):
+        """An unscoped match moves another case's document onto this one.
+
+        Observed against a live site: posting update[name] alone from a
+        different matter matched a document on the first case and reattached it
+        to the second. The module must be part of the match.
+        """
+        session = RecordingSession({"data": {"id": 1164}})
+        client = LegalServerClient(session=session)
+
+        for body in (b"one", b"two"):
+            save_document(
+                self.matter, user=self.user, filename="letter.docx", content=body,
+                title="Advice letter", origin="advice_letter",
+                scope_key="advice-letter:draft:5", client=client,
+            )
+
+        replace = session.calls[1]["data"]
+        self.assertEqual(replace["update[name]"], "Advice letter")
+        self.assertEqual(replace["update[module]"], "matter")
+        self.assertEqual(replace["update[module_uuid]"], "1f689912-a490-4ced-a99d-a21d7a5caeb2")
+        # The first upload has nothing to replace.
+        self.assertNotIn("update[name]", session.calls[0]["data"])
+
+    def test_an_unscoped_save_still_files_a_separate_copy(self):
+        client = LegalServerClient(session=RecordingSession({"data": {"id": 7}}))
+
+        second = save_case_note(
+            self.matter, user=self.user, title="Note", body="Body",
+            origin="research", client=client,
+        )
+
+        self.assertFalse(second.updated_existing)

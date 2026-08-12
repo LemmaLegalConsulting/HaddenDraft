@@ -90,3 +90,18 @@ export function previewedFieldRows(delivery) {
       : [{ name, value: String(value) }],
   );
 }
+
+// An explicit save button, rather than a checkbox on a download, for workflows
+// the advocate revises repeatedly. The label has to say which of the two things
+// the click will do, because "Save" a second time reads as "make another copy".
+export function saveButtonLabel({ delivery, busy } = {}) {
+  if (busy) return "Saving…";
+  return delivery && delivery.status === "saved" ? "Update in LegalServer" : "Save to LegalServer";
+}
+
+export function saveButtonTitle({ delivery, available, hint } = {}) {
+  if (available === false) return hint || "";
+  return delivery && delivery.status === "saved"
+    ? "Replaces the copy already on the case file rather than adding another."
+    : "Files this on the LegalServer case file.";
+}

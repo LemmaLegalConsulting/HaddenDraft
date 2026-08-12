@@ -126,6 +126,11 @@ class LegalServerDelivery(models.Model):
     # Which workflow asked for the save: draft_export, advice_letter, triage,
     # research, case_chat, or manual.
     origin = models.CharField(max_length=60, blank=True)
+    # Identifies the logical artifact this delivery represents, e.g. one advice
+    # letter draft or one chat thread. A repeat save with the same scope key
+    # updates the record already on the case instead of adding a copy.
+    scope_key = models.CharField(max_length=255, blank=True)
+    updated_existing = models.BooleanField(default=False)
     status = models.CharField(max_length=40, choices=STATUS_CHOICES)
     reason = models.CharField(max_length=255, blank=True)
     title = models.CharField(max_length=500, blank=True)
