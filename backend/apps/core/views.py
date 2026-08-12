@@ -15,6 +15,7 @@ from django.views.decorators.csrf import ensure_csrf_cookie
 from apps.core.http import api_login_required, json_body, json_body_errors_to_400, method_not_allowed
 from apps.core.models import AuthorProfile, OrganizationSettings
 from apps.matters.seed import seed_matters
+from apps.matters.legalserver_delivery import delivery_defaults
 from apps.matters.services import legalserver_account_status
 from apps.sources.models import UserOAuthConnection, UserSourceIdentity
 from apps.sources.registry import connector_registry
@@ -47,6 +48,10 @@ def bootstrap(_request):
                 "Cuyahoga County Court of Common Pleas",
             ],
             "sources": sources,
+            "legalserverSave": {
+                "configured": legalserver_status["configured"],
+                "defaults": delivery_defaults(),
+            },
         }
     )
 

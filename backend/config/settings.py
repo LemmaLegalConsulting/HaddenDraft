@@ -1,4 +1,5 @@
 import os
+import sys
 from pathlib import Path
 
 from django.core.exceptions import ImproperlyConfigured
@@ -226,6 +227,36 @@ LEGALSERVER_MATTER_DOCUMENTS_PATH = os.environ.get(
 LEGALSERVER_MATTER_PROFILE_PATH = os.environ.get(
     "LEGALSERVER_MATTER_PROFILE_PATH", "/matter/dynamic-profile/view/{matter_id}"
 )
+# Write-side endpoints, following the published v2 contracts. All three address
+# a matter by its UUID, which is how v2 identifies one. Each needs its own role
+# permission on the site: API Create Note, API Create Document, and the Premium
+# API Matter: Update.
+LEGALSERVER_NOTES_PATH = os.environ.get("LEGALSERVER_NOTES_PATH", "/api/v2/notes")
+LEGALSERVER_DOCUMENTS_PATH = os.environ.get("LEGALSERVER_DOCUMENTS_PATH", "/api/v2/documents")
+LEGALSERVER_MATTER_UPDATE_PATH = os.environ.get("LEGALSERVER_MATTER_UPDATE_PATH", "/api/v2/matters/{case_uuid}")
+LEGALSERVER_MATTER_UPDATE_METHOD = os.environ.get("LEGALSERVER_MATTER_UPDATE_METHOD", "PATCH")
+# Optional document-type lookup value applied to uploads, e.g. "Brief". Blank
+# leaves the site's own default in place.
+LEGALSERVER_DOCUMENT_TYPE = os.environ.get("LEGALSERVER_DOCUMENT_TYPE", "")
+# Note-type lookup value. The notes endpoint requires one, so this is not
+# optional; "Case Notes" is a system lookup present on a stock site.
+LEGALSERVER_CASE_NOTE_TYPE = os.environ.get("LEGALSERVER_CASE_NOTE_TYPE", "Case Notes")
+# A generated document that is never uploaded is lost when the browser tab
+# closes, so document delivery is opt-out. A research answer or triage
+# assessment is a working note the advocate may not want on the file, so those
+# are opt-in.
+LEGALSERVER_SAVE_DOCUMENTS_DEFAULT = env_bool("LEGALSERVER_SAVE_DOCUMENTS_DEFAULT", True)
+LEGALSERVER_SAVE_RESEARCH_DEFAULT = env_bool("LEGALSERVER_SAVE_RESEARCH_DEFAULT", False)
+LEGALSERVER_SAVE_TRIAGE_DEFAULT = env_bool("LEGALSERVER_SAVE_TRIAGE_DEFAULT", False)
+# Which field map under content/legalserver-field-maps/ translates a triage
+# outcome into case properties. Blank disables the mapping entirely.
+LEGALSERVER_TRIAGE_FIELD_MAP = os.environ.get("LEGALSERVER_TRIAGE_FIELD_MAP", "triage-outcome")
+# A developer's .env points at a real LegalServer site, so a test run must never
+# be able to write to one: a document uploaded to a client's case file cannot be
+# taken back. Tests that exercise the write path turn this back on with
+# override_settings and a fake session. Reads are unaffected.
+TESTING = "test" in sys.argv
+LEGALSERVER_ALLOW_WRITES = env_bool("LEGALSERVER_ALLOW_WRITES", True) and not TESTING
 LEGALSERVER_USERS_PATH = os.environ.get("LEGALSERVER_USERS_PATH", "/api/v1/users")
 LEGALSERVER_USER_FILTER_PARAM = os.environ.get("LEGALSERVER_USER_FILTER_PARAM", "")
 LEGALSERVER_AUTO_MAP_OFFICE365_EMAIL = env_bool("LEGALSERVER_AUTO_MAP_OFFICE365_EMAIL", True)

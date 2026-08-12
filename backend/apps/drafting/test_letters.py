@@ -169,3 +169,59 @@ class LetterDraftingTests(TestCase):
         self.assertNotIn("lastPrinted", core)
         self.assertNotIn("<dc:title", core)
         self.assertIn("Mr. Charles Mosby", "\n".join(p.text for p in Document(path).paragraphs))
+
+
+class LetterheadWithoutBulletStyleTests(TestCase):
+    """A letterhead that cannot render a list must not lose the letter.
+
+    Stationery prepared from an organization's own Word file carries only the
+    styles that file used, so "List Bullet" is frequently absent. python-docx
+    raises KeyError for an unknown style name, and that took the whole export
+    down with a 500.
+    """
+
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.tmp.cleanup)
+        self.root = Path(self.tmp.name)
+        self.media = self.root / "media"
+        self.media.mkdir()
+
+    def install_letterhead_without_bullets(self):
+        source = self.root / "advocate.docx"
+        make_letterhead(source)
+        document = Document(source)
+        for style in list(document.styles):
+            if style.name in ("List Bullet", "ListBullet"):
+                style.delete()
+        document.save(source)
+        prepared = self.media / "letterhead.docx"
+        prepare_letterhead(source, prepared)
+        return Letterhead.objects.create(
+            slug="no-bullets",
+            title="Example Legal Aid",
+            docx="letterhead.docx",
+            source_kind="database",
+            is_default=True,
+        )
+
+    def test_a_bulleted_letter_still_exports(self):
+        with override_settings(MEDIA_ROOT=self.media):
+            self.install_letterhead_without_bullets()
+            output = self.root / "letter.docx"
+
+            path, _ = compose_letter_docx(
+                "- First point\n- Second point",
+                author_profile=AUTHOR,
+                request=LetterRequest(letter_kind="brief_advice", recipient_role="client"),
+                output_path=output,
+                formatted_body=[
+                    {"runs": [{"text": "- First point", "format": 0}]},
+                    {"runs": [{"text": "- Second point", "format": 0}]},
+                ],
+            )
+
+        text = "\n".join(p.text for p in Document(path).paragraphs)
+        # The dash survives, so the reader still sees a list.
+        self.assertIn("- First point", text)
+        self.assertIn("- Second point", text)

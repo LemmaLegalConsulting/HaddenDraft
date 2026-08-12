@@ -1,6 +1,9 @@
 import React from "react";
 import { AlertTriangle, ClipboardCheck, Loader2, Play, Upload } from "lucide-react";
 
+import LegalServerSaveToggle from "./LegalServerSaveToggle.jsx";
+import { previewedFieldRows, saveDefault, triageDeliveryLines } from "./legalServerSave.js";
+
 export function TriagePanel({
   matter,
   rubrics,
@@ -12,8 +15,11 @@ export function TriagePanel({
   manualCaseBusy,
   onRunTriage,
   onCreateManualCase,
+  legalserverSave = null,
+  legalserverDelivery = null,
 }) {
   const [caseSource, setCaseSource] = React.useState("existing");
+  const [saveToLegalServer, setSaveToLegalServer] = React.useState(saveDefault(legalserverSave, "triage"));
   const [manualCase, setManualCase] = React.useState({
     clientName: "",
     matterType: "Eviction defense",
@@ -123,9 +129,24 @@ export function TriagePanel({
           </div>
         )}
 
-        <button className="btn btn-primary full" type="button" disabled={!canRun} onClick={() => onRunTriage?.(activeRubric.id)}>
+        <LegalServerSaveToggle
+          kind="triage"
+          checked={saveToLegalServer}
+          onChange={setSaveToLegalServer}
+          bootstrapSave={legalserverSave}
+          disabled={busy}
+        />
+
+        <button
+          className="btn btn-primary full"
+          type="button"
+          disabled={!canRun}
+          onClick={() => onRunTriage?.(activeRubric.id, { saveToLegalServer })}
+        >
           {busy ? <Loader2 className="spin" size={16} /> : <Play size={16} />} Run triage
         </button>
+
+        <TriageDeliveryReport legalserver={legalserverDelivery} />
 
         {activeAssessment ? (
           <div className="triage-result-panel">
@@ -153,6 +174,36 @@ export function TriagePanel({
         )}
       </div>
     </section>
+  );
+}
+
+/**
+ * What the last triage run sent to LegalServer: the case note, and the case
+ * properties the field map would set. While the map is in dry-run mode the
+ * fields are listed rather than written, which is how an office checks the
+ * mapping before it starts changing case files.
+ */
+function TriageDeliveryReport({ legalserver }) {
+  const lines = triageDeliveryLines(legalserver);
+  if (!lines.length) return null;
+  return (
+    <div className="legalserver-delivery-report">
+      {lines.map((line) => (
+        <div key={line.key}>
+          <p className={`legalserver-save-result ${line.tone}`} role="status">{line.message}</p>
+          {previewedFieldRows({ fields: line.fields }).length > 0 && (
+            <dl className="legalserver-field-preview">
+              {previewedFieldRows({ fields: line.fields }).map((row) => (
+                <div key={row.name}>
+                  <dt>{row.name}</dt>
+                  <dd>{row.value}</dd>
+                </div>
+              ))}
+            </dl>
+          )}
+        </div>
+      ))}
+    </div>
   );
 }
 

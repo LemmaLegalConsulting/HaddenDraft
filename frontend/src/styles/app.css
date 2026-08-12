@@ -4547,3 +4547,79 @@ button:disabled {
 .library-tree-viewport.busy .library-tree {
   opacity: 0.45;
 }
+
+/* Saving generated work back to the LegalServer case file. */
+.legalserver-save {
+  display: grid;
+  gap: var(--space-2);
+  margin: var(--space-3) 0;
+}
+
+.legalserver-save-row {
+  align-items: center;
+  background: #f7fafb;
+  border: 1px solid #dbe4e8;
+  border-radius: 6px;
+  display: grid;
+  gap: 10px;
+  grid-template-columns: 18px 1fr;
+  padding: 10px;
+}
+
+.legalserver-save-row span {
+  align-items: center;
+  display: flex;
+  font-size: 13px;
+  gap: 6px;
+}
+
+.legalserver-save-hint,
+.legalserver-save-result {
+  align-items: center;
+  display: flex;
+  font-size: 12px;
+  gap: 6px;
+  margin: 0;
+}
+
+.legalserver-save-result.success {
+  color: var(--bs-success);
+}
+
+.legalserver-save-result.error {
+  color: #8b1e1e;
+}
+
+.legalserver-save-result.info {
+  color: #667782;
+}
+
+.legalserver-delivery-report {
+  display: grid;
+  gap: var(--space-2);
+  margin-top: var(--space-3);
+}
+
+.legalserver-field-preview {
+  border-left: 2px solid #dbe4e8;
+  display: grid;
+  gap: 4px;
+  margin: var(--space-2) 0 0;
+  padding-left: var(--space-3);
+}
+
+.legalserver-field-preview > div {
+  display: grid;
+  gap: var(--space-2);
+  grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
+}
+
+.legalserver-field-preview dt {
+  color: #667782;
+  font-size: 12px;
+}
+
+.legalserver-field-preview dd {
+  font-size: 12px;
+  margin: 0;
+}

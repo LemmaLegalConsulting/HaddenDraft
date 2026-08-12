@@ -224,6 +224,27 @@ def compose_letter_docx(
     return output_path, letterhead
 
 
+BULLET_STYLE_NAMES = ("List Bullet", "ListBullet")
+
+
+def _bullet_style_name(document):
+    """Return the stationery's own bullet style, or "" if it has none.
+
+    A letterhead prepared from an organization's Word file carries only the
+    styles that file happened to use, so "List Bullet" is frequently absent.
+    python-docx raises KeyError for an unknown style name, which took down the
+    entire export -- the advocate lost the letter over a bullet.
+    """
+    styles = document.styles
+    for name in BULLET_STYLE_NAMES:
+        try:
+            styles[name]
+        except KeyError:
+            continue
+        return name
+    return ""
+
+
 def _append_body(document, body: str, *, formatted_body=None):
     """Put the letter text in the stationery's body, keeping its empty layout."""
     existing = [paragraph for paragraph in document.paragraphs if paragraph.text.strip()]
@@ -238,12 +259,16 @@ def _append_body(document, body: str, *, formatted_body=None):
             document.add_paragraph(line)
         return
 
+    bullet_style = _bullet_style_name(document)
     for paragraph_data in formatted_body:
         run_data = list(paragraph_data.get("runs") or [])
         first_text = run_data[0].get("text", "") if run_data else ""
         is_bullet = first_text.startswith("- ")
-        paragraph = document.add_paragraph(style="List Bullet" if is_bullet else None)
-        trim_prefix = 2 if is_bullet else 0
+        # Without a bullet style the "- " has to stay: a letterhead that cannot
+        # render a list is a reason to keep the dash, not to drop the bullet.
+        styled_bullet = is_bullet and bool(bullet_style)
+        paragraph = document.add_paragraph(style=bullet_style if styled_bullet else None)
+        trim_prefix = 2 if styled_bullet else 0
         for item in run_data:
             text = item.get("text", "")
             if trim_prefix:

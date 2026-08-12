@@ -84,3 +84,66 @@ class TriageAssessment(models.Model):
 
     def __str__(self):
         return f"{self.matter} - {self.rubric}"
+
+
+class LegalServerDelivery(models.Model):
+    """One attempt to write work product back to LegalServer.
+
+    Every attempt is recorded, including the ones that were skipped or failed,
+    so an advocate can tell whether the letter they exported reached the case
+    file. A silent failure here looks exactly like a successful save.
+    """
+
+    CASENOTE = "casenote"
+    DOCUMENT = "document"
+    CASE_UPDATE = "case_update"
+    KIND_CHOICES = [
+        (CASENOTE, "Case note"),
+        (DOCUMENT, "Document"),
+        (CASE_UPDATE, "Case property update"),
+    ]
+
+    SAVED = "saved"
+    SKIPPED = "skipped"
+    FAILED = "failed"
+    DRY_RUN = "dry_run"
+    STATUS_CHOICES = [
+        (SAVED, "Saved to LegalServer"),
+        (SKIPPED, "Not sent"),
+        (FAILED, "Failed"),
+        (DRY_RUN, "Previewed only"),
+    ]
+
+    matter = models.ForeignKey(Matter, related_name="legalserver_deliveries", on_delete=models.CASCADE)
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        blank=True,
+        null=True,
+        on_delete=models.SET_NULL,
+        related_name="legalserver_deliveries",
+    )
+    kind = models.CharField(max_length=40, choices=KIND_CHOICES)
+    # Which workflow asked for the save: draft_export, advice_letter, triage,
+    # research, case_chat, or manual.
+    origin = models.CharField(max_length=60, blank=True)
+    # Identifies the logical artifact this delivery represents, e.g. one advice
+    # letter draft or one chat thread. A repeat save with the same scope key
+    # updates the record already on the case instead of adding a copy.
+    scope_key = models.CharField(max_length=255, blank=True)
+    updated_existing = models.BooleanField(default=False)
+    status = models.CharField(max_length=40, choices=STATUS_CHOICES)
+    reason = models.CharField(max_length=255, blank=True)
+    title = models.CharField(max_length=500, blank=True)
+    filename = models.CharField(max_length=500, blank=True)
+    remote_id = models.CharField(max_length=255, blank=True)
+    remote_url = models.URLField(blank=True)
+    request_payload = models.JSONField(default=dict, blank=True)
+    response_payload = models.JSONField(default=dict, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+        verbose_name_plural = "LegalServer deliveries"
+
+    def __str__(self):
+        return f"{self.matter} - {self.get_kind_display()} ({self.status})"

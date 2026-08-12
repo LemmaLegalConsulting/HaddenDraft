@@ -4,6 +4,8 @@ import { AlertTriangle, ArrowDown, ArrowUp, Download, Sparkles } from "lucide-re
 import { api } from "../api/client";
 import { DraftEditor } from "../editor/DraftEditor.jsx";
 import { DocumentHistoryPanel } from "./DocumentHistoryPanel.jsx";
+import LegalServerSaveButton from "./LegalServerSaveButton.jsx";
+import { saveResponseAsFile } from "./downloadFile.js";
 import {
   applyRecommendations,
   estimatePages,
@@ -31,8 +33,10 @@ const CONDITIONS = [
   { key: "admission_denied", label: "Denied for subsidized housing" },
 ];
 
-export function AdviceLetterPanel({ matter, authorProfile }) {
+export function AdviceLetterPanel({ matter, authorProfile, legalserverSave = null }) {
   const [catalog, setCatalog] = useState(null);
+  const [delivery, setDelivery] = useState(null);
+  const [savingToLegalServer, setSavingToLegalServer] = useState(false);
   const [region, setRegion] = useState("CLE");
   const [selected, setSelected] = useState([]);
   const [conditions, setConditions] = useState({});
@@ -210,19 +214,32 @@ export function AdviceLetterPanel({ matter, authorProfile }) {
         authorProfile,
         letterFields: letterFieldsRef.current,
       });
-      const blob = await response.blob();
-      const disposition = response.headers.get("content-disposition") || "";
-      const named = /filename="([^"]+)"/.exec(disposition);
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = named ? named[1] : letterFields.filename || "advice-letter.docx";
-      link.click();
-      URL.revokeObjectURL(url);
+      await saveResponseAsFile(response, letterFields.filename || "advice-letter.docx");
     } catch (err) {
       setError(err.message);
     } finally {
       setBusy(false);
+    }
+  }
+
+  async function saveToLegalServer() {
+    const currentDraft = draftRef.current;
+    if (!currentDraft) return;
+    setSavingToLegalServer(true);
+    setError("");
+    try {
+      // Persist the editor's current state first, so what reaches the case file
+      // is what is on screen rather than the last saved revision.
+      const saved = await persistDraft();
+      const response = await api.adviceLetterDraftToLegalServer((saved || currentDraft).id, {
+        authorProfile,
+        letterFields: letterFieldsRef.current,
+      });
+      setDelivery(response.delivery);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setSavingToLegalServer(false);
     }
   }
 
@@ -522,9 +539,18 @@ export function AdviceLetterPanel({ matter, authorProfile }) {
             onChange={(event) => setLetterFields({ ...letterFields, subject: event.target.value })}
           />
         </label>
-        <button type="button" onClick={download} disabled={busy || !draft}>
-          <Download size={14} /> Download letter
-        </button>
+        <div className="button-row compact">
+          <button type="button" onClick={download} disabled={busy || !draft}>
+            <Download size={14} /> Download letter
+          </button>
+          <LegalServerSaveButton
+            onSave={saveToLegalServer}
+            busy={savingToLegalServer}
+            delivery={delivery}
+            bootstrapSave={legalserverSave}
+            disabled={busy || !draft || !matter}
+          />
+        </div>
       </section>
 
       {draft && (

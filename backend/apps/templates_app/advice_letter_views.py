@@ -28,6 +28,7 @@ from apps.drafting.letters import LETTER_KINDS, RECIPIENT_ROLES, LetterRequest
 from apps.drafting.models import DraftDocument, DraftingSession
 from apps.drafting.serializers import draft_to_dict
 from apps.drafting.source_bindings import bind_current_versions
+from apps.matters.legalserver_delivery import delivery_to_dict, save_document
 from apps.matters.models import MatterFact
 from apps.matters.services import matter_for_user, user_can_access_matter
 from apps.templates_app.advice_letter_library import (
@@ -606,14 +607,59 @@ def advice_letter_draft_export(request, draft_id):
         )
         file_payload = output.read_bytes()
 
+    filename = _download_name(payload, letter, draft.session.matter)
     response = HttpResponse(
         io.BytesIO(file_payload),
         content_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
     )
-    response["Content-Disposition"] = (
-        f'attachment; filename="{_download_name(payload, letter, draft.session.matter)}"'
-    )
+    response["Content-Disposition"] = f'attachment; filename="{filename}"'
     return response
+
+
+@api_login_required
+def advice_letter_draft_legalserver(request, draft_id):
+    """Save this advice letter to the case file, replacing an earlier save.
+
+    Downloading and filing are separate acts here. An advocate revises an
+    advice letter several times in one sitting, and each revision filing itself
+    as another copy would leave the case file holding five letters with no way
+    to tell which one was sent.
+    """
+    if request.method != "POST":
+        return method_not_allowed(["POST"])
+    draft = (
+        DraftDocument.objects.select_related("session", "session__matter")
+        .filter(id=draft_id)
+        .first()
+    )
+    if not draft or not user_can_access_matter(request.user, draft.session.matter):
+        return JsonResponse({"error": "Draft not found."}, status=404)
+
+    body = json_body(request)
+    payload = _payload_for_draft(draft, body)
+    author = payload.get("authorProfile") or {}
+    letter = letter_from_draft_sections(draft.sections, editor_state=draft.editor_state)
+    with tempfile.TemporaryDirectory() as work:
+        output = Path(work) / "advice-letter.docx"
+        compose_advice_letter_docx(
+            letter,
+            author_profile=author,
+            request=_letter_request(payload, draft.session.matter),
+            output_path=output,
+        )
+        file_payload = output.read_bytes()
+
+    delivery = save_document(
+        draft.session.matter,
+        user=request.user,
+        filename=_download_name(payload, letter, draft.session.matter),
+        content=file_payload,
+        content_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        title=draft.title or "Client advice letter",
+        origin="advice_letter",
+        scope_key=f"advice-letter:draft:{draft.id}",
+    )
+    return JsonResponse({"delivery": delivery_to_dict(delivery)}, status=201)
 
 
 @api_login_required
@@ -637,11 +683,16 @@ def advice_letter_export(request):
         )
         payload = output.read_bytes()
 
+    filename = _download_name(body, letter, matter)
     response = HttpResponse(
         io.BytesIO(payload),
         content_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
     )
-    response["Content-Disposition"] = f'attachment; filename="{_download_name(body, letter, matter)}"'
+    response["Content-Disposition"] = f'attachment; filename="{filename}"'
+    # Downloading does not file the letter. This one-shot export has no draft
+    # behind it, so there is no stable identity to update: a second export would
+    # add a second copy to the case. Filing is the draft endpoint's explicit
+    # save action, which replaces what it filed before.
     return response
 
 

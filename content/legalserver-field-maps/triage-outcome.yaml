@@ -1,0 +1,62 @@
+slug: triage-outcome
+name: Triage outcome to LegalServer case properties
+description: >
+  Translates a completed triage assessment into case properties to set on the
+  LegalServer matter via PATCH /api/v2/matters/{case_uuid}. Every site names
+  these fields differently and a site rejects a write to a field it does not
+  have, so this map ships disabled with the target field names left blank. Fill
+  in the names your site actually uses, set dry_run to true and run a triage to
+  see exactly what would be sent, then set enabled to true.
+
+  `set` names ordinary matter fields from the Update A Matter body, such as
+  case_status or legal_problem_code. `custom_fields` names custom fields by
+  their database name -- ai_triage_outcome_24, not the label shown in the UI --
+  which is what the API matches on. Supported custom field types include
+  lookups, text, number, money, percent, date (ISO), time, boolean, user (numeric
+  ID), and organization (numeric ID).
+
+# Nothing is sent to LegalServer while this is false. The assessment is still
+# evaluated against the rules below and the result is recorded, so the hook can
+# be exercised before the fields exist.
+enabled: false
+
+# When true, the rules are evaluated and the resulting field values are recorded
+# against the case as a preview, but no write request is made.
+dry_run: true
+
+# Values may embed any of these placeholders in {braces}:
+#   case_type, confidence, priority, priority_label, summary, reasoning,
+#   rubric_name, rubric_slug, matched_criteria, missing_information,
+#   assessed_on, assessed_by
+#
+# Each rule whose `when` block matches contributes its `set` and `custom_fields`
+# entries. Later rules win on a conflicting key, so order from general to
+# specific. A rule with no `when` block always applies.
+rules:
+  - name: every-assessment
+    set: {}
+    custom_fields: {}
+      # Example -- replace the keys with your site's database names:
+      # ai_triage_outcome_24: "{priority_label}"
+      # ai_triage_confidence_25: "{confidence}"
+      # ai_triage_assessed_on_26: "{assessed_on}"
+
+  - name: priority-full-representation
+    when:
+      priority_label:
+        - Full rep
+    set: {}
+    custom_fields: {}
+      # Example:
+      # ai_triage_priority_27: "Yes"
+
+  - name: needs-manual-review
+    when:
+      priority_label:
+        - Manual review
+        - Not a housing case
+    set: {}
+    custom_fields: {}
+      # Example:
+      # ai_triage_followup_needed_28: "Yes"
+      # ai_triage_missing_information_29: "{missing_information}"
