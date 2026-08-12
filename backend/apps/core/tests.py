@@ -74,6 +74,7 @@ class AuthViewTests(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertFalse(response.json()["user"]["isAuthenticated"])
+        self.assertIn("csrftoken", response.cookies)
 
     @override_settings(OFFICE365_TENANT_ID="", OFFICE365_CLIENT_ID="")
     def test_office365_start_reports_not_configured(self):

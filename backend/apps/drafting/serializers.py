@@ -27,11 +27,14 @@ def session_to_dict(session):
 
 
 def draft_to_dict(draft):
+    template = draft.template or draft.session.template
+    render = ((template.metadata or {}).get("render") or {}) if template else {}
     return {
         "id": draft.id,
         "sessionId": draft.session_id,
         "templateId": draft.template_id,
         "title": draft.title,
+        "exportFormat": "xlsx" if render.get("strategy") == "workbook" else "docx",
         "sections": draft.sections,
         "plainText": draft.plain_text,
         "editorState": draft.editor_state,

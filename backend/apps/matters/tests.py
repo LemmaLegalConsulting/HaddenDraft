@@ -194,6 +194,9 @@ class CaseConnectionTests(TestCase):
                     return []
                 return [{"id": "doc-35", "filename": "Notice.pdf", "download_url": "https://files.example/notice.pdf"}]
 
+            def get_matter_notes(self, identifier):
+                return []
+
         payload = case_materials_payload(matter, client=MaterialsClient())
 
         self.assertEqual(payload["summary"]["noteCount"], 1)
@@ -202,6 +205,38 @@ class CaseConnectionTests(TestCase):
         self.assertEqual(payload["documents"][0]["title"], "Notice.pdf")
         matter.refresh_from_db()
         self.assertEqual(matter.raw_payload["notes"][0]["id"], "note-35")
+
+    def test_case_materials_can_force_refresh_cached_legalserver_notes(self):
+        matter_uuid = "d019be06-6d12-47a5-bdfb-2a8a6f71d9ac"
+        matter = Matter.objects.create(
+            external_id="26-000036",
+            client_name="Cached Notes Client",
+            matter_type="Conditions",
+            source_system="LegalServer",
+            raw_payload={
+                "matter_uuid": matter_uuid,
+                "case_number": "26-000036",
+                "notes": [{"id": "old", "subject": "Old note", "body": "Old body"}],
+            },
+        )
+
+        class RefreshingClient:
+            configured = True
+
+            def get_matter(self, _identifier):
+                return {"id": 36, "matter_uuid": matter_uuid, "case_number": "26-000036"}
+
+            def get_matter_notes(self, _identifier):
+                return [{"id": "new", "subject": "New note", "body": "New body"}]
+
+            def get_matter_documents(self, _identifier):
+                return []
+
+        cached = case_materials_payload(matter, client=RefreshingClient())
+        refreshed = case_materials_payload(matter, client=RefreshingClient(), force_refresh=True)
+
+        self.assertEqual([note["title"] for note in cached["notes"]], ["Old note"])
+        self.assertEqual([note["title"] for note in refreshed["notes"]], ["New note"])
 
     def test_legalserver_upsert_renames_existing_guid_keyed_matter_to_case_number(self):
         existing = Matter.objects.create(

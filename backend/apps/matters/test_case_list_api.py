@@ -4,6 +4,7 @@ from django.contrib.auth.models import User
 from django.test import TestCase, override_settings
 
 from apps.matters.models import Matter
+from apps.sources.connectors.legalserver import LegalServerError
 from apps.sources.models import UserSourceIdentity
 
 
@@ -40,6 +41,11 @@ class ListingLegalServerClient:
 
     def get_matter(self, matter_id):
         return next((matter for matter in self.matters if matter["case_number"] == matter_id), None)
+
+
+class FailingLegalServerClient(ListingLegalServerClient):
+    def search_matters(self, *, query="", user_email="", limit=50):
+        raise LegalServerError("temporary LegalServer failure")
 
 
 @override_settings(ENABLE_DEMO_MATTERS=False)
@@ -91,6 +97,17 @@ class CaseListApiTests(TestCase):
 
         self.assertEqual([case["caseNumber"] for case in payload["cases"]], ["26-0090"])
         self.assertEqual(payload["filters"]["status"], "all")
+
+    def test_exact_search_uses_authorized_cached_matter_during_transient_sync_failure(self):
+        self.get("?q=26-0001")
+        with patch("apps.matters.services.LegalServerClient") as client_class:
+            client_class.return_value = FailingLegalServerClient(self.matters)
+            response = self.client.get("/api/cases/?q=26-0001")
+
+        self.assertEqual(response.status_code, 200)
+        payload = response.json()
+        self.assertEqual([case["caseNumber"] for case in payload["cases"]], ["26-0001"])
+        self.assertEqual(payload["legalserver"]["syncError"], "temporary LegalServer failure")
 
     def test_legal_problem_codes_are_offered_and_filter_the_list(self):
         payload = self.get()

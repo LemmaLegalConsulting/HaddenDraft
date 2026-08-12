@@ -1,7 +1,13 @@
 import hashlib
 import re
 
-from apps.sources.connectors.legalserver import LegalServerClient, LegalServerError, _display_value, _first_value
+from apps.sources.connectors.legalserver import (
+    LegalServerClient,
+    LegalServerError,
+    _display_value,
+    _first_value,
+    legalserver_matter_uuid,
+)
 from apps.sources.document_text import DocumentExtractionError, extract_text
 
 
@@ -170,9 +176,11 @@ def _legalserver_identifiers(matter):
             yield value
 
 
-def _refresh_legalserver_matter_payload(matter, legalserver):
+def _refresh_legalserver_matter_payload(matter, legalserver, *, force=False):
     raw_payload = matter.raw_payload or {}
-    if matter.source_system.casefold() != "legalserver" or any(key in raw_payload for key in NOTE_KEYS):
+    if matter.source_system.casefold() != "legalserver" or (
+        not force and any(key in raw_payload for key in NOTE_KEYS)
+    ):
         return raw_payload
     for identifier in _legalserver_identifiers(matter):
         try:
@@ -180,13 +188,22 @@ def _refresh_legalserver_matter_payload(matter, legalserver):
         except LegalServerError:
             continue
         if isinstance(payload, dict) and payload:
-            matter.raw_payload = {**raw_payload, **payload}
+            merged = {**raw_payload, **payload}
+            matter_uuid = legalserver_matter_uuid(merged)
+            if matter_uuid and hasattr(legalserver, "get_matter_notes"):
+                try:
+                    notes = legalserver.get_matter_notes(matter_uuid)
+                except LegalServerError:
+                    notes = []
+                if notes:
+                    merged["notes"] = notes
+            matter.raw_payload = merged
             matter.save(update_fields=["raw_payload", "updated_at"])
             return matter.raw_payload
     return raw_payload
 
 
-def get_case_documents(matter, *, client=None, include_remote=True):
+def get_case_documents(matter, *, client=None, include_remote=True, force_refresh=False):
     legalserver = client or LegalServerClient()
     raw_payload = matter.raw_payload or {}
     remote_available = (
@@ -195,7 +212,7 @@ def get_case_documents(matter, *, client=None, include_remote=True):
         and legalserver.configured
     )
     if remote_available:
-        raw_payload = _refresh_legalserver_matter_payload(matter, legalserver)
+        raw_payload = _refresh_legalserver_matter_payload(matter, legalserver, force=force_refresh)
     documents = []
 
     note_texts = _note_items(raw_payload)
@@ -341,10 +358,10 @@ def custom_fields_inventory(matter):
     return sorted(fields, key=lambda item: (-item["score"], item["label"]))
 
 
-def case_materials_payload(matter, *, client=None):
+def case_materials_payload(matter, *, client=None, force_refresh=False):
     from apps.matters.serializers import fact_to_dict
 
-    materials = get_case_documents(matter, client=client)
+    materials = get_case_documents(matter, client=client, force_refresh=force_refresh)
     notes = [document_to_public_dict(item) for item in materials if item["kind"] == "case_note"]
     documents = [document_to_public_dict(item) for item in materials if item["kind"] == "case_document"]
     custom_fields = custom_fields_inventory(matter)

@@ -235,7 +235,13 @@ export function AdviceLetterPanel({ matter, authorProfile, legalserverSave = nul
         authorProfile,
         letterFields: letterFieldsRef.current,
       });
-      setDelivery(response.delivery);
+      const audit = response.auditDelivery;
+      setDelivery(audit ? {
+        ...response.delivery,
+        status: audit.status === "failed" ? "failed" : response.delivery.status,
+        message: [response.delivery.message, audit.message].filter(Boolean).join(" "),
+        auditStatus: audit.status,
+      } : response.delivery);
     } catch (err) {
       setError(err.message);
     } finally {

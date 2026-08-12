@@ -240,6 +240,31 @@ def save_case_note(
     )
 
 
+def save_draft_ai_audit(draft, *, user, requested=True, client=None):
+    """Create or update the one AI audit case note associated with a draft.
+
+    A draft with no recorded AI component versions needs no case note.  The
+    DOCX still carries an empty, versioned audit payload so downstream readers
+    can distinguish "no AI recorded" from "metadata missing".
+    """
+    from apps.drafting.audit import draft_ai_audit
+    from apps.matters.legalserver_notes import ai_audit_case_note
+
+    audit = draft_ai_audit(draft)
+    if not audit.get("aiInteractions"):
+        return None
+    return save_case_note(
+        draft.session.matter,
+        user=user,
+        title=f"AI usage audit — {draft.title}"[:500],
+        body=ai_audit_case_note(audit),
+        origin="ai_audit",
+        requested=requested,
+        scope_key=f"ai-audit:draft:{draft.id}",
+        client=client,
+    )
+
+
 def save_document(
     matter,
     *,
@@ -251,6 +276,7 @@ def save_document(
     origin,
     requested=True,
     scope_key="",
+    remote_name="",
     extra_fields=None,
     client=None,
 ):
@@ -261,6 +287,7 @@ def save_document(
     kind = LegalServerDelivery.DOCUMENT
     filename = (filename or "").strip() or "document.docx"
     title = (title or "").strip() or filename
+    remote_name = (remote_name or "").strip() or title
     if not requested:
         return None
     if not content:
@@ -281,6 +308,7 @@ def save_document(
         "bytes": len(content),
         "contentType": content_type,
         "scopeKey": scope_key,
+        "remoteName": remote_name,
     }
     try:
         response = client.upload_matter_document(
@@ -291,8 +319,8 @@ def save_document(
             title=title,
             # Replace by the name we gave it last time, which may differ from
             # the name being sent now.
-            replace_name=(earlier.title if earlier else ""),
-            extra_fields=extra_fields,
+            replace_name=(earlier.request_payload.get("remoteName") or earlier.title if earlier else ""),
+            extra_fields={**(extra_fields or {}), "name": remote_name},
         )
     except LegalServerError as exc:
         logger.warning("LegalServer document upload failed for matter %s: %s", matter.external_id, exc)
@@ -471,7 +499,7 @@ def delivery_message(delivery):
     return REASON_LABELS.get(delivery.reason, f"The {label} was not sent to LegalServer.")
 
 
-def attach_delivery_headers(response, delivery):
+def attach_delivery_headers(response, delivery, *, audit_delivery=None):
     """Report an upload's outcome alongside a binary download.
 
     The document itself is the response body, so the only place left to say
@@ -482,6 +510,10 @@ def attach_delivery_headers(response, delivery):
     response["X-LegalServer-Delivery"] = delivery.status
     message = delivery_message(delivery).encode("ascii", "replace").decode("ascii")
     response["X-LegalServer-Delivery-Message"] = message[:300]
+    if audit_delivery is not None:
+        response["X-LegalServer-AI-Audit"] = audit_delivery.status
+        audit_message = delivery_message(audit_delivery).encode("ascii", "replace").decode("ascii")
+        response["X-LegalServer-AI-Audit-Message"] = audit_message[:300]
     return response
 
 

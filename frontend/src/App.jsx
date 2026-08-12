@@ -456,14 +456,14 @@ export function App() {
     }
   }
 
-  async function exportDraftToWord(draftDocument) {
+  async function exportDraftDocument(draftDocument) {
     if (!draftDocument) return;
     setExportBusy(true);
     setError("");
     setDraftDelivery(null);
     try {
       const response = await api.exportDraft(draftDocument.id, { saveToLegalServer: saveDraftToLegalServer });
-      await saveResponseAsFile(response, `draft-${draftDocument.id}.docx`);
+      await saveResponseAsFile(response, `draft-${draftDocument.id}.${draftDocument.exportFormat || "docx"}`);
       setDraftDelivery(deliveryFromHeaders(response));
     } catch (err) {
       setError(err.message);
@@ -661,9 +661,17 @@ export function App() {
         selectedTemplateIds: payload.selectedTemplateIds,
       })).session;
       const response = await api.generateDraftPlan(created.id, payload);
-      setSession(response.session);
+      let plannedSession = response.session;
+      if (!selectedFactIds.length) {
+        const factResponse = await api.recommendSessionFacts(response.session.id, { apply: true });
+        const recommendation = factRecommendationState(factResponse, response.session);
+        plannedSession = recommendation.session;
+        if (recommendation.matter) setMatter(recommendation.matter);
+        setSelectedFactIds(recommendation.factIds);
+      }
+      setSession(plannedSession);
       setDraftPlan(response.plan);
-      setSelectedBlockKeys(response.session.selectedBlockKeys || selectedBlockKeys);
+      setSelectedBlockKeys(plannedSession.selectedBlockKeys || selectedBlockKeys);
       setDraftStep("plan");
     } catch (err) {
       setError(err.message);
@@ -1062,9 +1070,9 @@ export function App() {
                     className="btn btn-outline-secondary"
                     type="button"
                     disabled={exportBusy}
-                    onClick={() => exportDraftToWord(draft)}
+                    onClick={() => exportDraftDocument(draft)}
                   >
-                    {exportBusy ? <Loader2 className="spin" size={16} /> : <Download size={16} />} Export to Word
+                    {exportBusy ? <Loader2 className="spin" size={16} /> : <Download size={16} />} {draft.exportFormat === "xlsx" ? "Export workbook" : "Export to Word"}
                   </button>
                   <button
                     className={`btn btn-primary${draftDirtySinceValidation ? " suggested-next-step" : ""}`}
