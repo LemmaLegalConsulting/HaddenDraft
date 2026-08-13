@@ -39,6 +39,7 @@ first served request:
 | Startup only | 4.4s |
 | Startup + Readiness | 8.2s |
 | Startup + Readiness + Liveness (`initialDelaySeconds: 10`) | 15.9s |
+| Startup + Readiness + Liveness (`initialDelaySeconds: 1`) | 9.5s |
 
 Defining a probe delays the platform routing to the replica well past the point
 the replica is answering. In the third case nginx returned 200 to health probes
@@ -56,9 +57,34 @@ the settings are chosen against these numbers:
 - **Readiness asks nginx, not Django.** The startup probe has already
   established that Django serves, and that only has to be true once.
 
-Volume mounts, by contrast, cost nothing measurable: an app with no mounts at
-all took *longer* to create its container than the real one with two. The phase
-between image pull and container start varies 6-11s regardless.
+### Volume mounts cost nothing measurable
+
+Worth recording, because the opposite is the intuitive guess and acting on it
+would mean moving document storage off Azure Files onto blob or S3 — real work
+for no latency gain.
+
+Same method, adding the two Azure Files shares as the only difference:
+
+| Variant | Mounts | Probes | Start → served |
+|---|---|---|---|
+| Mountless | none | Startup + Readiness | 8.2s |
+| **Mounted** | **media + published** | production's set | **9.5s** |
+
+Roughly a second apart, and the mounted one started clean with no probe failures
+at all. The phase between image pull and container start — the one that *looks*
+like mounting, sitting where it does in the timeline — varies 6-11s whether two
+shares are attached or none.
+
+What does vary that much is which node the replica lands on. The same
+configuration measured 22.6s and 27.8s in consecutive runs, the difference being
+container creation (7.8s vs 10.5s) and whether the first probe caught nginx
+listening. **Treat any single cold-start measurement as ±5s**, and do not
+conclude anything from one run — including from the numbers above, each of which
+is one run.
+
+Storage portability is a fine reason to move off Azure Files, and
+[`apps/core/storage.py`](../backend/apps/core/storage.py) already has the
+abstraction with a complete S3 backend behind it. Cold start is not.
 
 ### The probe-timeout trap
 
