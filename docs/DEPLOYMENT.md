@@ -39,22 +39,26 @@ agentic-housing-app` attaches to a running replica — but note the app scales t
 zero, so send a request first to wake one. A temporary jumpbox in the `default`
 subnet is the fallback if you need `psql` directly.
 
-## What differs from the VM deployment
+## Decisions worth knowing
 
 - **Migrations do not run at container start.** `docker/bootstrap.sh` runs as a
-  Container Apps job that must succeed before a new revision is created. On the
-  VM every container start ran migrations plus four ingestion commands, which
-  cannot work once more than one replica exists.
-- **Static files are collected at image build time**, not at start.
-- **TLS is handled by Container Apps ingress.** There is no `nginx-proxy` or
-  `acme-companion`; certificates for the custom domain are Azure-managed and
-  renew automatically.
-- **Side-loaded documents live on Azure Files shares**, not host volumes or
-  image layers. Keeping the ~530 MB corpus out of the image is what makes the
-  build and pull times reasonable — doubly so now that the app scales to zero
-  and every cold start pulls the image.
-- **The app scales to zero.** There is no always-warm replica, so the first
-  request after an idle period pays a cold start of several seconds.
+  Container Apps job that must succeed before a new revision is created.
+  Migrating on start cannot work once more than one replica exists — they race
+  each other — and it would put schema changes on the cold-start path.
+- **Static files are collected, and bytecode compiled, at image build time.**
+  Both are identical on every replica and depend only on the code.
+- **TLS is handled by Container Apps ingress.** Certificates for the custom
+  domain are Azure-managed and renew automatically.
+- **Side-loaded documents live on Azure Files shares**, not image layers.
+  Keeping the corpus out of the image is what makes build and pull times
+  reasonable — doubly so given that every cold start may pull the image.
+- **The web container mounts only what it serves.** `media` and
+  `published`, not `raw`. Every share is mounted before the container may
+  start, so each one costs cold-start seconds, and `raw/` is only ever read by
+  ingestion commands that run in the bootstrap job. The practical consequence
+  is in [Document storage](#document-storage).
+- **The app scales to zero**, so the first request after five idle minutes
+  waits for a replica to start. See [Sleeping and waking](WARM_START.md).
 - Django is told to trust `X-Forwarded-Proto` via
   `DJANGO_TRUST_PROXY_SSL_HEADER=true`, because TLS terminates upstream.
 
@@ -102,6 +106,17 @@ The boundary is what makes a slow upload safe. Thousands of small files can
 accumulate under `raw/` for as long as the transfer takes without a running
 replica ever seeing a half-finished corpus; ingestion or publishing is the single
 moment the change becomes visible.
+
+**Only the bootstrap job mounts `raw/`.** The web replicas mount `media` and
+`published` and nothing else, because every share has to be mounted before the
+container is allowed to start and that time lands on the cold start. So run
+`ingest_caselaw`, `fetch_cap_opinions`, `enrich_caselaw_metadata` and
+`publish_private_content` in the job — an `az containerapp exec` into a web
+replica will not find `raw/` there:
+
+```bash
+az containerapp job start -g agentic-housing-rg -n agentic-housing-bootstrap
+```
 
 To upload new material:
 
@@ -266,18 +281,17 @@ guaranteed beyond it.
 This application previously ran on one VM (`AIDraftingTool`, `20.118.35.106`)
 with Postgres in a container, `nginx-proxy` and `acme-companion` for TLS, and
 `scripts/deploy_azure.sh` deploying over SSH. That VM was decommissioned on
-2026-08-07 after its database was copied into the managed server.
+2026-08-07 after its database was copied into the managed server, and its
+deployment artifacts — `deploy_azure.sh`, `migrate_vm_database.sh`,
+`compose.yaml`, `cloud-init.yml`, `start.sh` and `build_docker.sh` — were
+removed on 2026-08-13. Git history has them if they are ever wanted.
 
-Two things from that era are worth knowing:
+For local development, use `./run_all.sh`, which runs Vite and Django directly.
+There is no longer a way to run the full production shape on one machine, which
+is the trade for not maintaining a second deployment path that nothing
+exercises.
 
-- `scripts/deploy_azure.sh` and `scripts/migrate_vm_database.sh` both target a
-  host that no longer exists. They are kept for reference; neither will run.
-- `compose.yaml` still describes the VM stack and is the only way to run the
-  full production shape locally. It bind-mounts
-  `private-content/caselaw-artifacts` rather than baking it into the image, which
-  matches how Container Apps mounts the published area.
-
-The old ordering constraint no longer applies, but the reason it existed is worth
-remembering: the database copy had to happen *before* the first bootstrap run,
-because a dump from the VM (which had zero case-law decisions) would otherwise
-have wiped the corpus the bootstrap job had just ingested.
+One thing from that era is worth remembering, because the reasoning generalizes:
+the database copy had to happen *before* the first bootstrap run, since a dump
+from the VM (which had zero case-law decisions) would otherwise have wiped the
+corpus the bootstrap job had just ingested.

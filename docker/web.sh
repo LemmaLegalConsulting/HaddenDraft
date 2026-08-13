@@ -24,10 +24,15 @@ trap terminate TERM INT
 nginx -g "daemon off;" &
 NGINX_PID=$!
 
+# --preload imports Django once in the master and forks the workers from it,
+# instead of every worker importing it separately. On a 1-vCPU replica those
+# imports otherwise contend for the same core, so this is most of a second off
+# the time a cold-started replica takes to answer its first request.
 gunicorn config.wsgi:application \
   --bind 127.0.0.1:8000 \
   --workers "${GUNICORN_WORKERS:-3}" \
   --timeout "${GUNICORN_TIMEOUT:-120}" \
+  --preload \
   --access-logfile - \
   --error-logfile - &
 GUNICORN_PID=$!

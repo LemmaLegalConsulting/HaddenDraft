@@ -33,7 +33,12 @@ MEDIA_MOUNT = "/app/media"
 # independently permissionable, and it let the existing corpus move by
 # server-side copy instead of a re-upload.
 STORAGE_ROOT_MOUNT = "/app/storage"
-STORAGE_AREA_SHARES = {"raw": f"{STORAGE_ROOT_MOUNT}/raw", "published": f"{STORAGE_ROOT_MOUNT}/published"}
+RAW_AREA = "raw"
+PUBLISHED_AREA = "published"
+STORAGE_AREA_SHARES = {
+    RAW_AREA: f"{STORAGE_ROOT_MOUNT}/{RAW_AREA}",
+    PUBLISHED_AREA: f"{STORAGE_ROOT_MOUNT}/{PUBLISHED_AREA}",
+}
 
 
 def parse_env_file(path: Path) -> dict[str, str]:
@@ -56,15 +61,20 @@ def secret_name(key: str) -> str:
     return re.sub(r"-+", "-", name).strip("-")
 
 
-def build_common(values: dict[str, str], args) -> tuple[list, list, list, list]:
-    secrets = [{"name": secret_name(key), "value": value} for key, value in sorted(values.items())]
-    env = [{"name": key, "secretRef": secret_name(key)} for key in sorted(values)]
+def storage_for(areas):
+    """Volume and mount entries for the media share plus the named areas."""
     volumes = [{"name": "media", "storageType": "AzureFile", "storageName": "media"}]
     mounts = [{"volumeName": "media", "mountPath": MEDIA_MOUNT}]
-    for area, mount_path in sorted(STORAGE_AREA_SHARES.items()):
+    for area in sorted(areas):
         volumes.append({"name": area, "storageType": "AzureFile", "storageName": area})
-        mounts.append({"volumeName": area, "mountPath": mount_path})
-    return secrets, env, volumes, mounts
+        mounts.append({"volumeName": area, "mountPath": STORAGE_AREA_SHARES[area]})
+    return volumes, mounts
+
+
+def build_common(values: dict[str, str], args) -> tuple[list, list]:
+    secrets = [{"name": secret_name(key), "value": value} for key, value in sorted(values.items())]
+    env = [{"name": key, "secretRef": secret_name(key)} for key in sorted(values)]
+    return secrets, env
 
 
 def main() -> int:
@@ -84,6 +94,16 @@ def main() -> int:
             "does not strip a bound hostname and its certificate."
         ),
     )
+    parser.add_argument(
+        "--min-replicas",
+        type=int,
+        default=0,
+        help=(
+            "Replicas to keep running when idle. 0 scales to zero and pays a cold start "
+            "on the first request after an idle period; 1 keeps a replica warm, billed at "
+            "Azure's reduced idle rate."
+        ),
+    )
     parser.add_argument("--app-output", required=True, type=Path)
     parser.add_argument("--job-output", required=True, type=Path)
     args = parser.parse_args()
@@ -99,7 +119,20 @@ def main() -> int:
         print(f"Missing required settings in {args.env_file}: {', '.join(missing)}", file=sys.stderr)
         return 1
 
-    secrets, env, volumes, mounts = build_common(values, args)
+    secrets, env = build_common(values, args)
+
+    # Every Azure Files share is mounted before the container is allowed to
+    # start, and each one costs a measurable few seconds of a cold start. The
+    # raw area is the operator's upload staging ground: only the ingestion
+    # management commands read it, and those all run in the bootstrap job. So
+    # the app mounts what it serves and the job mounts everything.
+    #
+    # The practical consequence: run ingest_caselaw, fetch_cap_opinions,
+    # enrich_caselaw_metadata or publish_private_content in the job, not with
+    # `az containerapp exec` into a web replica, where raw/ is not there.
+    app_volumes, app_mounts = storage_for([PUBLISHED_AREA])
+    job_volumes, job_mounts = storage_for(STORAGE_AREA_SHARES)
+
     identity = {"type": "UserAssigned", "userAssignedIdentities": {args.identity_id: {}}}
     registries = [{"server": args.registry_server, "identity": args.identity_id}]
 
@@ -139,32 +172,59 @@ def main() -> int:
                         "command": ["/app/docker/web.sh"],
                         "resources": {"cpu": 1.0, "memory": "2.0Gi"},
                         "env": env,
-                        "volumeMounts": mounts,
+                        "volumeMounts": app_mounts,
+                        # The readiness probe is the last thing standing between
+                        # a started replica and the request that woke it up, so
+                        # its cadence is a direct component of cold-start
+                        # latency. Polling every second against an endpoint that
+                        # only Django can answer admits traffic within about a
+                        # second of the app being able to serve it; the previous
+                        # 5s delay plus 10s period spent up to fifteen seconds
+                        # not asking, against an endpoint nginx would have
+                        # answered before gunicorn had loaded.
                         "probes": [
                             {
-                                "type": "Liveness",
-                                "httpGet": {"path": "/healthz", "port": 80},
-                                "initialDelaySeconds": 20,
-                                "periodSeconds": 30,
-                                "failureThreshold": 3,
+                                "type": "Startup",
+                                "httpGet": {"path": "/readyz", "port": 80},
+                                "initialDelaySeconds": 1,
+                                "periodSeconds": 1,
+                                "timeoutSeconds": 2,
+                                # 60 tries at 1s: the same patience the old
+                                # readiness settings had for a slow start,
+                                # without charging every fast start for it.
+                                "failureThreshold": 60,
                             },
                             {
                                 "type": "Readiness",
-                                "httpGet": {"path": "/healthz", "port": 80},
-                                "initialDelaySeconds": 5,
-                                "periodSeconds": 10,
+                                "httpGet": {"path": "/readyz", "port": 80},
+                                "initialDelaySeconds": 0,
+                                "periodSeconds": 2,
+                                "timeoutSeconds": 2,
                                 "failureThreshold": 6,
+                            },
+                            {
+                                "type": "Liveness",
+                                "httpGet": {"path": "/healthz", "port": 80},
+                                "initialDelaySeconds": 10,
+                                "periodSeconds": 30,
+                                "timeoutSeconds": 5,
+                                "failureThreshold": 3,
                             },
                         ],
                     }
                 ],
-                # Scale to zero when idle. The first request after an idle
-                # period pays a cold start — pulling the image, then Django
-                # startup — so expect it to take seconds rather than
-                # milliseconds. That is the deliberate trade for not paying for
-                # an always-warm replica.
-                "scale": {"minReplicas": 0, "maxReplicas": 3},
-                "volumes": volumes,
+                # At 0 the app scales to zero when idle and the first request
+                # after an idle period pays a cold start: starting a replica,
+                # possibly pulling the image, then loading Django. Everything
+                # else here is tuned to make that as short as it can be, but it
+                # cannot be made to disappear.
+                #
+                # At 1 there is no cold start at all. A replica held at the
+                # minimum replica count and not serving requests bills at Azure's
+                # reduced *idle* rate rather than the active one, so a warm
+                # replica costs far less than a busy one -- see --min-replicas.
+                "scale": {"minReplicas": args.min_replicas, "maxReplicas": 3},
+                "volumes": app_volumes,
             },
         },
     }
@@ -191,10 +251,10 @@ def main() -> int:
                         "command": ["/app/docker/bootstrap.sh"],
                         "resources": {"cpu": 1.0, "memory": "2.0Gi"},
                         "env": env,
-                        "volumeMounts": mounts,
+                        "volumeMounts": job_mounts,
                     }
                 ],
-                "volumes": volumes,
+                "volumes": job_volumes,
             },
         },
     }

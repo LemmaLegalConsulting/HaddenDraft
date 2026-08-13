@@ -4543,6 +4543,32 @@ button:disabled {
   font-size: 11px;
 }
 
+/* Pinned across the top rather than placed in the layout: the request that is
+   waiting could have come from anywhere on the page, and the reader may well
+   have scrolled somewhere else while waiting for it. */
+.waking-notice {
+  align-items: center;
+  background: #fdf6e3;
+  border-bottom: 1px solid #e8d9a8;
+  color: #6b551b;
+  display: flex;
+  font-size: 13px;
+  gap: 8px;
+  justify-content: center;
+  left: 0;
+  padding: 8px 14px;
+  position: fixed;
+  right: 0;
+  text-align: center;
+  top: 0;
+  z-index: 2000;
+}
+
+.waking-notice small {
+  color: #806a2e;
+  font-size: 12px;
+}
+
 .case-catalog-results.busy .result-card,
 .library-tree-viewport.busy .library-tree {
   opacity: 0.45;

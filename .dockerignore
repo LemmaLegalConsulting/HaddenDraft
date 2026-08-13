@@ -9,9 +9,15 @@ build
 logs
 downloaded_cases
 media
-# ~530MB of PDFs and sidecars. Both deployments mount these as a volume rather
-# than baking them into the image: a bind mount under Compose, an Azure Files
-# share under Container Apps.
-private-content/caselaw-artifacts
+# Roughly 780MB of case law, treatises, templates and letterheads. None of it
+# belongs in the image: production reads this content from the Azure Files
+# shares mounted at /app/storage, and the deploy script uploads it there
+# directly from the checkout. Baking it in would put three quarters of a
+# gigabyte on the wire for every cold-start image pull to no purpose.
+#
+# It is a private submodule, so CI never had it and CI images were always lean.
+# This line is what keeps an image built from a developer's machine -- which
+# does have it checked out -- the same size as the one CI builds.
+private-content
 **/__pycache__
 *.pyc

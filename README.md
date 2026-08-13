@@ -140,6 +140,31 @@ changes come from `.env.containerapps` and only apply when you run:
 See [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md) for the topology, the `raw/` vs
 `published/` document storage boundary, and DNS.
 
+### Sleeping and waking
+
+The app scales to zero when it is idle for five minutes, so the next request
+after that waits for a replica to start. That wait is spent on Azure's side of
+the line — scheduling a node, pulling the image, mounting the file shares — and
+about a second of it is the application itself. Nothing in the app can make it
+short; it can only be made shorter, and the measured floor is on the order of
+twenty seconds.
+
+To remove it entirely, keep one replica running:
+
+```bash
+MIN_REPLICAS=1 ./scripts/deploy_azure_containerapps.sh
+```
+
+That costs roughly $22/month always-on, or about $8 warm on weekday hours only.
+[`docs/WARM_START.md`](docs/WARM_START.md) has the rates, the schedule options,
+and the one way a later deploy can quietly undo it.
+
+While the app is asleep it cannot serve the notice saying so — the page itself
+comes out of the same container. What the frontend does cover is the case that
+actually bites: a tab left open past the idle timeout, where the next click
+would otherwise hang with no explanation. See
+[`frontend/src/api/wakeNotice.js`](frontend/src/api/wakeNotice.js).
+
 ## Repository Layout
 
 ```text
@@ -156,7 +181,7 @@ See [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md) for the topology, the `raw/` vs
 ├── prompts/                  LLM system/user messages
 ├── scripts/                  Helper scripts and utilities
 ├── requirements.txt          Python dependencies
-└── Dockerfile, compose.yaml, etc. Docker and deployment setup files
+└── Dockerfile, nginx.conf, docker/  Image and container entrypoints
 ```
 
 ## Backend Layout
