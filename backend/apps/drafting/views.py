@@ -24,7 +24,7 @@ from apps.drafting.services import (
     regenerate_draft_block,
     template_for_reference,
 )
-from apps.exporting.services import export_document
+from apps.exporting.services import draft_export_filename, export_document
 from apps.matters.legalserver_delivery import (
     attach_delivery_headers,
     save_document,
@@ -487,13 +487,12 @@ def export_draft(request, draft_id):
     delivery = save_document(
         draft.session.matter,
         user=request.user,
-        filename=_download_filename(response, fallback=f"draft-{draft.id}.docx"),
+        filename=_download_filename(response, fallback=draft_export_filename(draft)),
         content=response.content,
         content_type=response["Content-Type"],
         title=draft.title or getattr(draft.session.template, "name", "") or f"Draft {draft.id}",
         origin="draft_export",
         scope_key=f"draft-export:draft:{draft.id}",
-        remote_name=f"{draft.title or 'Draft'} [draft-{draft.id}]",
     )
     audit_delivery = save_draft_ai_audit(draft, user=request.user)
     return attach_delivery_headers(response, delivery, audit_delivery=audit_delivery)

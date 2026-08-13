@@ -5,6 +5,7 @@ from unittest.mock import patch
 
 from django.contrib.auth import get_user_model
 from django.test import TestCase
+from django.test.utils import override_settings
 
 from apps.ai.services import drafting_ai
 from apps.drafting.models import DraftDocument
@@ -422,6 +423,40 @@ class AdviceLetterApiTests(TestCase):
             document = archive.read("word/document.xml").decode("utf-8")
         self.assertIn("Court can seal the record", document)
         self.assertIn("August 2, 2026", document)
+
+    @override_settings(
+        LEGALSERVER_BASE_URL="https://example.legalserver.org",
+        LEGALSERVER_API_TOKEN="token",
+        LEGALSERVER_ALLOW_WRITES=True,
+        LEGALSERVER_REQUIRE_OFFICE365_EMAIL_MATCH=False,
+    )
+    def test_advice_letter_save_uses_its_download_filename_in_legalserver(self):
+        self.matter.raw_payload = {
+            **self.matter.raw_payload,
+            "matter_uuid": "1f689912-a490-4ced-a99d-a21d7a5caeb2",
+        }
+        self.matter.save(update_fields=["raw_payload", "updated_at"])
+        draft = self.post(
+            "/api/advice-letters/drafts/",
+            {"matterId": self.matter.external_id, "sectionSlugs": ["seal"]},
+        ).json()["draft"]
+
+        with patch("apps.sources.connectors.legalserver.LegalServerClient.upload_matter_document") as upload:
+            upload.return_value = {"id": "doc-1"}
+            response = self.post(
+                f"/api/advice-letters/drafts/{draft['id']}/legalserver/",
+                {
+                    "letterFields": {
+                        "recipientName": "Ms. Alvarez",
+                        "letterDate": "August 2, 2026",
+                    }
+                },
+            )
+
+        self.assertEqual(response.status_code, 201)
+        filename = "2026-08-02-alvarez-advice-letter-motion-seal.docx"
+        self.assertEqual(upload.call_args.kwargs["filename"], filename)
+        self.assertEqual(upload.call_args.kwargs["extra_fields"]["name"], filename)
 
     def test_endpoints_require_a_login(self):
         self.client.logout()

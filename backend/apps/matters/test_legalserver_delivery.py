@@ -322,10 +322,11 @@ class DocumentDeliveryTests(TestCase):
         self.assertEqual(call["files"]["file"][1], b"docx bytes")
         self.assertEqual(call["data"]["module"], "matter")
         self.assertEqual(call["data"]["module_uuid"], "1f689912-a490-4ced-a99d-a21d7a5caeb2")
-        self.assertEqual(call["data"]["name"], "Answer and counterclaims")
+        self.assertEqual(call["data"]["name"], "answer-and-counterclaims.docx")
+        self.assertEqual(call["data"]["title"], "Answer and counterclaims")
         self.assertNotIn("type", call["data"])
 
-    def test_a_document_can_use_a_unique_remote_name_while_keeping_its_title(self):
+    def test_the_legalserver_name_matches_the_actual_filename_including_extension(self):
         session = RecordingSession({"data": {"id": "doc-10"}})
 
         delivery = save_document(
@@ -334,15 +335,14 @@ class DocumentDeliveryTests(TestCase):
             filename="answer.docx",
             content=b"docx bytes",
             title="Answer and counterclaims",
-            remote_name="Answer and counterclaims [draft-42]",
             scope_key="draft-export:draft:42",
             origin="draft_export",
             client=LegalServerClient(session=session),
         )
 
-        self.assertEqual(session.calls[0]["data"]["name"], "Answer and counterclaims [draft-42]")
+        self.assertEqual(session.calls[0]["data"]["name"], "answer.docx")
         self.assertEqual(session.calls[0]["data"]["title"], "Answer and counterclaims")
-        self.assertEqual(delivery.request_payload["remoteName"], "Answer and counterclaims [draft-42]")
+        self.assertEqual(delivery.request_payload["remoteName"], "answer.docx")
 
     @override_settings(LEGALSERVER_DOCUMENT_TYPE="Brief")
     def test_a_configured_document_type_is_applied_to_the_upload(self):
@@ -698,7 +698,7 @@ class ScopedUpdateTests(TestCase):
             )
 
         replace = session.calls[1]["data"]
-        self.assertEqual(replace["update[name]"], "Advice letter")
+        self.assertEqual(replace["update[name]"], "letter.docx")
         self.assertEqual(replace["update[module]"], "matter")
         self.assertEqual(replace["update[module_uuid]"], "1f689912-a490-4ced-a99d-a21d7a5caeb2")
         # The first upload has nothing to replace.

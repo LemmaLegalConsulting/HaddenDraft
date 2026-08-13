@@ -24,7 +24,7 @@ from apps.drafting.services import (
     unanswered_missing_information,
 )
 from apps.exporting.services import _docx_render_context
-from apps.exporting.services import export_docx
+from apps.exporting.services import draft_export_filename, export_docx
 from apps.matters.models import Matter, MatterFact
 from apps.templates_app.models import DocumentTemplate, TemplateBlock
 from apps.templates_app.serializers import template_to_dict
@@ -327,7 +327,7 @@ class DraftRenderingTests(TestCase):
 
         response = export_docx(draft)
 
-        self.assertEqual(response["Content-Disposition"], 'attachment; filename="draft-42.docx"')
+        self.assertEqual(response["Content-Disposition"], 'attachment; filename="test-draft-draft-42.docx"')
         self.assertEqual(response["Content-Type"], "application/vnd.openxmlformats-officedocument.wordprocessingml.document")
         with zipfile.ZipFile(BytesIO(response.content)) as archive:
             names = set(archive.namelist())
@@ -338,6 +338,19 @@ class DraftRenderingTests(TestCase):
         self.assertIn("I. FACTS", document_xml)
         self.assertIn("First fact.", document_xml)
         self.assertIn("<w:numPr>", document_xml)
+
+    def test_export_filename_is_readable_stable_and_keeps_one_extension(self):
+        draft = SimpleNamespace(id=42, title="Answer & Counterclaims.DOCX")
+
+        self.assertEqual(
+            draft_export_filename(draft),
+            "answer-counterclaims-draft-42.docx",
+        )
+
+    def test_untitled_export_filename_falls_back_to_the_stable_draft_id(self):
+        draft = SimpleNamespace(id=42, title="")
+
+        self.assertEqual(draft_export_filename(draft), "draft-42.docx")
 
     def test_export_docx_can_restart_numbering(self):
         draft = SimpleNamespace(
@@ -988,4 +1001,3 @@ class SessionTemplateDataEndpointTests(TestCase):
         self.assertIn("John Tenant", document_xml)
         self.assertIn("Prayer for Relief", document_xml)
         self.assertIn("dismiss the complaint", document_xml)
-
