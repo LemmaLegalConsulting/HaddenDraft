@@ -187,12 +187,20 @@ def main() -> int:
                                 "type": "Startup",
                                 "httpGet": {"path": "/readyz", "port": 80},
                                 "initialDelaySeconds": 1,
-                                "periodSeconds": 1,
-                                "timeoutSeconds": 2,
-                                # 60 tries at 1s: the same patience the old
-                                # readiness settings had for a slow start,
-                                # without charging every fast start for it.
-                                "failureThreshold": 60,
+                                # Container Apps caps a probe's effective
+                                # timeout at its period, whatever timeoutSeconds
+                                # says: measured on 2026-08-13, a probe with
+                                # periodSeconds 1 and timeoutSeconds 2 logged
+                                # "failed with timeout in 1 seconds". So the
+                                # period is really "how long one attempt gets",
+                                # and polling every second gave Django's first
+                                # request one second before cutting it off --
+                                # which it lost, five times, on a cold replica.
+                                # 3s per attempt, 20 attempts, still a 60s
+                                # budget for a genuinely slow start.
+                                "periodSeconds": 3,
+                                "timeoutSeconds": 3,
+                                "failureThreshold": 20,
                             },
                             {
                                 "type": "Readiness",

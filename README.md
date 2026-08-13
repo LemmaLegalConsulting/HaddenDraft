@@ -143,11 +143,11 @@ See [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md) for the topology, the `raw/` vs
 ### Sleeping and waking
 
 The app scales to zero when it is idle for five minutes, so the next request
-after that waits for a replica to start. That wait is spent on Azure's side of
-the line — scheduling a node, pulling the image, mounting the file shares — and
-about a second of it is the application itself. Nothing in the app can make it
-short; it can only be made shorter, and the measured floor is on the order of
-twenty seconds.
+after that waits for a replica to start. Measured at **38.7 seconds**, of which
+about 30 are Azure's — scheduling a node, pulling the image, mounting the
+shares, and propagating the endpoint to the ingress once the replica is ready.
+The application itself is serving one second after its container starts.
+Nothing in this repository can make that wait short.
 
 To remove it entirely, keep one replica running:
 

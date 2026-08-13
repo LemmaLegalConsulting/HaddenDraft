@@ -9,22 +9,52 @@ a latency reading on it.
 
 ## What the wait is made of
 
-Measured against production on 2026-08-13, from the replica lifecycle events:
+Measured against production on 2026-08-13, from the replica lifecycle events,
+*after* the probe and image work:
 
 | Phase | Time | Whose |
 |---|---|---|
-| Scheduling the replica onto a node | 2.4s | Azure |
-| Pulling the image | 3.9s | Azure |
-| Mounting the Azure Files shares | 10.6s | Azure |
-| Starting nginx and gunicorn | ~1.2s | ours |
-| Admitting traffic once started | the rest | ours, now tuned |
+| Scheduling the replica onto a node | 3.2s | Azure |
+| Pulling the image | 4.6s | Azure |
+| Creating the container and mounting shares | 10.6s | Azure |
+| nginx and gunicorn up and listening | ~1s | ours |
+| Startup probe getting a passing answer | ~6s | ours, since fixed |
+| Ingress actually routing to the ready replica | ~14s | Azure |
+| **Total** | **38.7s** | |
 
-The total was 42 seconds. Roughly half of that was the readiness probe waiting
-on a fixed timer against an endpoint nginx answered before Django had loaded;
-that is fixed, and the probes now poll `/readyz` every second. What remains is
-mostly Azure's, and no amount of application tuning reaches it.
+The honest summary: **about 30 of those 38 seconds are Azure's and cannot be
+tuned from this repository.** The application is up and serving one second after
+its container starts. Everything before that is scheduling, pulling and
+mounting; the fourteen seconds after the replica reports ready is Container Apps
+propagating the endpoint to its ingress.
+
+This is worth stating plainly because the intuition is wrong. Before measuring
+it looked like most of the delay was Django starting, and it is not: Django is
+a rounding error here. Tuning the app bought about three seconds, and a further
+five came from a mistake this exercise created and then fixed (below). The
+remaining floor is roughly 30 seconds and it is structural.
 
 **A cold start cannot be made to feel fast. It can only be avoided.**
+
+### The probe-timeout trap
+
+Worth knowing if you ever touch the probes: **Container Apps caps a probe's
+effective timeout at its `periodSeconds`, whatever `timeoutSeconds` says.** A
+startup probe configured with `periodSeconds: 1, timeoutSeconds: 2` logs
+`Probe of StartUp failed with timeout in 1 seconds`.
+
+That turned polling *faster* into starting *slower*. Django's first request
+builds the URL resolver and middleware chain lazily, which takes more than a
+second on a cold replica, so each probe cut the request off before it finished
+and tried again — five times, six seconds, with the app sitting there able to
+answer.
+
+Two changes fixed it, and both are worth keeping:
+
+- The startup probe polls every 3s, so each attempt gets 3s to answer.
+- [`config/wsgi.py`](../backend/config/wsgi.py) drives one synthetic request at
+  import time, under gunicorn's `--preload`, so the lazy initialization happens
+  in the master before any probe arrives and every forked worker inherits it.
 
 ## Avoiding it: keep a replica warm
 
