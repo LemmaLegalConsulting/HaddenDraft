@@ -1,11 +1,10 @@
 #!/bin/bash
 # One-shot deployment work: schema migrations and content ingestion.
 #
-# This must run exactly once per deployment, not once per replica. On the
-# single-VM Compose deployment start.sh calls it before the web process; on
-# Azure Container Apps it runs as a separate job that completes before the new
-# revision takes traffic. Every command here is idempotent, so a retried job or
-# a re-run against an already-current database is safe.
+# This must run exactly once per deployment, not once per replica, so it runs as
+# a Container Apps job that completes before the new revision takes traffic --
+# never as part of starting a replica. Every command here is idempotent, so a
+# retried job or a re-run against an already-current database is safe.
 set -Eeuo pipefail
 
 cd /app/backend

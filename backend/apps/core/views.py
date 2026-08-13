@@ -336,6 +336,23 @@ def office365_callback(request):
     return redirect(settings.FRONTEND_SITE_URL)
 
 
+def readyz(_request):
+    """Readiness signal for the platform: gunicorn is up and serving Django.
+
+    /healthz is answered by nginx, which comes up long before gunicorn has
+    imported Django, so a readiness probe pointed at it admits traffic to a
+    replica that will still answer 502. This endpoint is the other half: it can
+    only respond once the WSGI application is loaded, so the probe can poll
+    often and flip the replica live as soon as it truly is.
+
+    It deliberately does not touch the database. Readiness failure takes the
+    replica out of rotation and eventually restarts it, so a database blip would
+    turn into every replica restarting at once -- exactly when the site can
+    least afford it.
+    """
+    return HttpResponse("ready\n", content_type="text/plain")
+
+
 def favicon(_request):
     svg = (
         '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">'

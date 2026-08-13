@@ -39,6 +39,13 @@ if not DEBUG and SECRET_KEY in {"", "change-me", "dev-only-change-me"}:
     raise ImproperlyConfigured("Set DJANGO_SECRET_KEY to a unique secret before running with DJANGO_DEBUG=false.")
 
 ALLOWED_HOSTS = env_list("DJANGO_ALLOWED_HOSTS", ["localhost", "127.0.0.1", "testserver"])
+# The readiness probe reaches Django through nginx over the container's
+# loopback and so presents 127.0.0.1 rather than the public hostname. Without
+# this the probe is rejected as a DisallowedHost, the replica never reports
+# ready, and the deployment stalls. Loopback is not a name any client outside
+# the container can usefully claim, so allowing it costs nothing.
+if "127.0.0.1" not in ALLOWED_HOSTS:
+    ALLOWED_HOSTS.append("127.0.0.1")
 DEV_ORIGINS = [
     "http://localhost:5173",
     "http://127.0.0.1:5173",

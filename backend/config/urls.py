@@ -17,6 +17,7 @@ AUTH_PREFIX = "api/" + "auth/"
 
 urlpatterns = [
     path("favicon.ico", core_views.favicon, name="favicon"),
+    path("readyz", core_views.readyz, name="readyz"),
     path("admin/", admin.site.urls),
     path("api/bootstrap/", core_views.bootstrap, name="api_bootstrap"),
     path(AUTH_PREFIX + "me/", core_views.me, name="api_auth_me"),

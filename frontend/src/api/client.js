@@ -1,3 +1,5 @@
+import { trackRequest } from "./wakeNotice.js";
+
 const API_BASE = import.meta.env.VITE_API_BASE || "/api";
 
 function getCookie(name) {
@@ -12,15 +14,24 @@ async function request(path, options = {}) {
   const unsafe = !["GET", "HEAD", "OPTIONS", "TRACE"].includes(method);
   const csrfToken = unsafe ? getCookie("csrftoken") : "";
 
-  const response = await fetch(`${API_BASE}${path}`, {
-    credentials: "include",
-    headers: {
-      ...(options.body instanceof FormData ? {} : { "Content-Type": "application/json" }),
-      ...(csrfToken ? { "X-CSRFToken": csrfToken } : {}),
-      ...(options.headers || {}),
-    },
-    ...options,
-  });
+  // Closed once the response starts arriving, not once its body is read: a
+  // sleeping server is awake the moment it answers at all, and reading a large
+  // body afterwards is not a wait anyone needs the wake-up notice for.
+  const settled = trackRequest();
+  let response;
+  try {
+    response = await fetch(`${API_BASE}${path}`, {
+      credentials: "include",
+      headers: {
+        ...(options.body instanceof FormData ? {} : { "Content-Type": "application/json" }),
+        ...(csrfToken ? { "X-CSRFToken": csrfToken } : {}),
+        ...(options.headers || {}),
+      },
+      ...options,
+    });
+  } finally {
+    settled();
+  }
 
   if (!response.ok) {
     const text = await response.text();

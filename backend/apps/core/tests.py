@@ -140,3 +140,34 @@ class AuthViewTests(TestCase):
         self.assertEqual(response["Location"], "http://localhost:5173")
         user = User.objects.get(username="advocate@example.org")
         self.assertEqual(user.email, "advocate@example.org")
+
+
+class ReadinessProbeTests(TestCase):
+    """The endpoint the platform uses to decide a replica may take traffic."""
+
+    def test_readyz_answers_without_authentication(self):
+        response = self.client.get("/readyz")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.content, b"ready\n")
+
+    def test_readyz_answers_the_probe_arriving_over_loopback(self):
+        # nginx pins Host to loopback for this one location, because the probe
+        # presents the replica's own address and Django would otherwise reject
+        # it as a DisallowedHost and the replica would never come ready.
+        with self.settings(ALLOWED_HOSTS=["cle-draft.example.org", "127.0.0.1"]):
+            response = self.client.get("/readyz", headers={"host": "127.0.0.1"})
+
+        self.assertEqual(response.status_code, 200)
+
+    def test_loopback_is_allowed_however_the_environment_is_configured(self):
+        from django.conf import settings
+
+        self.assertIn("127.0.0.1", settings.ALLOWED_HOSTS)
+
+    def test_readyz_does_not_depend_on_the_database(self):
+        # Readiness failure pulls the replica out of rotation and restarts it,
+        # so a database blip must not be able to take every replica down at
+        # once. Nothing here may touch the connection.
+        with self.assertNumQueries(0):
+            self.client.get("/readyz")

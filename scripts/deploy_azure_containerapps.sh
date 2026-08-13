@@ -2,20 +2,23 @@
 # Deploy the application to Azure Container Apps with a managed PostgreSQL
 # Flexible Server.
 #
-# This replaces scripts/deploy_azure.sh, which builds and runs everything on a
-# single VM. The differences that matter:
+# This is the only way production configuration changes. Merging to main
+# deploys code, but it updates the container image and nothing else -- scale,
+# probes, secrets, environment variables, volume mounts and the bound custom
+# domain all come from here.
 #
-#   - Postgres is a managed Flexible Server reachable only over the VNet, not a
-#     container with a Docker volume.
-#   - Images are built in Azure Container Registry, not on the VM over SSH.
+# The shape of the deployment:
+#
+#   - Postgres is a managed Flexible Server reachable only over the VNet.
+#   - Images are built in Azure Container Registry, so a deploy does not depend
+#     on a working local Docker daemon or on the machine's architecture.
 #   - Migrations and content ingestion run as a Container Apps *job* that must
 #     succeed before the new revision is created, rather than on every start.
-#   - Media and caselaw artifacts live on Azure Files shares, not host disks.
-#   - TLS is handled by Container Apps ingress, so there is no nginx-proxy or
-#     acme-companion to run.
+#   - Media, private content and caselaw artifacts live on Azure Files shares.
+#   - TLS is handled by Container Apps ingress.
 #
-# Configuration lives in .env.containerapps (gitignored, same shape as the VM's
-# .env.azure). Every key in that file is pushed as a Container Apps secret.
+# Configuration lives in .env.containerapps, which is gitignored. Every key in
+# that file is pushed as a Container Apps secret.
 set -Eeuo pipefail
 
 SUBSCRIPTION_ID="${AZURE_SUBSCRIPTION_ID:-4f62b1f4-b38c-44f3-9c3f-aedaf2d12d2a}"
@@ -31,6 +34,12 @@ POSTGRES_SERVER="${AZURE_POSTGRES_SERVER:-agentic-housing-db}"
 ENV_FILE="${AZURE_ENV_FILE:-.env.containerapps}"
 IMAGE_TAG="${IMAGE_TAG:-$(date -u +%Y%m%dT%H%M%SZ)}"
 IMAGE_REPO="agentic-housing-drafting"
+
+# 0 lets the app sleep when idle and pays a cold start to wake it; 1 keeps one
+# replica warm so there is no cold start at all. A replica sitting at the
+# minimum replica count with no traffic bills at Azure's reduced idle rate, so
+# MIN_REPLICAS=1 costs a small fraction of an actively serving replica.
+MIN_REPLICAS="${MIN_REPLICAS:-0}"
 
 # Both default off: side-loaded documents change far less often than code, and
 # uploading thousands of small files makes an ordinary deploy much slower.
@@ -132,6 +141,7 @@ python3 scripts/render_containerapp_spec.py \
   --registry-server "$REGISTRY_SERVER" \
   --postgres-host "$POSTGRES_FQDN" \
   --custom-domains-json "$CUSTOM_DOMAINS" \
+  --min-replicas "$MIN_REPLICAS" \
   --app-output "$WORKDIR/app.yaml" \
   --job-output "$WORKDIR/job.yaml"
 

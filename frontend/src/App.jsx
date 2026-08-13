@@ -53,6 +53,7 @@ import { RevisionPlanModal } from "./components/RevisionPlanModal.jsx";
 import { TemplatePicker } from "./components/TemplatePicker.jsx";
 import { TriagePanel } from "./components/TriagePanel.jsx";
 import { ValidationPanel } from "./components/ValidationPanel.jsx";
+import { WakingNotice } from "./components/WakingNotice.jsx";
 import { WorkflowStepper } from "./components/WorkflowStepper.jsx";
 import { activeDraft, draftWorkspaceReducer, initialDraftWorkspace } from "./state/draftWorkspace.js";
 import { useModalDismiss } from "./hooks/useModalDismiss.js";
@@ -964,6 +965,7 @@ export function App() {
   if (!auth?.isAuthenticated) {
     return (
       <main className="login-screen">
+        <WakingNotice />
         <form className="login-panel" onSubmit={handleLogin}>
           <div className="brand login-brand"><div className="brand-icon"><Gavel size={22} /></div><h1>Drafting Tool</h1></div>
           <label className="field"><span>Username</span><input className="form-control" autoComplete="username" value={credentials.username} onChange={(event) => setCredentials((current) => ({ ...current, username: event.target.value }))} /></label>
@@ -979,6 +981,7 @@ export function App() {
 
   return (
     <div className="app-shell">
+      <WakingNotice />
       <aside className="sidebar">
         <div className="brand"><div className="brand-icon"><Gavel size={22} /></div><div><span className="brand-title">Drafting Tool</span></div></div>
         <nav className="mode-list">{modeOptions.map((item) => { const Icon = item.icon; return <button key={item.id} className={mode === item.id ? "active" : ""} onClick={() => selectMode(item.id)}><Icon size={18} /><span className="mode-item-label"><span>{item.label}</span>{item.id === "draft" && selectedDraftDocument && <small>Document: {selectedDraftDocument.title}</small>}</span></button>; })}</nav>
