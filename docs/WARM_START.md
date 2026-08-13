@@ -14,27 +14,51 @@ Measured against production on 2026-08-13, from the replica lifecycle events,
 
 | Phase | Time | Whose |
 |---|---|---|
-| Scheduling the replica onto a node | 3.2s | Azure |
-| Pulling the image | 4.6s | Azure |
-| Creating the container and mounting shares | 10.6s | Azure |
-| nginx and gunicorn up and listening | ~1s | ours |
-| Startup probe getting a passing answer | ~6s | ours, since fixed |
-| Ingress actually routing to the ready replica | ~14s | Azure |
-| **Total** | **38.7s** | |
+| Scheduling the replica onto a node | 2-3s | Azure |
+| Pulling the image | ~4s | Azure |
+| Creating the container | 6-11s | Azure, and variable |
+| nginx and gunicorn up and listening | <1s | ours |
+| Routing the queued request to the ready replica | 4-16s | **set by the probes** |
 
-The honest summary: **about 30 of those 38 seconds are Azure's and cannot be
-tuned from this repository.** The application is up and serving one second after
-its container starts. Everything before that is scheduling, pulling and
-mounting; the fourteen seconds after the replica reports ready is Container Apps
-propagating the endpoint to its ingress.
+The application is up and serving under a second after its container starts.
+Django is a rounding error in this. Everything else is the platform.
 
-This is worth stating plainly because the intuition is wrong. Before measuring
-it looked like most of the delay was Django starting, and it is not: Django is
-a rounding error here. Tuning the app bought about three seconds, and a further
-five came from a mistake this exercise created and then fixed (below). The
-remaining floor is roughly 30 seconds and it is structural.
+**A cold start cannot be made to feel fast. It can only be avoided.** But a
+surprising amount of it turned out to be self-inflicted, so measure before
+believing any attribution here — including the ones below, which replaced two
+earlier attributions that were wrong.
 
-**A cold start cannot be made to feel fast. It can only be avoided.**
+### The probes cost far more than they look like they should
+
+Measured by deploying this same image to throwaway container apps in this
+environment that differed *only* in their probes, timing container start to
+first served request:
+
+| Probes defined | Container start → served |
+|---|---|
+| Startup only | 4.4s |
+| Startup + Readiness | 8.2s |
+| Startup + Readiness + Liveness (`initialDelaySeconds: 10`) | 15.9s |
+
+Defining a probe delays the platform routing to the replica well past the point
+the replica is answering. In the third case nginx returned 200 to health probes
+continuously for **fourteen seconds** while the client's request was still
+queued upstream — the container was up, healthy, and idle, and the request was
+somewhere in Azure's ingress.
+
+The mechanism is not visible from outside Azure. What is visible is the cost, so
+the settings are chosen against these numbers:
+
+- **Liveness `initialDelaySeconds: 1`, not 10.** Worth 7.7s. A liveness probe
+  does not run until the startup probe has succeeded, so delaying it protects
+  nothing the startup probe is not already protecting. This is the single
+  largest saving in the whole exercise.
+- **Readiness asks nginx, not Django.** The startup probe has already
+  established that Django serves, and that only has to be true once.
+
+Volume mounts, by contrast, cost nothing measurable: an app with no mounts at
+all took *longer* to create its container than the real one with two. The phase
+between image pull and container start varies 6-11s regardless.
 
 ### The probe-timeout trap
 
