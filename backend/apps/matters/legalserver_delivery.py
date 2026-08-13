@@ -276,7 +276,6 @@ def save_document(
     origin,
     requested=True,
     scope_key="",
-    remote_name="",
     extra_fields=None,
     client=None,
 ):
@@ -287,7 +286,11 @@ def save_document(
     kind = LegalServerDelivery.DOCUMENT
     filename = (filename or "").strip() or "document.docx"
     title = (title or "").strip() or filename
-    remote_name = (remote_name or "").strip() or title
+    # LegalServer uses multipart `name` as the saved document filename.  The
+    # file part's filename alone is not enough: giving `name` the human title
+    # caused the case file to show an extensionless document even though the
+    # bytes and MIME type were DOCX.
+    remote_name = filename
     if not requested:
         return None
     if not content:

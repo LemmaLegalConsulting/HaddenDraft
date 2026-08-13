@@ -49,7 +49,10 @@ class DraftExportDeliveryTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTrue(response.content)
         self.assertEqual(response["X-LegalServer-Delivery"], "saved")
-        self.assertEqual(upload.call_args.kwargs["filename"], f"draft-{self.draft.id}.docx")
+        filename = f"answer-and-counterclaims-draft-{self.draft.id}.docx"
+        self.assertEqual(response["Content-Disposition"], f'attachment; filename="{filename}"')
+        self.assertEqual(upload.call_args.kwargs["filename"], filename)
+        self.assertEqual(upload.call_args.kwargs["extra_fields"]["name"], filename)
         delivery = LegalServerDelivery.objects.get()
         self.assertEqual(delivery.origin, "draft_export")
         self.assertEqual(delivery.scope_key, f"draft-export:draft:{self.draft.id}")
@@ -61,10 +64,11 @@ class DraftExportDeliveryTests(TestCase):
             self.client.get(f"/api/drafts/{self.draft.id}/export/")
 
         self.assertEqual(upload.call_count, 2)
-        self.assertEqual(upload.call_args.kwargs["replace_name"], f"Answer and counterclaims [draft-{self.draft.id}]")
+        filename = f"answer-and-counterclaims-draft-{self.draft.id}.docx"
+        self.assertEqual(upload.call_args.kwargs["replace_name"], filename)
         self.assertEqual(
             upload.call_args.kwargs["extra_fields"]["name"],
-            f"Answer and counterclaims [draft-{self.draft.id}]",
+            filename,
         )
         deliveries = list(LegalServerDelivery.objects.order_by("id"))
         self.assertFalse(deliveries[0].updated_existing)

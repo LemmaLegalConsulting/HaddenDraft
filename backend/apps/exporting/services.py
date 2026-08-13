@@ -6,6 +6,7 @@ from html import escape
 from pathlib import Path
 
 from django.http import HttpResponse
+from django.utils.text import slugify
 from docx import Document
 from docx.enum.table import WD_TABLE_ALIGNMENT
 from docx.enum.text import WD_ALIGN_PARAGRAPH
@@ -533,12 +534,29 @@ def render_docx_bytes(draft):
     return embed_ai_audit_metadata(content, draft_ai_audit(draft))
 
 
+def draft_export_filename(draft, extension="docx"):
+    """Give one draft the same readable, stable name everywhere it is saved."""
+    extension = str(extension or "docx").strip().lower().lstrip(".") or "docx"
+    title = str(getattr(draft, "title", "") or "").strip()
+    title = re.sub(rf"\.{re.escape(extension)}$", "", title, flags=re.IGNORECASE)
+    stem = slugify(title, allow_unicode=False)
+    identity = f"draft-{draft.id}"
+    if not stem or stem == "draft":
+        return f"{identity}.{extension}"
+
+    # Keep room for the stable identity and extension while avoiding unwieldy
+    # names from model-generated titles.
+    max_stem_length = max(1, 180 - len(identity) - len(extension) - 2)
+    stem = stem[:max_stem_length].rstrip("-") or "draft"
+    return f"{stem}-{identity}.{extension}"
+
+
 def export_docx(draft):
     response = HttpResponse(
         render_docx_bytes(draft),
         content_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
     )
-    response["Content-Disposition"] = f'attachment; filename="draft-{draft.id}.docx"'
+    response["Content-Disposition"] = f'attachment; filename="{draft_export_filename(draft)}"'
     return response
 
 
@@ -559,14 +577,15 @@ def export_document(draft):
     if not workbook_path:
         return export_docx(draft)
     with tempfile.TemporaryDirectory() as temp_dir:
-        output_path = Path(temp_dir) / f"draft-{draft.id}.xlsx"
+        filename = draft_export_filename(draft, "xlsx")
+        output_path = Path(temp_dir) / filename
         render_workbook(workbook_path, _docx_render_context(draft, {}), output_path)
         content = output_path.read_bytes()
     response = HttpResponse(
         content,
         content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
     )
-    response["Content-Disposition"] = f'attachment; filename="draft-{draft.id}.xlsx"'
+    response["Content-Disposition"] = f'attachment; filename="{filename}"'
     return response
 
 
