@@ -9,22 +9,102 @@ a latency reading on it.
 
 ## What the wait is made of
 
-Measured against production on 2026-08-13, from the replica lifecycle events:
+Measured against production on 2026-08-13, from the replica lifecycle events,
+*after* the probe and image work:
 
 | Phase | Time | Whose |
 |---|---|---|
-| Scheduling the replica onto a node | 2.4s | Azure |
-| Pulling the image | 3.9s | Azure |
-| Mounting the Azure Files shares | 10.6s | Azure |
-| Starting nginx and gunicorn | ~1.2s | ours |
-| Admitting traffic once started | the rest | ours, now tuned |
+| Scheduling the replica onto a node | 2-3s | Azure |
+| Pulling the image | ~4s | Azure |
+| Creating the container | 6-11s | Azure, and variable |
+| nginx and gunicorn up and listening | <1s | ours |
+| Routing the queued request to the ready replica | 4-16s | **set by the probes** |
 
-The total was 42 seconds. Roughly half of that was the readiness probe waiting
-on a fixed timer against an endpoint nginx answered before Django had loaded;
-that is fixed, and the probes now poll `/readyz` every second. What remains is
-mostly Azure's, and no amount of application tuning reaches it.
+The application is up and serving under a second after its container starts.
+Django is a rounding error in this. Everything else is the platform.
 
-**A cold start cannot be made to feel fast. It can only be avoided.**
+**A cold start cannot be made to feel fast. It can only be avoided.** But a
+surprising amount of it turned out to be self-inflicted, so measure before
+believing any attribution here — including the ones below, which replaced two
+earlier attributions that were wrong.
+
+### The probes cost far more than they look like they should
+
+Measured by deploying this same image to throwaway container apps in this
+environment that differed *only* in their probes, timing container start to
+first served request:
+
+| Probes defined | Container start → served |
+|---|---|
+| Startup only | 4.4s |
+| Startup + Readiness | 8.2s |
+| Startup + Readiness + Liveness (`initialDelaySeconds: 10`) | 15.9s |
+| Startup + Readiness + Liveness (`initialDelaySeconds: 1`) | 9.5s |
+
+Defining a probe delays the platform routing to the replica well past the point
+the replica is answering. In the third case nginx returned 200 to health probes
+continuously for **fourteen seconds** while the client's request was still
+queued upstream — the container was up, healthy, and idle, and the request was
+somewhere in Azure's ingress.
+
+The mechanism is not visible from outside Azure. What is visible is the cost, so
+the settings are chosen against these numbers:
+
+- **Liveness `initialDelaySeconds: 1`, not 10.** Worth 7.7s. A liveness probe
+  does not run until the startup probe has succeeded, so delaying it protects
+  nothing the startup probe is not already protecting. This is the single
+  largest saving in the whole exercise.
+- **Readiness asks nginx, not Django.** The startup probe has already
+  established that Django serves, and that only has to be true once.
+
+### Volume mounts cost nothing measurable
+
+Worth recording, because the opposite is the intuitive guess and acting on it
+would mean moving document storage off Azure Files onto blob or S3 — real work
+for no latency gain.
+
+Same method, adding the two Azure Files shares as the only difference:
+
+| Variant | Mounts | Probes | Start → served |
+|---|---|---|---|
+| Mountless | none | Startup + Readiness | 8.2s |
+| **Mounted** | **media + published** | production's set | **9.5s** |
+
+Roughly a second apart, and the mounted one started clean with no probe failures
+at all. The phase between image pull and container start — the one that *looks*
+like mounting, sitting where it does in the timeline — varies 6-11s whether two
+shares are attached or none.
+
+What does vary that much is which node the replica lands on. The same
+configuration measured 22.6s and 27.8s in consecutive runs, the difference being
+container creation (7.8s vs 10.5s) and whether the first probe caught nginx
+listening. **Treat any single cold-start measurement as ±5s**, and do not
+conclude anything from one run — including from the numbers above, each of which
+is one run.
+
+Storage portability is a fine reason to move off Azure Files, and
+[`apps/core/storage.py`](../backend/apps/core/storage.py) already has the
+abstraction with a complete S3 backend behind it. Cold start is not.
+
+### The probe-timeout trap
+
+Worth knowing if you ever touch the probes: **Container Apps caps a probe's
+effective timeout at its `periodSeconds`, whatever `timeoutSeconds` says.** A
+startup probe configured with `periodSeconds: 1, timeoutSeconds: 2` logs
+`Probe of StartUp failed with timeout in 1 seconds`.
+
+That turned polling *faster* into starting *slower*. Django's first request
+builds the URL resolver and middleware chain lazily, which takes more than a
+second on a cold replica, so each probe cut the request off before it finished
+and tried again — five times, six seconds, with the app sitting there able to
+answer.
+
+Two changes fixed it, and both are worth keeping:
+
+- The startup probe polls every 3s, so each attempt gets 3s to answer.
+- [`config/wsgi.py`](../backend/config/wsgi.py) drives one synthetic request at
+  import time, under gunicorn's `--preload`, so the lazy initialization happens
+  in the master before any probe arrives and every forked worker inherits it.
 
 ## Avoiding it: keep a replica warm
 
