@@ -3,6 +3,11 @@ import { expect, test } from "@playwright/test";
 const username = process.env.E2E_USERNAME;
 const password = process.env.E2E_PASSWORD;
 const legalserverIdentifier = process.env.E2E_LEGALSERVER_IDENTIFIER;
+// Same-origin by default. On the split deployment the app is served from a
+// static host and the API from a sibling subdomain, so a bare "/api" path here
+// would address the static host, which has no API on it.
+const apiBase = process.env.E2E_API_BASE || "/api";
+const api = (path) => `${apiBase}${path}`;
 
 const caseFiles = [
   { caseNumber: "26-0000045", client: "Eleanor Vance", notes: 1, documents: 4 },
@@ -67,17 +72,17 @@ async function login(page) {
   await page.getByLabel("Secret").fill(password);
   await page.getByRole("button", { name: "Sign in", exact: true }).click();
   await expect(page.getByRole("heading", { name: "Cases" })).toBeVisible();
-  const status = await page.request.get("/api/legalserver/account/");
+  const status = await page.request.get(api("/legalserver/account/"));
   const account = await status.json();
   if (!account.legalserver?.connected) {
-    const connected = await page.evaluate(async (identifier) => {
+    const connected = await page.evaluate(async ({ identifier, accountUrl }) => {
       const csrfToken = document.cookie
         .split("; ")
         .find((item) => item.startsWith("csrftoken="))
         ?.split("=")
         .slice(1)
         .join("=");
-      const response = await fetch("/api/legalserver/account/", {
+      const response = await fetch(accountUrl, {
         method: "POST",
         credentials: "include",
         headers: {
@@ -87,7 +92,7 @@ async function login(page) {
         body: JSON.stringify({ identifier }),
       });
       return { ok: response.ok, body: await response.text() };
-    }, legalserverIdentifier);
+    }, { identifier: legalserverIdentifier, accountUrl: api("/legalserver/account/") });
     expect(connected.ok, `connect the dedicated browser user to LegalServer: ${connected.body}`).toBeTruthy();
     await page.reload();
     await expect(page.getByLabel("Search LegalServer matters")).toBeVisible();
@@ -112,7 +117,7 @@ test.describe("LegalServer sample case files", () => {
   test("representative housing matters expose their live v2 notes and documents", async ({ page }) => {
     await login(page);
     for (const item of caseFiles) {
-      const response = await page.request.get(`/api/cases/${item.caseNumber}/materials/`);
+      const response = await page.request.get(api(`/cases/${item.caseNumber}/materials/`));
       expect(response.ok(), `${item.caseNumber} materials response`).toBeTruthy();
       const payload = await response.json();
       expect(payload.summary.noteCount, `${item.caseNumber} note count`).toBeGreaterThanOrEqual(item.notes);

@@ -178,6 +178,23 @@ if env_bool("DJANGO_TRUST_PROXY_SSL_HEADER", False):
 SESSION_COOKIE_SECURE = env_bool("DJANGO_SESSION_COOKIE_SECURE", not DEBUG)
 CSRF_COOKIE_SECURE = env_bool("DJANGO_CSRF_COOKIE_SECURE", not DEBUG)
 SESSION_COOKIE_HTTPONLY = True
+
+# Set to the parent domain (".example.org") when the app and the API are served
+# from sibling subdomains, which is how the split deployment runs: the app comes
+# from a static host that is warm while the API's container is still waking.
+#
+# The CSRF cookie is the one that has to be scoped. It is deliberately readable
+# by JavaScript -- the frontend copies it into the X-CSRFToken header -- and a
+# cookie set by the API host is invisible to script on the app host unless it
+# names the parent domain. Without this every unsafe request fails 403 while
+# every GET keeps working, which reads as "saving is broken" rather than as a
+# cookie problem.
+#
+# The session cookie needs no such help: it is HttpOnly and only has to be sent
+# to the API, which the browser does for a same-site request. It is settable
+# anyway for deployments that want one scope for both.
+CSRF_COOKIE_DOMAIN = os.environ.get("DJANGO_CSRF_COOKIE_DOMAIN") or None
+SESSION_COOKIE_DOMAIN = os.environ.get("DJANGO_SESSION_COOKIE_DOMAIN") or None
 CSRF_COOKIE_HTTPONLY = env_bool("DJANGO_CSRF_COOKIE_HTTPONLY", False)
 SECURE_SSL_REDIRECT = env_bool("DJANGO_SECURE_SSL_REDIRECT", False)
 SECURE_HSTS_SECONDS = int(os.environ.get("DJANGO_SECURE_HSTS_SECONDS", "0" if DEBUG else "31536000"))
