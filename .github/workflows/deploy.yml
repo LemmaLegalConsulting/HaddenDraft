@@ -25,7 +25,18 @@ env:
   IMAGE_REPO: agentic-housing-drafting
   CONTAINER_APP: agentic-housing-app
   BOOTSTRAP_JOB: agentic-housing-bootstrap
-  SITE_URL: https://cle-draft.lemmalegal.com
+  STATIC_APP: agentic-housing-web
+
+  # Two hostnames, because the app and the API are hosted separately: the app
+  # from a static host that is always warm, the API from a container that scales
+  # to zero. Repository *variables* rather than literals so that moving a
+  # hostname -- binding the custom domains, for instance -- is a settings change
+  # and not a commit. Defaults are the pre-custom-domain hostnames.
+  #
+  #   gh variable set APP_URL --body https://cle-draft.lemmalegal.com
+  #   gh variable set API_URL --body https://api.cle-draft.lemmalegal.com
+  APP_URL: ${{ vars.APP_URL || 'https://jolly-grass-096c65c10.7.azurestaticapps.net' }}
+  API_URL: ${{ vars.API_URL || 'https://cle-draft.lemmalegal.com' }}
 
 jobs:
   test:
@@ -151,32 +162,98 @@ jobs:
           az containerapp update -g "$AZURE_RESOURCE_GROUP" -n "$CONTAINER_APP" \
             --image "${{ steps.build.outputs.image }}" -o none
 
-      - name: Verify the site is serving
+      # The API goes first, deliberately. The app is the client; publishing it
+      # ahead of the API it calls would put a build that expects new endpoints
+      # in front of a deployment that does not have them yet.
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Build the app against the deployed API
+        run: npm ci && VITE_API_BASE="${API_URL}/api" npm run build
+        working-directory: frontend
+
+      - name: Publish the app to Static Web Apps
         run: |
           set -Eeuo pipefail
-          # The app scales to zero, so the first request also pays a cold start.
+          # staticwebapp.config.json has to be inside the uploaded directory or
+          # Static Web Apps never reads it, and every deep link 404s instead of
+          # falling back to index.html.
+          cp frontend/staticwebapp.config.json frontend/dist/
+          # Read the deployment token through the OIDC login that is already
+          # established, rather than storing a second long-lived secret whose
+          # rotation nobody would remember.
+          TOKEN="$(az staticwebapp secrets list -g "$AZURE_RESOURCE_GROUP" \
+            -n "$STATIC_APP" --query properties.apiKey -o tsv)"
+          npx --yes @azure/static-web-apps-cli@latest deploy frontend/dist \
+            --deployment-token "$TOKEN" --env production
+
+      - name: Verify the API is serving
+        run: |
+          set -Eeuo pipefail
+          # The API scales to zero, so the first request also pays a cold start.
           for attempt in $(seq 1 45); do
-            CODE="$(curl -s -o /dev/null -m 30 -w '%{http_code}' "$SITE_URL/healthz" || echo 000)"
+            CODE="$(curl -s -o /dev/null -m 30 -w '%{http_code}' "$API_URL/healthz" || echo 000)"
             if [ "$CODE" = "200" ]; then
-              echo "Healthy: $SITE_URL"
+              echo "Healthy: $API_URL"
               break
             fi
-            [ "$attempt" -eq 45 ] && { echo "::error::$SITE_URL/healthz never returned 200 (last: $CODE)"; exit 1; }
+            [ "$attempt" -eq 45 ] && { echo "::error::$API_URL/healthz never returned 200 (last: $CODE)"; exit 1; }
             sleep 4
           done
 
           # Django rendering a login page proves the managed database is
           # reachable, which /healthz (answered by nginx) deliberately does not.
-          LOGIN="$(curl -s -o /dev/null -m 30 -w '%{http_code}' "$SITE_URL/admin/login/")"
+          LOGIN="$(curl -s -o /dev/null -m 30 -w '%{http_code}' "$API_URL/admin/login/")"
           [ "$LOGIN" = "200" ] || { echo "::error::/admin/login/ returned $LOGIN"; exit 1; }
           echo "Database-backed page renders."
 
           # A redirect to http:// here means Django stopped honouring
           # X-Forwarded-Proto, which silently breaks secure cookies and CSRF.
-          TARGET="$(curl -s -o /dev/null -m 30 -w '%{redirect_url}' "$SITE_URL/admin/")"
+          TARGET="$(curl -s -o /dev/null -m 30 -w '%{redirect_url}' "$API_URL/admin/")"
           case "$TARGET" in
             https://*) echo "HTTPS redirect intact: $TARGET" ;;
             *) echo "::error::/admin/ redirected to a non-HTTPS URL: $TARGET"; exit 1 ;;
+          esac
+
+      - name: Verify the app is serving and can reach the API
+        run: |
+          set -Eeuo pipefail
+          # The static host is always warm; anything slow here is a real fault,
+          # not a cold start, so this does not retry for a minute the way the
+          # API check does.
+          CODE="$(curl -s -o /dev/null -m 30 -w '%{http_code}' "$APP_URL/")"
+          [ "$CODE" = "200" ] || { echo "::error::$APP_URL/ returned $CODE"; exit 1; }
+
+          # A deep link must fall back to index.html. If staticwebapp.config.json
+          # failed to reach the upload, this 404s and every refresh on a subpage
+          # breaks while the home page keeps working.
+          DEEP="$(curl -s -o /dev/null -m 30 -w '%{http_code}' "$APP_URL/draft/anything")"
+          [ "$DEEP" = "200" ] || { echo "::error::SPA fallback is not configured ($DEEP)"; exit 1; }
+
+          # The app and the API are separate origins now, so the API has to
+          # allow this one by name. Without it every request from the app fails
+          # in the browser while curl against the API keeps looking fine --
+          # which is exactly how this breaks unnoticed.
+          CORS="$(curl -s -i -m 30 -X OPTIONS "$API_URL/api/bootstrap/" \
+            -H "Origin: $APP_URL" -H 'Access-Control-Request-Method: GET' \
+            | tr -d '\r' | grep -i '^access-control-allow-origin:' || true)"
+          case "$CORS" in
+            *"$APP_URL"*) echo "CORS allows the app origin." ;;
+            *) echo "::error::API does not allow Origin $APP_URL. Set DJANGO_CORS_ALLOWED_ORIGINS and run scripts/deploy_azure_containerapps.sh"; exit 1 ;;
+          esac
+
+          # Download filenames and LegalServer save status ride on response
+          # headers a cross-origin caller cannot read unless they are exposed.
+          # Omitting them fails silently: the header arrives, the browser hides
+          # it, and the feature quietly does nothing.
+          EXPOSED="$(curl -s -i -m 30 "$API_URL/readyz" -H "Origin: $APP_URL" \
+            | tr -d '\r' | grep -i '^access-control-expose-headers:' || true)"
+          case "$(echo "$EXPOSED" | tr 'A-Z' 'a-z')" in
+            *content-disposition*x-legalserver-delivery*) echo "Response headers exposed." ;;
+            *) echo "::error::API is not exposing Content-Disposition and X-LegalServer-* to $APP_URL"; exit 1 ;;
           esac
 
       - name: Summary
@@ -189,5 +266,6 @@ jobs:
             echo "|---|---|"
             echo "| Image | \`${{ steps.build.outputs.image }}\` |"
             echo "| Commit | ${GITHUB_SHA::12} |"
-            echo "| Site | $SITE_URL |"
+            echo "| App | $APP_URL |"
+            echo "| API | $API_URL |"
           } >> "$GITHUB_STEP_SUMMARY"

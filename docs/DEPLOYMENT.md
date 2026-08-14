@@ -39,6 +39,83 @@ agentic-housing-app` attaches to a running replica — but note the app scales t
 zero, so send a request first to wake one. A temporary jumpbox in the `default`
 subnet is the fallback if you need `psql` directly.
 
+## Two hosts, not one
+
+The app and the API are deployed separately:
+
+```text
+cle-draft.lemmalegal.com        Azure Static Web Apps (Free)   the built SPA
+api.cle-draft.lemmalegal.com    Azure Container Apps           Django + nginx
+```
+
+The reason is cold start. The API scales to zero and takes something like twenty
+seconds to wake. When nginx *inside that same container* was also what served
+`index.html`, nobody saw anything at all for those twenty seconds — a blank tab
+with no way to explain itself, because the thing that would do the explaining
+was the thing still starting. Served from a static host that is always warm, the
+page paints in under a second and the wait becomes visible and named while the
+first API call wakes the container. See
+[`frontend/src/api/wakeNotice.js`](../frontend/src/api/wakeNotice.js).
+
+**They must be sibling subdomains of one registrable domain.** A cookie is
+*same-site* across subdomains of `lemmalegal.com`, so the session survives on an
+ordinary `SameSite=Lax` cookie. Hosting the app on an unrelated name — the
+default `*.azurestaticapps.net`, say — makes the session a third-party cookie,
+which Safari and Firefox drop. That failure looks exactly like login silently
+not working, so it is worth stating plainly rather than discovering.
+
+What this costs, and where each piece lives:
+
+| Concern | Where |
+|---|---|
+| CORS, and which origins may send credentials | `DJANGO_CORS_ALLOWED_ORIGINS` |
+| CSRF for cross-origin POSTs | `DJANGO_CSRF_TRUSTED_ORIGINS` |
+| Where the SPA sends API calls | `VITE_API_BASE`, baked in at build time |
+| Where Django sends people after OAuth | `FRONTEND_SITE_URL` |
+| Response headers the browser may reveal | `CorsMiddleware.EXPOSED_HEADERS` |
+
+That last one is the subtle one. `Content-Disposition` carries download
+filenames and four `X-LegalServer-*` headers carry whether a save landed. A
+cross-origin caller cannot read any of them unless the server names them, and
+the failure is *silent*: the header arrives, `headers.get()` returns null, and
+the feature quietly does nothing. Adding a response header the frontend reads
+means adding it to that tuple too.
+
+### Publishing the app
+
+```bash
+./scripts/deploy_static_frontend.sh
+```
+
+Merging to `main` does this as well, after the API rolls — the app is the
+client, so publishing it ahead of the API it calls would put a build expecting
+new endpoints in front of a deployment that lacks them.
+
+### The DNS records
+
+`lemmalegal.com` is hosted at SiteGround, not Azure, so these have to be added
+there by hand. Bind the custom domain in Azure first to get the validation
+token, then:
+
+| Host | Type | Value |
+|---|---|---|
+| `cle-draft` | CNAME | the Static Web App's `defaultHostname` |
+| `api.cle-draft` | CNAME | the Container App's ingress FQDN |
+| `_dnsauth.cle-draft` | TXT | validation token from `az staticwebapp hostname` |
+| `asuid.api.cle-draft` | TXT | validation token from `az containerapp hostname` |
+
+Then move the two repository variables so CI verifies the right hosts:
+
+```bash
+gh variable set APP_URL --body https://cle-draft.lemmalegal.com
+gh variable set API_URL --body https://api.cle-draft.lemmalegal.com
+```
+
+and re-run `scripts/deploy_azure_containerapps.sh` so the API's allowed origins
+and `FRONTEND_SITE_URL` follow. The cutover moves `cle-draft` from the container
+app to the static app, so do it when a few minutes of inconsistency is
+acceptable.
+
 ## Decisions worth knowing
 
 - **Migrations do not run at container start.** `docker/bootstrap.sh` runs as a

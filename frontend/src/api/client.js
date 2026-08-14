@@ -1,3 +1,4 @@
+import { adminUrlFrom } from "./urls.js";
 import { trackRequest } from "./wakeNotice.js";
 
 const API_BASE = import.meta.env.VITE_API_BASE || "/api";
@@ -198,5 +199,5 @@ export const api = {
     request(`/advice-letters/drafts/${draftId}/export/`, { method: "POST", body: JSON.stringify(payload) }),
   adviceLetterDraftToLegalServer: (draftId, payload = {}) =>
     request(`/advice-letters/drafts/${draftId}/legalserver/`, { method: "POST", body: JSON.stringify(payload) }),
-  adminUrl: () => "/admin/",
+  adminUrl: () => adminUrlFrom(API_BASE, window.location.origin),
 };

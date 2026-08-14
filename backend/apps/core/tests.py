@@ -171,3 +171,70 @@ class ReadinessProbeTests(TestCase):
         # once. Nothing here may touch the connection.
         with self.assertNumQueries(0):
             self.client.get("/readyz")
+
+
+@override_settings(
+    CORS_ALLOWED_ORIGINS=["https://cle-draft.lemmalegal.com"],
+    MIDDLEWARE=[
+        "django.middleware.security.SecurityMiddleware",
+        "django.contrib.sessions.middleware.SessionMiddleware",
+        "apps.core.middleware.CorsMiddleware",
+        "django.middleware.common.CommonMiddleware",
+        "django.middleware.csrf.CsrfViewMiddleware",
+        "django.contrib.auth.middleware.AuthenticationMiddleware",
+        "django.contrib.messages.middleware.MessageMiddleware",
+    ],
+)
+class CorsMiddlewareTests(TestCase):
+    """Cross-origin access for the split deployment, where the app is served
+    from a static host and the API from a sibling subdomain."""
+
+    APP_ORIGIN = "https://cle-draft.lemmalegal.com"
+
+    def test_allowed_origin_may_send_credentials(self):
+        response = self.client.get("/readyz", headers={"origin": self.APP_ORIGIN})
+
+        self.assertEqual(response["Access-Control-Allow-Origin"], self.APP_ORIGIN)
+        self.assertEqual(response["Access-Control-Allow-Credentials"], "true")
+        # Without this a cache could hand one origin's response to another.
+        self.assertEqual(response["Vary"], "Origin")
+
+    def test_unknown_origin_gets_no_cors_headers(self):
+        response = self.client.get("/readyz", headers={"origin": "https://not-ours.example"})
+
+        self.assertNotIn("Access-Control-Allow-Origin", response)
+
+    def test_preflight_is_answered_without_reaching_a_view(self):
+        response = self.client.options(
+            "/api/author-profile/",
+            headers={"origin": self.APP_ORIGIN, "access-control-request-method": "PATCH"},
+        )
+
+        self.assertEqual(response.status_code, 204)
+        self.assertIn("PATCH", response["Access-Control-Allow-Methods"])
+        self.assertIn("x-csrftoken", response["Access-Control-Allow-Headers"])
+
+    def test_preflight_from_an_unknown_origin_is_refused(self):
+        response = self.client.options(
+            "/api/author-profile/",
+            headers={"origin": "https://not-ours.example", "access-control-request-method": "PATCH"},
+        )
+
+        self.assertEqual(response.status_code, 403)
+
+    def test_headers_the_frontend_reads_are_exposed(self):
+        # Every one of these fails silently when unexposed: the header arrives,
+        # headers.get() returns null, and the feature quietly does nothing.
+        # Content-Disposition carries download filenames; the LegalServer ones
+        # carry whether a save actually landed.
+        response = self.client.get("/readyz", headers={"origin": self.APP_ORIGIN})
+        exposed = {h.strip().lower() for h in response["Access-Control-Expose-Headers"].split(",")}
+
+        self.assertIn("content-disposition", exposed)
+        for header in (
+            "x-legalserver-delivery",
+            "x-legalserver-delivery-message",
+            "x-legalserver-ai-audit",
+            "x-legalserver-ai-audit-message",
+        ):
+            self.assertIn(header, exposed)

@@ -80,7 +80,11 @@ ENABLE_REMOTE_USER_AUTH = env_bool("ENABLE_REMOTE_USER_AUTH", False)
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
-    *( ["apps.core.middleware.DevCorsMiddleware"] if DEBUG else [] ),
+    # Only when some origin is actually allowed. In development that is the
+    # Vite dev server; in production it is the static host the single-page app
+    # is served from, and an empty list means the app is same-origin and no
+    # cross-origin handling should exist at all.
+    *( ["apps.core.middleware.CorsMiddleware"] if CORS_ALLOWED_ORIGINS else [] ),
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
