@@ -15,10 +15,10 @@ Measured against production on 2026-08-13, from the replica lifecycle events,
 | Phase | Time | Whose |
 |---|---|---|
 | Scheduling the replica onto a node | 2-3s | Azure |
-| Pulling the image | ~4s | Azure |
+| Pulling the image | ~4s | Azure, and not much a smaller image changes |
 | Creating the container | 6-11s | Azure, and variable |
 | nginx and gunicorn up and listening | <1s | ours |
-| Routing the queued request to the ready replica | 4-16s | **set by the probes** |
+| Routing the queued request to the ready replica | 4-13s | Azure |
 
 The application is up and serving under a second after its container starts.
 Django is a rounding error in this. Everything else is the platform.
@@ -56,6 +56,47 @@ the settings are chosen against these numbers:
   largest saving in the whole exercise.
 - **Readiness asks nginx, not Django.** The startup probe has already
   established that Django serves, and that only has to be true once.
+
+### What did not work, measured in production
+
+Two changes that the controlled experiments predicted would help, and did not.
+Recorded because the reasoning was sound and the result still came out flat, and
+because the next person will otherwise have the same two ideas.
+
+| | Predicted | Delivered |
+|---|---|---|
+| Image 528MB → 476MB (156 → 111MB compressed) | 4-6s | ~0.1s |
+| Probes reduced to startup only | ~5s | ~0 |
+
+**Image size does not drive container creation in the range that matters.** The
+hello-world test showed 2.1s creation at ~20MB against 6-11s at 528MB, which
+looked like a straight line worth riding down. It is not one: 476MB and 528MB
+both create in ~10.4s. Something else dominates above some threshold, and 50MB
+either way is beneath it.
+
+**The probe result did not transfer from the scratch apps.** A throwaway app
+with a startup probe alone served 4.4s after container start; production with
+the same probe configuration takes ~12.8s. The scratch apps had no volume
+mounts, no secrets, no database, and had just been created. They measured
+something real about themselves and predicted nothing about production.
+
+Both changes are still in place — a smaller image and less configuration are
+worth having on their own terms — but neither is a cold-start fix, and the
+totals below have not moved:
+
+| Date | Change | Cold start |
+|---|---|---|
+| 2026-08-13 | baseline | 42s |
+| 2026-08-13 | probes on `/readyz`, slimmer image, `--preload` | 38.7s |
+| 2026-08-13 | startup probe timeout + wsgi warm-up | 33.0s |
+| 2026-08-13 | liveness `initialDelaySeconds` 10 → 1 | 27.8s |
+| 2026-08-14 | image slimming + startup probe only | 29.1s |
+
+The lesson worth keeping: of everything tried, only the probe *timing* work
+moved the number, and it moved it once. Everything after that has been flat.
+**Assume the remaining time is Azure's until a measurement says otherwise, and
+do not spend effort against a projection that has not been measured in
+production.**
 
 ### Volume mounts cost nothing measurable
 
