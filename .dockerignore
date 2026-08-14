@@ -21,3 +21,13 @@ media
 private-content
 **/__pycache__
 *.pyc
+
+# Nothing the running container reads. Every megabyte here is pulled and
+# unpacked on a cold start, which is measurably a function of image size.
+docs
+brainstorming
+clickable_prototype.js
+.agents
+.codex
+.claude
+.github

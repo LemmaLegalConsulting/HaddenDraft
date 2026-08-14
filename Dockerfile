@@ -6,22 +6,37 @@ RUN npm ci
 COPY frontend/ ./
 RUN npm run build
 
-# Stage 2: Build Backend & Setup Server
+# Stage 2: Python dependencies, built and slimmed in a stage that is thrown away
+FROM python:3.12-slim AS pydeps
+
+# Dependencies are installed into a virtualenv in a throwaway stage, slimmed
+# there, and only the result is copied into the runtime image. Doing the removal
+# in a later layer of a single-stage build saves nothing: layers are additive, a
+# delete writes a whiteout, and the bytes stay in the image. That mistake cost
+# this file a round trip -- the slimming script reported 24MB removed and the
+# image did not change size at all.
+#
+# What is NOT removed, deliberately: babel's locale-data (docxcompose formats
+# document properties through it), nltk (textstat imports it) and setuptools
+# (textstat declares it at runtime). They are the largest things left and all
+# three are load-bearing. Alpine was measured too and is a wash -- its smaller
+# base is cancelled out by larger musl wheels.
+COPY requirements.txt .
+COPY docker/slim_site_packages.py /tmp/
+RUN python -m venv /opt/venv \
+    && /opt/venv/bin/pip install --no-cache-dir -r requirements.txt gunicorn \
+    && /opt/venv/bin/python /tmp/slim_site_packages.py
+
+# Stage 3: the image that actually runs
 FROM python:3.12-slim
 WORKDIR /app
 
-# Nginx is the only system package the running container needs. gcc and
-# libpq-dev used to be installed here for building Python extensions, but every
-# pinned dependency ships a manylinux wheel and psycopg[binary] bundles its own
-# libpq, so nothing is compiled at install time. Dropping them takes ~200MB off
-# the image, which is ~200MB less to pull on a scale-from-zero cold start.
 RUN apt-get update && apt-get install -y --no-install-recommends \
     nginx \
     && rm -rf /var/lib/apt/lists/*
 
-# Install Python dependencies
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt gunicorn
+COPY --from=pydeps /opt/venv /opt/venv
+ENV PATH="/opt/venv/bin:$PATH"
 
 # Copy all project files
 COPY . .

@@ -213,44 +213,24 @@ def main() -> int:
                                 "timeoutSeconds": 3,
                                 "failureThreshold": 20,
                             },
-                            {
-                                # nginx, not Django -- deliberately, and not the
-                                # same call the startup probe makes.
-                                #
-                                # The startup probe above has already established
-                                # that Django serves before any traffic arrives,
-                                # and it only has to be true once. Re-asking
-                                # Django forever afterwards makes readiness
-                                # depend on a free gunicorn worker, and there are
-                                # three synchronous ones: a few concurrent
-                                # drafting or chat calls occupy all of them for
-                                # longer than this threshold allows, at which
-                                # point the platform would pull a perfectly
-                                # healthy replica out of rotation and restart it,
-                                # discarding exactly the long-running work that
-                                # caused it. Asking nginx cannot starve.
-                                "type": "Readiness",
-                                "httpGet": {"path": "/healthz", "port": 80},
-                                "initialDelaySeconds": 0,
-                                "periodSeconds": 2,
-                                "timeoutSeconds": 2,
-                                "failureThreshold": 6,
-                            },
-                            {
-                                "type": "Liveness",
-                                "httpGet": {"path": "/healthz", "port": 80},
-                                # 1, not 10. A liveness probe does not run until
-                                # the startup probe has succeeded, so delaying it
-                                # protects nothing that the startup probe is not
-                                # already protecting -- but it measurably delayed
-                                # the platform routing to the replica, by 7.7s of
-                                # the 15.9s above. This is the single largest
-                                # saving available in this file.
-                                "initialDelaySeconds": 1,
-                                "periodSeconds": 30,
-                                "timeoutSeconds": 5,
-                                "failureThreshold": 3,
-                            },
+                            # And deliberately nothing else.
+                            #
+                            # Container Apps supplies its own readiness and
+                            # liveness probes when an app defines none, and its
+                            # TCP defaults are evidently cheaper for the platform
+                            # to settle than custom HTTP ones: the same image
+                            # with a startup probe alone was serving 4.4s after
+                            # container start, against 9.5s with all three
+                            # defined. Five seconds, for deleting configuration.
+                            #
+                            # Nothing is given up that matters here. The startup
+                            # probe still asks Django, so no traffic reaches a
+                            # replica whose gunicorn has not loaded -- that
+                            # guarantee is the whole reason /readyz exists. The
+                            # default liveness probe still restarts a container
+                            # that stops accepting connections. What goes away is
+                            # an HTTP readiness check that only ever repeated
+                            # what the startup probe had already established.
                         ],
                     }
                 ],
