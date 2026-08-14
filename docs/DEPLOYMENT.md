@@ -93,28 +93,78 @@ new endpoints in front of a deployment that lacks them.
 
 ### The DNS records
 
-`lemmalegal.com` is hosted at SiteGround, not Azure, so these have to be added
-there by hand. Bind the custom domain in Azure first to get the validation
-token, then:
+`lemmalegal.com` is hosted at SiteGround, not Azure, so these are added there by
+hand. `cle-draft` already exists and points at the container app, so this is a
+move rather than a clean addition — **do it in two phases**, because the app
+cannot be pointed at the static host until the API answers on its own name.
+
+Both are subdomains, which decides the validation method for each: Container
+Apps wants an `asuid.` TXT record, Static Web Apps validates a subdomain from
+the CNAME itself and needs no TXT. (A TXT record *is* required for a Static Web
+App on an apex domain — not the case here.)
+
+**Phase 1 — give the API its own hostname.** Nothing is serving on it yet, so
+this disturbs nothing.
 
 | Host | Type | Value |
 |---|---|---|
-| `cle-draft` | CNAME | the Static Web App's `defaultHostname` |
-| `api.cle-draft` | CNAME | the Container App's ingress FQDN |
-| `_dnsauth.cle-draft` | TXT | validation token from `az staticwebapp hostname` |
-| `asuid.api.cle-draft` | TXT | validation token from `az containerapp hostname` |
+| `asuid.api.cle-draft` | TXT | the container app's `customDomainVerificationId` |
+| `api.cle-draft` | CNAME | the container app's ingress FQDN |
 
-Then move the two repository variables so CI verifies the right hosts:
+```bash
+az containerapp show -g agentic-housing-rg -n agentic-housing-app \
+  --query "{fqdn:properties.configuration.ingress.fqdn,asuid:properties.customDomainVerificationId}" -o json
+
+az containerapp hostname add -g agentic-housing-rg -n agentic-housing-app \
+  --hostname api.cle-draft.lemmalegal.com
+az containerapp hostname bind -g agentic-housing-rg -n agentic-housing-app \
+  --hostname api.cle-draft.lemmalegal.com --environment agentic-housing-env \
+  --validation-method CNAME
+```
+
+Then point the API at itself and rebuild the app against it:
+
+```bash
+# .env.containerapps
+#   DJANGO_ALLOWED_HOSTS       += api.cle-draft.lemmalegal.com
+#   DJANGO_CSRF_TRUSTED_ORIGINS += https://cle-draft.lemmalegal.com
+#   DJANGO_CORS_ALLOWED_ORIGINS  = https://cle-draft.lemmalegal.com
+#   DJANGO_CSRF_COOKIE_DOMAIN    = .lemmalegal.com
+#   FRONTEND_SITE_URL            = https://cle-draft.lemmalegal.com
+./scripts/deploy_azure_containerapps.sh
+VITE_API_BASE=https://api.cle-draft.lemmalegal.com/api ./scripts/deploy_static_frontend.sh
+```
+
+`DJANGO_CSRF_COOKIE_DOMAIN` is the one to not forget. The frontend copies the
+CSRF token out of `document.cookie`, and a cookie set by `api.cle-draft` is
+invisible to script on `cle-draft` unless it names the parent domain. Left
+unset, every save fails 403 while everything else keeps working.
+
+**Phase 2 — move the app hostname.** This is the cutover; allow a few minutes of
+inconsistency.
+
+| Host | Type | Value |
+|---|---|---|
+| `cle-draft` | CNAME | the static web app's `defaultHostname` — **replaces** the record pointing at the container app |
+
+```bash
+az containerapp hostname delete -g agentic-housing-rg -n agentic-housing-app \
+  --hostname cle-draft.lemmalegal.com
+az staticwebapp hostname set -g agentic-housing-rg -n agentic-housing-web \
+  --hostname cle-draft.lemmalegal.com --validation-method cname-delegation
+```
+
+Finally, point CI at the real hostnames:
 
 ```bash
 gh variable set APP_URL --body https://cle-draft.lemmalegal.com
 gh variable set API_URL --body https://api.cle-draft.lemmalegal.com
 ```
 
-and re-run `scripts/deploy_azure_containerapps.sh` so the API's allowed origins
-and `FRONTEND_SITE_URL` follow. The cutover moves `cle-draft` from the container
-app to the static app, so do it when a few minutes of inconsistency is
-acceptable.
+Worth checking once DNS is live, because the local harness separates the app and
+the API by *port* and cookies ignore ports — so the cookie-domain behaviour is
+the one thing it could not exercise: sign in, then save something (a profile
+edit will do). A 403 there means `DJANGO_CSRF_COOKIE_DOMAIN` did not take.
 
 ## Decisions worth knowing
 
