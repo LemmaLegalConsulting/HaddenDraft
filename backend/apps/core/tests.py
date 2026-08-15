@@ -238,3 +238,79 @@ class CorsMiddlewareTests(TestCase):
             "x-legalserver-ai-audit-message",
         ):
             self.assertIn(header, exposed)
+
+
+class ChangePasswordTests(TestCase):
+    """Changing your own password, which until now nobody could do."""
+
+    def setUp(self):
+        self.user = User.objects.create_user(username="advocate", password="original-password-9271")
+        self.client.force_login(self.user)
+
+    def test_a_correct_current_password_replaces_it(self):
+        response = self.client.post(
+            "/api/auth/change-password/",
+            data=json.dumps({"currentPassword": "original-password-9271", "newPassword": "replacement-password-4417"}),
+            content_type="application/json",
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.user.refresh_from_db()
+        self.assertTrue(self.user.check_password("replacement-password-4417"))
+
+    def test_the_session_survives_the_change(self):
+        # Changing a password rotates the hash the session is keyed against, so
+        # without update_session_auth_hash this signs you out of the very tab
+        # you did it in.
+        self.client.post(
+            "/api/auth/change-password/",
+            data=json.dumps({"currentPassword": "original-password-9271", "newPassword": "replacement-password-4417"}),
+            content_type="application/json",
+        )
+
+        still_here = self.client.get("/api/auth/me/")
+        self.assertTrue(still_here.json()["user"]["isAuthenticated"])
+
+    def test_the_wrong_current_password_changes_nothing(self):
+        response = self.client.post(
+            "/api/auth/change-password/",
+            data=json.dumps({"currentPassword": "not-the-password", "newPassword": "replacement-password-4417"}),
+            content_type="application/json",
+        )
+
+        self.assertEqual(response.status_code, 400)
+        self.user.refresh_from_db()
+        self.assertTrue(self.user.check_password("original-password-9271"))
+
+    @override_settings(
+        AUTH_PASSWORD_VALIDATORS=[
+            {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator", "OPTIONS": {"min_length": 12}},
+        ]
+    )
+    def test_a_weak_new_password_is_refused_with_the_reason(self):
+        response = self.client.post(
+            "/api/auth/change-password/",
+            data=json.dumps({"currentPassword": "original-password-9271", "newPassword": "short"}),
+            content_type="application/json",
+        )
+
+        self.assertEqual(response.status_code, 400)
+        self.assertIn("12 characters", response.json()["error"])
+        self.user.refresh_from_db()
+        self.assertTrue(self.user.check_password("original-password-9271"))
+
+    def test_signed_out_callers_cannot_change_anything(self):
+        self.client.logout()
+
+        response = self.client.post(
+            "/api/auth/change-password/",
+            data=json.dumps({"currentPassword": "original-password-9271", "newPassword": "replacement-password-4417"}),
+            content_type="application/json",
+        )
+
+        self.assertEqual(response.status_code, 401)
+
+    def test_get_is_not_a_way_to_do_this(self):
+        response = self.client.get("/api/auth/change-password/")
+
+        self.assertEqual(response.status_code, 405)

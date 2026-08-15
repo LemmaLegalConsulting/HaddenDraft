@@ -4543,6 +4543,24 @@ button:disabled {
   font-size: 11px;
 }
 
+/* Sits below the author fields in the profile dialog, so it needs a heading to
+   separate it rather than reading as more of the same form. */
+.password-heading {
+  border-top: 1px solid var(--bux-gray-light-70, #dfe3e8);
+  font-size: 15px;
+  margin: 4px 0 0;
+  padding-top: 16px;
+}
+
+.password-done {
+  align-items: center;
+  color: #1c6b4a;
+  display: flex;
+  font-size: 13px;
+  gap: 6px;
+  margin: 0;
+}
+
 /* Pinned across the top rather than placed in the layout: the request that is
    waiting could have come from anywhere on the page, and the reader may well
    have scrolled somewhere else while waiting for it. */

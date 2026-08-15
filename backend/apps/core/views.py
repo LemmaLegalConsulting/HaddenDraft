@@ -6,7 +6,9 @@ from urllib.parse import urlencode
 
 import requests
 from django.conf import settings
-from django.contrib.auth import authenticate, get_user_model, login, logout
+from django.contrib.auth import authenticate, get_user_model, login, logout, update_session_auth_hash
+from django.contrib.auth.password_validation import validate_password
+from django.core.exceptions import ValidationError as DjangoValidationError
 from django.db import OperationalError, ProgrammingError
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import redirect
@@ -144,6 +146,42 @@ def auth_user_to_dict(user):
 @ensure_csrf_cookie
 def me(request):
     return JsonResponse({"user": auth_user_to_dict(request.user)})
+
+
+@api_login_required
+def change_password(request):
+    """Let a signed-in user change their own password.
+
+    Accounts are created by an administrator, who necessarily knows the
+    password they set. Until there was a way to change it, every account was
+    permanently using a password someone else had also seen -- including over
+    whatever channel it was delivered.
+
+    The current password is required even though the session already proves who
+    this is: it is what stops an unattended screen being enough to lock the real
+    owner out of their account.
+    """
+    if request.method != "POST":
+        return method_not_allowed(["POST"])
+    body = json_body(request)
+    current = body.get("currentPassword") or ""
+    replacement = body.get("newPassword") or ""
+
+    if not request.user.check_password(current):
+        return JsonResponse({"error": "Your current password is not correct."}, status=400)
+    if not replacement:
+        return JsonResponse({"error": "Enter a new password."}, status=400)
+    try:
+        validate_password(replacement, request.user)
+    except DjangoValidationError as error:
+        return JsonResponse({"error": " ".join(error.messages)}, status=400)
+
+    request.user.set_password(replacement)
+    request.user.save(update_fields=["password"])
+    # Changing a password rotates the hash the session is keyed against, which
+    # would otherwise sign the user out of the tab they just did this in.
+    update_session_auth_hash(request, request.user)
+    return JsonResponse({"ok": True})
 
 
 @api_login_required
