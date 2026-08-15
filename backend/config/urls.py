@@ -24,6 +24,7 @@ urlpatterns = [
     path("api/author-profile/", core_views.author_profile, name="api_author_profile"),
     path(AUTH_PREFIX + "login/", core_views.login_view, name="api_auth_login"),
     path(AUTH_PREFIX + "logout/", core_views.logout_view, name="api_auth_logout"),
+    path(AUTH_PREFIX + "change-password/", core_views.change_password, name="api_auth_change_password"),
     path(AUTH_PREFIX + "office365/start/", core_views.office365_start, name="api_auth_office365_start"),
     path(AUTH_PREFIX + "office365/callback/", core_views.office365_callback, name="api_auth_office365_callback"),
     path("api/modes/", core_views.modes, name="api_modes"),

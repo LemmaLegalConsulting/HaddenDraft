@@ -171,3 +171,146 @@ class ReadinessProbeTests(TestCase):
         # once. Nothing here may touch the connection.
         with self.assertNumQueries(0):
             self.client.get("/readyz")
+
+
+@override_settings(
+    CORS_ALLOWED_ORIGINS=["https://cle-draft.lemmalegal.com"],
+    MIDDLEWARE=[
+        "django.middleware.security.SecurityMiddleware",
+        "django.contrib.sessions.middleware.SessionMiddleware",
+        "apps.core.middleware.CorsMiddleware",
+        "django.middleware.common.CommonMiddleware",
+        "django.middleware.csrf.CsrfViewMiddleware",
+        "django.contrib.auth.middleware.AuthenticationMiddleware",
+        "django.contrib.messages.middleware.MessageMiddleware",
+    ],
+)
+class CorsMiddlewareTests(TestCase):
+    """Cross-origin access for the split deployment, where the app is served
+    from a static host and the API from a sibling subdomain."""
+
+    APP_ORIGIN = "https://cle-draft.lemmalegal.com"
+
+    def test_allowed_origin_may_send_credentials(self):
+        response = self.client.get("/readyz", headers={"origin": self.APP_ORIGIN})
+
+        self.assertEqual(response["Access-Control-Allow-Origin"], self.APP_ORIGIN)
+        self.assertEqual(response["Access-Control-Allow-Credentials"], "true")
+        # Without this a cache could hand one origin's response to another.
+        self.assertEqual(response["Vary"], "Origin")
+
+    def test_unknown_origin_gets_no_cors_headers(self):
+        response = self.client.get("/readyz", headers={"origin": "https://not-ours.example"})
+
+        self.assertNotIn("Access-Control-Allow-Origin", response)
+
+    def test_preflight_is_answered_without_reaching_a_view(self):
+        response = self.client.options(
+            "/api/author-profile/",
+            headers={"origin": self.APP_ORIGIN, "access-control-request-method": "PATCH"},
+        )
+
+        self.assertEqual(response.status_code, 204)
+        self.assertIn("PATCH", response["Access-Control-Allow-Methods"])
+        self.assertIn("x-csrftoken", response["Access-Control-Allow-Headers"])
+
+    def test_preflight_from_an_unknown_origin_is_refused(self):
+        response = self.client.options(
+            "/api/author-profile/",
+            headers={"origin": "https://not-ours.example", "access-control-request-method": "PATCH"},
+        )
+
+        self.assertEqual(response.status_code, 403)
+
+    def test_headers_the_frontend_reads_are_exposed(self):
+        # Every one of these fails silently when unexposed: the header arrives,
+        # headers.get() returns null, and the feature quietly does nothing.
+        # Content-Disposition carries download filenames; the LegalServer ones
+        # carry whether a save actually landed.
+        response = self.client.get("/readyz", headers={"origin": self.APP_ORIGIN})
+        exposed = {h.strip().lower() for h in response["Access-Control-Expose-Headers"].split(",")}
+
+        self.assertIn("content-disposition", exposed)
+        for header in (
+            "x-legalserver-delivery",
+            "x-legalserver-delivery-message",
+            "x-legalserver-ai-audit",
+            "x-legalserver-ai-audit-message",
+        ):
+            self.assertIn(header, exposed)
+
+
+class ChangePasswordTests(TestCase):
+    """Changing your own password, which until now nobody could do."""
+
+    def setUp(self):
+        self.user = User.objects.create_user(username="advocate", password="original-password-9271")
+        self.client.force_login(self.user)
+
+    def test_a_correct_current_password_replaces_it(self):
+        response = self.client.post(
+            "/api/auth/change-password/",
+            data=json.dumps({"currentPassword": "original-password-9271", "newPassword": "replacement-password-4417"}),
+            content_type="application/json",
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.user.refresh_from_db()
+        self.assertTrue(self.user.check_password("replacement-password-4417"))
+
+    def test_the_session_survives_the_change(self):
+        # Changing a password rotates the hash the session is keyed against, so
+        # without update_session_auth_hash this signs you out of the very tab
+        # you did it in.
+        self.client.post(
+            "/api/auth/change-password/",
+            data=json.dumps({"currentPassword": "original-password-9271", "newPassword": "replacement-password-4417"}),
+            content_type="application/json",
+        )
+
+        still_here = self.client.get("/api/auth/me/")
+        self.assertTrue(still_here.json()["user"]["isAuthenticated"])
+
+    def test_the_wrong_current_password_changes_nothing(self):
+        response = self.client.post(
+            "/api/auth/change-password/",
+            data=json.dumps({"currentPassword": "not-the-password", "newPassword": "replacement-password-4417"}),
+            content_type="application/json",
+        )
+
+        self.assertEqual(response.status_code, 400)
+        self.user.refresh_from_db()
+        self.assertTrue(self.user.check_password("original-password-9271"))
+
+    @override_settings(
+        AUTH_PASSWORD_VALIDATORS=[
+            {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator", "OPTIONS": {"min_length": 12}},
+        ]
+    )
+    def test_a_weak_new_password_is_refused_with_the_reason(self):
+        response = self.client.post(
+            "/api/auth/change-password/",
+            data=json.dumps({"currentPassword": "original-password-9271", "newPassword": "short"}),
+            content_type="application/json",
+        )
+
+        self.assertEqual(response.status_code, 400)
+        self.assertIn("12 characters", response.json()["error"])
+        self.user.refresh_from_db()
+        self.assertTrue(self.user.check_password("original-password-9271"))
+
+    def test_signed_out_callers_cannot_change_anything(self):
+        self.client.logout()
+
+        response = self.client.post(
+            "/api/auth/change-password/",
+            data=json.dumps({"currentPassword": "original-password-9271", "newPassword": "replacement-password-4417"}),
+            content_type="application/json",
+        )
+
+        self.assertEqual(response.status_code, 401)
+
+    def test_get_is_not_a_way_to_do_this(self):
+        response = self.client.get("/api/auth/change-password/")
+
+        self.assertEqual(response.status_code, 405)

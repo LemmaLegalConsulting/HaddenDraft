@@ -1,6 +1,7 @@
+import { adminUrlFrom } from "./urls.js";
 import { trackRequest } from "./wakeNotice.js";
 
-const API_BASE = import.meta.env.VITE_API_BASE || "/api";
+export const API_BASE = import.meta.env.VITE_API_BASE || "/api";
 
 function getCookie(name) {
   const match = document.cookie
@@ -64,6 +65,7 @@ export const api = {
   updateAuthorProfile: (payload) => request("/author-profile/", { method: "PATCH", body: JSON.stringify(payload) }),
   login: (payload) => request("/auth/login/", { method: "POST", body: JSON.stringify(payload) }),
   logout: () => request("/auth/logout/", { method: "POST" }),
+  changePassword: (payload) => request("/auth/change-password/", { method: "POST", body: JSON.stringify(payload) }),
   startOffice365Login: () => request("/auth/office365/start/"),
   cases: ({ query = "", status = "", assigned = "", problem = "", sort = "", limit = 0, offset = 0 } = {}) => {
     const params = new URLSearchParams();
@@ -198,5 +200,5 @@ export const api = {
     request(`/advice-letters/drafts/${draftId}/export/`, { method: "POST", body: JSON.stringify(payload) }),
   adviceLetterDraftToLegalServer: (draftId, payload = {}) =>
     request(`/advice-letters/drafts/${draftId}/legalserver/`, { method: "POST", body: JSON.stringify(payload) }),
-  adminUrl: () => "/admin/",
+  adminUrl: () => adminUrlFrom(API_BASE, window.location.origin),
 };
