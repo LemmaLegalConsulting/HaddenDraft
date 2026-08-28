@@ -15,6 +15,22 @@ class LegalServerError(RuntimeError):
         super().__init__(message)
 
 
+def _transport_error(error):
+    """Turn a `requests` transport failure into our own error type.
+
+    `requests` raises its own exceptions for a DNS failure, a refused
+    connection, or a read timeout, and none of them are `LegalServerError`. So
+    every caller that carefully handles an unreachable LegalServer -- the case
+    list, the account status, the document fetch -- was handling only the
+    HTTP-status half of "unreachable", and a site that simply did not answer
+    escaped as an unhandled exception and a bare 500 instead of the sync error
+    the UI already knows how to show.
+
+    No status code: nothing was answered, so there is no status to report.
+    """
+    return LegalServerError(f"LegalServer could not be reached: {error}")
+
+
 def _clean_base_url(base_url):
     return base_url.rstrip("/") + "/" if base_url else ""
 
@@ -246,13 +262,16 @@ class LegalServerClient:
     def _get(self, path, *, params=None):
         if not self.configured:
             raise LegalServerError("LegalServer is not configured")
-        response = self.session.get(
-            self._url(path),
-            headers=self._headers(),
-            params=params or {},
-            timeout=20,
-            **self._request_kwargs(),
-        )
+        try:
+            response = self.session.get(
+                self._url(path),
+                headers=self._headers(),
+                params=params or {},
+                timeout=20,
+                **self._request_kwargs(),
+            )
+        except requests.RequestException as error:
+            raise _transport_error(error) from error
         if response.status_code >= 400:
             detail = _legalserver_response_detail(response)
             message = f"LegalServer request failed with status {response.status_code}"
@@ -273,16 +292,19 @@ class LegalServerClient:
         """
         if not self.configured:
             raise LegalServerError("LegalServer is not configured")
-        response = self.session.request(
-            method,
-            self._url(path),
-            headers=self._headers(),
-            json=json_body,
-            files=files,
-            data=data,
-            timeout=60 if files else 30,
-            **self._request_kwargs(),
-        )
+        try:
+            response = self.session.request(
+                method,
+                self._url(path),
+                headers=self._headers(),
+                json=json_body,
+                files=files,
+                data=data,
+                timeout=60 if files else 30,
+                **self._request_kwargs(),
+            )
+        except requests.RequestException as error:
+            raise _transport_error(error) from error
         if response.status_code >= 400:
             detail = _legalserver_response_detail(response)
             message = f"LegalServer {method} failed with status {response.status_code}"
@@ -407,12 +429,15 @@ class LegalServerClient:
         download_origin = urlparse(resolved_url)
         if (download_origin.scheme, download_origin.netloc) != (configured_origin.scheme, configured_origin.netloc):
             raise LegalServerError("LegalServer returned a document URL on an unexpected host")
-        response = self.session.get(
-            resolved_url,
-            headers=self._headers(),
-            timeout=30,
-            **self._request_kwargs(),
-        )
+        try:
+            response = self.session.get(
+                resolved_url,
+                headers=self._headers(),
+                timeout=30,
+                **self._request_kwargs(),
+            )
+        except requests.RequestException as error:
+            raise _transport_error(error) from error
         if response.status_code >= 400:
             raise LegalServerError(f"LegalServer document download failed with status {response.status_code}")
         return {

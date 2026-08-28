@@ -156,6 +156,33 @@ AUTH_PASSWORD_VALIDATORS = [] if DEBUG else [
     {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
 ]
 
+# Django's default logging config sends request errors to the console only when
+# DEBUG is on, and otherwise only to `mail_admins` -- which needs an ADMINS list
+# and a mail backend this deployment does not have. So in production every
+# unhandled exception became a bare 500 with its traceback dropped on the floor:
+# thirty days of container logs held eighteen 500s and not one stack to read
+# them by. Container Apps collects stdout, so that is where they go now.
+#
+# The root logger stays at WARNING to keep third-party chatter (urllib3 opening
+# a connection, and so on) out of the log; `django.request` is named at ERROR
+# rather than WARNING so that ordinary 404s do not drown the 500s.
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "plain": {"format": "[{levelname}] {asctime} {name}: {message}", "style": "{"},
+    },
+    "handlers": {
+        "console": {"class": "logging.StreamHandler", "formatter": "plain"},
+    },
+    "root": {"handlers": ["console"], "level": "WARNING"},
+    "loggers": {
+        "django.request": {"handlers": ["console"], "level": "ERROR", "propagate": False},
+        "apps": {"handlers": ["console"], "level": "INFO", "propagate": False},
+    },
+}
+
+
 LANGUAGE_CODE = "en-us"
 TIME_ZONE = "America/New_York"
 USE_I18N = True
