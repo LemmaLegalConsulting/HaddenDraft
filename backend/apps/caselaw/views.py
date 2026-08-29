@@ -8,6 +8,7 @@ from django.shortcuts import get_object_or_404
 from apps.caselaw.catalog import ROW_FIELDS, browse_catalog, read_filters
 from apps.caselaw.models import CaseLawDecision, CaseLawSimilarityEdge
 from apps.caselaw.storage import get_caselaw_storage
+from apps.caselaw.values import text_values
 from apps.core.http import api_login_required, method_not_allowed
 
 
@@ -85,10 +86,6 @@ def _terms(value):
     return [term for term in re.findall(r"[a-z0-9]+", (value or "").casefold()) if len(term) > 2]
 
 
-def _list(value):
-    return value if isinstance(value, list) else []
-
-
 def _facet_items(counter, facet):
     return [
         {"facet": facet, "value": value, "count": count}
@@ -107,12 +104,12 @@ def _decision_text(decision):
         decision.judge,
         decision.key_facts,
         decision.outcome,
-        " ".join(_list(decision.issues)),
-        " ".join(_list(decision.holdings)),
-        " ".join(_list(decision.rules_applied)),
-        " ".join(_list(decision.statutes_cited)),
-        " ".join(_list(decision.regulations_cited)),
-        " ".join(_list(decision.cases_cited)),
+        " ".join(text_values(decision.issues)),
+        " ".join(text_values(decision.holdings)),
+        " ".join(text_values(decision.rules_applied)),
+        " ".join(text_values(decision.statutes_cited)),
+        " ".join(text_values(decision.regulations_cited)),
+        " ".join(text_values(decision.cases_cited)),
     ]).casefold()
 
 
@@ -125,9 +122,9 @@ def _score_related(candidate, seed, query_terms):
         score += hits * 8
         reasons.append("query match")
     if seed:
-        shared_statutes = set(_list(candidate.statutes_cited)) & set(_list(seed.statutes_cited))
-        shared_regs = set(_list(candidate.regulations_cited)) & set(_list(seed.regulations_cited))
-        shared_cases = set(_list(candidate.cases_cited)) & set(_list(seed.cases_cited))
+        shared_statutes = set(text_values(candidate.statutes_cited)) & set(text_values(seed.statutes_cited))
+        shared_regs = set(text_values(candidate.regulations_cited)) & set(text_values(seed.regulations_cited))
+        shared_cases = set(text_values(candidate.cases_cited)) & set(text_values(seed.cases_cited))
         if shared_statutes:
             score += 45 + len(shared_statutes) * 5
             reasons.append("shared statute")
@@ -137,8 +134,8 @@ def _score_related(candidate, seed, query_terms):
         if shared_cases:
             score += 40 + len(shared_cases) * 5
             reasons.append("shared cited case")
-        seed_terms = set(_terms(" ".join(_list(seed.issues) + _list(seed.holdings)) + " " + seed.key_facts))
-        overlap = seed_terms & set(_terms(" ".join(_list(candidate.issues) + _list(candidate.holdings)) + " " + candidate.key_facts))
+        seed_terms = set(_terms(" ".join(text_values(seed.issues) + text_values(seed.holdings)) + " " + seed.key_facts))
+        overlap = seed_terms & set(_terms(" ".join(text_values(candidate.issues) + text_values(candidate.holdings)) + " " + candidate.key_facts))
         if overlap:
             score += min(len(overlap), 8) * 4
             reasons.append("similar issues")
@@ -187,14 +184,18 @@ def decision_detail_payload(decision):
     return {
         **decision_summary(decision),
         "dateProvenance": date_provenance(decision),
-        "parties": decision.parties,
-        "partyRoles": decision.party_roles,
-        "issues": decision.issues,
-        "holdings": decision.holdings,
-        "rulesApplied": decision.rules_applied,
-        "statutesCited": decision.statutes_cited,
-        "regulationsCited": decision.regulations_cited,
-        "casesCited": decision.cases_cited,
+        # Read through text_values because a minority of these entries are
+        # objects rather than strings, and the app renders the lists one item
+        # at a time -- React will not render an object, so the whole case
+        # panel went blank on the decisions whose extraction came back that way.
+        "parties": text_values(decision.parties),
+        "partyRoles": text_values(decision.party_roles),
+        "issues": text_values(decision.issues),
+        "holdings": text_values(decision.holdings),
+        "rulesApplied": text_values(decision.rules_applied),
+        "statutesCited": text_values(decision.statutes_cited),
+        "regulationsCited": text_values(decision.regulations_cited),
+        "casesCited": text_values(decision.cases_cited),
         "keyFacts": decision.key_facts,
         "outcome": decision.outcome,
         "reliefGranted": decision.relief_granted,
@@ -253,7 +254,7 @@ def browse(request):
         }[list_facet]
         candidates = [
             candidate for candidate in candidates
-            if value.casefold() in " ".join(_list(getattr(candidate, field))).casefold()
+            if value.casefold() in " ".join(text_values(getattr(candidate, field))).casefold()
         ]
     query_terms = _terms(query)
     court_counts = Counter(item.court for item in candidates if item.court)
@@ -261,10 +262,10 @@ def browse(request):
     judge_counts = Counter(item.judge for item in candidates if item.judge)
     authority_counts = Counter(item.authority_level for item in candidates if item.authority_level)
     treatment_counts = Counter(item.treatment_status for item in candidates if item.treatment_status)
-    statute_counts = Counter(statute for item in candidates for statute in _list(item.statutes_cited))
-    regulation_counts = Counter(reg for item in candidates for reg in _list(item.regulations_cited))
-    case_counts = Counter(case for item in candidates for case in _list(item.cases_cited))
-    issue_counts = Counter(issue for item in candidates for issue in _list(item.issues))
+    statute_counts = Counter(statute for item in candidates for statute in text_values(item.statutes_cited))
+    regulation_counts = Counter(reg for item in candidates for reg in text_values(item.regulations_cited))
+    case_counts = Counter(case for item in candidates for case in text_values(item.cases_cited))
+    issue_counts = Counter(issue for item in candidates for issue in text_values(item.issues))
 
     scored = []
     for candidate in candidates:
