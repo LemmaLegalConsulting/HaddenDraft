@@ -1,3 +1,4 @@
+import { ApiError } from "./errors.js";
 import { adminUrlFrom } from "./urls.js";
 import { trackRequest } from "./wakeNotice.js";
 
@@ -8,6 +9,19 @@ function getCookie(name) {
     .split("; ")
     .find((item) => item.startsWith(`${name}=`));
   return match ? decodeURIComponent(match.split("=").slice(1).join("=")) : "";
+}
+
+function errorMessageFrom(text, response) {
+  const fallback = `Request failed: ${response.status}`;
+  try {
+    return JSON.parse(text).error || fallback;
+  } catch {
+    // Not JSON. An HTML body is a server error page rather than anything worth
+    // showing an advocate, so only plain text is passed through.
+    const contentType = response.headers.get("content-type") || "";
+    if (contentType.includes("text/html") || /^\s*</.test(text)) return fallback;
+    return text || fallback;
+  }
 }
 
 async function request(path, options = {}) {
@@ -30,25 +44,17 @@ async function request(path, options = {}) {
       },
       ...options,
     });
+  } catch (err) {
+    // fetch rejects only when there was no response at all -- the host is
+    // unreachable, the connection dropped, DNS failed. Status 0 says exactly
+    // that, and is what tells a caller this is worth asking again about.
+    throw new ApiError(err?.message || "The server could not be reached", { status: 0 });
   } finally {
     settled();
   }
 
   if (!response.ok) {
-    const text = await response.text();
-    try {
-      const payload = JSON.parse(text);
-      throw new Error(payload.error || `Request failed: ${response.status}`);
-    } catch (err) {
-      if (err instanceof SyntaxError) {
-        const contentType = response.headers.get("content-type") || "";
-        if (contentType.includes("text/html") || /^\s*</.test(text)) {
-          throw new Error(`Request failed: ${response.status}`);
-        }
-        throw new Error(text || `Request failed: ${response.status}`);
-      }
-      throw err;
-    }
+    throw new ApiError(errorMessageFrom(await response.text(), response), { status: response.status });
   }
 
   const contentType = response.headers.get("content-type") || "";

@@ -26,6 +26,7 @@ import {
 } from "lucide-react";
 
 import { api } from "./api/client.js";
+import { retryWhileUnreachable } from "./api/errors.js";
 import { AuthorFields, emptyAuthorProfile } from "./components/AuthorFields.jsx";
 import { AdviceLetterPanel } from "./components/AdviceLetterPanel.jsx";
 import { AuthorProfile } from "./components/AuthorProfile.jsx";
@@ -165,7 +166,11 @@ export function App() {
   useEffect(() => {
     async function load() {
       try {
-        const authResponse = await api.me();
+        // Not plain api.me(): a replica that has just woken answers its first
+        // requests with a 500, and treating that as "signed out" is what put
+        // the login form in front of advocates whose session was perfectly
+        // good. Ask again until the server actually says something.
+        const authResponse = await retryWhileUnreachable(() => api.me());
         setAuth(authResponse.user);
         setDraftAuthorProfile({ ...emptyAuthorProfile, ...(authResponse.user.profile || {}) });
         if (authResponse.user.isAuthenticated) {
@@ -281,7 +286,13 @@ export function App() {
     setAuthBusy(true);
     setError("");
     try {
-      const response = await api.login({ username: credentials.username, ["pass" + "word"]: credentials.secret });
+      // Same waking replica, same 500 -- and here it lands on someone who has
+      // just typed their credentials, so failing it outright asks them to type
+      // them a second time for no reason. A wrong secret answers 400 and is
+      // reported at once.
+      const response = await retryWhileUnreachable(
+        () => api.login({ username: credentials.username, ["pass" + "word"]: credentials.secret }),
+      );
       setAuth(response.user);
       setDraftAuthorProfile({ ...emptyAuthorProfile, ...(response.user.profile || {}) });
       setCredentials({ username: "", secret: "" });

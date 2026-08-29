@@ -4,6 +4,7 @@ from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import patch
 
+import requests
 from django.contrib.auth.models import User
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import RequestFactory, TestCase, override_settings
@@ -62,6 +63,33 @@ class LegalServerClientTests(TestCase):
 
         self.assertEqual(session.calls[0]["url"], "https://example.legalserver.org/modules/document/download.php?id=7")
         self.assertEqual(result["content"], b"document bytes")
+
+    @override_settings(
+        LEGALSERVER_BASE_URL="https://example.legalserver.org",
+        LEGALSERVER_API_TOKEN="token",
+    )
+    def test_unreachable_site_raises_the_error_callers_already_handle(self):
+        """A site that does not answer must look like every other LegalServer failure.
+
+        `requests` raises its own exception type for a timeout or a refused
+        connection, so without this the callers that catch LegalServerError --
+        the case list, the account status -- let it through as an unhandled
+        500 on the very endpoints an advocate hits first.
+        """
+
+        class UnreachableSession:
+            def get(self, *args, **kwargs):
+                raise requests.ConnectTimeout("connection timed out")
+
+            def request(self, *args, **kwargs):
+                raise requests.ConnectionError("name resolution failed")
+
+        client = LegalServerClient(session=UnreachableSession())
+
+        with self.assertRaises(LegalServerError):
+            client.search_matters(limit=5)
+        with self.assertRaises(LegalServerError):
+            client.download_document("/modules/document/download.php?id=7")
 
     @override_settings(
         LEGALSERVER_BASE_URL="https://example.legalserver.org",
