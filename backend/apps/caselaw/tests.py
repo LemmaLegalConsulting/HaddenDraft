@@ -238,7 +238,7 @@ class CaseLawApiTests(TestCase):
     def tearDown(self):
         self.tmp.cleanup()
 
-    @override_settings(DOCUMENT_STORAGE_BACKEND="filesystem")
+    @override_settings(DOCUMENT_STORAGE_BACKEND="filesystem", FRAME_ANCESTORS=["https://app.example.org"])
     def test_decision_detail_and_artifacts_endpoints_return_json(self):
         with override_settings(DOCUMENT_STORAGE_ROOT=self.storage):
             ingest_caselaw_directory(self.corpus)
@@ -256,7 +256,10 @@ class CaseLawApiTests(TestCase):
         self.assertEqual(pdf_response.status_code, 200)
         self.assertEqual(pdf_response["Content-Type"], "application/pdf")
         self.assertIn("inline", pdf_response["Content-Disposition"])
-        self.assertEqual(pdf_response["X-Frame-Options"], "SAMEORIGIN")
+        self.assertEqual(pdf_response["Content-Security-Policy"], "frame-ancestors 'self' https://app.example.org")
+        # SAMEORIGIN names this API's origin, not the app's, so the browser
+        # refused to display a PDF the app had already fetched.
+        self.assertIsNone(pdf_response.headers.get("X-Frame-Options"))
         self.assertEqual(similar_response.status_code, 200)
         self.assertEqual(detail_response.json()["decision"]["title"], "Tenant v. Landlord")
         self.assertGreaterEqual(len(artifacts_response.json()["artifacts"]), 3)

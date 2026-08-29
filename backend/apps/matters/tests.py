@@ -307,6 +307,7 @@ class CaseConnectionTests(TestCase):
         self.assertIn("disability", payload["summary"])
         self.assertEqual(payload["chunks"][0]["index"], 1)
 
+    @override_settings(FRAME_ANCESTORS=["https://app.example.org"])
     @patch("apps.matters.document_context.LegalServerClient")
     def test_case_document_file_streams_an_authenticated_pdf_inline(self, client_class):
         legalserver = client_class.return_value
@@ -345,7 +346,10 @@ class CaseConnectionTests(TestCase):
         self.assertEqual(response["Content-Type"], "application/pdf")
         self.assertIn("inline", response["Content-Disposition"])
         self.assertIn("Notice of Hearing.pdf", response["Content-Disposition"])
-        self.assertEqual(response["X-Frame-Options"], "SAMEORIGIN")
+        self.assertEqual(response["Content-Security-Policy"], "frame-ancestors 'self' https://app.example.org")
+        # SAMEORIGIN names this API's origin, not the app's, so the browser
+        # refused to display a PDF the app had already fetched.
+        self.assertIsNone(response.headers.get("X-Frame-Options"))
 
     def test_case_fact_recommendations_select_relevant_and_default_facts(self):
         matter = Matter.objects.create(

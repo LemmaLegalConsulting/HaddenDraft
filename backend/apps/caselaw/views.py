@@ -9,7 +9,7 @@ from apps.caselaw.catalog import ROW_FIELDS, browse_catalog, read_filters
 from apps.caselaw.models import CaseLawDecision, CaseLawSimilarityEdge
 from apps.caselaw.storage import get_caselaw_storage
 from apps.caselaw.values import text_values
-from apps.core.http import api_login_required, method_not_allowed
+from apps.core.http import allow_document_framing, api_login_required, method_not_allowed
 
 
 def _date(value):
@@ -391,8 +391,7 @@ def decision_pdf(request, decision_id):
         as_attachment=False,
     )
     response["Content-Disposition"] = f'inline; filename="{artifact.original_filename or f"decision-{decision.id}.pdf"}"'
-    response["X-Frame-Options"] = "SAMEORIGIN"
-    return response
+    return allow_document_framing(response)
 
 
 @api_login_required

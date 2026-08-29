@@ -1,6 +1,7 @@
 import os
 import sys
 from pathlib import Path
+from urllib.parse import urlsplit
 
 from django.core.exceptions import ImproperlyConfigured
 
@@ -55,6 +56,23 @@ DEV_ORIGINS = [
 CSRF_TRUSTED_ORIGINS = env_list("DJANGO_CSRF_TRUSTED_ORIGINS", DEV_ORIGINS if DEBUG else [])
 CORS_ALLOWED_ORIGINS = env_list("DJANGO_CORS_ALLOWED_ORIGINS", DEV_ORIGINS if DEBUG else [])
 FRONTEND_SITE_URL = os.environ.get("FRONTEND_SITE_URL", "http://localhost:5173")
+
+
+def _origin(url):
+    parts = urlsplit(url or "")
+    return f"{parts.scheme}://{parts.netloc}" if parts.scheme and parts.netloc else ""
+
+
+# Origins allowed to embed a document this API serves -- a decision scan, a
+# library source PDF, a case document -- in a frame. The app previews those in
+# an iframe, and here it is a sibling subdomain of the API rather than the same
+# one, which X-Frame-Options cannot express: SAMEORIGIN means the API's own
+# origin, so the browser refused to display a PDF the app had already fetched.
+# apps.core.http.allow_document_framing sends these as `frame-ancestors`.
+FRAME_ANCESTORS = env_list(
+    "DJANGO_FRAME_ANCESTORS",
+    list(dict.fromkeys(filter(None, (_origin(url) for url in [*CORS_ALLOWED_ORIGINS, FRONTEND_SITE_URL])))),
+)
 
 INSTALLED_APPS = [
     "django.contrib.admin",

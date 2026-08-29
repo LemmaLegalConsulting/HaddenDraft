@@ -465,6 +465,7 @@ class ContentLibraryTreatiseConnectorTests(TestCase):
         self.assertEqual(results[0].metadata["sourceSha256"], "per-file-sha")
         self.assertEqual(results[0].metadata["sourcePath"], "treatises/source/green-book/repairs.pdf")
 
+    @override_settings(FRAME_ANCESTORS=["https://app.example.org"])
     def test_content_source_detail_and_pdf_endpoints_use_content_provider_paths(self):
         user = User.objects.create_user(username="viewer", password="password")
         self.client.force_login(user)
@@ -504,7 +505,10 @@ class ContentLibraryTreatiseConnectorTests(TestCase):
         self.assertIn("repair conditions", payload["sourceText"])
         self.assertEqual(pdf.status_code, 200)
         self.assertEqual(pdf["Content-Type"], "application/pdf")
-        self.assertEqual(pdf["X-Frame-Options"], "SAMEORIGIN")
+        self.assertEqual(pdf["Content-Security-Policy"], "frame-ancestors 'self' https://app.example.org")
+        # SAMEORIGIN names this API's origin, not the app's, so the browser
+        # refused to display a PDF the app had already fetched.
+        self.assertIsNone(pdf.headers.get("X-Frame-Options"))
 
     @override_settings(AI_DRAFTING_ENABLED=False)
     def test_searches_generated_statute_chunks_with_official_citation_and_url(self):
