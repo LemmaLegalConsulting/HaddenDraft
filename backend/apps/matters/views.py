@@ -5,12 +5,11 @@ import re
 from django.conf import settings
 from django.http import HttpResponse, JsonResponse
 from django.utils.http import content_disposition_header
-from django.views.decorators.clickjacking import xframe_options_sameorigin
 
 from apps.ai.case_chat import case_chat_reply
 from apps.ai.chat_history import append_message, archive_current_conversation, clear_messages, conversation_list, messages_for_user
 from apps.ai.models import ChatConversation
-from apps.core.http import api_login_required
+from apps.core.http import allow_document_framing, api_login_required
 from apps.core.http import json_body
 from apps.matters.document_context import (
     case_materials_payload,
@@ -448,7 +447,6 @@ def case_document_context(request, matter_id, document_id):
     return JsonResponse(payload)
 
 
-@xframe_options_sameorigin
 @api_login_required
 def case_document_file(request, matter_id, document_id):
     if request.method != "GET":
@@ -472,7 +470,7 @@ def case_document_file(request, matter_id, document_id):
         content_type=content_type,
     )
     response["Content-Disposition"] = content_disposition_header(False, filename)
-    return response
+    return allow_document_framing(response)
 
 
 def _fact_slug(matter, title):

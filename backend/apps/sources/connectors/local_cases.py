@@ -3,6 +3,7 @@ import re
 from django.db.models import Q
 
 from apps.caselaw.models import CaseLawSearchDocument
+from apps.caselaw.values import text_values
 from apps.sources import jurisdiction as jurisdiction_matching
 from apps.sources.connectors.base import SourceConnector, SourceResult
 
@@ -101,11 +102,11 @@ def _metadata(decision, document_type):
         "metadataVerified": decision.metadata_verified,
         "approvedForDrafting": decision.approved_for_drafting,
         "documentType": document_type,
-        "issues": decision.issues,
-        "searchKeywords": decision.search_keywords,
-        "statutesCited": decision.statutes_cited,
-        "regulationsCited": decision.regulations_cited,
-        "casesCited": decision.cases_cited,
+        "issues": text_values(decision.issues),
+        "searchKeywords": text_values(decision.search_keywords),
+        "statutesCited": text_values(decision.statutes_cited),
+        "regulationsCited": text_values(decision.regulations_cited),
+        "casesCited": text_values(decision.cases_cited),
         "sourceSha256": decision.source_sha256,
         "warning": "Treatment/currentness has not been checked." if decision.treatment_status == "unchecked" else "",
     }

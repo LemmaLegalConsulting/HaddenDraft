@@ -5,7 +5,7 @@ from apps.ai.openai_client import OpenAIBackendError, OpenAICompatibleClient
 from apps.ai.chat_history import append_message, archive_current_conversation, clear_messages, conversation_list, messages_for_user
 from apps.ai.models import ChatConversation
 from apps.ai.prompt_catalog import render_prompt
-from apps.core.http import api_login_required, json_body, method_not_allowed
+from apps.core.http import allow_document_framing, api_login_required, json_body, method_not_allowed
 from apps.core.content_library import content_paths
 from apps.core.views import default_jurisdiction_for_user
 from apps.matters.legalserver_delivery import delivery_to_dict, save_case_note, wants_delivery
@@ -190,8 +190,7 @@ def content_source_pdf(request, document_slug, chunk_id):
         return JsonResponse({"error": "No PDF source is available for this content chunk."}, status=404)
     response = FileResponse(pdf_path.open("rb"), content_type="application/pdf", filename=pdf_path.name, as_attachment=False)
     response["Content-Disposition"] = f'inline; filename="{pdf_path.name}"'
-    response["X-Frame-Options"] = "SAMEORIGIN"
-    return response
+    return allow_document_framing(response)
 
 
 @api_login_required

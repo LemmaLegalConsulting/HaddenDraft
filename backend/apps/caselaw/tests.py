@@ -11,6 +11,7 @@ from django.test import TestCase, override_settings
 
 from apps.caselaw.importing import discover_case_groups, ingest_caselaw_directory
 from apps.caselaw.models import CaseLawArtifact, CaseLawDateProvenance, CaseLawDecision, CaseLawPage, CaseLawSearchDocument
+from apps.caselaw.values import text_values
 from apps.sources.connectors.local_cases import LocalCaseIndexConnector
 
 
@@ -237,7 +238,7 @@ class CaseLawApiTests(TestCase):
     def tearDown(self):
         self.tmp.cleanup()
 
-    @override_settings(DOCUMENT_STORAGE_BACKEND="filesystem")
+    @override_settings(DOCUMENT_STORAGE_BACKEND="filesystem", FRAME_ANCESTORS=["https://app.example.org"])
     def test_decision_detail_and_artifacts_endpoints_return_json(self):
         with override_settings(DOCUMENT_STORAGE_ROOT=self.storage):
             ingest_caselaw_directory(self.corpus)
@@ -255,7 +256,10 @@ class CaseLawApiTests(TestCase):
         self.assertEqual(pdf_response.status_code, 200)
         self.assertEqual(pdf_response["Content-Type"], "application/pdf")
         self.assertIn("inline", pdf_response["Content-Disposition"])
-        self.assertEqual(pdf_response["X-Frame-Options"], "SAMEORIGIN")
+        self.assertEqual(pdf_response["Content-Security-Policy"], "frame-ancestors 'self' https://app.example.org")
+        # SAMEORIGIN names this API's origin, not the app's, so the browser
+        # refused to display a PDF the app had already fetched.
+        self.assertIsNone(pdf_response.headers.get("X-Frame-Options"))
         self.assertEqual(similar_response.status_code, 200)
         self.assertEqual(detail_response.json()["decision"]["title"], "Tenant v. Landlord")
         self.assertGreaterEqual(len(artifacts_response.json()["artifacts"]), 3)
@@ -276,6 +280,91 @@ class CaseLawApiTests(TestCase):
         self.assertEqual(payload["seed"]["title"], "Tenant v. Landlord")
         self.assertEqual(facet_response.status_code, 200)
         self.assertGreaterEqual(facet_response.json()["totalCandidates"], 1)
+
+    def test_browse_counts_authorities_extracted_as_objects(self):
+        """A field the extractor filled with objects still browses and groups.
+
+        Most decisions carry ``statutes_cited`` as a list of strings, but the
+        extraction read one document at a time against no schema, so on a
+        minority it came back as ``{"statute": ..., "description": ...}``.
+        Counting those raised ``unhashable type: 'dict'``, and every browse of
+        every seed decision answered 500 -- the whole related-cases panel, in
+        production, for a corpus where a Counter never saw a hashable value.
+        """
+        seed = CaseLawDecision.objects.create(
+            title="Tenant v. Objects",
+            court="Cleveland Municipal Court",
+            county="Cuyahoga",
+            source_sha256="c" * 64,
+            approved_for_search=True,
+            statutes_cited=[{"statute": "R.C. 5321.04", "description": "Landlord duties"}],
+            cases_cited=[{"case_name": "Pepper Pike v. Doe", "citation": "66 Ohio St.2d 374"}],
+            issues=[{"issue": "Whether the premises were habitable"}],
+        )
+        neighbor = CaseLawDecision.objects.create(
+            title="Renter v. Strings",
+            court="Cleveland Municipal Court",
+            county="Cuyahoga",
+            source_sha256="d" * 64,
+            approved_for_search=True,
+            statutes_cited=["R.C. 5321.04"],
+        )
+
+        response = self.client.get(f"/api/caselaw/browse/?decisionId={seed.id}")
+        detail = self.client.get(f"/api/caselaw/decisions/{seed.id}/")
+
+        self.assertEqual(response.status_code, 200)
+        payload = response.json()
+        statutes = {item["value"]: item["count"] for item in payload["facets"]["statute"]}
+        # The object and the bare string are the same authority, so they share
+        # a shelf rather than each holding one of their own.
+        self.assertEqual(statutes["R.C. 5321.04"], 2)
+        self.assertIn(neighbor.title, [result["title"] for result in payload["results"]])
+        self.assertIn("shared statute", payload["results"][0]["clusterReasons"])
+        # The app renders these lists an item at a time, and React will not
+        # render an object.
+        decision = detail.json()["decision"]
+        self.assertEqual(decision["statutesCited"], ["R.C. 5321.04"])
+        self.assertEqual(decision["casesCited"], ["Pepper Pike v. Doe, 66 Ohio St.2d 374"])
+        self.assertEqual(decision["issues"], ["Whether the premises were habitable"])
+
+
+class ExtractedListValueTests(TestCase):
+    """One string per entry, whatever shape the extraction left behind."""
+
+    def test_a_string_entry_is_itself(self):
+        self.assertEqual(text_values(["R.C. 1923.04", "  R.C. 5321.04  "]), ["R.C. 1923.04", "R.C. 5321.04"])
+
+    def test_an_object_keeps_its_identity_and_drops_the_commentary(self):
+        self.assertEqual(
+            text_values([{"statute": "R.C. 5321.04", "description": "Duties of a landlord"}]),
+            ["R.C. 5321.04"],
+        )
+        self.assertEqual(text_values([{"citation": "R.C. 5321.02", "description": "Retaliation"}]), ["R.C. 5321.02"])
+
+    def test_a_cited_case_is_named_by_both_halves(self):
+        self.assertEqual(
+            text_values([{"case_name": "Pepper Pike v. Doe", "citation": "66 Ohio St.2d 374"}]),
+            ["Pepper Pike v. Doe, 66 Ohio St.2d 374"],
+        )
+        self.assertEqual(
+            text_values([{"cite": "17 O.O.3d 220", "court": "Ohio App.", "year": "1980"}]),
+            ["17 O.O.3d 220"],
+        )
+
+    def test_a_party_keeps_the_role_that_is_the_point_of_the_field(self):
+        self.assertEqual(
+            text_values([{"party": "Tina Adams", "roles": ["tenant", "plaintiff-appellant"]}]),
+            ["Tina Adams — tenant; plaintiff-appellant"],
+        )
+
+    def test_an_unrecognized_object_shows_its_values_rather_than_vanishing(self):
+        self.assertEqual(text_values([{"note": "cited in passing", "page": 4}]), ["cited in passing; 4"])
+
+    def test_empty_entries_and_non_lists_come_back_empty(self):
+        self.assertEqual(text_values(["", {}, {"statute": "   "}, None]), [])
+        self.assertEqual(text_values(None), [])
+        self.assertEqual(text_values("R.C. 5321.04"), [])
 
 
 class LocalCaseJurisdictionRankingTests(TestCase):

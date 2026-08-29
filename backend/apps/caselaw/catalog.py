@@ -13,6 +13,8 @@ from __future__ import annotations
 
 import re
 
+from apps.caselaw.values import text_values
+
 SCALAR_FACETS = {
     "court": "court",
     "county": "county",
@@ -72,15 +74,9 @@ def _text(value):
     return str(value or "").strip()
 
 
-def _list(value):
-    if not isinstance(value, list):
-        return []
-    return [_text(item) for item in value if _text(item)]
-
-
 def facet_raw_values(row, facet):
     if facet in LIST_FACETS:
-        return _list(row.get(LIST_FACETS[facet]))
+        return text_values(row.get(LIST_FACETS[facet]))
     if facet == "decisionYear":
         date = row.get("decision_date")
         return [str(date.year)] if date else []
@@ -138,9 +134,9 @@ def row_text(row):
         _text(row.get("judge")),
         _text(row.get("key_facts")),
         _text(row.get("outcome")),
-        " ".join(_list(row.get("issues"))),
-        " ".join(_list(row.get("statutes_cited"))),
-        " ".join(_list(row.get("search_keywords"))),
+        " ".join(text_values(row.get("issues"))),
+        " ".join(text_values(row.get("statutes_cited"))),
+        " ".join(text_values(row.get("search_keywords"))),
     ]).casefold()
 
 

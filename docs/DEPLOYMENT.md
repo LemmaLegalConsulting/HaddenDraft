@@ -72,6 +72,7 @@ What this costs, and where each piece lives:
 | CSRF for cross-origin POSTs | `DJANGO_CSRF_TRUSTED_ORIGINS` |
 | Where the SPA sends API calls | `VITE_API_BASE`, baked in at build time |
 | Where Django sends people after OAuth | `FRONTEND_SITE_URL` |
+| Which origins may frame a PDF the API serves | `DJANGO_FRAME_ANCESTORS`, defaulting to the CORS origins |
 | Response headers the browser may reveal | `CorsMiddleware.EXPOSED_HEADERS` |
 
 That last one is the subtle one. `Content-Disposition` carries download
@@ -80,6 +81,13 @@ cross-origin caller cannot read any of them unless the server names them, and
 the failure is *silent*: the header arrives, `headers.get()` returns null, and
 the feature quietly does nothing. Adding a response header the frontend reads
 means adding it to that tuple too.
+
+Framing is the other one worth naming. The app previews decision scans,
+library sources, and case documents in an iframe, and `X-Frame-Options` cannot
+describe a split deployment: its only useful value is SAMEORIGIN, which means
+*the API's* origin, so the browser refused to display a PDF the app had
+already fetched. Those responses send `Content-Security-Policy:
+frame-ancestors` instead, and nothing else may frame them.
 
 ### Publishing the app
 
