@@ -194,6 +194,58 @@ export const api = {
     request(`/advice-letters/sections/?${new URLSearchParams({ region, letterType, reviewedOnly: reviewedOnly ? "1" : "" })}`),
   adviceLetterAddressing: (matterId) =>
     request(`/advice-letters/addressing/?${new URLSearchParams({ matterId })}`),
+  // Argument Gym. A workspace holds the brief under test and the case context
+  // it is tested against; a run is one adversarial pass over it.
+  gymWorkspaces: ({ matterId = "", query = "" } = {}) => {
+    const params = new URLSearchParams();
+    if (matterId) params.set("matterId", matterId);
+    if (query) params.set("q", query);
+    const search = params.toString();
+    return request(`/argument-gym/workspaces/${search ? `?${search}` : ""}`);
+  },
+  gymChecks: () => request("/argument-gym/checks/"),
+  gymLegalRules: () => request("/argument-gym/legal-rules/"),
+  gymChecklists: () => request("/argument-gym/checklists/"),
+  createGymChecklist: (payload) =>
+    request("/argument-gym/checklists/", { method: "POST", body: JSON.stringify(payload) }),
+  updateGymChecklist: (checklistId, payload) =>
+    request(`/argument-gym/checklists/${checklistId}/`, { method: "PATCH", body: JSON.stringify(payload) }),
+  deleteGymChecklist: (checklistId) =>
+    request(`/argument-gym/checklists/${checklistId}/`, { method: "DELETE" }),
+  gymCourts: (query = "") =>
+    request(`/argument-gym/courts/${query ? `?${new URLSearchParams({ q: query })}` : ""}`),
+  gymCourtDetection: (workspaceId) => request(`/argument-gym/workspaces/${workspaceId}/court-detection/`),
+  createGymWorkspace: (payload) => request("/argument-gym/workspaces/", { method: "POST", body: JSON.stringify(payload) }),
+  gymWorkspace: (workspaceId) => request(`/argument-gym/workspaces/${workspaceId}/`),
+  updateGymWorkspace: (workspaceId, payload) =>
+    request(`/argument-gym/workspaces/${workspaceId}/`, { method: "PATCH", body: JSON.stringify(payload) }),
+  deleteGymWorkspace: (workspaceId) => request(`/argument-gym/workspaces/${workspaceId}/`, { method: "DELETE" }),
+  uploadGymDocument: (workspaceId, formData) =>
+    request(`/argument-gym/workspaces/${workspaceId}/documents/`, { method: "POST", body: formData }),
+  attachGymDraft: (workspaceId, payload) =>
+    request(`/argument-gym/workspaces/${workspaceId}/documents/`, { method: "POST", body: JSON.stringify(payload) }),
+  updateGymDocument: (documentId, payload) =>
+    request(`/argument-gym/documents/${documentId}/`, { method: "PATCH", body: JSON.stringify(payload) }),
+  deleteGymDocument: (documentId) => request(`/argument-gym/documents/${documentId}/`, { method: "DELETE" }),
+  gymMaterials: (workspaceId) => request(`/argument-gym/workspaces/${workspaceId}/materials/`),
+  setGymMaterialExcluded: (workspaceId, payload) =>
+    request(`/argument-gym/workspaces/${workspaceId}/materials/`, { method: "POST", body: JSON.stringify(payload) }),
+  gymRuns: (workspaceId) => request(`/argument-gym/workspaces/${workspaceId}/runs/`),
+  runArgumentGym: (workspaceId, payload = {}) =>
+    request(`/argument-gym/workspaces/${workspaceId}/runs/`, { method: "POST", body: JSON.stringify(payload) }),
+  gymRun: (runId) => request(`/argument-gym/runs/${runId}/`),
+  gymArtifact: (runId, kind) => request(`/argument-gym/runs/${runId}/artifacts/${kind}/`),
+  gymRevisionPlan: (runId, challengeIds = []) =>
+    request(`/argument-gym/runs/${runId}/revision/${challengeIds.length ? `?${new URLSearchParams(challengeIds.map((id) => ["challengeId", String(id)]))}` : ""}`),
+  applyGymRevision: (runId, payload) =>
+    request(`/argument-gym/runs/${runId}/revision/`, { method: "POST", body: JSON.stringify(payload) }),
+  setChallengeDisposition: (challengeId, payload) =>
+    request(`/argument-gym/challenges/${challengeId}/`, { method: "POST", body: JSON.stringify(payload) }),
+  researchChallenge: (challengeId, payload = {}) =>
+    request(`/argument-gym/challenges/${challengeId}/research/`, { method: "POST", body: JSON.stringify(payload) }),
+  stressTestDraft: (draftId, payload = {}) =>
+    request(`/drafts/${draftId}/stress-test/`, { method: "POST", body: JSON.stringify(payload) }),
+
   adviceLetterRecommendations: (payload) =>
     request("/advice-letters/recommend/", { method: "POST", body: JSON.stringify(payload) }),
   adviceLetterPreview: (payload) =>
