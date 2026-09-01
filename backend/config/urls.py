@@ -2,6 +2,7 @@ from django.contrib import admin
 from django.conf import settings
 from django.urls import path
 
+from apps.argument_gym import views as gym_views
 from apps.core import views as core_views
 from apps.caselaw import views as caselaw_views
 from apps.drafting import views as drafting_views
@@ -109,4 +110,38 @@ urlpatterns = [
     path("api/drafts/<int:draft_id>/revision-plan/", drafting_views.draft_revision_plan, name="api_draft_revision_plan"),
     path("api/drafts/<int:draft_id>/revision/", drafting_views.apply_draft_revision, name="api_apply_draft_revision"),
     path("api/drafts/<int:draft_id>/export/", drafting_views.export_draft, name="api_export_draft"),
+    path("api/drafts/<int:draft_id>/stress-test/", gym_views.draft_stress_test, name="api_draft_stress_test"),
+    path("api/argument-gym/checks/", gym_views.check_catalog_view, name="api_gym_checks"),
+    path("api/argument-gym/checklists/", gym_views.checklists, name="api_gym_checklists"),
+    path("api/argument-gym/checklists/<int:checklist_id>/", gym_views.checklist_detail, name="api_gym_checklist_detail"),
+    path("api/argument-gym/courts/", gym_views.courts, name="api_gym_courts"),
+    path("api/argument-gym/legal-rules/", gym_views.legal_rules, name="api_gym_legal_rules"),
+    path("api/argument-gym/workspaces/", gym_views.workspaces, name="api_gym_workspaces"),
+    path("api/argument-gym/workspaces/<int:workspace_id>/", gym_views.workspace_detail, name="api_gym_workspace_detail"),
+    path(
+        "api/argument-gym/workspaces/<int:workspace_id>/documents/",
+        gym_views.workspace_documents,
+        name="api_gym_workspace_documents",
+    ),
+    path(
+        "api/argument-gym/workspaces/<int:workspace_id>/materials/",
+        gym_views.workspace_materials,
+        name="api_gym_workspace_materials",
+    ),
+    path("api/argument-gym/workspaces/<int:workspace_id>/runs/", gym_views.workspace_runs, name="api_gym_workspace_runs"),
+    path(
+        "api/argument-gym/workspaces/<int:workspace_id>/court-detection/",
+        gym_views.workspace_court_detection,
+        name="api_gym_workspace_court_detection",
+    ),
+    path("api/argument-gym/documents/<int:document_id>/", gym_views.document_detail, name="api_gym_document_detail"),
+    path("api/argument-gym/runs/<int:run_id>/", gym_views.run_detail, name="api_gym_run_detail"),
+    path("api/argument-gym/runs/<int:run_id>/artifacts/<slug:kind>/", gym_views.run_artifact, name="api_gym_run_artifact"),
+    path("api/argument-gym/runs/<int:run_id>/revision/", gym_views.run_revision, name="api_gym_run_revision"),
+    path("api/argument-gym/challenges/<int:challenge_id>/", gym_views.challenge_detail, name="api_gym_challenge_detail"),
+    path(
+        "api/argument-gym/challenges/<int:challenge_id>/research/",
+        gym_views.challenge_research,
+        name="api_gym_challenge_research",
+    ),
 ]
