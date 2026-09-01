@@ -1,0 +1,170 @@
+schema_version: 1
+slug: legal-language
+title: Grammar, easily-confused words, and passive voice in filings
+jurisdiction: Ohio
+audience: court
+notes: >
+  Written for filings, not for client letters; the plain-language rules in
+  plain-language.yaml are a different audience and a different standard.
+
+  There is deliberately no dictionary spell check here. A general dictionary
+  flags "replevin", "forcible entry and detainer", "estoppel", and half of every
+  case name, and an advocate who has to dismiss forty false positives stops
+  reading the check. What this does instead is look for the specific words legal
+  writing actually gets wrong -- "judgement" for "judgment", "statue" for
+  "statute" -- where a hit is nearly always a real error.
+
+  Passive voice is likewise not an error. "Service was perfected" and "judgment
+  is hereby granted" are the register a court expects. The accepted list below is
+  what the check stays quiet about; add to it per session when a court expects a
+  phrase this list does not carry.
+
+# Nearly always a typo in a filing, not a term of art.
+confused_words:
+  - wrong: judgement
+    right: judgment
+    note: American legal usage is "judgment", with no e after the g.
+  - wrong: statue
+    right: statute
+    note: A statue is a sculpture.
+  - wrong: statues
+    right: statutes
+  - wrong: defendent
+    right: defendant
+  - wrong: defendents
+    right: defendants
+  - wrong: plaintif
+    right: plaintiff
+  - wrong: plaintifs
+    right: plaintiffs
+  - wrong: affidavid
+    right: affidavit
+  - wrong: seperate
+    right: separate
+  - wrong: seperately
+    right: separately
+  - wrong: occured
+    right: occurred
+  - wrong: occurence
+    right: occurrence
+  - wrong: recieve
+    right: receive
+  - wrong: recieved
+    right: received
+  - wrong: publically
+    right: publicly
+  - wrong: alot
+    right: a lot
+  - wrong: untill
+    right: until
+  - wrong: arguement
+    right: argument
+  - wrong: arguements
+    right: arguments
+  - wrong: tenent
+    right: tenant
+  - wrong: tenents
+    right: tenants
+  - wrong: landlorde
+    right: landlord
+  - wrong: forclosure
+    right: foreclosure
+  - wrong: eviciton
+    right: eviction
+  - wrong: breech
+    right: breach
+    note: A breech is a part of a gun or a birth position; a contract is breached.
+  - wrong: forebearance
+    right: forbearance
+  - wrong: discovary
+    right: discovery
+  - wrong: subpeona
+    right: subpoena
+  - wrong: warrentee
+    right: warranty
+  - wrong: hearing officier
+    right: hearing officer
+
+# Real words used for the wrong real word. Reported as something to check, never
+# as an error, because both spellings are words and only the writer knows which.
+easily_confused_pairs:
+  - words: [principle, principal]
+    note: '"principal" is the chief one or the sum lent; "principle" is a rule.'
+  - words: [counsel, council]
+    note: '"counsel" is the lawyer; "council" is the body that meets.'
+  - words: [affect, effect]
+    note: '"affect" is usually the verb; "effect" is usually the noun.'
+  - words: [complaint, compliant]
+    note: A complaint starts a case; compliant means it followed the rule.
+  - words: [statutory, statuary]
+    note: '"statuary" is sculpture.'
+  - words: [ordinance, ordnance]
+    note: '"ordnance" is munitions.'
+  - words: [waive, wave]
+  - words: [lien, lein]
+  - words: [discreet, discrete]
+
+grammar:
+  - id: doubled_word
+    label: A word is repeated
+    severity: warning
+    message: '"{match}" appears twice in a row.'
+  - id: missing_space_after_period
+    label: Missing space after a sentence
+    severity: warning
+    message: "No space after the period in \"{match}\"."
+  - id: unbalanced_delimiters
+    label: Unbalanced parentheses, brackets, or quotation marks
+    severity: warning
+    message: "{detail}"
+  - id: eg_ie_comma
+    label: '"e.g." and "i.e." take a comma'
+    severity: info
+    message: '"{match}" conventionally takes a comma after it.'
+  - id: lowercase_sentence_start
+    label: A sentence starts in lower case
+    severity: info
+    message: "A sentence begins with \"{match}\"."
+
+passive_voice:
+  severity: info
+  # Passive constructions a court expects to read. The check never reports these.
+  accepted_phrases:
+    - respectfully submitted
+    - is hereby ordered
+    - it is ordered
+    - is hereby granted
+    - is hereby denied
+    - be granted
+    - be denied
+    - be dismissed
+    - be sustained
+    - be overruled
+    - be reversed
+    - be affirmed
+    - be remanded
+    - was served
+    - were served
+    - was filed
+    - were filed
+    - was entered
+    - is barred
+    - are barred
+    - is required
+    - are required
+    - is entitled
+    - are entitled
+    - is governed
+    - are governed
+    - is preempted
+    - was perfected
+    - is deemed
+    - are deemed
+    - is presumed
+    - is waived
+    - are waived
+    - is precluded
+  message: >
+    Passive voice: "{match}". In a filing this is often the right register, so
+    this is a nudge, not a finding. Add the phrase to the accepted list if this
+    court expects it.

@@ -1,0 +1,80 @@
+schema_version: 1
+slug: generic-ohio-trial-court
+name: Ohio trial court (generic starter profile)
+court_type: municipal
+state: Ohio
+county: ""
+municipality: ""
+division: ""
+
+aliases:
+  - Ohio municipal court
+  - Ohio county court
+  - Ohio court of common pleas
+  - housing court
+  - housing division
+
+# Deliberately unverified. These are conventions shared across Ohio trial
+# courts, not any one court's local rules. Copy this file, cite the local rule
+# your filing is actually governed by, and mark it verified.
+verification: unverified
+source: ""
+source_url: ""
+verified_on: ""
+notes: >-
+  A starter profile so the format check runs on a fresh checkout. Findings from
+  it are warnings, and the panel labels them as coming from an unverified
+  profile. Replace it with your own court before relying on a clean result.
+
+pleading_types: [motion, memorandum, answer, complaint, brief]
+
+formatting:
+  fonts:
+    allowed_families: []
+    min_size_pt: 12
+    footnote_min_size_pt: 10
+  spacing:
+    body: any
+  margins_in:
+    top: 1.0
+    bottom: 1.0
+    left: 1.0
+    right: 1.0
+  page_limits: []
+
+required_elements:
+  - id: caption
+    label: Caption naming the court
+    severity: error
+    pleading_types: []
+    patterns:
+      - "in the .{0,80}court"
+      - "^.{0,80}court of common pleas"
+  - id: case_number
+    label: Case number
+    severity: error
+    pleading_types: []
+    patterns:
+      - "case (no\\.?|number)"
+      - "\\bcv[a-z]?[- ]?\\d{2}[- ]?\\d{3,}"
+  - id: title_of_document
+    label: A title saying what the document is
+    severity: warning
+    pleading_types: [motion, memorandum, answer, complaint]
+    patterns:
+      - "\\b(motion|memorandum|answer|complaint|brief|reply)\\b"
+  - id: signature_block
+    label: Signature block with the filer's name
+    severity: error
+    pleading_types: []
+    patterns:
+      - "respectfully submitted"
+      - "/s/"
+      - "\\(#?\\d{7}\\)"
+  - id: certificate_of_service
+    label: Certificate of service
+    severity: error
+    pleading_types: [motion, memorandum, answer, brief]
+    patterns:
+      - "certificate of service"
+      - "served (a )?(true )?cop(y|ies) (of|upon)"

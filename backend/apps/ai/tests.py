@@ -136,6 +136,16 @@ class PromptCatalogTests(TestCase):
                 "caselaw.metadata_verify",
                 "research.answer",
                 "research.treatise_relevance",
+                "argument_gym.argument_map",
+                "argument_gym.assessment",
+                "argument_gym.rule_elements",
+                "argument_gym.checklist",
+                "argument_gym.record_audit",
+                "argument_gym.research_queries",
+                "argument_gym.opponent",
+                "argument_gym.judge",
+                "argument_gym.coach",
+                "argument_gym.prep_sheet",
             },
         )
 

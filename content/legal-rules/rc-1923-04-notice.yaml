@@ -1,0 +1,76 @@
+schema_version: 1
+slug: rc-1923-04-notice
+name: Notice to leave the premises
+citation: R.C. 1923.04
+rule_type: statute
+jurisdiction: Ohio
+summary: >-
+  A forcible entry and detainer action requires that the party seeking
+  possession first serve a notice to leave the premises, in the statutory form
+  and by a permitted method, and then wait the statutory period before filing.
+
+citation_patterns:
+  - "R\\.?\\s*C\\.?\\s*(§\\s*)?1923\\.04"
+  - "O\\.?R\\.?C\\.?\\s*(§\\s*)?1923\\.04"
+  - "section 1923\\.04"
+aliases:
+  - three-day notice
+  - three day notice
+  - notice to leave the premises
+  - notice to vacate
+
+verification: unverified
+source: ""
+source_url: ""
+verified_on: ""
+notes: >-
+  Unverified. Read R.C. 1923.04 and the cases construing it, correct these
+  elements, and record what you read before relying on a clean audit. The
+  statutory language, the service methods, and how the waiting period is counted
+  are exactly the points this list is most likely to get wrong.
+
+# The notice-defect row of the issue-selection table already encodes what a
+# notice defense turns on; its facts are read as elements rather than restated.
+decision_table_key: eviction_answer_issue_selection
+decision_table_row: notice_defect
+
+elements:
+  - id: notice_served
+    label: A notice to leave the premises was served
+    requirement: The brief identifies a notice and says it was served on the tenant.
+    severity: error
+    needs_record_support: true
+    patterns:
+      - "serv(ed|ice) .{0,60}notice"
+      - "notice .{0,40}(was|were) serv"
+  - id: statutory_language
+    label: The notice carried the language the statute requires
+    requirement: >-
+      The brief says whether the notice contained the statutorily required
+      language, and quotes or attaches it rather than characterizing it.
+    severity: error
+    needs_record_support: true
+    patterns:
+      - "statutory language"
+      - "required language"
+      - "language required by"
+  - id: service_method
+    label: The notice was served by a permitted method
+    requirement: The brief names how the notice was delivered.
+    severity: warning
+    needs_record_support: true
+    patterns:
+      - "(personal|residential|certified|ordinary) (service|mail)"
+      - "posted (on|at) the"
+      - "hand[- ]deliver"
+  - id: waiting_period
+    label: The statutory period ran before the complaint was filed
+    requirement: >-
+      The brief gives both the service date and the filing date, so the period
+      between them can be counted rather than assumed.
+    severity: error
+    needs_record_support: true
+    patterns:
+      - "filed .{0,60}(after|before) .{0,40}notice"
+      - "three days"
+      - "(service|notice) date"

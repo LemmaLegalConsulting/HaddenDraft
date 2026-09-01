@@ -1,0 +1,91 @@
+schema_version: 1
+slug: generic-ohio-appellate-court
+name: Ohio court of appeals (generic starter profile)
+court_type: appellate
+state: Ohio
+county: ""
+# An appellate district is not a municipality. The field stays blank rather
+# than being filled with the city the court happens to sit in.
+municipality: ""
+division: ""
+
+aliases:
+  - court of appeals
+  - appellate district
+  - district court of appeals
+  - Supreme Court of Ohio
+
+verification: unverified
+source: ""
+source_url: ""
+verified_on: ""
+notes: >-
+  A starter profile covering the elements an Ohio appellate brief conventionally
+  carries. Page limits and type size are governed by App.R. 19 and each
+  district's local rules, which differ; leave `page_limits` empty until the
+  district's own rule is recorded here.
+
+pleading_types: [appellate_brief, reply_brief, motion, memorandum]
+
+formatting:
+  fonts:
+    allowed_families: []
+    min_size_pt: 12
+    footnote_min_size_pt: 10
+  spacing:
+    body: any
+  margins_in:
+    top: 1.0
+    bottom: 1.0
+    left: 1.0
+    right: 1.0
+  page_limits: []
+
+required_elements:
+  - id: table_of_contents
+    label: Table of contents
+    severity: error
+    pleading_types: [appellate_brief]
+    patterns:
+      - "table of contents"
+  - id: table_of_authorities
+    label: Table of authorities
+    severity: error
+    pleading_types: [appellate_brief]
+    patterns:
+      - "table of authorities"
+  - id: assignments_of_error
+    label: Assignments of error
+    severity: error
+    pleading_types: [appellate_brief]
+    patterns:
+      - "assignments? of error"
+  - id: statement_of_the_case
+    label: Statement of the case and facts
+    severity: warning
+    pleading_types: [appellate_brief]
+    patterns:
+      - "statement of the case"
+      - "statement of (the )?facts"
+  - id: standard_of_review
+    label: Standard of review
+    severity: warning
+    pleading_types: [appellate_brief, reply_brief]
+    patterns:
+      - "standard of review"
+      - "de novo"
+      - "abuse of discretion"
+  - id: conclusion
+    label: Conclusion stating the relief sought
+    severity: warning
+    pleading_types: [appellate_brief, reply_brief]
+    patterns:
+      - "^\\s*conclusion"
+      - "wherefore"
+  - id: certificate_of_service
+    label: Certificate of service
+    severity: error
+    pleading_types: []
+    patterns:
+      - "certificate of service"
+      - "served (a )?(true )?cop(y|ies) (of|upon)"

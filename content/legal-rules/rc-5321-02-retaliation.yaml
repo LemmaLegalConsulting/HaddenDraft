@@ -1,0 +1,68 @@
+schema_version: 1
+slug: rc-5321-02-retaliation
+name: Retaliatory action by a landlord
+citation: R.C. 5321.02
+rule_type: statute
+jurisdiction: Ohio
+summary: >-
+  A landlord may not retaliate against a tenant for protected activity such as
+  complaining to a code-enforcement agency, complaining to the landlord, or
+  joining a tenants' organization. A tenant raising it has to identify the
+  protected act, the retaliatory act, and the connection between them.
+
+citation_patterns:
+  - "R\\.?\\s*C\\.?\\s*(§\\s*)?5321\\.02"
+  - "O\\.?R\\.?C\\.?\\s*(§\\s*)?5321\\.02"
+  - "section 5321\\.02"
+aliases:
+  - retaliatory eviction
+  - retaliation defense
+
+verification: unverified
+source: ""
+source_url: ""
+verified_on: ""
+notes: >-
+  Unverified. Which activities are protected, and what a landlord may show in
+  response, are the points to check first.
+
+elements:
+  - id: protected_activity
+    label: The tenant engaged in protected activity
+    requirement: The brief names the act the statute protects and when it happened.
+    severity: error
+    needs_record_support: true
+    patterns:
+      - "complain(ed|t) to .{0,40}(code|health|building|inspector|agency)"
+      - "complained to the landlord"
+      - "tenants?'? (union|organization|association)"
+  - id: landlord_knowledge
+    label: The landlord knew of the protected activity
+    requirement: The brief says how the landlord came to know of it.
+    severity: warning
+    needs_record_support: true
+    patterns:
+      - "landlord (knew|learned|was notified|was aware)"
+      - "after (the|being) (notified|informed)"
+  - id: retaliatory_act
+    label: The landlord took one of the acts the statute forbids
+    requirement: The brief names the act -- the eviction, the rent increase, the reduced service.
+    severity: error
+    needs_record_support: true
+    patterns:
+      - "(increase[ds]?|raised) .{0,20}rent"
+      - "decreas(ed|ing) services"
+      - "brought .{0,30}(eviction|action for possession)"
+      - "terminated the tenancy"
+  - id: causal_connection
+    label: The connection between the two is pleaded
+    requirement: >-
+      The brief says why the act followed the protected activity -- normally the
+      timing, and anything the landlord said.
+    severity: error
+    needs_record_support: true
+    patterns:
+      - "(days|weeks|months) after"
+      - "in response to"
+      - "because (the tenant|she|he|they) (complained|reported)"
+      - "shortly (after|thereafter)"

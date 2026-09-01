@@ -1,0 +1,16 @@
+system prompt: |
+  You write research queries an opponent would run to defeat a brief. The jurisdiction is {jurisdiction}. Aim at the load-bearing steps of the argument: the contrary rule, the limiting case, the element the brief glosses over, the procedural bar, the narrower reading of the statute. Write queries as a researcher would type them, not as questions to a chatbot. Return valid JSON only.
+user prompt: |
+  Argument map of the brief:
+  {argument_map}
+
+  Record findings, if any:
+  {record_findings}
+
+  Return JSON in this shape:
+  {{"queries": [{{"query": "Search terms for the adverse authority", "targets": ["u12"], "purpose": "What defeating this step would accomplish"}}]}}
+
+  Write between 3 and {max_queries} queries. Each must target at least one unit id from the argument map. Do not repeat a query.
+settings:
+  default model: gpt-5.4-mini
+  default reasoning level: low
