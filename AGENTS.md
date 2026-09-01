@@ -11,6 +11,28 @@ library, not inside a Django app or embedded in Python constants.
 - Put authoritative treatise PDFs under `content/treatises/source/`; keep
   generated Markdown under `content/treatises/markdown/` and do not hand-edit
   it.
+- Put one court's filing-format rules in `content/court-rules/<slug>.yaml` and
+  seed them into `CourtProfile`. Every profile states its own `verification`, and
+  only a verified one -- whose `source` cites the court's published local rule --
+  may produce error-level findings; a starter profile warns. A wrong filing rule
+  is worse than a missing one: it reports a filing as clean when a clerk would
+  reject it. Never overwrite a profile marked `is_locally_edited`.
+- Report a format property that could not be measured as unmeasured, never as a
+  pass. A DOCX has no page count until something renders it and a scanned PDF has
+  no type size to read; silently skipping either tells an advocate their
+  fifty-page brief fits in fifteen.
+- Put a legal rule's elements in `content/legal-rules/<slug>.yaml` and seed them
+  into `LegalRuleProfile`. Where a published decision table already encodes the
+  rule, name its row rather than restating it. The same verification rule applies
+  as for court rules: only a verified element list may report an error, because a
+  wrong element list tells an advocate their pleading is complete when it is not.
+- Never add a dictionary spell check to a filing. A general dictionary flags
+  "replevin", "estoppel", and half of every case name, and an advocate who
+  dismisses forty false positives stops reading the check. Check the words legal
+  writing actually gets wrong, in
+  `content/drafting-rules/checks/legal-language.yaml`. Passive voice is likewise
+  never an error in a filing: "service was perfected" is the register a court
+  expects, so accepted phrases are file-backed and extendable per session.
 - Put default triage rubrics in `content/triage-rubrics/*.yaml`. Seed new files
   into the database; do not silently overwrite existing admin-managed records.
 - Put the rules mapping a triage outcome to LegalServer case properties in
@@ -114,6 +136,24 @@ Keep changes aligned with the existing workflow boundaries:
   presentational so the rules stay testable without a browser runtime.
 
 Do not replace reviewable workflow steps with a single free-form agent flow.
+- A filed brief arrives with its exhibits attached and is mostly not a brief.
+  Detect the boundary (`apps.argument_gym.ingestion.split_brief_and_exhibits`) and
+  ingest the attachments as case-record material; never send a three-hundred-page
+  filing to a model to find the argument in it. Where nothing marks the boundary,
+  the page cap applies and the reason is recorded.
+- Let the author choose which checks run, and keep "turned off", "could not run",
+  and "ran and found nothing" three distinct states. A check that never ran must
+  never read as a clean result, and an empty selection must not silently mean
+  "run everything" -- `apps.argument_gym.checks` stores an explicit sentinel for
+  a session with every check off.
+- Adversarial review of a brief belongs under `backend/apps/argument_gym/`. Keep
+  the opponent, the judge, and the coach as separate model calls: one call asked
+  to attack, weigh, and answer produces attacks it has already decided are
+  answerable, which is the failure the feature exists to prevent. A gym run
+  references case documents and never copies them, and it never edits a
+  document -- a challenge reaches the draft only through an
+  `apps.validation.revision` plan a human applied. Report challenges, coverage,
+  and dispositions; never a numeric score for a brief.
 Preserve human review points for facts, template choices, source support,
 validation, and export.
 
