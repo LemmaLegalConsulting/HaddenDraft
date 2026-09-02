@@ -1,0 +1,90 @@
+schema_version: 1
+slug: pleading-form
+title: Form-of-pleading checks
+jurisdiction: Ohio
+audience: court
+notes: >
+  Deterministic checks on the form of a filed paper: the things a reader can
+  verify by looking, not by reasoning. Nothing here is about whether an argument
+  is good. A check that cannot be decided by looking does not belong in this
+  file.
+
+  These are conventions of practice, not any one court's local rules. A court's
+  own requirements live in content/court-rules/ and are checked separately, so
+  the two never disagree about whose rule is being applied.
+
+checks:
+  - id: numbered_paragraphs
+    label: Numbered paragraphs
+    kind: numbered_paragraphs
+    severity: warning
+    pleading_types: [complaint, answer]
+    min_paragraphs: 3
+    message: >
+      A {pleading_type} is conventionally pleaded in numbered paragraphs, and
+      an opponent answers it paragraph by paragraph. {found} numbered
+      paragraph(s) were found.
+
+  - id: paragraph_numbering_gaps
+    label: Paragraph numbering runs in order
+    kind: paragraph_sequence
+    severity: warning
+    pleading_types: [complaint, answer]
+    message: >
+      Paragraph numbering jumps from {previous} to {current}. An opponent
+      answering paragraph by paragraph will not be able to line the two up.
+
+  - id: prayer_for_relief
+    label: A prayer stating the relief sought
+    kind: required_text
+    severity: warning
+    pleading_types: [complaint, answer, motion, memorandum, appellate_brief]
+    patterns:
+      - "wherefore"
+      - "respectfully requests?"
+      - "prays? for"
+      - "relief requested"
+    message: >
+      No passage asks the court for anything. A filing that does not state the
+      relief it seeks leaves the court to infer it.
+
+  - id: signature_block
+    label: Signature block
+    kind: required_text
+    severity: warning
+    patterns:
+      - "respectfully submitted"
+      - "/s/"
+    message: >
+      No signature block was found. Every filed paper carries the signature of
+      the person filing it.
+
+  - id: exhibit_references_resolve
+    label: Every exhibit referred to is attached
+    kind: exhibit_references
+    severity: warning
+    message: >
+      The text refers to {missing}, which is not among the attachments read
+      with this filing. Either the exhibit is missing or the reference is wrong.
+
+  - id: unfilled_placeholder
+    label: No placeholder left unfilled
+    kind: placeholder
+    severity: error
+    patterns:
+      - "\\[[A-Z][A-Za-z ]{2,40}\\]"
+      - "_{4,}"
+      - "\\bTBD\\b"
+      - "\\bXXX+\\b"
+      - "\\{\\{.*?\\}\\}"
+    message: >
+      A placeholder is still in the text: {excerpt}
+
+  - id: date_placeholder
+    label: The filing carries a date
+    kind: required_text
+    severity: info
+    patterns:
+      - "\\b(19|20)\\d{2}\\b"
+    message: >
+      No year appears anywhere in this filing, so it may be undated.

@@ -21,6 +21,8 @@ content/                       # public, safe-to-commit defaults
 │   └── checks/               # versioned machine-readable drafting/quality rules
 ├── statutes/
 │   └── ohio-revised-code/    # configured official-code scope and generated section index
+├── court-rules/              # one YAML per court: identity and filing-format requirements
+├── legal-rules/              # one YAML per legal rule: how it is invoked and what it requires
 ├── ordinances/               # municipal codes and local court rules, by municipality
 │                             # (generated directories are not committed; see below)
 │   ├── scope.yaml            # reviewable coverage and acquisition routes
@@ -178,6 +180,59 @@ A map declares `enabled`, `dry_run`, and a list of `rules`. Each rule has an
 optional `when` block, and `set` (top-level matter fields) and `custom_fields`
 mappings; a rule with no `when` block always applies, and later rules win on a
 conflicting key. Conditions are `priority`, `priority_label`, `confidence`,
+## Court filing rules
+
+`court-rules/*.yaml` holds one profile per court or tribunal: the names that
+identify it in a caption, and the deterministic filing requirements a document
+for it has to meet — required elements, type size, spacing, margins, page
+limits. These are format rules, not law; nothing here decides a case.
+
+Every profile carries its own `verification` status, and the checker reports
+which status a finding came from. Only a `verified` profile — one whose `source`
+cites the court's published local rule — produces error-level findings; an
+`unverified` starter profile can only warn. A wrong filing rule is worse than a
+missing one, because it reports a filing as clean when a clerk would reject it.
+
+Profiles are seeded like triage rubrics: never overwriting a record edited in
+Django admin, and only applying a changed file to an existing record when the
+synchronization command is given `--update-court-rules`. Editing a profile in
+admin marks it `is_locally_edited`, which re-seeding skips entirely.
+
+See [`court-rules/README.md`](court-rules/README.md) for the full schema.
+
+## Legal rule profiles
+
+`legal-rules/*.yaml` holds one profile per legal rule an advocate commonly
+invokes: how to tell the rule was invoked (citation patterns and the phrases
+people use instead), and the **elements** it requires. An advocate who cites a
+rule has taken on its elements; these files make that auditable.
+
+Where a published decision table already encodes a rule's requirements, name the
+row rather than restating it — its `missing_facts` and condition facts are read
+as elements too.
+
+Like court profiles, each states its own `verification`, and only a `verified`
+list produces error-level findings. **Every profile shipped here is unverified.**
+These elements are substantive law, and a wrong element list tells an advocate
+their pleading is complete when it is not. Seeded by `sync_content_library`,
+which skips anything edited in admin; `--update-legal-rules` applies changed
+files. See [`legal-rules/README.md`](legal-rules/README.md).
+
+## Drafting and language checks
+
+`drafting-rules/checks/` holds the machine-readable checks:
+
+- `plain-language.yaml` — readability rules for client letters.
+- `pleading-form.yaml` — form-of-pleading conventions: numbered paragraphs, a
+  prayer for relief, a signature block, exhibit references, placeholders left in
+  the text. Conventions of practice, not any one court's rules; a court's own
+  requirements live in `court-rules/`.
+- `legal-language.yaml` — the words legal writing gets wrong, the real-word
+  confusions worth a second look, high-precision grammar checks, and the passive
+  constructions a court expects to read. There is deliberately **no dictionary
+  spell check**: a general dictionary flags half of every case name, and an
+  advocate who dismisses forty false positives stops reading the check.
+
 `case_type`, `rubric`, `matched_criteria_contains`, and `missing_information`.
 Values may embed assessment fields in `{braces}`. An unknown condition or
 placeholder fails when the file loads, not against a case.

@@ -197,6 +197,7 @@ backend/
 └── apps/
     ├── ai/                   Constrained drafting service boundary
     ├── core/                 Shared JSON helpers, bootstrap, dev CORS middleware
+    ├── argument_gym/          Adversarial stress testing of briefs
     ├── drafting/             Drafting sessions, draft documents, workflow endpoints
     ├── exporting/            Export adapters
     ├── facts/                Extracted facts and review states
@@ -236,6 +237,9 @@ Key extension points:
 - Maintain reusable legal-content files in [`content/`](content/README.md). Run `.venv/bin/python backend/manage.py sync_content_library` to seed new triage-rubric files; use `--update-triage-rubrics` only when intentionally replacing existing database values.
 - Add export formats in `backend/apps/exporting/services.py`.
 
+- Stress-test a brief against an opponent, a judge, and a coach through `backend/apps/argument_gym/`; see [`docs/ARGUMENT_GYM.md`](docs/ARGUMENT_GYM.md).
+- Add a legal rule's elements as `content/legal-rules/<slug>.yaml`, or point a profile at a published decision-table row, and maintain them in Django admin under **Legal rule profiles**.
+- Add a court's filing-format rules as `content/court-rules/<slug>.yaml`, seed them with `sync_content_library`, and maintain them in Django admin under **Court profiles**. Only a profile marked `verified`, citing the court's own local rule, reports error-level findings.
 ## Prepared Templates
 
 `ingest_document_templates` converts maintained originals into template packages
@@ -628,12 +632,14 @@ Important frontend components:
 - `DocumentHistoryPanel`: per-section version history, the sources each version relied on, and restoring an earlier version.
 - `PackagePanel`: the documents a plan produced, how they relate, and cross-document validation findings.
 
+- `ArgumentGymPanel`: ranked opposition challenges against a brief, with the authority and case-record material behind each one.
 Drafting state lives in `src/state/draftWorkspace.js`, a reducer covering the
 rules for a multi-document session: the document list and the open document
 move together, and validation state belongs to the document that produced it.
 Derivation logic for the panels lives in plain `.js` modules
 (`components/documentHistory.js`, `components/documentPackage.js`,
-`components/caseCatalog.js`, `components/libraryBrowse.js`) so it is
+`components/caseCatalog.js`, `components/libraryBrowse.js`,
+`components/argumentGym.js`) so it is
 covered by `npm run test`; the `.jsx` components stay presentational.
 
 ## Browsing the Library

@@ -4667,3 +4667,504 @@ button:disabled {
   font-size: 12px;
   margin: 0;
 }
+
+/* Argument gym. The panel is a ranked list of challenge cards, not a chat, so
+   the card carries every part of one challenge the advocate has to weigh. */
+.gym-panel {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.gym-setup {
+  display: grid;
+  gap: var(--space-5);
+}
+
+.gym-setup h4 {
+  margin: 0 0 var(--space-2);
+}
+
+.gym-context-choices {
+  display: grid;
+  gap: var(--space-2);
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+
+.gym-context-choice {
+  border: 1px solid #cfd8dd;
+  border-radius: 6px;
+  cursor: pointer;
+  display: grid;
+  gap: 4px;
+  padding: var(--space-3);
+}
+
+.gym-context-choice.active {
+  border-color: #1d5a8a;
+  box-shadow: inset 0 0 0 1px #1d5a8a;
+}
+
+.gym-upload {
+  width: fit-content;
+}
+
+.gym-run-header {
+  align-items: flex-start;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  justify-content: space-between;
+}
+
+.gym-run-header h4 {
+  margin: 0 0 4px;
+}
+
+.gym-run-header p {
+  margin: 0;
+}
+
+.gym-challenge-list {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.gym-challenge {
+  background: #fff;
+  border: 1px solid #dbe3e7;
+  border-left-width: 4px;
+  border-radius: 8px;
+  display: grid;
+  gap: var(--space-2);
+  padding: var(--space-4);
+}
+
+.gym-severity-high {
+  border-left-color: #b3261e;
+}
+
+.gym-severity-medium {
+  border-left-color: #c58a00;
+}
+
+.gym-severity-low {
+  border-left-color: #4a7fa5;
+}
+
+.gym-addressed,
+.gym-dismissed {
+  opacity: 0.75;
+}
+
+.gym-challenge-header {
+  align-items: center;
+  color: #465761;
+  display: flex;
+  flex-wrap: wrap;
+  font-size: 11px;
+  gap: 8px;
+  text-transform: uppercase;
+}
+
+.gym-category,
+.gym-verdict {
+  font-weight: 700;
+}
+
+.gym-disposition,
+.gym-recurring {
+  background: #eef2f4;
+  border-radius: 999px;
+  padding: 2px 8px;
+}
+
+.gym-challenge h4 {
+  font-size: 15px;
+  margin: 0;
+}
+
+.gym-target,
+.gym-coverage {
+  font-size: 12px;
+  margin: 0;
+}
+
+.gym-challenge-grid {
+  display: grid;
+  gap: var(--space-3);
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+}
+
+.gym-challenge-grid h5,
+.gym-suggested h5 {
+  font-size: 12px;
+  letter-spacing: 0.02em;
+  margin: 0 0 4px;
+  text-transform: uppercase;
+}
+
+.gym-quote {
+  background: #f5f8fa;
+  border-left: 3px solid #cfd8dd;
+  margin: 0;
+  padding: var(--space-2) var(--space-3);
+}
+
+.gym-source-list {
+  display: grid;
+  gap: var(--space-2);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.gym-source-snippet {
+  color: #465761;
+  font-size: 12px;
+  margin: 2px 0 0;
+}
+
+.gym-remaining {
+  align-items: center;
+  color: #8a4b00;
+  display: flex;
+  font-size: 12px;
+  gap: 6px;
+  margin: 0;
+}
+
+.gym-materials summary {
+  align-items: center;
+  cursor: pointer;
+  display: flex;
+  gap: 8px;
+}
+
+.gym-material-toggles {
+  display: grid;
+  gap: 4px;
+  list-style: none;
+  margin: var(--space-2) 0 0;
+  padding: 0;
+}
+
+.gym-artifact-modal {
+  max-width: min(1100px, 95vw);
+}
+
+.gym-artifact-summary {
+  background: #f5f8fa;
+  border-radius: 6px;
+  padding: var(--space-3);
+  white-space: pre-wrap;
+}
+
+.gym-table-scroll {
+  overflow-x: auto;
+}
+
+.gym-prep-sheet td,
+.gym-prep-sheet th {
+  font-size: 12px;
+  vertical-align: top;
+}
+
+.gym-prep-sheet p {
+  margin: 4px 0;
+}
+
+/* Argument gym: sessions, jurisdiction, filing format, and the opening verdict. */
+.gym-layout {
+  display: grid;
+  gap: var(--space-4);
+  grid-template-columns: minmax(220px, 280px) minmax(0, 1fr);
+}
+
+@media (max-width: 900px) {
+  .gym-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+.gym-sessions {
+  align-content: start;
+  border-right: 1px solid #dbe3e7;
+  display: grid;
+  gap: var(--space-2);
+  padding-right: var(--space-3);
+}
+
+.gym-sessions-header {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+}
+
+.gym-sessions-header h4 {
+  margin: 0;
+}
+
+.gym-session-list {
+  display: grid;
+  gap: 4px;
+  list-style: none;
+  margin: 0;
+  max-height: 420px;
+  overflow-y: auto;
+  padding: 0;
+}
+
+.gym-session {
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  display: grid;
+  gap: 2px;
+  justify-items: start;
+  min-height: 0;
+  padding: var(--space-2);
+  text-align: left;
+  width: 100%;
+}
+
+.gym-session:hover {
+  background: #e7edf1;
+}
+
+.gym-session.active {
+  background: #fff;
+  border-color: #1d5a8a;
+}
+
+.gym-session-verdict {
+  color: #1d5a8a;
+  font-size: 12px;
+}
+
+.gym-main {
+  display: grid;
+  gap: var(--space-4);
+  min-width: 0;
+}
+
+.gym-assessment,
+.gym-artifact-assessment {
+  background: #f5f8fa;
+  border-left: 4px solid #1d5a8a;
+  border-radius: 6px;
+  padding: var(--space-3) var(--space-4);
+}
+
+.gym-assessment h4,
+.gym-artifact-assessment h5 {
+  align-items: center;
+  display: flex;
+  gap: 8px;
+  margin: 0 0 var(--space-2);
+  text-transform: none;
+}
+
+.gym-assessment p,
+.gym-artifact-assessment p {
+  margin: 0;
+}
+
+.gym-jurisdiction summary,
+.gym-compliance h4 {
+  align-items: center;
+  cursor: pointer;
+  display: flex;
+  gap: 8px;
+  margin: 0;
+}
+
+.gym-jurisdiction-body {
+  display: grid;
+  gap: var(--space-3);
+  padding-top: var(--space-3);
+}
+
+.gym-jurisdiction-fields {
+  display: grid;
+  gap: var(--space-2);
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+}
+
+.gym-mode-row {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.gym-mode {
+  align-items: center;
+  border: 1px solid #cfd8dd;
+  border-radius: 999px;
+  cursor: pointer;
+  display: inline-flex;
+  gap: 6px;
+  padding: 4px 12px;
+}
+
+.gym-mode.active {
+  border-color: #1d5a8a;
+  box-shadow: inset 0 0 0 1px #1d5a8a;
+}
+
+.gym-detection {
+  margin: 0;
+}
+
+.gym-compliance {
+  background: #fff;
+  border: 1px solid #dbe3e7;
+  border-radius: 8px;
+  display: grid;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+}
+
+.gym-compliance-bad {
+  color: #b3261e;
+  font-weight: 600;
+  margin: 0;
+}
+
+.gym-finding-error {
+  border-left: 3px solid #b3261e;
+  padding-left: var(--space-2);
+}
+
+.gym-finding-warning {
+  border-left: 3px solid #c58a00;
+  padding-left: var(--space-2);
+}
+
+.gym-finding-info {
+  border-left: 3px solid #8a97a0;
+  padding-left: var(--space-2);
+}
+
+.gym-split-note {
+  margin: 0;
+}
+
+/* Argument gym: choosing the checks, and reading what each one found. */
+.gym-checks summary,
+.gym-checklist-editor summary,
+.gym-check-findings h4,
+.gym-rule-audit h4,
+.gym-checklist-results h4 {
+  align-items: center;
+  cursor: pointer;
+  display: flex;
+  gap: 8px;
+  margin: 0;
+}
+
+.gym-checks-body {
+  display: grid;
+  gap: var(--space-3);
+  padding-top: var(--space-3);
+}
+
+.gym-check-group {
+  border: 1px solid #dbe3e7;
+  border-radius: 6px;
+  display: grid;
+  gap: var(--space-2);
+  margin: 0;
+  padding: var(--space-2) var(--space-3) var(--space-3);
+}
+
+.gym-check-group legend {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  padding: 0 4px;
+  text-transform: uppercase;
+}
+
+.gym-check {
+  align-items: start;
+  cursor: pointer;
+  display: grid;
+  gap: var(--space-2);
+  grid-template-columns: auto 1fr;
+}
+
+.gym-check > span {
+  display: grid;
+  gap: 2px;
+}
+
+.gym-check-kind {
+  background: #eef2f4;
+  border-radius: 999px;
+  font-size: 11px;
+  justify-self: start;
+  padding: 1px 8px;
+  text-transform: uppercase;
+}
+
+.gym-check-findings,
+.gym-rule-audit,
+.gym-checklist-results {
+  background: #fff;
+  border: 1px solid #dbe3e7;
+  border-radius: 8px;
+  display: grid;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+}
+
+.gym-check-result summary,
+.gym-rule summary {
+  cursor: pointer;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.gym-check-result,
+.gym-rule {
+  border-top: 1px solid #eef2f4;
+  padding-top: var(--space-2);
+}
+
+.gym-check-unavailable {
+  background: #fff7df;
+  border-radius: 6px;
+  padding: var(--space-2) var(--space-3);
+}
+
+.gym-check-unavailable ul,
+.gym-rule-audit ul {
+  margin: var(--space-1) 0 0;
+}
+
+.gym-element-unmet {
+  border-left: 3px solid #b3261e;
+  padding-left: var(--space-2);
+}
+
+.gym-element-met {
+  border-left: 3px solid #2e7d52;
+  padding-left: var(--space-2);
+}
+
+.gym-checklist-fail {
+  border-left: 3px solid #b3261e;
+  padding-left: var(--space-2);
+}
+
+.gym-checklist-needs_review {
+  border-left: 3px solid #c58a00;
+  padding-left: var(--space-2);
+}
+
+.gym-checklist-pass {
+  border-left: 3px solid #2e7d52;
+  padding-left: var(--space-2);
+}

@@ -20,6 +20,7 @@ import {
   PenLine,
   Search,
   Settings,
+  Swords,
   Unplug,
   UserRound,
   X,
@@ -29,6 +30,7 @@ import { api } from "./api/client.js";
 import { retryWhileUnreachable } from "./api/errors.js";
 import { AuthorFields, emptyAuthorProfile } from "./components/AuthorFields.jsx";
 import { AdviceLetterPanel } from "./components/AdviceLetterPanel.jsx";
+import { ArgumentGymPanel } from "./components/ArgumentGymPanel.jsx";
 import { AuthorProfile } from "./components/AuthorProfile.jsx";
 import { ChangePassword } from "./components/ChangePassword.jsx";
 import { CaseChat } from "./components/CaseChat.jsx";
@@ -78,6 +80,7 @@ const modeOptions = [
   { id: "research", label: "Research", icon: Search },
   { id: "advice_letter", label: "Advice letter", icon: Mail },
   { id: "draft", label: "Draft", icon: PenLine },
+  { id: "argument_gym", label: "Argument gym", icon: Swords },
 ];
 
 export function App() {
@@ -110,6 +113,8 @@ export function App() {
   const [outline, setOutline] = useState(null);
   const [workspace, dispatchWorkspace] = useReducer(draftWorkspaceReducer, initialDraftWorkspace);
   const [revisionBusy, setRevisionBusy] = useState(false);
+  const [gymFocusRun, setGymFocusRun] = useState(null);
+  const [stressTestBusy, setStressTestBusy] = useState(false);
   const [triageAssessment, setTriageAssessment] = useState(null);
   const [triageDelivery, setTriageDelivery] = useState(null);
   const [saveDraftToLegalServer, setSaveDraftToLegalServer] = useState(true);
@@ -846,6 +851,29 @@ export function App() {
     }
   }
 
+  async function stressTestDraft() {
+    if (!draft) return;
+    setStressTestBusy(true);
+    setError("");
+    try {
+      // The gym reads the stored document, so the editor's current text is
+      // persisted first rather than being silently left out of the run.
+      const saved = await api.updateDraft(draft.id, {
+        sections: draft.sections,
+        plainText: draft.plainText,
+        editorState: draft.editorState,
+      });
+      dispatchWorkspace({ type: "documentEdited", draft: saved.draft });
+      const response = await api.stressTestDraft(draft.id);
+      setGymFocusRun({ run: response.run, workspace: response.workspace });
+      setMode("argument_gym");
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setStressTestBusy(false);
+    }
+  }
+
   async function regenerateDraftBlock(blockKey, instruction = "") {
     if (!draft) return;
     setBusy(true);
@@ -1012,6 +1040,14 @@ export function App() {
         {mode === "triage" && <TriagePanel matter={matter} rubrics={triageRubrics} selectedRubricId={selectedTriageRubricId} onSelectRubric={setSelectedTriageRubricId} assessment={triageAssessment} history={triageHistory} busy={busy} manualCaseBusy={manualCaseBusy} onRunTriage={runTriage} onCreateManualCase={handleCreateManualCase} legalserverSave={boot?.legalserverSave} legalserverDelivery={triageDelivery} />}
         {mode === "case_chat" && <CaseChat matter={matter} onAction={handleCaseAction} legalserverSave={boot?.legalserverSave} />}
         {mode === "advice_letter" && <AdviceLetterPanel matter={matter} authorProfile={draftAuthorProfile} legalserverSave={boot?.legalserverSave} />}
+        {mode === "argument_gym" && (
+          <ArgumentGymPanel
+            matter={matter}
+            cases={cases}
+            focusRun={gymFocusRun}
+            onFocusRunHandled={() => setGymFocusRun(null)}
+          />
+        )}
         {mode === "research" && <ResearchPanel matter={matter} sources={boot?.sources || []} onResults={(results) => setSourceResults(results)} legalserverSave={boot?.legalserverSave} />}
         {mode === "draft" && draftStep === "goal" && <DraftGoalPanel goal={draftGoal} onGoalChange={(value) => { setDraftGoal(value); setInstructions(value); setSelectedGoalSuggestionId(""); }} planningMode={planningMode} onPlanningModeChange={setPlanningMode} allowMultiple={allowMultipleDocuments} onAllowMultipleChange={setAllowMultipleDocuments} selectedTemplateId={selectedTemplateId} onTemplateChange={selectDraftTemplate} templates={templates} matter={matter} busy={busy} onMakePlan={() => makeDraftPlan()} goalSuggestions={goalSuggestions} goalSuggestionGuidance={goalSuggestionGuidance} goalSuggestionsBusy={goalSuggestionsBusy} selectedGoalSuggestionId={selectedGoalSuggestionId} onSuggestGoals={suggestDraftGoals} onSelectGoalSuggestion={selectGoalSuggestion} />}
         {mode === "draft" && draftStep === "plan" && <DraftPlanReview plan={draftPlan} templates={templates} matter={matter} session={session} busy={busy} authorProfile={draftAuthorProfile} onAuthorProfileChange={setDraftAuthorProfile} selectedFactIds={selectedFactIds} selectedCuratedFacts={selectedCuratedFacts} onFactChange={setSelectedFactIds} onCuratedChange={setSelectedCuratedFacts} onMatterChange={setMatter} onFactIdsAdded={(ids) => setSelectedFactIds((current) => mergeFactIds(current, ids))} selectedResults={sourceResults} onSelectedResultsChange={setSourceResults} onSessionChange={setSession} candidateIssues={candidateIssues} onIssuesChange={setCandidateIssues} clarifyMissingFactsBeforeDraft={clarifyMissingFactsBeforeDraft} onClarifyMissingFactsBeforeDraftChange={setClarifyMissingFactsBeforeDraft} onPlanChange={setDraftPlan} onRegeneratePlan={regenerateDraftPlan} onContinue={goToQuestionsOrGenerate} />}
@@ -1081,6 +1117,15 @@ export function App() {
                   {draftDirtySinceValidation && validationSummary && (
                     <span className="recheck-hint">You've made changes since the last check.</span>
                   )}
+                  <button
+                    className="btn btn-outline-secondary"
+                    type="button"
+                    disabled={stressTestBusy}
+                    onClick={stressTestDraft}
+                    title="Have an opponent, a judge, and a coach read this draft"
+                  >
+                    {stressTestBusy ? <Loader2 className="spin" size={16} /> : <Swords size={16} />} Stress test
+                  </button>
                   <button
                     className="btn btn-outline-secondary"
                     type="button"

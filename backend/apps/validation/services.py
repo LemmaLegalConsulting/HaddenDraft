@@ -9,6 +9,7 @@ Rule code ranges:
     E/W/I600-699: filing/jurisdiction/profile checks
     E/W/I700-799: source integrity (see source_integrity.py)
     E/W/I800-899: filing-package consistency (see packages.py)
+    E/W/I900-999: court filing-format compliance (see court_formatting.py)
 
 This is intentionally a linter, not a full fact/claim graph or a legal-reasoning
 engine: rules look at selected facts, selected sources, template blocks, and

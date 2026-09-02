@@ -1,0 +1,74 @@
+schema_version: 1
+slug: rc-5321-16-security-deposit
+name: Security deposits
+citation: R.C. 5321.16
+rule_type: statute
+jurisdiction: Ohio
+summary: >-
+  On termination, a landlord must itemize and return a security deposit within
+  the statutory period, and a landlord who wrongfully withholds may owe damages
+  and attorney fees. A tenant claiming it has to establish the deposit, the
+  forwarding address, the failure, and the amount claimed.
+
+citation_patterns:
+  - "R\\.?\\s*C\\.?\\s*(§\\s*)?5321\\.16"
+  - "O\\.?R\\.?C\\.?\\s*(§\\s*)?5321\\.16"
+  - "section 5321\\.16"
+aliases:
+  - security deposit
+  - wrongfully withheld deposit
+  - double damages
+
+verification: unverified
+source: ""
+source_url: ""
+verified_on: ""
+notes: >-
+  Unverified. The statutory period, what the itemization must contain, and what
+  the tenant must do to trigger the landlord's obligation are the points to check
+  first.
+
+elements:
+  - id: deposit_paid
+    label: A security deposit was paid, in a stated amount
+    requirement: The brief states the amount and when it was paid.
+    severity: error
+    needs_record_support: true
+    patterns:
+      - "security deposit of \\$"
+      - "deposit .{0,30}\\$\\s?\\d"
+      - "paid a .{0,20}deposit"
+  - id: tenancy_terminated
+    label: The tenancy ended and possession was delivered
+    requirement: The brief gives the date the tenancy ended and possession was returned.
+    severity: error
+    needs_record_support: true
+    patterns:
+      - "(vacated|surrendered|delivered possession|moved out)"
+      - "tenancy (ended|terminated)"
+  - id: forwarding_address
+    label: A forwarding address was given to the landlord
+    requirement: The brief says how and when the address was provided.
+    severity: error
+    needs_record_support: true
+    patterns:
+      - "forwarding address"
+      - "address .{0,30}(in writing|provided to the landlord)"
+  - id: failure_to_itemize_or_return
+    label: The landlord did not itemize or return the deposit in time
+    requirement: The brief says what the landlord did or failed to do, and when the period ran out.
+    severity: error
+    needs_record_support: true
+    patterns:
+      - "(failed|refused) to (return|itemize)"
+      - "no itemiz"
+      - "within thirty days"
+  - id: amount_claimed
+    label: The amount claimed is computed
+    requirement: The brief shows how the amount sought is arrived at, including any fees.
+    severity: warning
+    needs_record_support: false
+    patterns:
+      - "attorney'?s? fees"
+      - "damages of \\$"
+      - "twice the amount"

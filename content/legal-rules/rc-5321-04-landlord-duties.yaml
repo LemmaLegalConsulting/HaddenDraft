@@ -1,0 +1,77 @@
+schema_version: 1
+slug: rc-5321-04-landlord-duties
+name: Landlord obligations
+citation: R.C. 5321.04
+rule_type: statute
+jurisdiction: Ohio
+summary: >-
+  A residential landlord owes statutory duties including compliance with
+  building, housing, health, and safety codes and keeping the premises in a fit
+  and habitable condition. A tenant relying on a breach has to identify the duty,
+  the failure, notice to the landlord, and the consequence claimed.
+
+citation_patterns:
+  - "R\\.?\\s*C\\.?\\s*(§\\s*)?5321\\.04"
+  - "O\\.?R\\.?C\\.?\\s*(§\\s*)?5321\\.04"
+  - "section 5321\\.04"
+aliases:
+  - landlord's statutory duties
+  - duty to repair
+  - fit and habitable
+  - warranty of habitability
+
+verification: unverified
+source: ""
+source_url: ""
+verified_on: ""
+notes: >-
+  Unverified. Which subsection a particular condition falls under, and what a
+  tenant must do before relying on a breach, are the points to check first.
+
+elements:
+  - id: duty_identified
+    label: The specific statutory duty is identified
+    requirement: The brief names which obligation was breached, not just that conditions were bad.
+    severity: error
+    needs_record_support: false
+    patterns:
+      - "5321\\.04\\s*\\(A\\)\\s*\\(\\d"
+      - "(building|housing|health|safety) code"
+      - "fit and habitable"
+  - id: condition_described
+    label: The condition is described specifically
+    requirement: The brief describes the defect, where it is, and how long it lasted.
+    severity: error
+    needs_record_support: true
+    patterns:
+      - "(leak|mold|heat|furnace|water|infestation|roach|rodent|electrical|plumbing|roof)"
+  - id: notice_to_landlord
+    label: The landlord was given notice of the condition
+    requirement: The brief says the landlord knew or was told, and when.
+    severity: error
+    needs_record_support: true
+    patterns:
+      - "notified the landlord"
+      - "landlord (knew|was aware|was told|received notice)"
+      - "written (notice|request|complaint) to the landlord"
+  - id: opportunity_to_repair
+    label: The landlord had a reasonable opportunity to repair
+    requirement: The brief accounts for the time between notice and the filing.
+    severity: warning
+    needs_record_support: true
+    patterns:
+      - "reasonable (time|opportunity)"
+      - "failed to (repair|remedy|correct)"
+      - "did not (repair|remedy|correct)"
+  - id: consequence_claimed
+    label: The consequence the tenant claims is stated
+    requirement: >-
+      The brief says what follows from the breach -- abatement, a defense to
+      possession, damages -- and ties it to the duty it identified.
+    severity: warning
+    needs_record_support: false
+    patterns:
+      - "abatement"
+      - "damages"
+      - "defense to (possession|eviction)"
+      - "rent escrow"

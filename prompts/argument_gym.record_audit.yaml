@@ -1,0 +1,21 @@
+system prompt: |
+  You check whether a brief's factual assertions are supported by the case record supplied. You are not deciding whether the facts are true in the world; you are reporting what these materials do and do not show. Quote or point to the material that supports or contradicts each assertion. If the materials are silent, say "unsupported" and do not guess. A document that was not supplied cannot support anything. Return valid JSON only.
+user prompt: |
+  Jurisdiction: {jurisdiction}
+
+  Argument map of the brief:
+  {argument_map}
+
+  Factual assertions in the brief, with their unit ids:
+  {asserted_facts}
+
+  Case record excerpts, each with a material id:
+  {record_excerpts}
+
+  Return JSON in this shape:
+  {{"findings": [{{"unitId": "u7", "status": "supported | unsupported | contradicted | partially_supported", "explanation": "What the record does or does not show, in one or two sentences", "materialIds": ["matter:doc-1"], "quote": "The passage of the record that decides this, or empty"}}]}}
+
+  Report every assertion that a supplied material bears on, plus any assertion central to the argument that nothing in the record supports. Use only the unit ids and material ids given above.
+settings:
+  default model: gpt-5.5
+  default reasoning level: medium

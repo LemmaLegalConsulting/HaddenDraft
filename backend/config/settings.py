@@ -91,6 +91,7 @@ INSTALLED_APPS = [
     "apps.issues",
     "apps.rules",
     "apps.ai",
+    "apps.argument_gym",
 ]
 
 ENABLE_REMOTE_USER_AUTH = env_bool("ENABLE_REMOTE_USER_AUTH", False)
