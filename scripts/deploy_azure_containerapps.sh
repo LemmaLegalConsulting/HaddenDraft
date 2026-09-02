@@ -47,6 +47,8 @@ SYNC_CASELAW="${SYNC_CASELAW:-false}"
 CASELAW_DIR="${CASELAW_DIR:-downloaded_cases}"
 SYNC_PRIVATE_CONTENT="${SYNC_PRIVATE_CONTENT:-false}"
 PRIVATE_CONTENT_DIR="${PRIVATE_CONTENT_DIR:-private-content}"
+SYNC_ORDINANCES="${SYNC_ORDINANCES:-false}"
+ORDINANCE_DIR="${ORDINANCE_DIR:-content/ordinances}"
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$REPO_ROOT"
@@ -105,6 +107,16 @@ if [[ "$SYNC_PRIVATE_CONTENT" == "true" ]]; then
   rsync -a --exclude 'caselaw-artifacts/' --exclude '.git' "$PRIVATE_CONTENT_DIR/" "$PRIVATE_STAGE/"
   az storage file upload-batch --account-name "$FILES_ACCOUNT" --account-key "$FILES_KEY" \
     --destination raw --destination-path private-content --source "$PRIVATE_STAGE" --no-progress -o none
+fi
+
+if [[ "$SYNC_ORDINANCES" == "true" ]]; then
+  # The generated corpus is data, not source: manifests, sections and chunks
+  # written by scripts/ingest_local_ordinances.py, plus the source documents they
+  # were read from. Uploads land in the raw area; the bootstrap job publishes
+  # them under published/content/ordinances/, where the content library reads.
+  echo "Uploading the local-ordinance corpus into raw/content/ordinances/..."
+  az storage file upload-batch --account-name "$FILES_ACCOUNT" --account-key "$FILES_KEY" \
+    --destination raw --destination-path content/ordinances --source "$ORDINANCE_DIR" --no-progress -o none
 fi
 
 # --- Image -------------------------------------------------------------------

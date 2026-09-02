@@ -18,6 +18,10 @@ python manage.py migrate --noinput
 echo "==> Publishing private organization content"
 python manage.py publish_private_content
 
+# The local-ordinance corpus is generated data uploaded to raw/, not shipped
+# in the image. Publishing it is what makes local law readable to the app.
+python manage.py publish_local_ordinances
+
 echo "==> Ingesting document templates"
 python manage.py ingest_document_templates
 
