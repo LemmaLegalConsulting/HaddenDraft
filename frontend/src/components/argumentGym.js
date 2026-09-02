@@ -429,3 +429,49 @@ export function checklistItemsFromText(text = "") {
 export function checklistItemsToText(items = []) {
   return items.map((item) => item.text).join("\n");
 }
+
+
+// Run progress
+
+export const RUN_POLL_MS = 3000;
+// Nothing here waits on a single request: a run outlives the worker timeout, and
+// a killed worker returns no headers at all, which the browser reports as a CORS
+// failure rather than as the timeout it is.
+export const RUN_POLL_TIMEOUT_MS = 15 * 60 * 1000;
+
+const STAGE_LABELS = {
+  compliance: "Checking the court's filing rules",
+  document_checks: "Running the document checks",
+  materials: "Choosing case materials",
+  argument_map: "Mapping the argument",
+  record_audit: "Checking the brief against the record",
+  research_queries: "Writing adversarial research queries",
+  research: "Researching",
+  opponent: "Opposing counsel is building its attacks",
+  rule_elements: "Auditing the elements of the rules invoked",
+  custom_checklist: "Applying your checklist",
+  judge: "The judge is weighing the attacks",
+  coach: "Drafting responses",
+  assessment: "Writing the assessment",
+};
+
+export function isRunFinished(run) {
+  return ["complete", "failed"].includes(run?.status);
+}
+
+// Name the stage rather than showing a spinner: a run takes minutes, and an
+// advocate watching a blank panel cannot tell slow research from a wedged run.
+export function runProgressLabel(run) {
+  if (!run) return "";
+  if (run.status === "failed") return run.error || "The run failed.";
+  if (run.status === "complete") return "";
+  const stages = run.stageTrace || [];
+  const last = stages[stages.length - 1];
+  const label = last ? STAGE_LABELS[last.stage] || last.stage.replace(/_/g, " ") : "Starting";
+  return `${label}… (step ${stages.length + (last ? 0 : 1)} of about ${Object.keys(STAGE_LABELS).length})`;
+}
+
+export function runProgressFraction(run) {
+  const done = (run?.stageTrace || []).length;
+  return Math.min(done / Object.keys(STAGE_LABELS).length, 0.95);
+}

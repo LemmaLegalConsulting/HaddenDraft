@@ -22,9 +22,12 @@ the pipeline is testable without live AI.
 
 import hashlib
 import json
+import logging
 import re
+import threading
 
 from django.conf import settings
+from django.db import close_old_connections
 from django.utils import timezone
 
 from apps.ai.case_chat import compact_case_context
@@ -51,6 +54,8 @@ MAX_CHALLENGES = 7
 MIN_CHALLENGES = 3
 MAX_MATERIALS = 6
 SEVERITY_PREFIX = {"error": "E", "warning": "W", "info": "I"}
+logger = logging.getLogger(__name__)
+
 CATEGORIES = {choice for choice, _label in GymChallenge.CATEGORY_CHOICES}
 SEVERITIES = {choice for choice, _label in GymChallenge.SEVERITY_CHOICES}
 CONFIDENCES = {choice for choice, _label in GymChallenge.CONFIDENCE_CHOICES}
@@ -1062,6 +1067,18 @@ def execute_run(run, *, user=None, request=None, llm_client=None, connector_regi
     """Run every stage and persist the challenges. Never raises into the view."""
     run.status = GymRun.RUNNING
     run.save(update_fields=["status"])
+
+    def note_stage(stage):
+        """Save each stage as it finishes, so a client polling can say where it is.
+
+        A run takes minutes. Without this the only observable states are
+        "running" and "done", and an advocate watching a blank panel cannot tell
+        a slow research round from a wedged one.
+        """
+        stages.append(stage)
+        run.stage_trace = list(stages)
+        run.save(update_fields=["stage_trace"])
+
     workspace = run.workspace
     matter = workspace.matter
     jurisdiction = workspace.jurisdiction or getattr(matter, "jurisdiction", "") or ""
@@ -1105,7 +1122,7 @@ def execute_run(run, *, user=None, request=None, llm_client=None, connector_regi
             run.court = court
             run.compliance = compliance
             run.court_detection = compliance["detection"]
-            stages.append(trace)
+            note_stage(trace)
         else:
             run.court = court
             run.court_detection = detection
@@ -1131,7 +1148,7 @@ def execute_run(run, *, user=None, request=None, llm_client=None, connector_regi
         if run.compliance.get("findings"):
             check_results["court_formatting"] = {"findings": run.compliance["findings"]}
         run.check_results = check_results
-        stages.append(
+        note_stage(
             {
                 "stage": "document_checks",
                 "method": "deterministic",
@@ -1159,7 +1176,7 @@ def execute_run(run, *, user=None, request=None, llm_client=None, connector_regi
             for material in selected_materials
         ]
         excerpts = [excerpt for excerpt in excerpts if excerpt["text"].strip()]
-        stages.append({"stage": "materials", "method": ranking_trace.get("method", "none"), "count": len(excerpts), "trace": ranking_trace.get("trace", [])})
+        note_stage({"stage": "materials", "method": ranking_trace.get("method", "none"), "count": len(excerpts), "trace": ranking_trace.get("trace", [])})
 
         argument_map, trace = argument_map_stage(
             units,
@@ -1168,7 +1185,7 @@ def execute_run(run, *, user=None, request=None, llm_client=None, connector_regi
             matter_summary=matter_summary,
             llm_client=llm_client,
         )
-        stages.append(trace)
+        note_stage(trace)
 
         if check_catalog.will_run(plan, "record_audit"):
             record_findings, trace = record_audit_stage(
@@ -1181,12 +1198,12 @@ def execute_run(run, *, user=None, request=None, llm_client=None, connector_regi
                 "count": 0,
                 "trace": [],
             }
-        stages.append(trace)
+        note_stage(trace)
 
         queries, trace = research_queries_stage(
             argument_map, record_findings, jurisdiction=jurisdiction, llm_client=llm_client
         )
-        stages.append(trace)
+        note_stage(trace)
 
         legal_sources, research_trace = run_research(
             queries,
@@ -1197,7 +1214,7 @@ def execute_run(run, *, user=None, request=None, llm_client=None, connector_regi
             registry=connector_registry,
             source_ids=(run.configuration or {}).get("sourceIds") or None,
         )
-        stages.append({"stage": "research", "method": "retrieval", "count": len(legal_sources), "trace": []})
+        note_stage({"stage": "research", "method": "retrieval", "count": len(legal_sources), "trace": []})
 
         adversarial = check_catalog.will_run(plan, "adversarial")
         if adversarial:
@@ -1212,7 +1229,7 @@ def execute_run(run, *, user=None, request=None, llm_client=None, connector_regi
             )
         else:
             attacks, trace = [], {"stage": "opponent", "method": "off", "count": 0, "trace": []}
-        stages.append(trace)
+        note_stage(trace)
 
         # A rule the brief invoked without carrying its elements, and a failed
         # item from the author's own checklist, are challenges like any other:
@@ -1224,7 +1241,7 @@ def execute_run(run, *, user=None, request=None, llm_client=None, connector_regi
                 brief_text, excerpts, jurisdiction=jurisdiction, llm_client=llm_client
             )
             run.rule_audit = audits
-            stages.append(
+            note_stage(
                 {
                     "stage": "rule_elements",
                     "method": "deterministic" if not audit_traces else audit_traces[0]["method"],
@@ -1251,7 +1268,7 @@ def execute_run(run, *, user=None, request=None, llm_client=None, connector_regi
                 llm_client=llm_client,
             )
             run.checklist_results = applied
-            stages.append(
+            note_stage(
                 {
                     "stage": "custom_checklist",
                     "method": "model",
@@ -1270,7 +1287,7 @@ def execute_run(run, *, user=None, request=None, llm_client=None, connector_regi
             # the deterministic assessment stands in and the trace says so.
             assessments = _fallback_assessments(attacks)
             trace = {"stage": "judge", "method": "off", "count": len(assessments), "trace": []}
-        stages.append(trace)
+        note_stage(trace)
 
         assessment_by_attack = {assessment["attackId"]: assessment for assessment in assessments}
         kept = [
@@ -1325,7 +1342,7 @@ def execute_run(run, *, user=None, request=None, llm_client=None, connector_regi
         else:
             responses = _fallback_responses(coach_input)
             trace = {"stage": "coach", "method": "off", "count": len(responses), "trace": []}
-        stages.append(trace)
+        note_stage(trace)
         response_by_attack = {response["attackId"]: response for response in responses}
 
         run.challenges.all().delete()
@@ -1392,7 +1409,7 @@ def execute_run(run, *, user=None, request=None, llm_client=None, connector_regi
             matter_summary=matter_summary,
             llm_client=llm_client,
         )
-        stages.append(trace)
+        note_stage(trace)
         if assessment:
             run.assessment = assessment[0]["assessment"]
             run.assessment_verdict = assessment[0]["verdict"]
@@ -1410,4 +1427,60 @@ def execute_run(run, *, user=None, request=None, llm_client=None, connector_regi
         run.stage_trace = stages
         run.completed_at = timezone.now()
         run.save()
+    return run
+
+
+def start_run(run, *, user=None, request=None, llm_client=None, connector_registry=None):
+    """Begin a run, on a background thread unless configured otherwise.
+
+    A run is eight sequential model calls and several retrieval rounds. Holding
+    an HTTP request open for that long does not merely feel slow: gunicorn kills
+    the worker at its timeout, and a killed worker returns no headers at all, so
+    the browser reports a CORS failure rather than anything an advocate could
+    act on.
+
+    The request therefore returns the run immediately, still pending, and the
+    client polls it. `GymRun.status` already existed for this; nothing about the
+    pipeline changes.
+    """
+    if not getattr(settings, "ARGUMENT_GYM_BACKGROUND_RUNS", True):
+        return execute_run(run, user=user, request=request, llm_client=llm_client, connector_registry=connector_registry)
+
+    def work():
+        # The request's connection belongs to the request. A thread gets its own
+        # and has to hand it back, or the pool leaks one per run.
+        close_old_connections()
+        try:
+            execute_run(run, user=user, llm_client=llm_client, connector_registry=connector_registry)
+        except Exception:  # noqa: BLE001 - execute_run records failure; this is the last resort
+            logger.exception("Argument Gym run %s died outside its own error handling", run.id)
+        finally:
+            close_old_connections()
+
+    # `request` is deliberately not passed to the thread: it belongs to the
+    # response cycle that is about to end. Retrieval only reads the user from it.
+    threading.Thread(target=work, name=f"gym-run-{run.id}", daemon=True).start()
+    return run
+
+
+def fail_if_stalled(run):
+    """Report a run whose worker died, instead of one that claims to run forever.
+
+    A replica restarted mid-run leaves a row saying "running" that nothing will
+    ever finish. A client polling it would wait forever, which is worse than a
+    failure it can retry.
+    """
+    if run.status != GymRun.RUNNING:
+        return run
+    limit = getattr(settings, "ARGUMENT_GYM_RUN_TIMEOUT_SECONDS", 1800)
+    age = (timezone.now() - run.created_at).total_seconds()
+    if age < limit:
+        return run
+    run.status = GymRun.FAILED
+    run.error = (
+        f"This run stopped reporting progress after {int(age // 60)} minutes and was "
+        "most likely interrupted by a restart. Nothing was written to your draft. Run it again."
+    )
+    run.completed_at = timezone.now()
+    run.save(update_fields=["status", "error", "completed_at"])
     return run

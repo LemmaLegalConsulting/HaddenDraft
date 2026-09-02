@@ -13,7 +13,7 @@ from apps.argument_gym import artifacts, record
 from apps.argument_gym.ingestion import ingest_upload
 from apps.argument_gym import checks as check_catalog
 from apps.argument_gym.models import GymChallenge, GymChecklist, GymDocument, GymRun, GymWorkspace
-from apps.argument_gym.pipeline import execute_run, research_coverage, run_research
+from apps.argument_gym.pipeline import fail_if_stalled, research_coverage, run_research, start_run
 from apps.argument_gym.serializers import (
     challenge_to_dict,
     checklist_to_dict,
@@ -436,6 +436,13 @@ def workspace_materials(request, workspace_id):
     return JsonResponse({"materials": [record.public_material(material) for material in materials]})
 
 
+def _run_status_code(run):
+    """202 while the work is still going, 200 once it finished, 502 if it failed."""
+    if run.status == GymRun.FAILED:
+        return 502
+    return 200 if run.status == GymRun.COMPLETE else 202
+
+
 def _launch_run(workspace, brief, *, user, request, configuration=None):
     previous = workspace.runs.filter(brief=brief, status=GymRun.COMPLETE).order_by("-created_at").first()
     run = GymRun.objects.create(
@@ -445,7 +452,7 @@ def _launch_run(workspace, brief, *, user, request, configuration=None):
         configuration=configuration or {},
         created_by=user,
     )
-    return execute_run(run, user=user, request=request)
+    return start_run(run, user=user, request=request)
 
 
 @api_login_required
@@ -474,8 +481,7 @@ def workspace_runs(request, workspace_id):
         request=request,
         configuration={"sourceIds": body.get("sourceIds") or []},
     )
-    status = 200 if run.status == GymRun.COMPLETE else 502
-    return JsonResponse({"run": run_to_dict(run)}, status=status)
+    return JsonResponse({"run": run_to_dict(run)}, status=_run_status_code(run))
 
 
 @api_login_required
@@ -485,6 +491,7 @@ def run_detail(request, run_id):
     run, error = _run_or_404(request.user, run_id)
     if error:
         return error
+    run = fail_if_stalled(run)
     return JsonResponse({"run": run_to_dict(run), "workspace": workspace_to_dict(run.workspace)})
 
 
@@ -638,8 +645,10 @@ def draft_stress_test(request, draft_id):
         request=request,
         configuration={"sourceIds": json_body(request).get("sourceIds") or []},
     )
-    status = 200 if run.status == GymRun.COMPLETE else 502
-    return JsonResponse({"run": run_to_dict(run), "workspace": workspace_to_dict(workspace)}, status=status)
+    return JsonResponse(
+        {"run": run_to_dict(run), "workspace": workspace_to_dict(workspace)},
+        status=_run_status_code(run),
+    )
 
 
 @api_login_required

@@ -167,6 +167,11 @@ Do not replace reviewable workflow steps with a single free-form agent flow.
   never read as a clean result, and an empty selection must not silently mean
   "run everything" -- `apps.argument_gym.checks` stores an explicit sentinel for
   a session with every check off.
+- Never hold a request open for work that runs longer than the worker timeout.
+  A killed gunicorn worker returns no headers at all, so the browser reports a
+  CORS failure and the real cause -- a timeout -- is invisible. Long work starts
+  on a background thread, returns 202 with a row to poll, and saves its progress
+  as it goes.
 - Adversarial review of a brief belongs under `backend/apps/argument_gym/`. Keep
   the opponent, the judge, and the coach as separate model calls: one call asked
   to attack, weigh, and answer produces attacks it has already decided are
