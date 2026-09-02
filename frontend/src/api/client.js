@@ -140,6 +140,10 @@ export const api = {
   libraryDocument: (documentSlug, query = "") =>
     request(`/library/${encodeURIComponent(documentSlug)}/${query ? `?${new URLSearchParams({ q: query })}` : ""}`),
   contentSource: (documentSlug, chunkId) => request(`/sources/content/${encodeURIComponent(documentSlug)}/${encodeURIComponent(chunkId)}/`),
+  contentSourceRelated: (documentSlug, chunkId) =>
+    request(`/sources/content/${encodeURIComponent(documentSlug)}/${encodeURIComponent(chunkId)}/related/`),
+  ordinanceCoverage: () => request("/ordinances/coverage/"),
+  ordinanceDataset: (name) => request(`/ordinances/datasets/${encodeURIComponent(name)}/`),
   contentSourcePdfUrl: (documentSlug, chunkId, page) =>
     `${API_BASE}/sources/content/${encodeURIComponent(documentSlug)}/${encodeURIComponent(chunkId)}/pdf/${page ? `#page=${page}` : ""}`,
   researchHistory: (threadId) => request(`/research/${threadId ? `?threadId=${threadId}` : ""}`),
