@@ -1,6 +1,9 @@
 from django.contrib import admin
+from django import forms
+from django.utils import timezone
+from apps.sources.ordinance_storage import store_upload
 
-from apps.sources.models import RetrievedDocument, SourceConfiguration, UserOAuthConnection, UserResource, UserSourceIdentity
+from apps.sources.models import OrdinanceDocument, OrdinanceOverride, RetrievedDocument, SourceConfiguration, UserOAuthConnection, UserResource, UserSourceIdentity
 
 
 @admin.register(SourceConfiguration)
@@ -114,3 +117,124 @@ class UserResourceAdmin(admin.ModelAdmin):
     list_display = ("title", "user", "resource_type", "original_filename", "updated_at")
     list_filter = ("resource_type",)
     search_fields = ("title", "original_filename", "text", "user__username", "user__email")
+
+
+class OrdinanceDocumentForm(forms.ModelForm):
+    """Upload a document, or point at one, without touching the filesystem."""
+
+    upload = forms.FileField(
+        required=False,
+        help_text="Optional. Uploading replaces this row's stored file; the publisher URL can be kept alongside it.",
+    )
+
+    class Meta:
+        model = OrdinanceDocument
+        fields = "__all__"
+
+    def clean(self):
+        cleaned = super().clean()
+        if not cleaned.get("upload") and not cleaned.get("url") and not self.instance.storage_key:
+            raise forms.ValidationError("Give the document a publisher URL, an upload, or both.")
+        return cleaned
+
+    def save(self, commit=True):
+        document = super().save(commit=False)
+        upload = self.cleaned_data.get("upload")
+        if upload:
+            stored = store_upload(
+                content=upload.read(),
+                municipality_slug=document.municipality_slug,
+                target_key=document.target_key,
+                filename=upload.name,
+                content_type=getattr(upload, "content_type", "") or "",
+            )
+            for field, value in stored.items():
+                setattr(document, field, value)
+        if commit:
+            document.save()
+        return document
+
+
+@admin.register(OrdinanceDocument)
+class OrdinanceDocumentAdmin(admin.ModelAdmin):
+    form = OrdinanceDocumentForm
+    list_display = (
+        "municipality_slug", "target_key", "title", "source_type",
+        "status", "verified", "has_file", "updated_at",
+    )
+    list_filter = ("status", "source_type", "verified", "municipality_slug")
+    search_fields = ("municipality_slug", "target_key", "title", "url", "notes", "sha256")
+    readonly_fields = ("storage_key", "sha256", "size_bytes", "original_filename", "created_at", "updated_at")
+    actions = ("mark_verified", "mark_superseded", "mark_active")
+    fieldsets = (
+        ("Authority", {"fields": ("municipality_slug", "target_key", "title", "source_type")}),
+        ("Document", {"fields": ("url", "upload", "storage_key", "original_filename", "content_type",
+                                 "size_bytes", "sha256")}),
+        ("Where the authority sits in it", {
+            "fields": ("extract_start", "extract_end", "extract_pages"),
+            "description": "A council packet is mostly other business. Without these the whole packet is the record.",
+        }),
+        ("Standing", {"fields": ("status", "superseded_by", "verified", "verified_by", "verified_at")}),
+        ("Notes", {"fields": ("notes", "added_by", "created_at", "updated_at")}),
+    )
+
+    @admin.display(boolean=True, description="File")
+    def has_file(self, obj):
+        return bool(obj.storage_key)
+
+    @admin.action(description="Mark selected documents verified against the publisher")
+    def mark_verified(self, request, queryset):
+        updated = queryset.update(
+            verified=True, verified_by=request.user.get_username(), verified_at=timezone.now(),
+        )
+        self.message_user(request, f"{updated} document(s) marked verified.")
+
+    @admin.action(description="Mark selected documents superseded")
+    def mark_superseded(self, request, queryset):
+        # Deliberately does not delete: which document an assertion rested on is
+        # part of the assertion.
+        updated = queryset.update(status="superseded")
+        self.message_user(request, f"{updated} document(s) marked superseded and kept on the record.")
+
+    @admin.action(description="Mark selected documents active")
+    def mark_active(self, request, queryset):
+        updated = queryset.update(status="active", superseded_by=None)
+        self.message_user(request, f"{updated} document(s) marked active.")
+
+
+@admin.register(OrdinanceOverride)
+class OrdinanceOverrideAdmin(admin.ModelAdmin):
+    list_display = (
+        "municipality_slug", "target_key", "citation", "legal_status",
+        "verified", "is_active", "changed_fields", "updated_at",
+    )
+    list_filter = ("is_active", "verified", "legal_status", "municipality_slug")
+    search_fields = ("municipality_slug", "target_key", "citation", "notes")
+    readonly_fields = ("created_at", "updated_at")
+    actions = ("mark_reviewed",)
+    fieldsets = (
+        ("Authority", {"fields": ("municipality_slug", "target_key", "is_active")}),
+        ("Citation", {
+            "fields": ("citation", "title", "act_file_number", "enacted_as", "source_type"),
+            "description": "Leave a field blank to keep the generated value. An override is a patch, not a replacement.",
+        }),
+        ("Dates and standing", {
+            "fields": ("legal_status", "enacted_date", "effective_date", "amended_date", "repeal_date"),
+        }),
+        ("Preemption", {
+            "fields": ("preemption_status", "preemption_note", "controlling_case",
+                       "court_treatment", "preemption_confidence"),
+        }),
+        ("Review", {"fields": ("verified", "reviewed_by", "reviewed_at", "notes", "created_at", "updated_at")}),
+    )
+
+    @admin.display(description="Overrides")
+    def changed_fields(self, obj):
+        return ", ".join(sorted(obj.applied_fields())) or "—"
+
+    @admin.action(description="Mark reviewed by me, now")
+    def mark_reviewed(self, request, queryset):
+        updated = queryset.update(
+            verified=True, reviewed_by=request.user.get_username(), reviewed_at=timezone.now(),
+        )
+        self.message_user(request, f"{updated} override(s) marked reviewed.")

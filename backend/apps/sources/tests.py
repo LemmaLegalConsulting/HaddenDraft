@@ -1,3 +1,4 @@
+import hashlib
 import json
 import tempfile
 from pathlib import Path
@@ -16,7 +17,19 @@ from apps.sources.connectors.sharepoint import SharePointClient, SharePointConne
 from apps.sources.connectors.user_resources import UserResourceConnector
 from apps.sources.connectors.rag import ContentLibraryTreatiseConnector
 from apps.sources.library import library_documents, load_manifest
-from apps.sources.models import SourceConfiguration, UserOAuthConnection, UserResource
+from apps.sources.ordinance_storage import store_upload
+from apps.sources.ordinances import (
+    coverage as ordinance_coverage,
+    cross_references,
+    dataset as ordinance_dataset,
+)
+from apps.sources.models import (
+    OrdinanceDocument,
+    OrdinanceOverride,
+    SourceConfiguration,
+    UserOAuthConnection,
+    UserResource,
+)
 from apps.sources import jurisdiction
 from apps.sources.augmentation import augmented_search, evaluate_search_results
 from apps.sources.registry import ConnectorRegistry
@@ -1198,3 +1211,503 @@ class ContentLibraryManifestCacheTests(TestCase):
                 self.assertEqual(library_documents(), [])
                 self.assertIsNone(load_manifest(version / "manifest.yaml"))
                 self.assertIsNone(load_manifest(version / "does-not-exist.yaml"))
+
+
+ORDINANCE_MANIFEST = """document_slug: ordinances-testville
+document_title: Codified Ordinances of Testville
+jurisdiction: Testville, Ohio
+content_kind: ordinance
+municipality: Testville
+municipality_slug: testville
+county: Testcounty
+code_short_name: Testville Codified Ordinances
+codifier: american-legal
+source_base_url: https://example.invalid/testville
+preemption_statute: '5321.19'
+section_count: 1
+pending_count: 1
+chunk_count: 1
+sections:
+- key: pay-to-stay
+  topic: pay-to-stay
+  topic_label: Pay-to-stay / right to cure
+  priority: 1
+  citation: Testville Codified Ordinances Ch. 900
+  title: Pay to stay
+  status: ingested
+  text_basis: enacted_act
+  acquisition_method: legistar
+  act_file_number: O-1-24
+  enacted_date: '2024-01-02'
+  amended_date: ''
+  related_statutes: ['5321.19']
+  treatise_chunks: ['0609-pay-to-stay']
+  related_cases: ['Nobody v. Nobody, 2026-Ohio-1']
+  preemption:
+    status: unadjudicated
+    confidence: unreviewed
+  chunks:
+  - id: ord-testville-pay-to-stay-01
+    file: chunks/ord-testville-pay-to-stay-01.md
+- key: late-fees
+  topic: late-fees
+  citation: Testville Codified Ordinances Ch. 901
+  title: Late fees
+  status: pending
+  pending_reason: Codifier serves a bot challenge.
+  text_basis: not_acquired
+  acquisition_method: pending
+  chunks: []
+chunks:
+- id: ord-testville-pay-to-stay-01
+  file: chunks/ord-testville-pay-to-stay-01.md
+  heading: Testville Codified Ordinances Ch. 900 - Pay to stay
+  path: [Part Nine, Chapter 900]
+  content_kind: ordinance-section
+  section: '900'
+  chapter: '900'
+  citation: Testville Codified Ordinances Ch. 900
+  url: https://example.invalid/testville
+  effective_date: '2024-01-02'
+  text_basis: enacted_act
+  retrieval_hints: [Testville, pay to stay]
+"""
+
+STATUTE_MANIFEST = """document_slug: ohio-revised-code
+document_title: Ohio Revised Code
+jurisdiction: Ohio
+content_kind: statute
+chunks:
+- id: orc-5321-19-01
+  file: chunks/orc-5321-19-01.md
+  heading: Ohio Rev. Code 5321.19
+  path: [Ohio Revised Code, Chapter 5321]
+  content_kind: statute-section
+  section: '5321.19'
+  chapter: '5321'
+  citation: Ohio Rev. Code 5321.19
+"""
+
+
+HEIGHTS_MANIFEST = """document_slug: ordinances-testville-heights
+document_title: Codified Ordinances of Testville Heights
+jurisdiction: Testville Heights, Ohio
+content_kind: ordinance
+municipality: Testville Heights
+municipality_slug: testville-heights
+county: Testcounty
+source_base_url: https://example.invalid/testville-heights
+section_count: 0
+pending_count: 1
+chunk_count: 0
+sections:
+- key: pay-to-stay
+  topic: pay-to-stay
+  topic_label: Pay-to-stay / right to cure
+  citation: Testville Heights Codified Ordinances Ch. 767
+  title: Pay to stay
+  status: pending
+  pending_reason: Codifier serves a bot challenge.
+  text_basis: not_acquired
+  acquisition_method: pending
+  codifier_url: https://example.invalid/testville-heights
+  chunks: []
+chunks: []
+"""
+
+
+def _write_ordinance_library(root):
+    """A minimal two-document library: one municipal code, one statute code."""
+    ordinance_dir = root / "ordinances" / "testville"
+    (ordinance_dir / "chunks").mkdir(parents=True)
+    (ordinance_dir / "manifest.yaml").write_text(ORDINANCE_MANIFEST, encoding="utf-8")
+    (ordinance_dir / "chunks" / "ord-testville-pay-to-stay-01.md").write_text(
+        "# Pay to stay\n\n## Source text\n\nA tenant who tenders all past due rent with "
+        "reasonable late fees before filing may assert the tender as a defense.\n",
+        encoding="utf-8",
+    )
+    statute_dir = root / "statutes" / "ohio-revised-code"
+    (statute_dir / "chunks").mkdir(parents=True)
+    (statute_dir / "manifest.yaml").write_text(STATUTE_MANIFEST, encoding="utf-8")
+    (statute_dir / "chunks" / "orc-5321-19-01.md").write_text(
+        "# Ohio Rev. Code 5321.19\n\n## Source text\n\nNo political subdivision shall enact.\n",
+        encoding="utf-8",
+    )
+    heights_dir = root / "ordinances" / "testville-heights"
+    heights_dir.mkdir(parents=True)
+    (heights_dir / "manifest.yaml").write_text(HEIGHTS_MANIFEST, encoding="utf-8")
+
+    datasets = root / "ordinances" / "datasets"
+    datasets.mkdir(parents=True)
+    (datasets / "pay-to-stay.yaml").write_text(
+        "title: Ohio pay-to-stay ordinances\n"
+        "sources:\n"
+        "  testville-900:\n"
+        "    document: ordinances-testville\n"
+        "    chunk: ord-testville-pay-to-stay-01\n"
+        "    citation: Testville Codified Ordinances Ch. 900\n"
+        "  handbook:\n"
+        "    citation: Sample Handbook section 1\n"
+        "records:\n"
+        "- municipality: testville\n"
+        "  citation: Testville Codified Ordinances Ch. 900\n"
+        "  fields:\n"
+        "    effect:\n"
+        "      value: landlord_must_accept\n"
+        "      basis: ordinance-text\n"
+        "      source: testville-900\n"
+        "    frequency_limit:\n"
+        "      value: unknown\n"
+        "      basis: unknown\n"
+        "- municipality: farville\n"
+        "  citation: Farville Codified Ordinances Ch. 900\n"
+        "  fields:\n"
+        "    effect:\n"
+        "      value: landlord_must_accept\n"
+        "      basis: treatise\n"
+        "      source: handbook\n"
+        "    frequency_limit:\n"
+        "      value: unknown\n"
+        "      basis: unknown\n"
+        "- municipality: testville-heights\n"
+        "  citation: Testville Heights Codified Ordinances Ch. 767\n"
+        "  status: repealed\n"
+        "  repeal_date: '2024-06-04'\n"
+        "  fields:\n"
+        "    effect:\n"
+        "      value: landlord_must_accept\n"
+        "      basis: treatise\n"
+        "      source: handbook\n"
+        "    frequency_limit:\n"
+        "      value: unknown\n"
+        "      basis: unknown\n",
+        encoding="utf-8",
+    )
+    (root / "ordinances" / "scope.yaml").write_text(
+        "topics:\n"
+        "  pay-to-stay:\n"
+        "    label: Pay-to-stay / right to cure\n"
+        "    dataset: pay-to-stay\n"
+        "  late-fees:\n"
+        "    label: Limit on late payment fees\n"
+        "declared_municipalities:\n"
+        "- {slug: elsewhere, name: Elsewhere, county: Testcounty, topics: [pay-to-stay]}\n"
+        "- {slug: farville, name: Farville, county: Testcounty, topics: [pay-to-stay]}\n",
+        encoding="utf-8",
+    )
+
+
+class OrdinanceLibraryTests(TestCase):
+    """Local law has to behave like a statute collection, not like a special case."""
+
+    @override_settings(AI_DRAFTING_ENABLED=False)
+    def test_ordinance_documents_shelve_and_search_as_their_own_kind(self):
+        with tempfile.TemporaryDirectory() as directory:
+            library = Path(directory)
+            _write_ordinance_library(library)
+            with override_settings(CONTENT_LIBRARY_DIR=library, ORGANIZATION_CONTENT_LIBRARY_DIR=library / "missing"):
+                documents = {document["slug"]: document for document in library_documents()}
+                results = ContentLibraryTreatiseConnector().search(
+                    "pay to stay tender defense", source_ids=["ohio-ordinances"],
+                )
+
+        ordinance = documents["ordinances-testville"]
+        self.assertEqual(ordinance["contentKind"], "ordinance")
+        self.assertEqual(ordinance["municipality"], "Testville")
+        # A declared-but-unacquired authority must stay visible on the shelf.
+        self.assertEqual(ordinance["pendingCount"], 1)
+
+        self.assertEqual(len(results), 1)
+        self.assertEqual(results[0].metadata["documentKind"], "ordinance")
+        self.assertEqual(results[0].metadata["textBasis"], "enacted_act")
+        self.assertEqual(results[0].metadata["documentSlug"], "ordinances-testville")
+
+    @override_settings(AI_DRAFTING_ENABLED=False)
+    def test_selecting_ordinances_excludes_other_content_kinds(self):
+        with tempfile.TemporaryDirectory() as directory:
+            library = Path(directory)
+            _write_ordinance_library(library)
+            with override_settings(CONTENT_LIBRARY_DIR=library, ORGANIZATION_CONTENT_LIBRARY_DIR=library / "missing"):
+                ordinance_only = ContentLibraryTreatiseConnector().search(
+                    "political subdivision tender", source_ids=["ohio-ordinances"],
+                )
+                statute_only = ContentLibraryTreatiseConnector().search(
+                    "political subdivision tender", source_ids=["ohio-statutes"],
+                )
+
+        self.assertEqual([result.metadata["documentKind"] for result in ordinance_only], ["ordinance"])
+        self.assertEqual([result.metadata["documentSlug"] for result in statute_only], ["ohio-revised-code"])
+
+    def test_coverage_reports_pending_authorities_and_declared_municipalities(self):
+        with tempfile.TemporaryDirectory() as directory:
+            library = Path(directory)
+            _write_ordinance_library(library)
+            with override_settings(CONTENT_LIBRARY_DIR=library, ORGANIZATION_CONTENT_LIBRARY_DIR=library / "missing"):
+                payload = ordinance_coverage()
+
+        self.assertEqual(payload["ingestedCount"], 1)
+        # Both the pending late-fee chapter and the neighbouring municipality
+        # whose whole code is unreachable are counted.
+        self.assertEqual(payload["pendingCount"], 2)
+        municipality = next(item for item in payload["municipalities"] if item["municipality"] == "Testville")
+        pending = next(item for item in municipality["sections"] if item["status"] == "pending")
+        self.assertEqual(pending["pendingReason"], "Codifier serves a bot challenge.")
+        self.assertEqual(pending["textBasis"], "not_acquired")
+        self.assertEqual([item["municipality"] for item in payload["declared"]], ["Elsewhere", "Farville"])
+
+    def test_dataset_keeps_field_basis_and_resolves_its_source_to_a_citation(self):
+        with tempfile.TemporaryDirectory() as directory:
+            library = Path(directory)
+            _write_ordinance_library(library)
+            with override_settings(CONTENT_LIBRARY_DIR=library, ORGANIZATION_CONTENT_LIBRARY_DIR=library / "missing"):
+                payload = ordinance_dataset("pay-to-stay")
+                self.assertIsNone(ordinance_dataset("../escape"))
+
+        record = payload["records"][0]
+        self.assertEqual(record["fields"]["effect"]["basis"], "ordinance-text")
+        self.assertEqual(
+            record["fields"]["effect"]["source"]["sourceId"],
+            "content:ordinances-testville:ord-testville-pay-to-stay-01",
+        )
+        # An unknown field keeps its basis rather than being dropped or upgraded.
+        self.assertEqual(record["fields"]["frequency_limit"]["basis"], "unknown")
+        self.assertIsNone(record["fields"]["frequency_limit"]["source"])
+
+    def test_cross_references_resolve_outward_and_back_to_the_statute(self):
+        with tempfile.TemporaryDirectory() as directory:
+            library = Path(directory)
+            _write_ordinance_library(library)
+            with override_settings(CONTENT_LIBRARY_DIR=library, ORGANIZATION_CONTENT_LIBRARY_DIR=library / "missing"):
+                outward = cross_references("ordinances-testville", "ord-testville-pay-to-stay-01")
+                inbound = cross_references("ohio-revised-code", "orc-5321-19-01")
+
+        self.assertEqual(
+            [item["sourceId"] for item in outward["outward"]["statutes"]],
+            ["content:ohio-revised-code:orc-5321-19-01"],
+        )
+        # A case this corpus does not hold is reported, not silently dropped.
+        self.assertEqual(outward["outward"]["unresolvedCases"], ["Nobody v. Nobody, 2026-Ohio-1"])
+        # Reading the preemption statute has to surface the local law it reaches.
+        self.assertEqual(
+            [item["citation"] for item in inbound["ordinancesCiting"]],
+            ["Testville Codified Ordinances Ch. 900"],
+        )
+
+    def test_auto_source_routing_selects_local_law_for_a_local_question(self):
+        selection = automatic_source_selection("Does the Cleveland pay to stay ordinance apply?")
+        self.assertIn("ohio-ordinances", selection["source_ids"])
+
+
+class OrdinanceCoverageNoticeTests(TestCase):
+    """A gap has to answer the search, or another city's law answers it instead."""
+
+    def _search(self, library, query, **kwargs):
+        with override_settings(
+            CONTENT_LIBRARY_DIR=library,
+            ORGANIZATION_CONTENT_LIBRARY_DIR=library / "missing",
+            AI_DRAFTING_ENABLED=False,
+        ):
+            return ContentLibraryTreatiseConnector().search(query, source_ids=["ohio-ordinances"], **kwargs)
+
+    def test_a_question_about_an_unheld_ordinance_is_answered_by_the_gap_not_by_another_city(self):
+        with tempfile.TemporaryDirectory() as directory:
+            library = Path(directory)
+            _write_ordinance_library(library)
+            results = self._search(library, "Testville Heights pay to stay tender")
+
+        first = results[0]
+        self.assertEqual(first.metadata["resultType"], "coverage-notice")
+        self.assertEqual(first.metadata["municipality"], "Testville Heights")
+        self.assertEqual(first.metadata["textBasis"], "not_acquired")
+        # The notice sends the reader to the publisher rather than to text the
+        # corpus does not have.
+        self.assertEqual(first.url, "https://example.invalid/testville-heights")
+        self.assertIn("does not hold", first.snippet)
+        # Testville's actual ordinance still ranks, below the gap.
+        self.assertIn("ordinances-testville", [result.metadata.get("documentSlug", "") for result in results[1:]])
+
+    def test_a_nested_city_name_does_not_pull_in_its_neighbour(self):
+        with tempfile.TemporaryDirectory() as directory:
+            library = Path(directory)
+            _write_ordinance_library(library)
+            heights = self._search(library, "Testville Heights pay to stay")
+            testville = self._search(library, "Testville late fees")
+
+        notices = [result for result in heights if result.metadata.get("resultType") == "coverage-notice"]
+        self.assertEqual([notice.metadata["municipality"] for notice in notices], ["Testville Heights"])
+        # The shorter name still works on its own.
+        self.assertEqual(
+            [result.metadata["municipality"] for result in testville
+             if result.metadata.get("resultType") == "coverage-notice"],
+            ["Testville"],
+        )
+
+    def test_a_question_that_names_no_municipality_gets_no_notices(self):
+        with tempfile.TemporaryDirectory() as directory:
+            library = Path(directory)
+            _write_ordinance_library(library)
+            results = self._search(library, "pay to stay tender defense")
+
+        self.assertEqual([result for result in results if result.metadata.get("resultType") == "coverage-notice"], [])
+
+    def test_a_notice_repeats_a_secondary_source_and_names_it_as_one(self):
+        with tempfile.TemporaryDirectory() as directory:
+            library = Path(directory)
+            _write_ordinance_library(library)
+            described = self._search(library, "Farville pay to stay")[0]
+            undescribed = self._search(library, "Testville late fees")[0]
+
+        self.assertIn("Sample Handbook section 1", described.snippet)
+        self.assertIn("secondary source, not the ordinance text", described.snippet)
+        self.assertIn("effect: landlord must accept", described.snippet)
+        # A field nobody has established stays out of the summary entirely.
+        self.assertNotIn("frequency limit", described.snippet)
+        # No attributable source means no summary, rather than a written-up guess.
+        self.assertNotIn("Described by", undescribed.snippet)
+
+    def test_a_declared_municipality_with_no_manifest_still_answers(self):
+        with tempfile.TemporaryDirectory() as directory:
+            library = Path(directory)
+            _write_ordinance_library(library)
+            results = self._search(library, "Elsewhere pay to stay")
+
+        first = results[0]
+        self.assertEqual(first.metadata["resultType"], "coverage-notice")
+        self.assertEqual(first.metadata["municipality"], "Elsewhere")
+        self.assertIn("No publisher link has been established", first.snippet)
+
+
+class OrdinanceProvenanceTests(TestCase):
+    """What a record is, and whether it is still law, must survive to the reader."""
+
+    def test_a_repealed_provision_is_described_in_the_past_tense_and_flagged(self):
+        with tempfile.TemporaryDirectory() as directory:
+            library = Path(directory)
+            _write_ordinance_library(library)
+            with override_settings(
+                CONTENT_LIBRARY_DIR=library,
+                ORGANIZATION_CONTENT_LIBRARY_DIR=library / "missing",
+                AI_DRAFTING_ENABLED=False,
+            ):
+                notice = ContentLibraryTreatiseConnector().search(
+                    "Testville Heights pay to stay", source_ids=["ohio-ordinances"],
+                )[0]
+                payload = ordinance_dataset("pay-to-stay")
+
+        self.assertIn("NOT CURRENT LAW", notice.snippet)
+        self.assertIn("repealed on 2024-06-04", notice.snippet)
+        # The live-ordinance phrasing must not also appear.
+        self.assertNotIn("secondary source, not the ordinance text", notice.snippet)
+
+        record = next(item for item in payload["records"] if item["municipality"] == "testville-heights")
+        self.assertEqual(record["status"], "repealed")
+        self.assertEqual(record["repealDate"], "2024-06-04")
+        # An in-force record keeps the default status rather than an empty one.
+        live = next(item for item in payload["records"] if item["municipality"] == "testville")
+        self.assertEqual(live["status"], "in_force")
+
+
+class OrdinanceAdminManagementTests(TestCase):
+    """A person has to be able to correct and re-source the corpus in place."""
+
+    def _library(self, directory):
+        library = Path(directory)
+        _write_ordinance_library(library)
+        return library
+
+    def test_an_override_patches_only_the_fields_it_fills_in(self):
+        OrdinanceOverride.objects.create(
+            municipality_slug="testville",
+            target_key="pay-to-stay",
+            citation="Testville Codified Ordinances Ch. 900 (as amended)",
+            legal_status="repealed",
+            repeal_date="2025-01-15",
+            preemption_status="challenged",
+            reviewed_by="quinten",
+            verified=True,
+        )
+        with tempfile.TemporaryDirectory() as directory:
+            library = self._library(directory)
+            with override_settings(CONTENT_LIBRARY_DIR=library, ORGANIZATION_CONTENT_LIBRARY_DIR=library / "missing"):
+                payload = ordinance_coverage()
+
+        section = next(
+            item for municipality in payload["municipalities"]
+            for item in municipality["sections"] if item["key"] == "pay-to-stay"
+            and municipality["municipality"] == "Testville"
+        )
+        self.assertEqual(section["citation"], "Testville Codified Ordinances Ch. 900 (as amended)")
+        self.assertEqual(section["legalStatus"], "repealed")
+        self.assertEqual(section["repealDate"], "2025-01-15")
+        self.assertEqual(section["preemption"]["status"], "challenged")
+        # An untouched field keeps its generated value, and the patch says so.
+        self.assertEqual(section["actFileNumber"], "O-1-24")
+        self.assertIn("citation", section["overriddenFields"])
+        self.assertNotIn("actFileNumber", section["overriddenFields"])
+        self.assertTrue(section["verified"])
+
+    def test_documents_attach_to_an_authority_and_a_superseded_one_is_kept(self):
+        packet = OrdinanceDocument.objects.create(
+            municipality_slug="testville", target_key="pay-to-stay",
+            title="Council packet", source_type="council_packet", url="https://example.invalid/packet",
+        )
+        signed = OrdinanceDocument.objects.create(
+            municipality_slug="testville", target_key="pay-to-stay",
+            title="Signed ordinance", source_type="signed_ordinance", url="https://example.invalid/signed",
+        )
+        packet.status = "superseded"
+        packet.superseded_by = signed
+        packet.save()
+
+        with tempfile.TemporaryDirectory() as directory:
+            library = self._library(directory)
+            with override_settings(CONTENT_LIBRARY_DIR=library, ORGANIZATION_CONTENT_LIBRARY_DIR=library / "missing"):
+                payload = ordinance_coverage()
+
+        section = next(
+            item for municipality in payload["municipalities"]
+            for item in municipality["sections"]
+            if municipality["municipality"] == "Testville" and item["key"] == "pay-to-stay"
+        )
+        titles = [document["title"] for document in section["documents"]]
+        # Active first, and the replaced document is still on the record.
+        self.assertEqual(titles, ["Signed ordinance", "Council packet"])
+        superseded = section["documents"][1]
+        self.assertEqual(superseded["status"], "superseded")
+        self.assertEqual(superseded["supersededById"], signed.id)
+
+    def test_an_admin_repeal_reaches_the_search_notice(self):
+        OrdinanceOverride.objects.create(
+            municipality_slug="testville-heights", target_key="pay-to-stay",
+            legal_status="expired", repeal_date="2025-03-31",
+        )
+        with tempfile.TemporaryDirectory() as directory:
+            library = self._library(directory)
+            with override_settings(
+                CONTENT_LIBRARY_DIR=library,
+                ORGANIZATION_CONTENT_LIBRARY_DIR=library / "missing",
+                AI_DRAFTING_ENABLED=False,
+            ):
+                notice = ContentLibraryTreatiseConnector().search(
+                    "Testville Heights pay to stay", source_ids=["ohio-ordinances"],
+                )[0]
+
+        self.assertIn("NOT CURRENT LAW", notice.snippet)
+        self.assertIn("expired on 2025-03-31", notice.snippet)
+
+    def test_an_upload_is_stored_by_content_hash_and_is_idempotent(self):
+        with tempfile.TemporaryDirectory() as directory:
+            with override_settings(DOCUMENT_STORAGE_BACKEND="filesystem", DOCUMENT_STORAGE_ROOT=Path(directory)):
+                first = store_upload(
+                    content=b"%PDF-1.4 ordinance", municipality_slug="testville",
+                    target_key="pay-to-stay", filename="Ord-1-24.pdf", content_type="application/pdf",
+                )
+                second = store_upload(
+                    content=b"%PDF-1.4 ordinance", municipality_slug="testville",
+                    target_key="pay-to-stay", filename="Ord-1-24.pdf", content_type="application/pdf",
+                )
+
+        self.assertEqual(first["storage_key"], second["storage_key"])
+        self.assertTrue(first["storage_key"].endswith(".pdf"))
+        self.assertEqual(first["sha256"], hashlib.sha256(b"%PDF-1.4 ordinance").hexdigest())
+        self.assertEqual(first["size_bytes"], len(b"%PDF-1.4 ordinance"))

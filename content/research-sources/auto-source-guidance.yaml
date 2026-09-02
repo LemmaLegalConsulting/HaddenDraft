@@ -14,6 +14,39 @@ sources:
     label: Ohio eviction treatise
     default: true
     default_reason: Secondary-source baseline for issue spotting and practical context.
+  ohio-ordinances:
+    kind: rag
+    label: Ohio local ordinances and court rules
+    default: false
+    default_reason: Local law that can change the outcome where the case is filed.
+    when:
+      - terms:
+          - ordinance
+          - municipal
+          - city code
+          - codified ordinances
+          - local rule
+          - housing court
+          - pay to stay
+          - pay-to-stay
+          - rental registration
+          - rental registry
+          - certificate approving rental occupancy
+          - lead safe
+          - lead-safe
+          - source of income
+          - right to counsel
+          - chronic nuisance
+          - crime-free
+          - akron
+          - cincinnati
+          - cleveland
+          - cleveland heights
+          - columbus
+          - dayton
+          - lakewood
+          - toledo
+        reason: The question concerns local law or a municipality this corpus covers.
   hud-handbook:
     kind: rag
     label: HUD Handbook

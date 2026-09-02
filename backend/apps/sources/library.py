@@ -33,6 +33,7 @@ def manifest_paths():
     for root in content_paths():
         paths.extend(sorted(root.joinpath("treatises", "markdown").glob("*/*/manifest.yaml")))
         paths.extend(sorted(root.joinpath("statutes").glob("*/manifest.yaml")))
+        paths.extend(sorted(root.joinpath("ordinances").glob("*/manifest.yaml")))
     return list(dict.fromkeys(paths))
 
 
@@ -73,8 +74,14 @@ def library_manifests():
     return list(found.values())
 
 
+# Shelves a document can sit on.  Anything unrecognized reads as a treatise,
+# which is where the library started and where a secondary source belongs.
+CONTENT_KINDS = {"statute", "ordinance"}
+
+
 def _content_kind(manifest):
-    return "statute" if manifest.get("content_kind") == "statute" else "treatise"
+    kind = manifest.get("content_kind")
+    return kind if kind in CONTENT_KINDS else "treatise"
 
 
 def document_summary(path, manifest):
@@ -95,6 +102,12 @@ def document_summary(path, manifest):
         "sectionCount": manifest.get("section_count", 0) or len(chunks),
         "chunkCount": manifest.get("chunk_count", 0) or len(chunks),
         "manifestName": path.parent.name,
+        # Local law is shelved by municipality, and a municipality whose
+        # authorities are all declared-but-unacquired is a real row with zero
+        # readable sections.  Saying so is the point of carrying the count.
+        "municipality": str(manifest.get("municipality", "") or ""),
+        "county": str(manifest.get("county", "") or ""),
+        "pendingCount": manifest.get("pending_count", 0) or 0,
     }
 
 

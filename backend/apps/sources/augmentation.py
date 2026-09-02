@@ -11,6 +11,10 @@ FACET_FIELDS = [
     ("regulationsCited", "regulation"),
     ("casesCited", "caseCitation"),
     ("issues", "issue"),
+    # An ordinance names the statutes it operates against -- R.C. 5321.19 for
+    # preemption, R.C. 1923 for the eviction it defends.  Following those makes
+    # a local-law hit pull in the state law that decides whether it stands.
+    ("relatedStatutes", "statute"),
 ]
 
 
@@ -101,7 +105,10 @@ def _facet_values(results):
 
 def _default_rag_source_ids():
     available = source_guidance()["sources"]
-    return [source_id for source_id in ["ohio-statutes", "treatise", "hud-handbook", "green-book"] if source_id in available]
+    return [
+        source_id for source_id in ["ohio-statutes", "treatise", "ohio-ordinances", "hud-handbook", "green-book"]
+        if source_id in available
+    ]
 
 
 def related_source_plans(query, results, selected_source_ids, attempted_searches, *, allowed_source_ids=None):

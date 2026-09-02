@@ -198,3 +198,175 @@ class RetrievedDocument(models.Model):
 
     def __str__(self):
         return self.title
+
+
+class OrdinanceDocument(models.Model):
+    """A document standing behind one local-law authority, managed by a person.
+
+    The generated corpus under ``content/ordinances/`` is the product of an
+    automated pass over sources a scope file names.  That pass will always be
+    behind the people using it: a clerk answers a records request, someone finds
+    the signed ordinance the packet only summarized, a codifier reissues a
+    chapter.  This is where that arrives without waiting for a code change.
+
+    Documents are never edited in place and never silently replaced.  A better
+    copy supersedes the one it replaces and both stay on the record, because
+    which document an assertion rested on is part of the assertion -- the Akron
+    late-fee discrepancy was only visible because two sources disagreed and both
+    were still there to compare.
+    """
+
+    SOURCE_TYPE_CHOICES = [
+        ("signed_ordinance", "Signed ordinance"),
+        ("council_packet", "Council packet"),
+        ("official_minutes", "Official minutes"),
+        ("official_publication", "Official publication (city record/journal)"),
+        ("codifier", "Codifier"),
+        ("secondary_reproduction", "Secondary reproduction"),
+        ("transcription", "Hand transcription"),
+        ("other", "Other"),
+    ]
+    STATUS_CHOICES = [
+        ("active", "Active"),
+        ("superseded", "Superseded"),
+        ("rejected", "Rejected"),
+    ]
+
+    municipality_slug = models.CharField(max_length=120, help_text="Scope slug, e.g. lakewood")
+    target_key = models.CharField(max_length=120, help_text="Target key within that municipality, e.g. pay-to-stay")
+
+    title = models.CharField(max_length=500)
+    source_type = models.CharField(max_length=40, choices=SOURCE_TYPE_CHOICES, default="signed_ordinance")
+    url = models.URLField(max_length=1000, blank=True, help_text="Publisher URL, when the document is hosted.")
+
+    storage_key = models.TextField(blank=True, help_text="Set automatically when a file is uploaded.")
+    original_filename = models.CharField(max_length=500, blank=True)
+    content_type = models.CharField(max_length=120, blank=True)
+    size_bytes = models.BigIntegerField(null=True, blank=True)
+    sha256 = models.CharField(max_length=64, blank=True)
+
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="active")
+    superseded_by = models.ForeignKey(
+        "self", null=True, blank=True, on_delete=models.SET_NULL, related_name="supersedes",
+        help_text="The document that replaced this one. Setting it does not delete anything.",
+    )
+
+    # Where in the document the authority actually is.  A council packet is
+    # mostly other business; without these the ingest would take the lot.
+    extract_start = models.CharField(max_length=500, blank=True, help_text="Text marking the start of the authority.")
+    extract_end = models.CharField(max_length=500, blank=True, help_text="Text marking where it ends.")
+    extract_pages = models.CharField(max_length=40, blank=True, help_text="PDF page range, e.g. 12-15.")
+
+    verified = models.BooleanField(
+        default=False,
+        help_text="A person compared this document against the publisher's copy. Nothing automated sets this.",
+    )
+    verified_by = models.CharField(max_length=255, blank=True)
+    verified_at = models.DateTimeField(null=True, blank=True)
+
+    notes = models.TextField(blank=True)
+    added_by = models.CharField(max_length=255, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["municipality_slug", "target_key", "-created_at"]
+        indexes = [
+            models.Index(fields=["municipality_slug", "target_key"]),
+            models.Index(fields=["status"]),
+            models.Index(fields=["source_type"]),
+        ]
+
+    def __str__(self):
+        return f"{self.municipality_slug}/{self.target_key}: {self.title}"
+
+    @property
+    def authority_key(self):
+        return (self.municipality_slug, self.target_key)
+
+
+class OrdinanceOverride(models.Model):
+    """Corrections a person makes to one authority's generated metadata.
+
+    Only fields that are filled in take effect; a blank field means "leave the
+    generated value alone" rather than "blank it out".  That keeps an override
+    a patch rather than a replacement, so a later ingestion improving an
+    untouched field is not silently reverted by an old admin edit.
+    """
+
+    STATUS_CHOICES = [
+        ("", "Leave as generated"),
+        ("in_force", "In force"),
+        ("repealed", "Repealed"),
+        ("expired", "Expired"),
+        ("unknown", "Unknown"),
+    ]
+
+    municipality_slug = models.CharField(max_length=120)
+    target_key = models.CharField(max_length=120)
+    is_active = models.BooleanField(default=True, help_text="Clear this to park an override without deleting it.")
+
+    citation = models.CharField(max_length=500, blank=True)
+    title = models.CharField(max_length=500, blank=True)
+    act_file_number = models.CharField(max_length=120, blank=True)
+    enacted_as = models.CharField(max_length=255, blank=True, help_text="The chapter it was enacted under, if it has since moved.")
+    source_type = models.CharField(max_length=40, blank=True, choices=OrdinanceDocument.SOURCE_TYPE_CHOICES)
+
+    legal_status = models.CharField(max_length=20, blank=True, choices=STATUS_CHOICES)
+    enacted_date = models.DateField(null=True, blank=True)
+    effective_date = models.DateField(null=True, blank=True)
+    amended_date = models.DateField(null=True, blank=True)
+    repeal_date = models.DateField(null=True, blank=True)
+
+    preemption_status = models.CharField(max_length=80, blank=True)
+    preemption_note = models.TextField(blank=True)
+    controlling_case = models.CharField(max_length=500, blank=True)
+    court_treatment = models.TextField(blank=True)
+    preemption_confidence = models.CharField(max_length=80, blank=True)
+
+    verified = models.BooleanField(
+        default=False,
+        help_text="A person confirmed this authority's text against the publisher.",
+    )
+    reviewed_by = models.CharField(max_length=255, blank=True)
+    reviewed_at = models.DateTimeField(null=True, blank=True)
+    notes = models.TextField(blank=True)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["municipality_slug", "target_key"]
+        unique_together = [("municipality_slug", "target_key")]
+
+    def __str__(self):
+        return f"Override: {self.municipality_slug}/{self.target_key}"
+
+    def applied_fields(self):
+        """The generated keys this override actually changes, camelCased."""
+        mapping = {
+            "citation": self.citation,
+            "title": self.title,
+            "actFileNumber": self.act_file_number,
+            "enactedAs": self.enacted_as,
+            "sourceType": self.source_type,
+            "legalStatus": self.legal_status,
+            "enactedDate": self.enacted_date.isoformat() if self.enacted_date else "",
+            "effectiveDate": self.effective_date.isoformat() if self.effective_date else "",
+            "amendedDate": self.amended_date.isoformat() if self.amended_date else "",
+            "repealDate": self.repeal_date.isoformat() if self.repeal_date else "",
+        }
+        applied = {key: value for key, value in mapping.items() if value}
+        preemption = {
+            "status": self.preemption_status,
+            "note": self.preemption_note,
+            "controlling_case": self.controlling_case,
+            "court_treatment": self.court_treatment,
+            "confidence": self.preemption_confidence,
+        }
+        preemption = {key: value for key, value in preemption.items() if value}
+        if preemption:
+            applied["preemption"] = preemption
+        if self.verified:
+            applied["verified"] = True
+        return applied

@@ -25,6 +25,11 @@ FALLBACK_GUIDANCE = {
             "label": "Ohio eviction treatise",
             "default_reason": "Secondary-source baseline for issue spotting and practical context.",
         },
+        "ohio-ordinances": {
+            "kind": "rag",
+            "label": "Ohio local ordinances and court rules",
+            "default_reason": "Local law that can change the outcome where the case is filed.",
+        },
     }
 }
 
@@ -109,6 +114,8 @@ def source_decision_with_counts(selection, results):
             elif item["id"] == "hud-handbook" and result.metadata.get("documentSlug") == "hud-4350-3-rev-1":
                 counts_by_id[item["id"]] += 1
             elif item["id"] == "green-book" and result.metadata.get("documentSlug") == "green-book":
+                counts_by_id[item["id"]] += 1
+            elif item["id"] == "ohio-ordinances" and result.metadata.get("documentKind") == "ordinance":
                 counts_by_id[item["id"]] += 1
     return {
         "mode": "auto",
