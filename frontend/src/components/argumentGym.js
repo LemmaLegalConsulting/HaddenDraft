@@ -554,3 +554,112 @@ export function runView(run) {
   if (run.status === "failed") return "failed";
   return isRunFinished(run) ? "results" : "running";
 }
+
+
+// Presentation rules for the challenge cards and the audit sidebar.
+//
+// The panel reads as a worklist, not a report: what to do, then the judge's
+// reason, then everything else on request. Severity is carried by colour and a
+// short word rather than by heavy type, and the tool's own analysis is
+// visually separated from text quoted out of the brief or the record.
+
+export const SEVERITY_TONE = { high: "high", medium: "medium", low: "low" };
+
+export function severityTone(challenge = {}) {
+  return SEVERITY_TONE[challenge.severity] || "medium";
+}
+
+// Everything a card would otherwise print in full. Counted here so the card can
+// offer "Evidence (4)" instead of four stacked blocks of citation text.
+export function evidenceCount(challenge = {}) {
+  return (challenge.legalSources || []).length + (challenge.recordSources || []).length;
+}
+
+// A suggested fix reads as steps, not as a paragraph. Split on sentence ends
+// only when there are several; a single sentence stays a single sentence.
+export function responseBullets(text = "", { max = 4 } = {}) {
+  const trimmed = String(text || "").trim();
+  if (!trimmed) return [];
+  const parts = trimmed
+    .split(/(?<=[.;])\s+(?=[A-Z"“(])/)
+    .map((part) => part.trim())
+    .filter(Boolean);
+  return parts.length > 1 ? parts.slice(0, max) : [trimmed];
+}
+
+// Long model prose is cut to a scannable length with the full text still
+// available; a card should never open with six lines of summary.
+export function clamp(text = "", limit = 220) {
+  const value = String(text || "").trim();
+  if (value.length <= limit) return { text: value, truncated: false };
+  const cut = value.slice(0, limit);
+  const boundary = Math.max(cut.lastIndexOf(". "), cut.lastIndexOf(" "));
+  return { text: `${cut.slice(0, boundary > 80 ? boundary : limit).trimEnd()}…`, truncated: true };
+}
+
+// The audit sidebar: a number and a word per area, detail only on request.
+// Technical checks are status, not reading material.
+export function auditBadges(run = {}) {
+  const badges = [];
+  const compliance = complianceGroups(run.compliance || {});
+  if (compliance.checked) {
+    const problems = compliance.errors.length + compliance.warnings.length;
+    badges.push({
+      id: "compliance",
+      label: "Filing format",
+      count: problems,
+      tone: compliance.errors.length ? "high" : problems ? "medium" : "ok",
+      note: compliance.unmeasured.length ? `${compliance.unmeasured.length} not measurable` : "",
+    });
+  }
+  const findings = findingsByCheck(run.checkResults || {}, run.checksRun || []);
+  const counts = findingCounts(findings);
+  if (findings.length) {
+    badges.push({
+      id: "checks",
+      label: "Document checks",
+      count: counts.errors + counts.warnings,
+      tone: counts.errors ? "high" : counts.errors + counts.warnings ? "medium" : "ok",
+      note: counts.infos ? `${counts.infos} note${counts.infos === 1 ? "" : "s"}` : "",
+    });
+  }
+  const unmet = (run.ruleAudit || []).reduce((total, audit) => total + (audit.unmetCount || 0), 0);
+  if ((run.ruleAudit || []).length) {
+    badges.push({
+      id: "rules",
+      label: "Rule elements",
+      count: unmet,
+      tone: unmet ? "high" : "ok",
+      note: `${run.ruleAudit.length} rule${run.ruleAudit.length === 1 ? "" : "s"} invoked`,
+    });
+  }
+  const checklist = (run.checklistResults?.results || []).filter((item) => item.outcome === "fail");
+  if ((run.checklistResults?.results || []).length) {
+    badges.push({
+      id: "checklist",
+      label: "Your checklist",
+      count: checklist.length,
+      tone: checklist.length ? "medium" : "ok",
+      note: `${run.checklistResults.results.length} item${run.checklistResults.results.length === 1 ? "" : "s"}`,
+    });
+  }
+  return badges;
+}
+
+// A check that did not run is a badge, not a section. It still has to be
+// reachable -- it is not a pass -- but it does not belong in the reading order.
+export function skippedChecksSummary(checksRun = []) {
+  const off = checksByStatus(checksRun, "off");
+  const unavailable = checksByStatus(checksRun, "unavailable");
+  if (!off.length && !unavailable.length) return null;
+  return {
+    off,
+    unavailable,
+    label: [
+      unavailable.length ? `${unavailable.length} could not run` : "",
+      off.length ? `${off.length} off` : "",
+    ]
+      .filter(Boolean)
+      .join(" · "),
+  };
+}

@@ -4729,42 +4729,20 @@ button:disabled {
   gap: var(--space-4);
 }
 
-.gym-challenge {
-  background: #fff;
-  border: 1px solid #dbe3e7;
-  border-left-width: 4px;
-  border-radius: 8px;
-  display: grid;
-  gap: var(--space-2);
-  padding: var(--space-4);
-}
 
-.gym-severity-high {
-  border-left-color: #b3261e;
-}
 
-.gym-severity-medium {
-  border-left-color: #c58a00;
-}
 
-.gym-severity-low {
-  border-left-color: #4a7fa5;
-}
+
+
+
+
 
 .gym-addressed,
 .gym-dismissed {
   opacity: 0.75;
 }
 
-.gym-challenge-header {
-  align-items: center;
-  color: #465761;
-  display: flex;
-  flex-wrap: wrap;
-  font-size: 11px;
-  gap: 8px;
-  text-transform: uppercase;
-}
+
 
 .gym-category,
 .gym-verdict {
@@ -4778,10 +4756,7 @@ button:disabled {
   padding: 2px 8px;
 }
 
-.gym-challenge h4 {
-  font-size: 15px;
-  margin: 0;
-}
+
 
 .gym-target,
 .gym-coverage {
@@ -4789,11 +4764,7 @@ button:disabled {
   margin: 0;
 }
 
-.gym-challenge-grid {
-  display: grid;
-  gap: var(--space-3);
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-}
+
 
 .gym-challenge-grid h5,
 .gym-suggested h5 {
@@ -5084,16 +5055,7 @@ button:disabled {
   text-transform: uppercase;
 }
 
-.gym-check-findings,
-.gym-rule-audit,
-.gym-checklist-results {
-  background: #fff;
-  border: 1px solid #dbe3e7;
-  border-radius: 8px;
-  display: grid;
-  gap: var(--space-2);
-  padding: var(--space-3) var(--space-4);
-}
+
 
 .gym-check-result summary,
 .gym-rule summary {
@@ -5244,23 +5206,11 @@ button:disabled {
 
 /* One obvious action per row. The secondary work on a card is quiet until the
    pointer is on it, so the eye lands on the challenge and not on nine buttons. */
-.gym-challenge .button-row .btn {
-  background: transparent;
-  border-color: transparent;
-  color: #35505f;
-  padding-inline: 8px;
-}
 
-.gym-challenge:hover .button-row .btn,
-.gym-challenge .button-row .btn:focus-visible {
-  border-color: #cfd8dd;
-}
 
-.gym-challenge .button-row .btn.btn-primary {
-  background: #1d5a8a;
-  border-color: #1d5a8a;
-  color: #fff;
-}
+
+
+
 
 .gym-run-header .button-row .btn:disabled,
 .gym-filter .btn:disabled {
@@ -5351,4 +5301,393 @@ button:disabled {
 .gym-progress {
   align-items: flex-start;
   padding: var(--space-4);
+}
+
+/* ---------------------------------------------------------------------------
+   Argument gym: a worklist, not a report.
+   Action first, evidence on request. Severity is carried by colour and a short
+   word rather than by heavy type, and text quoted out of the brief or the
+   record is visibly the source's voice rather than the tool's.
+   --------------------------------------------------------------------------- */
+.gym-panel {
+  --gym-line: #e3e9ec;
+  --gym-ink: #26333b;
+  --gym-quiet: #64757f;
+  --gym-high: #b4544c;
+  --gym-medium: #b07d2b;
+  --gym-low: #4a7fa5;
+  --gym-ok: #3f7d5d;
+  background: #fff;
+  color: var(--gym-ink);
+}
+
+.gym-runbar {
+  align-items: center;
+  border: 1px solid var(--gym-line);
+  border-radius: 8px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  justify-content: space-between;
+  padding: var(--space-2) var(--space-3);
+}
+
+.gym-runbar-text {
+  align-items: baseline;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  min-width: 0;
+}
+
+.gym-runbar-title {
+  font-weight: 600;
+}
+
+.gym-assessment {
+  background: #f7f9fa;
+  border: 1px solid var(--gym-line);
+  border-left: 3px solid var(--gym-low);
+  border-radius: 8px;
+  display: grid;
+  gap: var(--space-2);
+  padding: var(--space-4);
+}
+
+.gym-verdict-chip {
+  color: var(--gym-quiet);
+  font-size: 12px;
+  font-weight: 600;
+  justify-self: start;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.gym-results {
+  align-items: start;
+  display: grid;
+  gap: var(--space-5);
+  grid-template-columns: minmax(0, 1fr) minmax(220px, 260px);
+}
+
+@media (max-width: 1000px) {
+  .gym-results {
+    grid-template-columns: 1fr;
+  }
+}
+
+.gym-worklist {
+  min-width: 0;
+}
+
+.gym-challenge-list {
+  display: grid;
+  gap: var(--space-4);
+}
+
+/* One card, one problem. 24px of air inside and between. */
+.gym-challenge {
+  background: #fff;
+  border: 1px solid var(--gym-line);
+  border-radius: 10px;
+  display: grid;
+  gap: var(--space-3);
+  padding: 24px;
+}
+
+.gym-challenge.gym-addressed,
+.gym-challenge.gym-dismissed {
+  background: #fbfcfc;
+  opacity: 0.8;
+}
+
+.gym-challenge-header {
+  align-items: center;
+  color: var(--gym-quiet);
+  display: flex;
+  flex-wrap: wrap;
+  font-size: 12px;
+  gap: 10px;
+}
+
+.gym-severity-dot {
+  border-radius: 50%;
+  height: 8px;
+  width: 8px;
+}
+
+.tone-high .gym-severity-dot { background: var(--gym-high); }
+.tone-medium .gym-severity-dot { background: var(--gym-medium); }
+.tone-low .gym-severity-dot { background: var(--gym-low); }
+
+.tone-high .gym-severity-word { color: var(--gym-high); }
+.tone-medium .gym-severity-word { color: var(--gym-medium); }
+.tone-low .gym-severity-word { color: var(--gym-low); }
+
+.gym-category {
+  font-weight: 600;
+}
+
+.gym-severity-word {
+  margin-left: auto;
+  text-transform: lowercase;
+}
+
+/* The opponent's point: the biggest thing on the card, but not bold. */
+.gym-claim {
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1.45;
+  margin: 0;
+}
+
+.gym-verdict-line {
+  color: var(--gym-quiet);
+  margin: 0;
+}
+
+.gym-verdict-label {
+  color: var(--gym-ink);
+  font-weight: 600;
+  margin-right: 8px;
+  text-transform: lowercase;
+}
+
+.gym-fix {
+  background: #f7faf8;
+  border-radius: 8px;
+  padding: var(--space-3);
+}
+
+.gym-fix h5 {
+  color: var(--gym-quiet);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  margin: 0 0 6px;
+  text-transform: uppercase;
+}
+
+.gym-fix p,
+.gym-fix ul {
+  margin: 0;
+}
+
+.gym-fix ul {
+  padding-left: 18px;
+}
+
+.gym-fix li + li {
+  margin-top: 4px;
+}
+
+.gym-card-more {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.btn-link {
+  background: none;
+  border: 0;
+  color: var(--gym-low);
+  cursor: pointer;
+  font-size: 13px;
+  min-height: 0;
+  padding: 0;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.btn-link:disabled {
+  color: var(--gym-quiet);
+  cursor: default;
+  text-decoration: none;
+}
+
+.gym-card-context {
+  border-top: 1px solid var(--gym-line);
+  display: grid;
+  gap: var(--space-2);
+  padding-top: var(--space-3);
+}
+
+.gym-card-context p {
+  margin: 0;
+}
+
+.gym-context-label {
+  color: var(--gym-quiet);
+  display: block;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+/* Quoted text is the source speaking, not the tool. */
+.gym-quote {
+  background: #f6f7f8;
+  border-left: 2px solid var(--gym-line);
+  border-radius: 0 6px 6px 0;
+  color: var(--gym-quiet);
+  font-size: 13px;
+  margin: 0;
+  padding: var(--space-2) var(--space-3);
+}
+
+.gym-card-actions {
+  border-top: 1px solid var(--gym-line);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  padding-top: var(--space-2);
+}
+
+.btn-quiet {
+  align-items: center;
+  background: none;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  color: var(--gym-quiet);
+  cursor: pointer;
+  display: inline-flex;
+  font-size: 12px;
+  gap: 5px;
+  min-height: 28px;
+  padding: 2px 8px;
+}
+
+.btn-quiet:hover:not(:disabled),
+.btn-quiet:focus-visible {
+  background: #f2f5f6;
+  color: var(--gym-ink);
+}
+
+.btn-quiet.active {
+  background: #eaf1f6;
+  border-color: var(--gym-low);
+  color: var(--gym-low);
+}
+
+.btn-quiet:disabled {
+  opacity: 0.5;
+}
+
+.gym-remaining {
+  color: var(--gym-medium);
+  font-size: 12px;
+}
+
+/* Audit: status, not reading material. */
+.gym-audit {
+  border: 1px solid var(--gym-line);
+  border-radius: 10px;
+  display: grid;
+  gap: var(--space-2);
+  padding: var(--space-4);
+  position: sticky;
+  top: var(--space-3);
+}
+
+.gym-audit h4 {
+  color: var(--gym-quiet);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  margin: 0;
+  text-transform: uppercase;
+}
+
+.gym-badges {
+  display: grid;
+  gap: 6px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.gym-badges li {
+  align-items: center;
+  display: grid;
+  font-size: 13px;
+  gap: 10px;
+  grid-template-columns: 34px 1fr;
+}
+
+.gym-badges small {
+  color: var(--gym-quiet);
+  display: block;
+  font-size: 11px;
+}
+
+.gym-badge-count {
+  background: #f2f5f6;
+  border-radius: 6px;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  padding: 3px 0;
+  text-align: center;
+}
+
+.gym-badges .tone-high .gym-badge-count { background: #f7ecea; color: var(--gym-high); }
+.gym-badges .tone-medium .gym-badge-count { background: #faf3e6; color: var(--gym-medium); }
+.gym-badges .tone-ok .gym-badge-count { background: #eef5f1; color: var(--gym-ok); }
+
+.gym-audit-detail > summary {
+  color: var(--gym-low);
+  cursor: pointer;
+  font-size: 13px;
+  padding: 3px 0;
+}
+
+.gym-audit-rule + .gym-audit-rule {
+  margin-top: var(--space-2);
+}
+
+.gym-finding-lines,
+.gym-plain-list {
+  display: grid;
+  gap: 6px;
+  font-size: 12px;
+  list-style: none;
+  margin: 4px 0 0;
+  padding: 0;
+}
+
+.gym-finding-lines li {
+  border-left: 2px solid var(--gym-line);
+  color: var(--gym-quiet);
+  padding-left: 8px;
+}
+
+.gym-finding-lines .tone-error { border-left-color: var(--gym-high); }
+.gym-finding-lines .tone-warning { border-left-color: var(--gym-medium); }
+
+.gym-finding-target {
+  color: var(--gym-ink);
+  display: block;
+  font-weight: 500;
+}
+
+.gym-badge-inline {
+  color: var(--gym-quiet);
+  font-size: 11px;
+}
+
+.gym-audit-actions {
+  border-top: 1px solid var(--gym-line);
+  display: grid;
+  gap: 6px;
+  justify-items: start;
+  padding-top: var(--space-2);
+}
+
+.gym-evidence-modal section + section {
+  margin-top: var(--space-3);
+}
+
+.gym-coverage-line {
+  font-size: 12px;
 }
