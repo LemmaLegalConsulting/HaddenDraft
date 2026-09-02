@@ -11,6 +11,27 @@ library, not inside a Django app or embedded in Python constants.
 - Put authoritative treatise PDFs under `content/treatises/source/`; keep
   generated Markdown under `content/treatises/markdown/` and do not hand-edit
   it.
+- Put local law under `content/ordinances/`, one generated document per
+  municipality, in the same manifest-and-chunks shape as the statute corpus.
+  Maintain `scope.yaml` and `datasets/*.yaml` by hand; regenerate the rest with
+  `scripts/ingest_local_ordinances.py`.
+- Do not commit the generated ordinance corpus or the documents it was read
+  from. Like case-law bundles, it is public but unversioned data: megabytes of
+  machine-written manifests and chunks that the ingest script rewrites wholesale.
+  It is uploaded to `raw/content/ordinances/` and published by the bootstrap job
+  to `published/content/ordinances/`, which `PUBLISHED_CONTENT_LIBRARY_DIR`
+  points at. What belongs in git is what a person maintains and reviews: the
+  coverage scope, the datasets, and the supplied transcriptions.
+- Never scrape a commercial codifier. American Legal Publishing answers a
+  script with a Cloudflare bot challenge and Municode's content API requires a
+  token; both are citation targets, not fetch targets. Ordinance text comes from
+  the city's own Legistar legislative record or an official published document,
+  and a record built from an act is stamped `text_basis: enacted_act` because
+  the act a council passed is not the chapter as it stands today.
+- Record a declared authority that cannot be retrieved as `pending` with the
+  reason. It produces no chunk, so retrieval can never return it as law, and it
+  still appears in coverage. An unreachable ordinance that is simply absent
+  reads to an advocate as "no local law here", which is the wrong answer.
 - Put default triage rubrics in `content/triage-rubrics/*.yaml`. Seed new files
   into the database; do not silently overwrite existing admin-managed records.
 - Put the rules mapping a triage outcome to LegalServer case properties in
