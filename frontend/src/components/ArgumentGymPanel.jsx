@@ -38,6 +38,8 @@ import {
   complianceSummary,
   copyTextForChallenge,
   courtSummary,
+  RUN_POLL_MS,
+  RUN_POLL_TIMEOUT_MS,
   coverageSummary,
   effectiveSelection,
   elementState,
@@ -45,6 +47,7 @@ import {
   findingCounts,
   findingsByCheck,
   groupChecks,
+  isRunFinished,
   matterFilterOptions,
   materialsByOrigin,
   rankedChallenges,
@@ -52,6 +55,8 @@ import {
   rerunSummary,
   revisionTargets,
   ruleAuditSummary,
+  runProgressFraction,
+  runProgressLabel,
   sessionStatus,
   sessionSubtitle,
   sortSessions,
@@ -132,10 +137,7 @@ function JurisdictionControls({ workspace, courts, courtTypes, detection, busy, 
     });
 
   return (
-    <details className="gym-jurisdiction" open={!workspace?.court}>
-      <summary>
-        <Landmark size={16} /> Jurisdiction and filing rules
-      </summary>
+    <div className="gym-jurisdiction">
       <div className="gym-jurisdiction-body">
         <div className="gym-mode-row">
           {JURISDICTION_MODES.map((mode) => (
@@ -245,7 +247,7 @@ function JurisdictionControls({ workspace, courts, courtTypes, detection, busy, 
         )}
         <p className="muted">{courtSummary({ court: workspace?.court, detection: { mode: workspace?.courtRuleMode } })}</p>
       </div>
-    </details>
+    </div>
   );
 }
 
@@ -278,10 +280,7 @@ function CompliancePanel({ compliance }) {
 function CheckSelector({ catalog, defaults, selected, settings, checklists, checklistId, busy, onToggle, onSettings, onChecklist }) {
   const passiveSettings = settings?.passive_voice || {};
   return (
-    <details className="gym-checks" open>
-      <summary>
-        <ListChecks size={16} /> Checks to run ({selected.length} of {catalog.length})
-      </summary>
+    <div className="gym-checks">
       <div className="gym-checks-body">
         <p className="muted">
           Nothing runs that you have not chosen. A check you turn off produces no findings at all, which is not the
@@ -346,7 +345,7 @@ function CheckSelector({ catalog, defaults, selected, settings, checklists, chec
           </label>
         )}
       </div>
-    </details>
+    </div>
   );
 }
 
@@ -989,6 +988,30 @@ export function ArgumentGymPanel({ matter = null, cases = [], focusRun = null, o
       .catch((err) => setError(err.message));
   }, []);
 
+  // The run is started, not awaited. It takes minutes -- longer than a worker
+  // may hold a request -- so the server hands back a run to poll.
+  const pollRun = useCallback(async (runId) => {
+    const deadline = Date.now() + RUN_POLL_TIMEOUT_MS;
+    while (Date.now() < deadline) {
+      await new Promise((resolve) => setTimeout(resolve, RUN_POLL_MS));
+      let latest;
+      try {
+        latest = (await api.gymRun(runId)).run;
+      } catch (err) {
+        // A single failed poll is a blip, not a failed run; keep waiting and let
+        // the deadline decide.
+        continue;
+      }
+      setRun(latest);
+      if (isRunFinished(latest)) {
+        if (latest.status === "failed") setError(latest.error || "The run failed.");
+        return latest;
+      }
+    }
+    setError("This run is taking longer than expected. It may still finish — reopen the session to check.");
+    return null;
+  }, []);
+
   useEffect(() => {
     if (!focusRun) return;
     setWorkspace(focusRun.workspace);
@@ -998,7 +1021,10 @@ export function ArgumentGymPanel({ matter = null, cases = [], focusRun = null, o
     setFilter("open");
     loadSessions();
     onFocusRunHandled();
-  }, [focusRun, onFocusRunHandled, loadSessions]);
+    // A stress test started from the editor is handed over still running, so it
+    // has to be followed here just like one started in this panel.
+    if (!isRunFinished(focusRun.run)) pollRun(focusRun.run.id);
+  }, [focusRun, onFocusRunHandled, loadSessions, pollRun]);
 
   const loadMaterials = useCallback(async (workspaceId) => {
     if (!workspaceId) return;
@@ -1171,6 +1197,7 @@ export function ArgumentGymPanel({ matter = null, cases = [], focusRun = null, o
       setRun(response.run);
       setQueued([]);
       setFilter("open");
+      if (!isRunFinished(response.run)) await pollRun(response.run.id);
       await loadMaterials(target.id);
       await loadSessions();
     } catch (err) {
@@ -1296,6 +1323,20 @@ export function ArgumentGymPanel({ matter = null, cases = [], focusRun = null, o
 
       {error && <div className="alert alert-danger">{error}</div>}
       {notice && <div className="alert alert-info">{notice}</div>}
+      {run && !isRunFinished(run) && (
+        <div className="gym-progress" role="status" aria-live="polite">
+          <Loader2 className="spin" size={16} />
+          <div>
+            <strong>{runProgressLabel(run)}</strong>
+            <p className="muted">
+              A full pass takes a few minutes. You can leave this open; the run keeps going on the server.
+            </p>
+            <div className="gym-progress-track">
+              <div className="gym-progress-bar" style={{ width: `${Math.round(runProgressFraction(run) * 100)}%` }} />
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="gym-layout">
         <SessionList
@@ -1399,8 +1440,11 @@ export function ArgumentGymPanel({ matter = null, cases = [], focusRun = null, o
             )}
           </section>
 
-          <section>
-            <h4>3. Checks to run</h4>
+          <details className="gym-config">
+            <summary>
+              <ListChecks size={16} /> Checks to run
+              <span className="muted">{selectedChecks.length} of {checkCatalog.length} selected</span>
+            </summary>
             <CheckSelector
               catalog={checkCatalog}
               defaults={checkDefaults}
@@ -1421,10 +1465,15 @@ export function ArgumentGymPanel({ matter = null, cases = [], focusRun = null, o
               onSave={saveChecklist}
               onDelete={removeChecklist}
             />
-          </section>
+          </details>
 
-          <section>
-            <h4>4. Jurisdiction and filing rules</h4>
+          <details className="gym-config">
+            <summary>
+              <Landmark size={16} /> Jurisdiction and filing rules
+              <span className="muted">
+                {workspace?.court?.label || (workspace?.courtRuleMode === "off" ? "off" : "detected from the brief")}
+              </span>
+            </summary>
             <JurisdictionControls
               workspace={workspace}
               courts={courts}
@@ -1434,7 +1483,7 @@ export function ArgumentGymPanel({ matter = null, cases = [], focusRun = null, o
               onChange={patchWorkspace}
               onDetect={previewDetection}
             />
-          </section>
+          </details>
 
           <div className="button-row step-actions">
             {!readiness.ready && <span className="muted">{readiness.reason}</span>}
@@ -1482,28 +1531,33 @@ export function ArgumentGymPanel({ matter = null, cases = [], focusRun = null, o
 
           <CompliancePanel compliance={run.compliance} />
 
-          <CheckSelector
-            catalog={checkCatalog}
-            defaults={checkDefaults}
-            selected={selectedChecks}
-            settings={workspace?.checkSettings}
-            checklists={checklists}
-            checklistId={workspace?.checklist?.id}
-            busy={busy}
-            onToggle={changeChecks}
-            onSettings={(patch) => patchWorkspace({ checkSettings: patch })}
-            onChecklist={(value) => patchWorkspace({ checklistId: value ? Number(value) : null })}
-          />
-
-          <JurisdictionControls
-            workspace={workspace}
-            courts={courts}
-            courtTypes={courtTypes}
-            detection={detection}
-            busy={busy}
-            onChange={patchWorkspace}
-            onDetect={previewDetection}
-          />
+          <details className="gym-config">
+            <summary>
+              <ListChecks size={16} /> Checks and jurisdiction
+              <span className="muted">change what the next run does</span>
+            </summary>
+            <CheckSelector
+              catalog={checkCatalog}
+              defaults={checkDefaults}
+              selected={selectedChecks}
+              settings={workspace?.checkSettings}
+              checklists={checklists}
+              checklistId={workspace?.checklist?.id}
+              busy={busy}
+              onToggle={changeChecks}
+              onSettings={(patch) => patchWorkspace({ checkSettings: patch })}
+              onChecklist={(value) => patchWorkspace({ checklistId: value ? Number(value) : null })}
+            />
+            <JurisdictionControls
+              workspace={workspace}
+              courts={courts}
+              courtTypes={courtTypes}
+              detection={detection}
+              busy={busy}
+              onChange={patchWorkspace}
+              onDetect={previewDetection}
+            />
+          </details>
 
           <MaterialsConsidered run={run} materials={materials} onToggle={toggleMaterial} busy={busy} />
 

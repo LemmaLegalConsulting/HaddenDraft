@@ -2,7 +2,11 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import {
+  RUN_POLL_MS,
   canStartRun,
+  isRunFinished,
+  runProgressFraction,
+  runProgressLabel,
   checkStatusSummary,
   checklistItemsFromText,
   checklistItemsToText,
@@ -378,4 +382,34 @@ test("a checklist is written as lines and comes back as numbered items", () => {
     { id: "item-2", text: "Each authority is good law." },
   ]);
   assert.equal(checklistItemsToText(items), "Every date is in a document.\nEach authority is good law.");
+});
+
+
+test("a run is finished only when it says so", () => {
+  assert.equal(isRunFinished({ status: "complete" }), true);
+  assert.equal(isRunFinished({ status: "failed" }), true);
+  assert.equal(isRunFinished({ status: "running" }), false);
+  assert.equal(isRunFinished({ status: "pending" }), false);
+  assert.equal(isRunFinished(null), false);
+});
+
+test("progress names the stage rather than showing an unlabelled wait", () => {
+  assert.match(runProgressLabel({ status: "pending", stageTrace: [] }), /^Starting…/);
+  assert.match(
+    runProgressLabel({ status: "running", stageTrace: [{ stage: "compliance" }, { stage: "opponent" }] }),
+    /Opposing counsel is building its attacks…/,
+  );
+  // An unmapped stage still reads as words rather than a key.
+  assert.match(runProgressLabel({ status: "running", stageTrace: [{ stage: "some_new_stage" }] }), /some new stage/);
+});
+
+test("a finished run shows no progress, and a failed one shows why", () => {
+  assert.equal(runProgressLabel({ status: "complete", stageTrace: [{ stage: "coach" }] }), "");
+  assert.equal(runProgressLabel({ status: "failed", error: "This brief has no readable text." }), "This brief has no readable text.");
+});
+
+test("the progress bar never claims to be finished before the run is", () => {
+  assert.equal(runProgressFraction({ stageTrace: [] }), 0);
+  assert.ok(runProgressFraction({ stageTrace: new Array(50).fill({ stage: "x" }) }) <= 0.95);
+  assert.ok(RUN_POLL_MS > 0);
 });

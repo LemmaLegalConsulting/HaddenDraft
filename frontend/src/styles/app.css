@@ -5168,3 +5168,61 @@ button:disabled {
   border-left: 3px solid #2e7d52;
   padding-left: var(--space-2);
 }
+
+/* Argument gym: configuration is collapsed by default -- it is set once and then
+   not looked at, so it should not sit between the advocate and the challenges. */
+.gym-config {
+  border: 1px solid #dbe3e7;
+  border-radius: 8px;
+  background: #fff;
+}
+
+.gym-config > summary {
+  align-items: center;
+  cursor: pointer;
+  display: flex;
+  flex-wrap: wrap;
+  font-weight: 600;
+  gap: 8px;
+  padding: var(--space-3) var(--space-4);
+}
+
+.gym-config > summary .muted {
+  font-weight: 400;
+  margin-left: auto;
+}
+
+.gym-config[open] > summary {
+  border-bottom: 1px solid #eef2f4;
+}
+
+.gym-config > *:not(summary) {
+  padding: 0 var(--space-4) var(--space-3);
+}
+
+.gym-progress {
+  align-items: flex-start;
+  background: #eef5fb;
+  border-radius: 8px;
+  display: flex;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+}
+
+.gym-progress p {
+  margin: 2px 0 var(--space-2);
+}
+
+.gym-progress-track {
+  background: #cfd8dd;
+  border-radius: 999px;
+  height: 6px;
+  overflow: hidden;
+  width: min(420px, 100%);
+}
+
+.gym-progress-bar {
+  background: #1d5a8a;
+  height: 100%;
+  transition: width 400ms ease;
+}
