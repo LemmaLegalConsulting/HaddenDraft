@@ -7,6 +7,7 @@ import {
   FileText,
   FolderOpen,
   Gavel,
+  HelpCircle,
   Landmark,
   ListChecks,
   Loader2,
@@ -40,6 +41,9 @@ import {
   courtSummary,
   RUN_POLL_MS,
   RUN_POLL_TIMEOUT_MS,
+  availableFilters,
+  defaultFilter,
+  emptyStateMessage,
   coverageSummary,
   effectiveSelection,
   elementState,
@@ -55,11 +59,13 @@ import {
   rerunSummary,
   revisionTargets,
   ruleAuditSummary,
+  runActionsDisabled,
   runProgressFraction,
   runProgressLabel,
   sessionStatus,
   sessionSubtitle,
   sortSessions,
+  shortTitle,
   targetLabel,
   toggleCheck,
   truncationNotice,
@@ -67,12 +73,6 @@ import {
   updatePlanItem,
   usesMunicipality,
 } from "./argumentGym.js";
-
-const FILTERS = [
-  { id: "open", label: "Open" },
-  { id: "all", label: "All" },
-  { id: "resolved", label: "Handled" },
-];
 
 function SessionList({ sessions, matters, matterId, onMatterChange, query, onQueryChange, activeId, onOpen, onNew, busy }) {
   return (
@@ -111,8 +111,8 @@ function SessionList({ sessions, matters, matterId, onMatterChange, query, onQue
                 className={`gym-session${session.id === activeId ? " active" : ""}`}
                 onClick={() => onOpen(session)}
               >
-                <strong>{session.title}</strong>
-                <span className="muted">{sessionSubtitle(session)}</span>
+                <strong title={session.title}>{shortTitle(session.title, 34)}</strong>
+                <span className="muted" title={sessionSubtitle(session)}>{shortTitle(sessionSubtitle(session), 38)}</span>
                 <span className="muted">{sessionStatus(session)}</span>
                 {session.verdict && <span className="gym-session-verdict">{session.verdict}</span>}
               </button>
@@ -277,15 +277,84 @@ function CompliancePanel({ compliance }) {
   );
 }
 
-function CheckSelector({ catalog, defaults, selected, settings, checklists, checklistId, busy, onToggle, onSettings, onChecklist }) {
-  const passiveSettings = settings?.passive_voice || {};
+// Explanation an advocate needs once and then never again. A longer label plus
+// this on demand beats a paragraph under every row on every repeat use.
+function Hint({ text }) {
+  if (!text) return null;
+  return (
+    <button type="button" className="gym-hint" title={text} aria-label={text} onClick={(event) => event.preventDefault()}>
+      <HelpCircle size={14} />
+    </button>
+  );
+}
+
+function PassivePhraseModal({ open, phrases, busy, onClose, onSave }) {
+  const dialogRef = useRef(null);
+  const [text, setText] = useState((phrases || []).join("\n"));
+  useModalDismiss(dialogRef, onClose, { active: open });
+  useEffect(() => setText((phrases || []).join("\n")), [open, phrases]);
+  if (!open) return null;
+  return (
+    <div className="modal-backdrop" role="presentation">
+      <div className="editor-modal" ref={dialogRef} role="dialog" aria-modal="true" aria-label="Passive phrases">
+        <div className="modal-heading">
+          <h4>Passive phrases to allow</h4>
+          <button className="btn btn-outline-secondary icon-button" type="button" onClick={onClose} aria-label="Close">
+            <X size={16} />
+          </button>
+        </div>
+        <p className="muted">
+          One per line. The passive-voice check stays quiet about these — "service was perfected" is the register a
+          court expects, not a mistake.
+        </p>
+        <textarea className="form-control" rows={8} value={text} onChange={(event) => setText(event.target.value)} />
+        <div className="button-row step-actions">
+          <button className="btn btn-outline-secondary" type="button" onClick={onClose}>Cancel</button>
+          <button
+            className="btn btn-primary"
+            type="button"
+            disabled={busy}
+            onClick={() => onSave(text.split("\n").map((line) => line.trim()).filter(Boolean))}
+          >
+            {busy ? <Loader2 className="spin" size={16} /> : null} Save
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ChecklistModal({ open, checklists, activeId, busy, onClose, onSelect, onSave, onDelete }) {
+  const dialogRef = useRef(null);
+  useModalDismiss(dialogRef, onClose, { active: open });
+  if (!open) return null;
+  return (
+    <div className="modal-backdrop" role="presentation">
+      <div className="editor-modal" ref={dialogRef} role="dialog" aria-modal="true" aria-label="Checklists">
+        <div className="modal-heading">
+          <h4>Custom checklists</h4>
+          <button className="btn btn-outline-secondary icon-button" type="button" onClick={onClose} aria-label="Close">
+            <X size={16} />
+          </button>
+        </div>
+        <ChecklistEditor
+          checklists={checklists}
+          activeId={activeId}
+          busy={busy}
+          onSelect={onSelect}
+          onSave={onSave}
+          onDelete={onDelete}
+        />
+      </div>
+    </div>
+  );
+}
+
+function CheckSelector({ catalog, selected, checklists, checklistId, busy, onToggle, onChecklist, onManageChecklists, onManagePassive }) {
   return (
     <div className="gym-checks">
       <div className="gym-checks-body">
-        <p className="muted">
-          Nothing runs that you have not chosen. A check you turn off produces no findings at all, which is not the
-          same as a check that found nothing.
-        </p>
+        <p className="muted">Pick which tests you want to run.</p>
         {groupChecks(catalog).map((group) => (
           <fieldset key={group.id} className="gym-check-group">
             <legend>{group.label}</legend>
@@ -297,12 +366,33 @@ function CheckSelector({ catalog, defaults, selected, settings, checklists, chec
                   disabled={busy}
                   onChange={() => onToggle(check.id)}
                 />
-                <span>
+                <span className="gym-check-line">
                   <strong>{check.label}</strong>
-                  <span className="gym-check-kind">{check.kind === "model" ? "AI" : "deterministic"}</span>
-                  <span className="muted">{check.description}</span>
-                  {check.requires.length > 0 && (
-                    <span className="muted">Needs: {check.requires.join(", ").replace(/_/g, " ")}</span>
+                  {check.kind === "model" && <span className="gym-check-kind">AI</span>}
+                  <Hint text={check.description} />
+                  {check.id === "custom_checklist" && (
+                    <button
+                      className="btn btn-outline-secondary btn-inline"
+                      type="button"
+                      onClick={(event) => {
+                        event.preventDefault();
+                        onManageChecklists();
+                      }}
+                    >
+                      Manage checklists
+                    </button>
+                  )}
+                  {check.id === "passive_voice" && (
+                    <button
+                      className="btn btn-outline-secondary btn-inline"
+                      type="button"
+                      onClick={(event) => {
+                        event.preventDefault();
+                        onManagePassive();
+                      }}
+                    >
+                      Manage passive phrases
+                    </button>
                   )}
                 </span>
               </label>
@@ -310,30 +400,14 @@ function CheckSelector({ catalog, defaults, selected, settings, checklists, chec
           </fieldset>
         ))}
 
-        {selected.includes("passive_voice") && (
-          <label className="form-label">
-            Passive phrases this court expects (one per line)
-            <textarea
-              className="form-control"
-              rows={3}
-              defaultValue={(passiveSettings.acceptedPassivePhrases || []).join("\n")}
-              onBlur={(event) =>
-                onSettings({
-                  passive_voice: {
-                    acceptedPassivePhrases: event.target.value
-                      .split("\n")
-                      .map((line) => line.trim())
-                      .filter(Boolean),
-                  },
-                })
-              }
-            />
-          </label>
+        {selected.includes("custom_checklist") && !checklistId && (
+          <p className="gym-needs-attention">
+            Attach a checklist below, or this check will not run.
+          </p>
         )}
-
         {selected.includes("custom_checklist") && (
-          <label className="form-label">
-            Your checklist
+          <label className="form-label gym-inline-field">
+            Checklist to apply
             <select className="form-select" value={checklistId || ""} onChange={(event) => onChecklist(event.target.value)}>
               <option value="">Choose a checklist…</option>
               {checklists.map((checklist) => (
@@ -360,14 +434,11 @@ function ChecklistEditor({ checklists, activeId, busy, onSave, onDelete, onSelec
   }, [active?.id]);
 
   return (
-    <details className="gym-checklist-editor">
-      <summary>
-        <ListChecks size={16} /> Your checklists
-      </summary>
+    <div className="gym-checklist-editor">
       <div className="gym-checks-body">
         <p className="muted">
-          Write one review question per line. An item may need to look something up — the case record, an authority,
-          a passage of the brief — and the run reports what it read before answering.
+          One review question per line. An item can look things up — the case record, an authority, a passage of the
+          brief — and the run reports what it read before answering.
         </p>
         <label className="form-label">
           Checklist
@@ -410,7 +481,7 @@ function ChecklistEditor({ checklists, activeId, busy, onSave, onDelete, onSelec
           )}
         </div>
       </div>
-    </details>
+    </div>
   );
 }
 
@@ -943,6 +1014,8 @@ export function ArgumentGymPanel({ matter = null, cases = [], focusRun = null, o
   const [checkDefaults, setCheckDefaults] = useState([]);
   const [checklists, setChecklists] = useState([]);
   const [editingChecklistId, setEditingChecklistId] = useState("");
+  const [checklistModalOpen, setChecklistModalOpen] = useState(false);
+  const [passiveModalOpen, setPassiveModalOpen] = useState(false);
 
   const loadSessions = useCallback(async ({ matterId = sessionMatterId, query = sessionQuery } = {}) => {
     try {
@@ -1061,7 +1134,7 @@ export function ArgumentGymPanel({ matter = null, cases = [], focusRun = null, o
       setRun(response.latestRun);
       setDetection(null);
       setQueued([]);
-      setFilter("open");
+      setFilter(defaultFilter(response.latestRun?.challenges || []));
       const briefDocument = (response.workspace.documents || []).find((item) => item.role === "brief_under_test");
       setBrief(briefDocument || null);
       setCaseMaterials((response.workspace.documents || []).filter((item) => item.role === "case_record"));
@@ -1196,8 +1269,12 @@ export function ArgumentGymPanel({ matter = null, cases = [], focusRun = null, o
       const response = await api.runArgumentGym(target.id, { briefId: brief?.id });
       setRun(response.run);
       setQueued([]);
-      setFilter("open");
-      if (!isRunFinished(response.run)) await pollRun(response.run.id);
+      if (!isRunFinished(response.run)) {
+        const finished = await pollRun(response.run.id);
+        if (finished) setFilter(defaultFilter(finished.challenges || []));
+      } else {
+        setFilter(defaultFilter(response.run.challenges || []));
+      }
       await loadMaterials(target.id);
       await loadSessions();
     } catch (err) {
@@ -1308,6 +1385,9 @@ export function ArgumentGymPanel({ matter = null, cases = [], focusRun = null, o
     matterId: selectedMatterId,
   });
   const { canRevise } = revisionTargets(challenges, queued);
+  // A prep sheet built from half a run is worse than no prep sheet.
+  const actionsDisabled = runActionsDisabled({ run, busy });
+  const filters = availableFilters(challenges);
 
   return (
     <section className="panel gym-panel">
@@ -1366,8 +1446,8 @@ export function ArgumentGymPanel({ matter = null, cases = [], focusRun = null, o
             <h4>1. Brief under test</h4>
             {brief ? (
               <>
-                <p>
-                  <FileText size={16} /> {brief.title}
+                <p className="gym-brief-name">
+                  <FileText size={16} /> <span title={brief.title}>{shortTitle(brief.title)}</span>
                   {brief.unitCount ? <span className="muted"> · {brief.unitCount} addressable passages</span> : null}
                   {brief.pleadingType ? <span className="muted"> · read as a {brief.pleadingType.replace("_", " ")}</span> : null}
                 </p>
@@ -1447,23 +1527,14 @@ export function ArgumentGymPanel({ matter = null, cases = [], focusRun = null, o
             </summary>
             <CheckSelector
               catalog={checkCatalog}
-              defaults={checkDefaults}
               selected={selectedChecks}
-              settings={workspace?.checkSettings}
               checklists={checklists}
               checklistId={workspace?.checklist?.id}
               busy={busy}
               onToggle={changeChecks}
-              onSettings={(patch) => patchWorkspace({ checkSettings: patch })}
               onChecklist={(value) => patchWorkspace({ checklistId: value ? Number(value) : null })}
-            />
-            <ChecklistEditor
-              checklists={checklists}
-              activeId={editingChecklistId}
-              busy={busy}
-              onSelect={setEditingChecklistId}
-              onSave={saveChecklist}
-              onDelete={removeChecklist}
+              onManageChecklists={() => setChecklistModalOpen(true)}
+              onManagePassive={() => setPassiveModalOpen(true)}
             />
           </details>
 
@@ -1505,19 +1576,19 @@ export function ArgumentGymPanel({ matter = null, cases = [], focusRun = null, o
 
           <div className="gym-run-header">
             <div>
-              <h4>{run.briefTitle}</h4>
+              <h4 title={run.briefTitle}>{shortTitle(run.briefTitle)}</h4>
               <p className="muted">{challengeSummary(challenges)}</p>
               <p className="muted">{coverageSummary(run.coverage)}</p>
               {rerunSummary(run.comparison) && <p className="muted">{rerunSummary(run.comparison)}</p>}
             </div>
             <div className="button-row compact">
-              <button className="btn btn-outline-secondary" type="button" disabled={busy} onClick={() => openArtifact("prep_sheet")}>
+              <button className="btn btn-outline-secondary" type="button" disabled={actionsDisabled} onClick={() => openArtifact("prep_sheet")}>
                 <BookOpen size={16} /> Opposition prep sheet
               </button>
-              <button className="btn btn-outline-secondary" type="button" disabled={busy} onClick={() => openArtifact("report")}>
+              <button className="btn btn-outline-secondary" type="button" disabled={actionsDisabled} onClick={() => openArtifact("report")}>
                 <FileText size={16} /> Stress-test report
               </button>
-              <button className="btn btn-outline-secondary" type="button" disabled={busy} onClick={startRun}>
+              <button className="btn btn-outline-secondary" type="button" disabled={actionsDisabled} onClick={startRun}>
                 {busy ? <Loader2 className="spin" size={16} /> : <Swords size={16} />} Run again
               </button>
             </div>
@@ -1538,15 +1609,14 @@ export function ArgumentGymPanel({ matter = null, cases = [], focusRun = null, o
             </summary>
             <CheckSelector
               catalog={checkCatalog}
-              defaults={checkDefaults}
               selected={selectedChecks}
-              settings={workspace?.checkSettings}
               checklists={checklists}
               checklistId={workspace?.checklist?.id}
-              busy={busy}
+              busy={actionsDisabled}
               onToggle={changeChecks}
-              onSettings={(patch) => patchWorkspace({ checkSettings: patch })}
               onChecklist={(value) => patchWorkspace({ checklistId: value ? Number(value) : null })}
+              onManageChecklists={() => setChecklistModalOpen(true)}
+              onManagePassive={() => setPassiveModalOpen(true)}
             />
             <JurisdictionControls
               workspace={workspace}
@@ -1559,29 +1629,36 @@ export function ArgumentGymPanel({ matter = null, cases = [], focusRun = null, o
             />
           </details>
 
-          <MaterialsConsidered run={run} materials={materials} onToggle={toggleMaterial} busy={busy} />
+          <MaterialsConsidered run={run} materials={materials} onToggle={toggleMaterial} busy={actionsDisabled} />
 
-          <div className="gym-filter button-row compact">
-            {FILTERS.map((item) => (
-              <button
-                key={item.id}
-                type="button"
-                className={`btn ${filter === item.id ? "btn-primary" : "btn-outline-secondary"}`}
-                onClick={() => setFilter(item.id)}
-              >
-                {item.label}
-              </button>
-            ))}
-            {queued.length > 0 && (
-              <button className="btn btn-primary" type="button" disabled={busy || !canRevise} onClick={openRevisionPlan}>
-                <FileText size={16} /> Open revision plan ({queued.length})
-              </button>
-            )}
-          </div>
+          {(filters.length > 0 || queued.length > 0) && (
+            <div className="gym-filter button-row compact">
+              {filters.map((item) => (
+                <button
+                  key={item.id}
+                  type="button"
+                  className={`btn ${filter === item.id ? "btn-primary" : "btn-outline-secondary"}`}
+                  onClick={() => setFilter(item.id)}
+                >
+                  {item.label} ({item.count})
+                </button>
+              ))}
+              {queued.length > 0 && (
+                <button
+                  className="btn btn-primary gym-filter-action"
+                  type="button"
+                  disabled={actionsDisabled || !canRevise}
+                  onClick={openRevisionPlan}
+                >
+                  <FileText size={16} /> Open revision plan ({queued.length})
+                </button>
+              )}
+            </div>
+          )}
 
           {visible.length === 0 ? (
             <div className="empty-state compact">
-              <p>Nothing to show under this filter.</p>
+              <p>{emptyStateMessage(challenges, filter)}</p>
             </div>
           ) : (
             <div className="gym-challenge-list">
@@ -1609,6 +1686,26 @@ export function ArgumentGymPanel({ matter = null, cases = [], focusRun = null, o
         </div>
       </div>
 
+      <ChecklistModal
+        open={checklistModalOpen}
+        checklists={checklists}
+        activeId={editingChecklistId}
+        busy={busy}
+        onClose={() => setChecklistModalOpen(false)}
+        onSelect={setEditingChecklistId}
+        onSave={saveChecklist}
+        onDelete={removeChecklist}
+      />
+      <PassivePhraseModal
+        open={passiveModalOpen}
+        phrases={workspace?.checkSettings?.passive_voice?.acceptedPassivePhrases || []}
+        busy={busy}
+        onClose={() => setPassiveModalOpen(false)}
+        onSave={async (phrases) => {
+          await patchWorkspace({ checkSettings: { passive_voice: { acceptedPassivePhrases: phrases } } });
+          setPassiveModalOpen(false);
+        }}
+      />
       <ArtifactModal artifact={artifact} onClose={() => setArtifact(null)} />
       <GymRevisionModal
         plan={plan}
