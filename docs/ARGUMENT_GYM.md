@@ -136,6 +136,34 @@ Gym state is deliberately **not** `DraftDocument.validation_flags` or a
 `ChatConversation`. A challenge has a disposition and a rerun history; a
 validation flag and a chat message have neither.
 
+## Runs are started, not awaited
+
+A run is eight sequential model calls and several retrieval rounds — minutes,
+not seconds. Holding the HTTP request open for that does not merely feel slow:
+gunicorn kills the worker at its timeout, and **a killed worker returns no
+headers at all**, so the browser reports a CORS failure rather than the timeout
+it actually is. That is what `POST /runs/` did before this was fixed.
+
+So the request starts the run on a background thread and returns it immediately:
+
+| Status | Code | Meaning |
+| --- | --- | --- |
+| `pending` / `running` | 202 | Accepted. Poll `GET /runs/<id>/`. |
+| `complete` | 200 | Finished. |
+| `failed` | 502 | Recorded on the run with a reason. |
+
+`GymRun.status` already existed for this; the pipeline is unchanged. Each stage
+is saved to `stage_trace` as it finishes, so a client polling can name the stage
+rather than showing an unlabelled wait.
+
+A replica that dies mid-run would otherwise leave a row claiming to be running
+forever, so `fail_if_stalled` reports a run past
+`ARGUMENT_GYM_RUN_TIMEOUT_SECONDS` (default 30 minutes) as failed, saying it was
+interrupted and that nothing was written to the draft.
+
+`ARGUMENT_GYM_BACKGROUND_RUNS=False` runs the pipeline inline, which is how the
+tests assert on a finished run.
+
 ## The opening assessment
 
 Each run writes one paragraph, stored on the run and shown at the top of both
