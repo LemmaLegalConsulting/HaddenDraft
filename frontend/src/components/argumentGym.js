@@ -208,7 +208,7 @@ export function matterFilterOptions(matters = []) {
   return [
     { id: "", label: "All cases" },
     { id: "none", label: "No case record" },
-    ...matters.map((matter) => ({ id: matter.id, label: matter.name || matter.id })),
+    ...matters.map((matter) => ({ id: matter.id, label: matterFilterLabel(matter) })),
   ];
 }
 
@@ -521,4 +521,25 @@ export function shortTitle(title = "", limit = 52) {
   const extension = text.includes(".") ? text.slice(text.lastIndexOf(".")) : "";
   const stem = extension ? text.slice(0, text.length - extension.length) : text;
   return `${stem.slice(0, Math.max(limit - extension.length - 1, 8))}…${extension}`;
+}
+
+
+// Cases
+
+// A case is the client, not the docket number. `matter_to_dict` calls the name
+// `client`; reading `clientName` silently rendered an empty label beside a bare
+// id like "26-0123", which is no way to find a case in a list.
+export function caseLabel(matter = {}) {
+  const name = String(matter.client || matter.clientName || matter.title || "").trim();
+  const reference = String(matter.caseNumber || matter.id || "").trim();
+  if (name && reference) return `${name} — ${reference}`;
+  return name || reference || "Untitled case";
+}
+
+export function caseOptions(cases = []) {
+  return cases.map((item) => ({ id: item.id, label: caseLabel(item) }));
+}
+
+export function matterFilterLabel(matter = {}) {
+  return String(matter.name || "").trim() || String(matter.id || "").trim() || "Untitled case";
 }

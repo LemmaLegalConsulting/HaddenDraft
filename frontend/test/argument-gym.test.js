@@ -4,6 +4,8 @@ import test from "node:test";
 import {
   RUN_POLL_MS,
   availableFilters,
+  caseLabel,
+  caseOptions,
   defaultFilter,
   emptyStateMessage,
   runActionsDisabled,
@@ -461,4 +463,18 @@ test("a long filename is shortened rather than pushing the layout sideways", () 
   assert.ok(short.endsWith(".docx"), short);
   assert.ok(short.includes("…"));
   assert.equal(shortTitle("no-extension-but-really-quite-long-indeed-and-then-some-more"), "no-extension-but-really-quite-long-indeed-and-then-…");
+});
+
+
+test("a case is named by its client, not only by its docket number", () => {
+  // matter_to_dict calls the name `client`; reading `clientName` rendered an
+  // empty label beside a bare id.
+  assert.equal(caseLabel({ client: "Jane Tenant", caseNumber: "26-0123" }), "Jane Tenant — 26-0123");
+  assert.equal(caseLabel({ client: "Jane Tenant", id: "LS-9" }), "Jane Tenant — LS-9");
+  assert.equal(caseLabel({ id: "26-0123" }), "26-0123");
+  assert.equal(caseLabel({ client: "Jane Tenant" }), "Jane Tenant");
+  assert.equal(caseLabel({}), "Untitled case");
+  assert.deepEqual(caseOptions([{ id: "LS-1", client: "Jane Tenant", caseNumber: "26-0123" }]), [
+    { id: "LS-1", label: "Jane Tenant — 26-0123" },
+  ]);
 });
