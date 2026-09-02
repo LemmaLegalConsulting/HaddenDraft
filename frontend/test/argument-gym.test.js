@@ -3,6 +3,11 @@ import test from "node:test";
 
 import {
   RUN_POLL_MS,
+  availableFilters,
+  defaultFilter,
+  emptyStateMessage,
+  runActionsDisabled,
+  shortTitle,
   canStartRun,
   isRunFinished,
   runProgressFraction,
@@ -412,4 +417,48 @@ test("the progress bar never claims to be finished before the run is", () => {
   assert.equal(runProgressFraction({ stageTrace: [] }), 0);
   assert.ok(runProgressFraction({ stageTrace: new Array(50).fill({ stage: "x" }) }) <= 0.95);
   assert.ok(RUN_POLL_MS > 0);
+});
+
+
+test("a filter with nothing behind it is not offered", () => {
+  const allOpen = [{ id: 1, disposition: "open" }, { id: 2, disposition: "open" }];
+  // One bucket is not a choice; showing "Open | All | Handled" over an
+  // all-open run is three buttons that do the same thing.
+  assert.deepEqual(availableFilters(allOpen), []);
+  assert.deepEqual(availableFilters([]), []);
+
+  const mixed = [{ id: 1, disposition: "open" }, { id: 2, disposition: "addressed" }];
+  assert.deepEqual(availableFilters(mixed).map((f) => f.id), ["all", "open", "resolved"]);
+  assert.deepEqual(availableFilters(mixed).map((f) => f.count), [2, 1, 1]);
+});
+
+test("the default filter lands where the challenges actually are", () => {
+  assert.equal(defaultFilter([{ disposition: "open" }, { disposition: "addressed" }]), "open");
+  // Everything handled: "open" would open on an empty list.
+  assert.equal(defaultFilter([{ disposition: "addressed" }, { disposition: "dismissed" }]), "all");
+  assert.equal(defaultFilter([]), "open");
+});
+
+test("an empty list explains itself instead of blaming a filter", () => {
+  assert.match(emptyStateMessage([], "all"), /not a finding that the brief is sound/);
+  assert.equal(emptyStateMessage([{ disposition: "addressed" }], "open"), "Every challenge from this run has been handled.");
+  assert.equal(emptyStateMessage([{ disposition: "open" }], "resolved"), "Nothing has been handled yet.");
+});
+
+test("actions that read a run are unavailable while it is still being produced", () => {
+  assert.equal(runActionsDisabled({ run: { status: "running" } }), true);
+  assert.equal(runActionsDisabled({ run: { status: "pending" } }), true);
+  assert.equal(runActionsDisabled({ run: { status: "complete" } }), false);
+  assert.equal(runActionsDisabled({ run: { status: "complete" }, busy: true }), true);
+  assert.equal(runActionsDisabled({}), false);
+});
+
+test("a long filename is shortened rather than pushing the layout sideways", () => {
+  assert.equal(shortTitle("answer.docx"), "answer.docx");
+  const long = "2026-09-01 Draft Answer and Counterclaims FINAL v3 reviewed.docx";
+  const short = shortTitle(long);
+  assert.ok(short.length <= 52, short);
+  assert.ok(short.endsWith(".docx"), short);
+  assert.ok(short.includes("…"));
+  assert.equal(shortTitle("no-extension-but-really-quite-long-indeed-and-then-some-more"), "no-extension-but-really-quite-long-indeed-and-then-…");
 });

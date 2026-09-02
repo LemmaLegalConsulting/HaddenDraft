@@ -475,3 +475,50 @@ export function runProgressFraction(run) {
   const done = (run?.stageTrace || []).length;
   return Math.min(done / Object.keys(STAGE_LABELS).length, 0.95);
 }
+
+
+// Filters
+
+// A filter that would show nothing is not a choice, it is a dead end. Only
+// offer the ones that have something behind them, and never offer a single
+// option as though it were a choice.
+export function availableFilters(challenges = []) {
+  const counts = challengeCounts(challenges);
+  const options = [
+    { id: "open", label: "Open", count: counts.open },
+    { id: "resolved", label: "Handled", count: counts.addressed + counts.dismissed },
+  ].filter((option) => option.count > 0);
+  if (options.length < 2) return [];
+  return [{ id: "all", label: "All", count: counts.total }, ...options];
+}
+
+// Land on the filter that has the challenges in it, so the first thing an
+// advocate sees is never an empty list.
+export function defaultFilter(challenges = []) {
+  const counts = challengeCounts(challenges);
+  if (counts.open > 0) return "open";
+  return counts.total > 0 ? "all" : "open";
+}
+
+export function emptyStateMessage(challenges = [], filter = "all") {
+  if (!challenges.length) {
+    return "This run raised no challenges. That is a statement about the review, not a finding that the brief is sound — check the research coverage below.";
+  }
+  if (filter === "open") return "Every challenge from this run has been handled.";
+  return "Nothing has been handled yet.";
+}
+
+// While a run is going, everything that reads or changes it is unavailable:
+// a prep sheet built from half a run is worse than no prep sheet.
+export function runActionsDisabled({ run, busy } = {}) {
+  return Boolean(busy) || Boolean(run && !isRunFinished(run));
+}
+
+// A long filename must not push the layout sideways.
+export function shortTitle(title = "", limit = 52) {
+  const text = String(title);
+  if (text.length <= limit) return text;
+  const extension = text.includes(".") ? text.slice(text.lastIndexOf(".")) : "";
+  const stem = extension ? text.slice(0, text.length - extension.length) : text;
+  return `${stem.slice(0, Math.max(limit - extension.length - 1, 8))}…${extension}`;
+}
