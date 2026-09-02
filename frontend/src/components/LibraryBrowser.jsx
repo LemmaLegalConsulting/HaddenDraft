@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { BookOpen, ChevronDown, ChevronRight, FileText, Landmark, Library, Loader2, Search, X } from "lucide-react";
+import { BookOpen, Building2, ChevronDown, ChevronRight, FileText, Landmark, Library, Loader2, Search, X } from "lucide-react";
 
 import { api } from "../api/client.js";
 import {
@@ -30,6 +30,7 @@ const TABS = [
   { id: "cases", label: "Cases", icon: Landmark },
   { id: "treatise", label: "Treatises and handbooks", icon: BookOpen },
   { id: "statute", label: "Statutes", icon: Library },
+  { id: "ordinance", label: "Local ordinances", icon: Building2 },
 ];
 
 function CaseCatalog({ onOpenSource }) {

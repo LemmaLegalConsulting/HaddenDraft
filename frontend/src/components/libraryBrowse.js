@@ -9,6 +9,7 @@
 export const SHELVES = [
   { id: "treatise", label: "Treatises and handbooks", empty: "No treatises or handbooks are indexed." },
   { id: "statute", label: "Statutes", empty: "No statute collections are indexed." },
+  { id: "ordinance", label: "Local ordinances", empty: "No municipal codes are indexed." },
 ];
 
 export function shelves(documents = []) {
@@ -24,6 +25,10 @@ export function documentSubtitle(document) {
     document.version,
     document.jurisdiction,
     document.sectionCount ? `${document.sectionCount} section${document.sectionCount === 1 ? "" : "s"}` : "",
+    // A municipality can be in the corpus with nothing readable in it yet.
+    // Saying "2 declared" is the difference between "we checked and there is
+    // no local law here" and "we have not been able to get the text".
+    document.pendingCount ? `${document.pendingCount} declared, not yet acquired` : "",
   ];
   return parts.filter(Boolean).join(" · ");
 }

@@ -12,6 +12,7 @@ from apps.ai.prompt_catalog import render_prompt
 from apps.core.content_library import content_path
 from apps.sources.connectors.base import SourceConnector, SourceResult
 from apps.sources.library import load_manifest
+from apps.sources.ordinances import notice_snippet, pending_notices
 
 
 QUERY_STOPWORDS = {
@@ -45,6 +46,12 @@ RAG_SOURCE_DOCUMENTS = {
     "hud-handbook": {"hud-4350-3-rev-1"},
     "green-book": {"green-book"},
 }
+
+# Local law is one logical source made of many documents -- one per
+# municipality -- and municipalities are added by editing scope.yaml, not this
+# file.  Selecting it by the kind its manifests declare keeps a newly ingested
+# city searchable the moment its manifest exists.
+RAG_SOURCE_CONTENT_KINDS = {"ohio-ordinances": "ordinance"}
 
 
 def _terms(value):
@@ -116,6 +123,7 @@ class ContentLibraryTreatiseConnector(SourceConnector):
         return sorted([
             *content_path("treatises", "markdown").glob("*/*/manifest.yaml"),
             *content_path("statutes").glob("*/manifest.yaml"),
+            *content_path("ordinances").glob("*/manifest.yaml"),
         ])
 
     def _load_chunks(self):
@@ -144,6 +152,7 @@ class ContentLibraryTreatiseConnector(SourceConnector):
                     "content_kind": item.get("content_kind", "substantive-section"),
                     "document_slug": manifest.get("document_slug", ""),
                     "document_title": manifest.get("document_title", "Treatise"),
+                    "document_kind": manifest.get("content_kind", "treatise"),
                     "document_version": manifest.get("document_version", ""),
                     "source_path": item.get("source_path") or manifest.get("source_path", ""),
                     "source_sha256": item.get("source_sha256") or manifest.get("source_sha256", ""),
@@ -152,6 +161,10 @@ class ContentLibraryTreatiseConnector(SourceConnector):
                     "url": item.get("url", ""),
                     "effective_date": item.get("effective_date", ""),
                     "jurisdiction": manifest.get("jurisdiction", ""),
+                    # An ordinance record states what its text *is* -- an
+                    # enacted act, a published court rule -- because that
+                    # decides whether a reader may rely on it as it stands.
+                    "text_basis": item.get("text_basis", ""),
                 })
         self._cache_key, self._chunks = cache_key, chunks
         return chunks
@@ -214,6 +227,29 @@ class ContentLibraryTreatiseConnector(SourceConnector):
         version = f", {chunk['document_version']}" if chunk["document_version"] else ""
         return f"{chunk['document_title']}{version}, {path} ({page_text})"
 
+    def _coverage_results(self, query):
+        """Results that report a gap instead of letting another city fill it."""
+        results = []
+        for notice in pending_notices(query):
+            results.append(SourceResult(
+                id=notice["id"],
+                title=f"{notice['municipality']} — {notice['topicLabel'] or notice['title']} (text not held)",
+                snippet=notice_snippet(notice),
+                source_kind=self.kind,
+                source_label="Local law coverage",
+                citation=notice["citation"],
+                url=notice["url"],
+                metadata={
+                    "resultType": "coverage-notice",
+                    "documentKind": "ordinance",
+                    "textBasis": "not_acquired",
+                    "municipality": notice["municipality"],
+                    "topic": notice["topic"],
+                    "pendingReason": notice["reason"],
+                },
+            ))
+        return results
+
     def search(self, query, *, matter=None, jurisdiction="", limit=5, user=None, request=None, source_ids=None):
         original_terms, expanded_terms = _expanded_terms(query)
         if not original_terms:
@@ -221,18 +257,29 @@ class ContentLibraryTreatiseConnector(SourceConnector):
         ranked = []
         semantic_groups = _active_semantic_groups(original_terms)
         selected_documents = set()
+        selected_kinds = set()
         for source_id in source_ids or []:
             selected_documents.update(RAG_SOURCE_DOCUMENTS.get(source_id, set()))
+            if source_id in RAG_SOURCE_CONTENT_KINDS:
+                selected_kinds.add(RAG_SOURCE_CONTENT_KINDS[source_id])
+        ordinances_in_scope = not source_ids or "ordinance" in selected_kinds
         chunks = self._load_chunks()
-        if selected_documents:
-            chunks = [chunk for chunk in chunks if chunk["document_slug"] in selected_documents]
+        if selected_documents or selected_kinds:
+            chunks = [
+                chunk for chunk in chunks
+                if chunk["document_slug"] in selected_documents or chunk["document_kind"] in selected_kinds
+            ]
         for chunk in chunks:
             score = self._score(chunk, original_terms, expanded_terms, semantic_groups)
             if score:
                 ranked.append((score, chunk))
         ranked.sort(key=lambda item: (-item[0], item[1]["document_title"], item[1]["id"] or ""))
         ranked = self._ai_rerank(query, ranked)
-        results = []
+        # A gap in local-law coverage outranks a different city's ordinance:
+        # the reader asked about their own city, and a confident answer drawn
+        # from somewhere else is the wrong one.
+        results = self._coverage_results(query) if ordinances_in_scope else []
+        limit = max(limit - len(results), 1) if results else limit
         for _score_value, chunk in ranked[:limit]:
             text = _source_text(chunk["path"])
             results.append(SourceResult(
@@ -254,6 +301,8 @@ class ContentLibraryTreatiseConnector(SourceConnector):
                     "sourceSha256": chunk["source_sha256"],
                     "jurisdiction": chunk["jurisdiction"],
                     "effectiveDate": chunk["effective_date"],
+                    "documentKind": chunk["document_kind"],
+                    "textBasis": chunk.get("text_basis", ""),
                     "retrievalHints": chunk.get("retrieval_hints", []),
                     "retrieval": "hybrid-conceptual-with-metadata-rerank" if settings.AI_DRAFTING_ENABLED else "hybrid-conceptual",
                 },

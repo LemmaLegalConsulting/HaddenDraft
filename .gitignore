@@ -79,6 +79,17 @@ content/document-templates/
 content/docx-snippets/*/
 !content/docx-snippets/_shared/
 # content/treatises/ (now a submodule)
+# The ordinance corpus is generated, unversioned data: municipality directories
+# are written by scripts/ingest_local_ordinances.py and the inbox holds the
+# source documents they were read from. Both live on the storage share, like
+# case-law bundles. What stays here is what a person maintains and reviews:
+# the coverage scope, the cross-city datasets, and the supplied transcriptions
+# that scope.yaml points at.
+content/ordinances/*
+!content/ordinances/README.md
+!content/ordinances/scope.yaml
+!content/ordinances/datasets/
+!content/ordinances/_transcriptions/
 ssh/
 
 docs/slides

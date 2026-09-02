@@ -1,0 +1,148 @@
+---
+municipality: euclid
+key: pay-to-stay
+asserted_citation: Euclid Codified Ordinances Ch. 1765
+asserted_act: Ord. 60-2021, passed May 3, 2021; made permanent by Ord. 125-2022
+provided_by: Quinten Steenhuis
+provided_on: '2026-08-31'
+verified: false
+verification_note: >-
+  American Legal Publishing's rendering of the chapter in force, supplied by a
+  person.  This replaces an earlier record built from Ord. 125-2022, which was
+  retrieved from the City's eGovLink portal but contains only the resolution
+  making Chapter 1765 permanent -- none of the operative text.  Every section
+  below carries its own history to Ord. 60-2021, which is the enacting act and
+  has still not been located as a document.  The supplier flags that Euclid's
+  comparative section table attributes §§ 1765.01 through 1765.08 to
+  Ord. 60-2021 while the accessible code rendering exposes no § 1765.08; that
+  section is missing here rather than reconstructed.
+verification_urls:
+  - https://codelibrary.amlegal.com/codes/euclid/latest/euclid_oh/0-0-0-43494
+  - https://www.cityofeuclid.gov/legislation
+---
+
+EUCLID, OHIO
+CODIFIED ORDINANCES — CHAPTER 1765
+Approving the Right of City Renters to Pay-To-Stay
+
+Source consulted:
+https://codelibrary.amlegal.com/codes/euclid/latest/euclid_oh/0-0-0-43494
+
+EDITOR'S NOTE: Chapter 1765 was enacted by Ordinance No. 125-2022, passed
+November 7, 2022, and shall be effective December 6, 2022. The individual
+sections below retain the source history to Ordinance 60-2021, passed May 3,
+2021. The City's legislation page identifies Ordinance 60-2021 as creating
+Chapter 1765 and approving the right of city renters to pay-to-stay.
+
+1765.01 DEFINITIONS.
+
+For the purposes of this Chapter, "tenant" means a person entitled under a
+rental agreement to the use and occupancy of residential premises to the
+exclusion of others.
+
+For the purposes of this Chapter, "tender" means an offer of payment that is
+equivalent to the actual production or remittance of the money.
+
+For the purposes of this Chapter, "court costs" means filing fees and costs
+assessed by the municipal court that include, but are not limited to, costs to
+file, costs for data entry, costs for court appearances, costs for serving
+summons and subpoenas, and costs associated with court transcripts and copying
+papers and exhibits.
+
+(Ord. 60-2021. Passed 5-3-21.)
+
+1765.02 TENANT'S RIGHT TO PAY-TO-STAY PRIOR TO THE FILING OF AN EVICTION
+ACTION FOR NON-PAYMENT OF RENT (COMPLAINT FOR FORCIBLE ENTRY AND DETAINER).
+
+(a) At any time prior to the filing of an action under Ohio R.C. 1923 for
+nonpayment of rent by a landlord, a tenant shall have the right to pay the
+landlord all past due rent with reasonable late fees to avoid the filing of
+such action for the restitution of the lands or tenements.
+
+If the tenant tenders all accrued rent and reasonable late fees to the
+landlord, the landlord shall accept the tendered payment and allow the tenant
+to maintain the tenancy.
+
+(b) If the tenant tenders all past due rent with reasonable late fees to the
+landlord prior to the filing of an action under Ohio R.C. 1923 and the landlord
+refuses the tender, the tenant's tender of all past due rent with reasonable
+late fees shall be an affirmative defense to any action filed by the landlord
+against the tenant for nonpayment of rent.
+
+(Ord. 60-2021. Passed 5-3-21.)
+
+1765.03 TENANT'S RIGHT TO PAY-TO-STAY PRIOR TO AN EVICTION JUDGMENT FOR
+NON-PAYMENT OF RENT (ENTRY OF RESTITUTION).
+
+(a) After the filing of an action under Ohio R.C. 1923 for nonpayment of rent
+but prior to a judgment, the tenant shall have the right to pay the landlord
+all past due rent, reasonable late fees and court costs so that the tenant may
+maintain the tenancy. If the tenant tenders all past due rent amounts,
+including late fees and court costs, the landlord must accept the payment.
+Upon receipt of the payment, the landlord shall dismiss the action against the
+tenant.
+
+(b) If the tenant tenders all past due rent with reasonable late fees and court
+costs to the landlord prior to a judgment and the landlord refuses the tender,
+the tenant's tender of all past due rent, reasonable late fees and court costs
+shall be an affirmative defense to the eviction action filed by the landlord
+against the tenant for nonpayment of rent.
+
+(Ord. 60-2021. Passed 5-3-21.)
+
+1765.04 TENANT'S RIGHT TO PAY-TO-STAY PRIOR TO THE EXECUTION OF THE EVICTION
+JUDGMENT FOR NON-PAYMENT OF RENT (WRIT OF RESTITUTION).
+
+(a) After the filing of an action under Ohio R.C. 1923 for nonpayment of rent
+but prior to the execution of the eviction judgment through a writ of
+restitution, the tenant shall have the right to pay the landlord all past due
+rent, reasonable late fees and court costs, including the cost of obtaining the
+writ, so that the tenant may maintain the tenancy. If the tenant tenders all
+past due rent amounts, including reasonable late fees and court costs, the
+landlord must accept the payment. Upon receipt of the payment, the landlord
+shall notify the court who shall vacate the eviction judgment and dismiss the
+eviction action against the tenant.
+
+(b) If the tenant tenders all past due rent with reasonable late fees and court
+costs to the landlord prior to the execution of the eviction judgment through a
+writ of restitution and the landlord refuses the tender, the bailiff shall not
+enforce the eviction judgment until the court instructs the bailiff to do so
+after an emergency hearing on the tenant's right to pay and stay at the
+premises. If the court finds during the emergency hearing that the tenant
+tendered all past due rent, reasonable late fees and court costs, the court
+shall vacate the eviction judgment and dismiss the eviction action against the
+tenant.
+
+(Ord. 60-2021. Passed 5-3-21.)
+
+1765.05 RENT RECEIPT REQUIRED.
+
+The landlord shall provide the tenant with a signed receipt for all payments
+made under this Chapter.
+
+(Ord. 60-2021. Passed 5-3-21.)
+
+1765.06 OTHER CAUSES FOR EVICTION.
+
+This Chapter in no way limits the ability of a landlord to initiate an eviction
+action for reasons other than solely for non-payment of rent.
+
+(Ord. 60-2021. Passed 5-3-21.)
+
+1765.07 REASONABLE LATE FEES.
+
+No landlord may charge a tenant late fees that are not reasonable late fees. If
+a rental agreement includes a provision that authorizes the landlord to assess
+the tenant a fee for late payment of the monthly rent, to be considered
+"reasonable late fees" the total amount of that late payment fee for any month
+may not exceed the larger of: (i) twenty-five dollars ($25.00); or (ii) five
+percent (5%) of the contracted monthly rent.
+
+(Ord. 60-2021. Passed 5-3-21.)
+
+NOTE ON SECTION NUMBERING: The Euclid comparative section table attributes
+Sections 1765.01 through 1765.08 to Ordinance 60-2021. The currently indexed
+Chapter 1765 landing page exposes Sections 1765.01-.04, while the individual
+codified pages expose Sections 1765.05-.07. No separate current §1765.08 text
+was located in the accessible official code rendering; this file does not
+invent or paraphrase that missing section.

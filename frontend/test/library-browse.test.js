@@ -93,3 +93,34 @@ test("a heading with no chunk behind it opens nothing rather than an empty viewe
   assert.equal(sectionCitation(DOCUMENTS[0], { id: "Chapter 1", label: "Chapter 1", chunkId: "" }), null);
   assert.equal(sectionCitation(null, { chunkId: "0001" }), null);
 });
+
+test("local ordinances shelve as their own kind", () => {
+  const documents = [
+    ...DOCUMENTS,
+    { slug: "ordinances-toledo", title: "Toledo Municipal Code", contentKind: "ordinance", jurisdiction: "Toledo, Ohio", sectionCount: 4, pendingCount: 1 },
+  ];
+  const shelved = shelves(documents);
+  const ordinances = shelved.find((shelf) => shelf.id === "ordinance");
+  assert.equal(ordinances.documents.length, 1);
+  assert.equal(ordinances.documents[0].slug, "ordinances-toledo");
+  // The municipal code must not leak onto the statute or treatise shelves.
+  assert.deepEqual(
+    shelved.find((shelf) => shelf.id === "statute").documents.map((item) => item.slug),
+    ["ohio-revised-code"],
+  );
+});
+
+test("a municipality's unacquired authorities are named in its subtitle", () => {
+  const subtitle = documentSubtitle({
+    contentKind: "ordinance",
+    jurisdiction: "Cleveland Heights, Ohio",
+    sectionCount: 0,
+    pendingCount: 2,
+  });
+  assert.match(subtitle, /2 declared, not yet acquired/);
+  // Nothing declared means nothing said: a full corpus stays uncluttered.
+  assert.equal(
+    documentSubtitle({ jurisdiction: "Ohio", sectionCount: 652, pendingCount: 0 }),
+    "Ohio · 652 sections",
+  );
+});

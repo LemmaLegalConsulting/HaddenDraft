@@ -1,0 +1,1072 @@
+# Pay-to-stay as a set of answered questions, not a boolean.
+#
+# Whether a city "has pay-to-stay" tells an advocate almost nothing.  What
+# decides a live case is when tender may be made, what it must cover, whether a
+# rental-assistance guarantee counts, and whether the court must dismiss.  Those
+# are the fields below.
+#
+# Every field carries where its answer came from and how far it can be trusted:
+#
+#   basis: ordinance-text  - read from ingested text of the ordinance itself
+#          transcription   - read from hand-supplied text that nobody has yet
+#                            verified against a publisher's copy.  As specific
+#                            as ordinance-text and as unconfirmed as a rumour;
+#                            it gets its own rung so the difference survives.
+#          treatise        - stated in the indexed treatise section named in `source`
+#          secondary       - a compilation or advocacy source; a lead, not authority
+#          unknown         - not yet established; the field is open, not absent
+#
+# `unknown` is a first-class answer.  A missing field would read as "no such
+# limit"; an unknown one reads as "nobody has checked", which is the truth and
+# is what an advocate needs to know before relying on it.
+
+schema_version: 1
+dataset: pay-to-stay
+title: Ohio pay-to-stay ordinances
+jurisdiction: Ohio
+
+# The value vocabularies a reader (and the UI) can rely on.
+vocabularies:
+  tender_window:
+    before_filing: Tender before the eviction action is filed.
+    after_filing: Tender after filing but before judgment.
+    up_to_judgment: Tender any time up to entry of the eviction judgment.
+    before_writ_executed: Tender after judgment but before the writ of restitution is executed.
+  amounts_required: [rent, late_fees, court_costs, attorney_fees, writ_costs]
+  effect:
+    landlord_must_accept: The landlord is required to accept the tender.
+    affirmative_defense: Refusal creates an affirmative defense; acceptance is not compelled.
+    court_discretion: The court decides case by case whether the defense applies.
+  dismissal:
+    mandatory: Dismissal (or vacatur and dismissal) is required on a qualifying tender.
+    discretionary: Dismissal rests with the court.
+
+# Sources cited by the records below.
+sources:
+  treatise-pay-to-stay:
+    document: ohio-eviction-landlord-tenant-law-6e
+    chunk: 0609-2-pay-to-stay-defense-in-eviction-actions-01
+    citation: Ohio Eviction and Landlord-Tenant Law § XXII.J.2 (6th ed. 2022)
+    caveat: >-
+      Published June 2022.  Several of the ordinances it describes as temporary
+      have since been made permanent, and municipalities have been added.
+  treatise-late-fees:
+    document: ohio-eviction-landlord-tenant-law-6e
+    chunk: 0610-3-limit-on-late-payment-fees-01
+    citation: Ohio Eviction and Landlord-Tenant Law § XXII.J.3 (6th ed. 2022)
+  cohhio-list:
+    citation: COHHIO list of Ohio municipalities with pay-to-stay policies
+    caveat: A coverage list, not a statement of any ordinance's terms.
+  cleveland-375-13:
+    document: ordinances-cleveland
+    chunk: ord-cleveland-pay-to-stay-01
+    citation: Cleveland Codified Ordinances § 375.13, as enacted by Ordinance No. 484-2022
+    caveat: Text as enacted; confirm against the codified chapter before filing.
+  toledo-1770:
+    document: ordinances-toledo
+    chunk: ord-toledo-pay-to-stay-02
+    citation: Toledo Municipal Code Ch. 1770, as enacted by Ordinance O-294-20
+    caveat: Text as enacted; confirm against the codified chapter before filing.
+  cleveland-375-02:
+    document: ordinances-cleveland
+    chunk: ord-cleveland-late-fees-01
+    citation: >-
+      Cleveland Codified Ordinances § 375.02, as amended by Ord. 1027-04 and
+      published in The City Record, August 18, 2004
+    caveat: >-
+      The city's own journal of enacted legislation.  Later amendments after
+      2004 would not appear here; confirm against the codified section.
+  maple-heights-1488:
+    document: ordinances-maple-heights
+    chunk: ord-maple-heights-pay-to-stay-01
+    citation: Codified Ordinances of Maple Heights Ch. 1488, as enacted by Ord. 2021-25 as amended
+    caveat: Recognized from a scanned council packet; verify figures against the codified chapter.
+  south-euclid-1415:
+    document: ordinances-south-euclid
+    chunk: ord-south-euclid-pay-to-stay-01
+    citation: South Euclid Code of Ordinances Ch. 1415, as enacted by Ord. 17-22
+    caveat: Recognized from a scanned legislation packet; verify figures against the codified chapter.
+  dayton-93-71:
+    document: ordinances-dayton
+    chunk: ord-dayton-pay-to-stay-01
+    citation: Dayton R.C.G.O. §§ 93.71-93.74, as enacted by Emergency Ord. 31875-21
+    caveat: >-
+      A secondary reproduction of the enacted ordinance, recognized by OCR, and
+      matched to Dayton's own minutes on ordinance number, passage date, and
+      enacted sections.  Not a city-hosted signed copy.
+  lakewood-516-22:
+    document: ordinances-lakewood
+    chunk: ord-lakewood-pay-to-stay-01
+    citation: Lakewood Codified Ordinances § 516.22, as enacted by Ord. 02-2023
+    caveat: >-
+      Hand-supplied transcription.  No publisher copy has been located and
+      nothing here has verified it; confirm every provision before relying on it.
+  akron-150-51:
+    document: ordinances-akron
+    chunk: ord-akron-pay-to-stay-01
+    citation: Akron Municipal Code § 150.51, as enacted by Ord. 111-2021
+    caveat: >-
+      The codifier's rendering of the section in force, supplied by a person as
+      a Municode export of Chapter 150 rather than retrieved here.  The executed
+      Ord. 111-2021 has not been located.  Confirm against Municode.
+  akron-150-52:
+    document: ordinances-akron
+    chunk: ord-akron-late-fees-01
+    citation: Akron Municipal Code § 150.52, as enacted by Ord. 111-2021
+    caveat: >-
+      The codifier's rendering of the section in force, supplied as a Municode
+      export.  This is the source that settles the 5%/8% dispute at eight
+      percent; do not restate the five-percent figure from the COHHIO guide,
+      which reproduces a pre-enactment draft.
+  yellow-springs-868:
+    document: ordinances-yellow-springs
+    chunk: ord-yellow-springs-pay-to-stay-01
+    citation: Yellow Springs Codified Ordinances Ch. 868, as enacted by Ord. 2021-17
+    caveat: >-
+      American Legal Publishing's rendering of the codified chapter, supplied by
+      a person rather than retrieved here -- their code library answers
+      automated requests with a Cloudflare challenge.  Every section carries the
+      "(Ord. 2021-17. Passed 6-21-21.)" history line.  Confirm against the
+      codifier.
+  richmond-heights-763:
+    document: ordinances-richmond-heights
+    chunk: ord-richmond-heights-pay-to-stay-01
+    citation: Richmond Heights Codified Ordinances Ch. 763, as enacted by Ord. 81-2023
+    caveat: >-
+      Cut from the City's own 342-page codified-ordinances PDF, so this is the
+      chapter as codified rather than the enacting act.
+  worthington-727:
+    document: ordinances-worthington
+    chunk: ord-worthington-pay-to-stay-01
+    citation: Worthington Codified Ordinances Ch. 727, as enacted by Ord. 21-2023
+    caveat: >-
+      Text as enacted, from the City-hosted ordinance PDF.  Confirm against the
+      codified chapter before filing.
+  euclid-1765:
+    document: ordinances-euclid
+    chunk: ord-euclid-pay-to-stay-01
+    citation: Euclid Codified Ordinances Ch. 1765, as enacted by Ord. 60-2021
+    caveat: >-
+      American Legal Publishing's rendering of the codified chapter, supplied by
+      a person rather than retrieved here.  Every section carries its history to
+      Ord. 60-2021; § 1765.08 is attributed to that act by Euclid's comparative
+      section table but is not exposed by the code rendering, so this dataset
+      says nothing about it.
+  gahanna-792:
+    document: ordinances-gahanna
+    chunk: ord-gahanna-pay-to-stay-03
+    citation: Gahanna Codified Ordinances Ch. 792, as enacted by Ord. ORD-0061-2022
+    caveat: >-
+      Text as adopted, taken from Exhibit A to the enacting act; confirm against
+      the codified chapter before filing.
+  columbus-4551-06:
+    document: ordinances-columbus
+    chunk: ord-columbus-pay-to-stay-01
+    citation: Columbus City Codes § 4551.06, as enacted by Ordinance 2108-2023
+    caveat: Text as enacted; confirm against the codified chapter before filing.
+
+# The shape of a municipality nobody has examined yet.  Named once so a new
+# record starts honest instead of starting empty.
+field_templates:
+  # The shape the treatise describes for the ordinances where a qualifying
+  # tender is a right rather than a discretionary defense.
+  right_not_discretion: &right_not_discretion
+    tender_window:
+      value: [before_filing, up_to_judgment, before_writ_executed]
+      basis: treatise
+      source: treatise-pay-to-stay
+    amounts_required:
+      value: [rent, late_fees, court_costs, writ_costs]
+      basis: treatise
+      source: treatise-pay-to-stay
+      note: >-
+        A post-judgment tender before the writ is executed must also cover the
+        cost of the writ of restitution.
+    late_fee_cap:
+      value: unknown
+      basis: unknown
+    rental_assistance_counts_as_tender:
+      value: unknown
+      basis: unknown
+    effect:
+      value: landlord_must_accept
+      basis: treatise
+      source: treatise-pay-to-stay
+    frequency_limit:
+      value: unknown
+      basis: unknown
+    partial_payment:
+      value: unknown
+      basis: unknown
+    dismissal:
+      value: mandatory
+      basis: treatise
+      source: treatise-pay-to-stay
+      note: >-
+        On a qualifying post-judgment tender the landlord must dismiss, or
+        notify the court to vacate the judgment and dismiss.
+  unexamined: &unexamined
+    tender_window: {value: unknown, basis: unknown}
+    amounts_required: {value: unknown, basis: unknown}
+    late_fee_cap: {value: unknown, basis: unknown}
+    rental_assistance_counts_as_tender: {value: unknown, basis: unknown}
+    effect: {value: unknown, basis: unknown}
+    frequency_limit: {value: unknown, basis: unknown}
+    partial_payment: {value: unknown, basis: unknown}
+    dismissal: {value: unknown, basis: unknown}
+
+records:
+  - municipality: cleveland
+    citation: Cleveland Codified Ordinances § 375.13
+    enacting_act: Ordinance No. 484-2022
+    fields:
+      tender_window:
+        value: [before_filing, up_to_judgment]
+        basis: ordinance-text
+        source: cleveland-375-13
+        note: >-
+          § 375.13(b) covers tender before filing; § 375.13(c) covers tender
+          before judgment, and lets the tenant satisfy it by paying into escrow
+          with the Cleveland Municipal Housing Court before the trial date.
+      amounts_required:
+        value: [rent, late_fees, court_costs]
+        basis: ordinance-text
+        source: cleveland-375-13
+        note: >-
+          Court costs are required only for a tender after filing.  An escrowed
+          tender must also cover applicable escrow fees.
+      late_fee_cap:
+        value: greater of $25 or 5% of monthly contract rent
+        basis: ordinance-text
+        source: cleveland-375-02
+        note: >-
+          § 375.13 defines "reasonable late fees" by reference to § 375.02(c),
+          whose text is now held from Cleveland's own City Record: the fee "may
+          not exceed the larger of: (i) twenty-five dollars ($25.00); or (ii)
+          five percent (5%) of the monthly contract rent", and separately may
+          not exceed twenty-five percent of the portion of the contract rent the
+          tenant is obligated to pay.  That second cap is what bites for a
+          subsidized tenant paying a small share of the rent.
+      rental_assistance_counts_as_tender:
+        value: true
+        basis: ordinance-text
+        source: cleveland-375-13
+        note: >-
+          "Tender ... includes any emergency rental assistance vouchers from an
+          accredited social service, nonprofit, governmental, or
+          quasi-governmental agency that guarantees the payment of past due
+          rent, reasonable late fees, and court costs."  A guarantee counts, so
+          approved-but-undisbursed assistance is tender.
+      effect:
+        value: affirmative_defense
+        basis: ordinance-text
+        source: cleveland-375-13
+        note: Refusal creates a defense; the act does not compel acceptance.
+      frequency_limit:
+        value: unknown
+        basis: unknown
+      partial_payment:
+        value: unknown
+        basis: unknown
+        note: The act speaks of tendering "all past due rent"; partial tender is not addressed.
+      dismissal:
+        value: unknown
+        basis: unknown
+        note: The remedy is a defense to the action, not a stated dismissal duty.
+
+  - municipality: cleveland-heights
+    citation: Cleveland Heights Codified Ordinances Ch. 767
+    fields:
+      tender_window:
+        value: [before_filing, after_filing]
+        basis: unknown
+        note: Reported to create express pre-filing and post-filing tender rights.
+      amounts_required:
+        value: [rent, late_fees]
+        basis: unknown
+      late_fee_cap:
+        value: greater of $25 or 5% of monthly contract rent
+        basis: unknown
+      rental_assistance_counts_as_tender:
+        value: unknown
+        basis: unknown
+      effect:
+        value: unknown
+        basis: unknown
+      frequency_limit:
+        value: unknown
+        basis: unknown
+      partial_payment:
+        value: unknown
+        basis: unknown
+      dismissal:
+        value: unknown
+        basis: unknown
+
+  - municipality: akron
+    citation: Akron Municipal Code § 150.51
+    fields:
+      tender_window:
+        value: [before_filing, up_to_judgment]
+        basis: ordinance-text
+        source: akron-150-51
+      amounts_required:
+        value: [rent, late_fees, court_costs]
+        basis: ordinance-text
+        source: akron-150-51
+        note: >-
+          Court costs are required for a tender made after filing.  Attorney
+          fees are expressly excluded: § 150.51(B)(1) states "Tenant shall not
+          be responsible for landlord's attorney's fees."  A post-filing tender
+          made through the court's escrow must also cover applicable escrow
+          fees.
+      late_fee_cap:
+        value: greater of $25 or 8% of monthly contract rent
+        basis: ordinance-text
+        source: akron-150-52
+        note: >-
+          A five-percent figure circulates for Akron and is wrong as to current
+          law: it comes from a reproduction headed "ORDINANCE NO. ____ -2021"
+          with the number left blank, which is a pre-enactment draft.  The
+          codified § 150.52 held here says "eight percent" and attributes the
+          section to Ord. 111-2021; the treatise agrees.
+      rental_assistance_counts_as_tender:
+        value: true
+        basis: ordinance-text
+        source: akron-150-51
+        note: >-
+          Both divisions extend the defence to a tender by "someone or an agency
+          on their behalf", which covers a rental-assistance payment.  The text
+          does not say whether an agency's commitment to pay, as opposed to
+          payment, is enough.  Smith v. Cade, No. 21-CVG-2160 (Akron Mun. Ct.
+          May 12, 2021) ruled for a tenant whose tender came through a
+          rental-assistance program.
+      effect:
+        value: affirmative_defense
+        basis: ordinance-text
+        source: akron-150-51
+        note: >-
+          Corrects an earlier reading of court_discretion taken from the
+          treatise.  Akron differs from Cleveland Heights, Lakewood and Yellow
+          Springs: § 150.51 never directs the landlord to accept a tender.  It
+          only provides that refusal makes the attempted tender an affirmative
+          defence, which the tenant must raise and the court then decides.
+      frequency_limit:
+        value: once per calendar year
+        basis: ordinance-text
+        source: akron-150-51
+        note: >-
+          § 150.51(C) limits the tenant to one use of the defence per calendar
+          year, and preserves the tenant's other defences without that limit.
+          The defences are available to residential tenants only.
+      partial_payment:
+        value: not accepted after filing
+        basis: ordinance-text
+        source: akron-150-51
+        note: >-
+          The escrow route in § 150.51(B)(1) requires "a payment in full,
+          including all past due rent with reasonable late fees, court costs,
+          and applicable escrow fees", deposited before the date of trial.  The
+          section is silent on partial payment before filing.
+      dismissal:
+        value: unknown
+        basis: ordinance-text
+        source: akron-150-51
+        note: >-
+          The section says nothing about dismissal.  It creates a defence to the
+          action rather than a duty to dismiss, so the disposition follows from
+          the court sustaining the defence.  An earlier "discretionary" value
+          here was read from the treatise, not from the section.
+
+  - municipality: cincinnati
+    citation: Cincinnati Municipal Code § 871-9(c)
+    fields:
+      tender_window:
+        value: [before_filing, up_to_judgment]
+        basis: treatise
+        source: treatise-pay-to-stay
+      amounts_required:
+        value: [rent, late_fees, court_costs, attorney_fees]
+        basis: treatise
+        source: treatise-pay-to-stay
+        note: >-
+          Where the tender is made during the eviction hearing it must also
+          include reasonable attorney's fees, capped at $125.
+      late_fee_cap:
+        value: unknown
+        basis: unknown
+      rental_assistance_counts_as_tender:
+        value: true
+        basis: treatise
+        source: treatise-pay-to-stay
+        note: >-
+          A voucher from a social service, nonprofit, or governmental agency
+          guaranteeing payment satisfies the tender requirement.
+      effect:
+        value: court_discretion
+        basis: treatise
+        source: treatise-pay-to-stay
+      frequency_limit:
+        value: unknown
+        basis: unknown
+      partial_payment:
+        value: unknown
+        basis: unknown
+      dismissal:
+        value: discretionary
+        basis: treatise
+        source: treatise-pay-to-stay
+
+  - municipality: dayton
+    citation: Dayton Code of Ordinances §§ 93.71–93.74
+    fields:
+      tender_window:
+        value: [before_filing, up_to_judgment]
+        basis: treatise
+        source: treatise-pay-to-stay
+      amounts_required:
+        value: [rent, late_fees, court_costs]
+        basis: treatise
+        source: treatise-pay-to-stay
+        note: >-
+          The tender may be placed in escrow with the court, and the tenant
+          cannot be made liable for the landlord's attorney's fees.
+      late_fee_cap:
+        value: unknown
+        basis: unknown
+      rental_assistance_counts_as_tender:
+        value: unknown
+        basis: unknown
+      effect:
+        value: court_discretion
+        basis: treatise
+        source: treatise-pay-to-stay
+      frequency_limit:
+        value: once per calendar year
+        basis: ordinance-text
+        source: dayton-93-71
+        note: >-
+          § 93.73 limits the Dayton Municipal Court's consideration of the
+          defense to once in a calendar year.
+      partial_payment:
+        value: unknown
+        basis: unknown
+      dismissal:
+        value: discretionary
+        basis: treatise
+        source: treatise-pay-to-stay
+
+  - municipality: toledo
+    citation: Toledo Municipal Code Ch. 1770
+    enacting_act: Ordinance O-294-20
+    fields:
+      tender_window:
+        value: [before_filing, up_to_judgment]
+        basis: ordinance-text
+        source: toledo-1770
+        note: § 1770.02 covers tender before filing; § 1770.03 covers tender before judgment.
+      amounts_required:
+        value: [rent, late_fees, court_costs]
+        basis: ordinance-text
+        source: toledo-1770
+        note: Court costs are required for a tender made after filing.
+      late_fee_cap:
+        value: unknown
+        basis: unknown
+        note: >-
+          The treatise cites § 1770.06 for a cap of the greater of $25 or 5% of
+          monthly rent.  The chapter enacted by O-294-20 lists § 1770.06 as
+          "Legislative Review" and uses "reasonable late fees" without defining
+          a cap, so the treatise citation appears to address the earlier
+          Chapter 1770.  Establish where the cap now lives before relying on it.
+      rental_assistance_counts_as_tender:
+        value: unknown
+        basis: unknown
+        note: >-
+          The chapter lets a tender come from the tenant or a third party but
+          does not name rental assistance.  Buckeye Northwest Realty for Tahoe
+          Blue, LLC v. Stigall, No. CVG-21-05045 (Toledo Mun. Ct., Hous. Div.,
+          June 22, 2021) accepted a tender made during the eviction hearing.
+      effect:
+        value: landlord_must_accept
+        basis: ordinance-text
+        source: toledo-1770
+        note: >-
+          "the landlord shall accept the tendered payment and allow the Tenant
+          to maintain the tenancy"; refusal additionally makes the tender a
+          defense.
+      frequency_limit:
+        value: unknown
+        basis: unknown
+      partial_payment:
+        value: unknown
+        basis: unknown
+      dismissal:
+        value: mandatory
+        basis: treatise
+        source: treatise-pay-to-stay
+        note: >-
+          The treatise groups Toledo with the ordinances where the defense is a
+          right rather than discretionary.  The enacted chapter compels
+          acceptance but does not itself state a dismissal duty.
+
+  - municipality: maple-heights
+    citation: Codified Ordinances of Maple Heights Ch. 1488
+    enacting_act: Ord. 2021-25, as amended
+    fields:
+      tender_window:
+        value: [before_filing, up_to_judgment, before_writ_executed]
+        basis: ordinance-text
+        source: maple-heights-1488
+        note: §§ 1488.02, 1488.03, and 1488.04 respectively.
+      amounts_required:
+        value: [rent, late_fees, court_costs, writ_costs]
+        basis: ordinance-text
+        source: maple-heights-1488
+      late_fee_cap:
+        value: greater of $25 or 5% of monthly contract rent
+        basis: ordinance-text
+        source: maple-heights-1488
+        note: § 1488.05, stated in the chapter itself.
+      rental_assistance_counts_as_tender:
+        value: unknown
+        basis: unknown
+      effect:
+        value: landlord_must_accept
+        basis: treatise
+        source: treatise-pay-to-stay
+      frequency_limit:
+        value: unknown
+        basis: unknown
+      partial_payment:
+        value: unknown
+        basis: unknown
+      dismissal:
+        value: mandatory
+        basis: treatise
+        source: treatise-pay-to-stay
+
+  - municipality: newburgh-heights
+    citation: Codified Ordinances of Newburgh Heights Ch. 727 (repealed)
+    status: repealed
+    repeal_date: '2024-06-04'
+    repealed_by: Ord. 2024-27
+    shape_note: >-
+      Repealed June 4, 2024.  The fields below describe the chapter as it stood
+      before repeal and are retained for history; none of them state current
+      law.
+    caveat: >-
+      The treatise still lists Newburgh Heights among the municipalities where a
+      tender creates a right rather than a discretionary defense.  That
+      description was accurate when written and is wrong as to current law.  Do
+      not advise a Newburgh Heights tenant from it.
+    fields: *right_not_discretion
+
+  - municipality: south-euclid
+    citation: South Euclid Code of Ordinances Ch. 1415
+    enacting_act: Ord. 17-22
+    caveat: >-
+      COHHIO's guide reproduces this chapter with a $25/5% late-fee cap as
+      though operative.  The city's own packet shows that language struck.
+      Treat the reproduction as superseded on this point.
+    fields:
+      tender_window:
+        value: [before_filing, up_to_judgment, before_writ_executed]
+        basis: ordinance-text
+        source: south-euclid-1415
+        note: §§ 1415.02, 1415.03, and 1415.04 respectively.
+      amounts_required:
+        value: [rent, late_fees, court_costs, writ_costs]
+        basis: ordinance-text
+        source: south-euclid-1415
+      late_fee_cap:
+        value: none stated — "assessed as written in the lease agreement"
+        basis: ordinance-text
+        source: south-euclid-1415
+        note: >-
+          CONFIRMED.  This was flagged as needing human confirmation while it
+          rested only on OCR of the enacted packet, where the $25/5% ceiling
+          appears struck through and OCR renders struck text as hyphen-joined
+          words -- suggestive but not proof.  The codified § 1415.07 has since
+          been read from American Legal Publishing and says, in full: "Late fees
+          shall be assessed as written in the lease agreement."  The strike is
+          real.  South Euclid caps late fees at whatever the lease says, which
+          is the opposite of every neighbouring ordinance and of the figure
+          COHHIO publishes for it.
+      rental_assistance_counts_as_tender:
+        value: unknown
+        basis: unknown
+      effect:
+        value: landlord_must_accept
+        basis: treatise
+        source: treatise-pay-to-stay
+      frequency_limit:
+        value: unknown
+        basis: unknown
+      partial_payment:
+        value: unknown
+        basis: unknown
+      dismissal:
+        value: mandatory
+        basis: treatise
+        source: treatise-pay-to-stay
+
+  - municipality: yellow-springs
+    citation: Yellow Springs Codified Ordinances Ch. 868
+    enacting_act: Ord. 2021-17, passed June 21, 2021
+    shape_note: >-
+      Reaches past judgment to execution of the writ, and stops the bailiff
+      pending an emergency hearing on a refused tender -- the same shape as
+      Lakewood § 516.22, but here on codified text rather than a transcription.
+    fields:
+      tender_window:
+        value: [before_filing, up_to_judgment, before_writ_executed]
+        basis: ordinance-text
+        source: yellow-springs-868
+        note: >-
+          §§ 868.02, 868.03, and 868.04 respectively: before filing, before
+          judgment, and after judgment but before the writ is executed.  On a
+          refused post-judgment tender the bailiff "shall not enforce the
+          eviction judgment" until the court so instructs after an emergency
+          hearing.
+      amounts_required:
+        value: [rent, late_fees, court_costs, writ_costs]
+        basis: ordinance-text
+        source: yellow-springs-868
+        note: >-
+          A post-judgment tender must also cover the cost of obtaining the writ.
+          The chapter does not mention attorney fees.
+      late_fee_cap:
+        value: greater of $25 or 5% of monthly contract rent
+        basis: ordinance-text
+        source: yellow-springs-868
+        note: >-
+          § 868.05 caps the fee where the rental agreement authorizes one; it
+          does not otherwise bar late fees.
+      rental_assistance_counts_as_tender:
+        value: true
+        basis: ordinance-text
+        source: yellow-springs-868
+        note: >-
+          Settled in the definition rather than left to inference: § 868.01(b)
+          provides that "A letter from a rental assistance agency offering to
+          make payment shall constitute a tender."  A commitment to pay is
+          enough; the money need not have moved.  Each operative section
+          separately extends to a tender by "someone or an agency on the
+          tenant's behalf".
+      effect:
+        value: landlord_must_accept
+        basis: ordinance-text
+        source: yellow-springs-868
+        note: >-
+          The landlord "shall accept" a pre-filing tender and "must accept" one
+          after filing.  Refusal is separately made an affirmative defence, so
+          the duty and the defence both apply.
+      frequency_limit:
+        value: none stated
+        basis: ordinance-text
+        source: yellow-springs-868
+        note: >-
+          The chapter carries no per-year or per-tenancy limit, unlike Akron
+          § 150.51(C).
+      partial_payment:
+        value: unknown
+        basis: ordinance-text
+        source: yellow-springs-868
+        note: >-
+          The chapter is silent.  Every tender it describes is of the full
+          amount then due.
+      dismissal:
+        value: mandatory
+        basis: ordinance-text
+        source: yellow-springs-868
+        note: >-
+          On a qualifying tender after filing the landlord "shall dismiss".
+          After judgment the landlord must notify the court, which vacates the
+          judgment and dismisses; where the landlord refused the tender the
+          court does the same after the emergency hearing.
+
+  - municipality: lakewood
+    citation: Lakewood Codified Ordinances § 516.22
+    enacting_act: Ord. 02-2023, passed February 6, 2023
+    shape_note: >-
+      The only ordinance in this corpus that reaches past judgment all the way
+      to execution of the writ, and the only one that stops the bailiff pending
+      an emergency hearing on a refused tender.
+    caveat: >-
+      Every field below rests on a hand-supplied transcription that no publisher
+      copy has confirmed.
+    fields:
+      tender_window:
+        value: [before_filing, up_to_judgment, before_writ_executed]
+        basis: transcription
+        source: lakewood-516-22
+        note: >-
+          Divisions (a), (b), and (c) respectively: before filing, before
+          judgment, and after judgment but before the writ is executed.
+      amounts_required:
+        value: [rent, late_fees, court_costs, writ_costs]
+        basis: transcription
+        source: lakewood-516-22
+        note: A post-judgment tender must also cover the cost of obtaining the writ.
+      late_fee_cap:
+        value: greater of $25 or 5% of monthly contract rent
+        basis: transcription
+        source: lakewood-516-22
+        note: Division (e), stated in the section itself rather than by cross-reference.
+      rental_assistance_counts_as_tender:
+        value: true
+        basis: transcription
+        source: lakewood-516-22
+        note: >-
+          Division (d) counts vouchers from an accredited government,
+          quasi-government, or nonprofit entity that are "redeemable or
+          convertible on demand without condition into legal tender".  A
+          conditional or slow-paying award may fall outside that.
+      effect:
+        value: landlord_must_accept
+        basis: transcription
+        source: lakewood-516-22
+        note: >-
+          "the landlord shall accept" / "must accept" at every stage, with
+          refusal also creating an affirmative defense.
+      frequency_limit:
+        value: none stated
+        basis: transcription
+        source: lakewood-516-22
+      partial_payment:
+        value: unknown
+        basis: unknown
+        note: The section speaks of tendering "all past due rent"; partial tender is not addressed.
+      dismissal:
+        value: mandatory
+        basis: transcription
+        source: lakewood-516-22
+        note: >-
+          Pre-judgment, the landlord "shall dismiss".  Post-judgment the court
+          vacates and dismisses, and on a refused tender the bailiff may not
+          enforce until an emergency hearing has been held.
+
+  - municipality: columbus
+    citation: Columbus City Codes § 4551.06
+    enacting_act: Ordinance 2108-2023
+    shape_note: >-
+      Columbus regulates *who* may pay rather than *when* a tenant may cure.
+      Treating it as an ordinary pay-to-stay ordinance would overstate it.
+    fields:
+      tender_window:
+        value: unknown
+        basis: ordinance-text
+        source: columbus-4551-06
+        note: The section sets no window; it governs refusal of a third party's tender.
+      amounts_required:
+        value: unknown
+        basis: ordinance-text
+        source: columbus-4551-06
+      late_fee_cap:
+        value: unknown
+        basis: unknown
+      rental_assistance_counts_as_tender:
+        value: true
+        basis: ordinance-text
+        source: columbus-4551-06
+        note: >-
+          The rule is about the payer, not the source of funds: an operator may
+          not refuse tender because someone other than the tenant proffered it.
+      effect:
+        value: landlord_must_accept
+        basis: ordinance-text
+        source: columbus-4551-06
+        note: >-
+          Refusal is a fourth-degree misdemeanor, and the attempted third-party
+          tender is an affirmative defense in an eviction for nonpayment.
+      frequency_limit:
+        value: unknown
+        basis: unknown
+      partial_payment:
+        value: unknown
+        basis: unknown
+      dismissal:
+        value: unknown
+        basis: unknown
+    caveat: >-
+      Division (b) excludes a tenant "in default on the payment of rent" from
+      the duty to accept.  Read literally that is most nonpayment evictions, so
+      the reach of the defense in a live case is contested rather than settled.
+
+  - municipality: gahanna
+    citation: Gahanna Codified Ordinances Ch. 792
+    enacting_act: Ord. ORD-0061-2022, passed October 17, 2022
+    fields:
+      tender_window:
+        value: [before_filing, up_to_judgment]
+        basis: ordinance-text
+        source: gahanna-792
+        note: § 792.03 before filing; § 792.04 before judgment or writ.
+      amounts_required:
+        value: [rent, late_fees, court_costs]
+        basis: ordinance-text
+        source: gahanna-792
+        note: >-
+          § 792.04(a) also requires "reasonable costs to the landlord", which is
+          broader than court costs and is not defined in the chapter.
+      late_fee_cap:
+        value: unknown
+        basis: unknown
+        note: The chapter uses "reasonable late fees" without defining a cap.
+      rental_assistance_counts_as_tender:
+        value: unknown
+        basis: ordinance-text
+        source: gahanna-792
+        note: >-
+          Tender may come from "an agency or individual on the tenant's behalf",
+          so a third party may pay; the chapter does not address whether an
+          unfunded assistance guarantee is itself tender.
+      effect:
+        value: landlord_must_accept
+        basis: ordinance-text
+        source: gahanna-792
+        note: >-
+          § 792.03(b) requires acceptance of a pre-filing tender.  § 792.04(b) is
+          unusual and strong: after filing, the tender is an affirmative defense
+          "irrespective of the landlord's acceptance or refusal", so the defense
+          does not depend on proving a refusal.
+      frequency_limit:
+        value: unknown
+        basis: unknown
+      partial_payment:
+        value: unknown
+        basis: unknown
+      dismissal:
+        value: unknown
+        basis: unknown
+
+  - municipality: athens
+    citation: Athens City Code
+    basis_note: Listed by COHHIO; chapter citation not yet established.
+    source: cohhio-list
+    fields: *unexamined
+
+  - municipality: chauncey
+    citation: Village of Chauncey Ord. 2024-02 (expired)
+    status: expired
+    repeal_date: '2025-03-31'
+    shape_note: >-
+      Ord. 2024-02 carried a sunset and expired March 31, 2025; no renewal has
+      been located.
+    caveat: >-
+      COHHIO's list includes Chauncey.  Unless a renewal is found, treat
+      Chauncey as having no pay-to-stay ordinance in force.
+    fields: *unexamined
+
+  - municipality: euclid
+    citation: Euclid Codified Ordinances Ch. 1765
+    enacting_act: Ord. 60-2021, passed May 3, 2021; made permanent by Ord. 125-2022
+    shape_note: >-
+      Reaches past judgment to execution of the writ and stops the bailiff
+      pending an emergency hearing, the same shape as Lakewood and Yellow
+      Springs.
+    caveat: >-
+      Euclid's comparative section table attributes §§ 1765.01 to 1765.08 to
+      Ord. 60-2021, but the accessible code rendering exposes no § 1765.08.
+      Nothing below rests on that section, and nothing here reconstructs it.
+    fields:
+      tender_window:
+        value: [before_filing, up_to_judgment, before_writ_executed]
+        basis: ordinance-text
+        source: euclid-1765
+        note: >-
+          §§ 1765.02, 1765.03, and 1765.04.  On a refused post-judgment tender
+          the bailiff "shall not enforce the eviction judgment" until the court
+          so instructs after an emergency hearing.
+      amounts_required:
+        value: [rent, late_fees, court_costs, writ_costs]
+        basis: ordinance-text
+        source: euclid-1765
+        note: >-
+          A post-judgment tender must also cover the cost of obtaining the writ.
+          § 1765.01 defines court costs broadly and does not mention attorney
+          fees.
+      late_fee_cap:
+        value: greater of $25 or 5% of contracted monthly rent
+        basis: ordinance-text
+        source: euclid-1765
+        note: >-
+          § 1765.07 also bars a landlord from charging any late fee that is not
+          a "reasonable late fee", so the cap is a ceiling on what the term can
+          mean rather than only a limit on the charge.
+      rental_assistance_counts_as_tender:
+        value: unknown
+        basis: ordinance-text
+        source: euclid-1765
+        note: >-
+          § 1765.01 defines tender as an offer of payment "equivalent to the
+          actual production or remittance of the money", which is narrower than
+          the Lakewood and Richmond Heights voucher clauses and says nothing
+          about an agency paying on the tenant's behalf.
+      effect:
+        value: landlord_must_accept
+        basis: ordinance-text
+        source: euclid-1765
+        note: >-
+          The landlord "shall accept" before filing and "must accept" after.
+          Refusal is separately an affirmative defence.
+      frequency_limit:
+        value: none stated
+        basis: ordinance-text
+        source: euclid-1765
+      partial_payment:
+        value: unknown
+        basis: ordinance-text
+        source: euclid-1765
+      dismissal:
+        value: mandatory
+        basis: ordinance-text
+        source: euclid-1765
+        note: >-
+          After filing the landlord "shall dismiss".  After judgment the
+          landlord must notify the court, which vacates and dismisses; where the
+          landlord refused, the court does the same after the emergency hearing.
+
+  - municipality: gahanna
+    citation: Gahanna Codified Ordinances
+    basis_note: Listed by COHHIO; chapter citation not yet established.
+    source: cohhio-list
+    fields: *unexamined
+
+  - municipality: grandview-heights
+    citation: Grandview Heights Codified Ordinances
+    basis_note: Listed by COHHIO; chapter citation not yet established.
+    source: cohhio-list
+    fields: *unexamined
+
+  - municipality: reynoldsburg
+    citation: Reynoldsburg Codified Ordinances
+    basis_note: Listed by COHHIO; chapter citation not yet established.
+    source: cohhio-list
+    fields: *unexamined
+
+  - municipality: richmond-heights
+    citation: Richmond Heights Codified Ordinances Ch. 763
+    enacting_act: Ord. 81-2023, passed June 27, 2023
+    shape_note: >-
+      Affirmative defence only, and the narrowest late-fee cap in the corpus:
+      § 763.06 reaches only rental agreements entered into after the section
+      took effect, so it does not touch an existing lease.
+    fields:
+      tender_window:
+        value: [before_filing, up_to_judgment]
+        basis: ordinance-text
+        source: richmond-heights-763
+        note: §§ 763.02 and 763.03.  Nothing reaches past judgment.
+      amounts_required:
+        value: [rent, late_fees, court_costs]
+        basis: ordinance-text
+        source: richmond-heights-763
+        note: >-
+          Court costs are required only for a tender after filing.  § 763.01(c)
+          defines them broadly -- filing, data entry, court appearances, service
+          of summons and subpoenas, transcripts, and copying.
+      late_fee_cap:
+        value: greater of $25 or 5% of monthly contract rent, for leases entered after the effective date
+        basis: ordinance-text
+        source: richmond-heights-763
+        note: >-
+          The qualifier matters more than the figure.  § 763.06 closes with
+          "This section shall only be applicable to rental agreements entered
+          into after the effective date of this section", so a tenant on an
+          older lease has no cap.
+      rental_assistance_counts_as_tender:
+        value: true
+        basis: ordinance-text
+        source: richmond-heights-763
+        note: >-
+          § 763.01(b) writes emergency rental-assistance vouchers into the
+          definition of "tender", but only from an accredited social service,
+          nonprofit, governmental or quasi-governmental agency and only where
+          the voucher "guarantees the payment of past due rent, reasonable late
+          fees, and court costs".  A conditional or partial award falls outside
+          it.
+      effect:
+        value: affirmative_defense
+        basis: ordinance-text
+        source: richmond-heights-763
+        note: >-
+          Neither operative section directs the landlord to accept.  Both are
+          written as: tender, refusal, defence.
+      frequency_limit:
+        value: none stated
+        basis: ordinance-text
+        source: richmond-heights-763
+      partial_payment:
+        value: unknown
+        basis: ordinance-text
+        source: richmond-heights-763
+        note: The chapter is silent; every tender it describes is of the full amount due.
+      dismissal:
+        value: unknown
+        basis: ordinance-text
+        source: richmond-heights-763
+        note: >-
+          The chapter provides for no dismissal.  Disposition follows from the
+          court sustaining the defence.
+
+  - municipality: worthington
+    citation: Worthington Codified Ordinances Ch. 727
+    enacting_act: Ord. 21-2023, passed October 2, 2023, effective October 26, 2023
+    shape_note: >-
+      The narrowest chapter here.  Its title says what it is -- "Tenant's Right
+      to Assert Tender of Rent as an Affirmative Defense to Eviction" -- and it
+      creates a defence and nothing else: no duty to accept, no dismissal, no
+      late-fee cap, no frequency limit, no post-judgment window.
+    fields:
+      tender_window:
+        value: [before_filing, up_to_judgment]
+        basis: ordinance-text
+        source: worthington-727
+        note: § 727.02(a) and (b).
+      amounts_required:
+        value: [rent, late_fees, court_costs]
+        basis: ordinance-text
+        source: worthington-727
+        note: >-
+          Read (b) carefully: it describes a tender of "all past due rent with
+          reasonable late fees" before judgment, but makes the defence one of
+          "all past due rent, reasonable late fees, and court costs".  What must
+          be tendered and what the defence covers do not match on the face of
+          the section.
+      late_fee_cap:
+        value: none stated
+        basis: ordinance-text
+        source: worthington-727
+        note: >-
+          The chapter requires "reasonable late fees" without defining the term
+          or capping it, unlike every neighbouring chapter.
+      rental_assistance_counts_as_tender:
+        value: true
+        basis: ordinance-text
+        source: worthington-727
+        note: >-
+          Both divisions extend to a tender by "an agency or individual on the
+          tenant's behalf".  § 727.01(c) defines tender as "the payment of
+          rent", in any lawful form authorized by the rental agreement, city
+          code, state law, or a court -- so an offer that is not payment may not
+          qualify.
+      effect:
+        value: affirmative_defense
+        basis: ordinance-text
+        source: worthington-727
+      frequency_limit:
+        value: none stated
+        basis: ordinance-text
+        source: worthington-727
+      partial_payment:
+        value: unknown
+        basis: ordinance-text
+        source: worthington-727
+      dismissal:
+        value: unknown
+        basis: ordinance-text
+        source: worthington-727
+        note: The chapter provides for no dismissal.
+

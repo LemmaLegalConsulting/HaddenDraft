@@ -23,6 +23,7 @@ from apps.sources.library import (
     section_tree,
 )
 from apps.sources.models import RetrievedDocument, UserResource
+from apps.sources.ordinances import coverage as ordinance_coverage, dataset as ordinance_dataset, dataset_names, cross_references
 from apps.sources.augmentation import augmented_search
 from apps.sources.registry import connector_registry
 from apps.sources.selection import automatic_source_selection, source_decision_with_counts, source_kinds
@@ -191,6 +192,39 @@ def content_source_pdf(request, document_slug, chunk_id):
     response = FileResponse(pdf_path.open("rb"), content_type="application/pdf", filename=pdf_path.name, as_attachment=False)
     response["Content-Disposition"] = f'inline; filename="{pdf_path.name}"'
     return allow_document_framing(response)
+
+
+@api_login_required
+def ordinance_coverage_view(request):
+    """What local law this corpus holds -- and what it declares but lacks.
+
+    Coverage is part of the answer.  An advocate asking about a city the corpus
+    does not reach needs to be told that, not handed silence that reads like
+    "no local law applies here".
+    """
+    if request.method != "GET":
+        return method_not_allowed(["GET"])
+    return JsonResponse({**ordinance_coverage(), "datasets": dataset_names()})
+
+
+@api_login_required
+def ordinance_dataset_view(request, name):
+    if request.method != "GET":
+        return method_not_allowed(["GET"])
+    payload = ordinance_dataset(name)
+    if payload is None:
+        return JsonResponse({"error": "Dataset not found"}, status=404)
+    return JsonResponse({"dataset": payload})
+
+
+@api_login_required
+def content_source_related(request, document_slug, chunk_id):
+    """Authorities that bear on one chunk, both outward and inbound."""
+    if request.method != "GET":
+        return method_not_allowed(["GET"])
+    if not _content_chunk(document_slug, chunk_id):
+        return JsonResponse({"error": "Content source not found"}, status=404)
+    return JsonResponse({"related": cross_references(document_slug, chunk_id)})
 
 
 @api_login_required
