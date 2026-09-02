@@ -263,6 +263,14 @@ ORGANIZATION_CONTENT_LIBRARY_DIR = Path(
 )
 if not ORGANIZATION_CONTENT_LIBRARY_DIR.is_absolute():
     ORGANIZATION_CONTENT_LIBRARY_DIR = REPO_DIR / ORGANIZATION_CONTENT_LIBRARY_DIR
+# Public content that is generated rather than authored -- the local-ordinance
+# corpus -- is published to the document store and read from there, so it can be
+# refreshed without rebuilding the image.
+PUBLISHED_CONTENT_LIBRARY_DIR = Path(
+    os.environ.get("PUBLISHED_CONTENT_LIBRARY_DIR", REPO_DIR / "private-content" / "storage" / "published" / "content")
+)
+if not PUBLISHED_CONTENT_LIBRARY_DIR.is_absolute():
+    PUBLISHED_CONTENT_LIBRARY_DIR = REPO_DIR / PUBLISHED_CONTENT_LIBRARY_DIR
 # Side-loaded document storage. See apps.core.storage: every store is split into
 # a raw/ area an operator uploads into and a published/ area the application
 # reads. "filesystem" points at a local directory or a mounted file share;

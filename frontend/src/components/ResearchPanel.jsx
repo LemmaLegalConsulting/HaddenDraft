@@ -3,6 +3,7 @@ import {
   Bot,
   BookOpen,
   Briefcase,
+  Building2,
   Database,
   FileArchive,
   FileSearch,
@@ -51,6 +52,12 @@ const SOURCE_GROUPS = [
     title: "Statutes",
     options: [
       { id: "ohio-statutes", label: "Ohio Statutes", kind: "rag", icon: FileText },
+    ],
+  },
+  {
+    title: "Local law",
+    options: [
+      { id: "ohio-ordinances", label: "Ordinances and local rules", kind: "rag", icon: Building2 },
     ],
   },
   {
