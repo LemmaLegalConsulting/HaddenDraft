@@ -28,6 +28,7 @@ import {
   COURT_RULE_MODES,
   JURISDICTION_MODES,
   canStartRun,
+  caseOptions,
   challengeSummary,
   checkStatusSummary,
   checklistItemsFromText,
@@ -74,14 +75,23 @@ import {
   usesMunicipality,
 } from "./argumentGym.js";
 
-function SessionList({ sessions, matters, matterId, onMatterChange, query, onQueryChange, activeId, onOpen, onNew, busy }) {
+function SessionBrowser({ open, sessions, matters, matterId, onMatterChange, query, onQueryChange, activeId, onOpen, onNew, onClose, busy }) {
+  const dialogRef = useRef(null);
+  useModalDismiss(dialogRef, onClose, { active: open });
+  if (!open) return null;
   return (
-    <aside className="gym-sessions">
-      <div className="gym-sessions-header">
-        <h4>Sessions</h4>
-        <button className="btn btn-primary" type="button" onClick={onNew} disabled={busy}>
-          <Plus size={16} /> New
-        </button>
+    <div className="modal-backdrop" role="presentation">
+      <aside className="editor-modal gym-sessions" ref={dialogRef} role="dialog" aria-modal="true" aria-label="Sessions">
+      <div className="modal-heading">
+        <h4>Open a session</h4>
+        <div className="button-row compact">
+          <button className="btn btn-primary" type="button" onClick={onNew} disabled={busy}>
+            <Plus size={16} /> New session
+          </button>
+          <button className="btn btn-outline-secondary icon-button" type="button" onClick={onClose} aria-label="Close">
+            <X size={16} />
+          </button>
+        </div>
       </div>
       <label className="form-label">
         Case
@@ -111,8 +121,8 @@ function SessionList({ sessions, matters, matterId, onMatterChange, query, onQue
                 className={`gym-session${session.id === activeId ? " active" : ""}`}
                 onClick={() => onOpen(session)}
               >
-                <strong title={session.title}>{shortTitle(session.title, 34)}</strong>
-                <span className="muted" title={sessionSubtitle(session)}>{shortTitle(sessionSubtitle(session), 38)}</span>
+                <strong title={session.title}>{shortTitle(session.title, 60)}</strong>
+                <span className="muted" title={sessionSubtitle(session)}>{shortTitle(sessionSubtitle(session), 70)}</span>
                 <span className="muted">{sessionStatus(session)}</span>
                 {session.verdict && <span className="gym-session-verdict">{session.verdict}</span>}
               </button>
@@ -120,7 +130,8 @@ function SessionList({ sessions, matters, matterId, onMatterChange, query, onQue
           ))}
         </ul>
       )}
-    </aside>
+      </aside>
+    </div>
   );
 }
 
@@ -1016,6 +1027,7 @@ export function ArgumentGymPanel({ matter = null, cases = [], focusRun = null, o
   const [editingChecklistId, setEditingChecklistId] = useState("");
   const [checklistModalOpen, setChecklistModalOpen] = useState(false);
   const [passiveModalOpen, setPassiveModalOpen] = useState(false);
+  const [sessionsOpen, setSessionsOpen] = useState(false);
 
   const loadSessions = useCallback(async ({ matterId = sessionMatterId, query = sessionQuery } = {}) => {
     try {
@@ -1125,6 +1137,7 @@ export function ArgumentGymPanel({ matter = null, cases = [], focusRun = null, o
   }, [workspace, caseContext, selectedMatterId, matter]);
 
   const openSession = async (session) => {
+    setSessionsOpen(false);
     setBusy(true);
     setError("");
     setNotice("");
@@ -1148,6 +1161,7 @@ export function ArgumentGymPanel({ matter = null, cases = [], focusRun = null, o
   };
 
   const startNewSession = () => {
+    setSessionsOpen(false);
     setWorkspace(null);
     setRun(null);
     setBrief(null);
@@ -1391,14 +1405,25 @@ export function ArgumentGymPanel({ matter = null, cases = [], focusRun = null, o
 
   return (
     <section className="panel gym-panel">
-      <div className="panel-heading">
-        <h3>
-          <Swords size={18} /> Argument gym
-        </h3>
-        <p className="muted">
-          An opponent attacks the brief, a judge weighs the attacks, and a coach proposes answers. Nothing here edits
-          your document.
-        </p>
+      <div className="panel-heading gym-heading">
+        <div>
+          <h3>
+            <Swords size={18} /> Argument gym
+          </h3>
+          <p className="muted">
+            {workspace
+              ? sessionSubtitle(workspace)
+              : "An opponent attacks the brief, a judge weighs it, and a coach proposes answers. Nothing here edits your document."}
+          </p>
+        </div>
+        <div className="button-row compact">
+          <button className="btn btn-outline-secondary" type="button" onClick={() => setSessionsOpen(true)}>
+            <FolderOpen size={16} /> Open session{sessions.length ? ` (${sessions.length})` : ""}
+          </button>
+          <button className="btn btn-outline-secondary" type="button" onClick={startNewSession} disabled={busy}>
+            <Plus size={16} /> New
+          </button>
+        </div>
       </div>
 
       {error && <div className="alert alert-danger">{error}</div>}
@@ -1418,27 +1443,7 @@ export function ArgumentGymPanel({ matter = null, cases = [], focusRun = null, o
         </div>
       )}
 
-      <div className="gym-layout">
-        <SessionList
-          sessions={sessions}
-          matters={sessionMatters}
-          matterId={sessionMatterId}
-          onMatterChange={(value) => {
-            setSessionMatterId(value);
-            loadSessions({ matterId: value });
-          }}
-          query={sessionQuery}
-          onQueryChange={(value) => {
-            setSessionQuery(value);
-            loadSessions({ query: value });
-          }}
-          activeId={workspace?.id ?? null}
-          onOpen={openSession}
-          onNew={startNewSession}
-          busy={busy}
-        />
-
-        <div className="gym-main">
+      <div className="gym-main">
 
       {!run && (
         <div className="gym-setup">
@@ -1492,9 +1497,9 @@ export function ArgumentGymPanel({ matter = null, cases = [], focusRun = null, o
                   onChange={(event) => setSelectedMatterId(event.target.value)}
                 >
                   <option value="">Choose a case…</option>
-                  {cases.map((item) => (
-                    <option key={item.id} value={item.id}>
-                      {item.clientName} — {item.id}
+                  {caseOptions(cases).map((option) => (
+                    <option key={option.id} value={option.id}>
+                      {option.label}
                     </option>
                   ))}
                 </select>
@@ -1683,9 +1688,28 @@ export function ArgumentGymPanel({ matter = null, cases = [], focusRun = null, o
         </>
       )}
 
-        </div>
       </div>
 
+      <SessionBrowser
+        open={sessionsOpen}
+        sessions={sessions}
+        matters={sessionMatters}
+        matterId={sessionMatterId}
+        onMatterChange={(value) => {
+          setSessionMatterId(value);
+          loadSessions({ matterId: value });
+        }}
+        query={sessionQuery}
+        onQueryChange={(value) => {
+          setSessionQuery(value);
+          loadSessions({ query: value });
+        }}
+        activeId={workspace?.id ?? null}
+        onOpen={openSession}
+        onNew={startNewSession}
+        onClose={() => setSessionsOpen(false)}
+        busy={busy}
+      />
       <ChecklistModal
         open={checklistModalOpen}
         checklists={checklists}

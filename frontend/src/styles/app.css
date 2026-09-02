@@ -4874,34 +4874,10 @@ button:disabled {
 }
 
 /* Argument gym: sessions, jurisdiction, filing format, and the opening verdict. */
-.gym-layout {
-  display: grid;
-  gap: var(--space-4);
-  grid-template-columns: minmax(220px, 280px) minmax(0, 1fr);
-}
-
-@media (max-width: 900px) {
-  .gym-layout {
-    grid-template-columns: 1fr;
-  }
-}
-
 .gym-sessions {
-  align-content: start;
-  border-right: 1px solid #dbe3e7;
   display: grid;
   gap: var(--space-2);
-  padding-right: var(--space-3);
-}
-
-.gym-sessions-header {
-  align-items: center;
-  display: flex;
-  justify-content: space-between;
-}
-
-.gym-sessions-header h4 {
-  margin: 0;
+  max-width: min(680px, 95vw);
 }
 
 .gym-session-list {
@@ -5229,24 +5205,6 @@ button:disabled {
 
 /* Argument gym, laptop layout. The session list is navigation, not content: it
    gets a narrow fixed column and nothing in it is allowed to widen the page. */
-.gym-layout {
-  grid-template-columns: minmax(0, 200px) minmax(0, 1fr);
-}
-
-@media (max-width: 1100px) {
-  .gym-layout {
-    grid-template-columns: 1fr;
-  }
-  .gym-sessions {
-    border-bottom: 1px solid #dbe3e7;
-    border-right: 0;
-    padding: 0 0 var(--space-3);
-  }
-  .gym-session-list {
-    max-height: 200px;
-  }
-}
-
 /* A long filename must never push the window sideways. Every text-bearing cell
    in the panel clips instead of growing. */
 .gym-panel,
@@ -5345,4 +5303,26 @@ button:disabled {
   border-radius: 6px;
   margin: 0;
   padding: var(--space-2) var(--space-3);
+}
+
+/* The panel is one column now: the session list was navigation occupying a
+   permanent share of a laptop's width, and it is reached from the heading. */
+.gym-heading {
+  align-items: flex-start;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  justify-content: space-between;
+}
+
+.gym-heading h3 {
+  margin: 0;
+}
+
+.gym-heading p {
+  margin: 4px 0 0;
+}
+
+.gym-session-list {
+  max-height: min(60vh, 460px);
 }
