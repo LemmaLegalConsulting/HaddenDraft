@@ -1,0 +1,107 @@
+---
+municipality: yellow-springs
+key: source-of-income
+asserted_citation: Yellow Springs Codified Ordinances §§ 626.02, 626.08
+asserted_act: Ord. 2021-18, passed September 20, 2021
+provided_by: Quinten Steenhuis
+provided_on: '2026-08-31'
+verified: false
+verification_note: >-
+  Transcribed from the Village-hosted PDF of the enacting act, which the Village
+  document server now answers with 404 -- the URL below was tested during this
+  ingestion and returns an HTML 404 page, so nothing here can re-fetch it.  The
+  text carries the full act including the roll call, which records passage on
+  September 20, 2021.  Note that the act's own recital dates § 626.02 to
+  "(Ord. 79-15. Passed 5-21-79.)" because it reproduces that section as amended.
+verification_urls:
+  - https://codelibrary.amlegal.com/codes/yellowsprings/latest/overview
+  - https://www.yellowsprings.gov/egov/documents/1632421391_49629.pdf
+---
+
+VILLAGE OF YELLOW SPRINGS
+ORDINANCE 2021-18
+
+PROHIBITING HOUSING DISCRIMINATION BASED UPON SOURCE OF INCOME
+IN THE VILLAGE OF YELLOW SPRINGS BY AMENDING SECTION 626.02 AND
+ADDING SECTION 626.08 TO CHAPTER 626 “EQUAL HOUSING OPPORTUNITY”
+OF THE VILLAGE OF YELLOW SPRINGS CODIFIED ORDINANCES
+
+WHEREAS, the Village of Yellow Springs desires to protect housing choice voucher participants to provide adequate, economical, safe and sustainable housing through government assistance by prohibiting the discrimination of potential or current tenants who participate in housing choice voucher programs on the basis of their source of income and seeks to diversify the types of eligible housing and neighborhoods for potential or current tenants who participate in the program; and
+
+WHEREAS, in the aftermath of the COVID-19 public health state of emergency, further economic impacts are anticipated in the State of Ohio, Greene County and the Village of Yellow Springs, leaving residential tenants vulnerable to inadequate housing, displacement and homelessness as a result of the lasting impacts on the economy from the COVID-19 pandemic and the anticipated termination of federal emergency housing protections; and
+
+WHEREAS, the median gross rent in Greene County from 2015 – 2019 was $910.00; and
+
+WHEREAS, discrimination against a lawful source of income is one of the most common forms of housing discrimination, wherein landlords deny housing based on the source of income used by potential or current tenants, even though more than 229,000 households in Ohio rely on federal housing vouchers to assist with rental payments; and
+
+WHEREAS, discrimination against a lawful source of income disproportionately impacts racially and ethnically diverse potential or current tenants; and
+
+WHEREAS, there are currently no federal, state, or direct municipal protections that prohibit local landlords from discriminating on the basis of the source of income of potential or current tenants; and
+
+WHEREAS, the United States Department of Treasury allocated $22.55 billion for housing protections under the American Rescue Plan, Ohio received $5.638 billion, Greene County received $32.76 million and Yellow Springs Village received $730,000 of the total allocation;
+
+NOW, THEREFORE BE IT ORDAINED BY COUNCIL FOR THE VILLAGE OF YELLOW SPRINGS, GREENE COUNTY, OHIO, THAT:
+
+Section 1. Chapter 626 of the Village Codified Ordinances shall be amended to add the following language bolded and underlined:
+
+626.02 DEFINITIONS.
+
+As used in this chapter:
+
+(a) “Compliance Officer” means the individual designated as having responsibility for oversight and enforcement of this chapter.
+
+(b) “Discrimination,” “discriminating” or “discriminate” means to render any difference in treatment to any person in the sale, lease, rental or financing of a dwelling or housing unit because of a person's race, color, creed, sex, sexual preference, marital status, religious belief, national origin, age or handicap.
+
+(c) “Housing” includes any building, facility or structure or portion thereof which is used or occupied or is intended, arranged or designed to be used or occupied as the home, residence or sleeping place of one or more persons, groups or families and any vacant land offered for sale or lease for the construction or location thereon of such building, facility or structure.
+
+(d) “Lending institution” means any bank, insurance company, savings and loan association or any other person or organization regularly engaged in the business of lending money or guaranteeing loans.
+
+(e) “Person” means one or more individuals, corporations, partnerships, associations, labor organizations, legal representatives, mutual companies, joint stock companies, trusts, unincorporated organizations, trustees, trustees in bankruptcy, receivers and fiduciaries.
+
+(f) “Real estate agent” includes any real estate broker, real estate salesperson or an agent thereof, or any other person, partnership, association or corporation who or which, for consideration sells, purchases, exchanges, rents, negotiates or offers or attempts to negotiate the sale, purchase, exchange or rental of real property or holds himself or herself out as engaged in the business of selling, purchasing, exchanging, renting or otherwise transferring any interest in real property.
+
+(g) “Statutory definition” includes any term defined in Chapter 5321 of the Ohio Revised Code, including but not limited to terms such as “landlord” and “tenant.” If any definition in this Chapter of the Village Codified Ordinances expressly conflicts with a statutory definition, the statutory definition shall prevail pursuant to R.C. 5321.19 effective as of September 17, 1991 and as hereafter amended.
+
+(Ord. 79-15. Passed 5-21-79.)
+
+Section 2. Chapter 626 of the Village Codified Ordinances shall be amended to add the following language bolded and underlined:
+
+626.08 SOURCE OF INCOME DISCRIMINATION PROHIBITED.
+
+A. No landlord shall knowingly, on the basis of the source of income of a potential or current tenant, including but not limited to, income derived from wages, social security, supplemental security income, public or private sources, all forms of federal, state or local assistance payments or subsidies, including housing choice vouchers, child support, spousal support, rental assistance and public assistance:
+
+1) Refuse to lease or rent any dwelling, dwelling unit or rooming house to a potential or current tenant;
+
+2) Distinguish between the sources of income of different potential or current tenants and use that distinction to base a decision on which potential or current tenant shall gain possession of the dwelling, dwelling unit or rooming house;
+
+3) Attempt to discourage the rental or lease of any dwelling, dwelling unit or rooming house to a potential or current tenant on the basis of source of income;
+
+4) Assist, induce, incite or coerce another person or landlord to commit an act in violation of this ordinance;
+
+5) Coerce, intimidate, threaten or otherwise interfere with any potential or current tenant in their exercise or enjoyment of, or on account of the person having exercised or enjoyed or having aided or encouraged any other potential or current tenant in the exercise or enjoyment of, any right granted or protected under this ordinance;
+
+6) Represent to a potential or current tenant that a dwelling, dwelling unit or rooming house is unavailable on the sole basis of the source of income of the potential or current tenant;
+
+7) Otherwise make unavailable or deny a dwelling, dwelling unit or rooming house to a potential or current tenant that, but for the source of income of the potential or current tenant, would be eligible to rent the dwelling, dwelling unit or rooming house.
+
+B. Any person aggrieved as a potential or current tenant may report alleged violations in writing to the Fair Housing Compliance Officer for investigation pursuant to Section 626.04, or commence a civil action to obtain appropriate relief under Section 626.05 or Section 626.07.
+
+C. This section applies to all landlords in the Village using the statutory definition of “landlord” with the following exceptions:
+
+1) Lodging establishments subject to Chapter 882 of the Village Codified Ordinances.
+
+2) Assignments and subleases including dwellings, dwelling units, rooming houses, habitable rooms, multiple dwellings and rooming units.
+
+3) Charitable, not-for-profit, religious or fraternal organizations that, pursuant to their primary purposes, own or operate dwellings, dwelling units or rooming houses for reasons other than commercial purposes or seek to house their members pursuant to their primary purposes. Upon any complaint regarding such organization, that organization shall provide the Village with proof of charitable registration with the Ohio Attorney General’s office to claim exemption.
+
+Section 3. Severability: If any provision of this ordinance is found to be unconstitutional or otherwise invalid by any court of competent jurisdiction, that invalidity shall not affect the remaining provisions of this ordinance which can be implemented without the invalid provisions and, to this end, the provisions of this ordinance are declared to be severable. Council for the Village of Yellow Springs hereby declares that it would have adopted this ordinance and each provision thereof irrespective of whether any one or more provisions is found invalid, unconstitutional or otherwise unenforceable.
+
+Section 4. This Ordinance is hereby authorized under the Village’s home rule powers as set forth in Article I, Section 3 of the Charter of Yellow Springs, Ohio, necessary for the benefit of the health, safety, and welfare of the Village.
+
+___________________________
+Brian Housh, Council President
+
+Passed: 9-20-2021
+Attest: ____________________________
+Judy Kintner, Clerk of Council
+Roll Call: Housh__Y__ MacQueen_Y__ Stokes_Y__ Kreeger_Y__ Curliss___N_

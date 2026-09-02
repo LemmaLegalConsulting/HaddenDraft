@@ -1,0 +1,1593 @@
+# Reviewable scope for the Ohio local-law corpus.
+#
+# Local law is indexed by how much it can change the outcome of an eviction,
+# not by codifying whole municipal codes.  Every target below names the
+# authority, why it matters, and exactly how its text is acquired, so a reader
+# can audit both the coverage and the provenance of what was ingested.
+#
+# Acquisition methods:
+#   legistar  - the city's own legislative record through the public Legistar
+#               Web API (https://webapi.legistar.com/v1/<client>/).  This yields
+#               the enacted act, so records carry text_basis: enacted_act.
+#   document  - one official document published by the city or the court at a
+#               stable URL (PDF/DOCX/HTML).
+#   pending   - the authority is declared and citable, but its text is not yet
+#               acquirable by a permitted route.  Ohio's two commercial
+#               codifiers both refuse automated retrieval: American Legal
+#               Publishing serves a Cloudflare bot challenge, and Municode's
+#               content API requires an authenticated token.  Those sites stay
+#               citation targets (codifier_url), never scrape targets.  A
+#               pending target is a visible gap, not a silent one.
+
+source:
+  name: Ohio municipal ordinances and local court rules
+  jurisdiction: Ohio
+  content_kind: ordinance
+  update_note: >-
+    Municipal code text changes without notice and codifiers republish on their
+    own schedule.  A record generated here states the act it came from and the
+    date it was retrieved; it never asserts that a chapter is current law.
+
+# R.C. 5321.19 bars political subdivisions from regulating landlord/tenant
+# rights already regulated by R.C. Chapter 5321, while expressly preserving
+# local housing, building, health, and safety codes.  Every target carries a
+# preemption block so research surfaces the question rather than an answer.
+preemption_statute: "5321.19"
+
+# Priority reflects how directly the authority can change an eviction outcome.
+priorities:
+  1:
+    - pay-to-stay
+    - rental-registration
+    - housing-code
+    - lead-safe
+  2:
+    - source-of-income
+    - local-court-rule
+    - right-to-counsel
+    - nuisance
+    - security-deposit
+  3:
+    - condemnation-relocation
+    - utility-heat-water
+
+topics:
+  pay-to-stay:
+    label: Pay-to-stay / right to cure
+    why: Can defeat a nonpayment eviction outright when tender was refused.
+    dataset: pay-to-stay
+  late-fees:
+    label: Limit on late payment fees
+    why: Sets the "reasonable late fees" a pay-to-stay tender must cover.
+  rental-registration:
+    label: Rental registration, licensing, and occupancy certificates
+    why: Noncompliance can bar a landlord from maintaining the eviction.
+  housing-code:
+    label: Municipal housing, building, health, and safety code
+    why: Incorporated into landlord duties by R.C. 5321.04(A)(1) and into rent escrow by R.C. 5321.07.
+  lead-safe:
+    label: Lead-safe certification
+    why: Creates certification duties, anti-retaliation rules, and sometimes eviction-specific protection.
+  source-of-income:
+    label: Source-of-income and expanded local fair housing
+    why: Voucher and rental-assistance discrimination can create separate claims and defenses.
+  local-court-rule:
+    label: Local court rule or standing order
+    why: Procedural requirements that decide filings, service, escrow, and dismissal.
+  right-to-counsel:
+    label: Right to counsel / access to legal services
+    why: Determines representation eligibility and referral workflow.
+  nuisance:
+    label: Chronic nuisance and crime-free housing
+    why: Generates lease-termination and eviction pressure from police calls.
+  security-deposit:
+    label: Security deposits and rental agreement terms
+    why: Local limits on deposits and lease terms create claims and set-offs a tenant can raise.
+  condemnation-relocation:
+    label: Condemnation, relocation, and unsafe buildings
+    why: Governs what a tenant is owed when code enforcement closes a unit.
+  utility-heat-water:
+    label: Local utility, heat, and water rules
+    why: Strengthens habitability and constructive-eviction arguments.
+
+municipalities:
+  - slug: cleveland
+    name: Cleveland
+    county: Cuyahoga
+    document_title: Codified Ordinances of the City of Cleveland
+    code_short_name: Cleveland Codified Ordinances
+    codifier: american-legal
+    codifier_url: https://codelibrary.amlegal.com/codes/cleveland/latest/overview
+    legistar_client: cityofcleveland
+    courts:
+      - name: Cleveland Municipal Court, Housing Division
+        role: eviction
+    targets:
+      - key: pay-to-stay
+        topic: pay-to-stay
+        priority: 1
+        section: "375.13"
+        citation: Cleveland Codified Ordinances § 375.13
+        label: Tenant's right to assert tender of rent as an affirmative defense to eviction
+        code_path: ["Part Three — Land Use Code", "Title IX — Housing Code", "Chapter 375 — Rental Housing", "§ 375.13"]
+        codifier_url: https://codelibrary.amlegal.com/codes/cleveland/latest/cleveland_oh/0-0-0-16247
+        related_statutes: ["1923.02", "1923.061", "5321.19"]
+        treatise_chunks: ["0609-2-pay-to-stay-defense-in-eviction-actions-01"]
+        acquire:
+          method: legistar
+          file_number: "484-2022"
+          prefer_attachment: as amended
+          amendment_query: "375.13"
+      - key: late-fees
+        topic: late-fees
+        priority: 1
+        section: "375.02"
+        citation: Cleveland Codified Ordinances § 375.02(c)
+        label: Limit on late payment fees
+        code_path: ["Part Three — Land Use Code", "Title IX — Housing Code", "Chapter 375 — Rental Housing", "§ 375.02"]
+        codifier_url: https://codelibrary.amlegal.com/codes/cleveland/latest/cleveland_oh/0-0-0-16247
+        related_statutes: ["5321.14"]
+        treatise_chunks: ["0610-3-limit-on-late-payment-fees-01"]
+        act_file_number: Ord. 1027-04
+        enacted_date: '2004-08-11'
+        source_type: official_publication
+        notes: >-
+          § 375.13 defines "reasonable late fees" by reference to this section,
+          so the pay-to-stay chapter cannot be applied without it.  The section
+          was enacted by Ord. 1844-A-99 (passed July 19, 2001) and amended by
+          Ord. 1027-04, the lead-hazard ordinance, which also enacted Chapter
+          240 and amended Chapter 365.  The text is the amended section as
+          published in The City Record for August 18, 2004 -- the city's own
+          journal of enacted legislation, not a codifier rendering.
+        verification_urls:
+          - https://www.clevelandcitycouncil.gov/sites/default/files/2021-12/City-Record-08-11-2004.pdf
+          - https://www.clevelandcitycouncil.gov/sites/default/files/2022-03/2004_Annual_Index.pdf
+        acquire:
+          method: document
+          url: https://www.clevelandcitycouncil.gov/sites/default/files/2021-12/City-Record-08-18-2004.pdf
+          publisher: Cleveland City Council (The City Record)
+          text_basis: enacted_act
+          extract:
+            start: Section 375.02 Terms of Rental Agreements
+            end: Section 375.03 Terms Barred from Rental Agreements
+      - key: rental-registration
+        topic: rental-registration
+        priority: 1
+        chapter: "365"
+        citation: Cleveland Codified Ordinances Ch. 365
+        label: Rental registration and lead-safe certification
+        code_path: ["Part Three — Land Use Code", "Title IX — Housing Code", "Chapter 365 — Rental Registration and Lead-Safe Certification"]
+        codifier_url: https://codelibrary.amlegal.com/codes/cleveland/latest/cleveland_oh/0-0-0-16247
+        related_statutes: ["5323.02", "5323.03", "5323.04", "5321.04"]
+        treatise_chunks: ["0617-7-lead-safe-rental-housing-01"]
+        notes: >-
+          Chapter 365 carries both the non-owner-occupied registration and
+          Certificate Approving Rental Occupancy duty (§ 365.02) and the
+          lead-safe certification duty (§ 365.04).
+        acquire:
+          method: legistar
+          file_number: "747-2019"
+          amendment_query: "365"
+      - key: right-to-counsel
+        topic: right-to-counsel
+        priority: 2
+        section: "375.12"
+        citation: Cleveland Codified Ordinances § 375.12
+        label: Right to counsel in eviction actions
+        code_path: ["Part Three — Land Use Code", "Title IX — Housing Code", "Chapter 375 — Rental Housing", "§ 375.12"]
+        codifier_url: https://codelibrary.amlegal.com/codes/cleveland/latest/cleveland_oh/0-0-0-16247
+        treatise_chunks: ["0611-4-right-to-counsel-in-eviction-actions-01"]
+        acquire:
+          method: legistar
+          file_number: "1001-2019"
+          amendment_query: "375.12"
+      - key: local-court-rules
+        topic: local-court-rule
+        priority: 1
+        citation: Cleveland Mun. Ct., Housing Div., Loc. R.
+        label: Cleveland Municipal Housing Court local rules
+        code_path: ["Cleveland Municipal Court, Housing Division", "Local Rules"]
+        related_statutes: ["1923.01", "5323.02", "5321.07"]
+        notes: >-
+          Local Rule 3.013 requires an eviction filing to show compliance with
+          the Chapter 365 rental registration requirement, which is how a
+          registration ordinance becomes a pleading requirement with a
+          dismissal consequence.  The rules also carry service, continuance,
+          rent-deposit, set-out, and record-sealing procedure.
+        acquire:
+          method: document
+          url: https://www.clevelandhousingcourt.org/sites/default/files/Housing_Court_Local_Rules_2023.pdf
+          publisher: Cleveland Municipal Court, Housing Division
+          text_basis: published_local_rules
+
+  - slug: cleveland-heights
+    name: Cleveland Heights
+    county: Cuyahoga
+    document_title: Codified Ordinances of the City of Cleveland Heights
+    code_short_name: Cleveland Heights Codified Ordinances
+    codifier: american-legal
+    codifier_url: https://codelibrary.amlegal.com/codes/clevelandhts/latest/overview
+    courts:
+      - name: Cleveland Heights Municipal Court
+        role: eviction
+    targets:
+      - key: pay-to-stay
+        topic: pay-to-stay
+        priority: 1
+        chapter: "767"
+        citation: Cleveland Heights Codified Ordinances Ch. 767
+        label: Pay to stay
+        code_path: ["Part Seven — Business Regulation Code", "Chapter 767 — Pay to Stay"]
+        codifier_url: https://codelibrary.amlegal.com/codes/clevelandhts/latest/clevelandhts_oh/0-0-0-19792
+        related_statutes: ["1923.02", "1923.061", "5321.19"]
+        treatise_chunks: ["0609-2-pay-to-stay-defense-in-eviction-actions-01"]
+        act_file_number: Ord. 158-2022
+        notes: >-
+          Permanent ordinance superseding the temporary Council Ordinance
+          79-2021 that the treatise records as expiring December 31, 2022.
+          The codified chapter has since been compared against this enacted
+          text and agrees section for section, including the $25-or-5% cap in
+          767.05; the only difference is that the act's own list of sections
+          transposes 767.05 and 767.06 relative to its body text, which
+          codification corrected.  The comparison copy is retained at
+          _transcriptions/cleveland-heights-pay-to-stay-codified.md.
+        source_type: council_packet
+        verification_urls:
+          - https://codelibrary.amlegal.com/codes/clevelandhts/latest/clevelandhts_oh/0-0-0-19775
+          - _transcriptions/cleveland-heights-pay-to-stay-codified.md
+        acquire:
+          method: document
+          url: https://www.clevelandheights.gov/DocumentCenter/View/11712/City-Council-Packet-October-17-2022
+          publisher: Cleveland Heights City Council
+          text_basis: enacted_act
+          extract:
+            start: Chapter 767 Tenant's Right to Pay to Stay 767.01 Definition
+            end: ORDINANCE NO. 148-2022
+      - key: source-of-income
+        topic: source-of-income
+        priority: 2
+        chapter: "749"
+        citation: Cleveland Heights Codified Ordinances Ch. 749
+        label: Fair housing — source of income
+        code_path: ["Part Seven — Business Regulation Code", "Chapter 749 — Fair Housing"]
+        codifier_url: https://codelibrary.amlegal.com/codes/clevelandhts/latest/overview
+        treatise_chunks: ["0616-6-source-of-income-protection-01"]
+        act_file_number: Ord. 25-2021
+        notes: >-
+          Ord. 25-2021 amends Chapter 749 and carries the full "Source of
+          Income" definition, reportedly including housing vouchers and
+          emergency rental assistance.  The city hosts the third-reading
+          ordinance PDF; that URL has not been captured here yet.
+        source_type: signed_ordinance
+        acquire:
+          method: document
+          url: https://www.clevelandheights.gov/DocumentCenter/View/9205/Ordinance-25-2021-Third-Reading
+          publisher: Cleveland Heights City Council
+          text_basis: enacted_act
+
+  - slug: lakewood
+    name: Lakewood
+    county: Cuyahoga
+    document_title: Codified Ordinances of the City of Lakewood
+    code_short_name: Lakewood Codified Ordinances
+    codifier: american-legal
+    codifier_url: https://codelibrary.amlegal.com/codes/lakewood_oh/latest/overview
+    courts:
+      - name: Lakewood Municipal Court
+        role: eviction
+    targets:
+      - key: pay-to-stay
+        topic: pay-to-stay
+        priority: 1
+        section: "516.22"
+        citation: Lakewood Codified Ordinances § 516.22
+        label: Pay to stay
+        code_path: ["Part Five — General Offenses Code", "Chapter 516", "§ 516.22"]
+        codifier_url: https://codelibrary.amlegal.com/codes/lakewood_oh/latest/overview
+        related_statutes: ["1923.02", "1923.061", "5321.19"]
+        treatise_chunks: ["0609-2-pay-to-stay-defense-in-eviction-actions-01"]
+        act_file_number: Ord. 02-2023
+        enacted_date: '2023-02-06'
+        notes: >-
+          Permanent ordinance superseding the temporary Council Ordinance
+          12-2021 that the treatise records as expiring December 31, 2022.
+          Division (c) reaches past judgment to the execution of the writ, and
+          on a refused tender the bailiff must hold off pending an emergency
+          hearing -- the strongest post-judgment mechanism in this corpus.
+          The act as presented to Council enacts "a new unnumbered section ...
+          titled Pay to Stay" carrying the placeholder "XXX.XX", so the
+          § 516.22 number was assigned in codification and cannot be established
+          from the act alone.  A superseded hand transcription of the codified
+          section is retained at _transcriptions/lakewood-pay-to-stay.md.
+        source_type: council_packet
+        verification_urls:
+          - https://codelibrary.amlegal.com/codes/lakewood_oh/latest/overview
+          - _transcriptions/lakewood-pay-to-stay.md
+        acquire:
+          method: document
+          url: https://onelakewood.granicus.com/DocumentViewer.php?file=onelakewood_57fa8652ab27db9abfced9599207f6b7.pdf&view=1
+          publisher: Lakewood City Council
+          text_basis: enacted_act
+          extract:
+            start: ORDINANCE NO. 02-2023
+            end: January 11th, 2023 City Council
+
+  - slug: columbus
+    name: Columbus
+    county: Franklin
+    document_title: Columbus City Codes
+    code_short_name: Columbus City Codes
+    codifier: american-legal
+    codifier_url: https://codelibrary.amlegal.com/codes/columbus/latest/overview
+    legistar_client: columbus
+    courts:
+      - name: Franklin County Municipal Court, Environmental Division
+        role: eviction
+    targets:
+      - key: pay-to-stay
+        topic: pay-to-stay
+        priority: 1
+        chapter: "4551"
+        citation: Columbus City Codes Ch. 4551
+        label: Refusal to accept tender on behalf of a tenant
+        code_path: ["Title 45 — Health and Safety Code", "Chapter 4551 — Tenant Protections"]
+        codifier_url: https://codelibrary.amlegal.com/codes/columbus/latest/overview
+        related_statutes: ["1923.02", "1923.061", "5321.19"]
+        treatise_chunks: ["0609-2-pay-to-stay-defense-in-eviction-actions-01"]
+        acquire:
+          method: legistar
+          file_number: "2108-2023"
+          amendment_query: "4551"
+      - key: source-of-income
+        topic: source-of-income
+        priority: 2
+        section: "4551.03"
+        citation: Columbus City Codes § 4551.03
+        label: Source-of-income discrimination prohibited
+        code_path: ["Title 45 — Health and Safety Code", "Chapter 4551 — Tenant Protections", "§ 4551.03"]
+        codifier_url: https://codelibrary.amlegal.com/codes/columbus/latest/overview
+        related_statutes: ["4112.02"]
+        treatise_chunks: ["0616-6-source-of-income-protection-01"]
+        notes: >-
+          Contains a specific rule for calculating income requirements where a
+          voucher or subsidy pays part of the contract rent.
+        acquire:
+          method: legistar
+          file_number: "0494-2021"
+          amendment_query: "4551"
+      - key: right-to-counsel
+        topic: right-to-counsel
+        priority: 2
+        section: "4551.08"
+        citation: Columbus City Codes §§ 4551.08–4551.081
+        label: Access to legal services
+        code_path: ["Title 45 — Health and Safety Code", "Chapter 4551 — Tenant Protections", "§ 4551.08"]
+        codifier_url: https://codelibrary.amlegal.com/codes/columbus/latest/overview
+        treatise_chunks: ["0611-4-right-to-counsel-in-eviction-actions-01"]
+        acquire:
+          method: legistar
+          file_number: "3510-2024"
+          amendment_query: "4551.08"
+
+  - slug: cincinnati
+    name: Cincinnati
+    county: Hamilton
+    document_title: Cincinnati Municipal Code
+    code_short_name: Cincinnati Municipal Code
+    codifier: american-legal
+    codifier_url: https://codelibrary.amlegal.com/codes/cincinnati/latest/overview
+    legistar_client: cincinnatioh
+    courts:
+      - name: Hamilton County Municipal Court
+        role: eviction
+    targets:
+      - key: pay-to-stay
+        topic: pay-to-stay
+        priority: 1
+        section: "871-9"
+        citation: Cincinnati Municipal Code § 871-9
+        label: Obligations of landlords and tenants — tender defense
+        code_path: ["Title VIII — Health, Safety and Sanitation", "Chapter 871 — Landlord-Tenant Relationships", "§ 871-9"]
+        codifier_url: https://codelibrary.amlegal.com/codes/cincinnati/latest/overview
+        related_statutes: ["1923.02", "1923.061", "5321.19"]
+        treatise_chunks: ["0609-2-pay-to-stay-defense-in-eviction-actions-01"]
+        notes: >-
+          The treatise records the defense at § 871-9(c), tenderable with a
+          social-service, nonprofit, or governmental voucher, and subject to the
+          court's discretion.
+        acquire:
+          method: legistar
+          file_number: "202000327"
+          amendment_query: "871"
+      - key: nuisance
+        topic: nuisance
+        priority: 2
+        chapter: "761"
+        citation: Cincinnati Municipal Code Ch. 761
+        label: Chronic nuisance premises
+        code_path: ["Title VII — Business Regulation", "Chapter 761 — Chronic Nuisance Premises"]
+        codifier_url: https://codelibrary.amlegal.com/codes/cincinnati/latest/overview
+        related_statutes: ["3767.41"]
+        notes: >-
+          A August 2026 amendment addressing domestic violence, dating
+          violence, sexual assault, stalking, and retaliation/eviction
+          protection is reported but does not appear among the passed
+          ordinances in the city's legislative record, so the text here is the
+          older framework.  Confirm the current chapter before relying on it.
+        acquire:
+          method: legistar
+          search: Chronic Nuisance Premises
+          amendment_query: "761"
+
+  - slug: toledo
+    name: Toledo
+    county: Lucas
+    document_title: Toledo Municipal Code
+    code_short_name: Toledo Municipal Code
+    codifier: american-legal
+    codifier_url: https://codelibrary.amlegal.com/codes/toledo/latest/overview
+    legistar_client: toledo
+    courts:
+      - name: Toledo Municipal Court, Housing Division
+        role: eviction
+    targets:
+      - key: pay-to-stay
+        topic: pay-to-stay
+        priority: 1
+        chapter: "1770"
+        citation: Toledo Municipal Code Ch. 1770
+        label: Tenant's right to pay to stay
+        code_path: ["Part Seventeen — Housing Code", "Title Three", "Chapter 1770 — Tenant's Right to Pay to Stay"]
+        codifier_url: https://codelibrary.amlegal.com/codes/toledo/latest/overview
+        related_statutes: ["1923.02", "1923.061", "5321.19"]
+        treatise_chunks: ["0609-2-pay-to-stay-defense-in-eviction-actions-01", "0610-3-limit-on-late-payment-fees-01"]
+        related_cases: ["Finn v. Rutherford, 2026-Ohio-760"]
+        notes: >-
+          Chapter 1770 previously carried "Registration of Residential Rental
+          Units Built Prior to 1978"; O-294-20 enacted the pay-to-stay chapter
+          in its place.  A citation to "Ch. 1770" is therefore ambiguous without
+          a date.
+        acquire:
+          method: legistar
+          file_number: "O-294-20"
+          amendment_query: "1770"
+      - key: lead-safe
+        topic: lead-safe
+        priority: 1
+        chapter: "1760"
+        citation: Toledo Municipal Code Ch. 1760
+        label: Residential rental properties and lead safety compliance
+        code_path: ["Part Seventeen — Housing Code", "Title Three", "Chapter 1760 — Residential Rental Properties and Lead Safety Compliance"]
+        codifier_url: https://codelibrary.amlegal.com/codes/toledo/latest/toledo_oh/0-0-0-156131
+        related_statutes: ["3742.01", "5321.04"]
+        treatise_chunks: ["0617-7-lead-safe-rental-housing-01"]
+        related_cases: ["Mack v. City of Toledo, 2019-Ohio-5427"]
+        notes: >-
+          § 1760.11 carries tenant protections, including the rule that an owner
+          without good cause may not evict or refuse to renew to avoid
+          compliance.  Compliance is phased geographically through June 2029, so
+          applicability is a date-and-place question, not a yes/no.
+        acquire:
+          method: legistar
+          file_number: "O-223-18"
+          amendment_query: "1760"
+      - key: right-to-counsel
+        topic: right-to-counsel
+        priority: 2
+        chapter: "1768"
+        citation: Toledo Municipal Code Ch. 1768
+        label: Tenants' right to counsel in eviction proceedings
+        code_path: ["Part Seventeen — Housing Code", "Title Three", "Chapter 1768 — Tenants' Right to Counsel"]
+        codifier_url: https://codelibrary.amlegal.com/codes/toledo/latest/overview
+        treatise_chunks: ["0611-4-right-to-counsel-in-eviction-actions-01"]
+        notes: Representation duties are subject to appropriated funding.
+        acquire:
+          method: legistar
+          file_number: "O-418-21"
+          amendment_query: "1768"
+      - key: source-of-income
+        topic: source-of-income
+        priority: 2
+        chapter: "554"
+        citation: Toledo Municipal Code Ch. 554
+        label: Discrimination prohibited — source of income
+        code_path: ["Part Five — General Offenses Code", "Chapter 554 — Discrimination Prohibited"]
+        codifier_url: https://codelibrary.amlegal.com/codes/toledo/latest/overview
+        related_statutes: ["4112.02"]
+        treatise_chunks: ["0616-6-source-of-income-protection-01"]
+        notes: >-
+          Expressly includes refusal to cooperate with Section 8 / Housing
+          Choice Voucher requirements.
+        acquire:
+          method: legistar
+          file_number: "O-490-20"
+          amendment_query: "554"
+      - key: nuisance
+        topic: nuisance
+        priority: 2
+        section: "541.18"
+        citation: Toledo Municipal Code § 541.18
+        label: Chronic nuisance
+        code_path: ["Part Five — General Offenses Code", "Chapter 541", "§ 541.18"]
+        codifier_url: https://codelibrary.amlegal.com/codes/toledo/latest/overview
+        related_statutes: ["3767.41"]
+        act_file_number: Ord. 709-04/38-05
+        enacted_date: '2005-01-11'
+        source_type: codifier
+        verification_urls:
+          - https://codelibrary.amlegal.com/codes/toledo/latest/toledo_oh/0-0-0-93222
+        notes: >-
+          The section is older than it looks from a pay-to-stay angle: it dates
+          to Ord. 709-04/38-05, passed January 11, 2005, which is why no
+          enacting act appears in Toledo's Legistar record -- that record begins
+          in 2014.  Read subsection (c) against the code page before relying on
+          the penalty structure; the code page's own labelling of (c) is
+          ambiguous, and the second paragraph of (c)(2) refers to violations of
+          "(b)(1)" and "(b)(2)" where (b) has no numbered divisions.
+        acquire:
+          method: transcription
+          file: _transcriptions/toledo-nuisance.md
+          provided_by: Quinten Steenhuis
+          provided_on: '2026-08-31'
+          asserted_source: >-
+            American Legal Publishing rendering of Toledo Municipal Code
+            § 541.18
+          act_file_number: Ord. 709-04/38-05
+          enacted_date: '2005-01-11'
+
+  - slug: dayton
+    name: Dayton
+    county: Montgomery
+    document_title: Dayton Code of Ordinances
+    code_short_name: Dayton Code of Ordinances
+    codifier: municode
+    codifier_url: https://library.municode.com/oh/dayton/codes/code_of_ordinances
+    courts:
+      - name: Dayton Municipal Court
+        role: eviction
+    targets:
+      - key: pay-to-stay
+        topic: pay-to-stay
+        priority: 1
+        section: "93.71"
+        citation: Dayton Code of Ordinances §§ 93.71–93.74
+        act_file_number: Emergency Ord. 31875-21
+        enacted_date: '2021-03-24'
+        label: Pay to stay
+        code_path: ["Title IX — General Regulations", "Chapter 93", "§§ 93.71–93.74"]
+        codifier_url: https://library.municode.com/oh/dayton/codes/code_of_ordinances
+        related_statutes: ["1923.02", "1923.061", "5321.19"]
+        treatise_chunks: ["0609-2-pay-to-stay-defense-in-eviction-actions-01"]
+        notes: >-
+          Treatise records court-discretionary application, court escrow of the
+          tender, no landlord attorney's fees, and one assertion per calendar
+          year.
+        source_type: secondary_reproduction
+        verification_urls:
+          - https://www.daytonohio.gov/AgendaCenter
+        notes: >-
+          The text held here is COHHIO's reproduction of the enacted ordinance,
+          not a Dayton-hosted signed PDF, which is not independently indexed.
+          It is verified against Dayton's own March 24, 2021 City Commission
+          minutes on three points: the ordinance number, the March 24, 2021
+          passage date, and the enacted sections §§ 93.71-93.74.  Unlike the
+          same guide's Akron entry -- headed "ORDINANCE NO. ____ -2021" with the
+          number left blank, and therefore a pre-enactment draft -- this one
+          carries the real ordinance number, so there is no draft red flag.
+          Replace it with the executed ordinance if one surfaces.
+        acquire:
+          method: document
+          url: https://cohhio.org/wp-content/uploads/2022/06/COHHIO-P2S-Tech-Guide-2.0-web.pdf
+          publisher: COHHIO Pay to Stay Technical Guide (reproducing Dayton Emergency Ord. 31875-21)
+          ocr: {pages: [25, 27], dpi: 300}
+          extract:
+            start: Ordinance 31875-21
+
+  - slug: akron
+    name: Akron
+    county: Summit
+    document_title: Akron Municipal Code
+    code_short_name: Akron Municipal Code
+    codifier: municode
+    codifier_url: https://library.municode.com/oh/akron/codes/code_of_ordinances
+    courts:
+      - name: Akron Municipal Court
+        role: eviction
+    targets:
+      - key: pay-to-stay
+        topic: pay-to-stay
+        priority: 1
+        section: "150.51"
+        citation: Akron Municipal Code § 150.51
+        label: Tenant's affirmative defense after attempting to tender rent
+        code_path: ["Title 15 — Land Use", "Chapter 150 — Environmental Health Housing Code", "§ 150.51"]
+        codifier_url: https://library.municode.com/oh/akron/codes/code_of_ordinances
+        related_statutes: ["1923.02", "1923.061", "5321.19"]
+        treatise_chunks: ["0609-2-pay-to-stay-defense-in-eviction-actions-01"]
+        act_file_number: Ord. 111-2021
+        enacted_date: '2021-05-10'
+        source_type: codifier
+        verification_urls:
+          - https://library.municode.com/oh/akron/codes/code_of_ordinances
+          - https://onlinedocs.akronohio.gov/PublicAccess/recordsearch/cq/index.html
+        notes: >-
+          The codified section is numbered 150.51, not 150.5; an earlier record
+          here carried the truncated number.  The section makes tender an
+          affirmative defense only -- unlike Cleveland Heights or Yellow Springs,
+          it does not require the landlord to accept -- and limits the defense to
+          one use per calendar year.  A post-filing tender may be satisfied by
+          paying in full into escrow with the Akron Municipal Court before trial,
+          and the tenant is expressly not liable for the landlord's attorney
+          fees.  Held from a Municode export of Chapter 150; the executed
+          Ord. 111-2021 is still missing, and the primary retrieval route is the
+          city's OnBase public access search.
+        acquire:
+          method: transcription
+          file: _transcriptions/akron-pay-to-stay.md
+          provided_by: Quinten Steenhuis
+          provided_on: '2026-08-31'
+          asserted_source: >-
+            Municode export of Akron Municipal Code Chapter 150 (Environmental
+            Health Housing Code)
+          act_file_number: Ord. 111-2021
+          enacted_date: '2021-05-10'
+      - key: late-fees
+        topic: late-fees
+        priority: 1
+        section: "150.52"
+        citation: Akron Municipal Code § 150.52
+        label: Limit on late payment fees
+        code_path: ["Title 15 — Land Use", "Chapter 150 — Environmental Health Housing Code", "§ 150.52"]
+        codifier_url: https://library.municode.com/oh/akron/codes/code_of_ordinances
+        related_statutes: ["5321.14"]
+        treatise_chunks: ["0610-3-limit-on-late-payment-fees-01"]
+        act_file_number: Ord. 111-2021
+        enacted_date: '2021-05-10'
+        source_type: codifier
+        verification_urls:
+          - https://library.municode.com/oh/akron/codes/code_of_ordinances
+          - https://onlinedocs.akronohio.gov/PublicAccess/recordsearch/cq/index.html
+          - https://www.akroncitycouncil.org/legislationminutes
+        notes: >-
+          SETTLED: the cap is the greater of $25 or EIGHT percent of monthly
+          contract rent, and the codified section now held here says so in its
+          own words.  The competing five-percent figure comes from the COHHIO
+          technical guide, whose reproduction is headed "ORDINANCE NO. ____
+          -2021" with the number left blank -- a pre-enactment draft, not the
+          executed ordinance.  Do not state a cap from that reproduction.  The
+          executed Ord. 111-2021 is still missing: Akron's own link is broken,
+          and the primary retrieval route is the city's OnBase public access
+          search.
+        acquire:
+          method: transcription
+          file: _transcriptions/akron-late-fees.md
+          provided_by: Quinten Steenhuis
+          provided_on: '2026-08-31'
+          asserted_source: >-
+            Municode export of Akron Municipal Code Chapter 150 (Environmental
+            Health Housing Code)
+          act_file_number: Ord. 111-2021
+          enacted_date: '2021-05-10'
+      - key: housing-code
+        topic: housing-code
+        priority: 1
+        chapter: "150"
+        citation: Akron Municipal Code §§ 150.01-150.14
+        label: Environmental health housing code
+        code_path: ["Title 15 — Land Use", "Chapter 150 — Environmental Health Housing Code", "§§ 150.01-150.14"]
+        codifier_url: https://library.municode.com/oh/akron/codes/code_of_ordinances
+        related_statutes: ["5321.04", "5321.07", "5321.19"]
+        source_type: codifier
+        verification_urls:
+          - https://library.municode.com/oh/akron/codes/code_of_ordinances
+        notes: >-
+          Held because R.C. 5321.04(A)(1) makes compliance with a local housing,
+          building, health and safety code a statutory duty of the landlord, and
+          R.C. 5321.07 makes a breach of that duty the gateway to rent escrow --
+          so the code text is what a habitability defence is actually built on.
+          R.C. 5321.19 expressly preserves codes of this kind from preemption,
+          which is the opposite posture from Akron's pay-to-stay section.
+          Covers definitions, entry and inspection, notice of violation, the
+          Housing Appeals Board and hearings, the repair/vacation/demolition
+          procedure, and the substantive standards for dwellings, equipment,
+          light and heat, maintenance, space and use, owner and occupant
+          responsibilities, rooming houses and hotels.  The chapter-wide penalty
+          at § 150.99 is held with the registration record.
+        acquire:
+          method: transcription
+          file: _transcriptions/akron-housing-code.md
+          provided_by: Quinten Steenhuis
+          provided_on: '2026-08-31'
+          asserted_source: >-
+            Municode export of Akron Municipal Code Chapter 150 (Environmental
+            Health Housing Code)
+      - key: rental-registration
+        topic: rental-registration
+        priority: 1
+        chapter: "150"
+        citation: Akron Municipal Code §§ 150.30-150.50, 150.99
+        label: Rental registration, mandatory inspection, and penalty
+        code_path: ["Title 15 — Land Use", "Chapter 150 — Environmental Health Housing Code", "§§ 150.30-150.50, 150.99"]
+        codifier_url: https://library.municode.com/oh/akron/codes/code_of_ordinances
+        related_statutes: ["5321.04", "5321.19"]
+        source_type: codifier
+        verification_urls:
+          - https://library.municode.com/oh/akron/codes/code_of_ordinances
+        notes: >-
+          Annual registration by January 31 and on transfer of title, transfer
+          of an existing registration, the owner's duty to disclose notices of
+          violation to a buyer and to an occupant or prospective occupant, and
+          mandatory rental-unit inspection, and the § 150.50 requirement that an
+          out-of-area owner have a local operator.  § 150.99 is carried here
+          too: it is the penalty for the whole chapter -- graduated
+          administrative fines certified to the county auditor as a special
+          assessment against the property, plus criminal liability -- so the
+          enforcement teeth for the housing-code and condemnation records live
+          in this one.  These sections do not say that noncompliance bars a
+          landlord from maintaining an eviction, and nothing here asserts that
+          it does; that consequence has to be argued, not read off the chapter.
+        acquire:
+          method: transcription
+          file: _transcriptions/akron-rental-registration.md
+          provided_by: Quinten Steenhuis
+          provided_on: '2026-08-31'
+          asserted_source: >-
+            Municode export of Akron Municipal Code Chapter 150 (Environmental
+            Health Housing Code)
+      - key: condemnation
+        topic: condemnation-relocation
+        priority: 3
+        chapter: "150"
+        citation: Akron Municipal Code §§ 150.15-150.25
+        label: Unfit dwellings, condemnation, and utility discontinuance
+        code_path: ["Title 15 — Land Use", "Chapter 150 — Environmental Health Housing Code", "§§ 150.15-150.25"]
+        codifier_url: https://library.municode.com/oh/akron/codes/code_of_ordinances
+        related_statutes: ["5321.04", "5321.07"]
+        source_type: codifier
+        verification_urls:
+          - https://library.municode.com/oh/akron/codes/code_of_ordinances
+        notes: >-
+          What happens when the City closes the unit: unfit dwellings and
+          premises, orders to vacate, public nuisance, the condemnation placard,
+          reoccupation, entering a condemned dwelling, discontinuance of
+          utilities at § 150.21, vacant dwellings, and removal of the placard.
+          § 150.25 disclaims warranties and liability to occupants, which is
+          worth reading before treating a condemnation as creating a remedy
+          against the City.
+        acquire:
+          method: transcription
+          file: _transcriptions/akron-condemnation.md
+          provided_by: Quinten Steenhuis
+          provided_on: '2026-08-31'
+          asserted_source: >-
+            Municode export of Akron Municipal Code Chapter 150 (Environmental
+            Health Housing Code)
+      - key: local-court-rules
+        topic: local-court-rule
+        priority: 1
+        citation: Akron Mun. Ct. Loc. R.
+        label: Akron Municipal Court local rules
+        code_path: ["Akron Municipal Court", "Local Rules"]
+        related_statutes: ["5323.02", "5323.03", "5323.04", "1923.08"]
+        notes: >-
+          In this published edition the forcible entry and detainer complaint
+          rule appears as Rule No. 30 and Rule No. 29 is Magistrates.  The
+          court's amended Rule 29 requires an eviction complaint to show
+          registration with the Summit County registry and, where applicable,
+          the City of Akron registry, and states that noncompliance results in
+          dismissal; that amended text is not in this document.  Cite the
+          amended rule only from the court's own current copy.
+        verification_urls:
+          - https://www.akronmunicipalcourt.org/forms-rules/rules/
+          - https://www.akronmunicipalcourt.org/news/akron-municipal-court-amends-local-rule-29/
+        acquire:
+          method: document
+          url: https://www.akronmunicipalcourt.org/media/1315/local-rules-of-the-municipal-court-final-2-22-2019-2.pdf
+          publisher: Akron Municipal Court
+          text_basis: published_local_rules
+
+  - slug: gahanna
+    name: Gahanna
+    county: Franklin
+    document_title: Gahanna Codified Ordinances
+    code_short_name: Gahanna Codified Ordinances
+    codifier: american-legal
+    codifier_url: https://codelibrary.amlegal.com/codes/gahanna/latest/overview
+    legistar_client: gahanna
+    courts:
+      - name: Franklin County Municipal Court, Environmental Division
+        role: eviction
+    targets:
+      - key: pay-to-stay
+        topic: pay-to-stay
+        priority: 1
+        chapter: "792"
+        citation: Gahanna Codified Ordinances Ch. 792
+        label: Pay to stay
+        code_path: ["Part Seven — Business Regulation Code", "Chapter 792 — Pay to Stay"]
+        related_statutes: ["1923.02", "1923.061", "5321.19"]
+        notes: >-
+          Ord. ORD-0061-2022 enacted Chapters 790, 791, and 792 together: a
+          fair housing board, housing nondiscrimination law, and the
+          pay-to-stay affirmative defense. Chapter 792 is enacted through an
+          exhibit to the act.
+        acquire:
+          method: legistar
+          file_number: "ORD-0061-2022"
+          prefer_attachment: Clean Copy - Final Adopted
+          amendment_query: "792"
+
+  - slug: maple-heights
+    name: Maple Heights
+    county: Cuyahoga
+    document_title: Codified Ordinances of Maple Heights
+    code_short_name: Maple Heights Codified Ordinances
+    codifier: american-legal
+    codifier_url: https://codelibrary.amlegal.com/codes/maplehts/latest/overview
+    courts:
+      - name: Garfield Heights Municipal Court
+        role: eviction
+    targets:
+      - key: pay-to-stay
+        topic: pay-to-stay
+        priority: 1
+        chapter: "1488"
+        citation: Codified Ordinances of Maple Heights Ch. 1488
+        label: Pay to stay
+        code_path: ["Part Fourteen — Building and Housing Code", "Chapter 1488 — Pay to Stay"]
+        act_file_number: Ord. 2021-25, as amended
+        related_statutes: ["1923.02", "1923.061", "5321.19"]
+        treatise_chunks: ["0609-2-pay-to-stay-defense-in-eviction-actions-01"]
+        source_type: council_packet
+        verification_urls:
+          - https://citymapleheights.com/download/city_council/council_meetings/2021/August-4-2021-Council-Packet.pdf
+        acquire:
+          method: document
+          url: https://citymapleheights.com/download/city_council/council_meetings/2021/August-4-2021-Council-Packet.pdf
+          publisher: Maple Heights City Council
+          ocr: {dpi: 300}
+          extract:
+            start: CHAPTER 1488
+            end: RESOLUTION NO
+
+  - slug: south-euclid
+    name: South Euclid
+    county: Cuyahoga
+    document_title: South Euclid Code of Ordinances
+    code_short_name: South Euclid Codified Ordinances
+    codifier: american-legal
+    codifier_url: https://codelibrary.amlegal.com/codes/southeuclid/latest/overview
+    courts:
+      - name: South Euclid Municipal Court
+        role: eviction
+    targets:
+      - key: pay-to-stay
+        topic: pay-to-stay
+        priority: 1
+        chapter: "1415"
+        citation: South Euclid Code of Ordinances Ch. 1415
+        label: Pay to stay
+        code_path: ["Part Fourteen — Building and Housing Code", "Chapter 1415 — Pay to Stay"]
+        act_file_number: Ord. 17-22
+        related_statutes: ["1923.02", "1923.061", "5321.19"]
+        treatise_chunks: ["0609-2-pay-to-stay-defense-in-eviction-actions-01"]
+        source_type: council_packet
+        verification_urls:
+          - https://codelibrary.amlegal.com/codes/southeuclid/latest/seuclid_oh/0-0-0-39205
+          - https://archive.cityofsoutheuclid.com/wp-content/uploads/2022/09/09-12-22-Agenda-Legislation.pdf
+        notes: >-
+          The late-fee question here is settled and it goes against the figure
+          COHHIO publishes.  The packet shows the $25/5% ceiling struck through,
+          which OCR alone could only suggest; the codified § 1415.07 has since
+          been read and says, in full, "Late fees shall be assessed as written
+          in the lease agreement."  South Euclid has no cap.
+        acquire:
+          method: document
+          url: https://archive.cityofsoutheuclid.com/wp-content/uploads/2022/09/09-12-22-Agenda-Legislation.pdf
+          publisher: South Euclid City Council
+          ocr: {dpi: 300}
+          extract:
+            start: CHAPTER 1415
+            end: RESOLUTION NO
+      - key: source-of-income
+        topic: source-of-income
+        priority: 2
+        chapter: "1408"
+        citation: South Euclid Codified Ordinances Ch. 1408
+        enacted_as: Ch. 552 (Discrimination Prohibited), by Ord. 12-17
+        act_file_number: Ord. 12-17
+        label: Fair housing — source of income
+        code_path: ["Part Fourteen — Building and Housing Code", "Chapter 1408 — Fair Housing"]
+        related_statutes: ["4112.02"]
+        treatise_chunks: ["0616-6-source-of-income-protection-01"]
+        source_type: council_packet
+        notes: >-
+          Dates are unsettled and deliberately not asserted: the ordinance sheet
+          is headed "ORDINANCE NO.: 12-17 June 12, 2017", the council minutes
+          that record passage are dated July 10, 2017, and the copy held here
+          comes from the April 9, 2018 legislation packet with an unsigned
+          "Passed this day of , 2018" block.  Establish the passage date from
+          the Clerk of Council before relying on one.
+          Enacted as Chapter 552, "Discrimination Prohibited", covering
+          employment, housing, public accommodations, and education, and later
+          reorganized into the housing code at Chapter 1408.  Chase the
+          enacting act under 552, not 1408; the text held here is the act, and
+          Chapter 1408 as codified is what to confirm before relying on it.
+          Pages 10 to 12 of the ordinance are struck through in the packet --
+          the provisions it deletes -- and are deliberately not recognized, so
+          this record carries the enacted chapter and not the text it replaced.
+        verification_urls:
+          - https://codelibrary.amlegal.com/codes/southeuclid/latest/seuclid_oh/0-0-0-38436
+          - https://archive.cityofsoutheuclid.com/wp-content/uploads/2017/07/CouncilMinutes07-10-17.pdf
+        acquire:
+          method: document
+          url: https://archive.cityofsoutheuclid.com/wp-content/uploads/2018/04/4-9-18-Agenda-Legislation.pdf
+          publisher: South Euclid City Council
+          ocr:
+            dpi: 300
+            pages: [2, 3, 4, 5, 6, 7, 8, 9, 13, 14]
+          extract:
+            start: 'ORDINANCE NO.: 12-17'
+
+  - slug: yellow-springs
+    name: Yellow Springs
+    county: Greene
+    document_title: Yellow Springs Codified Ordinances
+    code_short_name: Yellow Springs Codified Ordinances
+    codifier: american-legal
+    codifier_url: https://codelibrary.amlegal.com/codes/yellowsprings/latest/overview
+    courts:
+      - name: Greene County Municipal Court
+        role: eviction
+    targets:
+      - key: pay-to-stay
+        topic: pay-to-stay
+        priority: 1
+        chapter: "868"
+        citation: Yellow Springs Codified Ordinances Ch. 868
+        label: Pay to stay
+        code_path: ["Part Eight — Business Regulation and Taxation Code", "Chapter 868 — Pay to Stay"]
+        act_file_number: Ord. 2021-17
+        enacted_date: '2021-06-21'
+        related_statutes: ["1923.02", "1923.061", "5321.19"]
+        treatise_chunks: ["0609-2-pay-to-stay-defense-in-eviction-actions-01"]
+        source_type: codifier
+        verification_urls:
+          - https://codelibrary.amlegal.com/codes/yellowsprings/latest/yellowsprings_oh/0-0-0-25956
+        notes: >-
+          The chapter reaches further than most: § 868.04 lets a tenant tender
+          up to execution of the writ, and on refusal the bailiff must hold the
+          writ pending an emergency hearing, after which the court vacates the
+          judgment and dismisses.  § 868.01(b) settles rental assistance in the
+          text itself -- "A letter from a rental assistance agency offering to
+          make payment shall constitute a tender."  Held from the codifier's
+          rendering; the standalone Ord. 2021-17 PDF has not been located on the
+          Village document server.
+        acquire:
+          method: transcription
+          file: _transcriptions/yellow-springs-pay-to-stay.md
+          provided_by: Quinten Steenhuis
+          provided_on: '2026-08-31'
+          asserted_source: >-
+            American Legal Publishing, Yellow Springs Codified Ordinances
+            Ch. 868
+          act_file_number: Ord. 2021-17
+          enacted_date: '2021-06-21'
+      - key: source-of-income
+        topic: source-of-income
+        priority: 2
+        chapter: "626"
+        citation: Yellow Springs Codified Ordinances Ch. 626
+        label: Fair housing — source of income
+        code_path: ["Part Six — General Offenses Code", "Chapter 626 — Fair Housing"]
+        act_file_number: Ord. 2021-18
+        enacted_date: '2021-09-20'
+        related_statutes: ["4112.02", "5321.19"]
+        treatise_chunks: ["0616-6-source-of-income-protection-01"]
+        source_type: signed_ordinance
+        verification_urls:
+          - https://codelibrary.amlegal.com/codes/yellowsprings/latest/overview
+          - https://www.yellowsprings.gov/egov/documents/1632421391_49629.pdf
+        notes: >-
+          The Village-hosted PDF of the act now answers 404; the URL was tested
+          during this ingestion, so the text is held as a transcription and
+          cannot be re-fetched.  § 626.08 is unusually specific about what it
+          reaches: it binds "all landlords in the Village using the statutory
+          definition of landlord", and then exempts lodging establishments under
+          Chapter 882, assignments and subleases, and charitable, religious or
+          fraternal organisations, which must show an Ohio Attorney General
+          charitable registration to claim the exemption.  § 626.02(g) is worth
+          reading alongside R.C. 5321.19: the chapter itself provides that a
+          statutory definition prevails over its own where the two conflict.
+        acquire:
+          method: transcription
+          file: _transcriptions/yellow-springs-source-of-income.md
+          provided_by: Quinten Steenhuis
+          provided_on: '2026-08-31'
+          asserted_source: >-
+            Village of Yellow Springs Ordinance 2021-18, rendered from the
+            Village-hosted PDF
+          act_file_number: Ord. 2021-18
+          enacted_date: '2021-09-20'
+
+  - slug: athens
+    name: Athens
+    county: Athens
+    document_title: Athens City Code
+    code_short_name: Athens City Code
+    codifier: unknown
+    courts:
+      - name: Athens County Municipal Court
+        role: eviction
+    targets:
+      - key: pay-to-stay
+        topic: pay-to-stay
+        priority: 1
+        section: "29.36.02"
+        citation: Athens City Code § 29.36.02
+        label: Pay to stay
+        code_path: ["Title 29 — Housing", "Chapter 29.36", "§ 29.36.02"]
+        act_file_number: O-85-22
+        related_statutes: ["1923.02", "1923.061", "5321.19"]
+        treatise_chunks: ["0609-2-pay-to-stay-defense-in-eviction-actions-01"]
+        source_type: signed_ordinance
+        verification_urls:
+          - https://mcclibraryfunctions.azurewebsites.us/api/ordinanceDownload/14702/1195198/pdf
+        notes: >-
+          The five-page scan of the enacted ordinance is public and fetchable,
+          and records the September 6, 2022 passage and the October 3, 2022
+          reconsideration.  Unlike the codifier's content API, this
+          ordinance-download endpoint is served without a token or a bot
+          challenge, so retrieving it evades no access control.
+        acquire:
+          method: document
+          url: https://mcclibraryfunctions.azurewebsites.us/api/ordinanceDownload/14702/1195198/pdf
+          publisher: City of Athens
+          ocr: {dpi: 300}
+          extract:
+            start: AN ORDINANCE AMENDING ATHENS CITY CODE
+      - key: source-of-income
+        topic: source-of-income
+        priority: 2
+        section: "3.07.61"
+        citation: Athens City Code § 3.07.61
+        label: Fair housing — source of income
+        code_path: ["Title 3 — Administration", "§ 3.07.61"]
+        related_statutes: ["4112.02"]
+        treatise_chunks: ["0616-6-source-of-income-protection-01"]
+        act_file_number: Ord. No. 0-72-21
+        enacted_date: '2021-06-07'
+        source_type: codifier
+        codifier_url: https://library.municode.com/oh/athens/codes/code_of_ordinances
+        verification_urls:
+          - https://library.municode.com/oh/athens/codes/code_of_ordinances?nodeId=TIT3ADPR_CH3.07ADDEBOCO_3.07.61
+          - https://swagit-attachments.granicus.com/archive/agendas/187039/original/5-17%20AthensCC.pdf
+        notes: >-
+          The protection is spread across four sections, and all four are held
+          together because none of them is usable alone: § 3.07.61(O) defines
+          "source of income" to include rent vouchers and every form of federal,
+          state or local assistance; § 3.07.62(C) is the operative housing
+          prohibition; § 3.07.63 requires a posted notice naming source of
+          income; § 3.07.99 sets the penalty at a minor misdemeanour with a
+          $150 maximum, each day a separate offence.  Ord. 0-72-21 is the act
+          that added source of income, and the council agenda of May 17, 2021
+          corroborates it; the act itself has not been located as a document.
+        acquire:
+          method: transcription
+          file: _transcriptions/athens-source-of-income.md
+          provided_by: Quinten Steenhuis
+          provided_on: '2026-08-31'
+          asserted_source: >-
+            Municode rendering of Athens City Code Title 3, Chapter 3.07
+          act_file_number: Ord. No. 0-72-21
+          enacted_date: '2021-06-07'
+
+  - slug: grandview-heights
+    name: Grandview Heights
+    county: Franklin
+    document_title: Grandview Heights Codified Ordinances
+    code_short_name: Grandview Heights Codified Ordinances
+    codifier: american-legal
+    codifier_url: https://codelibrary.amlegal.com/codes/grandviewhts/latest/overview
+    courts:
+      - name: Franklin County Municipal Court
+        role: eviction
+    targets:
+      - key: pay-to-stay
+        topic: pay-to-stay
+        priority: 1
+        section: "727.04"
+        citation: Grandview Heights Codified Ordinances § 727.04
+        label: Pay to stay
+        code_path: ["Part Seven — Business Regulation Code", "Chapter 727", "§ 727.04"]
+        act_file_number: Ord. 2024-03
+        related_statutes: ["1923.02", "1923.061", "5321.19"]
+        notes: >-
+          Correction to an earlier assumption: the enacting act is primarily
+          about source of income, and pay-to-stay sits inside its Chapter
+          727 exhibit rather than in a standalone ordinance.
+        source_type: council_packet
+        verification_urls:
+          - https://www.grandviewheights.gov/DocumentCenter/View/8302/03112024-PA-Meeting-Packet
+        acquire:
+          method: document
+          url: https://www.grandviewheights.gov/DocumentCenter/View/8498/04092024-PA-Meeting-Packet
+          publisher: Grandview Heights City Council
+          text_basis: enacted_act
+          extract:
+            start: Chapter 727. FAIR HOUSING
+            end: An Ordinance prohibiting source-of-income discrimination.
+
+  - slug: reynoldsburg
+    name: Reynoldsburg
+    county: Franklin
+    document_title: Reynoldsburg Codified Ordinances
+    code_short_name: Reynoldsburg Codified Ordinances
+    codifier: american-legal
+    codifier_url: https://codelibrary.amlegal.com/codes/reynoldsburg/latest/overview
+    courts:
+      - name: Franklin County Municipal Court
+        role: eviction
+    targets:
+      - key: pay-to-stay
+        topic: pay-to-stay
+        priority: 1
+        section: "701.17"
+        citation: Reynoldsburg Codified Ordinances § 701.17
+        label: Pay to stay
+        code_path: ["Part Seven — Business Regulation Code", "Chapter 701", "§ 701.17"]
+        act_file_number: Ord. 26-2022
+        related_statutes: ["1923.02", "1923.061", "5321.19"]
+        notes: >-
+          The enacting ordinance contains an internal numbering
+          inconsistency between 701.07 and 701.17. Cite the section the
+          codified chapter actually carries, and expect the other number in
+          briefs and orders.
+        source_type: signed_ordinance
+        acquire:
+          method: document
+          url: https://www.reynoldsburg.gov/DocumentCenter/View/1624/Ordinance-26-2022-PDF
+          publisher: City of Reynoldsburg
+          ocr: {dpi: 300}
+      - key: security-deposit
+        topic: security-deposit
+        priority: 2
+        chapter: "701"
+        citation: Reynoldsburg Codified Ordinances Ch. 701
+        label: Landlord-tenant relationships — renter's choice
+        code_path: ["Part Seven — Business Regulation Code", "Chapter 701 — Landlord-Tenant Relationships"]
+        act_file_number: Ord. 63-2021
+        enacted_date: '2021-05-10'
+        related_statutes: ["5321.16", "5321.19"]
+        source_type: signed_ordinance
+        codifier_url: https://codelibrary.amlegal.com/codes/reynoldsburg/latest/overview
+        verification_urls:
+          - https://www.reynoldsburg.gov/291/2021-Legislation
+        notes: >-
+          The chapter that § 701.17 pay-to-stay was later added to, and useful
+          in its own right.  § 701.21 "Renter's Choice" requires a landlord of
+          more than ten units who demands a security deposit to offer at least
+          one alternative: rental security insurance, payment over at least six
+          equal monthly instalments due with the rent, or a reduced deposit of
+          no more than fifty percent of monthly rent; and to give written notice
+          of the options before the rental agreement is signed.  § 701.99
+          creates a private right of action -- $100 to $500 per violation plus
+          reasonable attorney fees, enforceable in municipal court or common
+          pleas -- which makes this a counterclaim, not only a defence.  It
+          applies only to leases executed or renewed after the effective date.
+          Recognized from the city's scan, which has no text layer at all.
+        acquire:
+          method: document
+          url: https://www.reynoldsburg.gov/DocumentCenter/View/1484/Ordinance-63-2021-PDF
+          publisher: City of Reynoldsburg
+          ocr:
+            dpi: 300
+          extract:
+            start: ORDINANCE NO. 63-2021
+      - key: rental-registration
+        topic: rental-registration
+        priority: 1
+        chapter: "1397"
+        citation: Reynoldsburg Codified Ordinances Ch. 1397
+        label: Rental property registration and inspection notice
+        code_path: ["Part Thirteen — Building Code", "Chapter 1397 — Rental Property Registration"]
+        related_statutes: ["5321.04", "5321.19"]
+        codifier_url: https://codelibrary.amlegal.com/codes/reynoldsburg/latest/overview
+        notes: >-
+          Declared from the codified chapter list, with no text held.  The city
+          link labelled "Ordinance-28-2021-PDF" was fetched and does not carry
+          this chapter: it serves Ordinance No. 26-2021, waiving a
+          tax-administrator training appointment under § 160.01.  The retrieved
+          file is byte-identical to what the city serves today, so the
+          mislabelling is the city's, not a bad copy.  A different act number is
+          needed before this can be acquired.
+        acquire:
+          method: pending
+          reason: >-
+            No act located.  The city's own "Ordinance-28-2021-PDF" link serves
+            Ord. 26-2021, an unrelated tax-administrator training waiver, and
+            American Legal Publishing answers automated requests with a
+            Cloudflare challenge.
+      - key: source-of-income
+        topic: source-of-income
+        priority: 2
+        chapter: "503"
+        citation: Reynoldsburg Codified Ordinances Ch. 503
+        label: Fair housing — source of income
+        code_path: ["Part Five — General Offenses Code", "Chapter 503 — Fair Housing"]
+        act_file_number: Ord. 27-2021
+        related_statutes: ["4112.02"]
+        treatise_chunks: ["0616-6-source-of-income-protection-01"]
+        source_type: signed_ordinance
+        codifier_url: https://codelibrary.amlegal.com/codes/reynoldsburg/latest/overview
+        verification_urls:
+          - https://www.reynoldsburg.gov/291/2021-Legislation
+        notes: >-
+          Ord. 27-2021 does not add a source-of-income section to an existing
+          chapter; it enacts the whole of Chapter 503 with "source of income"
+          written into the protected classes throughout, so the record here is
+          the entire 22-page chapter rather than one amending section.  The
+          housing provision is § 503.07, and § 503.08 carries a
+          voucher-specific rule on income thresholds.  Recognized from the
+          city's scan, which has no text layer at all.
+        acquire:
+          method: document
+          url: https://www.reynoldsburg.gov/DocumentCenter/View/1450/Ordinance-27-2021-PDF
+          publisher: City of Reynoldsburg
+          ocr:
+            dpi: 300
+          extract:
+            start: ORDINANCE NO. 27-2021
+
+  - slug: richmond-heights
+    name: Richmond Heights
+    county: Cuyahoga
+    document_title: Richmond Heights Codified Ordinances
+    code_short_name: Richmond Heights Codified Ordinances
+    codifier: american-legal
+    codifier_url: https://codelibrary.amlegal.com/codes/richmondhts/latest/overview
+    courts:
+      - name: Lyndhurst Municipal Court
+        role: eviction
+    targets:
+      - key: source-of-income
+        topic: source-of-income
+        priority: 2
+        chapter: "749"
+        citation: Richmond Heights Codified Ordinances Ch. 749
+        label: Housing delivery system — fair housing
+        code_path: ["Part Seven — Business Regulation Code", "Chapter 749 — Housing Delivery System"]
+        act_file_number: Ord. 91-2006
+        enacted_date: '2006-11-14'
+        related_statutes: ["4112.02"]
+        treatise_chunks: ["0616-6-source-of-income-protection-01"]
+        source_type: codifier
+        codifier_url: https://codelibrary.amlegal.com/codes/richmondhts/latest/overview
+        notes: >-
+          Held for the negative as much as the positive.  Richmond Heights has a
+          full local fair-housing chapter -- protected classes, a Fair Housing
+          Review Board, complaints, conciliation, injunctive relief, and a
+          pattern-or-practice provision -- but source of income is NOT among the
+          protected classes it names.  A voucher holder in Richmond Heights
+          cannot use this chapter the way one in Cleveland Heights or Toledo can.
+          Do not read it as a source-of-income ordinance.
+        acquire:
+          method: document
+          url: https://richmondheightsohio.org/DocumentCenter/View/4031/0142-2023?bidId=
+          publisher: City of Richmond Heights
+          source_type: codifier
+          extract:
+            start: CHAPTER 749 Housing Delivery System
+            end: CHAPTER 757 Picnics and Clambakes
+      - key: security-deposit
+        topic: security-deposit
+        priority: 2
+        chapter: "761"
+        citation: Richmond Heights Codified Ordinances Ch. 761
+        label: Landlord tenant relations — security deposits
+        code_path: ["Part Seven — Business Regulation Code", "Chapter 761 — Landlord Tenant Relations"]
+        act_file_number: Ord. 112-74
+        enacted_date: '1974-12-10'
+        related_statutes: ["5321.16", "5321.19"]
+        source_type: codifier
+        codifier_url: https://codelibrary.amlegal.com/codes/richmondhts/latest/overview
+        notes: >-
+          Predates R.C. Chapter 5321's security-deposit provisions by a year, so
+          read it against R.C. 5321.16 and the preemption question in
+          R.C. 5321.19 before relying on any difference.  It requires return
+          within thirty days, holds the deposit in trust as the tenant's money
+          and bars commingling, requires a signed condition statement at the
+          start of a tenancy and on renewal, requires the landlord to give the
+          tenant a copy of these provisions, and makes them non-waivable.
+        acquire:
+          method: document
+          url: https://richmondheightsohio.org/DocumentCenter/View/4031/0142-2023?bidId=
+          publisher: City of Richmond Heights
+          source_type: codifier
+          extract:
+            start: CHAPTER 761 Landlord Tenant Relations
+            end: CHAPTER 763
+      - key: rental-registration
+        topic: rental-registration
+        priority: 1
+        chapter: "1306"
+        citation: Richmond Heights Codified Ordinances Ch. 1306
+        label: Certificate of authorized occupancy
+        code_path: ["Part Thirteen — Building Code", "Chapter 1306 — Certificate of Authorized Occupancy"]
+        related_statutes: ["5321.04", "5321.19"]
+        source_type: codifier
+        codifier_url: https://codelibrary.amlegal.com/codes/richmondhts/latest/overview
+        notes: >-
+          The occupancy-certificate route rather than a rental register:
+          application, inspection and issuance, fees, revocation, posting,
+          new or remodelled buildings, and separate certificates on a change of
+          ownership, use or occupancy or on sale of a dwelling structure.  What
+          a missing or revoked certificate does to a pending eviction is not
+          stated in the chapter and is not asserted here.
+        acquire:
+          method: document
+          url: https://richmondheightsohio.org/DocumentCenter/View/4031/0142-2023?bidId=
+          publisher: City of Richmond Heights
+          source_type: codifier
+          extract:
+            start: CHAPTER 1306 Certificate of Authorized Occupancy
+            end: CHAPTER 1307 Condominiums
+      - key: housing-code
+        topic: housing-code
+        priority: 1
+        chapter: "1309"
+        citation: Richmond Heights Codified Ordinances Ch. 1309
+        label: Property maintenance code
+        code_path: ["Part Thirteen — Building Code", "Chapter 1309 — Property Maintenance Code"]
+        act_file_number: Ord. 27-2007
+        enacted_date: '2007-05-08'
+        related_statutes: ["5321.04", "5321.07", "5321.19"]
+        source_type: codifier
+        codifier_url: https://codelibrary.amlegal.com/codes/richmondhts/latest/overview
+        notes: >-
+          Adopts the International Property Maintenance Code by reference with
+          local amendments, so the chapter held here is the amendments and the
+          administration, not the model code itself -- the standards a
+          habitability argument turns on are in the IPMC, and § 1309.02 says the
+          City's filed copy is the one to read.  Where the two conflict,
+          § 1309.01 makes Chapter 1309 control.
+        acquire:
+          method: document
+          url: https://richmondheightsohio.org/DocumentCenter/View/4031/0142-2023?bidId=
+          publisher: City of Richmond Heights
+          source_type: codifier
+          extract:
+            start: CHAPTER 1309 Property Maintenance Code
+            end: CHAPTER 1313 Fences
+      - key: pay-to-stay
+        topic: pay-to-stay
+        priority: 1
+        chapter: "763"
+        citation: Richmond Heights Codified Ordinances Ch. 763
+        label: Pay to stay
+        code_path: ["Part Seven — Business Regulation Code", "Chapter 763 — Pay to Stay"]
+        act_file_number: Ord. 81-2023
+        enacted_date: '2023-06-27'
+        related_statutes: ["1923.02", "1923.061", "5321.19"]
+        treatise_chunks: ["0609-2-pay-to-stay-defense-in-eviction-actions-01"]
+        source_type: codifier
+        codifier_url: https://codelibrary.amlegal.com/codes/richmondhts/latest/richmondhts_oh/0-0-0-44592
+        verification_urls:
+          - https://codelibrary.amlegal.com/codes/richmondhts/latest/richmondhts_oh/0-0-0-44592
+        notes: >-
+          Cut from the City's own 342-page codified-ordinances PDF, so this is
+          the chapter as codified rather than the enacting act.  The chapter is
+          affirmative-defence only: unlike Cleveland Heights or Lakewood it never
+          directs the landlord to accept a tender, and it provides for no
+          dismissal.  Two provisions are unusual and worth reading closely.
+          § 763.01(b) writes emergency rental-assistance vouchers into the
+          definition of "tender", but only where the agency "guarantees the
+          payment of past due rent, reasonable late fees, and court costs" -- a
+          conditional award may fall outside it.  § 763.06 applies the
+          $25-or-5% late-fee cap only "to rental agreements entered into after
+          the effective date of this section", so it does not reach an existing
+          lease.
+        acquire:
+          method: document
+          url: https://richmondheightsohio.org/DocumentCenter/View/4031/0142-2023?bidId=
+          publisher: City of Richmond Heights
+          source_type: codifier
+          extract:
+            start: CHAPTER 763
+            end: CHAPTER 773
+
+  - slug: worthington
+    name: Worthington
+    county: Franklin
+    document_title: Worthington Codified Ordinances
+    code_short_name: Worthington Codified Ordinances
+    codifier: american-legal
+    codifier_url: https://codelibrary.amlegal.com/codes/worthington/latest/overview
+    courts:
+      - name: Franklin County Municipal Court
+        role: eviction
+    targets:
+      - key: pay-to-stay
+        topic: pay-to-stay
+        priority: 1
+        chapter: "727"
+        citation: Worthington Codified Ordinances Ch. 727
+        label: Pay to stay
+        code_path: ["Part Seven — Business Regulation Code", "Chapter 727 — Pay to Stay"]
+        citation_note: >-
+          The chapter is titled "Tenant's Right to Assert Tender of Rent as an
+          Affirmative Defense to Eviction", which is what it does; it is not a
+          pay-to-stay right in the Cleveland Heights sense.
+        act_file_number: Ord. 21-2023
+        enacted_date: '2023-10-02'
+        effective_date: '2023-10-26'
+        related_statutes: ["1923.02", "1923.061", "5321.19"]
+        treatise_chunks: ["0609-2-pay-to-stay-defense-in-eviction-actions-01"]
+        source_type: signed_ordinance
+        verification_urls:
+          - https://codelibrary.amlegal.com/codes/worthington/latest/worthington_oh/0-0-0-41574
+        notes: >-
+          The narrowest chapter in this corpus.  It creates an affirmative
+          defence and nothing else: no duty on the landlord to accept, no
+          dismissal, no late-fee cap, no frequency limit, and no post-judgment
+          window.  Tender by "an agency or individual on the tenant's behalf"
+          is expressly covered.  One internal mismatch to read carefully --
+          § 727.02(b) describes a tender of "all past due rent with reasonable
+          late fees" before judgment, but makes the defence one of "all past due
+          rent, reasonable late fees, and court costs"; the amounts named in the
+          tender and in the defence do not match.
+        acquire:
+          method: document
+          url: https://www.worthington.org/ArchiveCenter/ViewFile/Item/5654
+          publisher: City of Worthington
+          text_basis: enacted_act
+          extract:
+            start: ORDINANCE NO. 21-2023
+            end: SECTION 2.
+      - key: source-of-income
+        topic: source-of-income
+        priority: 2
+        chapter: "539"
+        citation: Worthington Codified Ordinances Ch. 539
+        label: Fair housing — source of income
+        code_path: ["Part Five — General Offenses Code", "Chapter 539 — Fair Housing"]
+        act_file_number: Ord. 32-2021
+        related_statutes: ["4112.02"]
+        treatise_chunks: ["0616-6-source-of-income-protection-01"]
+        source_type: signed_ordinance
+        acquire:
+          method: document
+          url: https://www.worthington.org/DocumentCenter/View/8499/32-2021---Source-of-Income-Discrimination-clean
+          publisher: City of Worthington
+          text_basis: enacted_act
+
+  - slug: euclid
+    name: Euclid
+    county: Cuyahoga
+    document_title: Euclid Code of Ordinances
+    code_short_name: Euclid Codified Ordinances
+    codifier: american-legal
+    codifier_url: https://codelibrary.amlegal.com/codes/euclid/latest/overview
+    courts:
+      - name: Euclid Municipal Court
+        role: eviction
+    targets:
+      - key: pay-to-stay
+        topic: pay-to-stay
+        priority: 1
+        chapter: "1765"
+        citation: Euclid Code of Ordinances Ch. 1765
+        label: Pay to stay
+        code_path: ["Part Seventeen — Building and Housing Code", "Chapter 1765 — Pay to Stay"]
+        act_file_number: Ord. 60-2021
+        enacted_date: '2021-05-03'
+        enacted_as: Ch. 1765, by Ord. 60-2021; made permanent by Ord. 125-2022
+        related_statutes: ["1923.02", "1923.061", "5321.19"]
+        treatise_chunks: ["0609-2-pay-to-stay-defense-in-eviction-actions-01"]
+        source_type: codifier
+        codifier_url: https://codelibrary.amlegal.com/codes/euclid/latest/euclid_oh/0-0-0-43494
+        verification_urls:
+          - https://codelibrary.amlegal.com/codes/euclid/latest/euclid_oh/0-0-0-43494
+          - https://www.cityofeuclid.gov/legislation
+          - https://cdn.euclidlibrary.org/cdn/esj/2021/june2021/june2021.pdf
+        notes: >-
+          This record used to hold Ord. 125-2022, retrieved from the City's
+          eGovLink portal by driving the page in a browser.  That act was the
+          wrong document: it only makes Chapter 1765 permanent, answering the
+          treatise's note that the chapter expired December 31, 2022, and
+          contains none of the operative text.  The chapter as codified is held
+          instead, and every section in it carries its own history to
+          Ord. 60-2021, passed May 3, 2021 -- the enacting act, which has still
+          not been located as a document.  Euclid's comparative section table
+          attributes §§ 1765.01 to 1765.08 to Ord. 60-2021 while the accessible
+          code rendering exposes no § 1765.08; that section is missing here
+          rather than reconstructed.  The browser route to Ord. 125-2022 is
+          recorded above and can be restored as a separate target if the
+          continuation act is ever needed on its own.
+        acquire:
+          method: transcription
+          file: _transcriptions/euclid-pay-to-stay.md
+          provided_by: Quinten Steenhuis
+          provided_on: '2026-08-31'
+          asserted_source: >-
+            American Legal Publishing rendering of Euclid Codified Ordinances
+            Ch. 1765
+          act_file_number: Ord. 60-2021
+          enacted_date: '2021-05-03'
+
+  - slug: newburgh-heights
+    name: Newburgh Heights
+    county: Cuyahoga
+    document_title: Codified Ordinances of Newburgh Heights
+    code_short_name: Newburgh Heights Codified Ordinances
+    codifier: american-legal
+    codifier_url: https://codelibrary.amlegal.com/codes/newburghhts/latest/overview
+    courts:
+      - name: Cleveland Municipal Court, Housing Division
+        role: eviction
+    targets:
+      - key: pay-to-stay
+        topic: pay-to-stay
+        priority: 1
+        chapter: "727"
+        citation: Codified Ordinances of Newburgh Heights Ch. 727 (repealed)
+        label: Pay to stay — repealed
+        code_path: ["Part Seven — Business Regulation Code", "Chapter 727 — Pay to Stay (repealed)"]
+        repeal_date: '2024-06-04'
+        related_statutes: ["1923.02", "1923.061", "5321.19"]
+        treatise_chunks: ["0609-2-pay-to-stay-defense-in-eviction-actions-01"]
+        notes: >-
+          This repeal post-dates the treatise, which still describes
+          Newburgh Heights as an ordinance where tender creates a right
+          rather than a discretionary defense. Any advice drawn from that
+          description is now wrong as to current law.
+        act_file_number: Ord. 2021-31
+        enacted_date: '2021-10-05'
+        acquire:
+          method: none_in_force
+          repeal_date: '2024-06-04'
+          repealed_by: Ord. 2024-27
+          reason: >-
+            Ord. 2021-31, passed October 5, 2021, enacted §§ 727.01-727.07 and
+            727.99; Ord. 2024-27, passed June 4, 2024, repealed the whole
+            chapter. No pay-to-stay protection is in force in Newburgh Heights.
+
+  - slug: chauncey
+    name: Chauncey
+    county: Athens
+    document_title: Village of Chauncey Ordinances
+    code_short_name: Chauncey Ordinances
+    codifier: unknown
+    courts:
+      - name: Athens County Municipal Court
+        role: eviction
+    targets:
+      - key: pay-to-stay
+        topic: pay-to-stay
+        priority: 1
+        citation: Village of Chauncey Ord. 2024-02 (expired)
+        label: Pay to stay — expired
+        code_path: ["Village of Chauncey", "Ordinance 2024-02 (expired)"]
+        act_file_number: Ord. 2024-02
+        repeal_date: '2025-03-31'
+        related_statutes: ["1923.02", "1923.061", "5321.19"]
+        notes: >-
+          COHHIO's list includes Chauncey, but the ordinance carried a
+          sunset that has passed. Treat Chauncey as having no pay-to-stay
+          ordinance in force unless a renewal is located.
+        source_type: signed_ordinance
+        verification_urls:
+          - https://img1.wsimg.com/blobby/go/d1a843b2-7240-4a83-ab52-db27fe40450b/downloads/d339f4dc-33db-4b26-a6f1-7e0753f6bc37/ORD%202024-02%20Pay%20To%20Stay.pdf?ver=1785430691541
+        acquire:
+          method: none_in_force
+          repeal_date: '2025-03-31'
+          reason: >-
+            Ord. 2024-02 carried a sunset and expired March 31, 2025; no renewal
+            was located. No pay-to-stay protection is in force in Chauncey.
+            The Village PDF of the expired ordinance is public and fetchable but
+            is a five-page image-only scan.
+
+# Declared but not yet detailed.  Every municipality COHHIO lists as having a
+# pay-to-stay policy now has a chapter citation above; this list is kept as the
+# place a newly identified municipality lands before one is established.
+declared_municipalities: []
