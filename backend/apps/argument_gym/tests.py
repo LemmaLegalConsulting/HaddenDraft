@@ -137,7 +137,7 @@ class IngestionTests(TestCase):
         self.assertTrue(any(unit["type"] == ingestion.ARGUMENT for unit in units))
 
 
-@override_settings(AI_DRAFTING_ENABLED=False)
+@override_settings(ARGUMENT_GYM_BACKGROUND_RUNS=False, AI_DRAFTING_ENABLED=False)
 class StandalonePipelineTests(TestCase):
     """A brief with no case record still gets a legal stress test."""
 
@@ -227,7 +227,7 @@ class StandalonePipelineTests(TestCase):
         self.assertTrue(second.comparison["recurring"])
 
 
-@override_settings(AI_DRAFTING_ENABLED=False)
+@override_settings(ARGUMENT_GYM_BACKGROUND_RUNS=False, AI_DRAFTING_ENABLED=False)
 class RecordAuditTests(TestCase):
     """Case materials are referenced, ranked, and excludable."""
 
@@ -286,7 +286,7 @@ class RecordAuditTests(TestCase):
         )
 
 
-@override_settings(AI_DRAFTING_ENABLED=False)
+@override_settings(ARGUMENT_GYM_BACKGROUND_RUNS=False, AI_DRAFTING_ENABLED=False)
 class ArtifactTests(TestCase):
     def setUp(self):
         self.user = User.objects.create_user("advocate", password="secret")
@@ -334,7 +334,7 @@ class ArtifactTests(TestCase):
         self.assertTrue(plan["copyOnly"])
 
 
-@override_settings(AI_DRAFTING_ENABLED=False, ENABLE_DEMO_MATTERS=True)
+@override_settings(ARGUMENT_GYM_BACKGROUND_RUNS=False, AI_DRAFTING_ENABLED=False, ENABLE_DEMO_MATTERS=True)
 class NativeDraftTests(TestCase):
     """Starting from Draft mode tests the document the editor is showing."""
 
@@ -422,7 +422,7 @@ class NativeDraftTests(TestCase):
         self.assertIn("defenses", run.snapshot["componentVersions"])
 
 
-@override_settings(AI_DRAFTING_ENABLED=False)
+@override_settings(ARGUMENT_GYM_BACKGROUND_RUNS=False, AI_DRAFTING_ENABLED=False)
 class AccessTests(TestCase):
     """A gym lookup is only ever as permissive as the case behind it."""
 
@@ -471,7 +471,7 @@ class AccessTests(TestCase):
         self.assertEqual(titles, ["Uploaded brief"])
 
 
-@override_settings(AI_DRAFTING_ENABLED=False)
+@override_settings(ARGUMENT_GYM_BACKGROUND_RUNS=False, AI_DRAFTING_ENABLED=False)
 class UploadApiTests(TestCase):
     def setUp(self):
         self.user = User.objects.create_user("advocate", password="secret")
@@ -603,7 +603,7 @@ class PromptRenderTests(TestCase):
         self.assertTrue(run.challenges.exists())
 
 
-@override_settings(AI_DRAFTING_ENABLED=False, ENABLE_DEMO_MATTERS=True)
+@override_settings(ARGUMENT_GYM_BACKGROUND_RUNS=False, AI_DRAFTING_ENABLED=False, ENABLE_DEMO_MATTERS=True)
 class SessionManagementTests(TestCase):
     """Past sessions stay reachable, and filterable by the case they belong to."""
 
@@ -684,7 +684,7 @@ class SessionManagementTests(TestCase):
         self.assertTrue(payload["latestRun"]["assessment"])
 
 
-@override_settings(AI_DRAFTING_ENABLED=False)
+@override_settings(ARGUMENT_GYM_BACKGROUND_RUNS=False, AI_DRAFTING_ENABLED=False)
 class JurisdictionTests(TestCase):
     """Jurisdiction is chosen by hand or detected, and never invented."""
 
@@ -774,7 +774,7 @@ class JurisdictionTests(TestCase):
         self.assertTrue(any(court["slug"] == "generic-ohio-trial-court" for court in payload["courts"]))
 
 
-@override_settings(AI_DRAFTING_ENABLED=False)
+@override_settings(ARGUMENT_GYM_BACKGROUND_RUNS=False, AI_DRAFTING_ENABLED=False)
 class RunComplianceTests(TestCase):
     """A run reports whether the paper meets the court's filing rules."""
 
@@ -854,7 +854,7 @@ class RunComplianceTests(TestCase):
         self.assertEqual(run.court_detection["mode"], "manual")
 
 
-@override_settings(AI_DRAFTING_ENABLED=False)
+@override_settings(ARGUMENT_GYM_BACKGROUND_RUNS=False, AI_DRAFTING_ENABLED=False)
 class AssessmentTests(TestCase):
     """The report opens with a judgment about the brief, in words rather than a score."""
 
@@ -895,7 +895,7 @@ class AssessmentTests(TestCase):
         self.assertTrue(_one_paragraph(" ".join(["word"] * 400)).endswith("..."))
 
 
-@override_settings(AI_DRAFTING_ENABLED=False)
+@override_settings(ARGUMENT_GYM_BACKGROUND_RUNS=False, AI_DRAFTING_ENABLED=False)
 class ExhibitUploadTests(TestCase):
     """A filing uploaded with its exhibits is split before anything reads it."""
 

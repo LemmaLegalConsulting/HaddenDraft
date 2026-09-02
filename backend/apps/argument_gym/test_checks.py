@@ -55,7 +55,7 @@ class CatalogTests(TestCase):
         self.assertIn("turned this check off", by_id["passive_voice"]["reason"])
 
 
-@override_settings(AI_DRAFTING_ENABLED=False)
+@override_settings(ARGUMENT_GYM_BACKGROUND_RUNS=False, AI_DRAFTING_ENABLED=False)
 class SelectionTests(TestCase):
     def setUp(self):
         self.user = User.objects.create_user("advocate", password="secret")
@@ -148,7 +148,7 @@ class SelectionTests(TestCase):
         self.assertTrue(run.rule_audit)
 
 
-@override_settings(AI_DRAFTING_ENABLED=False)
+@override_settings(ARGUMENT_GYM_BACKGROUND_RUNS=False, AI_DRAFTING_ENABLED=False)
 class DraftValidationCheckTests(TestCase):
     """The checks Draft mode already runs are visible here too."""
 
@@ -202,7 +202,7 @@ class DraftValidationCheckTests(TestCase):
             self.assertIn("severity", finding)
 
 
-@override_settings(AI_DRAFTING_ENABLED=False)
+@override_settings(ARGUMENT_GYM_BACKGROUND_RUNS=False, AI_DRAFTING_ENABLED=False)
 class ChecklistApiTests(TestCase):
     def setUp(self):
         self.user = User.objects.create_user("advocate", password="secret")

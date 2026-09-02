@@ -253,6 +253,13 @@ OPENAI_BASE_URL = os.environ.get("OPENAI_BASE_URL", "")
 OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY", "")
 OPENAI_MODEL = os.environ.get("OPENAI_MODEL") or os.environ.get("OPENAI_MISTRAL_MODEL", "gpt-5.4-mini")
 AI_DRAFTING_ENABLED = env_bool("AI_DRAFTING_ENABLED", bool(OPENAI_API_KEY))
+# An Argument Gym run is eight sequential model calls and several retrieval
+# rounds, which is far longer than a worker may hold a request. Runs execute
+# on a background thread and the client polls the run; tests turn this off to
+# keep assertions on a finished run.
+ARGUMENT_GYM_BACKGROUND_RUNS = env_bool("ARGUMENT_GYM_BACKGROUND_RUNS", True)
+# A run whose worker died leaves a row claiming to be running forever.
+ARGUMENT_GYM_RUN_TIMEOUT_SECONDS = int(os.environ.get("ARGUMENT_GYM_RUN_TIMEOUT_SECONDS", "1800"))
 CASE_ACTION_MODEL = os.environ.get("CASE_ACTION_MODEL", OPENAI_MODEL)
 PROMPT_CATALOG_DIR = Path(os.environ.get("PROMPT_CATALOG_DIR", REPO_DIR / "prompts"))
 CONTENT_LIBRARY_DIR = Path(os.environ.get("CONTENT_LIBRARY_DIR", REPO_DIR / "content"))
