@@ -543,3 +543,14 @@ export function caseOptions(cases = []) {
 export function matterFilterLabel(matter = {}) {
   return String(matter.name || "").trim() || String(matter.id || "").trim() || "Untitled case";
 }
+
+
+// Which of the panel's four states to draw. A run exists the moment it is
+// started, so "there is a run" is not the same as "there are results": drawing
+// the results early showed "this run raised no challenges" over a run that had
+// not looked for any yet.
+export function runView(run) {
+  if (!run) return "setup";
+  if (run.status === "failed") return "failed";
+  return isRunFinished(run) ? "results" : "running";
+}

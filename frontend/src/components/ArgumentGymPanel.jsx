@@ -63,6 +63,7 @@ import {
   runActionsDisabled,
   runProgressFraction,
   runProgressLabel,
+  runView,
   sessionStatus,
   sessionSubtitle,
   sortSessions,
@@ -74,6 +75,44 @@ import {
   updatePlanItem,
   usesMunicipality,
 } from "./argumentGym.js";
+
+function RunProgress({ run }) {
+  return (
+    <section className="gym-progress" role="status" aria-live="polite">
+      <Loader2 className="spin" size={18} />
+      <div>
+        <strong>{runProgressLabel(run)}</strong>
+        <p className="muted">
+          A full pass takes a few minutes. You can leave this open, or come back to it from Open session — the run
+          keeps going on the server.
+        </p>
+        <div className="gym-progress-track">
+          <div className="gym-progress-bar" style={{ width: `${Math.round(runProgressFraction(run) * 100)}%` }} />
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function RunFailed({ run, busy, onRetry, onBack }) {
+  return (
+    <section className="gym-run-failed">
+      <h4>
+        <AlertTriangle size={18} /> This run did not finish
+      </h4>
+      <p>{run.error || "The run failed before it produced any challenges."}</p>
+      <p className="muted">Nothing was written to your document.</p>
+      <div className="button-row compact">
+        <button className="btn btn-primary" type="button" disabled={busy} onClick={onRetry}>
+          {busy ? <Loader2 className="spin" size={16} /> : <Swords size={16} />} Try again
+        </button>
+        <button className="btn btn-outline-secondary" type="button" onClick={onBack}>
+          Back to setup
+        </button>
+      </div>
+    </section>
+  );
+}
 
 function SessionBrowser({ open, sessions, matters, matterId, onMatterChange, query, onQueryChange, activeId, onOpen, onNew, onClose, busy }) {
   const dialogRef = useRef(null);
@@ -1088,10 +1127,7 @@ export function ArgumentGymPanel({ matter = null, cases = [], focusRun = null, o
         continue;
       }
       setRun(latest);
-      if (isRunFinished(latest)) {
-        if (latest.status === "failed") setError(latest.error || "The run failed.");
-        return latest;
-      }
+      if (isRunFinished(latest)) return latest;
     }
     setError("This run is taking longer than expected. It may still finish — reopen the session to check.");
     return null;
@@ -1402,6 +1438,8 @@ export function ArgumentGymPanel({ matter = null, cases = [], focusRun = null, o
   // A prep sheet built from half a run is worse than no prep sheet.
   const actionsDisabled = runActionsDisabled({ run, busy });
   const filters = availableFilters(challenges);
+  // A run exists the moment it starts; results are a different thing.
+  const view = runView(run);
 
   return (
     <section className="panel gym-panel">
@@ -1428,24 +1466,10 @@ export function ArgumentGymPanel({ matter = null, cases = [], focusRun = null, o
 
       {error && <div className="alert alert-danger">{error}</div>}
       {notice && <div className="alert alert-info">{notice}</div>}
-      {run && !isRunFinished(run) && (
-        <div className="gym-progress" role="status" aria-live="polite">
-          <Loader2 className="spin" size={16} />
-          <div>
-            <strong>{runProgressLabel(run)}</strong>
-            <p className="muted">
-              A full pass takes a few minutes. You can leave this open; the run keeps going on the server.
-            </p>
-            <div className="gym-progress-track">
-              <div className="gym-progress-bar" style={{ width: `${Math.round(runProgressFraction(run) * 100)}%` }} />
-            </div>
-          </div>
-        </div>
-      )}
 
       <div className="gym-main">
 
-      {!run && (
+      {view === "setup" && (
         <div className="gym-setup">
           <section>
             <h4>1. Brief under test</h4>
@@ -1570,7 +1594,21 @@ export function ArgumentGymPanel({ matter = null, cases = [], focusRun = null, o
         </div>
       )}
 
-      {run && (
+      {view === "running" && <RunProgress run={run} />}
+
+      {view === "failed" && (
+        <RunFailed
+          run={run}
+          busy={busy}
+          onRetry={startRun}
+          onBack={() => {
+            setRun(null);
+            setError("");
+          }}
+        />
+      )}
+
+      {view === "results" && (
         <>
           {run.assessment && (
             <section className="gym-assessment">

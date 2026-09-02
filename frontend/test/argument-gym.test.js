@@ -14,6 +14,7 @@ import {
   isRunFinished,
   runProgressFraction,
   runProgressLabel,
+  runView,
   checkStatusSummary,
   checklistItemsFromText,
   checklistItemsToText,
@@ -477,4 +478,15 @@ test("a case is named by its client, not only by its docket number", () => {
   assert.deepEqual(caseOptions([{ id: "LS-1", client: "Jane Tenant", caseNumber: "26-0123" }]), [
     { id: "LS-1", label: "Jane Tenant — 26-0123" },
   ]);
+});
+
+
+test("results are only drawn once there are results", () => {
+  assert.equal(runView(null), "setup");
+  // A run exists the instant it is started. Drawing results here reported
+  // "this run raised no challenges" over a run that had not looked yet.
+  assert.equal(runView({ status: "pending", challenges: [] }), "running");
+  assert.equal(runView({ status: "running", challenges: [] }), "running");
+  assert.equal(runView({ status: "complete", challenges: [] }), "results");
+  assert.equal(runView({ status: "failed", error: "no readable text" }), "failed");
 });

@@ -5326,3 +5326,29 @@ button:disabled {
 .gym-session-list {
   max-height: min(60vh, 460px);
 }
+
+/* A run that failed says so where its results would have been, rather than
+   letting an empty results list read as "no challenges found". */
+.gym-run-failed {
+  background: #fdeceb;
+  border-radius: 8px;
+  display: grid;
+  gap: var(--space-2);
+  padding: var(--space-4);
+}
+
+.gym-run-failed h4 {
+  align-items: center;
+  display: flex;
+  gap: 8px;
+  margin: 0;
+}
+
+.gym-run-failed p {
+  margin: 0;
+}
+
+.gym-progress {
+  align-items: flex-start;
+  padding: var(--space-4);
+}
