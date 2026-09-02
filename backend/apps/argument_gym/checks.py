@@ -49,7 +49,7 @@ class CheckDefinition:
 CHECK_CATALOG = (
     CheckDefinition(
         id="adversarial",
-        label="Opponent, judge, and coach",
+        label="Opposing counsel, a judge, and a coach",
         description=(
             "The core of the gym: opposing counsel makes the strongest arguments available "
             "against the brief, a judge weighs them, and a coach proposes answers."
@@ -59,7 +59,7 @@ CHECK_CATALOG = (
     ),
     CheckDefinition(
         id="record_audit",
-        label="Brief against the case record",
+        label="Check the brief against the case record",
         description="Whether the case materials actually establish what the brief asserts.",
         kind=MODEL,
         category="argument",
@@ -67,7 +67,7 @@ CHECK_CATALOG = (
     ),
     CheckDefinition(
         id="rule_elements",
-        label="Elements of the rules the brief invoked",
+        label="Audit the elements of the rules invoked",
         description=(
             "Detects the rules the brief cites or invokes by name, then audits each element "
             "of those rules: is it pleaded, and is it supported."
@@ -77,10 +77,11 @@ CHECK_CATALOG = (
     ),
     CheckDefinition(
         id="custom_checklist",
-        label="Your own checklist",
+        label="Custom checklist",
         description=(
-            "Applies a checklist you wrote. An item may look things up -- authority, the case "
-            "record, passages of the brief -- rather than answering from the brief alone."
+            "Applies review questions you wrote. An item can look things up -- authority, the "
+            "case record, passages of the brief -- rather than answering from the brief alone. "
+            "Attach a checklist for this to run."
         ),
         kind=MODEL,
         category="argument",
@@ -127,7 +128,7 @@ CHECK_CATALOG = (
     ),
     CheckDefinition(
         id="confused_words",
-        label="Commonly misspelled and confused words",
+        label="Misspelled and easily confused words",
         description=(
             "Not a dictionary spell check, on purpose: a general dictionary flags half of every "
             "case name. This looks for the words legal writing actually gets wrong, and for real "
