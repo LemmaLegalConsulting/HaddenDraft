@@ -1,20 +1,16 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   AlertTriangle,
-  BookOpen,
   Check,
   ClipboardCopy,
   FileText,
   FolderOpen,
   Gavel,
-  HelpCircle,
   Landmark,
   ListChecks,
   Loader2,
   Plus,
   Printer,
-  Ruler,
-  Scale,
   Search,
   Swords,
   Upload,
@@ -24,56 +20,91 @@ import {
 import { api } from "../api/client.js";
 import { useModalDismiss } from "../hooks/useModalDismiss.js";
 import {
-  CASE_CONTEXT_CHOICES,
   COURT_RULE_MODES,
   JURISDICTION_MODES,
+  RUN_POLL_MS,
+  RUN_POLL_TIMEOUT_MS,
+  auditBadges,
+  availableFilters,
   canStartRun,
   caseOptions,
   challengeSummary,
-  checkStatusSummary,
-  checklistItemsFromText,
-  checklistItemsToText,
-  checklistSummary,
-  checksByStatus,
+  clamp,
   cleanJurisdictionDetail,
   complianceGroups,
   complianceSummary,
   copyTextForChallenge,
   courtSummary,
-  RUN_POLL_MS,
-  RUN_POLL_TIMEOUT_MS,
-  availableFilters,
-  defaultFilter,
-  emptyStateMessage,
   coverageSummary,
+  defaultFilter,
   effectiveSelection,
   elementState,
+  emptyStateMessage,
+  evidenceCount,
   exhibitSummary,
-  findingCounts,
   findingsByCheck,
-  groupChecks,
   isRunFinished,
-  matterFilterOptions,
   materialsByOrigin,
+  matterFilterOptions,
   rankedChallenges,
   replaceChallenge,
   rerunSummary,
+  responseBullets,
   revisionTargets,
-  ruleAuditSummary,
   runActionsDisabled,
   runProgressFraction,
   runProgressLabel,
+  runView,
   sessionStatus,
   sessionSubtitle,
-  sortSessions,
+  severityTone,
   shortTitle,
+  skippedChecksSummary,
+  sortSessions,
   targetLabel,
   toggleCheck,
   truncationNotice,
-  unverifiedRules,
   updatePlanItem,
   usesMunicipality,
 } from "./argumentGym.js";
+
+function RunProgress({ run }) {
+  return (
+    <section className="gym-progress" role="status" aria-live="polite">
+      <Loader2 className="spin" size={18} />
+      <div>
+        <strong>{runProgressLabel(run)}</strong>
+        <p className="muted">
+          A full pass takes a few minutes. You can leave this open, or come back to it from Open session — the run
+          keeps going on the server.
+        </p>
+        <div className="gym-progress-track">
+          <div className="gym-progress-bar" style={{ width: `${Math.round(runProgressFraction(run) * 100)}%` }} />
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function RunFailed({ run, busy, onRetry, onBack }) {
+  return (
+    <section className="gym-run-failed">
+      <h4>
+        <AlertTriangle size={18} /> This run did not finish
+      </h4>
+      <p>{run.error || "The run failed before it produced any challenges."}</p>
+      <p className="muted">Nothing was written to your document.</p>
+      <div className="button-row compact">
+        <button className="btn btn-primary" type="button" disabled={busy} onClick={onRetry}>
+          {busy ? <Loader2 className="spin" size={16} /> : <Swords size={16} />} Try again
+        </button>
+        <button className="btn btn-outline-secondary" type="button" onClick={onBack}>
+          Back to setup
+        </button>
+      </div>
+    </section>
+  );
+}
 
 function SessionBrowser({ open, sessions, matters, matterId, onMatterChange, query, onQueryChange, activeId, onOpen, onNew, onClose, busy }) {
   const dialogRef = useRef(null);
@@ -262,368 +293,144 @@ function JurisdictionControls({ workspace, courts, courtTypes, detection, busy, 
   );
 }
 
-function CompliancePanel({ compliance }) {
-  const groups = complianceGroups(compliance);
-  const profile = compliance?.profile;
+function FindingLines({ findings }) {
+  if (!findings.length) return <p className="muted">Nothing found.</p>;
   return (
-    <section className="gym-compliance">
-      <h4>
-        <Ruler size={16} /> Filing format
-      </h4>
-      <p className="muted">
-        {courtSummary({ court: profile ? { ...profile, label: profile.name } : null, detection: compliance?.detection })}
-      </p>
-      <p className={groups.errors.length ? "gym-compliance-bad" : "muted"}>{complianceSummary(compliance)}</p>
-      {groups.total > 0 && (
-        <ul className="gym-source-list">
-          {[...groups.errors, ...groups.warnings, ...groups.unmeasured].map((finding) => (
-            <li key={finding.findingId} className={`gym-finding gym-finding-${finding.severity}`}>
-              <strong>{finding.target}</strong>
-              <p className="gym-source-snippet">{finding.message}</p>
-            </li>
-          ))}
-        </ul>
-      )}
-    </section>
+    <ul className="gym-finding-lines">
+      {findings.map((finding) => (
+        <li key={finding.findingId} className={`tone-${finding.severity}`}>
+          <span className="gym-finding-target">{finding.target}</span>
+          {finding.message}
+        </li>
+      ))}
+    </ul>
   );
 }
 
-// Explanation an advocate needs once and then never again. A longer label plus
-// this on demand beats a paragraph under every row on every repeat use.
-function Hint({ text }) {
-  if (!text) return null;
-  return (
-    <button type="button" className="gym-hint" title={text} aria-label={text} onClick={(event) => event.preventDefault()}>
-      <HelpCircle size={14} />
-    </button>
-  );
-}
-
-function PassivePhraseModal({ open, phrases, busy, onClose, onSave }) {
-  const dialogRef = useRef(null);
-  const [text, setText] = useState((phrases || []).join("\n"));
-  useModalDismiss(dialogRef, onClose, { active: open });
-  useEffect(() => setText((phrases || []).join("\n")), [open, phrases]);
-  if (!open) return null;
-  return (
-    <div className="modal-backdrop" role="presentation">
-      <div className="editor-modal" ref={dialogRef} role="dialog" aria-modal="true" aria-label="Passive phrases">
-        <div className="modal-heading">
-          <h4>Passive phrases to allow</h4>
-          <button className="btn btn-outline-secondary icon-button" type="button" onClick={onClose} aria-label="Close">
-            <X size={16} />
-          </button>
-        </div>
-        <p className="muted">
-          One per line. The passive-voice check stays quiet about these — "service was perfected" is the register a
-          court expects, not a mistake.
-        </p>
-        <textarea className="form-control" rows={8} value={text} onChange={(event) => setText(event.target.value)} />
-        <div className="button-row step-actions">
-          <button className="btn btn-outline-secondary" type="button" onClick={onClose}>Cancel</button>
-          <button
-            className="btn btn-primary"
-            type="button"
-            disabled={busy}
-            onClick={() => onSave(text.split("\n").map((line) => line.trim()).filter(Boolean))}
-          >
-            {busy ? <Loader2 className="spin" size={16} /> : null} Save
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function ChecklistModal({ open, checklists, activeId, busy, onClose, onSelect, onSave, onDelete }) {
-  const dialogRef = useRef(null);
-  useModalDismiss(dialogRef, onClose, { active: open });
-  if (!open) return null;
-  return (
-    <div className="modal-backdrop" role="presentation">
-      <div className="editor-modal" ref={dialogRef} role="dialog" aria-modal="true" aria-label="Checklists">
-        <div className="modal-heading">
-          <h4>Custom checklists</h4>
-          <button className="btn btn-outline-secondary icon-button" type="button" onClick={onClose} aria-label="Close">
-            <X size={16} />
-          </button>
-        </div>
-        <ChecklistEditor
-          checklists={checklists}
-          activeId={activeId}
-          busy={busy}
-          onSelect={onSelect}
-          onSave={onSave}
-          onDelete={onDelete}
-        />
-      </div>
-    </div>
-  );
-}
-
-function CheckSelector({ catalog, selected, checklists, checklistId, busy, onToggle, onChecklist, onManageChecklists, onManagePassive }) {
-  return (
-    <div className="gym-checks">
-      <div className="gym-checks-body">
-        <p className="muted">Pick which tests you want to run.</p>
-        {groupChecks(catalog).map((group) => (
-          <fieldset key={group.id} className="gym-check-group">
-            <legend>{group.label}</legend>
-            {group.checks.map((check) => (
-              <label key={check.id} className="gym-check">
-                <input
-                  type="checkbox"
-                  checked={selected.includes(check.id)}
-                  disabled={busy}
-                  onChange={() => onToggle(check.id)}
-                />
-                <span className="gym-check-line">
-                  <strong>{check.label}</strong>
-                  {check.kind === "model" && <span className="gym-check-kind">AI</span>}
-                  <Hint text={check.description} />
-                  {check.id === "custom_checklist" && (
-                    <button
-                      className="btn btn-outline-secondary btn-inline"
-                      type="button"
-                      onClick={(event) => {
-                        event.preventDefault();
-                        onManageChecklists();
-                      }}
-                    >
-                      Manage checklists
-                    </button>
-                  )}
-                  {check.id === "passive_voice" && (
-                    <button
-                      className="btn btn-outline-secondary btn-inline"
-                      type="button"
-                      onClick={(event) => {
-                        event.preventDefault();
-                        onManagePassive();
-                      }}
-                    >
-                      Manage passive phrases
-                    </button>
-                  )}
-                </span>
-              </label>
-            ))}
-          </fieldset>
-        ))}
-
-        {selected.includes("custom_checklist") && !checklistId && (
-          <p className="gym-needs-attention">
-            Attach a checklist below, or this check will not run.
-          </p>
-        )}
-        {selected.includes("custom_checklist") && (
-          <label className="form-label gym-inline-field">
-            Checklist to apply
-            <select className="form-select" value={checklistId || ""} onChange={(event) => onChecklist(event.target.value)}>
-              <option value="">Choose a checklist…</option>
-              {checklists.map((checklist) => (
-                <option key={checklist.id} value={checklist.id}>
-                  {checklist.title} ({checklist.items.length} item{checklist.items.length === 1 ? "" : "s"})
-                </option>
-              ))}
-            </select>
-          </label>
-        )}
-      </div>
-    </div>
-  );
-}
-
-function ChecklistEditor({ checklists, activeId, busy, onSave, onDelete, onSelect }) {
-  const active = checklists.find((item) => String(item.id) === String(activeId)) || null;
-  const [title, setTitle] = useState(active?.title || "");
-  const [text, setText] = useState(checklistItemsToText(active?.items || []));
-
-  useEffect(() => {
-    setTitle(active?.title || "");
-    setText(checklistItemsToText(active?.items || []));
-  }, [active?.id]);
+function AuditSummary({ run, onOpenArtifact, actionsDisabled }) {
+  const badges = auditBadges(run);
+  const skipped = skippedChecksSummary(run.checksRun || []);
+  const checkGroups = findingsByCheck(run.checkResults || {}, run.checksRun || []);
+  const compliance = complianceGroups(run.compliance || {});
+  const rules = run.ruleAudit || [];
+  // Findings first; the rules that were satisfied are a list, not a report.
+  const unmetRules = rules.filter((audit) => audit.unmetCount > 0);
+  const metRules = rules.filter((audit) => !audit.unmetCount);
+  const checklist = run.checklistResults?.results || [];
 
   return (
-    <div className="gym-checklist-editor">
-      <div className="gym-checks-body">
-        <p className="muted">
-          One review question per line. An item can look things up — the case record, an authority, a passage of the
-          brief — and the run reports what it read before answering.
-        </p>
-        <label className="form-label">
-          Checklist
-          <select className="form-select" value={activeId || ""} onChange={(event) => onSelect(event.target.value)}>
-            <option value="">New checklist…</option>
-            {checklists.map((checklist) => (
-              <option key={checklist.id} value={checklist.id}>
-                {checklist.title}
-              </option>
-            ))}
-          </select>
-        </label>
-        <label className="form-label">
-          Name
-          <input className="form-control" value={title} onChange={(event) => setTitle(event.target.value)} />
-        </label>
-        <label className="form-label">
-          Items
-          <textarea
-            className="form-control"
-            rows={6}
-            placeholder={"Every date in the statement of facts appears in a document in the file.\nEach authority cited is still good law."}
-            value={text}
-            onChange={(event) => setText(event.target.value)}
-          />
-        </label>
-        <div className="button-row compact">
-          <button
-            className="btn btn-primary"
-            type="button"
-            disabled={busy || !title.trim()}
-            onClick={() => onSave({ id: active?.id, title: title.trim(), items: checklistItemsFromText(text) })}
-          >
-            {busy ? <Loader2 className="spin" size={16} /> : <ListChecks size={16} />} {active ? "Save" : "Create"}
-          </button>
-          {active && (
-            <button className="btn btn-outline-secondary" type="button" disabled={busy} onClick={() => onDelete(active.id)}>
-              <X size={16} /> Delete
-            </button>
-          )}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function CheckFindings({ run }) {
-  const groups = findingsByCheck(run.checkResults, run.checksRun);
-  const counts = findingCounts(groups);
-  const unavailable = checksByStatus(run.checksRun, "unavailable");
-  const off = checksByStatus(run.checksRun, "off");
-  if (!groups.length && !unavailable.length && !off.length) return null;
-  return (
-    <section className="gym-check-findings">
-      <h4>
-        <ListChecks size={16} /> Checks
-      </h4>
-      <p className="muted">{checkStatusSummary(run.checksRun)}</p>
-      {(counts.errors > 0 || counts.warnings > 0) && (
-        <p className={counts.errors ? "gym-compliance-bad" : "muted"}>
-          {counts.errors} error{counts.errors === 1 ? "" : "s"}, {counts.warnings} warning
-          {counts.warnings === 1 ? "" : "s"}, {counts.infos} note{counts.infos === 1 ? "" : "s"}.
-        </p>
-      )}
-      {groups.map((group) => (
-        <details key={group.id} className="gym-check-result" open={group.errors.length > 0}>
-          <summary>
-            {group.label}
-            <span className="muted">
-              {group.findings.length === 0 ? " no findings" : ` ${group.findings.length} finding(s)`}
+    <aside className="gym-audit">
+      <h4>Audit</h4>
+      {badges.length === 0 && <p className="muted">No technical checks ran.</p>}
+      <ul className="gym-badges">
+        {badges.map((badge) => (
+          <li key={badge.id} className={`tone-${badge.tone}`}>
+            <span className="gym-badge-count">{badge.count}</span>
+            <span>
+              {badge.label}
+              {badge.note && <small>{badge.note}</small>}
             </span>
-          </summary>
-          {group.summary && <p className="muted">{group.summary}</p>}
-          {group.findings.length === 0 ? (
-            <p className="muted">This check ran and found nothing.</p>
-          ) : (
-            <ul className="gym-source-list">
-              {group.findings.map((finding) => (
-                <li key={finding.findingId} className={`gym-finding gym-finding-${finding.severity}`}>
-                  <strong>{finding.target}</strong>
-                  <p className="gym-source-snippet">{finding.message}</p>
-                  {finding.details?.excerpt && <blockquote className="gym-quote">{finding.details.excerpt}</blockquote>}
-                </li>
-              ))}
-            </ul>
-          )}
-        </details>
-      ))}
-      {unavailable.length > 0 && (
-        <div className="gym-check-unavailable">
-          <strong>Could not run — this is not a pass:</strong>
-          <ul>
-            {unavailable.map((entry) => (
-              <li key={entry.id}>
-                {entry.label}. {entry.reason}
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
-      {off.length > 0 && (
-        <p className="muted">Turned off for this session: {off.map((entry) => entry.label).join(", ")}.</p>
-      )}
-    </section>
-  );
-}
-
-function RuleAudit({ ruleAudit = [] }) {
-  if (!ruleAudit.length) return null;
-  const unverified = unverifiedRules(ruleAudit);
-  return (
-    <section className="gym-rule-audit">
-      <h4>
-        <Scale size={16} /> Rules the brief invoked
-      </h4>
-      <p className="muted">{ruleAuditSummary(ruleAudit)}</p>
-      {unverified.length > 0 && (
-        <p className="muted">
-          Element lists for {unverified.join(", ")} are unverified starting points. Read the rule before relying on a
-          clean result.
-        </p>
-      )}
-      {ruleAudit.map((audit) => (
-        <details key={audit.slug} className="gym-rule" open={audit.unmetCount > 0}>
-          <summary>
-            <strong>{audit.label}</strong>
-            <span className="muted"> {audit.verdict}</span>
-          </summary>
-          <p className="muted">
-            Invoked by {audit.invokedBy === "citation" ? "a citation" : "a phrase, without citing the rule"}: “
-            {audit.matched}”.
-          </p>
-          <ul className="gym-source-list">
-            {audit.elements.map((element) => (
-              <li key={element.id} className={element.unmet ? "gym-element-unmet" : "gym-element-met"}>
-                <strong>{element.label}</strong>
-                <span className="muted"> — {elementState(element)}</span>
-                {element.origin === "decision_table" && <span className="gym-check-kind">from decision table</span>}
-                {element.explanation && <p className="gym-source-snippet">{element.explanation}</p>}
-                {element.quote && <blockquote className="gym-quote">{element.quote}</blockquote>}
-              </li>
-            ))}
-          </ul>
-        </details>
-      ))}
-    </section>
-  );
-}
-
-function ChecklistResults({ results }) {
-  const items = results?.results || [];
-  if (!items.length) return null;
-  return (
-    <section className="gym-checklist-results">
-      <h4>
-        <ListChecks size={16} /> {results.title || "Your checklist"}
-      </h4>
-      <p className="muted">{checklistSummary(results)}</p>
-      <ul className="gym-source-list">
-        {items.map((item) => (
-          <li key={item.itemId} className={`gym-checklist-${item.outcome}`}>
-            <strong>{item.item}</strong>
-            <span className="muted"> — {item.outcome.replace("_", " ")}</span>
-            <p className="gym-source-snippet">{item.finding}</p>
-            {item.suggestion && <p className="gym-source-snippet">Suggested: {item.suggestion}</p>}
-            {item.lookups?.length > 0 && (
-              <p className="muted">
-                Looked up: {item.lookups.map((lookup) => `${lookup.tool.replace(/_/g, " ")} (${lookup.query})`).join("; ")}
-              </p>
-            )}
           </li>
         ))}
       </ul>
-    </section>
+
+      {unmetRules.length > 0 && (
+        <details className="gym-audit-detail">
+          <summary>Unmet elements</summary>
+          {unmetRules.map((audit) => (
+            <div key={audit.slug} className="gym-audit-rule">
+              <span className="gym-context-label">{audit.citation}</span>
+              <ul className="gym-finding-lines">
+                {audit.elements
+                  .filter((element) => element.unmet)
+                  .map((element) => (
+                    <li key={element.id} className="tone-warning">
+                      <span className="gym-finding-target">{element.label}</span>
+                      {elementState(element)}
+                    </li>
+                  ))}
+              </ul>
+            </div>
+          ))}
+        </details>
+      )}
+
+      {metRules.length > 0 && (
+        <details className="gym-audit-detail">
+          <summary>Rules carried ({metRules.length})</summary>
+          <ul className="gym-plain-list">
+            {metRules.map((audit) => (
+              <li key={audit.slug}>{audit.label}</li>
+            ))}
+          </ul>
+        </details>
+      )}
+
+      {compliance.checked && compliance.total > 0 && (
+        <details className="gym-audit-detail">
+          <summary>Filing format</summary>
+          <FindingLines findings={[...compliance.errors, ...compliance.warnings, ...compliance.unmeasured]} />
+        </details>
+      )}
+
+      {checkGroups.some((group) => group.findings.length > 0) && (
+        <details className="gym-audit-detail">
+          <summary>Document checks</summary>
+          {checkGroups
+            .filter((group) => group.findings.length > 0)
+            .map((group) => (
+              <div key={group.id} className="gym-audit-rule">
+                <span className="gym-context-label">{group.label}</span>
+                <FindingLines findings={group.findings} />
+              </div>
+            ))}
+        </details>
+      )}
+
+      {checklist.length > 0 && (
+        <details className="gym-audit-detail">
+          <summary>Your checklist</summary>
+          <ul className="gym-finding-lines">
+            {checklist.map((item) => (
+              <li key={item.itemId} className={item.outcome === "fail" ? "tone-warning" : ""}>
+                <span className="gym-finding-target">{item.item}</span>
+                {item.finding}
+              </li>
+            ))}
+          </ul>
+        </details>
+      )}
+
+      {skipped && (
+        <details className="gym-audit-detail gym-audit-skipped">
+          <summary>
+            Not run <span className="gym-badge-inline">{skipped.label}</span>
+          </summary>
+          <p className="muted">A check that did not run is not a pass.</p>
+          <ul className="gym-plain-list">
+            {skipped.unavailable.map((entry) => (
+              <li key={entry.id}>
+                {entry.label} — {entry.reason}
+              </li>
+            ))}
+            {skipped.off.map((entry) => (
+              <li key={entry.id} className="muted">
+                {entry.label} — off
+              </li>
+            ))}
+          </ul>
+        </details>
+      )}
+
+      <div className="gym-audit-actions">
+        <button className="btn-link" type="button" disabled={actionsDisabled} onClick={() => onOpenArtifact("prep_sheet")}>
+          Opposition prep sheet
+        </button>
+        <button className="btn-link" type="button" disabled={actionsDisabled} onClick={() => onOpenArtifact("report")}>
+          Stress-test report
+        </button>
+      </div>
+    </aside>
   );
 }
 
@@ -662,102 +469,148 @@ function RecordList({ sources = [] }) {
   );
 }
 
-function ChallengeCard({ challenge, busy, queued, onDisposition, onResearch, onQueueRevision, onCopy }) {
-  const target = targetLabel(challenge.target);
+function EvidenceModal({ challenge, onClose }) {
+  const dialogRef = useRef(null);
+  useModalDismiss(dialogRef, onClose, { active: Boolean(challenge) });
+  if (!challenge) return null;
   return (
-    <article className={`gym-challenge gym-severity-${challenge.severity} gym-${challenge.disposition}`}>
-      <header className="gym-challenge-header">
-        <span className="gym-category">{challenge.categoryLabel}</span>
-        <span className="gym-severity">{challenge.severity} severity</span>
-        <span className="muted">confidence: {challenge.confidence}</span>
-        {challenge.disposition !== "open" && <span className="gym-disposition">{challenge.disposition}</span>}
-        {challenge.recurring && (
-          <span className="gym-recurring" title="This challenge was raised in an earlier run too">
-            raised again{challenge.previousDisposition === "addressed" ? " after being marked addressed" : ""}
-          </span>
-        )}
-      </header>
-
-      <h4>{challenge.opponentArgument}</h4>
-      {target && <p className="gym-target">Targets {target}</p>}
-      {challenge.whyItMatters && (
-        <p className="gym-why">
-          <strong>Why it matters.</strong> {challenge.whyItMatters}
-        </p>
-      )}
-
-      <div className="gym-challenge-grid">
+    <div className="modal-backdrop" role="presentation">
+      <div className="editor-modal gym-evidence-modal" ref={dialogRef} role="dialog" aria-modal="true" aria-label="Evidence">
+        <div className="modal-heading">
+          <h4>Evidence</h4>
+          <button className="btn btn-outline-secondary icon-button" type="button" onClick={onClose} aria-label="Close">
+            <X size={16} />
+          </button>
+        </div>
         <section>
-          <h5>Legal support</h5>
+          <h5>Legal authority</h5>
           <SourceList sources={challenge.legalSources} emptyLabel="No retrieved authority backs this yet." />
         </section>
         <section>
-          <h5>Case-record support or conflict</h5>
+          <h5>Case record</h5>
           <RecordList sources={challenge.recordSources} />
         </section>
         <section>
-          <h5>What the brief currently says</h5>
-          {challenge.briefCurrentlySays ? (
-            <blockquote className="gym-quote">{challenge.briefCurrentlySays}</blockquote>
-          ) : (
-            <p className="muted">The brief does not address this point.</p>
-          )}
-        </section>
-        <section>
-          <h5>Judge assessment</h5>
-          <p>
-            {challenge.judgeVerdict && <span className="gym-verdict">{challenge.judgeVerdict}. </span>}
-            {challenge.judgeAssessment || "No assessment was recorded."}
-          </p>
+          <h5>Research coverage</h5>
+          <p className="muted">{coverageSummary(challenge.researchCoverage)}</p>
         </section>
       </div>
+    </div>
+  );
+}
 
-      {(challenge.suggestedResponse || challenge.recommendation) && (
-        <section className="gym-suggested">
-          <h5>Suggested response</h5>
-          {challenge.recommendation && <p>{challenge.recommendation}</p>}
-          {challenge.suggestedResponse && <blockquote className="gym-quote">{challenge.suggestedResponse}</blockquote>}
-        </section>
-      )}
+function ChallengeCard({ challenge, busy, queued, onDisposition, onResearch, onQueueRevision, onCopy, onEvidence }) {
+  const [expanded, setExpanded] = useState(false);
+  const target = targetLabel(challenge.target);
+  const evidence = evidenceCount(challenge);
+  const bullets = responseBullets(challenge.suggestedResponse || challenge.recommendation);
+  const verdict = clamp(challenge.judgeAssessment, 240);
+  const remaining = challenge.researchCoverage?.remainingVulnerability;
 
-      <p className="gym-coverage muted">{coverageSummary(challenge.researchCoverage)}</p>
-      {challenge.researchCoverage?.remainingVulnerability && (
-        <p className="gym-remaining">
-          <AlertTriangle size={14} /> Still exposed: {challenge.researchCoverage.remainingVulnerability}
+  return (
+    <article className={`gym-challenge tone-${severityTone(challenge)} gym-${challenge.disposition}`}>
+      <header className="gym-challenge-header">
+        <span className="gym-severity-dot" aria-hidden="true" />
+        <span className="gym-category">{challenge.categoryLabel}</span>
+        {target && <span className="gym-target">{target}</span>}
+        <span className="gym-severity-word">{challenge.severity}</span>
+        {challenge.disposition !== "open" && <span className="gym-disposition">{challenge.disposition}</span>}
+        {challenge.recurring && <span className="gym-recurring">raised again</span>}
+      </header>
+
+      <p className="gym-claim">{challenge.opponentArgument}</p>
+
+      {challenge.judgeAssessment && (
+        <p className="gym-verdict-line">
+          <span className="gym-verdict-label">{challenge.judgeVerdict || "assessment"}</span>
+          {verdict.text}
         </p>
       )}
 
-      <div className="button-row compact">
-        <button className="btn btn-outline-secondary" type="button" disabled={busy} onClick={() => onResearch(challenge)}>
-          {busy ? <Loader2 className="spin" size={16} /> : <Search size={16} />} Research further
+      {bullets.length > 0 && (
+        <div className="gym-fix">
+          <h5>Suggested fix</h5>
+          {bullets.length === 1 ? (
+            <p>{bullets[0]}</p>
+          ) : (
+            <ul>
+              {bullets.map((line) => (
+                <li key={line}>{line}</li>
+              ))}
+            </ul>
+          )}
+        </div>
+      )}
+
+      <div className="gym-card-more">
+        {evidence > 0 && (
+          <button className="btn-link" type="button" onClick={() => onEvidence(challenge)}>
+            Evidence ({evidence})
+          </button>
+        )}
+        <button className="btn-link" type="button" onClick={() => setExpanded((open) => !open)}>
+          {expanded ? "Less" : "Context"}
+        </button>
+        {remaining && <span className="gym-remaining">Still exposed: {remaining}</span>}
+      </div>
+
+      {expanded && (
+        <div className="gym-card-context">
+          {challenge.whyItMatters && (
+            <p>
+              <span className="gym-context-label">Why it matters</span>
+              {challenge.whyItMatters}
+            </p>
+          )}
+          {verdict.truncated && (
+            <p>
+              <span className="gym-context-label">Judge assessment</span>
+              {challenge.judgeAssessment}
+            </p>
+          )}
+          {challenge.briefCurrentlySays && (
+            <blockquote className="gym-quote">{challenge.briefCurrentlySays}</blockquote>
+          )}
+          {challenge.suggestedResponse && challenge.recommendation && (
+            <p>
+              <span className="gym-context-label">Coaching</span>
+              {challenge.recommendation}
+            </p>
+          )}
+        </div>
+      )}
+
+      <div className="gym-card-actions">
+        <button className="btn-quiet" type="button" disabled={busy} onClick={() => onResearch(challenge)}>
+          {busy ? <Loader2 className="spin" size={14} /> : <Search size={14} />} Research
         </button>
         {challenge.target?.blockKey && (
           <button
-            className={`btn ${queued ? "btn-primary" : "btn-outline-secondary"}`}
+            className={`btn-quiet${queued ? " active" : ""}`}
             type="button"
             onClick={() => onQueueRevision(challenge)}
           >
-            {queued ? <Check size={16} /> : <FileText size={16} />} {queued ? "In revision plan" : "Add to revision plan"}
+            {queued ? <Check size={14} /> : <FileText size={14} />} {queued ? "In plan" : "Add to plan"}
           </button>
         )}
-        <button className="btn btn-outline-secondary" type="button" onClick={() => onCopy(challenge)}>
-          <ClipboardCopy size={16} /> Copy suggested response
+        <button className="btn-quiet" type="button" onClick={() => onCopy(challenge)}>
+          <ClipboardCopy size={14} /> Copy
         </button>
         <button
-          className="btn btn-outline-secondary"
+          className="btn-quiet"
           type="button"
           disabled={busy}
           onClick={() => onDisposition(challenge, challenge.disposition === "addressed" ? "open" : "addressed")}
         >
-          <Check size={16} /> {challenge.disposition === "addressed" ? "Reopen" : "Mark addressed"}
+          <Check size={14} /> {challenge.disposition === "addressed" ? "Reopen" : "Addressed"}
         </button>
         <button
-          className="btn btn-outline-secondary"
+          className="btn-quiet"
           type="button"
           disabled={busy}
           onClick={() => onDisposition(challenge, challenge.disposition === "dismissed" ? "open" : "dismissed")}
         >
-          <X size={16} /> {challenge.disposition === "dismissed" ? "Undismiss" : "Dismiss"}
+          <X size={14} /> {challenge.disposition === "dismissed" ? "Undismiss" : "Dismiss"}
         </button>
       </div>
     </article>
@@ -1028,6 +881,7 @@ export function ArgumentGymPanel({ matter = null, cases = [], focusRun = null, o
   const [checklistModalOpen, setChecklistModalOpen] = useState(false);
   const [passiveModalOpen, setPassiveModalOpen] = useState(false);
   const [sessionsOpen, setSessionsOpen] = useState(false);
+  const [evidenceChallenge, setEvidenceChallenge] = useState(null);
 
   const loadSessions = useCallback(async ({ matterId = sessionMatterId, query = sessionQuery } = {}) => {
     try {
@@ -1088,10 +942,7 @@ export function ArgumentGymPanel({ matter = null, cases = [], focusRun = null, o
         continue;
       }
       setRun(latest);
-      if (isRunFinished(latest)) {
-        if (latest.status === "failed") setError(latest.error || "The run failed.");
-        return latest;
-      }
+      if (isRunFinished(latest)) return latest;
     }
     setError("This run is taking longer than expected. It may still finish — reopen the session to check.");
     return null;
@@ -1402,6 +1253,8 @@ export function ArgumentGymPanel({ matter = null, cases = [], focusRun = null, o
   // A prep sheet built from half a run is worse than no prep sheet.
   const actionsDisabled = runActionsDisabled({ run, busy });
   const filters = availableFilters(challenges);
+  // A run exists the moment it starts; results are a different thing.
+  const view = runView(run);
 
   return (
     <section className="panel gym-panel">
@@ -1428,24 +1281,10 @@ export function ArgumentGymPanel({ matter = null, cases = [], focusRun = null, o
 
       {error && <div className="alert alert-danger">{error}</div>}
       {notice && <div className="alert alert-info">{notice}</div>}
-      {run && !isRunFinished(run) && (
-        <div className="gym-progress" role="status" aria-live="polite">
-          <Loader2 className="spin" size={16} />
-          <div>
-            <strong>{runProgressLabel(run)}</strong>
-            <p className="muted">
-              A full pass takes a few minutes. You can leave this open; the run keeps going on the server.
-            </p>
-            <div className="gym-progress-track">
-              <div className="gym-progress-bar" style={{ width: `${Math.round(runProgressFraction(run) * 100)}%` }} />
-            </div>
-          </div>
-        </div>
-      )}
 
       <div className="gym-main">
 
-      {!run && (
+      {view === "setup" && (
         <div className="gym-setup">
           <section>
             <h4>1. Brief under test</h4>
@@ -1570,42 +1409,96 @@ export function ArgumentGymPanel({ matter = null, cases = [], focusRun = null, o
         </div>
       )}
 
-      {run && (
+      {view === "running" && <RunProgress run={run} />}
+
+      {view === "failed" && (
+        <RunFailed
+          run={run}
+          busy={busy}
+          onRetry={startRun}
+          onBack={() => {
+            setRun(null);
+            setError("");
+          }}
+        />
+      )}
+
+      {view === "results" && (
         <>
+          {/* One slim bar: what was tested, how it read, and the controls. */}
+          <div className="gym-runbar">
+            <div className="gym-runbar-text">
+              <span className="gym-runbar-title" title={run.briefTitle}>{shortTitle(run.briefTitle, 40)}</span>
+              <span className="muted">{challengeSummary(challenges)}</span>
+              {rerunSummary(run.comparison) && <span className="muted">{rerunSummary(run.comparison)}</span>}
+            </div>
+            <button className="btn btn-outline-secondary" type="button" disabled={actionsDisabled} onClick={startRun}>
+              {busy ? <Loader2 className="spin" size={16} /> : <Swords size={16} />} Run again
+            </button>
+          </div>
+
           {run.assessment && (
             <section className="gym-assessment">
-              {run.verdict && <h4><Gavel size={16} /> {run.verdict}</h4>}
+              {run.verdict && <span className="gym-verdict-chip">{run.verdict}</span>}
               <p>{run.assessment}</p>
             </section>
           )}
 
-          <div className="gym-run-header">
-            <div>
-              <h4 title={run.briefTitle}>{shortTitle(run.briefTitle)}</h4>
-              <p className="muted">{challengeSummary(challenges)}</p>
-              <p className="muted">{coverageSummary(run.coverage)}</p>
-              {rerunSummary(run.comparison) && <p className="muted">{rerunSummary(run.comparison)}</p>}
+          {(filters.length > 0 || queued.length > 0) && (
+            <div className="gym-filter button-row compact">
+              {filters.map((item) => (
+                <button
+                  key={item.id}
+                  type="button"
+                  className={`btn ${filter === item.id ? "btn-primary" : "btn-outline-secondary"}`}
+                  onClick={() => setFilter(item.id)}
+                >
+                  {item.label} ({item.count})
+                </button>
+              ))}
+              {queued.length > 0 && (
+                <button
+                  className="btn btn-primary gym-filter-action"
+                  type="button"
+                  disabled={actionsDisabled || !canRevise}
+                  onClick={openRevisionPlan}
+                >
+                  <FileText size={16} /> Open revision plan ({queued.length})
+                </button>
+              )}
             </div>
-            <div className="button-row compact">
-              <button className="btn btn-outline-secondary" type="button" disabled={actionsDisabled} onClick={() => openArtifact("prep_sheet")}>
-                <BookOpen size={16} /> Opposition prep sheet
-              </button>
-              <button className="btn btn-outline-secondary" type="button" disabled={actionsDisabled} onClick={() => openArtifact("report")}>
-                <FileText size={16} /> Stress-test report
-              </button>
-              <button className="btn btn-outline-secondary" type="button" disabled={actionsDisabled} onClick={startRun}>
-                {busy ? <Loader2 className="spin" size={16} /> : <Swords size={16} />} Run again
-              </button>
+          )}
+
+          <div className="gym-results">
+            <div className="gym-worklist">
+              {visible.length === 0 ? (
+                <div className="empty-state compact">
+                  <p>{emptyStateMessage(challenges, filter)}</p>
+                </div>
+              ) : (
+                <div className="gym-challenge-list">
+                  {visible.map((challenge) => (
+                    <ChallengeCard
+                      key={challenge.id}
+                      challenge={challenge}
+                      busy={busyChallengeId === challenge.id}
+                      queued={queued.includes(challenge.id)}
+                      onDisposition={setDisposition}
+                      onResearch={researchChallenge}
+                      onCopy={copyChallenge}
+                      onEvidence={setEvidenceChallenge}
+                      onQueueRevision={(item) =>
+                        setQueued((current) =>
+                          current.includes(item.id) ? current.filter((id) => id !== item.id) : [...current, item.id],
+                        )
+                      }
+                    />
+                  ))}
+                </div>
+              )}
             </div>
+            <AuditSummary run={run} onOpenArtifact={openArtifact} actionsDisabled={actionsDisabled} />
           </div>
-
-          <CheckFindings run={run} />
-
-          <RuleAudit ruleAudit={run.ruleAudit} />
-
-          <ChecklistResults results={run.checklistResults} />
-
-          <CompliancePanel compliance={run.compliance} />
 
           <details className="gym-config">
             <summary>
@@ -1634,57 +1527,8 @@ export function ArgumentGymPanel({ matter = null, cases = [], focusRun = null, o
             />
           </details>
 
+          <p className="muted gym-coverage-line">{coverageSummary(run.coverage)}</p>
           <MaterialsConsidered run={run} materials={materials} onToggle={toggleMaterial} busy={actionsDisabled} />
-
-          {(filters.length > 0 || queued.length > 0) && (
-            <div className="gym-filter button-row compact">
-              {filters.map((item) => (
-                <button
-                  key={item.id}
-                  type="button"
-                  className={`btn ${filter === item.id ? "btn-primary" : "btn-outline-secondary"}`}
-                  onClick={() => setFilter(item.id)}
-                >
-                  {item.label} ({item.count})
-                </button>
-              ))}
-              {queued.length > 0 && (
-                <button
-                  className="btn btn-primary gym-filter-action"
-                  type="button"
-                  disabled={actionsDisabled || !canRevise}
-                  onClick={openRevisionPlan}
-                >
-                  <FileText size={16} /> Open revision plan ({queued.length})
-                </button>
-              )}
-            </div>
-          )}
-
-          {visible.length === 0 ? (
-            <div className="empty-state compact">
-              <p>{emptyStateMessage(challenges, filter)}</p>
-            </div>
-          ) : (
-            <div className="gym-challenge-list">
-              {visible.map((challenge) => (
-                <ChallengeCard
-                  key={challenge.id}
-                  challenge={challenge}
-                  busy={busyChallengeId === challenge.id}
-                  queued={queued.includes(challenge.id)}
-                  onDisposition={setDisposition}
-                  onResearch={researchChallenge}
-                  onCopy={copyChallenge}
-                  onQueueRevision={(item) =>
-                    setQueued((current) =>
-                      current.includes(item.id) ? current.filter((id) => id !== item.id) : [...current, item.id],
-                    )
-                  }
-                />
-              ))}
-            </div>
-          )}
         </>
       )}
 
@@ -1730,6 +1574,7 @@ export function ArgumentGymPanel({ matter = null, cases = [], focusRun = null, o
           setPassiveModalOpen(false);
         }}
       />
+      <EvidenceModal challenge={evidenceChallenge} onClose={() => setEvidenceChallenge(null)} />
       <ArtifactModal artifact={artifact} onClose={() => setArtifact(null)} />
       <GymRevisionModal
         plan={plan}

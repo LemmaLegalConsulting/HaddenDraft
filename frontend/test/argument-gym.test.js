@@ -3,17 +3,24 @@ import test from "node:test";
 
 import {
   RUN_POLL_MS,
+  auditBadges,
   availableFilters,
   caseLabel,
+  clamp,
   caseOptions,
   defaultFilter,
   emptyStateMessage,
+  evidenceCount,
   runActionsDisabled,
   shortTitle,
   canStartRun,
   isRunFinished,
   runProgressFraction,
   runProgressLabel,
+  runView,
+  responseBullets,
+  severityTone,
+  skippedChecksSummary,
   checkStatusSummary,
   checklistItemsFromText,
   checklistItemsToText,
@@ -477,4 +484,81 @@ test("a case is named by its client, not only by its docket number", () => {
   assert.deepEqual(caseOptions([{ id: "LS-1", client: "Jane Tenant", caseNumber: "26-0123" }]), [
     { id: "LS-1", label: "Jane Tenant — 26-0123" },
   ]);
+});
+
+
+test("results are only drawn once there are results", () => {
+  assert.equal(runView(null), "setup");
+  // A run exists the instant it is started. Drawing results here reported
+  // "this run raised no challenges" over a run that had not looked yet.
+  assert.equal(runView({ status: "pending", challenges: [] }), "running");
+  assert.equal(runView({ status: "running", challenges: [] }), "running");
+  assert.equal(runView({ status: "complete", challenges: [] }), "results");
+  assert.equal(runView({ status: "failed", error: "no readable text" }), "failed");
+});
+
+
+test("evidence is counted so a card can offer it rather than print it", () => {
+  assert.equal(evidenceCount({ legalSources: [{}, {}], recordSources: [{}] }), 3);
+  assert.equal(evidenceCount({}), 0);
+});
+
+test("severity is a tone, carried by colour rather than by heavy type", () => {
+  assert.equal(severityTone({ severity: "high" }), "high");
+  assert.equal(severityTone({ severity: "nonsense" }), "medium");
+  assert.equal(severityTone({}), "medium");
+});
+
+test("a suggested fix reads as steps when it has several", () => {
+  assert.deepEqual(
+    responseBullets("Cite the notice statute. Attach the certified mail receipt. Say when service ran."),
+    ["Cite the notice statute.", "Attach the certified mail receipt.", "Say when service ran."],
+  );
+  // One sentence stays one sentence rather than becoming a one-item list.
+  assert.deepEqual(responseBullets("Narrow the request for relief."), ["Narrow the request for relief."]);
+  assert.deepEqual(responseBullets(""), []);
+  assert.equal(responseBullets("A. B. C. D. E. F.", { max: 2 }).length, 2);
+});
+
+test("long model prose is cut to something scannable, and says it was cut", () => {
+  const short = clamp("Short enough.");
+  assert.equal(short.text, "Short enough.");
+  assert.equal(short.truncated, false);
+  const long = clamp("word ".repeat(120));
+  assert.ok(long.truncated);
+  assert.ok(long.text.length <= 221, long.text.length);
+  assert.ok(long.text.endsWith("…"));
+});
+
+test("the audit sidebar is a number and a word per area", () => {
+  const badges = auditBadges({
+    compliance: { checked: true, findings: [{ severity: "error" }, { severity: "info" }] },
+    checkResults: { grammar: { findings: [{ severity: "warning" }] } },
+    checksRun: [{ id: "grammar", label: "Grammar", status: "on" }],
+    ruleAudit: [{ unmetCount: 7, elements: [] }],
+    checklistResults: { results: [{ outcome: "fail" }, { outcome: "pass" }] },
+  });
+  const byId = Object.fromEntries(badges.map((b) => [b.id, b]));
+  assert.equal(byId.compliance.count, 1);
+  assert.equal(byId.compliance.tone, "high");
+  assert.equal(byId.compliance.note, "1 not measurable");
+  assert.equal(byId.checks.count, 1);
+  assert.equal(byId.rules.count, 7);
+  assert.equal(byId.rules.note, "1 rule invoked");
+  assert.equal(byId.checklist.count, 1);
+});
+
+test("an area with nothing to report is absent rather than shown as zero", () => {
+  assert.deepEqual(auditBadges({}), []);
+});
+
+test("checks that did not run are one badge, not a section", () => {
+  assert.equal(skippedChecksSummary([{ status: "on" }]), null);
+  const summary = skippedChecksSummary([
+    { id: "a", status: "off" },
+    { id: "b", status: "unavailable" },
+    { id: "c", status: "unavailable" },
+  ]);
+  assert.equal(summary.label, "2 could not run · 1 off");
+  assert.equal(summary.unavailable.length, 2);
 });
