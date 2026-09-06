@@ -20,6 +20,7 @@ import {
 import { api } from "../api/client.js";
 import { useModalDismiss } from "../hooks/useModalDismiss.js";
 import {
+  CASE_CONTEXT_CHOICES,
   COURT_RULE_MODES,
   JURISDICTION_MODES,
   RUN_POLL_MS,
