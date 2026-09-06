@@ -93,3 +93,7 @@ content/ordinances/*
 ssh/
 
 docs/slides
+
+# Real client briefs used for local CLE / testing — named by client surname,
+# never commit.
+cle_real_briefs/
