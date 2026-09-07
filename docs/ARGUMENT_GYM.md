@@ -237,8 +237,8 @@ hit the cap says so rather than reporting a clean result on a partial read.
 
 ## Rules the brief invoked
 
-An advocate who cites a rule has taken on its elements, and an opponent reads the
-element the brief skipped before reading anything else.
+A cited rule is a candidate for an element audit. Applicability and the party's
+burden still need review before a missing element is treated as a defect.
 
 `apps/rules/legal_rules.py` detects which maintained rules a brief invoked —
 deterministically, by citation pattern or by a well-known phrase — and reports
@@ -248,9 +248,12 @@ citing the statute.
 
 `apps/argument_gym/rule_audit.py` then asks two **separate** questions per
 element: is it *pleaded*, and is it *supported*. An assertion is not support, and
-the audit never merges the two. Unmet elements become `GymChallenge` records like
-anything else, so they reach the ranked cards, the prep sheet, and the revision
-plan rather than sitting in a report nobody reads twice.
+the audit never merges the two. A deterministic pattern miss reports uncertain
+wording rather than absence. Missing record documents and partial support remain
+visible in the audit but do not by themselves create adverse challenge cards.
+Phrase-only matches require an applicability review before any element becomes
+a challenge. Conclusive adverse assessments can still become `GymChallenge`
+records for the ranked cards, prep sheet, and revision plan.
 
 ### Reusing the decision tables
 

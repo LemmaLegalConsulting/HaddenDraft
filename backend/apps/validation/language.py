@@ -183,8 +183,11 @@ def check_grammar(text, rules, document_id):
 
     spec = _grammar_spec(rules, "unbalanced_delimiters")
     if spec:
+        # A column of isolated ')' characters is conventional caption layout.
+        # Remove only runs of at least three such lines, not punctuation in prose.
+        delimiter_text = re.sub(r"(?m)(?:^[ \t]*\)[ \t]*\n(?:[ \t]*\n)*){3,}", "", text)
         for opener, closer, name in DELIMITERS:
-            difference = text.count(opener) - text.count(closer)
+            difference = delimiter_text.count(opener) - delimiter_text.count(closer)
             if difference:
                 detail = (
                     f"{abs(difference)} unclosed opening {name}(s)."
@@ -243,6 +246,10 @@ def check_grammar(text, rules, document_id):
             # A sentence opening with a citation signal or a subsection letter is
             # conventional, not a slip.
             if re.match(r"^(see|accord|cf\.|e\.g\.|id\.|but see|compare)\b", stripped, flags=re.IGNORECASE):
+                continue
+            # Addresses and pinpoint citations are not sentence starts. The
+            # numeric/paragraph marker after 'at' avoids hiding 'at trial ...'.
+            if re.match(r"^(?:\S+@\S+|https?://\S+|c/o\s|at\s+(?:\d|§|¶))", stripped, re.IGNORECASE):
                 continue
             reported += 1
             findings.append(

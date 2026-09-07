@@ -32,6 +32,27 @@ def targets(findings):
 
 
 class PleadingFormTests(TestCase):
+    def test_signature_lines_are_exempt_only_with_local_signature_context(self):
+        for text in ("Respectfully submitted,________", "Respectfully submitted,\n\n________\nJane Advocate",
+                     "________\nAttorney for Respondent", "________\nAlex Example (1234567)"):
+            with self.subTest(text=text):
+                self.assertNotIn("E1040", codes(check_pleading_form(text)))
+        for text in ("Monthly rent is ________.", "Date: ________", "Name: ________",
+                     "Respectfully submitted,\nJane Advocate\n\nRent: ________"):
+            with self.subTest(text=text):
+                self.assertIn("E1040", codes(check_pleading_form(text)))
+
+    def test_bracketed_quotations_are_distinct_from_author_instructions(self):
+        self.assertNotIn("E1040", codes(check_pleading_form('The witness said "[We were] at home."')))
+        for marker in ("[NAME OF ORDINANCE]", "[Add this section]", "[INSERT DATE]", "[ADD]", "[EXAMPLES]"):
+            self.assertIn("E1040", codes(check_pleading_form(marker)))
+
+    def test_relief_can_be_requested_without_the_word_respectfully(self):
+        for text in ("Plaintiff seeks partial summary judgment.", "Defendant moves this Court to dismiss.",
+                     "Petitioner requests an injunction."):
+            self.assertNotIn("prayer_for_relief", targets(check_pleading_form(text, pleading_type="motion")))
+        self.assertIn("prayer_for_relief", targets(check_pleading_form("Judgment was entered last year.", pleading_type="motion")))
+
     def test_a_conventional_answer_produces_no_findings(self):
         self.assertEqual(check_pleading_form(ANSWER, pleading_type="answer", document_id=1), [])
 
@@ -68,7 +89,7 @@ class PleadingFormTests(TestCase):
         self.assertIn("[ATTORNEY NAME]", " ".join(finding["message"] for finding in findings))
 
     def test_a_blank_line_placeholder_is_caught_too(self):
-        text = ANSWER.replace("Jane Advocate", "________")
+        text = ANSWER + "\nMonthly rent: ________"
         self.assertIn("E1040", codes(check_pleading_form(text, pleading_type="answer", document_id=1)))
 
     def test_an_exhibit_referred_to_but_not_attached_is_reported(self):

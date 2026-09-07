@@ -47,6 +47,17 @@ class ConfusedWordTests(TestCase):
 
 
 class GrammarTests(TestCase):
+    def test_caption_layout_does_not_hide_unbalanced_parentheses_in_prose(self):
+        caption = "IN THE EXAMPLE COURT\n\n)\n\n)\n\n)\n\nCASE NO. 123\n"
+        self.assertNotIn("parenthesis", messages(check_language(caption, include=("grammar",))))
+        for prose in ("The notice (was defective.", "The notice was defective)."):
+            self.assertIn("parenthesis", messages(check_language(caption + prose, include=("grammar",))))
+
+    def test_address_and_pinpoint_fragments_are_not_lowercase_sentences(self):
+        for text in ("lawyer@example.org", "c/o Agent Example", "at 12-14; Record Exhibit 3.", "at ¶17-21."):
+            self.assertNotIn("sentence start", [f["target"] for f in check_language(text, include=("grammar",))])
+        self.assertIn("sentence start", [f["target"] for f in check_language("at trial the witness testified.", include=("grammar",))])
+
     def test_a_doubled_word_is_reported(self):
         findings = check_language("The the notice was defective.", include=("grammar",))
         self.assertIn("appears twice", messages(findings))

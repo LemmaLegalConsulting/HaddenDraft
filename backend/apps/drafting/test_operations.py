@@ -88,6 +88,18 @@ class DraftOperationTests(TestCase):
         with self.assertRaises(operations.OperationError):
             operations.reject(operation)
 
+    def test_model_proposal_cannot_self_apply_through_its_payload(self):
+        before = DraftDocument.objects.get(pk=self.draft.pk).sections
+        operation = operations.propose(
+            self.draft, "replace_component", origin="ai",
+            payload={"stableKey": "defenses", "body": "Model replacement.",
+                     "status": "applied", "reviewed": True, "resolved_at": "2026-01-01"},
+        )
+        operation.refresh_from_db()
+        self.assertEqual(operation.status, "proposed")
+        self.assertIsNone(operation.resolved_at)
+        self.assertEqual(DraftDocument.objects.get(pk=self.draft.pk).sections, before)
+
     def test_rejecting_an_operation_leaves_the_document_alone(self):
         operation = operations.propose(
             self.draft, "replace_component", payload={"stableKey": "defenses", "body": "Never applied."}

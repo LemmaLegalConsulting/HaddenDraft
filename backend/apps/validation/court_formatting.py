@@ -58,6 +58,7 @@ def _finding(document_id, severity, number, *, target, message, details=None, ac
         details=details or {},
         action=action or {"type": "human_review", "label": "Check this against the court's local rules.", "payload": {}},
         manual_review=severity != "info",
+        outcome="unmeasured" if 950 <= number <= 960 else None,
     )
 
 

@@ -50,6 +50,7 @@ required_elements:
     patterns:
       - "in the .{0,80}court"
       - "^.{0,80}court of common pleas"
+      - "^[ \\t]*[A-Z][A-Za-z .'-]{0,80} (municipal|district|county|housing) court[ \\t]*$"
   - id: case_number
     label: Case number
     severity: error
