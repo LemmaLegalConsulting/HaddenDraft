@@ -139,16 +139,40 @@ def _check_exhibit_references(spec, text, _pleading_type, document_id, *, attach
     ]
 
 
+def _signature_line(spec, text, match):
+    """Only exempt a rule line adjoining an explicit signature cue.
+
+    Blanks embedded in prose or labelled Date/Name remain unresolved fields.
+    Do not suppress placeholders elsewhere merely because a signature exists.
+    """
+    if not re.fullmatch(r"_+", match.group()):
+        return False
+    start = text.rfind("\n", 0, match.start()) + 1
+    end = text.find("\n", match.end())
+    end = len(text) if end < 0 else end
+    before, after = text[start:match.start()].strip(), text[match.end():end].strip()
+    patterns = spec.get("signature_context_patterns") or []
+    def cue(value):
+        return any(re.search(pattern, value, re.IGNORECASE) for pattern in patterns)
+    if before or after:
+        return (not before or cue(before)) and (not after or cue(after))
+    previous = [line.strip() for line in text[:start].splitlines() if line.strip()]
+    following = [line.strip() for line in text[end:].splitlines() if line.strip()]
+    return bool((previous and cue(previous[-1])) or (following and cue(following[0])))
+
+
 def _check_placeholder(spec, text, _pleading_type, document_id):
     findings = []
     seen = set()
     for pattern in spec.get("patterns") or []:
         try:
-            matches = re.findall(str(pattern), text)
+            matches = list(re.finditer(str(pattern), text))
         except re.error:
             continue
         for match in matches[:10]:
-            excerpt = str(match)[:80]
+            if _signature_line(spec, text, match):
+                continue
+            excerpt = match.group()[:80]
             if excerpt.casefold() in seen:
                 continue
             seen.add(excerpt.casefold())

@@ -71,7 +71,7 @@ elements:
     severity: warning
     needs_record_support: false
     patterns:
-      - "abatement"
+      - "\\b(rent abatement|abatement of (the )?rent)\\b"
       - "damages"
       - "defense to (possession|eviction)"
       - "rent escrow"

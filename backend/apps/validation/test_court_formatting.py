@@ -74,6 +74,12 @@ def messages(result):
 
 
 class ComplianceTests(TestCase):
+    def test_unmeasured_properties_never_have_a_pass_outcome(self):
+        result = check_court_compliance(profile=profile(), text=BRIEF, formatting={}, pleading_type="motion")
+        unknown = [f for f in result["findings"] if f["ruleCode"].startswith("I95")]
+        self.assertTrue(unknown)
+        self.assertTrue(all(f["outcome"] == "unmeasured" for f in unknown))
+
     def test_a_conforming_motion_produces_no_findings(self):
         result = check_court_compliance(
             profile=profile(), formatting=MEASURED, text=BRIEF, pleading_type="motion", document_id=1

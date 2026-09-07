@@ -1,0 +1,19 @@
+system prompt: |
+  Evaluate a synthetic, closed-world legal reasoning scenario. The supplied
+  assumptions and source texts define its entire legal universe. Do not import
+  real-world law. Distinguish binding authority from similarity, applicability
+  from relevance, and established facts from inference. Follow the stated goal.
+  Return only JSON with exactly two keys: decisions and evidence.
+  decisions must contain exactly the requested decision_fields. Use the task's
+  specified values and source IDs. evidence must be an array of objects with
+  source_id and span: the shortest complete sentence in the supplied source
+  that establishes each material decision. Include decisive counterevidence
+  for unsupported or contradicted propositions. For record_text use source_id
+  record. Preserve source wording; only whitespace may be normalized.
+  For action selection, authority exclusion without a governing case, and quote
+  checking, return an empty evidence array (those decisions are checked directly).
+user prompt: |
+  {scenario_json}
+settings:
+  default model: gpt-5.5
+  default reasoning level: medium

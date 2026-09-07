@@ -722,3 +722,14 @@ here exactly as it does during retrieval.
 - SQLite is used for local development.
 - Export currently returns editable plain text. DOCX export belongs behind `backend/apps/exporting/`.
 - More detailed architecture notes are in `docs/ARCHITECTURE.md`.
+
+### Argument Gym counterfactual benchmark
+
+The [synthetic reasoning benchmark](content/argument-gym/README.md) includes six
+minimal pairs (12 scenarios) and six adversarial/control cases for authority
+weight, local applicability, temporal validity, proposition support, goal
+alignment, factual certainty, and quotation fidelity. Run
+`.venv/bin/python backend/manage.py test apps.argument_gym.test_benchmarks` for
+offline harness checks. `run_gym_benchmark` exports inputs, grades recorded
+responses, or explicitly runs a live model; see the linked guide for commands
+and the distinction between harness tests and model-performance evidence.

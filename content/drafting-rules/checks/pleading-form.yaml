@@ -44,6 +44,8 @@ checks:
       - "respectfully requests?"
       - "prays? for"
       - "relief requested"
+      - "\\b(seeks?|requests?)\\s+(an?\\s+)?(partial\\s+|summary\\s+)*(judgment|dismissal|relief|order|injunction)\\b"
+      - "\\bmoves?\\s+(this|the)\\s+court\\s+(for|to)\\b"
     message: >
       No passage asks the court for anything. A filing that does not state the
       relief it seeks leaves the court to infer it.
@@ -71,8 +73,13 @@ checks:
     label: No placeholder left unfilled
     kind: placeholder
     severity: error
+    signature_context_patterns:
+      - "^respectfully submitted[,.: ]*$"
+      - "^(signature|signed|attorney|counsel)(\\b|:)"
+      - "^[A-Z][A-Za-z .,'-]+\\s+\\(\\d{5,9}\\)$"
     patterns:
-      - "\\[[A-Z][A-Za-z ]{2,40}\\]"
+      - "\\[(?i:NAME|DATE|ADDRESS|AMOUNT|ADD|INSERT|ENTER|DESCRIBE|EXPLAIN|EXAMPLES|TODO|TBD)(?:[ :][^\\]\\n]{0,100})?\\]"
+      - "\\[(?i:ATTORNEY|CLIENT|TENANT|LANDLORD) NAME\\]"
       - "_{4,}"
       - "\\bTBD\\b"
       - "\\bXXX+\\b"

@@ -63,7 +63,7 @@ class RuleAuditTests(TestCase):
         audits, _traces = run_rule_audit(NOTICE_BRIEF, [], profiles=[make_profile()])
         elements = {element["id"]: element for element in audits[0]["elements"]}
         self.assertEqual(elements["notice_served"]["pled"], "yes")
-        self.assertEqual(elements["service_method"]["pled"], "no")
+        self.assertEqual(elements["service_method"]["pled"], "partial")
         self.assertTrue(elements["service_method"]["unmet"])
 
     def test_pleading_an_element_is_not_the_same_as_supporting_it(self):
@@ -116,15 +116,27 @@ class RuleAuditTests(TestCase):
     def test_the_verdict_counts_what_the_brief_did_not_carry(self):
         audits, _traces = run_rule_audit(THIN_BRIEF, [], profiles=[make_profile()])
         self.assertEqual(audits[0]["unmetCount"], 2)
-        self.assertIn("2 of 2 elements are not carried", audits[0]["verdict"])
+        self.assertIn("2 of 2 elements need review", audits[0]["verdict"])
 
     def test_unmet_elements_become_challenges_that_say_why_they_matter(self):
         audits, _traces = run_rule_audit(THIN_BRIEF, [], profiles=[make_profile()])
+        # A conclusive assessment can create a challenge. A regex miss cannot.
+        self.assertEqual(challenges_from_audit(audits), [])
+        audits[0]["elements"][0]["pled"] = "no"
         attacks = challenges_from_audit(audits)
         self.assertTrue(attacks)
         self.assertIn("R.C. 1923.04", attacks[0]["whyItMatters"])
         self.assertIn("has taken on this element", attacks[0]["whyItMatters"])
         self.assertIn("unverified element list", attacks[0]["whyItMatters"])
+
+    def test_missing_record_and_incidental_alias_do_not_become_adverse_challenges(self):
+        audits, _ = run_rule_audit(NOTICE_BRIEF, [], profiles=[make_profile()])
+        self.assertTrue(audits[0]["unmetCount"])
+        self.assertEqual(challenges_from_audit(audits), [])
+        audits, _ = run_rule_audit("The three-day notice is in the file.", [], profiles=[make_profile(aliases=["three-day notice"])])
+        self.assertTrue(audits[0]["requiresApplicabilityReview"])
+        audits[0]["elements"][0]["pled"] = "no"
+        self.assertEqual(challenges_from_audit(audits), [])
 
     def test_a_brief_that_carries_every_element_produces_no_challenges(self):
         profile = make_profile(

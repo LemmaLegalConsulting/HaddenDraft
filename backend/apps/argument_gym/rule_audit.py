@@ -43,7 +43,9 @@ def pleading_state(element, brief_text):
         if match:
             start = max(match.start() - 120, 0)
             return "yes", re.sub(r"\s+", " ", brief_text[start : match.end() + 200]).strip()
-    return "no", ""
+    # Maintained patterns are examples of wording, not an exhaustive account of
+    # how an advocate can plead an element. A miss cannot establish absence.
+    return "unknown", ""
 
 
 def support_state(element, excerpts):
@@ -196,14 +198,17 @@ def run_rule_audit(brief_text, excerpts, *, jurisdiction="", llm_client=None, pr
                 "source": profile.source,
                 "sourceUrl": profile.source_url,
                 "invokedBy": rule["invokedBy"],
+                "requiresApplicabilityReview": rule["invokedBy"] == "phrase",
                 "matched": rule["matched"],
                 "excerpt": rule["excerpt"],
                 "elements": audited,
                 "unmetCount": unmet_count,
                 "verdict": (
-                    "Every element on file is pleaded and supported."
+                    "Possible rule match; confirm applicability before treating these as required elements."
+                    if rule["invokedBy"] == "phrase"
+                    else "Every element on file is pleaded and supported."
                     if not unmet_count
-                    else f"{unmet_count} of {len(audited)} elements are not carried by this brief."
+                    else f"{unmet_count} of {len(audited)} elements need review; unavailable evidence or unrecognized wording does not establish a defect."
                 ),
             }
         )
@@ -219,8 +224,16 @@ def challenges_from_audit(audits, *, limit=4):
     """
     attacks = []
     for audit in audits:
+        if audit.get("requiresApplicabilityReview"):
+            continue
         for element in audit["elements"]:
             if not element["unmet"]:
+                continue
+            # Missing input and an inconclusive pattern check remain visible in
+            # the audit, but must not become adverse assertions about the brief.
+            if element["pled"] == "partial":
+                continue
+            if element["pled"] == "yes" and element["supported"] in {"nothing_supplied", "partial"}:
                 continue
             if element["pled"] == "no":
                 problem = f"the brief does not plead it at all"

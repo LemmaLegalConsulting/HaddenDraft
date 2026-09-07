@@ -74,6 +74,32 @@ class DraftAIAuditTests(TestCase):
         self.assertIn("has not been reviewed by an attorney", note)
         self.assertTrue(note.endswith("not a substitute for checking current law."))
 
+    def test_model_supplied_review_claim_does_not_clear_export_review_notice(self):
+        record_sections(
+            self.draft,
+            [{"key": "defense", "label": "Defense", "body": "Model replacement.",
+              "reviewed": True, "needs_attorney_review": False, "origin": "human"}],
+            origin="ai",
+        )
+        current = self.draft.components.get(stable_key="defense").current_version
+        self.assertEqual(current.origin, "ai")
+        audit = draft_ai_audit(self.draft)
+        self.assertEqual(len(audit["aiInteractions"]), 2)
+        self.assertIn("has not been reviewed by an attorney", ai_audit_case_note(audit))
+
+    def test_auto_repair_does_not_clear_export_review_notice_or_ai_provenance(self):
+        from apps.validation.repair import apply_repairs
+
+        before = draft_ai_audit(self.draft)["aiInteractions"]
+        self.draft.plain_text = "Stale projection"
+        self.draft.save(update_fields=["plain_text"])
+        apply_repairs(self.draft, [{"severity": "error", "action": {"type": "refresh_plain_text"}}])
+        self.draft.refresh_from_db()
+        self.assertIn("First AI paragraph.", self.draft.plain_text)
+        audit = draft_ai_audit(self.draft)
+        self.assertEqual(audit["aiInteractions"], before)
+        self.assertIn("has not been reviewed by an attorney", ai_audit_case_note(audit))
+
     def test_docx_custom_properties_carry_the_same_json_audit(self):
         payload = render_docx_bytes(self.draft)
 
