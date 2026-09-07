@@ -1,0 +1,366 @@
+schema_version: 1
+synthetic: true
+description: Closed-world reasoning probes, not statements of current law. Gold spans
+  are human-reviewable labels, not automated semantic entailment.
+pairs:
+- id: appellate-district
+  priority: P0
+  variable: forum_district
+  input:
+    task: Select governing authority and characterize BOTH cases. Semantic similarity
+      cannot determine precedential weight.
+    forum_district: null
+    facts: Tenant challenges a defective notice.
+    assumptions: 'Synthetic hierarchy: published, untreated appellate holdings bind
+      trial courts only in their own district. Other district holdings are persuasive;
+      trial decisions are nonbinding.'
+    sources:
+    - id: case-a
+      text: An omitted mandatory notice warning requires dismissal.
+      district: '8'
+      authority_level: appellate
+      publication_status: published
+      treatment_status: good
+      similarity: 0.55
+    - id: case-b
+      text: A notice lacking the required warning in an otherwise identical tenancy
+        requires dismissal.
+      district: '11'
+      authority_level: appellate
+      publication_status: published
+      treatment_status: good
+      similarity: 0.99
+  variants:
+  - id: eighth
+    value: '8'
+    expected:
+      decisions:
+        governing: case-a
+        case_a: binding
+        case_b: persuasive
+      evidence:
+      - source_id: case-a
+        span: An omitted mandatory notice warning requires dismissal.
+  - id: eleventh
+    value: '11'
+    expected:
+      decisions:
+        governing: case-b
+        case_a: persuasive
+        case_b: binding
+      evidence:
+      - source_id: case-b
+        span: A notice lacking the required warning in an otherwise identical tenancy
+          requires dismissal.
+- id: municipality
+  priority: P0
+  variable: municipality
+  input:
+    task: Determine pay-to-stay availability and applicable ordinance.
+    municipality: null
+    court: Shared Municipal Court
+    facts: Nonpayment only; tenant tendered all rent and costs before judgment.
+    assumptions: Coverage is complete for this fictional universe. Court territory
+      does not extend a city ordinance to another city.
+    sources:
+    - id: city-a
+      text: In City A, full tender of rent and costs before judgment defeats a nonpayment
+        eviction.
+      municipality: City A
+    - id: city-b
+      text: City B has no pay-to-stay right under the stipulated law.
+      municipality: City B
+  variants:
+  - id: city-a
+    value: City A
+    expected:
+      decisions:
+        defense: available
+        ordinance: city-a
+      evidence:
+      - source_id: city-a
+        span: In City A, full tender of rent and costs before judgment defeats a nonpayment
+          eviction.
+  - id: city-b
+    value: City B
+    expected:
+      decisions:
+        defense: unavailable
+        ordinance: null
+      evidence:
+      - source_id: city-b
+        span: City B has no pay-to-stay right under the stipulated law.
+- id: amendment
+  priority: P1
+  variable: filing_date
+  input:
+    task: Select the governing notice version and notice days.
+    filing_date: null
+    facts: Notice and filing otherwise satisfy all requirements.
+    assumptions: The filing date controls under the stipulated transition rule; no
+      savings clause.
+    sources:
+    - id: old
+      text: For filings before July 1, 2025, notice must be at least three days.
+      valid_until: '2025-06-30'
+    - id: new
+      text: For filings on or after July 1, 2025, notice must be at least seven days.
+      effective_date: '2025-07-01'
+  variants:
+  - id: before
+    value: '2025-06-30'
+    expected:
+      decisions:
+        governing: old
+        notice_days: 3
+      evidence:
+      - source_id: old
+        span: For filings before July 1, 2025, notice must be at least three days.
+  - id: after
+    value: '2025-07-01'
+    expected:
+      decisions:
+        governing: new
+        notice_days: 7
+      evidence:
+      - source_id: new
+        span: For filings on or after July 1, 2025, notice must be at least seven
+          days.
+- id: entailment
+  priority: P0
+  variable: bound_source_id
+  input:
+    task: Classify whether the BOUND source establishes the proposition. Use SUPPORTED,
+      CONTRADICTED, or NOT_ESTABLISHED. Cite its decisive span.
+    bound_source_id: null
+    proposition: Omitting warning X requires dismissal.
+    sources:
+    - id: support
+      text: Omitting warning X requires dismissal.
+    - id: keywords
+      text: The tenant requested dismissal and disputed warning X. We decide only
+        whether the appeal was timely.
+    - id: contradiction
+      text: Omitting warning X does not require dismissal.
+  variants:
+  - id: supported
+    value: support
+    expected:
+      decisions:
+        status: SUPPORTED
+      evidence:
+      - source_id: support
+        span: Omitting warning X requires dismissal.
+  - id: keywords
+    value: keywords
+    expected:
+      decisions:
+        status: NOT_ESTABLISHED
+      evidence:
+      - source_id: keywords
+        span: We decide only whether the appeal was timely.
+- id: goal-alignment
+  priority: P0
+  variable: goal
+  input:
+    task: Choose first_action, template, and whether an additional lawyer choice is
+      required. A missing template must not change the goal.
+    goal: null
+    facts: Nonpayment eviction; no imminent filing deadline or procedural reason to
+      file is identified.
+    templates:
+    - id: answer-counterclaims
+      purpose: Litigate defenses and counterclaims
+      quality: fully developed
+    actions:
+    - payment-plan-proposal
+    - answer-counterclaims
+    sources:
+    - id: record
+      text: Tenant wants to remain. No imminent filing deadline is identified.
+  variants:
+  - id: payment-plan
+    value: Negotiate a payment plan that permits tenant to remain
+    expected:
+      decisions:
+        first_action: payment-plan-proposal
+        template: null
+        requires_lawyer_choice: true
+      evidence: []
+  - id: litigation
+    value: Litigate defenses and counterclaims to contest eviction
+    expected:
+      decisions:
+        first_action: answer-counterclaims
+        template: answer-counterclaims
+        requires_lawyer_choice: false
+      evidence: []
+- id: factual-certainty
+  priority: P1
+  variable: record_text
+  input:
+    task: 'Classify the proposition as SUPPORTED, CONTRADICTED, or NOT_ESTABLISHED
+      and choose assertion_strength: qualified or definite. Cite the decisive record
+      span with source_id record.'
+    record_text: null
+    proposition: Landlord knew about the leak.
+    sources: []
+  variants:
+  - id: possible
+    value: Client thinks landlord probably knew about the leak.
+    expected:
+      decisions:
+        status: NOT_ESTABLISHED
+        assertion_strength: qualified
+      evidence:
+      - source_id: record
+        span: Client thinks landlord probably knew about the leak.
+  - id: confirmed
+    value: 'Landlord acknowledged in writing: I knew about the leak.'
+    expected:
+      decisions:
+        status: SUPPORTED
+        assertion_strength: definite
+      evidence:
+      - source_id: record
+        span: 'Landlord acknowledged in writing: I knew about the leak.'
+cases:
+- id: entailed-source-contradicts-claim
+  priority: P0
+  input:
+    task: Classify whether the BOUND source establishes the proposition. Use SUPPORTED,
+      CONTRADICTED, or NOT_ESTABLISHED. Cite its decisive span.
+    bound_source_id: contradiction
+    proposition: Omitting warning X requires dismissal.
+    sources:
+    - id: support
+      text: Omitting warning X requires dismissal.
+    - id: keywords
+      text: The tenant requested dismissal and disputed warning X. We decide only
+        whether the appeal was timely.
+    - id: contradiction
+      text: Omitting warning X does not require dismissal.
+  expected:
+    decisions:
+      status: CONTRADICTED
+    evidence:
+    - source_id: contradiction
+      span: Omitting warning X does not require dismissal.
+- id: wrong-precedential-level
+  priority: P0
+  input:
+    task: Characterize BOTH cases and select governing authority. An overruled holding
+      cannot govern. Return case_a as nonbinding or invalid as appropriate.
+    forum_district: '8'
+    facts: Tenant challenges a defective notice.
+    assumptions: 'Synthetic hierarchy: published, untreated appellate holdings bind
+      trial courts only in their own district. Other district holdings are persuasive;
+      trial decisions are nonbinding.'
+    sources:
+    - id: case-a
+      text: An omitted mandatory notice warning requires dismissal.
+      district: '8'
+      authority_level: trial
+      publication_status: published
+      treatment_status: good
+      similarity: 0.55
+    - id: case-b
+      text: A notice lacking the required warning in an otherwise identical tenancy
+        requires dismissal.
+      district: '11'
+      authority_level: appellate
+      publication_status: published
+      treatment_status: good
+      similarity: 0.99
+  expected:
+    decisions:
+      governing: null
+      case_a: nonbinding
+      case_b: persuasive
+    evidence: []
+- id: bad-treatment
+  priority: P1
+  input:
+    task: Characterize BOTH cases and select governing authority. An overruled holding
+      cannot govern. Return case_a as nonbinding or invalid as appropriate.
+    forum_district: '8'
+    facts: Tenant challenges a defective notice.
+    assumptions: 'Synthetic hierarchy: published, untreated appellate holdings bind
+      trial courts only in their own district. Other district holdings are persuasive;
+      trial decisions are nonbinding.'
+    sources:
+    - id: case-a
+      text: An omitted mandatory notice warning requires dismissal.
+      district: '8'
+      authority_level: appellate
+      publication_status: published
+      treatment_status: overruled
+      similarity: 0.55
+    - id: case-b
+      text: A notice lacking the required warning in an otherwise identical tenancy
+        requires dismissal.
+      district: '11'
+      authority_level: appellate
+      publication_status: published
+      treatment_status: good
+      similarity: 0.99
+  expected:
+    decisions:
+      governing: null
+      case_a: invalid
+      case_b: persuasive
+    evidence: []
+- id: quote-exact
+  priority: P1
+  input:
+    task: Check exact quotation fidelity AND attribution. Whitespace normalization
+      only. Classify as SUPPORTED or NOT_ESTABLISHED; identify the actual source of
+      the submitted quote, or null if absent. No paraphrase inside quotes.
+    quote: Notice is a prerequisite to possession.
+    attributed_to: case-b
+    sources:
+    - id: case-a
+      text: The appeal is dismissed as untimely.
+    - id: case-b
+      text: Notice is a prerequisite to possession.
+  expected:
+    decisions:
+      status: SUPPORTED
+      quote_source: case-b
+    evidence: []
+- id: quote-paraphrase
+  priority: P1
+  input:
+    task: Check exact quotation fidelity AND attribution. Whitespace normalization
+      only. Classify as SUPPORTED or NOT_ESTABLISHED; identify the actual source of
+      the submitted quote, or null if absent. No paraphrase inside quotes.
+    quote: Notice always bars possession.
+    attributed_to: case-b
+    sources:
+    - id: case-a
+      text: The appeal is dismissed as untimely.
+    - id: case-b
+      text: Notice is a prerequisite to possession.
+  expected:
+    decisions:
+      status: NOT_ESTABLISHED
+      quote_source: null
+    evidence: []
+- id: quote-misattributed
+  priority: P1
+  input:
+    task: Check exact quotation fidelity AND attribution. Whitespace normalization
+      only. Classify as SUPPORTED or NOT_ESTABLISHED; identify the actual source of
+      the submitted quote, or null if absent. No paraphrase inside quotes.
+    quote: Notice is a prerequisite to possession.
+    attributed_to: case-a
+    sources:
+    - id: case-a
+      text: The appeal is dismissed as untimely.
+    - id: case-b
+      text: Notice is a prerequisite to possession.
+  expected:
+    decisions:
+      status: NOT_ESTABLISHED
+      quote_source: case-b
+    evidence: []

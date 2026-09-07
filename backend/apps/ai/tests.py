@@ -138,6 +138,7 @@ class PromptCatalogTests(TestCase):
                 "research.treatise_relevance",
                 "argument_gym.argument_map",
                 "argument_gym.assessment",
+                "argument_gym.benchmark",
                 "argument_gym.rule_elements",
                 "argument_gym.checklist",
                 "argument_gym.record_audit",

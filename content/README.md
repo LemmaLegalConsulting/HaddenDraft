@@ -263,3 +263,9 @@ replace public repository defaults merely because SharePoint is configured;
 selection should be explicit at the organization/package level. Remote private
 content must retain the same provenance and must never be copied into a tracked
 repository path.
+
+### Argument Gym reasoning probes
+
+[`argument-gym/`](argument-gym/README.md) holds maintained synthetic minimal pairs
+and gold proposition-to-source spans for deterministic benchmark grading. These
+fixtures are evaluation material only and must not be ingested as legal authority.
