@@ -61,7 +61,7 @@ function BlockToolbar() {
         ["underline", Underline, "Underline"],
       ].map(([format, Icon, label]) => (
         <button
-          className="btn btn-outline-secondary icon-button"
+          className="btn btn-light icon-button"
           key={format}
           title={label}
           aria-label={label}
@@ -202,21 +202,21 @@ function DraftBlock({ block, blockState, disabled, onBlockChange, onFormatChange
               Template wording
             </span>
           )}
-          <button className="btn btn-outline-secondary icon-button" title="Actions" aria-label="Section actions" aria-expanded={menuOpen} type="button" onClick={() => setMenuOpen((value) => !value)}>
+          <button className="btn btn-light icon-button" title="Actions" aria-label="Section actions" aria-expanded={menuOpen} type="button" onClick={() => setMenuOpen((value) => !value)}>
             <MoreVertical size={16} />
           </button>
           {menuOpen && (
             <div className="block-menu">
               {block.aiLatitude !== "locked" && (
-                <button type="button" onClick={() => { setMenuOpen(false); onOpenRefine(block); }}>Refine with AI</button>
+                <button className="dropdown-item" type="button" onClick={() => { setMenuOpen(false); onOpenRefine(block); }}>Refine with AI</button>
               )}
-              <button type="button" onClick={() => onFormatChange(block.key, nextFormat(block, { style: format.style === "numbered" ? "plain" : "numbered" }))}>
+              <button className="dropdown-item" type="button" onClick={() => onFormatChange(block.key, nextFormat(block, { style: format.style === "numbered" ? "plain" : "numbered" }))}>
                 {format.style === "numbered" ? "Use plain paragraphs" : "Number paragraphs"}
               </button>
-              <button type="button" onClick={() => onFormatChange(block.key, nextFormat(block, { restartNumbering: !format.restartNumbering, style: "numbered" }))}>
+              <button className="dropdown-item" type="button" onClick={() => onFormatChange(block.key, nextFormat(block, { restartNumbering: !format.restartNumbering, style: "numbered" }))}>
                 {format.restartNumbering ? "Continue numbering" : "Restart numbering here"}
               </button>
-              <button type="button" onClick={() => onFormatChange(block.key, nextFormat(block, { headingNumbering: format.headingNumbering === "roman" ? "none" : "roman" }))}>
+              <button className="dropdown-item" type="button" onClick={() => onFormatChange(block.key, nextFormat(block, { headingNumbering: format.headingNumbering === "roman" ? "none" : "roman" }))}>
                 {format.headingNumbering === "roman" ? "Remove roman heading" : "Roman heading"}
               </button>
             </div>
@@ -235,7 +235,7 @@ function DraftBlock({ block, blockState, disabled, onBlockChange, onFormatChange
                 onChange={(event) => setMissingAnswers((current) => ({ ...current, [index]: event.target.value }))}
               />
               <button
-                className="btn btn-outline-secondary"
+                className="btn btn-light"
                 type="button"
                 disabled={disabled || !missingAnswers[index]?.trim()}
                 onClick={() => onOpenRefine({
@@ -307,7 +307,7 @@ function RefineModal({ block, disabled, onClose, onSubmit }) {
       <div className="editor-modal" ref={dialogRef} role="dialog" aria-modal="true" aria-label="Refine section">
         <div className="modal-heading">
           <h4>Refine {block.label}</h4>
-          <button className="btn btn-outline-secondary icon-button" type="button" onClick={onClose} title="Close" aria-label="Close"><X size={16} /></button>
+          <button className="btn btn-light icon-button" type="button" onClick={onClose} title="Close" aria-label="Close"><X size={16} /></button>
         </div>
         <textarea className="form-control"
           value={instruction}
@@ -315,7 +315,7 @@ function RefineModal({ block, disabled, onClose, onSubmit }) {
           placeholder="Example: Make this more concise and focus on the pending rental assistance application."
         />
         <div className="button-row step-actions">
-          <button className="btn btn-outline-secondary" type="button" onClick={onClose}>Cancel</button>
+          <button className="btn btn-light" type="button" onClick={onClose}>Cancel</button>
           <button className="btn btn-primary" disabled={disabled} type="button" onClick={() => onSubmit(block.key, instruction)}>
             <Sparkles size={16} /> Refine
           </button>
@@ -338,7 +338,7 @@ function MissingFieldModal({ placeholder, disabled, onClose, onSubmit }) {
       <div className="editor-modal" ref={dialogRef} role="dialog" aria-modal="true" aria-label={`Fill in ${placeholder.label}`}>
         <div className="modal-heading">
           <h4>Fill in: {placeholder.label}</h4>
-          <button className="btn btn-outline-secondary icon-button" type="button" onClick={onClose} title="Close" aria-label="Close"><X size={16} /></button>
+          <button className="btn btn-light icon-button" type="button" onClick={onClose} title="Close" aria-label="Close"><X size={16} /></button>
         </div>
         <input
           className="form-control"
@@ -355,7 +355,7 @@ function MissingFieldModal({ placeholder, disabled, onClose, onSubmit }) {
           source document or enter it yourself; it will be recorded as a human edit.
         </p>
         <div className="button-row step-actions">
-          <button className="btn btn-outline-secondary" type="button" onClick={onClose}>Cancel</button>
+          <button className="btn btn-light" type="button" onClick={onClose}>Cancel</button>
           <button className="btn btn-primary" disabled={disabled || !value.trim()} type="button" onClick={() => onSubmit(placeholder.label, value.trim())}>
             Fill in every occurrence
           </button>
@@ -374,11 +374,11 @@ function CitationPreview({ citation, onClose }) {
           <span className="block-kicker">{citation.sourceLabel || "Support"}</span>
           <h4>{citation.title || citation.label}</h4>
         </div>
-        <button className="btn btn-outline-secondary icon-button" type="button" onClick={onClose} title="Close" aria-label="Close citation preview"><X size={16} /></button>
+        <button className="btn btn-light icon-button" type="button" onClick={onClose} title="Close" aria-label="Close citation preview"><X size={16} /></button>
       </div>
       <p>{citation.snippet || "No preview text is available for this citation yet."}</p>
       {citation.url && (
-        <a className="btn btn-outline-secondary link-button" href={citation.url} target="_blank" rel="noreferrer">
+        <a className="btn btn-light link-button" href={citation.url} target="_blank" rel="noreferrer">
           <ExternalLink size={16} /> Open source
         </a>
       )}
@@ -467,10 +467,10 @@ export function DraftEditor({ draft, busy, onChange, onPersist, onRegenerateBloc
         <div className="draft-editor-topline">
           <strong>{draft.title}</strong>
           <div className="button-row compact">
-            <button className="btn btn-outline-secondary" disabled={busy} type="button" onClick={addSection}>
+            <button className="btn btn-light" disabled={busy} type="button" onClick={addSection}>
               <Plus size={16} /> Add section
             </button>
-            <button className="btn btn-outline-secondary" disabled={busy} type="button" onClick={onPersist}>
+            <button className="btn btn-light" disabled={busy} type="button" onClick={onPersist}>
               <Save size={16} /> Save
             </button>
           </div>

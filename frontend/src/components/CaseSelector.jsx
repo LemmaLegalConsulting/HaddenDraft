@@ -3,6 +3,7 @@ import { CheckCircle2, ChevronDown, FilePlus2, FolderOpen, ListFilter, Loader2, 
 
 import { caseNumberFor, caseTitleFor, detailValue, isLegalServerCase, lastActivityLabel } from "./casePresentation.js";
 import { DEFAULT_CASE_FILTERS, activeFilterCount, describeFilters } from "./caseFilters.js";
+import { PanelHeading } from "./PanelHeading.jsx";
 
 const STATUS_OPTIONS = [
   ["open", "Open cases"],
@@ -75,12 +76,7 @@ export function CaseSelector({
 
   return (
     <div className="panel">
-      <div className="panel-heading">
-        <div>
-          <p className="eyebrow">Case</p>
-          <h3>Cases</h3>
-        </div>
-      </div>
+      <PanelHeading title="Cases" description="Pick the matter you want to work on. Everything else on the app works against the case selected here." />
       <div className="case-source-row">
         <div className="case-source-toggle" role="radiogroup" aria-label="Case source">
           <label className={caseSource === "legalserver" ? "selected" : ""}>
@@ -200,11 +196,11 @@ export function CaseSelector({
               value={search}
               onChange={(event) => onSearchChange(event.target.value)}
             />
-            <button className="btn btn-outline-secondary" type="submit" disabled={caseBusy}>
+            <button className="btn btn-light" type="submit" disabled={caseBusy}>
               {caseBusy ? <Loader2 className="spin" size={16} /> : <Search size={16} />} Search
             </button>
             <button
-              className={filterCount ? "btn btn-outline-secondary case-filter-toggle has-filters" : "btn btn-outline-secondary case-filter-toggle"}
+              className={filterCount ? "btn btn-light case-filter-toggle has-filters" : "btn btn-light case-filter-toggle"}
               type="button"
               aria-expanded={filtersOpen}
               aria-controls="case-filter-panel"
@@ -214,7 +210,7 @@ export function CaseSelector({
               {filterCount > 0 && <span className="case-filter-count">{filterCount}</span>}
               <ChevronDown className={filtersOpen ? "chevron open" : "chevron"} size={15} />
             </button>
-            <button className="btn btn-outline-secondary icon-button" type="button" disabled={caseBusy || (!search && !filterCount)} onClick={onSearchReset} title="Reset search and filters" aria-label="Reset search and filters">
+            <button className="btn btn-light icon-button" type="button" disabled={caseBusy || (!search && !filterCount)} onClick={onSearchReset} title="Reset search and filters" aria-label="Reset search and filters">
               <RotateCcw size={16} />
             </button>
           </form>
@@ -283,12 +279,12 @@ export function CaseSelector({
                 {selectedMatterId === item.id ? (
                   <span className="active-case-indicator"><CheckCircle2 size={15} /> Active</span>
                 ) : (
-                  <button className="btn btn-outline-secondary case-activate-button" type="button" onClick={(event) => { event.stopPropagation(); onSelect(item.id); }}>
+                  <button className="btn btn-light case-activate-button" type="button" onClick={(event) => { event.stopPropagation(); onSelect(item.id); }}>
                     Make active
                   </button>
                 )}
                 <button
-                  className="btn btn-outline-secondary icon-button"
+                  className="btn btn-light icon-button"
                   type="button"
                   aria-label={`Open case preview for ${caseTitleFor(item)}`}
                   title="Open case preview"
@@ -333,7 +329,7 @@ export function CaseSelector({
       </div>
       {showMoreAvailable && (
         <div className="case-list-more">
-          <button className="btn btn-outline-secondary" type="button" disabled={caseBusy} onClick={onShowMore}>
+          <button className="btn btn-light" type="button" disabled={caseBusy} onClick={onShowMore}>
             {caseBusy ? <Loader2 className="spin" size={16} /> : <ChevronDown size={16} />}
             {" "}Show {Math.min(20, Math.max(total - visibleCases.length, 0)) || 20} more
           </button>

@@ -33,10 +33,10 @@ export function CaseDocumentPreviewModal({ matterId, document, onClose }) {
             <h4 id="document-preview-title">{document.title || document.filename || "Document preview"}</h4>
           </div>
           <div className="modal-heading-actions">
-            <a className="icon-button" href={fileUrl} target="_blank" rel="noreferrer" aria-label="Open document in a new tab" title="Open in a new tab">
+            <a className="btn btn-light icon-button link-button" href={fileUrl} target="_blank" rel="noreferrer" aria-label="Open document in a new tab" title="Open in a new tab">
               <ExternalLink size={18} />
             </a>
-            <button className="icon-button" type="button" aria-label="Close document preview" title="Close document preview" onClick={onClose}>
+            <button className="btn btn-light icon-button" type="button" aria-label="Close document preview" title="Close document preview" onClick={onClose}>
               <X size={18} />
             </button>
           </div>

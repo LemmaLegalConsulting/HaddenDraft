@@ -2,6 +2,7 @@ import React from "react";
 import { FileText, Layers3, Loader2, Sparkles } from "lucide-react";
 
 import { isTemplateChosen, templateChoices } from "./templateChoices.js";
+import { PanelHeading } from "./PanelHeading.jsx";
 
 export function DraftGoalPanel({
   goal,
@@ -28,10 +29,7 @@ export function DraftGoalPanel({
 
   return (
     <section className="panel">
-      <div className="step-guidance">
-        <span className="block-kicker">Drafting goal</span>
-        <h3>What do you want to file or accomplish?</h3>
-      </div>
+      <PanelHeading eyebrow="Drafting goal" title="What do you want to file or accomplish?" />
       <label className="field">
         <span>{planningMode === "known" ? "Goal or extra instructions" : "Goal"}</span>
         <textarea
@@ -44,7 +42,7 @@ export function DraftGoalPanel({
       </label>
       <div className="button-row compact goal-suggest-actions">
         <button
-          className="btn btn-outline-secondary goal-suggest-button"
+          className="btn btn-light goal-suggest-button"
           type="button"
           disabled={busy || goalSuggestionsBusy || !matter}
           onClick={onSuggestGoals}
@@ -67,7 +65,7 @@ export function DraftGoalPanel({
                 {suggestion.reason && <small>{suggestion.reason}</small>}
               </div>
               <button
-                className="btn btn-outline-secondary"
+                className="btn btn-light"
                 type="button"
                 onClick={() => onSelectGoalSuggestion(suggestion)}
               >

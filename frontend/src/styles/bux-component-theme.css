@@ -28,9 +28,20 @@
   --app-danger-text: #8b1e1e;
 }
 
-.btn-primary,
-.primary,
-a.primary.link-button {
+/*
+  The button vocabulary, and the whole of it. Every screen picks from these:
+
+    .btn.btn-primary  the one committing action in a view -- solid scarlet
+    .btn.btn-light    everything else -- solid light gray
+    .btn.btn-danger   destructive -- solid dark red
+    .text-link-button an action that reads as part of a sentence or a dense row
+
+  `.icon-button` squares any of them down to a single glyph. Outline buttons
+  are gone: a screen of transparent outlines gave no hint which control was the
+  action, and the light solid reads as a button without shouting.
+*/
+
+.btn-primary {
   --bs-btn-bg: var(--bs-primary);
   --bs-btn-border-color: var(--bs-primary);
   --bs-btn-color: var(--bux-white);
@@ -39,26 +50,37 @@ a.primary.link-button {
   --bs-btn-hover-color: var(--bux-white);
   --bs-btn-active-bg: var(--bux-scarlet-dark-60);
   --bs-btn-active-border-color: var(--bux-scarlet-dark-60);
-  background: var(--bs-btn-bg);
-  border-color: var(--bs-btn-border-color);
-  color: var(--bs-btn-color);
+  --bs-btn-disabled-bg: var(--bs-primary);
+  --bs-btn-disabled-border-color: var(--bs-primary);
+  --bs-btn-disabled-color: var(--bux-white);
 }
 
-.btn-outline-secondary,
-.btn-secondary,
-.secondary,
-a.secondary.link-button {
+.btn-light,
+.btn-secondary {
   --bs-btn-bg: var(--bux-gray-light-80);
   --bs-btn-border-color: var(--bux-gray-light-40);
   --bs-btn-color: var(--bux-gray-dark-80);
   --bs-btn-hover-bg: var(--bux-gray-light-60);
-  --bs-btn-hover-border-color: var(--bux-gray-light-40);
+  --bs-btn-hover-border-color: var(--bux-gray-dark-20);
   --bs-btn-hover-color: var(--bux-gray-dark-80);
-  color: var(--bs-btn-color);
+  --bs-btn-active-bg: var(--bux-gray-light-40);
+  --bs-btn-active-border-color: var(--bux-gray-dark-20);
+  --bs-btn-active-color: var(--bux-gray-dark-80);
+  --bs-btn-disabled-bg: var(--bux-gray-light-80);
+  --bs-btn-disabled-border-color: var(--bux-gray-light-40);
+  --bs-btn-disabled-color: var(--bux-gray-dark-40);
 }
 
-.btn-outline-secondary {
-  background: transparent;
+/* A light button that is currently on -- a selected tab, a queued item. */
+.btn-light.selected,
+.btn-light.active,
+.btn-light[aria-pressed="true"] {
+  --bs-btn-bg: var(--bux-white);
+  --bs-btn-border-color: var(--bux-scarlet);
+  --bs-btn-color: var(--bux-scarlet-dark-40);
+  --bs-btn-hover-bg: var(--bux-white);
+  --bs-btn-hover-border-color: var(--bux-scarlet);
+  --bs-btn-hover-color: var(--bux-scarlet-dark-40);
 }
 
 .btn-danger {
@@ -68,6 +90,52 @@ a.secondary.link-button {
   --bs-btn-hover-bg: var(--bs-danger-hover);
   --bs-btn-hover-border-color: var(--bs-danger-hover);
   --bs-btn-hover-color: var(--bux-white);
+  --bs-btn-disabled-bg: var(--bs-danger);
+  --bs-btn-disabled-border-color: var(--bs-danger);
+  --bs-btn-disabled-color: var(--bux-white);
+}
+
+/* Text actions. Underlined only on hover: a row of four permanently underlined
+   red links (the Research history controls) read as an error state, not as a
+   set of small actions. */
+.text-link-button {
+  align-items: center;
+  background: transparent;
+  border: 0;
+  border-radius: var(--radius-sm);
+  color: var(--bux-gray-dark-40);
+  display: inline-flex;
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-semibold);
+  gap: 0.375rem;
+  justify-self: start;
+  min-height: 0;
+  padding: 0.25rem 0.375rem;
+  text-decoration: none;
+}
+
+.text-link-button:hover:not(:disabled),
+.text-link-button:focus-visible {
+  background: var(--bux-gray-light-80);
+  color: var(--bux-gray-dark-80);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.text-link-button.danger {
+  color: var(--app-danger-text);
+}
+
+.text-link-button.active {
+  background: var(--bux-gray-light-80);
+  color: var(--bux-scarlet-dark-40);
+}
+
+.text-link-button:disabled {
+  background: transparent;
+  color: var(--bux-gray-dark-20);
+  cursor: not-allowed;
+  text-decoration: none;
 }
 
 .btn:focus-visible,
@@ -76,11 +144,48 @@ a.secondary.link-button {
 .dropdown-item:focus-visible,
 button:focus-visible,
 a:focus-visible,
-input:focus,
+input:not([type="checkbox"]):not([type="radio"]):focus,
 textarea:focus,
 select:focus {
   box-shadow: 0 0 0 0.25rem var(--bs-focus-ring-color);
   outline: 0;
+}
+
+/* A checkbox or radio rings only on keyboard focus, and the ring follows the
+   control's own shape rather than boxing the dot. */
+input[type="checkbox"]:focus,
+input[type="radio"]:focus {
+  box-shadow: none;
+  outline: 0;
+}
+
+input[type="checkbox"]:focus-visible,
+input[type="radio"]:focus-visible {
+  box-shadow: 0 0 0 0.2rem var(--bs-focus-ring-color);
+  outline: 0;
+}
+
+input[type="radio"]:focus-visible {
+  border-radius: 50%;
+}
+
+/* Where the control sits inside a choice pill, the whole pill is the target,
+   so the pill takes the ring and the dot inside it takes none. */
+.case-source-toggle label:has(input:focus-visible),
+.gym-context-choice:has(input:focus-visible),
+.gym-mode:has(input:focus-visible),
+.checkbox-row:has(input:focus-visible),
+.research-ai-toggle:has(input:focus-visible) {
+  border-radius: var(--radius-sm);
+  box-shadow: 0 0 0 0.2rem var(--bs-focus-ring-color);
+}
+
+.case-source-toggle label:has(input:focus-visible) input,
+.gym-context-choice:has(input:focus-visible) input,
+.gym-mode:has(input:focus-visible) input,
+.checkbox-row:has(input:focus-visible) input,
+.research-ai-toggle:has(input:focus-visible) input {
+  box-shadow: none;
 }
 
 .form-control,
@@ -132,15 +237,15 @@ select:focus {
 
 .account-menu-header span {
   color: var(--bux-gray-dark-40);
-  font-size: 0.75rem;
-  font-weight: 700;
-  text-transform: uppercase;
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-semibold);
 }
 
 .dropdown-item {
   align-items: center;
-  border-radius: 0.375rem;
+  border-radius: var(--radius-sm);
   display: flex;
+  font-size: var(--fs-md);
   gap: 0.5rem;
 }
 
@@ -166,7 +271,6 @@ select:focus {
   color: var(--app-danger-text);
 }
 
-.secondary.danger,
 .text-danger {
   color: var(--app-danger-text);
 }
@@ -188,4 +292,158 @@ select:focus {
 .badge-danger {
   background: var(--app-danger-bg);
   color: var(--app-danger-text);
+}
+
+/* Form controls share the button's height and the app's type scale, so a
+   select, an input and a button sitting in one row line up. */
+.form-control,
+.form-select {
+  --bs-body-font-size: var(--fs-md);
+  font-size: var(--fs-md);
+  min-height: var(--control-height);
+}
+
+textarea.form-control {
+  min-height: 0;
+}
+
+.form-label {
+  color: var(--bux-gray-dark-40);
+  margin-bottom: var(--space-1);
+}
+
+/* Checkboxes and radios were browser blue on every screen while the rest of
+   the app was scarlet. One accent, everywhere. */
+input[type="checkbox"],
+input[type="radio"],
+.form-check-input {
+  accent-color: var(--bux-scarlet);
+}
+
+.form-check-input:checked {
+  background-color: var(--bux-scarlet);
+  border-color: var(--bux-scarlet);
+}
+
+/* ---------------------------------------------------------------------------
+   Progressive disclosure
+   One look for everything that opens: the <details> blocks in triage, the
+   advice-letter conditions, the library facets, the gym's audit sections and
+   the collapsible rows the gym built by hand. Detail that a reader does not
+   need in order to act is behind one of these, closed, with a summary of what
+   is inside on the row itself.
+   --------------------------------------------------------------------------- */
+
+details.disclosure,
+details.triage-accordion,
+details.advice-conditions,
+details.gym-audit-detail,
+details.support-query-details,
+.case-catalog-facets details {
+  background: var(--bux-white);
+  border: 1px solid var(--bux-gray-light-60);
+  border-radius: var(--radius);
+  margin-bottom: var(--space-2);
+}
+
+details.disclosure > summary,
+details.triage-accordion > summary,
+details.advice-conditions > summary,
+details.gym-audit-detail > summary,
+details.support-query-details > summary,
+.case-catalog-facets details > summary {
+  align-items: center;
+  color: var(--bux-gray-dark-80);
+  cursor: pointer;
+  display: flex;
+  font-size: var(--fs-md);
+  font-weight: var(--fw-semibold);
+  gap: var(--space-2);
+  list-style: none;
+  padding: var(--space-3) var(--space-4);
+}
+
+/* The marker is drawn, not inherited: the UA triangle is a different glyph in
+   every browser and sat at a different height in each of these blocks. */
+details.disclosure > summary::-webkit-details-marker,
+details.triage-accordion > summary::-webkit-details-marker,
+details.advice-conditions > summary::-webkit-details-marker,
+details.gym-audit-detail > summary::-webkit-details-marker,
+details.support-query-details > summary::-webkit-details-marker,
+.case-catalog-facets details > summary::-webkit-details-marker {
+  display: none;
+}
+
+details.disclosure > summary::before,
+details.triage-accordion > summary::before,
+details.advice-conditions > summary::before,
+details.gym-audit-detail > summary::before,
+details.support-query-details > summary::before,
+.case-catalog-facets details > summary::before {
+  border-bottom: 2px solid currentColor;
+  border-right: 2px solid currentColor;
+  content: "";
+  flex: 0 0 auto;
+  height: 0.4rem;
+  margin-right: 0.125rem;
+  transform: rotate(-45deg) translate(-0.1rem, 0.1rem);
+  transition: transform 120ms ease;
+  width: 0.4rem;
+}
+
+details.disclosure[open] > summary::before,
+details.triage-accordion[open] > summary::before,
+details.advice-conditions[open] > summary::before,
+details.gym-audit-detail[open] > summary::before,
+details.support-query-details[open] > summary::before,
+.case-catalog-facets details[open] > summary::before {
+  transform: rotate(45deg) translate(-0.05rem, -0.05rem);
+}
+
+details.disclosure > summary:hover,
+details.triage-accordion > summary:hover,
+details.advice-conditions > summary:hover,
+details.gym-audit-detail > summary:hover,
+details.support-query-details > summary:hover,
+.case-catalog-facets details > summary:hover {
+  background: var(--bux-gray-light-90);
+}
+
+details.disclosure > summary:focus-visible,
+details.triage-accordion > summary:focus-visible,
+details.advice-conditions > summary:focus-visible,
+details.gym-audit-detail > summary:focus-visible,
+details.support-query-details > summary:focus-visible,
+.case-catalog-facets details > summary:focus-visible {
+  box-shadow: 0 0 0 0.25rem var(--bs-focus-ring-color);
+  outline: 0;
+}
+
+/* What the row says about its own contents, pushed to the right edge -- the
+   count, the state, the "0 of 4 set". Reading it is meant to be enough. */
+.disclosure-summary {
+  color: var(--bux-gray-dark-40);
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-regular);
+  margin-left: auto;
+}
+
+details.disclosure > .disclosure-body,
+details.triage-accordion > *:not(summary),
+details.advice-conditions > *:not(summary),
+details.gym-audit-detail > *:not(summary),
+details.support-query-details > *:not(summary),
+.case-catalog-facets details > *:not(summary) {
+  border-top: 1px solid var(--bux-gray-light-60);
+  padding: var(--space-3) var(--space-4);
+}
+
+/* Popovers take the app's surface and border tokens, like cards and menus. */
+.popover {
+  --bs-popover-bg: var(--bux-white);
+  --bs-popover-border-color: var(--bux-gray-light-40);
+  --bs-popover-border-radius: var(--radius);
+  --bs-popover-body-color: var(--bux-gray-dark-80);
+  --bs-popover-max-width: min(320px, 70vw);
+  box-shadow: 0 16px 38px rgba(33, 35, 37, 0.18);
 }

@@ -29,9 +29,9 @@ export default function LegalServerSaveButton({
   const ToneIcon = TONE_ICONS[tone] || Info;
 
   return (
-    <div className="legalserver-save">
+    <div className="legalserver-save legalserver-save-action">
       <button
-        className="btn btn-outline-secondary"
+        className="btn btn-light"
         type="button"
         disabled={disabled || busy || !available}
         title={saveButtonTitle({ delivery, available, hint })}

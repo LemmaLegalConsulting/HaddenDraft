@@ -14,7 +14,7 @@ export function RevisionPlanModal({ plan, busy, onClose, onUpdateItem, onApply }
       <div className="editor-modal revision-plan-modal" ref={dialogRef} role="dialog" aria-modal="true" aria-label="AI revision plan">
         <div className="modal-heading">
           <h4><Sparkles size={16} /> AI revision plan</h4>
-          <button className="btn btn-outline-secondary icon-button" type="button" onClick={onClose} title="Close" aria-label="Close"><X size={16} /></button>
+          <button className="btn btn-light icon-button" type="button" onClick={onClose} title="Close" aria-label="Close"><X size={16} /></button>
         </div>
         <p className="muted">
           Review and edit the instructions below before the AI revises each section. Uncheck a section to leave it as is.
@@ -57,7 +57,7 @@ export function RevisionPlanModal({ plan, busy, onClose, onUpdateItem, onApply }
           </div>
         )}
         <div className="button-row step-actions">
-          <button className="btn btn-outline-secondary" type="button" onClick={onClose}>Cancel</button>
+          <button className="btn btn-light" type="button" onClick={onClose}>Cancel</button>
           <button className="btn btn-primary" type="button" disabled={busy || includedCount === 0} onClick={onApply}>
             {busy ? <Loader2 className="spin" size={16} /> : <Sparkles size={16} />} Apply revision to {includedCount} section{includedCount === 1 ? "" : "s"}
           </button>

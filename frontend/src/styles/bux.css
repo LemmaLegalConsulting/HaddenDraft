@@ -40,15 +40,6 @@ a.link-button {
   transition: background-color 120ms ease, border-color 120ms ease, box-shadow 120ms ease, color 120ms ease;
 }
 
-button:focus-visible,
-a.link-button:focus-visible,
-input:focus-visible,
-select:focus-visible,
-textarea:focus-visible {
-  outline: 3px solid color-mix(in srgb, var(--bux-scarlet) 32%, transparent);
-  outline-offset: 2px;
-}
-
 .login-panel,
 .topbar,
 .panel,
@@ -160,7 +151,7 @@ textarea:focus-visible {
 
 .eyebrow,
 .stepper-title,
-.field span,
+.field > span,
 .selected-case-title span,
 .case-details dt,
 .block-kicker {
@@ -204,44 +195,18 @@ textarea:focus-visible {
 
 .active-case-banner small,
 .status-pill,
-.secondary,
-.starter-card,
-.source-toggles button,
-.draft-mode-switch button {
+.starter-card {
   background: var(--bux-gray-light-80);
   color: var(--bux-gray-dark-80);
 }
 
-.secondary,
-a.secondary.link-button {
-  border: 1px solid transparent;
-}
-
-.secondary:hover,
-a.secondary.link-button:hover,
-.starter-card:hover,
-.source-toggles button:hover,
-.draft-mode-switch button:hover,
-.block-menu button:hover {
+.starter-card:hover {
   background: var(--bux-gray-light-60);
   color: var(--bux-gray-dark-80);
 }
 
-.secondary.danger,
 .status-pill.rejected {
   color: var(--bux-scarlet-dark-40);
-}
-
-.primary,
-a.primary.link-button {
-  background: var(--bux-scarlet);
-  color: var(--bux-white);
-}
-
-.primary:hover,
-a.primary.link-button:hover {
-  background: var(--bux-scarlet-dark-40);
-  color: var(--bux-white);
 }
 
 .case-card,
@@ -259,18 +224,11 @@ a.primary.link-button:hover {
   background: transparent;
 }
 
-.case-card.selected,
-.case-source-toggle label.selected,
-.draft-mode-switch button.selected,
-.source-toggles button.selected {
+.case-card.selected {
   background: var(--bux-white);
   border-color: var(--bux-scarlet);
   box-shadow: inset 4px 0 0 var(--bux-scarlet);
   color: var(--bux-scarlet-dark-40);
-}
-
-.case-card.selected {
-  box-shadow: inset 4px 0 0 var(--bux-scarlet);
 }
 
 .case-client,
@@ -297,8 +255,8 @@ a.primary.link-button:hover {
 }
 
 .status-pill.needs_review {
-  background: #fff4d6;
-  color: #7a5600;
+  background: var(--warn-bg);
+  color: var(--warn-text);
 }
 
 .chat-message.assistant,
@@ -347,108 +305,7 @@ a.primary.link-button:hover {
 
 .error-banner,
 .inline-error {
-  background: #fde8e8;
-  border-color: #f4b8b8;
-  color: var(--bux-scarlet-dark-40);
-}
-
-/* Collapse the dashboard account actions into a profile-icon drop-down. */
-.topbar-actions {
-  align-items: flex-start;
-  gap: 0;
-  justify-content: flex-end;
-  min-height: 44px;
-  min-width: 44px;
-  position: relative;
-  z-index: 4;
-}
-
-.auth-status {
-  align-items: stretch;
-  display: grid;
-  gap: 6px;
-  justify-items: stretch;
-}
-
-.auth-status span,
-.auth-status .secondary:not(:first-of-type),
-.topbar-actions > .link-button {
-  display: none;
-}
-
-.auth-status .secondary:first-of-type {
-  border-radius: 999px;
-  font-size: 0;
-  min-height: 44px;
-  padding: 0;
-  width: 44px;
-}
-
-.auth-status .secondary:first-of-type svg {
-  height: 20px;
-  width: 20px;
-}
-
-.topbar-actions:hover,
-.topbar-actions:focus-within {
-  background: var(--bux-white);
-  border: 1px solid var(--bux-gray-light-40);
-  border-radius: 8px;
-  box-shadow: 0 16px 38px rgba(33, 35, 37, 0.16);
-  display: grid;
-  gap: 6px;
-  min-width: 240px;
-  padding: 8px;
-}
-
-.topbar-actions:hover .auth-status,
-.topbar-actions:focus-within .auth-status {
-  width: 100%;
-}
-
-.topbar-actions:hover .auth-status span,
-.topbar-actions:focus-within .auth-status span {
-  background: var(--bux-gray-light-90);
-  border-radius: 6px;
-  color: var(--bux-gray-dark-80);
-  display: block;
-  font-size: 13px;
-  font-weight: 700;
-  max-width: none;
-  overflow: hidden;
-  padding: 8px 10px;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.topbar-actions:hover .auth-status .secondary:first-of-type,
-.topbar-actions:focus-within .auth-status .secondary:first-of-type {
-  border-radius: 6px;
-  font-size: inherit;
-  justify-content: flex-start;
-  min-height: 38px;
-  padding: 9px 12px;
-  width: 100%;
-}
-
-.topbar-actions:hover .auth-status .secondary:not(:first-of-type),
-.topbar-actions:focus-within .auth-status .secondary:not(:first-of-type),
-.topbar-actions:hover > .link-button,
-.topbar-actions:focus-within > .link-button {
-  display: inline-flex;
-  justify-content: flex-start;
-  width: 100%;
-}
-
-@media (max-width: 980px) {
-  .topbar-actions {
-    justify-self: end;
-    width: auto;
-  }
-
-  .topbar-actions:hover,
-  .topbar-actions:focus-within {
-    max-width: 100%;
-    width: min(240px, 100%);
-  }
+  background: var(--danger-bg);
+  border-color: var(--danger-line);
+  color: var(--danger-text);
 }

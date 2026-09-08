@@ -16,6 +16,7 @@ import {
   selectedSections,
   toggleSection,
 } from "./adviceLetter";
+import { PanelHeading } from "./PanelHeading.jsx";
 
 const CONDITIONS = [
   { key: "hearing_scheduled", label: "Hearing is scheduled" },
@@ -319,14 +320,11 @@ export function AdviceLetterPanel({ matter, authorProfile, legalserverSave = nul
   const pages = estimatePages(preview?.readability);
 
   return (
-    <div className="advice-letter-panel">
-      <header className="panel-header">
-        <h3>Client advice letter</h3>
-        <p className="muted">
-          Pick the sections that fit this tenant. They appear in the letter in the order you
-          choose them, on your organization&rsquo;s letterhead.
-        </p>
-      </header>
+    <div className="panel advice-letter-panel">
+      <PanelHeading
+        title="Client advice letter"
+        description="Pick the sections that fit this tenant. They appear in the letter in the order you choose them, on your organization’s letterhead."
+      />
 
       {error && <p className="error-text">{error}</p>}
 
@@ -368,11 +366,12 @@ export function AdviceLetterPanel({ matter, authorProfile, legalserverSave = nul
       </details>
 
       <div className="panel-actions">
-        <button type="button" className="btn btn-outline-secondary" onClick={suggest} disabled={busy}>
+        <button type="button" className="btn btn-light" onClick={suggest} disabled={busy}>
           <Sparkles size={14} /> Suggest sections
         </button>
         {recommendations.length > 0 && (
           <button
+            className="btn btn-light"
             type="button"
             onClick={() => setSelected(applyRecommendations(selected, recommendations))}
           >
@@ -418,8 +417,18 @@ export function AdviceLetterPanel({ matter, authorProfile, legalserverSave = nul
         </section>
       )}
 
-      <section className="advice-catalog">
-        <h4>All sections</h4>
+      {/* The full catalog is long and most letters are built from the
+          suggestions above it, so it opens only when it is wanted -- and stays
+          open on a letter that has not chosen anything yet, because then it is
+          the only way forward. */}
+      <details className="disclosure advice-catalog" open={chosen.length === 0}>
+        <summary>
+          All sections
+          <span className="disclosure-summary">
+            {chosen.length} of {sections.length} chosen
+          </span>
+        </summary>
+        <div className="disclosure-body">
         {grouped.map((group) => (
           <div key={group.topic} className="advice-topic">
             <h5>{group.topic}</h5>
@@ -443,7 +452,8 @@ export function AdviceLetterPanel({ matter, authorProfile, legalserverSave = nul
             ))}
           </div>
         ))}
-      </section>
+        </div>
+      </details>
 
       {chosen.length > 0 && (
         <section className="advice-order">
@@ -455,7 +465,7 @@ export function AdviceLetterPanel({ matter, authorProfile, legalserverSave = nul
                 <span className="order-buttons">
                   <button
                     type="button"
-                    className="icon-button"
+                    className="btn btn-light icon-button"
                     disabled={index === 0}
                     onClick={() => setSelected(moveSection(selected, section.slug, -1))}
                     title="Move up"
@@ -465,7 +475,7 @@ export function AdviceLetterPanel({ matter, authorProfile, legalserverSave = nul
                   </button>
                   <button
                     type="button"
-                    className="icon-button"
+                    className="btn btn-light icon-button"
                     disabled={index === chosen.length - 1}
                     onClick={() => setSelected(moveSection(selected, section.slug, 1))}
                     title="Move down"
@@ -495,8 +505,14 @@ export function AdviceLetterPanel({ matter, authorProfile, legalserverSave = nul
         </section>
       )}
 
-      <section className="advice-send">
-        <h4>Addressing</h4>
+      <details className="disclosure advice-send" open={Boolean(draft)}>
+        <summary>
+          Addressing
+          <span className="disclosure-summary">
+            {letterFields.recipientName ? `To ${letterFields.recipientName}` : "No recipient yet"}
+          </span>
+        </summary>
+        <div className="disclosure-body">
         <div className="field-row">
           <label className="field">
             <span>Recipient</span>
@@ -546,8 +562,8 @@ export function AdviceLetterPanel({ matter, authorProfile, legalserverSave = nul
           />
         </label>
         <div className="button-row compact">
-          <button type="button" onClick={download} disabled={busy || !draft}>
-            <Download size={14} /> Download letter
+          <button className="btn btn-primary" type="button" onClick={download} disabled={busy || !draft}>
+            <Download size={16} /> Download letter
           </button>
           <LegalServerSaveButton
             onSave={saveToLegalServer}
@@ -557,7 +573,8 @@ export function AdviceLetterPanel({ matter, authorProfile, legalserverSave = nul
             disabled={busy || !draft || !matter}
           />
         </div>
-      </section>
+        </div>
+      </details>
 
       {draft && (
         <section className="advice-editor-section">

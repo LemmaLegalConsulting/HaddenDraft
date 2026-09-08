@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { AlertTriangle, ChevronDown, Layers3, Loader2 } from "lucide-react";
+import { AlertTriangle, Layers3, Loader2 } from "lucide-react";
 
 import { api } from "../api/client.js";
 import { packageFindings, packageView, unvalidatedDocuments } from "./documentPackage.js";
@@ -47,15 +47,20 @@ export function PackagePanel({ sessionId, drafts = [], validatedDraftIds = [], a
 
   return (
     <section className="package-panel">
-      <button className="package-panel-header" type="button" aria-expanded={open} onClick={() => setOpen((value) => !value)}>
-        <span><Layers3 size={16} /> Filing package ({documentCount} documents)</span>
-        {findings.length > 0 && (
-          <span className="package-finding-count"><AlertTriangle size={14} /> {findings.length}</span>
-        )}
-        <ChevronDown className={open ? "chevron open" : "chevron"} size={16} />
-      </button>
-      {open && (
-        <div className="package-panel-content">
+      <details
+        className="disclosure"
+        open={open}
+        onToggle={(event) => setOpen(event.currentTarget.open)}
+      >
+        <summary>
+          <Layers3 size={16} /> Filing package ({documentCount} documents)
+          <span className="disclosure-summary">
+            {findings.length > 0
+              ? <span className="package-finding-count"><AlertTriangle size={14} /> {findings.length}</span>
+              : `${documentCount} documents`}
+          </span>
+        </summary>
+        <div className="package-panel-content disclosure-body">
           {error && <div className="inline-error alert alert-danger">{error}</div>}
           {loading && <p className="document-history-loading"><Loader2 className="spin" size={16} /> Loading package…</p>}
 
@@ -111,7 +116,7 @@ export function PackagePanel({ sessionId, drafts = [], validatedDraftIds = [], a
             )}
           </div>
         </div>
-      )}
+      </details>
     </section>
   );
 }

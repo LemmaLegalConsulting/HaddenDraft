@@ -71,7 +71,7 @@ function ComponentHistory({ entry, busy, onRestore }) {
                     <span className="version-current-badge">current</span>
                   ) : (
                     <button
-                      className="btn btn-outline-secondary btn-sm"
+                      className="btn btn-light btn-sm"
                       type="button"
                       disabled={busy || entry.removed}
                       onClick={() => onRestore(entry.stableKey, version.sequence)}

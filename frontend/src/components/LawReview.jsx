@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { CheckCircle2, Loader2, Scale, XCircle } from "lucide-react";
 
 import { api } from "../api/client.js";
+import { PanelHeading } from "./PanelHeading.jsx";
 
 
 export function LawReview({ matter, session, onIssuesChange }) {
@@ -58,14 +59,11 @@ export function LawReview({ matter, session, onIssuesChange }) {
 
   return (
     <div className="panel">
-      <div className="step-guidance">
-        <span className="block-kicker">Human review gate</span>
-        <h3>Review legal issues before drafting</h3>
-        <p>
-          The system proposes defenses, counterclaims, denials, or missing-fact checks from the selected facts and drafting support.
-          Approve only the issues the draft should use; approved issues can activate draft sections.
-        </p>
-      </div>
+      <PanelHeading
+        eyebrow="Human review gate"
+        title="Review legal issues before drafting"
+        description="The system proposes defenses, counterclaims, denials, or missing-fact checks from the selected facts and drafting support. Approve only the issues the draft should use; approved issues can activate draft sections."
+      />
       <button className="btn btn-primary full" disabled={busy || !matter} onClick={runIssueSelection}>
         {busy ? <Loader2 className="spin" size={16} /> : <Scale size={16} />}
         Map selected facts and support to legal issues
@@ -113,10 +111,10 @@ export function LawReview({ matter, session, onIssuesChange }) {
               <small>{issue.sourceTableKey} v{issue.sourceTableVersion} · {issue.sourceRowId}</small>
             </div>
             <div className="button-row compact">
-              <button className="btn btn-outline-secondary" disabled={busy || issue.status === "approved"} onClick={() => reviewIssue(issue, "approve")}>
+              <button className="btn btn-light" disabled={busy || issue.status === "approved"} onClick={() => reviewIssue(issue, "approve")}>
                 <CheckCircle2 size={16} /> Approve
               </button>
-              <button className="btn btn-outline-danger" disabled={busy || issue.status === "rejected"} onClick={() => reviewIssue(issue, "reject")}>
+              <button className="btn btn-danger" disabled={busy || issue.status === "rejected"} onClick={() => reviewIssue(issue, "reject")}>
                 <XCircle size={16} /> Reject
               </button>
             </div>
