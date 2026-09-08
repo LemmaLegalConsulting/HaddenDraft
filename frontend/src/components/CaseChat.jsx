@@ -5,6 +5,7 @@ import { api } from "../api/client.js";
 import LegalServerSaveButton from "./LegalServerSaveButton.jsx";
 import { chatTranscriptNote } from "./chatTranscript.js";
 import { MarkdownResponse } from "./MarkdownResponse.jsx";
+import { PanelHeading } from "./PanelHeading.jsx";
 
 const starterPrompts = [
   { id: "about", label: "What's the case about?", prompt: "What's this case about?" },
@@ -127,6 +128,10 @@ export function CaseChat({ matter, onAction, legalserverSave = null }) {
 
   return (
     <div className="panel chat-panel">
+      <PanelHeading
+        title="Case chat"
+        description="Ask questions about this case file. Answers cite the documents and notes they came from."
+      />
       {!matter && (
         <div className="empty-state compact-empty">
           <strong className="empty-state-title">Select a case</strong>

@@ -189,7 +189,7 @@ export function CaseFacetBrowser({ decisionId = "", initialQuery = "", onOpenSou
           {!decisionId && (
             <form className="case-facet-search" onSubmit={(event) => { event.preventDefault(); load({ query }); }}>
               <input className="form-control" value={query} placeholder="Search imported cases" onChange={(event) => setQuery(event.target.value)} />
-              <button className="btn btn-outline-secondary" type="submit" disabled={busy}>{busy ? <Loader2 className="spin" size={14} /> : <Search size={14} />}</button>
+              <button className="btn btn-light" type="submit" disabled={busy}>{busy ? <Loader2 className="spin" size={14} /> : <Search size={14} />}</button>
             </form>
           )}
           {facet.value && (
@@ -290,7 +290,7 @@ export function CaseLawSourceModal({ citation, onClose, onOpenSource = () => {} 
           </div>
           <div className="modal-heading-actions">
             <button
-              className="icon-button"
+              className="btn btn-light icon-button"
               type="button"
               aria-label={readingMode ? "Show metadata sidebar" : "Read PDF full screen"}
               title={readingMode ? "Show metadata sidebar" : "Read PDF full screen"}
@@ -298,7 +298,7 @@ export function CaseLawSourceModal({ citation, onClose, onOpenSource = () => {} 
             >
               {readingMode ? <Minimize2 size={18} /> : <Maximize2 size={18} />}
             </button>
-            <button className="icon-button" type="button" aria-label="Close source preview" onClick={onClose}>
+            <button className="btn btn-light icon-button" type="button" aria-label="Close source preview" onClick={onClose}>
               <X size={18} />
             </button>
           </div>
@@ -417,7 +417,7 @@ export function ContentLibrarySourceModal({ citation, onClose, onOpenSource }) {
           <div className="modal-heading-actions">
             {current.hasPdf && (
               <button
-                className="icon-button"
+                className="btn btn-light icon-button"
                 type="button"
                 aria-label={readingMode ? "Show metadata sidebar" : "Read PDF full screen"}
                 title={readingMode ? "Show metadata sidebar" : "Read PDF full screen"}
@@ -426,7 +426,7 @@ export function ContentLibrarySourceModal({ citation, onClose, onOpenSource }) {
                 {readingMode ? <Minimize2 size={18} /> : <Maximize2 size={18} />}
               </button>
             )}
-            <button className="icon-button" type="button" aria-label="Close source preview" onClick={onClose}>
+            <button className="btn btn-light icon-button" type="button" aria-label="Close source preview" onClick={onClose}>
               <X size={18} />
             </button>
           </div>
@@ -528,7 +528,7 @@ export function CitationPreviewModal({ citation, onClose }) {
               <span className="block-kicker">{citation.sourceLabel || "Source"}</span>
               <h4 id="citation-preview-title">{label}</h4>
             </div>
-            <button className="icon-button" type="button" aria-label="Close source preview" onClick={onClose}>
+            <button className="btn btn-light icon-button" type="button" aria-label="Close source preview" onClick={onClose}>
               <X size={18} />
             </button>
           </div>

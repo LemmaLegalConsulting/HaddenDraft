@@ -3,6 +3,7 @@ import { AlertTriangle, ClipboardCheck, Loader2, Play, Upload } from "lucide-rea
 
 import LegalServerSaveToggle from "./LegalServerSaveToggle.jsx";
 import { previewedFieldRows, saveDefault, triageDeliveryLines } from "./legalServerSave.js";
+import { PanelHeading } from "./PanelHeading.jsx";
 
 export function TriagePanel({
   matter,
@@ -48,15 +49,10 @@ export function TriagePanel({
   return (
     <section className="panel triage-panel">
       <div className="triage-control-panel">
-        <div className="panel-heading">
-          <div>
-            <p className="eyebrow">Triage</p>
-            <h3>Triage case</h3>
-          </div>
-        </div>
+        <PanelHeading title="Triage case" description="Score the case against a rubric to see which claims and defenses it supports." />
 
-        <div className="triage-source-options" role="radiogroup" aria-label="Case source">
-          <label className="research-ai-toggle">
+        <div className="case-source-toggle" role="radiogroup" aria-label="Case source">
+          <label className={caseSource === "existing" ? "selected" : ""}>
             <input
               type="radio"
               checked={caseSource === "existing"}
@@ -64,7 +60,7 @@ export function TriagePanel({
             />
             <span>Existing case</span>
           </label>
-          <label className="research-ai-toggle">
+          <label className={caseSource === "upload" ? "selected" : ""}>
             <input
               type="radio"
               checked={caseSource === "upload"}
@@ -154,7 +150,7 @@ export function TriagePanel({
               <ClipboardCheck size={20} />
               <div>
                 <p className="eyebrow">Result</p>
-                <h3>{triageResultTitle(activeAssessment)}</h3>
+                <h2>{triageResultTitle(activeAssessment)}</h2>
               </div>
               <span className={`status-pill ${activeAssessment.priority ? "approved" : "needs_review"}`}>
                 {activeAssessment.confidence}

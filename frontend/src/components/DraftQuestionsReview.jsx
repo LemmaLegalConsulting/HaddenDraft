@@ -2,6 +2,7 @@ import React from "react";
 import { CheckCircle2, HelpCircle, Loader2, PenLine, Sparkles } from "lucide-react";
 
 import { planQuestionsForReview, unansweredPlanQuestions } from "./planQuestions.js";
+import { PanelHeading } from "./PanelHeading.jsx";
 
 function updateDocument(plan, documentId, patch) {
   return {
@@ -43,7 +44,7 @@ function QuestionCard({ question, onChange, onSkip }) {
         />
       </label>
       <div className="button-row compact">
-        <button className="btn btn-outline-secondary" type="button" onClick={onSkip}>
+        <button className="btn btn-light" type="button" onClick={onSkip}>
           {question.ai_completable ? "Skip — leave this to the draft" : "Skip — leave as placeholder"}
         </button>
       </div>
@@ -76,15 +77,11 @@ export function DraftQuestionsReview({ plan, busy, onPlanChange, onBack, onConti
   return (
     <section className="step-screen">
       <div className="panel">
-        <div className="step-guidance">
-          <span className="block-kicker">Drafting questions</span>
-          <h3>Fill the blanks the case record could not</h3>
-          <p className="muted">
-            These are the template's blanks that are still open. Anything answered from the case
-            record is shown with its basis so you can correct it; anything left unanswered appears
-            as placeholder text (like <code>[Plaintiff Name]</code>) in the draft.
-          </p>
-        </div>
+        <PanelHeading
+          eyebrow="Drafting questions"
+          title="Fill the blanks the case record could not"
+          description={<>These are the template&apos;s blanks that are still open. Anything answered from the case record is shown with its basis so you can correct it; anything left unanswered appears as placeholder text (like <code>[Plaintiff Name]</code>) in the draft.</>}
+        />
         {questions.length === 0 ? (
           <div className="empty-state compact">
             <CheckCircle2 size={20} />
@@ -120,7 +117,7 @@ export function DraftQuestionsReview({ plan, busy, onPlanChange, onBack, onConti
           </>
         )}
         <div className="button-row step-actions">
-          <button className="btn btn-outline-secondary" type="button" onClick={onBack}>Back to plan</button>
+          <button className="btn btn-light" type="button" onClick={onBack}>Back to plan</button>
           <button className="btn btn-primary" type="button" disabled={busy || unansweredQuestions.length > 0} onClick={onContinue}>
             {busy ? <Loader2 className="spin" size={16} /> : <CheckCircle2 size={16} />} Continue to draft
           </button>

@@ -27,6 +27,7 @@ import LegalServerSaveToggle from "./LegalServerSaveToggle.jsx";
 import { saveDefault } from "./legalServerSave.js";
 import { LibraryBrowser } from "./LibraryBrowser.jsx";
 import { CaseFacetBrowser, CitationPreviewModal, MarkdownResponse, SourceBrowserModal, SourceFullViewButton } from "./MarkdownResponse.jsx";
+import { PanelHeading } from "./PanelHeading.jsx";
 
 const SOURCE_GROUPS = [
   {
@@ -279,6 +280,10 @@ export function ResearchPanel({ matter, sources, onResults, legalserverSave = nu
 
   return (
     <div className="panel">
+      <PanelHeading
+        title="Research"
+        description="Ask a question of the connected sources, or browse what has been imported."
+      />
       <div className="research-view-tabs" role="tablist" aria-label="Research view">
         <button type="button" role="tab" aria-selected={view === "ask"} className={view === "ask" ? "selected" : ""} onClick={() => setView("ask")}>
           <Search size={15} /> Ask a question
@@ -298,16 +303,18 @@ export function ResearchPanel({ matter, sources, onResults, legalserverSave = nu
             ))}
           </div>
         )}
-        <button
-          className="text-link-button"
-          type="button"
-          aria-expanded={showUploadForm}
-          onClick={() => setShowUploadForm((current) => !current)}
+        <details
+          className="disclosure"
+          open={showUploadForm}
+          onToggle={(event) => setShowUploadForm(event.currentTarget.open)}
         >
-          Upload a reference...
-        </button>
-        {showUploadForm && (
-          <form className="reference-upload-form" onSubmit={uploadResource}>
+          <summary>
+            Upload a reference
+            <span className="disclosure-summary">
+              {resources.length ? `${resources.length} private reference${resources.length === 1 ? "" : "s"}` : "None yet"}
+            </span>
+          </summary>
+          <form className="reference-upload-form disclosure-body" onSubmit={uploadResource}>
             <div className="reference-upload-grid">
               <label className="field">
                 <span>Private reference</span>
@@ -332,11 +339,11 @@ export function ResearchPanel({ matter, sources, onResults, legalserverSave = nu
                 onChange={(event) => setResourceFile(event.target.files?.[0] || null)}
               />
             </label>
-            <button className="btn btn-outline-secondary full" type="submit" disabled={uploadBusy || !resourceFile}>
+            <button className="btn btn-light full" type="submit" disabled={uploadBusy || !resourceFile}>
               {uploadBusy ? <Loader2 className="spin" size={16} /> : <Upload size={16} />} Upload private reference
             </button>
           </form>
-        )}
+        </details>
       </div>
       <form className="research-chat-form" onSubmit={runSearch}>
         <div className="chat-history-actions">
@@ -360,25 +367,33 @@ export function ResearchPanel({ matter, sources, onResults, legalserverSave = nu
             ))}
           </div>
         )}
-        <div className="research-mode-row">
-          <label className="research-ai-toggle">
-            <input
-              type="checkbox"
-              checked={useAi}
-              onChange={(event) => setUseAi(event.target.checked)}
-            />
-            <span>{useAi ? <Bot size={16} /> : <Database size={16} />} AI answer</span>
-          </label>
-          <small>{useAi ? "Ask connected sources and get a cited answer." : "Retrieve matching results only."}</small>
-        </div>
-        <div className="research-mode-row">
-          <label className="research-ai-toggle"><input type="radio" checked={sourceMode === "auto"} onChange={() => setSourceMode("auto")} /><span>Auto sources</span></label>
-          {hasCaseLawSource && (
-            <label className="research-ai-toggle"><input type="radio" checked={sourceMode === "cases"} onChange={() => setSourceMode("cases")} /><span>Cases only</span></label>
-          )}
-          <label className="research-ai-toggle"><input type="radio" checked={sourceMode === "manual"} onChange={() => setSourceMode("manual")} /><span>Choose sources</span></label>
-          <small>{sourceMode === "auto" ? "Automatically routes this question to relevant sources." : sourceMode === "cases" ? "Searches only the imported case-law corpus." : "Only the selected sources will be searched."}</small>
-        </div>
+        <details className="disclosure">
+          <summary>
+            Search options
+            <span className="disclosure-summary">{useAi ? "AI answer" : "Results only"} · {sourceMode === "auto" ? "auto sources" : sourceMode === "cases" ? "cases only" : "chosen sources"}</span>
+          </summary>
+          <div className="disclosure-body">
+            <div className="research-mode-row">
+              <label className="research-ai-toggle">
+                <input
+                  type="checkbox"
+                  checked={useAi}
+                  onChange={(event) => setUseAi(event.target.checked)}
+                />
+                <span>{useAi ? <Bot size={16} /> : <Database size={16} />} AI answer</span>
+              </label>
+              <small>{useAi ? "Ask connected sources and get a cited answer." : "Retrieve matching results only."}</small>
+            </div>
+            <div className="research-mode-row">
+              <label className="research-ai-toggle"><input type="radio" checked={sourceMode === "auto"} onChange={() => setSourceMode("auto")} /><span>Auto sources</span></label>
+              {hasCaseLawSource && (
+                <label className="research-ai-toggle"><input type="radio" checked={sourceMode === "cases"} onChange={() => setSourceMode("cases")} /><span>Cases only</span></label>
+              )}
+              <label className="research-ai-toggle"><input type="radio" checked={sourceMode === "manual"} onChange={() => setSourceMode("manual")} /><span>Choose sources</span></label>
+              <small>{sourceMode === "auto" ? "Automatically routes this question to relevant sources." : sourceMode === "cases" ? "Searches only the imported case-law corpus." : "Only the selected sources will be searched."}</small>
+            </div>
+          </div>
+        </details>
         {sourceMode === "auto" && sourceDecision && (
           <aside className="source-decision" aria-label="Automatic source decision">
             <strong>Auto-source decision</strong>

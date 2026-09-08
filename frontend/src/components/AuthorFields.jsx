@@ -93,7 +93,7 @@ export function AuthorFields({ profile, onChange, onSignatureChange }) {
       {value.signatureImage && (
         <div className="signature-preview full-span">
           <img src={value.signatureImage} alt="Signature preview" />
-          <button className="btn btn-outline-secondary" type="button" onClick={() => updateField("signatureImage", "")}>Remove image</button>
+          <button className="btn btn-light" type="button" onClick={() => updateField("signatureImage", "")}>Remove image</button>
         </div>
       )}
     </div>

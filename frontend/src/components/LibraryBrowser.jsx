@@ -116,7 +116,7 @@ function CaseCatalog({ onOpenSource }) {
           value={draftQuery}
           onChange={(event) => setDraftQuery(event.target.value)}
         />
-        <button className="btn btn-outline-secondary" type="submit" disabled={busy}>
+        <button className="btn btn-light" type="submit" disabled={busy}>
           {busy ? <Loader2 className="spin" size={14} /> : <Search size={14} />}
         </button>
         <label className="case-catalog-sort">
@@ -201,7 +201,7 @@ function CaseCatalog({ onOpenSource }) {
           ))}
           {hasMore({ total: payload?.total || 0, offset: 0, shown: results.length }) && (
             <button
-              className="btn btn-outline-secondary full"
+              className="btn btn-light full"
               type="button"
               disabled={busy}
               onClick={() => load({ offset: results.length })}
@@ -343,7 +343,7 @@ function DocumentShelf({ shelf, loading, onOpenSource }) {
           value={draftFilter}
           onChange={(event) => setDraftFilter(event.target.value)}
         />
-        <button className="btn btn-outline-secondary" type="submit" disabled={busy}>
+        <button className="btn btn-light" type="submit" disabled={busy}>
           {busy ? <Loader2 className="spin" size={14} /> : <Search size={14} />}
         </button>
       </form>

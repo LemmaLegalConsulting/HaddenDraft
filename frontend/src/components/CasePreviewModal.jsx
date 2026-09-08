@@ -64,7 +64,7 @@ export function CasePreviewModal({
           </div>
           <div className="modal-heading-actions">
             <button
-              className="icon-button"
+              className="btn btn-light icon-button"
               type="button"
               aria-label={fullscreen ? "Restore case preview" : "Make case preview full screen"}
               title={fullscreen ? "Restore case preview" : "Make case preview full screen"}
@@ -72,7 +72,7 @@ export function CasePreviewModal({
             >
               {fullscreen ? <Minimize2 size={18} /> : <Maximize2 size={18} />}
             </button>
-            <button className="icon-button" type="button" aria-label="Close case preview" title="Close case preview" onClick={onClose}>
+            <button className="btn btn-light icon-button" type="button" aria-label="Close case preview" title="Close case preview" onClick={onClose}>
               <X size={18} />
             </button>
           </div>
@@ -82,12 +82,12 @@ export function CasePreviewModal({
           {isActive ? (
             <span className="active-case-indicator"><CheckCircle2 size={16} /> Active case</span>
           ) : (
-            <button className="btn btn-outline-secondary" type="button" onClick={() => onMakeActive(matter.id)}>
+            <button className="btn btn-light" type="button" onClick={() => onMakeActive(matter.id)}>
               <CheckCircle2 size={16} /> Make active case
             </button>
           )}
           {isLegalServerCase(matter) && matter.legalserverUrl && (
-            <a className="btn btn-outline-secondary link-button" href={matter.legalserverUrl} target="_blank" rel="noreferrer noopener">
+            <a className="btn btn-light link-button" href={matter.legalserverUrl} target="_blank" rel="noreferrer noopener">
               <ExternalLink size={16} /> Open in LegalServer
             </a>
           )}
@@ -109,10 +109,10 @@ export function CasePreviewModal({
             {matter.summary && <section className="case-summary"><h4>Case summary</h4><p>{matter.summary}</p></section>}
             {isActive && isQuickCase(matter) && (
               <div className="case-actions">
-                <button className="btn btn-outline-secondary" type="button" onClick={() => setEditCaseOpen((current) => !current)}>
+                <button className="btn btn-light" type="button" onClick={() => setEditCaseOpen((current) => !current)}>
                   <Pencil size={16} /> Edit quick case
                 </button>
-                <button className="btn btn-outline-secondary" type="button" disabled title="LegalServer draft-intake preview is backend-only until posting is configured">
+                <button className="btn btn-light" type="button" disabled title="LegalServer draft-intake preview is backend-only until posting is configured">
                   <FilePlus2 size={16} /> Create LegalServer draft intake
                 </button>
               </div>

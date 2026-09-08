@@ -7,6 +7,7 @@ import { planQuestionsForReview, unansweredPlanQuestions } from "./planQuestions
 import { DraftSupportReview } from "./DraftSupportReview.jsx";
 import { FactReview } from "./FactReview.jsx";
 import { LawReview } from "./LawReview.jsx";
+import { PanelHeading } from "./PanelHeading.jsx";
 
 function updateDocument(plan, documentId, patch) {
   return {
@@ -63,10 +64,7 @@ export function DraftPlanReview({
   return (
     <section className="step-screen">
       <div className="panel">
-        <div className="step-guidance">
-          <span className="block-kicker">Draft plan</span>
-          <h3>{plan.summary || "Review the plan"}</h3>
-        </div>
+        <PanelHeading eyebrow="Draft plan" title={plan.summary || "Review the plan"} />
         <label className="field">
           <span>Overall goal</span>
           <textarea className="form-control" value={plan.summary || ""} onChange={(event) => onPlanChange({ ...plan, summary: event.target.value })} rows={3} />
@@ -158,7 +156,7 @@ export function DraftPlanReview({
           <textarea className="form-control" value={guidance} onChange={(event) => setGuidance(event.target.value)} rows={2} />
         </label>
         <div className="button-row step-actions">
-          <button className="btn btn-outline-secondary" type="button" disabled={busy} onClick={() => onRegeneratePlan(guidance)}>
+          <button className="btn btn-light" type="button" disabled={busy} onClick={() => onRegeneratePlan(guidance)}>
             {busy ? <Loader2 className="spin" size={16} /> : <Sparkles size={16} />} Regenerate plan
           </button>
           <button className="btn btn-primary" type="button" disabled={busy || !documentItems.length} onClick={onContinue}>

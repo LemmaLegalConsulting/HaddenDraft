@@ -6,7 +6,6 @@ import {
   FileText,
   FolderOpen,
   Gavel,
-  HelpCircle,
   Landmark,
   ListChecks,
   Loader2,
@@ -72,6 +71,8 @@ import {
   updatePlanItem,
   usesMunicipality,
 } from "./argumentGym.js";
+import { PanelHeading } from "./PanelHeading.jsx";
+import { InfoHint } from "./InfoHint.jsx";
 
 function RunProgress({ run }) {
   return (
@@ -103,7 +104,7 @@ function RunFailed({ run, busy, onRetry, onBack }) {
         <button className="btn btn-primary" type="button" disabled={busy} onClick={onRetry}>
           {busy ? <Loader2 className="spin" size={16} /> : <Swords size={16} />} Try again
         </button>
-        <button className="btn btn-outline-secondary" type="button" onClick={onBack}>
+        <button className="btn btn-light" type="button" onClick={onBack}>
           Back to setup
         </button>
       </div>
@@ -124,7 +125,7 @@ function SessionBrowser({ open, sessions, matters, matterId, onMatterChange, que
           <button className="btn btn-primary" type="button" onClick={onNew} disabled={busy}>
             <Plus size={16} /> New session
           </button>
-          <button className="btn btn-outline-secondary icon-button" type="button" onClick={onClose} aria-label="Close">
+          <button className="btn btn-light icon-button" type="button" onClick={onClose} aria-label="Close">
             <X size={16} />
           </button>
         </div>
@@ -198,7 +199,7 @@ function JurisdictionControls({ workspace, courts, courtTypes, detection, busy, 
               {mode.label}
             </label>
           ))}
-          <button className="btn btn-outline-secondary" type="button" onClick={onDetect} disabled={busy}>
+          <button className="btn btn-light" type="button" onClick={onDetect} disabled={busy}>
             <Search size={16} /> What would detection pick?
           </button>
         </div>
@@ -312,15 +313,6 @@ function FindingLines({ findings }) {
   );
 }
 
-function Hint({ text }) {
-  if (!text) return null;
-  return (
-    <button type="button" className="gym-hint" title={text} aria-label={text} onClick={(event) => event.preventDefault()}>
-      <HelpCircle size={14} />
-    </button>
-  );
-}
-
 function ChecklistEditor({ checklists, activeId, busy, onSave, onDelete, onSelect }) {
   const active = checklists.find((item) => String(item.id) === String(activeId)) || null;
   const [title, setTitle] = useState(active?.title || "");
@@ -373,7 +365,7 @@ function ChecklistEditor({ checklists, activeId, busy, onSave, onDelete, onSelec
             {busy ? <Loader2 className="spin" size={16} /> : <ListChecks size={16} />} {active ? "Save" : "Create"}
           </button>
           {active && (
-            <button className="btn btn-outline-secondary" type="button" disabled={busy} onClick={() => onDelete(active.id)}>
+            <button className="btn btn-light" type="button" disabled={busy} onClick={() => onDelete(active.id)}>
               <X size={16} /> Delete
             </button>
           )}
@@ -402,10 +394,10 @@ function CheckSelector({ catalog, selected, checklists, checklistId, busy, onTog
                 <span className="gym-check-line">
                   <strong>{check.label}</strong>
                   {check.kind === "model" && <span className="gym-check-kind">AI</span>}
-                  <Hint text={check.description} />
+                  <InfoHint text={check.description} label={`What "${check.label}" checks`} />
                   {check.id === "custom_checklist" && (
                     <button
-                      className="btn btn-outline-secondary btn-inline"
+                      className="btn btn-light btn-inline"
                       type="button"
                       onClick={(event) => {
                         event.preventDefault();
@@ -417,7 +409,7 @@ function CheckSelector({ catalog, selected, checklists, checklistId, busy, onTog
                   )}
                   {check.id === "passive_voice" && (
                     <button
-                      className="btn btn-outline-secondary btn-inline"
+                      className="btn btn-light btn-inline"
                       type="button"
                       onClick={(event) => {
                         event.preventDefault();
@@ -465,7 +457,7 @@ function ChecklistModal({ open, checklists, activeId, busy, onClose, onSelect, o
       <div className="editor-modal" ref={dialogRef} role="dialog" aria-modal="true" aria-label="Checklists">
         <div className="modal-heading">
           <h4>Custom checklists</h4>
-          <button className="btn btn-outline-secondary icon-button" type="button" onClick={onClose} aria-label="Close">
+          <button className="btn btn-light icon-button" type="button" onClick={onClose} aria-label="Close">
             <X size={16} />
           </button>
         </div>
@@ -493,7 +485,7 @@ function PassivePhraseModal({ open, phrases, busy, onClose, onSave }) {
       <div className="editor-modal" ref={dialogRef} role="dialog" aria-modal="true" aria-label="Passive phrases">
         <div className="modal-heading">
           <h4>Passive phrases to allow</h4>
-          <button className="btn btn-outline-secondary icon-button" type="button" onClick={onClose} aria-label="Close">
+          <button className="btn btn-light icon-button" type="button" onClick={onClose} aria-label="Close">
             <X size={16} />
           </button>
         </div>
@@ -503,7 +495,7 @@ function PassivePhraseModal({ open, phrases, busy, onClose, onSave }) {
         </p>
         <textarea className="form-control" rows={8} value={text} onChange={(event) => setText(event.target.value)} />
         <div className="button-row step-actions">
-          <button className="btn btn-outline-secondary" type="button" onClick={onClose}>Cancel</button>
+          <button className="btn btn-light" type="button" onClick={onClose}>Cancel</button>
           <button
             className="btn btn-primary"
             type="button"
@@ -634,10 +626,10 @@ function AuditSummary({ run, onOpenArtifact, actionsDisabled }) {
       )}
 
       <div className="gym-audit-actions">
-        <button className="btn-link" type="button" disabled={actionsDisabled} onClick={() => onOpenArtifact("prep_sheet")}>
+        <button className="text-link-button" type="button" disabled={actionsDisabled} onClick={() => onOpenArtifact("prep_sheet")}>
           Opposition prep sheet
         </button>
-        <button className="btn-link" type="button" disabled={actionsDisabled} onClick={() => onOpenArtifact("report")}>
+        <button className="text-link-button" type="button" disabled={actionsDisabled} onClick={() => onOpenArtifact("report")}>
           Stress-test report
         </button>
       </div>
@@ -689,7 +681,7 @@ function EvidenceModal({ challenge, onClose }) {
       <div className="editor-modal gym-evidence-modal" ref={dialogRef} role="dialog" aria-modal="true" aria-label="Evidence">
         <div className="modal-heading">
           <h4>Evidence</h4>
-          <button className="btn btn-outline-secondary icon-button" type="button" onClick={onClose} aria-label="Close">
+          <button className="btn btn-light icon-button" type="button" onClick={onClose} aria-label="Close">
             <X size={16} />
           </button>
         </div>
@@ -755,11 +747,11 @@ function ChallengeCard({ challenge, busy, queued, onDisposition, onResearch, onQ
 
       <div className="gym-card-more">
         {evidence > 0 && (
-          <button className="btn-link" type="button" onClick={() => onEvidence(challenge)}>
+          <button className="text-link-button" type="button" onClick={() => onEvidence(challenge)}>
             Evidence ({evidence})
           </button>
         )}
-        <button className="btn-link" type="button" onClick={() => setExpanded((open) => !open)}>
+        <button className="text-link-button" type="button" onClick={() => setExpanded((open) => !open)}>
           {expanded ? "Less" : "Context"}
         </button>
         {remaining && <span className="gym-remaining">Still exposed: {remaining}</span>}
@@ -792,23 +784,23 @@ function ChallengeCard({ challenge, busy, queued, onDisposition, onResearch, onQ
       )}
 
       <div className="gym-card-actions">
-        <button className="btn-quiet" type="button" disabled={busy} onClick={() => onResearch(challenge)}>
+        <button className="text-link-button" type="button" disabled={busy} onClick={() => onResearch(challenge)}>
           {busy ? <Loader2 className="spin" size={14} /> : <Search size={14} />} Research
         </button>
         {challenge.target?.blockKey && (
           <button
-            className={`btn-quiet${queued ? " active" : ""}`}
+            className={`text-link-button${queued ? " active" : ""}`}
             type="button"
             onClick={() => onQueueRevision(challenge)}
           >
             {queued ? <Check size={14} /> : <FileText size={14} />} {queued ? "In plan" : "Add to plan"}
           </button>
         )}
-        <button className="btn-quiet" type="button" onClick={() => onCopy(challenge)}>
+        <button className="text-link-button" type="button" onClick={() => onCopy(challenge)}>
           <ClipboardCopy size={14} /> Copy
         </button>
         <button
-          className="btn-quiet"
+          className="text-link-button"
           type="button"
           disabled={busy}
           onClick={() => onDisposition(challenge, challenge.disposition === "addressed" ? "open" : "addressed")}
@@ -816,7 +808,7 @@ function ChallengeCard({ challenge, busy, queued, onDisposition, onResearch, onQ
           <Check size={14} /> {challenge.disposition === "addressed" ? "Reopen" : "Addressed"}
         </button>
         <button
-          className="btn-quiet"
+          className="text-link-button"
           type="button"
           disabled={busy}
           onClick={() => onDisposition(challenge, challenge.disposition === "dismissed" ? "open" : "dismissed")}
@@ -885,10 +877,10 @@ function ArtifactModal({ artifact, onClose }) {
         <div className="modal-heading">
           <h4>{artifact.title}</h4>
           <div className="button-row compact">
-            <button className="btn btn-outline-secondary" type="button" onClick={() => window.print()}>
+            <button className="btn btn-light" type="button" onClick={() => window.print()}>
               <Printer size={16} /> Print
             </button>
-            <button className="btn btn-outline-secondary icon-button" type="button" onClick={onClose} aria-label="Close">
+            <button className="btn btn-light icon-button" type="button" onClick={onClose} aria-label="Close">
               <X size={16} />
             </button>
           </div>
@@ -1005,7 +997,7 @@ function GymRevisionModal({ plan, busy, onClose, onUpdateItem, onApply }) {
           <h4>
             <Swords size={16} /> Revision plan from challenges
           </h4>
-          <button className="btn btn-outline-secondary icon-button" type="button" onClick={onClose} aria-label="Close">
+          <button className="btn btn-light icon-button" type="button" onClick={onClose} aria-label="Close">
             <X size={16} />
           </button>
         </div>
@@ -1049,7 +1041,7 @@ function GymRevisionModal({ plan, busy, onClose, onUpdateItem, onApply }) {
           </div>
         )}
         <div className="button-row step-actions">
-          <button className="btn btn-outline-secondary" type="button" onClick={onClose}>
+          <button className="btn btn-light" type="button" onClick={onClose}>
             Cancel
           </button>
           <button className="btn btn-primary" type="button" disabled={busy || items.length === 0} onClick={onApply}>
@@ -1469,26 +1461,20 @@ export function ArgumentGymPanel({ matter = null, cases = [], focusRun = null, o
 
   return (
     <section className="panel gym-panel">
-      <div className="panel-heading gym-heading">
-        <div>
-          <h3>
-            <Swords size={18} /> Argument gym
-          </h3>
-          <p className="muted">
-            {workspace
-              ? sessionSubtitle(workspace)
-              : "An opponent attacks the brief, a judge weighs it, and a coach proposes answers. Nothing here edits your document."}
-          </p>
-        </div>
-        <div className="button-row compact">
-          <button className="btn btn-outline-secondary" type="button" onClick={() => setSessionsOpen(true)}>
-            <FolderOpen size={16} /> Open session{sessions.length ? ` (${sessions.length})` : ""}
-          </button>
-          <button className="btn btn-outline-secondary" type="button" onClick={startNewSession} disabled={busy}>
-            <Plus size={16} /> New
-          </button>
-        </div>
-      </div>
+      <PanelHeading
+        icon={<Swords size={18} />}
+        title="Argument gym"
+        description={workspace
+          ? sessionSubtitle(workspace)
+          : "An opponent attacks the brief, a judge weighs it, and a coach proposes answers. Nothing here edits your document."}
+      >
+        <button className="btn btn-light" type="button" onClick={() => setSessionsOpen(true)}>
+          <FolderOpen size={16} /> Open session{sessions.length ? ` (${sessions.length})` : ""}
+        </button>
+        <button className="btn btn-light" type="button" onClick={startNewSession} disabled={busy}>
+          <Plus size={16} /> New
+        </button>
+      </PanelHeading>
 
       {error && <div className="alert alert-danger">{error}</div>}
       {notice && <div className="alert alert-info">{notice}</div>}
@@ -1509,7 +1495,7 @@ export function ArgumentGymPanel({ matter = null, cases = [], focusRun = null, o
                 {uploadNote && <p className="muted gym-split-note">{uploadNote}</p>}
               </>
             ) : (
-              <label className="btn btn-outline-secondary gym-upload">
+              <label className="btn btn-light gym-upload">
                 <Upload size={16} /> Upload a brief (PDF, DOCX, or text)
                 <input
                   type="file"
@@ -1562,7 +1548,7 @@ export function ArgumentGymPanel({ matter = null, cases = [], focusRun = null, o
                     <li key={document.id}>{document.title}</li>
                   ))}
                 </ul>
-                <label className="btn btn-outline-secondary gym-upload">
+                <label className="btn btn-light gym-upload">
                   <Upload size={16} /> Add a case document
                   <input
                     type="file"
@@ -1575,10 +1561,10 @@ export function ArgumentGymPanel({ matter = null, cases = [], focusRun = null, o
             )}
           </section>
 
-          <details className="gym-config">
+          <details className="disclosure gym-config">
             <summary>
               <ListChecks size={16} /> Checks to run
-              <span className="muted">{selectedChecks.length} of {checkCatalog.length} selected</span>
+              <span className="disclosure-summary">{selectedChecks.length} of {checkCatalog.length} selected</span>
             </summary>
             <CheckSelector
               catalog={checkCatalog}
@@ -1593,10 +1579,10 @@ export function ArgumentGymPanel({ matter = null, cases = [], focusRun = null, o
             />
           </details>
 
-          <details className="gym-config">
+          <details className="disclosure gym-config">
             <summary>
               <Landmark size={16} /> Jurisdiction and filing rules
-              <span className="muted">
+              <span className="disclosure-summary">
                 {workspace?.court?.label || (workspace?.courtRuleMode === "off" ? "off" : "detected from the brief")}
               </span>
             </summary>
@@ -1643,7 +1629,7 @@ export function ArgumentGymPanel({ matter = null, cases = [], focusRun = null, o
               <span className="muted">{challengeSummary(challenges)}</span>
               {rerunSummary(run.comparison) && <span className="muted">{rerunSummary(run.comparison)}</span>}
             </div>
-            <button className="btn btn-outline-secondary" type="button" disabled={actionsDisabled} onClick={startRun}>
+            <button className="btn btn-light" type="button" disabled={actionsDisabled} onClick={startRun}>
               {busy ? <Loader2 className="spin" size={16} /> : <Swords size={16} />} Run again
             </button>
           </div>
@@ -1661,7 +1647,7 @@ export function ArgumentGymPanel({ matter = null, cases = [], focusRun = null, o
                 <button
                   key={item.id}
                   type="button"
-                  className={`btn ${filter === item.id ? "btn-primary" : "btn-outline-secondary"}`}
+                  className={`btn ${filter === item.id ? "btn-primary" : "btn-light"}`}
                   onClick={() => setFilter(item.id)}
                 >
                   {item.label} ({item.count})
@@ -1711,7 +1697,7 @@ export function ArgumentGymPanel({ matter = null, cases = [], focusRun = null, o
             <AuditSummary run={run} onOpenArtifact={openArtifact} actionsDisabled={actionsDisabled} />
           </div>
 
-          <details className="gym-config">
+          <details className="disclosure gym-config">
             <summary>
               <ListChecks size={16} /> Checks and jurisdiction
               <span className="muted">change what the next run does</span>

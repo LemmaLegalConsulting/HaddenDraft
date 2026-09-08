@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { Loader2, RefreshCw } from "lucide-react";
 
 import { api } from "../api/client.js";
+import { PanelHeading } from "./PanelHeading.jsx";
 
 const PURPOSE_ORDER = ["legal_authority", "example_language", "background_reference"];
 
@@ -58,18 +59,15 @@ export function DraftSupportReview({ session, selectedResults, onSelectedResults
 
   return (
     <div className="panel">
-      <div className="step-guidance">
-        <span className="block-kicker">AI proposed, human reviewed</span>
-        <h3>Review drafting support</h3>
-        <p>
-          The AI reviews the selected template, active sections, confirmed facts, jurisdiction, and drafting instructions, then proposes the
-          authorities, examples, and references the draft may rely on. Confirm the sources below before legal issue review.
-        </p>
-        {guidance && <small>{guidance}</small>}
-      </div>
+      <PanelHeading
+        eyebrow="AI proposed, human reviewed"
+        title="Review drafting support"
+        description="The AI reviews the selected template, active sections, confirmed facts, jurisdiction, and drafting instructions, then proposes the authorities, examples, and references the draft may rely on. Confirm the sources below before legal issue review."
+      />
+      {guidance && <p className="muted">{guidance}</p>}
 
       <div className="button-row compact">
-        <button className="btn btn-outline-secondary" type="button" disabled={busy || !session?.id} onClick={loadRecommendations}>
+        <button className="btn btn-light" type="button" disabled={busy || !session?.id} onClick={loadRecommendations}>
           {busy ? <Loader2 className="spin" size={16} /> : <RefreshCw size={16} />} Refresh AI suggestions
         </button>
         <span className="muted-inline">{selectedResults.length} selected</span>

@@ -58,7 +58,7 @@ export function ValidationPanel({ findings = [], summary = null, onReviseWithAI,
       )}
       {onReviseWithAI && revisableCount > 0 && (
         <div className="button-row compact">
-          <button className="btn btn-outline-secondary" type="button" disabled={reviseBusy} onClick={onReviseWithAI}>
+          <button className="btn btn-light" type="button" disabled={reviseBusy} onClick={onReviseWithAI}>
             {reviseBusy ? <Loader2 className="spin" size={16} /> : <Sparkles size={16} />} Revise with AI
           </button>
         </div>

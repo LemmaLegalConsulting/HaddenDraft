@@ -18,7 +18,7 @@ export function TemplateBuilder({ onCreated }) {
   return (
     <section className="panel">
       <div className="button-row panel-actions">
-        <button className="btn btn-outline-secondary" onClick={() => setOpen((value) => !value)}>
+        <button className="btn btn-light" onClick={() => setOpen((value) => !value)}>
           <Upload size={16} /> {open ? "Close" : "Open"}
         </button>
       </div>
