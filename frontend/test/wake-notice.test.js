@@ -17,9 +17,16 @@ function recorder() {
   return { seen, stop };
 }
 
-/** A health endpoint that answers after `ms`, standing in for the container. */
+/** A health endpoint that answers after `ms`, standing in for the container.
+ *
+ * The timer is unref'd. Two of the tests below stand up a health endpoint that
+ * answers in a minute -- a server that is, for the purposes of the test, not
+ * answering at all -- and assert against it a couple of seconds later. A
+ * ref'd timer would still hold the event loop open for the rest of that
+ * minute after the last assertion, which is why this one file used to take 67
+ * of the suite's 68 seconds while every other file finished in under 105ms. */
 function healthAnsweringIn(ms) {
-  return () => delay(ms);
+  return () => delay(ms, undefined, { ref: false });
 }
 
 test("a request that returns promptly says nothing", async () => {
