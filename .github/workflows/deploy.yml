@@ -5,6 +5,11 @@ name: Deploy to Azure
 on:
   push:
     branches: [main]
+  # Pull requests run the test job only -- the deploy job below is gated on the
+  # event being a push. A check that only runs after the merge cannot stop a
+  # broken build from reaching production, which is the whole point of having
+  # one.
+  pull_request:
   workflow_dispatch:
 
 # Serialize deploys. Two merges in quick succession must not race to update the
@@ -85,8 +90,36 @@ jobs:
         run: npm run test
         working-directory: frontend
 
+      # Chromium only. The smoke check is about whether each screen renders at
+      # all, which does not differ between engines, and installing three would
+      # cost more than the check itself.
+      - name: Install Chromium for the screen smoke check
+        run: npx playwright install --with-deps chromium
+        working-directory: frontend
+
+      # Opens every screen in the built app against a stubbed API. A component
+      # that is used but never defined compiles and deploys perfectly well and
+      # then throws on render, so nothing above this line catches it: only
+      # rendering the screen does.
+      - name: Screen smoke check
+        run: npm run test:smoke
+        working-directory: frontend
+
+      - name: Upload the smoke report when it fails
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: screen-smoke-report
+          path: |
+            frontend/playwright-report-smoke/
+            frontend/test-results-smoke/
+          retention-days: 7
+
   deploy:
     needs: test
+    # Never on a pull request: the test job above gates the merge, and this job
+    # publishes to production.
+    if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     # To require manual approval before production, create a "production"
     # environment in repo settings with required reviewers and uncomment the

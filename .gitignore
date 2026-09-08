@@ -35,7 +35,9 @@ staticfiles/
 frontend/node_modules/
 frontend/dist/
 frontend/playwright-report/
+frontend/playwright-report-smoke/
 frontend/test-results/
+frontend/test-results-smoke/
 node_modules/
 dist/
 npm-debug.log*

@@ -6,6 +6,7 @@ import {
   FileText,
   FolderOpen,
   Gavel,
+  HelpCircle,
   Landmark,
   ListChecks,
   Loader2,
@@ -30,6 +31,8 @@ import {
   canStartRun,
   caseOptions,
   challengeSummary,
+  checklistItemsFromText,
+  checklistItemsToText,
   clamp,
   cleanJurisdictionDetail,
   complianceGroups,
@@ -44,6 +47,7 @@ import {
   evidenceCount,
   exhibitSummary,
   findingsByCheck,
+  groupChecks,
   isRunFinished,
   materialsByOrigin,
   matterFilterOptions,
@@ -305,6 +309,212 @@ function FindingLines({ findings }) {
         </li>
       ))}
     </ul>
+  );
+}
+
+function Hint({ text }) {
+  if (!text) return null;
+  return (
+    <button type="button" className="gym-hint" title={text} aria-label={text} onClick={(event) => event.preventDefault()}>
+      <HelpCircle size={14} />
+    </button>
+  );
+}
+
+function ChecklistEditor({ checklists, activeId, busy, onSave, onDelete, onSelect }) {
+  const active = checklists.find((item) => String(item.id) === String(activeId)) || null;
+  const [title, setTitle] = useState(active?.title || "");
+  const [text, setText] = useState(checklistItemsToText(active?.items || []));
+
+  useEffect(() => {
+    setTitle(active?.title || "");
+    setText(checklistItemsToText(active?.items || []));
+  }, [active?.id]);
+
+  return (
+    <div className="gym-checklist-editor">
+      <div className="gym-checks-body">
+        <p className="muted">
+          One review question per line. An item can look things up — the case record, an authority, a passage of the
+          brief — and the run reports what it read before answering.
+        </p>
+        <label className="form-label">
+          Checklist
+          <select className="form-select" value={activeId || ""} onChange={(event) => onSelect(event.target.value)}>
+            <option value="">New checklist…</option>
+            {checklists.map((checklist) => (
+              <option key={checklist.id} value={checklist.id}>
+                {checklist.title}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label className="form-label">
+          Name
+          <input className="form-control" value={title} onChange={(event) => setTitle(event.target.value)} />
+        </label>
+        <label className="form-label">
+          Items
+          <textarea
+            className="form-control"
+            rows={6}
+            placeholder={"Every date in the statement of facts appears in a document in the file.\nEach authority cited is still good law."}
+            value={text}
+            onChange={(event) => setText(event.target.value)}
+          />
+        </label>
+        <div className="button-row compact">
+          <button
+            className="btn btn-primary"
+            type="button"
+            disabled={busy || !title.trim()}
+            onClick={() => onSave({ id: active?.id, title: title.trim(), items: checklistItemsFromText(text) })}
+          >
+            {busy ? <Loader2 className="spin" size={16} /> : <ListChecks size={16} />} {active ? "Save" : "Create"}
+          </button>
+          {active && (
+            <button className="btn btn-outline-secondary" type="button" disabled={busy} onClick={() => onDelete(active.id)}>
+              <X size={16} /> Delete
+            </button>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function CheckSelector({ catalog, selected, checklists, checklistId, busy, onToggle, onChecklist, onManageChecklists, onManagePassive }) {
+  return (
+    <div className="gym-checks">
+      <div className="gym-checks-body">
+        <p className="muted">Pick which tests you want to run.</p>
+        {groupChecks(catalog).map((group) => (
+          <fieldset key={group.id} className="gym-check-group">
+            <legend>{group.label}</legend>
+            {group.checks.map((check) => (
+              <label key={check.id} className="gym-check">
+                <input
+                  type="checkbox"
+                  checked={selected.includes(check.id)}
+                  disabled={busy}
+                  onChange={() => onToggle(check.id)}
+                />
+                <span className="gym-check-line">
+                  <strong>{check.label}</strong>
+                  {check.kind === "model" && <span className="gym-check-kind">AI</span>}
+                  <Hint text={check.description} />
+                  {check.id === "custom_checklist" && (
+                    <button
+                      className="btn btn-outline-secondary btn-inline"
+                      type="button"
+                      onClick={(event) => {
+                        event.preventDefault();
+                        onManageChecklists();
+                      }}
+                    >
+                      Manage checklists
+                    </button>
+                  )}
+                  {check.id === "passive_voice" && (
+                    <button
+                      className="btn btn-outline-secondary btn-inline"
+                      type="button"
+                      onClick={(event) => {
+                        event.preventDefault();
+                        onManagePassive();
+                      }}
+                    >
+                      Manage passive phrases
+                    </button>
+                  )}
+                </span>
+              </label>
+            ))}
+          </fieldset>
+        ))}
+
+        {selected.includes("custom_checklist") && !checklistId && (
+          <p className="gym-needs-attention">
+            Attach a checklist below, or this check will not run.
+          </p>
+        )}
+        {selected.includes("custom_checklist") && (
+          <label className="form-label gym-inline-field">
+            Checklist to apply
+            <select className="form-select" value={checklistId || ""} onChange={(event) => onChecklist(event.target.value)}>
+              <option value="">Choose a checklist…</option>
+              {checklists.map((checklist) => (
+                <option key={checklist.id} value={checklist.id}>
+                  {checklist.title} ({checklist.items.length} item{checklist.items.length === 1 ? "" : "s"})
+                </option>
+              ))}
+            </select>
+          </label>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function ChecklistModal({ open, checklists, activeId, busy, onClose, onSelect, onSave, onDelete }) {
+  const dialogRef = useRef(null);
+  useModalDismiss(dialogRef, onClose, { active: open });
+  if (!open) return null;
+  return (
+    <div className="modal-backdrop" role="presentation">
+      <div className="editor-modal" ref={dialogRef} role="dialog" aria-modal="true" aria-label="Checklists">
+        <div className="modal-heading">
+          <h4>Custom checklists</h4>
+          <button className="btn btn-outline-secondary icon-button" type="button" onClick={onClose} aria-label="Close">
+            <X size={16} />
+          </button>
+        </div>
+        <ChecklistEditor
+          checklists={checklists}
+          activeId={activeId}
+          busy={busy}
+          onSelect={onSelect}
+          onSave={onSave}
+          onDelete={onDelete}
+        />
+      </div>
+    </div>
+  );
+}
+
+function PassivePhraseModal({ open, phrases, busy, onClose, onSave }) {
+  const dialogRef = useRef(null);
+  const [text, setText] = useState((phrases || []).join("\n"));
+  useModalDismiss(dialogRef, onClose, { active: open });
+  useEffect(() => setText((phrases || []).join("\n")), [open, phrases]);
+  if (!open) return null;
+  return (
+    <div className="modal-backdrop" role="presentation">
+      <div className="editor-modal" ref={dialogRef} role="dialog" aria-modal="true" aria-label="Passive phrases">
+        <div className="modal-heading">
+          <h4>Passive phrases to allow</h4>
+          <button className="btn btn-outline-secondary icon-button" type="button" onClick={onClose} aria-label="Close">
+            <X size={16} />
+          </button>
+        </div>
+        <p className="muted">
+          One per line. The passive-voice check stays quiet about these — "service was perfected" is the register a
+          court expects, not a mistake.
+        </p>
+        <textarea className="form-control" rows={8} value={text} onChange={(event) => setText(event.target.value)} />
+        <div className="button-row step-actions">
+          <button className="btn btn-outline-secondary" type="button" onClick={onClose}>Cancel</button>
+          <button
+            className="btn btn-primary"
+            type="button"
+            disabled={busy}
+            onClick={() => onSave(text.split("\n").map((line) => line.trim()).filter(Boolean))}
+          >
+            {busy ? <Loader2 className="spin" size={16} /> : null} Save
+          </button>
+        </div>
+      </div>
+    </div>
   );
 }
 

@@ -2,6 +2,9 @@ import { defineConfig } from "@playwright/test";
 
 export default defineConfig({
   testDir: "./e2e",
+  // The screen smoke check runs on its own stubbed config; it needs no backend
+  // and must not drag Django and LegalServer credentials in behind it.
+  testIgnore: /screens-render\.spec\.js/,
   timeout: 120_000,
   expect: { timeout: 20_000 },
   fullyParallel: false,
