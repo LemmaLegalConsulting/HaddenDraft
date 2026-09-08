@@ -86,6 +86,9 @@ def clean(value, *, limit=4000):
     return str(value or "").strip()[:limit]
 
 
+VERDICT_LIMIT = GymRun._meta.get_field("assessment_verdict").max_length
+
+
 def choice(value, allowed, default):
     normalized = str(value or "").strip().casefold()
     return normalized if normalized in allowed else default
@@ -778,7 +781,11 @@ def _one_paragraph(text, *, max_words=MAX_ASSESSMENT_WORDS):
 
 def assessment_stage(challenges, coverage, *, brief_title, jurisdiction, matter_summary, llm_client=None):
     def parse(payload):
-        verdict = clean(payload.get("verdict"), limit=120)
+        # Measured against the column, not a number chosen here. A verdict
+        # longer than the column takes the whole run down at the final save --
+        # after every model call has been paid for -- and the two limits drifted
+        # apart precisely because nothing tied them together.
+        verdict = clean(payload.get("verdict"), limit=VERDICT_LIMIT)
         assessment = _one_paragraph(payload.get("assessment"))
         if not assessment:
             return []
@@ -1426,7 +1433,11 @@ def execute_run(run, *, user=None, request=None, llm_client=None, connector_regi
         run.error = str(exc)
         run.stage_trace = stages
         run.completed_at = timezone.now()
-        run.save()
+        # Only the fields this handler sets. A plain save() rewrites every
+        # column, including whichever one raised on the way in, so the handler
+        # raises too and the row keeps saying "running" -- a run that hangs
+        # forever instead of reporting the failure it already knows about.
+        run.save(update_fields=["status", "error", "stage_trace", "completed_at"])
     return run
 
 
