@@ -1,0 +1,1833 @@
+[
+  {
+    "case_family_id": "masten-v-k-d-mgmt",
+    "case_name": "MASTEN v. K&D MGMT.",
+    "docket": "",
+    "court": "COURT OF APPEALS OF OHIO, 8TH DISTRICT",
+    "stratum": "appellate",
+    "documents": [
+      {
+        "wrapper_file": "Brief For The Appellant.docx",
+        "text_source": "lexis_docx",
+        "has_record": false,
+        "title": "Brief For The Appellant",
+        "lexis_type": "Initial Brief: Appellant-Petitioner",
+        "filed": "December 17, 2012",
+        "body_chars": 41956,
+        "units": 300,
+        "readable": true,
+        "advocacy": true,
+        "theme": {
+          "heading_hits": 0,
+          "argument_hits": 60,
+          "argument_units": 128,
+          "argument_fraction": 0.469,
+          "possession_hits": 46,
+          "total_mentions": 117,
+          "central": true
+        },
+        "eligible": true,
+        "excluded_because": []
+      }
+    ],
+    "focal": "Brief For The Appellant.docx",
+    "eligible_count": 1,
+    "document_count": 1
+  },
+  {
+    "case_family_id": "lee-v-wallace",
+    "case_name": "LEE v. WALLACE",
+    "docket": "",
+    "court": "COURT OF APPEALS OF OHIO, 8TH DISTRICT",
+    "stratum": "appellate",
+    "documents": [
+      {
+        "wrapper_file": "Appellee, Nancy Wallace's Brief.docx",
+        "text_source": "lexis_docx",
+        "has_record": true,
+        "title": "Appellee, Nancy Wallace's Brief",
+        "lexis_type": "Initial Brief: Appellee-Respondent",
+        "filed": "July 15, 2009",
+        "body_chars": 14183,
+        "units": 132,
+        "readable": true,
+        "advocacy": true,
+        "theme": {
+          "heading_hits": 0,
+          "argument_hits": 7,
+          "argument_units": 20,
+          "argument_fraction": 0.35,
+          "possession_hits": 4,
+          "total_mentions": 18,
+          "central": true
+        },
+        "eligible": true,
+        "excluded_because": []
+      },
+      {
+        "wrapper_file": "Brief of Defendant-Appellee Estate of John F. Wallace, Deceased.docx",
+        "text_source": "lexis_docx",
+        "has_record": true,
+        "title": "Brief of Defendant-Appellee Estate of John F. Wallace, Deceased",
+        "lexis_type": "Initial Brief: Appellee-Respondent",
+        "filed": "June 15, 2009",
+        "body_chars": 32235,
+        "units": 197,
+        "readable": true,
+        "advocacy": true,
+        "theme": {
+          "heading_hits": 0,
+          "argument_hits": 30,
+          "argument_units": 51,
+          "argument_fraction": 0.588,
+          "possession_hits": 26,
+          "total_mentions": 98,
+          "central": true
+        },
+        "eligible": true,
+        "excluded_because": []
+      }
+    ],
+    "focal": "Brief of Defendant-Appellee Estate of John F. Wallace, Deceased.docx",
+    "eligible_count": 2,
+    "document_count": 2
+  },
+  {
+    "case_family_id": "kerr-v-lakewood-shore-towers-inc",
+    "case_name": "KERR v. LAKEWOOD SHORE TOWERS, INC.",
+    "docket": "",
+    "court": "COURT OF APPEALS OF OHIO, 8TH DISTRICT",
+    "stratum": "appellate",
+    "documents": [
+      {
+        "wrapper_file": "Assignment of Error and Brief of Plaintiff-Appellant.docx",
+        "text_source": "lexis_docx",
+        "has_record": false,
+        "title": "Assignment of Error and Brief of Plaintiff-Appellant",
+        "lexis_type": "Initial Brief: Appellant-Petitioner",
+        "filed": "July 28, 2009",
+        "body_chars": 24850,
+        "units": 195,
+        "readable": true,
+        "advocacy": true,
+        "theme": {
+          "heading_hits": 0,
+          "argument_hits": 16,
+          "argument_units": 123,
+          "argument_fraction": 0.13,
+          "possession_hits": 15,
+          "total_mentions": 26,
+          "central": true
+        },
+        "eligible": true,
+        "excluded_because": []
+      }
+    ],
+    "focal": "Assignment of Error and Brief of Plaintiff-Appellant.docx",
+    "eligible_count": 1,
+    "document_count": 1
+  },
+  {
+    "case_family_id": "cleveland-dev-v-carter",
+    "case_name": "CLEVELAND DEV. v. CARTER",
+    "docket": "",
+    "court": "COURT OF APPEALS OF OHIO, 8TH DISTRICT",
+    "stratum": "appellate",
+    "documents": [
+      {
+        "wrapper_file": "Corrected Assignments of Error and Brief of Appellant.docx",
+        "text_source": "lexis_docx",
+        "has_record": false,
+        "title": "Corrected Assignments of Error and Brief of Appellant",
+        "lexis_type": "Initial Brief: Appellant-Petitioner",
+        "filed": "March 18, 2011",
+        "body_chars": 47474,
+        "units": 266,
+        "readable": true,
+        "advocacy": true,
+        "theme": {
+          "heading_hits": 0,
+          "argument_hits": 15,
+          "argument_units": 117,
+          "argument_fraction": 0.128,
+          "possession_hits": 3,
+          "total_mentions": 18,
+          "central": true
+        },
+        "eligible": true,
+        "excluded_because": []
+      }
+    ],
+    "focal": "Corrected Assignments of Error and Brief of Appellant.docx",
+    "eligible_count": 1,
+    "document_count": 1
+  },
+  {
+    "case_family_id": "estate-of-anthony-notarian-et-al-vs-nota",
+    "case_name": "ESTATE OF ANTHONY NOTARIAN et al VS . NOTARIAN, JULIA et al",
+    "docket": "",
+    "court": "Ohio Common Pleas Court, Geauga County",
+    "stratum": "trial",
+    "documents": [
+      {
+        "wrapper_file": "DEFENDANT'S BRIEF IN OPPOSITION TO PLAINTIFF'S MOTION FOR SUMMARY JUDGMENT FILED.docx",
+        "text_source": "ocr_scan",
+        "has_record": true,
+        "title": "DEFENDANT'S BRIEF IN OPPOSITION TO PLAINTIFF'S MOTION FOR SUMMARY JUDGMENT FILED",
+        "lexis_type": "Unknown",
+        "filed": "April 8, 2024",
+        "body_chars": 8088,
+        "units": 22,
+        "readable": true,
+        "advocacy": true,
+        "theme": {
+          "heading_hits": 0,
+          "argument_hits": 3,
+          "argument_units": 6,
+          "argument_fraction": 0.5,
+          "possession_hits": 3,
+          "total_mentions": 5,
+          "central": false
+        },
+        "eligible": false,
+        "excluded_because": [
+          "eviction is not central: 3 of 6 argument units carry landlord-tenant vocabulary (50%), 3 put possession in issue"
+        ]
+      },
+      {
+        "wrapper_file": "PLAINTIFF'S MOTION FOR PARTIAL SUMMARY JUDGMENT FILED. PO.docx",
+        "text_source": "ocr_scan",
+        "has_record": true,
+        "title": "PLAINTIFF'S MOTION FOR PARTIAL SUMMARY JUDGMENT FILED. PO",
+        "lexis_type": "Unknown",
+        "filed": "January 25, 2024",
+        "body_chars": 14224,
+        "units": 40,
+        "readable": true,
+        "advocacy": true,
+        "theme": {
+          "heading_hits": 0,
+          "argument_hits": 10,
+          "argument_units": 18,
+          "argument_fraction": 0.556,
+          "possession_hits": 10,
+          "total_mentions": 30,
+          "central": true
+        },
+        "eligible": true,
+        "excluded_because": []
+      },
+      {
+        "wrapper_file": "PLAINTIFFS REPLY TO DEFENDANT'S BRIEF IN OPPOSITION TO PLAINTIFF'S MOTION FOR PARTIAL SUMMARY JUDGME.docx",
+        "text_source": "ocr_scan",
+        "has_record": false,
+        "title": "PLAINTIFFS REPLY TO DEFENDANT'S BRIEF IN OPPOSITION TO PLAINTIFF'S MOTION FOR PARTIAL SUMMARY JUDGME",
+        "lexis_type": "Unknown",
+        "filed": "April 15, 2024",
+        "body_chars": 9268,
+        "units": 33,
+        "readable": true,
+        "advocacy": true,
+        "theme": {
+          "heading_hits": 0,
+          "argument_hits": 7,
+          "argument_units": 10,
+          "argument_fraction": 0.7,
+          "possession_hits": 8,
+          "total_mentions": 9,
+          "central": true
+        },
+        "eligible": true,
+        "excluded_because": []
+      }
+    ],
+    "focal": "PLAINTIFF'S MOTION FOR PARTIAL SUMMARY JUDGMENT FILED. PO.docx",
+    "eligible_count": 2,
+    "document_count": 3
+  },
+  {
+    "case_family_id": "jacob-v-fadel",
+    "case_name": "JACOB v. FADEL",
+    "docket": "",
+    "court": "COURT OF APPEALS OF OHIO",
+    "stratum": "appellate",
+    "documents": [
+      {
+        "wrapper_file": "BRIEF OF APPELLEES(2).docx",
+        "text_source": "lexis_docx",
+        "has_record": false,
+        "title": "BRIEF OF APPELLEES(2)",
+        "lexis_type": "Initial Brief: Appellee-Respondent",
+        "filed": "February 10, 2006",
+        "body_chars": 37497,
+        "units": 277,
+        "readable": true,
+        "advocacy": true,
+        "theme": {
+          "heading_hits": 1,
+          "argument_hits": 10,
+          "argument_units": 100,
+          "argument_fraction": 0.1,
+          "possession_hits": 10,
+          "total_mentions": 27,
+          "central": true
+        },
+        "eligible": true,
+        "excluded_because": []
+      }
+    ],
+    "focal": "BRIEF OF APPELLEES(2).docx",
+    "eligible_count": 1,
+    "document_count": 1
+  },
+  {
+    "case_family_id": "debartolo-v-dussault-moving-inc",
+    "case_name": "DEBARTOLO v. DUSSAULT MOVING, INC.",
+    "docket": "",
+    "court": "COURT OF APPEALS OF OHIO, 8TH DISTRICT",
+    "stratum": "appellate",
+    "documents": [
+      {
+        "wrapper_file": "Assignments Of Error And Brief Of Appellants.docx",
+        "text_source": "lexis_docx",
+        "has_record": false,
+        "title": "Assignments Of Error And Brief Of Appellants",
+        "lexis_type": "Initial Brief: Appellant-Petitioner",
+        "filed": "June 13, 2011",
+        "body_chars": 29042,
+        "units": 197,
+        "readable": true,
+        "advocacy": true,
+        "theme": {
+          "heading_hits": 0,
+          "argument_hits": 7,
+          "argument_units": 35,
+          "argument_fraction": 0.2,
+          "possession_hits": 3,
+          "total_mentions": 18,
+          "central": true
+        },
+        "eligible": true,
+        "excluded_because": []
+      }
+    ],
+    "focal": "Assignments Of Error And Brief Of Appellants.docx",
+    "eligible_count": 1,
+    "document_count": 1
+  },
+  {
+    "case_family_id": "stone-v-cazeau--07ca009164",
+    "case_name": "STONE v. CAZEAU",
+    "docket": "07CA009164",
+    "court": "COURT OF APPEALS OF OHIO, 9TH DISTRICT",
+    "stratum": "appellate",
+    "documents": [
+      {
+        "wrapper_file": "MERIT BRIEF OF APPELLANT.docx",
+        "text_source": "lexis_docx",
+        "has_record": false,
+        "title": "MERIT BRIEF OF APPELLANT",
+        "lexis_type": "Initial Brief: Appellant-Petitioner",
+        "filed": "July 25, 2007",
+        "body_chars": 15787,
+        "units": 110,
+        "readable": true,
+        "advocacy": true,
+        "theme": {
+          "heading_hits": 0,
+          "argument_hits": 7,
+          "argument_units": 36,
+          "argument_fraction": 0.194,
+          "possession_hits": 7,
+          "total_mentions": 9,
+          "central": true
+        },
+        "eligible": true,
+        "excluded_because": []
+      }
+    ],
+    "focal": "MERIT BRIEF OF APPELLANT.docx",
+    "eligible_count": 1,
+    "document_count": 1
+  },
+  {
+    "case_family_id": "dayton-tool-rental-st-joseph-invs-v-ealy",
+    "case_name": "Dayton Tool Rental, St. Joseph Invs. v. Ealy",
+    "docket": "",
+    "court": "COURT OF APPEALS OF OHIO, 2ND DISTRICT",
+    "stratum": "appellate",
+    "documents": [
+      {
+        "wrapper_file": "BRIEF OF APPELLEES DAYTON TOOL RENTAL AND ST. JOSEPH INVESTMENTS, LLC.docx",
+        "text_source": "lexis_docx",
+        "has_record": false,
+        "title": "BRIEF OF APPELLEES DAYTON TOOL RENTAL AND ST. JOSEPH INVESTMENTS, LLC",
+        "lexis_type": "Initial Brief: Appellee-Respondent",
+        "filed": "July 9, 2007",
+        "body_chars": 14592,
+        "units": 70,
+        "readable": true,
+        "advocacy": true,
+        "theme": {
+          "heading_hits": 1,
+          "argument_hits": 6,
+          "argument_units": 15,
+          "argument_fraction": 0.4,
+          "possession_hits": 6,
+          "total_mentions": 37,
+          "central": true
+        },
+        "eligible": true,
+        "excluded_because": []
+      }
+    ],
+    "focal": "BRIEF OF APPELLEES DAYTON TOOL RENTAL AND ST. JOSEPH INVESTMENTS, LLC.docx",
+    "eligible_count": 1,
+    "document_count": 1
+  },
+  {
+    "case_family_id": "friese-john-vs-baker-carolyn-et-al",
+    "case_name": "FRIESE, JOHN VS . BAKER, CAROLYN et al",
+    "docket": "",
+    "court": "Ohio Common Pleas Court, Geauga County",
+    "stratum": "trial",
+    "documents": [
+      {
+        "wrapper_file": "DEFENDANT CAROLYN BAKER'S MOTION FOR SUMMARY JUDGMENT FILED. PO.docx",
+        "text_source": "ocr_scan",
+        "has_record": true,
+        "title": "DEFENDANT CAROLYN BAKER'S MOTION FOR SUMMARY JUDGMENT FILED. PO",
+        "lexis_type": "Unknown",
+        "filed": "March 7, 2024",
+        "body_chars": 15345,
+        "units": 33,
+        "readable": true,
+        "advocacy": true,
+        "theme": {
+          "heading_hits": 0,
+          "argument_hits": 5,
+          "argument_units": 10,
+          "argument_fraction": 0.5,
+          "possession_hits": 4,
+          "total_mentions": 26,
+          "central": true
+        },
+        "eligible": true,
+        "excluded_because": []
+      }
+    ],
+    "focal": "DEFENDANT CAROLYN BAKER'S MOTION FOR SUMMARY JUDGMENT FILED. PO.docx",
+    "eligible_count": 1,
+    "document_count": 1
+  },
+  {
+    "case_family_id": "solomon-v-harwood",
+    "case_name": "SOLOMON v. HARWOOD",
+    "docket": "",
+    "court": "COURT OF APPEALS OF OHIO, 8TH DISTRICT",
+    "stratum": "appellate",
+    "documents": [
+      {
+        "wrapper_file": "Brief of Plaintiff-Appellants.docx",
+        "text_source": "lexis_docx",
+        "has_record": false,
+        "title": "Brief of Plaintiff-Appellants",
+        "lexis_type": "Initial Brief: Appellant-Petitioner",
+        "filed": "March 2, 2011",
+        "body_chars": 74237,
+        "units": 452,
+        "readable": true,
+        "advocacy": true,
+        "theme": {
+          "heading_hits": 0,
+          "argument_hits": 12,
+          "argument_units": 232,
+          "argument_fraction": 0.052,
+          "possession_hits": 12,
+          "total_mentions": 20,
+          "central": false
+        },
+        "eligible": false,
+        "excluded_because": [
+          "eviction is not central: 12 of 232 argument units carry landlord-tenant vocabulary (5%), 12 put possession in issue"
+        ]
+      }
+    ],
+    "focal": null,
+    "eligible_count": 0,
+    "document_count": 1
+  },
+  {
+    "case_family_id": "carroll-v-houser--cv-2006-06-4106",
+    "case_name": "CARROLL v. HOUSER",
+    "docket": ": CV-2006-06-4106",
+    "court": "COURT OF COMMON PLEAS OF OHIO, SUMMIT COUNTY",
+    "stratum": "trial",
+    "documents": [
+      {
+        "wrapper_file": "DEFENDANT'S REPLY BRIEF IN SUPPORT OF MOTION FOR SUMMARY JUDGMENT.docx",
+        "text_source": "lexis_docx",
+        "has_record": true,
+        "title": "DEFENDANT'S REPLY BRIEF IN SUPPORT OF MOTION FOR SUMMARY JUDGMENT",
+        "lexis_type": "Brief",
+        "filed": "April 26, 2007",
+        "body_chars": 81887,
+        "units": 1334,
+        "readable": true,
+        "advocacy": true,
+        "theme": {
+          "heading_hits": 2,
+          "argument_hits": 11,
+          "argument_units": 225,
+          "argument_fraction": 0.049,
+          "possession_hits": 4,
+          "total_mentions": 41,
+          "central": false
+        },
+        "eligible": false,
+        "excluded_because": [
+          "eviction is not central: 11 of 225 argument units carry landlord-tenant vocabulary (5%), 4 put possession in issue"
+        ]
+      }
+    ],
+    "focal": null,
+    "eligible_count": 0,
+    "document_count": 1
+  },
+  {
+    "case_family_id": "texlo-v-gator-hillcrest--c-240090",
+    "case_name": "TEXLO v. GATOR HILLCREST",
+    "docket": "C-240090",
+    "court": "COURT OF APPEALS OF OHIO, FIRST APPELLATE DISTRICT, HAMILTON COUNTY",
+    "stratum": "appellate",
+    "documents": [
+      {
+        "wrapper_file": "REPLY BRIEF FOR DEFENDANT-APPELLANT GATOR HILLCREST PARTNERS LLLP.docx",
+        "text_source": "lexis_docx",
+        "has_record": false,
+        "title": "REPLY BRIEF FOR DEFENDANT-APPELLANT GATOR HILLCREST PARTNERS LLLP",
+        "lexis_type": "Brief",
+        "filed": "August 29, 2024",
+        "body_chars": 24024,
+        "units": 134,
+        "readable": true,
+        "advocacy": true,
+        "theme": {
+          "heading_hits": 0,
+          "argument_hits": 11,
+          "argument_units": 30,
+          "argument_fraction": 0.367,
+          "possession_hits": 1,
+          "total_mentions": 43,
+          "central": false
+        },
+        "eligible": false,
+        "excluded_because": [
+          "eviction is not central: 11 of 30 argument units carry landlord-tenant vocabulary (37%), 1 put possession in issue"
+        ]
+      }
+    ],
+    "focal": null,
+    "eligible_count": 0,
+    "document_count": 1
+  },
+  {
+    "case_family_id": "sherwin-williams-co-v-travelers-cas-sur-",
+    "case_name": "SHERWIN-WILLIAMS CO. v. TRAVELERS CAS. & SUR. CO.",
+    "docket": "",
+    "court": "COURT OF APPEALS OF OHIO, EIGHTH JUDICIAL DISTRICT, CUYAHOGA COUNTY",
+    "stratum": "appellate",
+    "documents": [
+      {
+        "wrapper_file": "BRIEF OF APPELLEES(3).docx",
+        "text_source": "lexis_docx",
+        "has_record": false,
+        "title": "BRIEF OF APPELLEES(3)",
+        "lexis_type": "Initial Brief: Appellee-Respondent",
+        "filed": "July 17, 2005",
+        "body_chars": 70504,
+        "units": 408,
+        "readable": true,
+        "advocacy": true,
+        "theme": {
+          "heading_hits": 0,
+          "argument_hits": 10,
+          "argument_units": 107,
+          "argument_fraction": 0.093,
+          "possession_hits": 8,
+          "total_mentions": 17,
+          "central": false
+        },
+        "eligible": false,
+        "excluded_because": [
+          "eviction is not central: 10 of 107 argument units carry landlord-tenant vocabulary (9%), 8 put possession in issue"
+        ]
+      },
+      {
+        "wrapper_file": "BRIEF OF APPELLEES(4).docx",
+        "text_source": "lexis_docx",
+        "has_record": false,
+        "title": "BRIEF OF APPELLEES(4)",
+        "lexis_type": "Initial Brief: Appellee-Respondent",
+        "filed": "July 17, 2003",
+        "body_chars": 70323,
+        "units": 384,
+        "readable": true,
+        "advocacy": true,
+        "theme": {
+          "heading_hits": 0,
+          "argument_hits": 10,
+          "argument_units": 108,
+          "argument_fraction": 0.093,
+          "possession_hits": 8,
+          "total_mentions": 17,
+          "central": false
+        },
+        "eligible": false,
+        "excluded_because": [
+          "eviction is not central: 10 of 108 argument units carry landlord-tenant vocabulary (9%), 8 put possession in issue"
+        ]
+      }
+    ],
+    "focal": null,
+    "eligible_count": 0,
+    "document_count": 2
+  },
+  {
+    "case_family_id": "crenshaw-v-integrity-realty",
+    "case_name": "CRENSHAW v. INTEGRITY REALTY",
+    "docket": "",
+    "court": "COURT OF APPEALS OF OHIO, 8TH DISTRICT",
+    "stratum": "appellate",
+    "documents": [
+      {
+        "wrapper_file": "Brief fof Appellee.docx",
+        "text_source": "lexis_docx",
+        "has_record": false,
+        "title": "Brief fof Appellee",
+        "lexis_type": "Initial Brief: Appellee-Respondent",
+        "filed": "June 8, 2012",
+        "body_chars": 37670,
+        "units": 172,
+        "readable": true,
+        "advocacy": true,
+        "theme": {
+          "heading_hits": 0,
+          "argument_hits": 3,
+          "argument_units": 48,
+          "argument_fraction": 0.062,
+          "possession_hits": 1,
+          "total_mentions": 19,
+          "central": false
+        },
+        "eligible": false,
+        "excluded_because": [
+          "eviction is not central: 3 of 48 argument units carry landlord-tenant vocabulary (6%), 1 put possession in issue"
+        ]
+      }
+    ],
+    "focal": null,
+    "eligible_count": 0,
+    "document_count": 1
+  },
+  {
+    "case_family_id": "pavlik-v-pavlik--ca-06-089199",
+    "case_name": "PAVLIK v. PAVLIK",
+    "docket": "CA-06-089199",
+    "court": "COURT OF APPEALS OF OHIO",
+    "stratum": "appellate",
+    "documents": [
+      {
+        "wrapper_file": "BRIEF OF APPELLEES.docx",
+        "text_source": "lexis_docx",
+        "has_record": true,
+        "title": "BRIEF OF APPELLEES",
+        "lexis_type": "Initial Brief: Appellee-Respondent",
+        "filed": "March 2, 2007",
+        "body_chars": 22806,
+        "units": 110,
+        "readable": true,
+        "advocacy": true,
+        "theme": {
+          "heading_hits": 0,
+          "argument_hits": 3,
+          "argument_units": 26,
+          "argument_fraction": 0.115,
+          "possession_hits": 3,
+          "total_mentions": 12,
+          "central": false
+        },
+        "eligible": false,
+        "excluded_because": [
+          "eviction is not central: 3 of 26 argument units carry landlord-tenant vocabulary (12%), 3 put possession in issue"
+        ]
+      }
+    ],
+    "focal": null,
+    "eligible_count": 0,
+    "document_count": 1
+  },
+  {
+    "case_family_id": "crenshaw-v-integrity-realty-group",
+    "case_name": "CRENSHAW v. INTEGRITY REALTY GROUP",
+    "docket": "",
+    "court": "COURT OF APPEALS OF OHIO, 8TH DISTRICT",
+    "stratum": "appellate",
+    "documents": [
+      {
+        "wrapper_file": "Appellant Brief of Plaintiff-Appellants.docx",
+        "text_source": "lexis_docx",
+        "has_record": false,
+        "title": "Appellant Brief of Plaintiff-Appellants",
+        "lexis_type": "Initial Brief: Appellant-Petitioner",
+        "filed": "May 4, 2012",
+        "body_chars": 26866,
+        "units": 122,
+        "readable": true,
+        "advocacy": true,
+        "theme": {
+          "heading_hits": 0,
+          "argument_hits": 2,
+          "argument_units": 51,
+          "argument_fraction": 0.039,
+          "possession_hits": 2,
+          "total_mentions": 5,
+          "central": false
+        },
+        "eligible": false,
+        "excluded_because": [
+          "eviction is not central: 2 of 51 argument units carry landlord-tenant vocabulary (4%), 2 put possession in issue"
+        ]
+      }
+    ],
+    "focal": null,
+    "eligible_count": 0,
+    "document_count": 1
+  },
+  {
+    "case_family_id": "jackson-v-carlton-townhouse-condo-assoc",
+    "case_name": "JACKSON v. CARLTON TOWNHOUSE CONDO. ASSOC",
+    "docket": "",
+    "court": "COURT OF APPEALS OF OHIO, 8TH DISTRICT",
+    "stratum": "appellate",
+    "documents": [
+      {
+        "wrapper_file": "Appellants' Brief.docx",
+        "text_source": "lexis_docx",
+        "has_record": false,
+        "title": "Appellants' Brief",
+        "lexis_type": "Initial Brief: Appellant-Petitioner",
+        "filed": "August 27, 2013",
+        "body_chars": 21442,
+        "units": 127,
+        "readable": true,
+        "advocacy": true,
+        "theme": {
+          "heading_hits": 0,
+          "argument_hits": 2,
+          "argument_units": 19,
+          "argument_fraction": 0.105,
+          "possession_hits": 2,
+          "total_mentions": 2,
+          "central": false
+        },
+        "eligible": false,
+        "excluded_because": [
+          "eviction is not central: 2 of 19 argument units carry landlord-tenant vocabulary (10%), 2 put possession in issue"
+        ]
+      }
+    ],
+    "focal": null,
+    "eligible_count": 0,
+    "document_count": 1
+  },
+  {
+    "case_family_id": "mcphillips-v-travelers-prop-cas-ins-co--91286",
+    "case_name": "McPHILLIPS v. TRAVELERS PROP. CAS. INS. CO.",
+    "docket": "91286",
+    "court": "COURT OF APPEALS OF OHIO, 8TH DISTRICT",
+    "stratum": "appellate",
+    "documents": [
+      {
+        "wrapper_file": "BRIEF OF APPELLEE-DEFENDANT TRAVELERS INDEMNITY COMPANY.docx",
+        "text_source": "lexis_docx",
+        "has_record": true,
+        "title": "BRIEF OF APPELLEE-DEFENDANT TRAVELERS INDEMNITY COMPANY",
+        "lexis_type": "Initial Brief: Appellee-Respondent",
+        "filed": "August 21, 2008",
+        "body_chars": 78097,
+        "units": 437,
+        "readable": true,
+        "advocacy": true,
+        "theme": {
+          "heading_hits": 0,
+          "argument_hits": 2,
+          "argument_units": 186,
+          "argument_fraction": 0.011,
+          "possession_hits": 0,
+          "total_mentions": 3,
+          "central": false
+        },
+        "eligible": false,
+        "excluded_because": [
+          "eviction is not central: 2 of 186 argument units carry landlord-tenant vocabulary (1%), 0 put possession in issue"
+        ]
+      }
+    ],
+    "focal": null,
+    "eligible_count": 0,
+    "document_count": 1
+  },
+  {
+    "case_family_id": "presser-v-rcp-mayfield-llc--ca-08-92073",
+    "case_name": "PRESSER v. RCP MAYFIELD, LLC,",
+    "docket": ": CA 08 92073",
+    "court": "COURT OF APPEALS OF OHIO, 8TH DISTRICT",
+    "stratum": "appellate",
+    "documents": [
+      {
+        "wrapper_file": "DEFENDANT-APPELLEES' APPELLATE BRIEF.docx",
+        "text_source": "lexis_docx",
+        "has_record": false,
+        "title": "DEFENDANT-APPELLEES' APPELLATE BRIEF",
+        "lexis_type": "Initial Brief: Appellee-Respondent",
+        "filed": "December 30, 2008",
+        "body_chars": 44152,
+        "units": 199,
+        "readable": true,
+        "advocacy": true,
+        "theme": {
+          "heading_hits": 0,
+          "argument_hits": 2,
+          "argument_units": 36,
+          "argument_fraction": 0.056,
+          "possession_hits": 1,
+          "total_mentions": 14,
+          "central": false
+        },
+        "eligible": false,
+        "excluded_because": [
+          "eviction is not central: 2 of 36 argument units carry landlord-tenant vocabulary (6%), 1 put possession in issue"
+        ]
+      }
+    ],
+    "focal": null,
+    "eligible_count": 0,
+    "document_count": 1
+  },
+  {
+    "case_family_id": "cd-yoder-vs-waterford-et-al",
+    "case_name": "(CD)YODER VS WATERFORD ET AL",
+    "docket": "",
+    "court": "Ohio Common Pleas Court, Lucas County",
+    "stratum": "trial",
+    "documents": [
+      {
+        "wrapper_file": "Motion Summary Judgment Filed.docx",
+        "text_source": "lexis_docx",
+        "has_record": false,
+        "title": "Motion Summary Judgment Filed",
+        "lexis_type": "Motion",
+        "filed": "October 16, 2024",
+        "body_chars": 0,
+        "units": 0,
+        "readable": false,
+        "advocacy": true,
+        "theme": {
+          "heading_hits": 0,
+          "argument_hits": 0,
+          "argument_units": 0,
+          "argument_fraction": 0.0,
+          "possession_hits": 0,
+          "total_mentions": 0,
+          "central": false
+        },
+        "eligible": false,
+        "excluded_because": [
+          "no readable text: the Lexis wrapper is a metadata card and the filing itself is a scanned PDF"
+        ]
+      },
+      {
+        "wrapper_file": "Pleading Memorandum In Opposition.docx",
+        "text_source": "ocr_scan",
+        "has_record": false,
+        "title": "Pleading Memorandum In Opposition",
+        "lexis_type": "Memorandum",
+        "filed": "November 27, 2024",
+        "body_chars": 31776,
+        "units": 65,
+        "readable": true,
+        "advocacy": true,
+        "theme": {
+          "heading_hits": 0,
+          "argument_hits": 1,
+          "argument_units": 22,
+          "argument_fraction": 0.045,
+          "possession_hits": 1,
+          "total_mentions": 2,
+          "central": false
+        },
+        "eligible": false,
+        "excluded_because": [
+          "eviction is not central: 1 of 22 argument units carry landlord-tenant vocabulary (4%), 1 put possession in issue"
+        ]
+      },
+      {
+        "wrapper_file": "Pleading Memorandum In Opposition(2).docx",
+        "text_source": "lexis_docx",
+        "has_record": false,
+        "title": "Pleading Memorandum In Opposition(2)",
+        "lexis_type": "Memorandum",
+        "filed": "August 27, 2024",
+        "body_chars": 0,
+        "units": 0,
+        "readable": false,
+        "advocacy": true,
+        "theme": {
+          "heading_hits": 0,
+          "argument_hits": 0,
+          "argument_units": 0,
+          "argument_fraction": 0.0,
+          "possession_hits": 0,
+          "total_mentions": 0,
+          "central": false
+        },
+        "eligible": false,
+        "excluded_because": [
+          "no readable text: the Lexis wrapper is a metadata card and the filing itself is a scanned PDF with no text layer"
+        ]
+      }
+    ],
+    "focal": null,
+    "eligible_count": 0,
+    "document_count": 3
+  },
+  {
+    "case_family_id": "allen-v-tanski--ca-09-93526",
+    "case_name": "ALLEN v. TANSKI",
+    "docket": "CA 09 93526",
+    "court": "COURT OF APPEALS OF OHIO, 8TH DISTRICT",
+    "stratum": "appellate",
+    "documents": [
+      {
+        "wrapper_file": "BRIEF OF APPELLANTS ALLEN, ET. AL.; ORAL ARGUMENT REQUESTED.docx",
+        "text_source": "lexis_docx",
+        "has_record": false,
+        "title": "BRIEF OF APPELLANTS ALLEN, ET. AL.; ORAL ARGUMENT REQUESTED",
+        "lexis_type": "Initial Brief: Appellant-Petitioner",
+        "filed": "July 31, 2009",
+        "body_chars": 13109,
+        "units": 133,
+        "readable": true,
+        "advocacy": true,
+        "theme": {
+          "heading_hits": 0,
+          "argument_hits": 1,
+          "argument_units": 47,
+          "argument_fraction": 0.021,
+          "possession_hits": 1,
+          "total_mentions": 2,
+          "central": false
+        },
+        "eligible": false,
+        "excluded_because": [
+          "eviction is not central: 1 of 47 argument units carry landlord-tenant vocabulary (2%), 1 put possession in issue"
+        ]
+      }
+    ],
+    "focal": null,
+    "eligible_count": 0,
+    "document_count": 1
+  },
+  {
+    "case_family_id": "bush-v-eckman--2007-ca-00115",
+    "case_name": "BUSH v. ECKMAN",
+    "docket": "2007 CA 00115",
+    "court": "COURT OF APPEALS OF OHIO",
+    "stratum": "appellate",
+    "documents": [
+      {
+        "wrapper_file": "DEFENDANT-APPELLANT'S BRIEF.docx",
+        "text_source": "lexis_docx",
+        "has_record": true,
+        "title": "DEFENDANT-APPELLANT'S BRIEF",
+        "lexis_type": "Initial Brief: Appellant-Petitioner",
+        "filed": "October 17, 2007",
+        "body_chars": 14587,
+        "units": 88,
+        "readable": true,
+        "advocacy": true,
+        "theme": {
+          "heading_hits": 0,
+          "argument_hits": 1,
+          "argument_units": 32,
+          "argument_fraction": 0.031,
+          "possession_hits": 1,
+          "total_mentions": 4,
+          "central": false
+        },
+        "eligible": false,
+        "excluded_because": [
+          "eviction is not central: 1 of 32 argument units carry landlord-tenant vocabulary (3%), 1 put possession in issue"
+        ]
+      }
+    ],
+    "focal": null,
+    "eligible_count": 0,
+    "document_count": 1
+  },
+  {
+    "case_family_id": "carano-v-schottenstein--99apg-10-1222",
+    "case_name": "CARANO v. SCHOTTENSTEIN",
+    "docket": "99APG-10-1222",
+    "court": "COURT OF APPEALS OF OHIO, TENTH DISTRICT, FRANKLIN COUNTY, APPEALS DIVISION",
+    "stratum": "appellate",
+    "documents": [
+      {
+        "wrapper_file": "CORRECTED BRIEF OF APPELLANT.docx",
+        "text_source": "lexis_docx",
+        "has_record": true,
+        "title": "CORRECTED BRIEF OF APPELLANT",
+        "lexis_type": "Initial Brief: Appellant-Petitioner",
+        "filed": "January 5, 2000",
+        "body_chars": 19118,
+        "units": 102,
+        "readable": true,
+        "advocacy": true,
+        "theme": {
+          "heading_hits": 0,
+          "argument_hits": 1,
+          "argument_units": 12,
+          "argument_fraction": 0.083,
+          "possession_hits": 1,
+          "total_mentions": 3,
+          "central": false
+        },
+        "eligible": false,
+        "excluded_because": [
+          "eviction is not central: 1 of 12 argument units carry landlord-tenant vocabulary (8%), 1 put possession in issue"
+        ]
+      }
+    ],
+    "focal": null,
+    "eligible_count": 0,
+    "document_count": 1
+  },
+  {
+    "case_family_id": "city-of-lyndhurst-v-rapoport--ca-07-089270",
+    "case_name": "CITY OF LYNDHURST v. RAPOPORT",
+    "docket": "CA 07 089270",
+    "court": "COURT OF APPEALS OF OHIO",
+    "stratum": "appellate",
+    "documents": [
+      {
+        "wrapper_file": "DEFENDANT-APPELLANT'S ASSIGNMENTS OF ERROR AND BRIEF.docx",
+        "text_source": "lexis_docx",
+        "has_record": false,
+        "title": "DEFENDANT-APPELLANT'S ASSIGNMENTS OF ERROR AND BRIEF",
+        "lexis_type": "Initial Brief: Appellant-Petitioner",
+        "filed": "February 7, 2007",
+        "body_chars": 44258,
+        "units": 283,
+        "readable": true,
+        "advocacy": true,
+        "theme": {
+          "heading_hits": 0,
+          "argument_hits": 1,
+          "argument_units": 102,
+          "argument_fraction": 0.01,
+          "possession_hits": 1,
+          "total_mentions": 1,
+          "central": false
+        },
+        "eligible": false,
+        "excluded_because": [
+          "eviction is not central: 1 of 102 argument units carry landlord-tenant vocabulary (1%), 1 put possession in issue"
+        ]
+      }
+    ],
+    "focal": null,
+    "eligible_count": 0,
+    "document_count": 1
+  },
+  {
+    "case_family_id": "manigault-v-o-connor-automotive--ca-06-087891",
+    "case_name": "MANIGAULT v. O'CONNOR AUTOMOTIVE",
+    "docket": "CA-06-087891",
+    "court": "COURT OF APPEALS OF OHIO, EIGHTH APPELLATE DISTRICT, CUYAHOGA COUNTY",
+    "stratum": "appellate",
+    "documents": [
+      {
+        "wrapper_file": "ANSWER BRIEF OF APPELLEE O'CONNOR AUTOMOTIVE [Oral Argument Requested].docx",
+        "text_source": "lexis_docx",
+        "has_record": true,
+        "title": "ANSWER BRIEF OF APPELLEE O'CONNOR AUTOMOTIVE [Oral Argument Requested]",
+        "lexis_type": "Initial Brief: Appellee-Respondent",
+        "filed": "May 1, 2006",
+        "body_chars": 31626,
+        "units": 192,
+        "readable": true,
+        "advocacy": true,
+        "theme": {
+          "heading_hits": 0,
+          "argument_hits": 1,
+          "argument_units": 67,
+          "argument_fraction": 0.015,
+          "possession_hits": 1,
+          "total_mentions": 1,
+          "central": false
+        },
+        "eligible": false,
+        "excluded_because": [
+          "eviction is not central: 1 of 67 argument units carry landlord-tenant vocabulary (2%), 1 put possession in issue"
+        ]
+      }
+    ],
+    "focal": null,
+    "eligible_count": 0,
+    "document_count": 1
+  },
+  {
+    "case_family_id": "potts-v-3m-co--ca-06-87977",
+    "case_name": "POTTS v. 3M CO.",
+    "docket": "CA 06-87977",
+    "court": "COURT OF APPEALS OF OHIO",
+    "stratum": "appellate",
+    "documents": [
+      {
+        "wrapper_file": "BRIEF OF APPELLANT.docx",
+        "text_source": "lexis_docx",
+        "has_record": true,
+        "title": "BRIEF OF APPELLANT",
+        "lexis_type": "Initial Brief: Appellant-Petitioner",
+        "filed": "July 7, 2006",
+        "body_chars": 35607,
+        "units": 312,
+        "readable": true,
+        "advocacy": true,
+        "theme": {
+          "heading_hits": 0,
+          "argument_hits": 1,
+          "argument_units": 90,
+          "argument_fraction": 0.011,
+          "possession_hits": 1,
+          "total_mentions": 1,
+          "central": false
+        },
+        "eligible": false,
+        "excluded_because": [
+          "eviction is not central: 1 of 90 argument units carry landlord-tenant vocabulary (1%), 1 put possession in issue"
+        ]
+      }
+    ],
+    "focal": null,
+    "eligible_count": 0,
+    "document_count": 1
+  },
+  {
+    "case_family_id": "salone-v-stovall--2025-0617",
+    "case_name": "SALONE v. STOVALL",
+    "docket": "2025-0617",
+    "court": "SUPREME COURT OF OHIO",
+    "stratum": "appellate",
+    "documents": [
+      {
+        "wrapper_file": "LENDER SALONE'S MEMORANDUM IN RESPONSE TO THE STOVALLS' MEMORANDUM IN SUPPORT OF JURISDICTION.docx",
+        "text_source": "lexis_docx",
+        "has_record": false,
+        "title": "LENDER SALONE'S MEMORANDUM IN RESPONSE TO THE STOVALLS' MEMORANDUM IN SUPPORT OF JURISDICTION",
+        "lexis_type": "Brief",
+        "filed": "June 4, 2025",
+        "body_chars": 12411,
+        "units": 81,
+        "readable": true,
+        "advocacy": true,
+        "theme": {
+          "heading_hits": 0,
+          "argument_hits": 1,
+          "argument_units": 21,
+          "argument_fraction": 0.048,
+          "possession_hits": 1,
+          "total_mentions": 3,
+          "central": false
+        },
+        "eligible": false,
+        "excluded_because": [
+          "eviction is not central: 1 of 21 argument units carry landlord-tenant vocabulary (5%), 1 put possession in issue"
+        ]
+      }
+    ],
+    "focal": null,
+    "eligible_count": 0,
+    "document_count": 1
+  },
+  {
+    "case_family_id": "sheridan-v-sheridan",
+    "case_name": "SHERIDAN v. SHERIDAN",
+    "docket": "",
+    "court": "COURT OF APPEALS OF OHIO, 8TH DISTRICT",
+    "stratum": "appellate",
+    "documents": [
+      {
+        "wrapper_file": "Answer Brief Of Appellee Land Title To Appellate Brief Of Appellant, Eric Lundberg.docx",
+        "text_source": "lexis_docx",
+        "has_record": false,
+        "title": "Answer Brief Of Appellee Land Title To Appellate Brief Of Appellant, Eric Lundberg",
+        "lexis_type": "Initial Brief: Appellee-Respondent",
+        "filed": "April 9, 2012",
+        "body_chars": 59015,
+        "units": 370,
+        "readable": true,
+        "advocacy": true,
+        "theme": {
+          "heading_hits": 0,
+          "argument_hits": 1,
+          "argument_units": 210,
+          "argument_fraction": 0.005,
+          "possession_hits": 1,
+          "total_mentions": 1,
+          "central": false
+        },
+        "eligible": false,
+        "excluded_because": [
+          "eviction is not central: 1 of 210 argument units carry landlord-tenant vocabulary (0%), 1 put possession in issue"
+        ]
+      }
+    ],
+    "focal": null,
+    "eligible_count": 0,
+    "document_count": 1
+  },
+  {
+    "case_family_id": "anderson-v-mitchell",
+    "case_name": "ANDERSON v. MITCHELL",
+    "docket": "",
+    "court": "COURT OF APPEALS OF OHIO, 8TH DISTRICT",
+    "stratum": "appellate",
+    "documents": [
+      {
+        "wrapper_file": "Appellee's Answer Brief.docx",
+        "text_source": "lexis_docx",
+        "has_record": false,
+        "title": "Appellee's Answer Brief",
+        "lexis_type": "Initial Brief: Appellee-Respondent",
+        "filed": "November 12, 2013",
+        "body_chars": 20353,
+        "units": 111,
+        "readable": true,
+        "advocacy": true,
+        "theme": {
+          "heading_hits": 0,
+          "argument_hits": 0,
+          "argument_units": 52,
+          "argument_fraction": 0.0,
+          "possession_hits": 0,
+          "total_mentions": 4,
+          "central": false
+        },
+        "eligible": false,
+        "excluded_because": [
+          "eviction is not central: 0 of 52 argument units carry landlord-tenant vocabulary (0%), 0 put possession in issue"
+        ]
+      }
+    ],
+    "focal": null,
+    "eligible_count": 0,
+    "document_count": 1
+  },
+  {
+    "case_family_id": "angela-ellan-mobley-vs-brayan-olivas",
+    "case_name": "ANGELA ELLAN MOBLEY vs BRAYAN OLIVAS",
+    "docket": "",
+    "court": "Ohio Common Pleas Court, Montgomery County",
+    "stratum": "trial",
+    "documents": [
+      {
+        "wrapper_file": "PRAECIPE FOR WRIT OF RESTITUTION_ POSSESSION Receipt_ 1402930 Date_ 06_30_2023.docx",
+        "text_source": "lexis_docx",
+        "has_record": false,
+        "title": "PRAECIPE FOR WRIT OF RESTITUTION_ POSSESSION Receipt_ 1402930 Date_ 06_30_2023",
+        "lexis_type": "Writ",
+        "filed": "June 30, 2023",
+        "body_chars": 0,
+        "units": 0,
+        "readable": false,
+        "advocacy": false,
+        "theme": {
+          "heading_hits": 0,
+          "argument_hits": 0,
+          "argument_units": 0,
+          "argument_fraction": 0.0,
+          "possession_hits": 0,
+          "total_mentions": 0,
+          "central": false
+        },
+        "eligible": false,
+        "excluded_because": [
+          "no readable text: the Lexis wrapper is a metadata card and the filing itself is a scanned PDF",
+          "not a substantive advocacy filing"
+        ]
+      }
+    ],
+    "focal": null,
+    "eligible_count": 0,
+    "document_count": 1
+  },
+  {
+    "case_family_id": "cincinnati-insurance-company-vs-amerisou",
+    "case_name": "CINCINNATI INSURANCE COMPANY Vs. AMERISOURCEBERGEN DRUG CORPORATIONet al",
+    "docket": "",
+    "court": "Ohio Common Pleas Court, Butler County",
+    "stratum": "trial",
+    "documents": [
+      {
+        "wrapper_file": "MOTION FOR SUMMARY JUDGMENT OF THE CINCINNATI INSURANCE COMPANY AND AFFIDAVIT OF ANTHONY E HENN; EXH.docx",
+        "text_source": "ocr_scan",
+        "has_record": true,
+        "title": "MOTION FOR SUMMARY JUDGMENT OF THE CINCINNATI INSURANCE COMPANY AND AFFIDAVIT OF ANTHONY E HENN; EXH",
+        "lexis_type": "Motion",
+        "filed": "July 7, 2015",
+        "body_chars": 63129,
+        "units": 81,
+        "readable": true,
+        "advocacy": true,
+        "theme": {
+          "heading_hits": 0,
+          "argument_hits": 0,
+          "argument_units": 20,
+          "argument_fraction": 0.0,
+          "possession_hits": 0,
+          "total_mentions": 6,
+          "central": false
+        },
+        "eligible": false,
+        "excluded_because": [
+          "eviction is not central: 0 of 20 argument units carry landlord-tenant vocabulary (0%), 0 put possession in issue"
+        ]
+      }
+    ],
+    "focal": null,
+    "eligible_count": 0,
+    "document_count": 1
+  },
+  {
+    "case_family_id": "deutsche-bank-nat-l-trust-co-v-talliere",
+    "case_name": "DEUTSCHE BANK NAT'L TRUST CO. v. TALLIERE",
+    "docket": "",
+    "court": "Supreme Court Case No. 2024-0635",
+    "stratum": "appellate",
+    "documents": [
+      {
+        "wrapper_file": "MOTION FOR RECONSIDERATION OF APPELLANT KATHLEEN TALLIERE.docx",
+        "text_source": "lexis_docx",
+        "has_record": false,
+        "title": "MOTION FOR RECONSIDERATION OF APPELLANT KATHLEEN TALLIERE",
+        "lexis_type": "Brief",
+        "filed": "August 2, 2024",
+        "body_chars": 19434,
+        "units": 114,
+        "readable": true,
+        "advocacy": true,
+        "theme": {
+          "heading_hits": 0,
+          "argument_hits": 0,
+          "argument_units": 56,
+          "argument_fraction": 0.0,
+          "possession_hits": 0,
+          "total_mentions": 0,
+          "central": false
+        },
+        "eligible": false,
+        "excluded_because": [
+          "eviction is not central: 0 of 56 argument units carry landlord-tenant vocabulary (0%), 0 put possession in issue"
+        ]
+      }
+    ],
+    "focal": null,
+    "eligible_count": 0,
+    "document_count": 1
+  },
+  {
+    "case_family_id": "deutsche-bank-national-trust-company-vs-",
+    "case_name": "DEUTSCHE BANK NATIONAL TRUST COMPANY vs. ROSS, ALANDA et al EHK",
+    "docket": "",
+    "court": "Ohio Common Pleas Court, Delaware County",
+    "stratum": "trial",
+    "documents": [
+      {
+        "wrapper_file": "MOTION FOR SUMMARY JUDGMENT.docx",
+        "text_source": "ocr_scan",
+        "has_record": true,
+        "title": "MOTION FOR SUMMARY JUDGMENT",
+        "lexis_type": "Motion",
+        "filed": "December 30, 2015",
+        "body_chars": 104778,
+        "units": 129,
+        "readable": true,
+        "advocacy": true,
+        "theme": {
+          "heading_hits": 0,
+          "argument_hits": 0,
+          "argument_units": 36,
+          "argument_fraction": 0.0,
+          "possession_hits": 0,
+          "total_mentions": 3,
+          "central": false
+        },
+        "eligible": false,
+        "excluded_because": [
+          "eviction is not central: 0 of 36 argument units carry landlord-tenant vocabulary (0%), 0 put possession in issue"
+        ]
+      }
+    ],
+    "focal": null,
+    "eligible_count": 0,
+    "document_count": 1
+  },
+  {
+    "case_family_id": "deutsche-bank-nat-l-trust-co-v-yevtich",
+    "case_name": "Deutsche Bank Nat'l Trust Co. v. Yevtich",
+    "docket": "",
+    "court": "Supreme Court Case No.: 2017-1304",
+    "stratum": "appellate",
+    "documents": [
+      {
+        "wrapper_file": "MEMORANDUM IN SUPPORT OF JURISIDICTION OF DEFENDANTS_APPELLANTS, MATTHEW AND KATHI YEVTICH.docx",
+        "text_source": "lexis_docx",
+        "has_record": false,
+        "title": "MEMORANDUM IN SUPPORT OF JURISIDICTION OF DEFENDANTS_APPELLANTS, MATTHEW AND KATHI YEVTICH",
+        "lexis_type": "Brief",
+        "filed": "September 18, 2017",
+        "body_chars": 13637,
+        "units": 76,
+        "readable": true,
+        "advocacy": true,
+        "theme": {
+          "heading_hits": 0,
+          "argument_hits": 0,
+          "argument_units": 30,
+          "argument_fraction": 0.0,
+          "possession_hits": 0,
+          "total_mentions": 1,
+          "central": false
+        },
+        "eligible": false,
+        "excluded_because": [
+          "eviction is not central: 0 of 30 argument units carry landlord-tenant vocabulary (0%), 0 put possession in issue"
+        ]
+      }
+    ],
+    "focal": null,
+    "eligible_count": 0,
+    "document_count": 1
+  },
+  {
+    "case_family_id": "geauga-county-board-of-health-et-al-vs-e",
+    "case_name": "GEAUGA COUNTY BOARD OF HEALTH et al VS . ECHOLS, SELLIE et al",
+    "docket": "",
+    "court": "Ohio Common Pleas Court, Geauga County",
+    "stratum": "trial",
+    "documents": [
+      {
+        "wrapper_file": "MOTION FOR SUMMARY JUDGMENT FILED. PO.docx",
+        "text_source": "ocr_scan",
+        "has_record": true,
+        "title": "MOTION FOR SUMMARY JUDGMENT FILED. PO",
+        "lexis_type": "Unknown",
+        "filed": "October 15, 2024",
+        "body_chars": 4937,
+        "units": 6,
+        "readable": false,
+        "advocacy": true,
+        "theme": {
+          "heading_hits": 0,
+          "argument_hits": 0,
+          "argument_units": 0,
+          "argument_fraction": 0.0,
+          "possession_hits": 0,
+          "total_mentions": 0,
+          "central": false
+        },
+        "eligible": false,
+        "excluded_because": [
+          "no readable text: the Lexis wrapper is a metadata card and the filing itself is a scanned PDF with no text layer"
+        ]
+      }
+    ],
+    "focal": null,
+    "eligible_count": 0,
+    "document_count": 1
+  },
+  {
+    "case_family_id": "licitri-v-dibaggio--2024-0653",
+    "case_name": "LICITRI v. DiBAGGIO",
+    "docket": "2024-0653",
+    "court": "SUPREME COURT OF OHIO",
+    "stratum": "appellate",
+    "documents": [
+      {
+        "wrapper_file": "MEMORANDUM IN RESPONSE TO JURISDICTION BY APPELLEE JOSEPH DiBAGGIO, ESQ.docx",
+        "text_source": "lexis_docx",
+        "has_record": false,
+        "title": "MEMORANDUM IN RESPONSE TO JURISDICTION BY APPELLEE JOSEPH DiBAGGIO, ESQ",
+        "lexis_type": "Brief",
+        "filed": "June 4, 2024",
+        "body_chars": 22290,
+        "units": 119,
+        "readable": true,
+        "advocacy": true,
+        "theme": {
+          "heading_hits": 0,
+          "argument_hits": 0,
+          "argument_units": 20,
+          "argument_fraction": 0.0,
+          "possession_hits": 0,
+          "total_mentions": 0,
+          "central": false
+        },
+        "eligible": false,
+        "excluded_because": [
+          "eviction is not central: 0 of 20 argument units carry landlord-tenant vocabulary (0%), 0 put possession in issue"
+        ]
+      }
+    ],
+    "focal": null,
+    "eligible_count": 0,
+    "document_count": 1
+  },
+  {
+    "case_family_id": "motorists-mut-ins-co-v-dandy-jim-inc",
+    "case_name": "Motorists Mut. Ins. Co. v. Dandy-Jim, Inc.",
+    "docket": "",
+    "court": "COURT OF APPEALS OF OHIO, EIGHTH DISTRICT",
+    "stratum": "appellate",
+    "documents": [
+      {
+        "wrapper_file": "Brief Of Defendant-Appellees, Kevin Chambers, Dennis Dawson, Felix Fedor, And Ali Mohammadpour.docx",
+        "text_source": "lexis_docx",
+        "has_record": false,
+        "title": "Brief Of Defendant-Appellees, Kevin Chambers, Dennis Dawson, Felix Fedor, And Ali Mohammadpour",
+        "lexis_type": "Initial Brief: Appellee-Respondent",
+        "filed": "November 24, 2008",
+        "body_chars": 48576,
+        "units": 328,
+        "readable": true,
+        "advocacy": true,
+        "theme": {
+          "heading_hits": 0,
+          "argument_hits": 0,
+          "argument_units": 78,
+          "argument_fraction": 0.0,
+          "possession_hits": 0,
+          "total_mentions": 2,
+          "central": false
+        },
+        "eligible": false,
+        "excluded_because": [
+          "eviction is not central: 0 of 78 argument units carry landlord-tenant vocabulary (0%), 0 put possession in issue"
+        ]
+      },
+      {
+        "wrapper_file": "Brief Of Plaintiff_Appellant Motorists Mutual Insurance Company.docx",
+        "text_source": "lexis_docx",
+        "has_record": false,
+        "title": "Brief Of Plaintiff_Appellant Motorists Mutual Insurance Company",
+        "lexis_type": "Initial Brief: Appellant-Petitioner",
+        "filed": "October 16, 2008",
+        "body_chars": 70874,
+        "units": 291,
+        "readable": true,
+        "advocacy": true,
+        "theme": {
+          "heading_hits": 0,
+          "argument_hits": 0,
+          "argument_units": 69,
+          "argument_fraction": 0.0,
+          "possession_hits": 0,
+          "total_mentions": 2,
+          "central": false
+        },
+        "eligible": false,
+        "excluded_because": [
+          "eviction is not central: 0 of 69 argument units carry landlord-tenant vocabulary (0%), 0 put possession in issue"
+        ]
+      }
+    ],
+    "focal": null,
+    "eligible_count": 0,
+    "document_count": 2
+  },
+  {
+    "case_family_id": "otarma-vs-miami-township-ohio",
+    "case_name": "OTARMA vs MIAMI TOWNSHIP OHIO",
+    "docket": "",
+    "court": "Ohio Common Pleas Court, Montgomery County",
+    "stratum": "trial",
+    "documents": [
+      {
+        "wrapper_file": "MEMORANDUM.docx",
+        "text_source": "lexis_docx",
+        "has_record": false,
+        "title": "MEMORANDUM",
+        "lexis_type": "Memorandum",
+        "filed": "January 7, 2019",
+        "body_chars": 0,
+        "units": 0,
+        "readable": false,
+        "advocacy": true,
+        "theme": {
+          "heading_hits": 0,
+          "argument_hits": 0,
+          "argument_units": 0,
+          "argument_fraction": 0.0,
+          "possession_hits": 0,
+          "total_mentions": 0,
+          "central": false
+        },
+        "eligible": false,
+        "excluded_because": [
+          "no readable text: the Lexis wrapper is a metadata card and the filing itself is a scanned PDF"
+        ]
+      },
+      {
+        "wrapper_file": "No Title in Original.docx",
+        "text_source": "lexis_docx",
+        "has_record": false,
+        "title": "No Title in Original",
+        "lexis_type": "Unknown",
+        "filed": "August 31, 2022",
+        "body_chars": 0,
+        "units": 0,
+        "readable": false,
+        "advocacy": false,
+        "theme": {
+          "heading_hits": 0,
+          "argument_hits": 0,
+          "argument_units": 0,
+          "argument_fraction": 0.0,
+          "possession_hits": 0,
+          "total_mentions": 0,
+          "central": false
+        },
+        "eligible": false,
+        "excluded_because": [
+          "no readable text: the Lexis wrapper is a metadata card and the filing itself is a scanned PDF",
+          "not a substantive advocacy filing"
+        ]
+      },
+      {
+        "wrapper_file": "RESPONSE.docx",
+        "text_source": "ocr_scan",
+        "has_record": true,
+        "title": "RESPONSE",
+        "lexis_type": "Response",
+        "filed": "March 14, 2019",
+        "body_chars": 53310,
+        "units": 98,
+        "readable": true,
+        "advocacy": true,
+        "theme": {
+          "heading_hits": 0,
+          "argument_hits": 0,
+          "argument_units": 34,
+          "argument_fraction": 0.0,
+          "possession_hits": 0,
+          "total_mentions": 0,
+          "central": false
+        },
+        "eligible": false,
+        "excluded_because": [
+          "eviction is not central: 0 of 34 argument units carry landlord-tenant vocabulary (0%), 0 put possession in issue"
+        ]
+      }
+    ],
+    "focal": null,
+    "eligible_count": 0,
+    "document_count": 3
+  },
+  {
+    "case_family_id": "press-v-westport-ins-corp",
+    "case_name": "PRESS v. WESTPORT INS. CORP.",
+    "docket": "",
+    "court": "COURT OF APPEALS OF OHIO",
+    "stratum": "appellate",
+    "documents": [
+      {
+        "wrapper_file": "BRIEF OF DEFENDANT_APPELLEE WESTPORT INSURANCE CORPORATION.docx",
+        "text_source": "lexis_docx",
+        "has_record": true,
+        "title": "BRIEF OF DEFENDANT_APPELLEE WESTPORT INSURANCE CORPORATION",
+        "lexis_type": "Initial Brief: Appellant-Petitioner",
+        "filed": "August 17, 2007",
+        "body_chars": 28001,
+        "units": 134,
+        "readable": true,
+        "advocacy": true,
+        "theme": {
+          "heading_hits": 0,
+          "argument_hits": 0,
+          "argument_units": 26,
+          "argument_fraction": 0.0,
+          "possession_hits": 0,
+          "total_mentions": 0,
+          "central": false
+        },
+        "eligible": false,
+        "excluded_because": [
+          "eviction is not central: 0 of 26 argument units carry landlord-tenant vocabulary (0%), 0 put possession in issue"
+        ]
+      }
+    ],
+    "focal": null,
+    "eligible_count": 0,
+    "document_count": 1
+  },
+  {
+    "case_family_id": "siemientkowski-v-state-auto-ins-cos--ca-05-087299",
+    "case_name": "SIEMIENTKOWSKI v. STATE AUTO INS. COS.",
+    "docket": "CA 05-087299",
+    "court": "COURT OF APPEALS OF OHIO, EIGHTH APPELLATE DISTRICT, CUYAHOGA COUNTY",
+    "stratum": "appellate",
+    "documents": [
+      {
+        "wrapper_file": "AMENDED BRIEF OF PRO SE APPELLANTS RONALD J. SIEMIENTKOWSKI AND SARA L. SIEMIENTKOWSKI AS PER JOURNA.docx",
+        "text_source": "lexis_docx",
+        "has_record": true,
+        "title": "AMENDED BRIEF OF PRO SE APPELLANTS RONALD J. SIEMIENTKOWSKI AND SARA L. SIEMIENTKOWSKI AS PER JOURNA",
+        "lexis_type": "Initial Brief: Appellant-Petitioner",
+        "filed": "April 4, 2006",
+        "body_chars": 72793,
+        "units": 551,
+        "readable": true,
+        "advocacy": true,
+        "theme": {
+          "heading_hits": 2,
+          "argument_hits": 0,
+          "argument_units": 50,
+          "argument_fraction": 0.0,
+          "possession_hits": 0,
+          "total_mentions": 2,
+          "central": false
+        },
+        "eligible": false,
+        "excluded_because": [
+          "eviction is not central: 0 of 50 argument units carry landlord-tenant vocabulary (0%), 0 put possession in issue"
+        ]
+      }
+    ],
+    "focal": null,
+    "eligible_count": 0,
+    "document_count": 1
+  },
+  {
+    "case_family_id": "williams-v-deutsche-bank",
+    "case_name": "WILLIAMS v. DEUTSCHE BANK",
+    "docket": "",
+    "court": "COURT OF APPEALS OF OHIO, 8TH DISTRICT",
+    "stratum": "appellate",
+    "documents": [
+      {
+        "wrapper_file": "BRIEF OF APPELLEE.docx",
+        "text_source": "lexis_docx",
+        "has_record": true,
+        "title": "BRIEF OF APPELLEE",
+        "lexis_type": "Initial Brief: Appellee-Respondent",
+        "filed": "March 4, 2008",
+        "body_chars": 19698,
+        "units": 82,
+        "readable": true,
+        "advocacy": true,
+        "theme": {
+          "heading_hits": 0,
+          "argument_hits": 0,
+          "argument_units": 31,
+          "argument_fraction": 0.0,
+          "possession_hits": 0,
+          "total_mentions": 1,
+          "central": false
+        },
+        "eligible": false,
+        "excluded_because": [
+          "eviction is not central: 0 of 31 argument units carry landlord-tenant vocabulary (0%), 0 put possession in issue"
+        ]
+      }
+    ],
+    "focal": null,
+    "eligible_count": 0,
+    "document_count": 1
+  },
+  {
+    "case_family_id": "wwsd-v-woods--20ap-403",
+    "case_name": "WWSD v. WOODS",
+    "docket": "20AP-403",
+    "court": "COURT OF APPEALS OF OHIO, TENTH APPELLATE DISTRICT",
+    "stratum": "appellate",
+    "documents": [
+      {
+        "wrapper_file": "BRIEF OF APPELLEE WWSD, LLC IN RESPONSE TO BRIEF OF APPELLANT METROPOLITAN COMMUNITY SERVICES, INC.docx",
+        "text_source": "lexis_docx",
+        "has_record": true,
+        "title": "BRIEF OF APPELLEE WWSD, LLC IN RESPONSE TO BRIEF OF APPELLANT METROPOLITAN COMMUNITY SERVICES, INC",
+        "lexis_type": "Brief",
+        "filed": "March 29, 2021",
+        "body_chars": 50414,
+        "units": 358,
+        "readable": true,
+        "advocacy": true,
+        "theme": {
+          "heading_hits": 0,
+          "argument_hits": 0,
+          "argument_units": 85,
+          "argument_fraction": 0.0,
+          "possession_hits": 0,
+          "total_mentions": 1,
+          "central": false
+        },
+        "eligible": false,
+        "excluded_because": [
+          "eviction is not central: 0 of 85 argument units carry landlord-tenant vocabulary (0%), 0 put possession in issue"
+        ]
+      }
+    ],
+    "focal": null,
+    "eligible_count": 0,
+    "document_count": 1
+  },
+  {
+    "case_family_id": "williams-v-state",
+    "case_name": "Williams v. State",
+    "docket": "",
+    "court": "COURT OF APPEALS OF OHIO, 8TH DISTRICT",
+    "stratum": "appellate",
+    "documents": [
+      {
+        "wrapper_file": "APPELLANT'S BRIEF IN OPPOSITION TO TRIAL COURT JUDGMENT DENYING APPELLANT'S THEFT CLAIM, CONTRACT FR.docx",
+        "text_source": "lexis_docx",
+        "has_record": false,
+        "title": "APPELLANT'S BRIEF IN OPPOSITION TO TRIAL COURT JUDGMENT DENYING APPELLANT'S THEFT CLAIM, CONTRACT FR",
+        "lexis_type": "Initial Brief: Appellant-Petitioner",
+        "filed": "February 19, 2008",
+        "body_chars": 23312,
+        "units": 117,
+        "readable": true,
+        "advocacy": true,
+        "theme": {
+          "heading_hits": 0,
+          "argument_hits": 0,
+          "argument_units": 34,
+          "argument_fraction": 0.0,
+          "possession_hits": 0,
+          "total_mentions": 1,
+          "central": false
+        },
+        "eligible": false,
+        "excluded_because": [
+          "eviction is not central: 0 of 34 argument units carry landlord-tenant vocabulary (0%), 0 put possession in issue"
+        ]
+      }
+    ],
+    "focal": null,
+    "eligible_count": 0,
+    "document_count": 1
+  }
+]

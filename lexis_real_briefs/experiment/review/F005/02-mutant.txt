@@ -1,0 +1,233 @@
+STATEMENT OF ASSIGNMENTS OF ERROR PRESENTED
+
+ASSIGNMENT OF ERROR I: The trial court erred in granting Appellees' Motion for Summary Judgment.
+
+STATEMENT OF ISSUES PRESENTED
+
+ISSUE I: Whether the doctrine of res judicata bars Appellant's claims.
+
+ISSUE II: Whether genuine issues of material fact remain regarding Appellees' negligence.
+
+ASSIGNMENT OF ERROR PRESENTED FOR REVIEW
+
+ASSIGNMENT OF ERROR I: THE TRIAL COURT ERRED IN GRANTING APPELLEES' MOTION FOR SUMMARY JUDGMENT.
+
+STATEMENT OF ISSUES
+
+Issue I. Whether the doctrine of res judicata bars appellant's claims.
+
+Issue II. Whether genuine issues of material fact remain regarding appellees' negligence.
+
+STATEMENT OF THE CASE
+
+On September 29, 2008, appellant, Steve Kerr, re-filed a complaint alleging personal injury against appellees, Lake Shore Towers, Inc., 609 Walnut Limited Partnership, Showe Management Corp., and Maric Ball from an incident that occurred on September 26, 2002. On March 10, 2009, appellees filed a motion for summary judgment, which the trial court granted on May 18, 2009. On June 15, 2009, appellant filed a timely notice of appeal.
+
+STATEMENT OF THE FACTS
+
+The relevant facts here are brief. Appellant, who was seventy-two years old, lived as a tenant at an apartment complex at 12506 Edgewater Drive. Complaint at 1. In his complaint, appellant alleged that appellees Lake Shore Towers, Showe Management Corporation, and 609 Walnut Limited Partnership managed and/or owned the apartment building. Complaint at 2-4. Appellees employed Maric Ball as a community manager at the apartment complex. Complaint at 5.
+
+So that he could retrieve some of his personal items, Ms. Ball gave appellant an exact date and time to be at the apartment complex's storage room on September 26, 2002. See, Marie Ball Depo. pp. 13-14; Complaint at 7. The storage room was only accessible to employees of Lake Shore Towers. See, Defendants' Motion for Summary Judgment, p.3; Marie Ball Depo. p. 12. As a result of an incident in the storage room, appellant suffered severe physical injuries. Complaint at 9.
+
+Appellees told appellant the exact date and time to be in the storage room to retrieve his belongings. See, Complaint at PP 6-7; appellant's deposition Pp. 69-70; Maric Ball's deposition pp. 13-16. Appellant entered the storage room with Ms. Ball and another employee, Mary Wagner. See, Mary Wagner deposition, p. 8 & Maric Ball's deposition, p. 20. While appellant was retrieving his belongings, a large 6-foot table that was leaning against a wall either fell or was knocked onto appellant forcing him to the ground. See, Marie Ball's deposition, p. 22. A maintenance staff employee commented after the table fell that the table should not have been there. See, Steven Kerr deposition, p. 120.
+
+Appellees admitted that the storage room where appellant suffered his injuries was under their exclusive control. See, Motion for Summary Judgment, pp. 3; 11-12 ("Foremost, although the Plaintiff was a tenant of Lake Shore Towers at the time of the accident, the accident occurred in a storage room of the apartment building that was not a common area for tenants but was maintained under lock and key. Only the community manager, property manager, maintenance men, and housekeeper had keys to the storage room.")
+
+LAW AND ARGUMENT
+
+ASSIGNMENT OF ERROR I: THE TRIAL COURT ERRED IN GRANTING APPELLEES' MOTION FOR SUMMARY JUDGMENT.
+
+In their Motion for Summary Judgment, appellees argued that Appellant's claim was barred by res judicata and that there were no issues of material fact regarding their negligence. The trial court erred in granting summary judgment in favor of appellees because res judicata is not applicable to the case at bar, and because, at the very least, genuine issues of material fact remain regarding whether appellees were negligent. Accordingly, appellant is entitled to a jury trial.
+
+A.  Summary Judgment Standard
+
+Ohio Civ.R. 56(C) provides that the criteria for granting a Motion for Summary Judgment:
+
+Summary Judgment shall be rendered forthwith if the pleading, depositions, answers to interrogatories, written admissions, affidavits, transcripts of evidence in a pending case, written stipulations of fact, if any, timely filed in the action, show that there is not genuine issue as to any material fact and that the moving party is entitled to judgment as a matter of law. No evidence or stipulation may be considered except as stated in this rule. A summary judgment should not be rendered unless it appears from such evidence or stipulation and only therefrom, that reasonable minds can come to but one conclusion, and that conclusion is adverse to the party against whom the motion for summary judgment is made, such party being entitled to have the evidence or stipulation construed most strongly in their favor.
+
+Civ.R. 56(E) further provides:
+
+When a motion for summary judgment is made and supported as provided in this rule, an adverse party may not rest upon the mere allegations or denials in his pleadings, but his response, by affidavit, or as otherwise provided in this rule, must set forth specific facts showing that there is a genuine issue for trial. If he does not so respond, summary judgment, if appropriate shall be entered against him.
+
+B.  Appellant's claims are not barred under the doctrine of Res Judicata.
+
+In their motion for summary judgment, appellees argued that appellant's claims were barred by res judicata because he failed to assert them as compulsory counterclaims in a 2003 forcible detainer action and/or a 2004 court action for back rent and breach of lease agreement. In their motion, appellees cited Sherman v. Pearson (1996), 110 Ohio App.3d 70, which is a 2-1 decision from the First District Court of Appeals wherein that court held that a personal injury claim was a compulsory counterclaim to be brought in a forcible entry and detainer action. For the following reasons, appellees' argument is misplaced.
+
+First and most importantly, appellant's personal injury claim in this case could not have been brought as a compulsory counterclaim in the forcible entry and detainer action because the parties to the above case are different. Specifically, appellant filed this lawsuit against Lakeshore Towers, Inc., Showe Management Corp., 609 Walnut Limited Partnership, and Marie Ball. Neither 609 Walnut Limited Partnership, nor Ms. Ball was a party in the forcible entry detainer action. Civ.R. 13(A) specifically excludes as compulsory counterclaims any claim which would be brought against third parties to which the court would not have jurisdiction. 1 Ms. Ball, as an employee of the apartment building, could not have been named a party in the 2003 forcible entry and detainer action.
+
+Second, in Sherman, supra, the alleged injury occurred in a common area, whereas here, the injury did not. Further, the Sherman court failed to analyze the compulsory counterclaim under the Ohio Rules of Civil Procedure. Ohio Rules of Civil Procedure (1)(C) specifically excepts from its coverage forcible entry and detainer actions. 2 Consequently, Civil Rule 13 (Compulsory Counterclaims) is not applicable to forcible entry and detainer cases.
+
+The reason the Ohio Rules of Civil Procedure exclude from its coverage the compulsory counterclaim rule in forcible entry action is because forcible entry and detainer actions are a "statutory remedy which provides a summary method for a landlord to obtain restitution of the leased premises. A summary proceeding is one where the trial is conducted promptly and simply, without the aid of a jury and without strict observance of all the rules which normally govern civil proceedings." See, Haney v. Roberts (1998), 130 Ohio App.3d 293, 295, 729 N.E.2d 101.
+
+In Haney, supra, the court of appeals concluded that a tenant need not file a counterclaim in a forcible entry and detainer action because "Civ.R. 13(A) does not apply in forcible entry and detainer actions to require tenants to assert compulsory counterclaims. Pursuant to R.C. § 1923.081, the tenant may reserve claims against the landlord in a later action." In the interest of public policy, it is necessary to exclude the rules of civil procedure from forcible entry actions. Otherwise, the summary aspect of such proceedings would be immediately defeated.
+
+Even if Civ.R. 13(A) did apply, which it does not, appellant's personal injury case was not a compulsory counterclaim because it did not arise out of the same transaction or occurrence that was the subject of the forcible entry and detainer action. The Ohio Supreme Court's "logical relation" test dictates that appellant's personal injury case need not have been filed as a compulsory counterclaim. See, Rettig Ent., Inc. v. Koehler (1994), 68 Ohio St. 3d, 274, 626 N.E. 2d 99. The Rettig court specifically held that:
+
+A compulsory counterclaim is one which is logically related to the opposing parties' claim were separate trials on each of their respective claims would involve a substantial duplication of effort and time by the parties and the courts, can be used to determine whether claims between opposing parties arise out the same transactional occurrence.
+
+(Emphasis added).
+
+"The goal behind the test, and Civ.R. 13(A), is to avoid repetitive actions and to achieve a uniform resolution by acquiring in one lawsuit the litigation of all claims arising from common matters." Id. "The court in Rettig elaborated 'claims are compulsory counterclaims where they 'involve many of the same factual issues, or the same factual illegal issues, or where they are off-shoots or the same basic controversy between the parties'." See, Sherman v. Pearson (1996), 110 Ohio App. 3d 70, 77, 673 N.E. 2d 643, 648.
+
+Clearly, appellant's personal injury case did not involve any common matters to the forcible entry detainer action; nor did they involve even remotely any of the same factual or legal issues, nor were they off-shoots of the same basic controversy between the parties. Therefore, Civ.R. 13(A) dictates that appellant's personal injury complaint was not a compulsory counterclaim to be filed in the forcible entry and detainer action.
+
+In Sherman, supra, cited by the appellees in their Motion for Summary Judgment, the First District Court of Appeals held that Sherman was required to bring her claim against the landlord in the forcible entry and detainer case because her injury occurred in a common area and she raised her claim under the Landlord-Tenant Act. In Haney, supra, the court acknowledged that, in Sherman, the landlord joined the forcible entry and detainer action with a suit for back rent, and that "[w]hen a landlord sues for back rent, the tenant has a Civ.R. 13(A) duty to assert any compulsory counterclaims in the action for back rent." Haney, supra at 300. (Emphasis added.)
+
+Here, even though there was a 2004 action for back rent, appellant's claim was still not a compulsory counterclaim because, as discussed above, it is not logically related to the action for back rent. Most notably, unlike in Sherman, supra, the injury here did not occur in a common area.
+
+Appellees themselves argue that the Landlord-Tenant Act does not apply to appellant's case because appellant did not suffer his injuries in a common area. Accordingly, appellees' argument that res judicata bars appellant's claims must fail. Appellees cannot have it both ways: on one hand arguing that the Landlord-Tenant Act does not apply to this case, and arguing on the other, that res judicata bars appellant's claims because they were not raised in the forcible entry and detainer case. Therefore, appellees' argument that res judicata bars appellant's personal injury claim in this case is misplaced.
+
+C.  In the storage room where his injures occurred, appellant was an invitee; therefore, the appellees owed him a duty of reasonable care.
+
+The trial court erred in granting summary judgment because there are, at the very least, genuine issues of material fact on appellant's negligence claim. Appellant was an invitee of appellees, and therefore, appellees owed him a duty of reasonable care. A landlord owes an invitee a duty to keep its premises in a reasonably safe condition and to warn of any latent defects which the owner knows or should have knowledge. Scheibel v. Lipton (1951), 156 Ohio St.3d 308. In addition,
+
+[f]or an invitee, ..., the landowner must exercise ordinary care to protect him by maintaining the premises in a safe condition. This duty applies to everything that threatens the invitee with an unreasonable risk of harm, including latent dangers that are reasonably ascertainable. The landowner must not only use care to warn of latent dangers of which he is aware but also must inspect the premises for possible unknown dangerous conditions and protect the invitee from foreseeable dangers.
+
+Mowery v. Shoaf (2002), 148 Ohio App.3d 403, 408, 773 N.E.2d 1053, 1057 (emphasis added) (citing Hann v. Roush, 4th Dist. No. 00CA55, 2001-Ohio-2614, 2002 W1 WL 1396663.
+
+Appellees failed to protect appellant from the folding table. Appellant did not cause the injures to himself; rather the instrumentality (six (6) foot long folding table) that was under appellees' exclusive control caused his injuries. Appellees told appellant the exact date and time to get to the storage room to collect his personal items and then directed him into the storage room.
+
+(a) Res Ipsa Loquitur fills in the Any Alleged Evidentiary Gap to Establish the Defendants' Breach of Duty to the Plaintiff.
+
+Appellees have admitted that the storage room where appellant was injured was under their exclusive control. See, Defendant's Motion for Summary Judgment, pp. 3; 11-12; Deposition testimony of Maric Ball. Ms. Ball testified as follows:
+
+Q- With regard to the storage room where this accident took place, is there anyone in charge of the storage room -
+
+Ms. Adams: Objection.
+
+Q- That you know of?
+
+Ms. Adams: You can answer.
+
+A- I would assume that I am.
+
+Q- But there is no one specific to it?
+
+A- No.
+
+Q- Its
+
+A- It's the building's room so management or maintenance personnel or our full time housekeeper would have, would be the ones in charge of it.
+
+Q- Who would have I guess keys to it?
+
+A- The maintenance staff, myself and Dawn Lord, whose the Senior Property Manager, and the housekeeper, full time housekeep has a key to it now.
+
+See, Maric Ball deposition, pp. 11-12.
+
+More importantly, appellant was told the exact date and time to be at the storage room by Ms. Ball in order for him to recover his belongings that were located there. Ms. Ball testified:
+
+Q- Now, with regard to you and her ending up in this room, what happened before? Was it an arrangement or how did it come about?
+
+A- I had spoken with Dawn about cleaning up that room and I believe she - well, I don't know if this is a quote or not, but I believe she suggested having Mary help me and I knew some of the stuff was Steve's [Mr. Kerr], so I had notified Steve we were going to clean out the room.
+
+Q- Was a notification given I guess days before or was it just a basically a message, hey, we're cleaning out at this time or do you remember?
+
+A- I don't remember if I wrote him a note about it, but I do know I talked to him about it and set the date and time.
+
+Q- Okay. Do you remember what the date and time was?
+
+A- The 26th and it was 1:00.
+
+Q- Was this, to your knowledge, if you remember, were you calling him to say get your stuff out of here or was he making arrangements or were you making the arrangements because he said hey, I want my stuff out of here?
+
+A- I made the arrangements because we wanted to get the stuff cleared out there that didn't belong in there, and obviously his personal things didn't belong in there.
+
+See, Maric Ball's deposition, pp. 13-14.
+
+Not only was appellant directed and told to be in the storage room to clear his items, but also Ms. Ball and another employee of Lakeshore Towers, Inc. - Mary Wagner, had been in the room prior to appellant's arrival. Maric Ball testified as follows:
+
+Q- But was he [Mr. Kerr] supposed to be there at 1:00 or is that just when you told him you were starting?
+
+A- No. I told him we were starting at 1:00 and he would need to come down with us to go through the things and see what was his and what wasn't.
+
+Q- Okay. And you and Mary were in the room prior to his arrival?
+
+A- Correct.
+
+Appellees argue that, because appellant cannot point to the exact cause of the table falling on him, they are free from any liability. However, the legal doctrine of res ipsa loquitur allows the jury to infer negligence because the appellees have admitted the storage room was under their exclusive control. "The doctrine of res ipsa loquitur is a rule of evidence which permits the trier of fact to infer negligence from the facts presented. Such a finding of negligence is not mandatory, but is merely permissible." Morgan v. Children's Hosp. (1985), 18 Ohio St. 3d, 185, 480 N.E. 2d 464.
+
+"Two requirements must be met by the plaintiff to warrant the application of res ipsa loquitur. The plaintiff must adduce evidence to show (1) that the instrumentality causing the injury was under the exclusive control of the appellees, and (2) that the circumstances were such that the injury would not have occurred if ordinary care had been used." Hake v. Wiedemann Brewing Co. (1970), 23 Ohio St. 2d 65, 262 N.E. 2d 703.
+
+It is clear from the appellees' own testimony that the storage room where appellant suffered his injury was under their exclusive control. See, supra. Second, appellant did not cause this injury to himself, and had the appellees exercised ordinary care, appellant would not have been injured. In his deposition, appellant clearly testified as to how this six-foot table struck him causing him to fall to the ground, breaking his wrist and tearing his rotator cuff. Appellant was specifically asked what happened on September 26, 2002 in the storage room:
+
+Q- Okay. Why don't you tell me what happened on September 26. We know you have go down and pick up your materials, but why don't you tell me what happened that day?
+
+A- Prior to that day, they set up an appointment for me to meet them at 1:30. So I came, I came down at 1:30 and I saw Dawn. And Dawn said you were supposed to be here at 1:00, and I said Dawn, you come back from lunch, you told me to come down at 1:30, and that ended that And I said where am I supposed to go. And she told me.
+
+When I went over to the particular room, the door was open, so I walked in. And as I walked in I turned to my left and Maric was there, and I said Good Afternoon. And I noticed Mary Wagner was at the far end of the room - had no conversation with her, because her derriere was facing, she was facing the opposite direction, and I was kind of surprised to see there.
+
+And I said where are my belongings, and she said there, some of them are over there. I said where. And she said in the paper bags. I said what did you do, throw them in grocery bags. And she said that's where they are, if you don't want it, we'll just throw the damn things out I said I had boxes. And I said to Mary Wagner, where are the boxes you were supposed to buy. I'm only here just watching over, that's all they asked me to be here. And had no further conversation.
+
+I said where am I supposed to sort this. She told me on the floor. I said you got to be kidding. You got this table over here, isn't that what the table is for? And she said you can't touch the table. So I got on my knees, and I opened up, you know, the bags, and I started to lay a few of the ornaments out.
+
+And really within five minutes or so, it wouldn't have been more than that, maybe, maybe five to ten minutes at the most from the time I arrived, and I got banged and I went out cold turkey.
+
+When I woke up I had Mary Wagner's face in my face and she was holding a cloth over my head. And the Mayer brothers were here and they were in the room. And they asked me how I felt, and I said I can't move my hand and I was dizzy. And Mike Mayer made a comment to me about how does it feel like getting hit by a bat. And I said it just hurt me, that's all, I was hurting. And then Mary Wagner said they called emergency up.
+
+See, deposition testimony of Steven Kerr, pp. 70-71.
+
+Ms. Ball's deposition testimony is consistent with appellant's.
+
+Therefore, it is clear from all of the testimony in this case, that both requirements of res ipsa loquitur have been met and a jury can infer negligence. First, appellees have admitted that the storage room was under their exclusive control. In fact, appellees were the ones who specifically invited, and told appellant, to be in the storage room to collect his items. Furthermore, the table that caused appellant's injuries was under the exclusive control of the appellees as they admitted in their Interrogatory response that the table was still being used at the apartment building in their ballroom. See, Lake Shore Towers, Inc. Response to Interrogatory No.13.
+
+The second element of the res ipsa loquitur prong has also been met. Negligence can be inferred from the circumstances surrounding the table falling onto appellant, knocking him out, breaking his wrist and tearing his rotator cuff. Either ordinary care was not used, or one of the appellees caused the table to fall onto appellant. Therefore, appellant is entitled to a trial by jury.
+
+(b) The Open and Obvious Doctrine does Not Apply to this Case.
+
+In their motion for summary judgment, appellees argue that they are absolved from liability based upon the "open and obvious" doctrine. First, in order for this doctrine to apply, the plaintiff must be at some fault for his conduct; the plaintiff must have recognized the dangerous condition and still chosen to encounter it. Appellant did not encounter the folding table that knocked him to the ground and unconscious. The folding table struck him. See, Armstrong v. Best Buy (2003), 99 Ohio St.3d 79, 788 N.E.2d 1088.
+
+Second, the alleged "dangerous condition" must be patently and obviously a "dangerous condition;" [r]ather, it is the fact that the condition itself is so obvious that it absolves the property owner from taking further action to protect the plaintiff." See, Id. at 82, 1092. As a matter of law, nobody can claim that a six (6) foot long folding table is a "dangerous condition." Climbing electric fences; walking into gaping holes in the street; walking on wet floors in a shopping center that have been properly marked; these are examples of the "open and obvious" doctrine absolving property owners of their liability.
+
+D.  The appellee Corporate Entities are Liable through the Doctrine of Respondeat superior.
+
+As stated previously, appellant was invited, and told to be at the storage room at a specific date and time, in order to collect his belongings. Either the table fell on appellant because it was improperly stored, or a specific appellee, caused the table to fall upon him. Under either of those scenarios, liability flows to the corporate Lakeshore Towers, Inc. through the doctrine of respondeat superior. "The doctrine of respondeat superior is expressed in the Restatement of the Law 2d, Agency (1958) 481, § 219 (1), which states as follows: 'a master is subject to liability for the torts of his servants committed while acting in the scope of their employment.'" Stevens v. A-Able Rents Co. (1995), 101 Ohio App. 3d 20, 654 N.E.2d 1315, quoting Osborne v. Lyles (1992), 63 Ohio St. 3d 326, 587 N.E. 2d 825. "In order for the doctrine of respondeat superior to apply, the tort of the employee must be committed within the scope of his employment." See, Id.
+
+In this case, it is clear that the tort committed upon appellant was caused either directly by Maric Ball or through another employee of Lakeshore Towers acting within the course and scope of their employment. Therefore, appellant is entitled to present this evidence to a jury as to appellees' negligence.
+
+CONCLUSION
+
+Wherefore, appellant respectfully requests this Honorable Court to reverse the trial court's decision granting appellees' Motion for Summary Judgment because there are material issues of fact to be decided by a jury.
+
+Respectfully Submitted,
+
+/s/ [Signature] by [ILLEGIBLE WORD]
+
+BRETT M. MANCINO (0071148)
+
+Attorney for Plaintiff
+
+1360 East Ninth Street
+
+1000 IMG Center
+
+Cleveland, Ohio 44114
+
+Phone: 216-241-8333
+
+Fax: 216-241-5890
+
+bmancino@rcs-law.com
+
+PROOF OF SERVICE
+
+A copy of the foregoing has been served upon the following on this day of July 2009:
+
+Thomas W. Wright, Esq.
+
+Beverly A. Adams, Esq.
+
+Davis & Young
+
+1200 Fifth Third Bldg.
+
+600 Superior Ave., East
+
+Cleveland, OH 44114
+
+Attorney for Appellees
+
+/s/ [Signature] by [ILLEGIBLE WORD]
+
+BRETT M. MANCINO (0071148)
+
+Attorney for Plaintiff

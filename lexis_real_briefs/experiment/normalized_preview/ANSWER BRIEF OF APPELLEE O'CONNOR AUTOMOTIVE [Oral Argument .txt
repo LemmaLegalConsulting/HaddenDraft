@@ -1,0 +1,247 @@
+Accelerated Calendar
+
+Date of Hearing: 11/29/2006
+
+Case #: 87891
+
+Record Type: 9A
+
+Panel: (KI) AC BL
+
+Transcript #:
+
+Exhibits:
+
+Oversize (circle): No
+
+Cabinet: C1
+
+Location:
+
+APPELLEE'S STATEMENT OF ISSUES PRESENTED FOR REVIEW
+
+The following issues are presented for review by Appellant's assignment of error advanced as to the trial court's summary judgment in favor of Defendant-Appellee, O'Connor Automotive:
+
+1. Whether, under Ohio law, a plaintiff alleging breach of a bailment contract can recover as consequential damages the alleged diminution in the settlement value of the plaintiff's tort product liability lawsuit where the bailed property that was lost was to be used as evidence in the plaintiff's product liability litigation to establish the product's defect. (Assignment of Error I)
+
+2. Whether a plaintiff can recharacterize a cause of action in order to circumvent clearly established Ohio law which prohibits recovery for a defendant's alleged loss of evidence that was to be used by the plaintiff in litigation against a third-party where the plaintiff cannot prove that the defendant intentionally spoliated the evidence. (Assignment of Error II)
+
+STATEMENT OF THE CASE
+
+This appeal arises out of a civil complaint filed on September 29, 1998 by Plaintiff-Appellant, Virginia Manigault, Individually and as Guardian for Leon Manigault (collectively "the Manigaults"). (R. 1) Manigault had previously initiated a products liability action against Ford Motor Company on June 14, 1994 ("the Ford Product Liability Litigation"). In the Ford Products Liability Litigation, the Manigaults alleged that their 1987 Crown Victoria was defectively designed and manufactured by Ford, resulting in the vehicle's sudden acceleration which caused an accident on April 3, 1993 in which the Manigaults suffered extensive injuries. (R. 1 - Complaint at P 5-6)
+
+There were a total of two trials that took place in the Ford Products Liability Litigation. The first trial ended on July 18, 1997, when the jury returned a defense verdict for Ford. The Manigaults appealed from the jury's verdict and resulting judgment and also filed a motion with the trial court seeking relief pursuant to Civ.R. 60(B). When the trial court granted the Manigaults' Civ.R. 60(B) motion, Ford appealed to the Eighth Appellate District which reversed the trial court's order. 1 The Eighth District then reinstated the Manigaults' direct appeal and affirmed the trial court's judgment which had been entered on the jury's verdict. 2 The Manigaults thereafter appealed to the Supreme Court of Ohio, where the judgment in favor of Ford was reversed and the Manigaults were granted a new trial. 3 The Manigaults' claims against Ford were settled during the second trial, which took place in February 2004.
+
+The Manigaults initiated this separate lawsuit against Defendant-Appellee O'Connor Automotive, the towing company that the Manigaults' lawyers had contracted with back in February 1995 to transport the Manigaults' Crown Victoria from one storage facility to another after the 1993 accident. 4 (R. 1 - Complaint at P7) At some time while the car was in the possession of O'Connor Automotive, it is alleged that the car was "lost or stolen." (R. 1 - Complaint at P9) Upon learning of the loss of the vehicle, Ford asserted an affirmative defense in the Ford Product Liability Litigation based upon spoliation of evidence. (R. 1 - Complaint at P10) In their Complaint, the Manigaults allege that Ford's spoliation defense forced them "to expend substantial additional monies because Ford used the loss of the car as a pretext to create issues intended to hide the fact that is is engaged in a pattern of fraud and concealment against the United States government and the courts regarding the cause of sudden accelerations." (R. 1 - Complaint at P10). The Manigaults also seek to recover damages from O'Connor Automotive for what they allege was a loss of opportunity to secure a larger settlement in the Ford Product Liability Litigation. (Appellants' Brief at p. 4). 5
+
+Count I of the Manigaults' Complaint against O'Connor Automotive sounds in breach of a bailment contract where it is alleged that O'Connor Automotive, as bailee, failed to re-deliver the Manigaults' Crown Victoria vehicle at the end of the bailment. (R. 1 - Complaint at P 14). Count II of the Complaint is a claim for conversion as it is alleged that O'Connor Automotive negligently and/or willfully lost the Crown Victoria. (R. 1 - Complaint, P 16). In Count III, which sounds in common law negligence, the Manigaults allege that O'Connor Automotive failed to exercise ordinary care while it had possession and custody of the Crown Victoria during the course of the bailment. (R. 1 - Complaint, P 18).
+
+On September 24, 2004, Intervenor-Appellee Motorists Mutual Insurance Company ("Motorists") filed a motion for leave to intervene instanter with an Intervenor's Complaint. (R. 19) The trial court granted Motorists' motion to intervene on September 28, 2004. (R. 22) On July 29, 2005, Motorists filed a motion for summary judgment on its Intervenor's Complaint for declaratory judgment. (R. 53) On September 27, 2005, the Manigaults filed their brief in opposition to Motorists' motion for summary judgment. (R. 61) Motorists filed its reply brief in support of summary judgment on October 31, 2005. (R. 68).
+
+On December 22, 2005, O'Connor Automotive filed its motion for summary judgment. (R. 74). The Manigaults filed their opposition brief to O'Connor Automotive's summary judgment motion on January 27, 2006. (R. 77). On February 8, 2006, O'Connor Automotive filed its reply brief in support of summary judgment. (R. 78)
+
+On February 16, 2006, oral argument was held on the record to address the pending motions for summary judgment. 6 (R. 79 and 81). Thereafter, in a judgment entry and memorandum opinion filed on March 9, 2006, the trial court granted summary judgment in favor O'Connor Automotive on the Manigaults' Complaint and in favor of Motorists on its Intervenor's Complaint for declaratory judgment. (R. 80 and 81). As to the Manigaults' claims against O'Connor Automotive, the trial court determined that (1) the only damages recoverable for the breach of bailment contract is the amount of the fair market salvage value of the 1987 Ford Crown Victoria (which the Manigaults were not seeking), and (2) any consequential damages for the lost or diminished value of the Ford Product Liability Litigation could be recovered only upon proof that O'Connor Automotive committed the intentional spoliation of evidence, of which there was no evidence presented. (R. 81 at p. 1-2). The Manigaults filed their notice of appeal on March 15, 2006. (R. 82).
+
+STATEMENT OF FACTS
+
+O'Connor Automotive concurs with the Manigaults that for purposes of this appeal, there are no material factual disputes. (Appellants' Brief at p. 6) The factual background for this appeal is as follows: Sometime prior to March 3, 1993, the Manigaults purchased a 1987 Crown Victoria from Ed Mullinax Ford in Wickliffe, Ohio. (R. 1 - Complaint at P4). The Manigaults were severely injured on March 3, 1993, when the Crown Victoria vehicle suddenly and rapidly accelerated from a stationary position due to a defect in the vehicle. (R. 1 - Complaint at P5). The Manigaults retained the law firm of Weisman, Goldberg & Weisman to pursue a products liability case against Ford. (R. 1 - Complaint at P7). The Weisman firm made arrangements with O'Connor Automotive to store the vehicle, as bailee during the course of the Ford Product Liability Litigation. (Complaint, P 7).
+
+The Manigaults' Complaint alleges that O'Connor Automotive knew the vehicle had been placed in its possession and control for purposes of preserving evidence for use in the Ford Product Liability Litigation. (R. 1 - Complaint at P 8). But the evidence here is to the contrary.
+
+In opposing summary judgment, the Manigaults presented an affidavit from Brian Goldwasser, an attorney from the Weisman law firm. Mr. Goldwasser's affidavit averred that he contacted O'Connor Automotive concerning storage of the vehicle that was to be used as evidence in a case involving Manigault and Ford. The Goldwasser affidavit does not attest that anyone at O'Connor Automotive was specifically informed that the vehicle was the subject of a pending litigation or that it was of considerable value. Instead, at paragraph 5 of his affidavit, he can only state that ". . . as an employee of Weisman, Goldberg & Weisman, it was my usual and customary practice to inform any party storing evidence on behalf of the law firm that such evidence was important and must be kept in a secure manner." (Emphasis added) There is no evidence that this was done in this case. Kevin O'Connor testified that he had no knowledge that the stored vehicle was the subject of a pending litigation. 7 Moreover, the towing and storage documents for the vehicle 8 do not indicate that the vehicle was being stored for purposes of litigation and was of considerable value.
+
+The only other purported evidence offered in an effort to establish that O'Connor Automotive was aware of the significance and value of the wrecked vehicle is an affidavit from Geoff Stout, an individual who owned and operated the previous storage facility for the subject vehicle. 9 While he specifically attests that he was informed by Weisman, Goldberg and Weisman that the automobile was a crucial piece of evidence, no such evidence as to O'Connor Automotive being informed or having knowledge of this fact exists. Mr. Stout further states that he spoke with someone from O'Connor Automotive in October 1993, and advised them that the vehicle could not be left unattended. Mr. Stout does not indicate that the individual from O'Connor Automotive was informed that the vehicle was evidence in a pending litigation and was of considerable value to anyone, including the Manigaults or the Weisman firm.
+
+While in the possession of O'Connor Automotive, the vehicle was allegedly "lost or stolen." (R. 1 - Complaint at P 9). Thereafter and during the course of the Ford Product Liability Litigation, Ford asserted the affirmative defense of spoliation of evidence against the Manigaults' claim of product defect. (R. 1 - Complaint at P14); (R. 72 - Ford Motor Company's Motion to Dismiss or in the Alternative, for Summary Judgment). While the Manigaults now argue that the vehicle was crucial to their full recovery from Ford, during the briefing in the Ford Product Liability Litigation, the Manigaults took the exact opposite position and argued that the presence and the availability of the vehicle was "not necessary for a full and fair trial of the issues raised by this case." (R. 72 - Plaintiffs' Response to Defendant Ford Motor Company's Motion for Summary Judgment filed on March 25, 1996 at p. 17.) When Ford argued that the destruction and/or loss of the vehicle amounted to a willful spoliation of evidence, the Manigaults took positions - contrary to what they argue now in this case against O'Connor Automotive - that Ohio law only recognizes an intentional claim for spoliation, and that the presence of the vehicle had no bearing on the ability to succeed before a jury. (R. 72 - Plaintiffs' Response to Defendant Ford Motor Company's Motion for Summary Judgment filed on March 25, 1996 at p. 16-18). Now, having settled with Ford, the Manigaults have flip-flopped and adopted Ford's position in an effort to recover more.
+
+LAW AND ARGUMENT
+
+Standard of Appellate Review. On appeal, a trial court's summary judgment is reviewed de novo with the appellate court, standing in the shoes of the trial court, considering the evidence on the same standard as the trial court pursuant to Civ.R. 56. Vitatoe v. Lawrence Industries, Inc., 153 Ohio App.3d 609, 2003-Ohio-4187, P30 (citing Brown v. Scioto Cty. Bd. of Commrs. (1993), 87 Ohio App.3d 704).
+
+A party should be granted summary judgment pursuant to Ohio Rule of Civil Procedure 56 when a review of the pleadings, deposition testimony and other evidentiary materials demonstrate that "1) no genuine issue as to any material fact remains to be litigated; 2) the moving party is entitled to judgment as a matter of law; and 3) it appears from the evidence that reasonable minds can come to but one conclusion, in viewing such evidence most strongly in favor of the party against whom the motion for summary judgment is made, that conclusion is adverse to that party." Temple v. Wean United, Inc. (1977), 50 Ohio St.2d 317, 327.
+
+I.  THE TRIAL COURT CORRECTLY ENTERED SUMMARY JUDGMENT ON THE APPELLANT'S CONTRACTUAL BAILMENT CLAIM BASED UPON THE ALLEGED LOSS OF THE 1987 CROWN VICTORIA. APPELLEE O'CONNOR AUTOMOTIVE IS ENTITLED TO JUDGMENT AS A MATTER OF OHIO LAW GOVERNING THE DAMAGES WHICH ARE RECOVERABLE FOR BREACH OF A BAILMENT CONTRACT.
+
+In their argument addressing the First Assignment of Error, the Manigaults have boldly stated that the trial court's judgment here "has impliedly wiped out hundreds of years of common law jurisprudence." (Appellants' Brief at p. 6) With such a statement, one would certainly expect to have a case or two cited to support the proposition of law that is allegedly being "impliedly wiped out." The Manigaults have cited not a single case, not one from Ohio or from any other jurisdiction, where a court has permitted recovery in a bailment situation of the type of damages sought by the Manigaults - "the extra costs and delays incurred in prosecuting [the Manigaults'] claim against Ford Motor Company, plus the reduction in the settlement value of the case." (Appellants' Brief at p. 9) It is the Manigaults who are endeavoring in this appeal to radically transform Ohio's common law governing the damages recoverable when a breach of a bailment contract occurs.
+
+A.  Damages Recoverable in Ohio for Breach of a Bailment Contract.
+
+Pursuant to the law of bailment, the bailee's promise is to return the bailed property undamaged upon the termination of the bailment. Maloney v. Gen. Tire Sales, Inc. (1973), 34 Ohio App.2d 177, 180. In order for a prima facie case to be stated in an action sounding in breach of a bailment contract, the following must be established: (1) the contract of bailment existed, (2) delivery of the bailed property to the bailee, and (3) failure of the bailee to redeliver the bailed property undamaged at the termination of the bailment. David v. Lose (1966), 7 Ohio St.2d 97, paragraph one of the syllabus. When a prima facie case for breach of a bailment contract has been proven, the burden of going forward with the evidence shifts to the bailee to explain the failure to redeliver the bailed property. Id., paragraph one of the syllabus (following Agricultural Ins. Co. v. Constantine (1944), 144 Ohio St. 275). This appeal is not about establishing a prima facie case or burden shifting. The issue in this case relates to the damages which are recoverable by the plaintiff, assuming that a breach can be or has been established. 10 The trial court in this case correctly determined that, under Ohio law, the Manigaults are not entitled to recover the consequential damages they seek from O'Connor Automotive.
+
+In Ohio, where an action involves the conversion, loss, or destruction of property which is the subject matter of a bailment, the damages recoverable by the bailor is to be determined by the fair market value of the property at the time when it is lost, destroyed, or stolen. See, Parrish v. Machlan (1997), 131 Ohio App.3d 291, 296 (citing Maloney v. Gen. Tire Sales, Inc., supra); 8 O.JUR.3D, Bailments, § 45 at 273-274. This is the rule observed in other jurisdictions as well. See, 8A AM.JUR.2D, Bailments, § 259 at 709. It is this well-established black letter rule of law that is being challenged by the Manigaults in this appeal. In granting summary judgment, the trial court correctly rejected this challenge and this Court should affirm that judgment.
+
+B.  The Trial Court Correctly Followed Those Ohio Courts Which Have Disallowed Recovery of The Consequential Damages Sought Here by the Manigaults.
+
+As noted by the trial court, the Manigaults do not seek recovery of damages recognized in Ohio that result from the alleged breach of contract, negligence or conversion. (R. 81 at p. 1) Rather, the Manigaults have taken the unprecedented step of seeking consequential damages consisting of damages that they allegedly could have recovered against Ford Motor in the underlying Ford Product Liability Litigation. This precise issue has been addressed and rejected by courts interpreting Ohio law. By relying upon this precedent, the trial court correctly entered summary judgment in favor of O'Connor Automotive.
+
+In granting summary judgment, the trial court appropriately relied upon the Tenth Appellate District's opinion in Tomas v. Nationwide Mutual Insurance Co. (1992), 79 Ohio App.3d 624 which is factually indistinguishable from the case sub judice. In Tomas, the plaintiff was injured when her car struck an oncoming vehicle after crossing a median in the road. The occupants of the other car were also injured. The plaintiff suffered amnesia, and recalled little about the crash except that there was a quivering movement in her car as if buffeted by the wind as she drove down the road. After the accident, her insurer--seeking to save storage costs--had the car towed to a salvage yard. Because the plaintiff's father, in a conversation with an agent of the insurer, had questioned whether a defect had caused the accident, the company instructed the salvage yard to preserve the car. Nevertheless, and despite lacking title to the car, the salvage yard sold some of the parts from the car's front end. The lack of this evidence made it impossible for an expert whom the plaintiff later retained to determine whether the crash was caused by a defect in the car. The plaintiff then sued her insurer and the salvage yard for loss of this evidence.
+
+The trial court granted summary judgment to both defendants. On appeal, the Tomas court first noted that although couched in terms of agency and negligence, the case really amounted to one of bailment. As a bailor, the court noted, the plaintiff transferred possession, but not ownership, of the car, and if the bailee permitted the property to be damaged or destroyed, it amounted to a conversion of the property. The court found that the plaintiff presented a prima facie case for breach of the bailment because the car was not returned in the same condition it was in when the defendant took possession of it.
+
+The Tomas court went on to state that:
+
+Nevertheless, this case turns not upon whether or not there is evidence of a duty to plaintiff, nor even if there is a negligent failure to fulfill that duty, since plaintiff does not seek to recover the difference in market value of the vehicle with and without the removed parts but, instead, seeks to recover claimed consequential damages, consisting of the damages she would have recovered from the tortfeasor, who allegedly delivered defectively designed parts or negligently repaired the vehicle, causing the steering mechanism to malfunction, with plaintiff being unable to control the vehicle.
+
+Tomas, 79 Ohio App. 3d at 630.
+
+The court in Tomas emphasized that the plaintiff was seeking consequential damages, rather than the mere loss in the vehicle's value. Specifically, as the Manigaults do here, the plaintiff alleged that the failure by the salvage yard to redeliver her vehicle prevented her from maintaining a products liability lawsuit against the manufacturer based upon a faulty steering mechanism. The court found that the mere allegation that inspection of the missing car parts might have revealed a defect could not support a cause of action against the insurer or the salvage yard.
+
+In Owca v. Fed. Ins. Co., 95 Fed. Appx. 742, 2004 U.S. App. LEXIS 1369 (6th Cir. 2004), another case relied upon the trial court, the plaintiff sued her insurance company for breach of a bailment contract when it failed to redeliver photographs evidencing damage to her property that the plaintiff intended to use in a lawsuit against the county sheriff's department which allegedly damaged her personal property during an eviction process. The insurance company delivered the photographs to defense counsel for use in his investigation of the first-party claim. The insurance company subsequently settled the first-party claim with the plaintiff, and the photographs were inadvertently destroyed in the ordinary course of the law firm's business. Thus, when the plaintiff requested the photographs sometime later to use as evidence in the anticipated lawsuit against the county sheriff's department, the photographs were unavailable. The district court granted summary judgment to the defendant because the plaintiff was basing her claim on the alleged damage to her personal property, rather than the nominal value of the lost photographs.
+
+The Sixth Circuit affirmed, finding that although the insurance company breached the bailment contract, the plaintiff could not recover consequential damages for loss of opportunity to pursue a separate lawsuit. The Owca court, interpreting Ohio bailment law, held that the plaintiff can only recover damages for breach of bailment in the amount of the actual value of the photographs and that recovery of consequential damages for the lost value or opportunity to pursue the contemplated litigation was only available upon proof that the defendant had committed an intentional tort of spoliation of evidence. Owca, supra, 95 Fed. Appx. at 745-746 (citing Tomas, supra, and White v. Ford Motor Co. (2001), 142 Ohio App. 3d 384).
+
+The Manigaults cannot recover the consequential damages they seek under a theory of breach of a bailment contract. They cite no case where such recovery has been allowed. The trial court correctly granted summary judgment in favor of O'Connor Automotive. The facts of this lawsuit are simply insufficient to recover for lost opportunity or lost value in the Ford Product Liability Litigation.
+
+In an effort to distract the Court from this glaring weakness in their case, the Manigaults' argument shifts at pages 8-9 of their brief to focus upon facts and evidence which, even if true, would simply establish a prima facie case of breach of a bailment contract, not the damages that can be recovered under Ohio law. Indeed, the case cited at page 8, Agricultural Ins. Co. v. Constantine, supra, addresses only the issue of how one goes about establishing a prima facie case for breach of a bailment contract and under what circumstances the burden of going forward with evidence shifts to the bailee. The Constantine case does not involve any issue as to the type, scope or calculation of damages that are recoverable when the ultimate breach of the bailment contract has been established.
+
+The Manigaults' reliance upon Edwards v. Crestmont Cadillac Corp. (1979), 64 Ohio Misc. 1 is also misplaced. Ignoring the fact that Edwards is a municipal court opinion that is not binding upon this Court, the opinion recognizes that "a meeting of the minds" must take place regarding the terms of the bailment. The Edwards determined:
+
+There was no evidence to indicate that defendant was made aware of the nature, extent, or value of the contents in the automobile trunk. This court is of the opinion that in order to create a contract of bailment for plaintiff's personal property, she was required to clearly and expressly inform defendant not only of that term of the contract, but also the extent of its value to afford the bailee an opportunity to accept or reject the obligation.
+
+64 Ohio Misc. at 8, 9 (Emphasis added).
+
+Thus, there can be no meeting of the minds when the terms and conditions of a bailment have not been relayed and the evidence does not indicate that the bailee is not made aware of the nature, extent, and value of the bailed goods, so as to give the bailee the opportunity to accept responsibility for the value of the goods. Id. See, also, George v. Whitmer, 5th Dist. No. 05-CA-70, 2006-Ohio-436 and Smith v. Stacy, 4th Dist. No. 00CA648, 2001-Ohio-2456.
+
+The evidence in this case does not show that there was a meeting of the minds in terms of the alleged potential value of the wrecked 1987 Crown Victoria. There is no evidentiary basis to infer that O'Connor Automotive contemplated that "devastating consequences to the outcome of the litigation" would result from the loss of the Crown Victoria. As previously asserted herein, the affidavit of attorney Brian Goldwasser (prepared over ten years after the events recited therein) does not establish the right to recover the consequential damages sought herein. The testimony of Kevin O'Connor as well as the documents evidencing the storage of the vehicle in this case reflect nothing to indicate that the vehicle was being stored for purposes of litigation or was of considerable value.
+
+Consequently, the trial court correctly held that the Manigaults cannot recover the consequential damages sought from O'Connor Automotive on a breach of bailment contract relating to the loss of evidence in the Ford Product Liability Litigation. Summary judgment was appropriately awarded to O'Connor Automotive. That decision should be affirmed.
+
+II.  THE TRIAL COURT'S SUMMARY JUDGMENT SHOULD BE AFFIRMED BECAUSE THE MANIGAULTS CANNOT RECHARACTERIZE THE CLAIMS SET FORTH IN THE COMPLAINT TO ASSERT A CAUSE OF ACTION FOR BREACH OF CONTRACT IN ORDER TO CIRCUMVENT CLEARLY ESTABLISHED OHIO LAW LIMITING RECOVERY FOR ALLEGED LOSS OF EVIDENCE THAT WAS TO BE USED IN PENDING OR CONTEMPLATED LITIGATION UNLESS THE DEFENDANT INTENTIONALLY SPOLIATED THE EVIDENCE.
+
+There are only three causes of action asserted in the Manigaults' Complaint. Count I is for "Breach of Bailment Contract." Count II is for the tort of "Conversion." Count III sets forth another tort claim for "Negligence." As established in Section I of this brief, the Manigaults' "contract" claim is governed by the law in Ohio which has been established and developed by Ohio courts to specifically deal with bailment contracts. The Manigaults have no other contract claim to assert against O'Connor Automotive. Reliance upon general contract damage principles in the arguments advanced to support Assignment of Error II at pages 10-12 of Appellants' Brief is misplaced.
+
+Because Ohio law covering damages from bailment contracts will not support the unprecedented claim for the consequential damages sought here, the Manigaults have tried to creatively recharacterize their claims. But, a litigant, like the Manigaults, may not utilize another theory of law to transform a case into a different type of action in order to circumvent the law that is less favorable to that litigant's ability to recover. See, Love v. Port Clinton (1988), 37 Ohio St.3d 98. Yet, that is precisely what the Manigaults are doing here. Ohio law does not recognize a cause of action for the recovery of damages for interference with a litigant's cause of action unless there has been an intentional spoliation (ie., destruction or loss) of evidence. Smith v. Howard Johnson Co., Inc., 67 Ohio St.3d 28, 1993-Ohio-229; Wachtman v. Meijer, 10th Dist. No. 03AP-948, 2004-Ohio-6440, P25. Ohio only recognizes intentional spoliation of evidence claims. White v. Ford Motor Co., supra, 142 Ohio App. 3d at 388 (noting that the Smith decision eliminated any doubt as to whether or not Ohio recognizes a legal claim to recover damages for spoliation of evidence other than intentional spoliation of evidence); Baker v. Wal-Mart Stores, Inc., 10th Dist. No. 01AP-658, 2001-Ohio-8854 at p. 13.
+
+Thus, regardless of how the Maginaults try to portray and recast their claims in this appeal to avail themselves of a different legal theory, their claim amounts to the only one recognized in Ohio arising out of the loss or destruction of evidence which, as the trial court aptly noted, is a tort claim for intentional spoliation. The law in Ohio supports the trial court's summary judgment in favor of O'Connor Automotive in this case. See, Tomas v. Nationwide Mutual Ins., supra; Owca v. Federal Insurance Company, supra.
+
+The cases cited by the Manigaults in support of this argument are not controlling and are unpersuasive. Edwards v. Crestmont Cadillac, supra and Daugherty v. University of Akron, (1992), 63 Ohio Misc.2d 397 are trial court opinions that have not undergone the rigorous scrutiny and review of an appellate court. Reliance upon Dixon v. Besco Engineering, Inc. (1995), 320 S.C. 174, 463 S.E.2d 636 is misplaced and misleading. A careful read of each case demonstrates that they do not stand for the propositions for which the Manigaults cite them.
+
+CONCLUSION
+
+WHEREFORE, Defendant-Appellee, O'Connor Automotive respectfully requests that the trial court's summary judgment be affirmed as Defendant-Appellee, O'Connor Automotive is entitled to judgment in its favor as a matter of law.
+
+Respectfully submitted,
+
+/s/ [Signature]
+
+Thomas E. Dover (0016765)
+
+Timothy J. Fitzgerald (0042734)
+
+Darlene E. White (0072836)
+
+GALLAGHER SHARP
+
+6<th> Floor, Bulkley Building
+
+1501 Euclid Avenue
+
+Cleveland, Ohio 44115
+
+Tel: (216) 241-5310
+
+Fax: (216) 241-1608
+
+E-mail: tdover@gallaghersharp.com
+
+tfitzgerald@gallaghersharp.com
+
+dwhite@gallaghersharp.com
+
+Counsel for Defendant-Appellee, O'Connor
+
+Automotive
+
+CERTIFICATE OF SERVICE
+
+A copy of the foregoing Answer Brief of Appellee O'Connor Automotive has been served by regular U.S. Mail, this 1<st> day of May, 2006 to the following:
+
+James L. Murray
+
+Mary S. O'Neill
+
+Murray & Murray Co., LPA
+
+111 East Shoreline Drive
+
+P.O. Box 19
+
+Sandusky, OH 44871-0019
+
+Robert Zelvy
+
+Robert Zelvy & Associates
+
+158 East Market Street, Suite 606
+
+Sandusky, OH 44870-2554
+
+Counsel for Plaintiff-Appellant
+
+Terrance P. Gravens
+
+Rawlin Gravens Co., L.P.A.
+
+55 Public Square, Suite 85
+
+Cleveland, OH 44113
+
+Counsel for Intervenor-Appellee,
+
+Motorists Mutual Insurance Co.
+
+/s/ [Signature]
+
+Thomas E. Dover (0016765)
+
+Timothy J. Fitzgerald (0042734)
+
+Darlene E. White (0072836)
+
+APPENDIX
+
+[EDITOR'S NOTE: See VIRGINIA MANIGAULT, Guardian of Leon Manigault Plaintiffs, -vs- O'CONNOR AUTOMOTIVE, et al. Defendants, CASE NO. CV-98-366609, COURT OF COMMON PLEAS CUYAHOGA COUNTY, March 7, 2006]
+
+Table1 (Return to related document text)
+
+APPELLEE'S STATEMENT OF ISSUES PRESENTED FOR REVIEW
+
+1
+
+STATEMENT OF THE CASE
+
+1
+
+STATEMENT OF FACTS
+
+4
+
+LAW AND ARGUMENT
+
+7
+
+I.THE TRIAL COURT CORRECTLY ENTERED SUMMARY JUDGMENT ON THE APPELLANT'S CONTRACTUAL BAILMENT CLAIM BASED UPON THE ALLEGED LOSS OF THE 1987 CROWN VICTORIA. APPELLEE O'CONNOR AUTOMOTIVE IS ENTITLED TO JUDGMENT AS A MATTER OF OHIO LAW GOVERNING THE DAMAGES WHICH ARE RECOVERABLE FOR BREACH OF A BAILMENT CONTRACT.
+
+7
+
+A. Damages Recoverable in Ohio for Breach of a Bailment Contract.
+
+8
+
+B. The Trial Court Correctly Followed Those Ohio Courts Which Have Disallowed Recovery of The Consequential Damages Sought Here by the Manigaults.
+
+9
+
+II.THE TRIAL COURT'S SUMMARY JUDGMENT SHOULD BE AFFIRMED BECAUSE THE MANIGAULTS CANNOT RECHARACTERIZE THE CLAIMS SET FORTH IN THE COMPLAINT TO ASSERT A CAUSE OF ACTION FOR BREACH OF CONTRACT IN ORDER TO CIRCUMVENT CLEARLY ESTABLISHED OHIO LAW LIMITING RECOVERY FOR ALLEGED LOSS OF EVIDENCE THAT WAS TO BE USED IN PENDING OR CONTEMPLATED LITIGATION UNLESS THE DEFENDANT INTENTIONALLY SPOLIATED THE EVIDENCE.
+
+14
+
+CONCLUSION
+
+15
+
+CERTIFICATE OF SERVICE
+
+16
+
+Table1 (Return to related document text)

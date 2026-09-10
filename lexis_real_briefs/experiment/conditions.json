@@ -1,0 +1,223 @@
+{
+  "registry_id": "lexis-mutation-2026-09",
+  "registered_on": "2026-09-08",
+  "status": "conditions frozen; fixtures built; no run executed",
+  "register": "REGISTER.md",
+  "repository_commit_at_registration": "2f818467e88b50c55444ff0441fa85d7e7dffa8d",
+  "question": "In what proportion of controlled brief pairs does introducing one known legal vulnerability cause the Argument Gym to raise that vulnerability, when it had not raised it in the unmodified brief?",
+  "unit_of_analysis": "lawsuit (one focal filing per case family)",
+  "conditions": [
+    "control",
+    "mutant"
+  ],
+  "design": "within-fixture paired minimal difference",
+  "strata": {
+    "appellate_eviction": {
+      "description": "Ohio appellate merit/answer briefs where eviction, possession or an eviction-related defense is central to an argument the court must resolve",
+      "fixtures": 6
+    },
+    "trial_eviction": {
+      "description": "trial-level motions and memoranda, same centrality test",
+      "fixtures": 2,
+      "note": "recovered by OCR; before OCR, 14 of 15 trial filings were scanned PDFs behind a Lexis metadata card"
+    },
+    "landlord_tenant_secondary": {
+      "description": "landlord-tenant law central, possession not at issue",
+      "fixtures": 0
+    }
+  },
+  "mutation_classes": {
+    "missing_element": {
+      "letter": "A",
+      "authored": 2,
+      "fixtures": [
+        "F001",
+        "F002"
+      ]
+    },
+    "record_support": {
+      "letter": "B",
+      "authored": 2,
+      "fixtures": [
+        "F003",
+        "F007"
+      ],
+      "note": "F003 is intra-document (the exhibit the brief cites and the hearing it describes); F007 tests a proposition against a 66-page record held byte-identical across conditions"
+    },
+    "authority_applicability": {
+      "letter": "C",
+      "authored": 2,
+      "fixtures": [
+        "F004",
+        "F005"
+      ]
+    },
+    "temporal_defect": {
+      "letter": "D",
+      "authored": 0,
+      "fixtures": [],
+      "note": "open: requires attorney verification of statutory or ordinance history"
+    },
+    "removed_counterargument": {
+      "letter": "E",
+      "authored": 2,
+      "fixtures": [
+        "F006",
+        "F008"
+      ]
+    },
+    "advocacy_degradation": {
+      "letter": "F",
+      "authored": 0,
+      "fixtures": [],
+      "note": "exploratory only; gold label is a human preference, not an identifiable defect"
+    }
+  },
+  "primary_outcome": {
+    "name": "paired discrimination on the registered target vulnerability",
+    "cells": {
+      "control=0,mutant=1": "discriminating",
+      "control=0,mutant=0": "missed",
+      "control=1,mutant=1": "non-discriminating",
+      "control=1,mutant=0": "reversed"
+    },
+    "reported_as": "counts of the four cells; explicitly not collapsed into an accuracy rate",
+    "matching_rule": "a Gym challenge matches the target when it names the underlying proposition in gold_vulnerability; exact category wording is not required"
+  },
+  "secondary_outcomes": [
+    "target_rank",
+    "target_survived_judge",
+    "other_challenges.count",
+    "other_challenges.valid"
+  ],
+  "generator": {
+    "mutations_authored_by": "claude-opus-5",
+    "generator_display_name": "Claude Opus 5 (Claude Code)",
+    "vendor": "Anthropic",
+    "authored_on": "2026-09-08",
+    "did": [
+      "selected focal filings",
+      "wrote the normalizer",
+      "chose mutation targets",
+      "drafted mutant text",
+      "drafted gold-vulnerability descriptions",
+      "wrote the register"
+    ],
+    "did_not": [
+      "verify Ohio statutory or case-law history",
+      "confirm what a mutated authority holds",
+      "adjudicate materiality"
+    ],
+    "human_review": "none",
+    "known_correlation_risk": "the mutations were authored by a language model and the system under test is a language model; treat cross-model correlation as an open confound"
+  },
+  "system_under_test": {
+    "name": "Argument Gym",
+    "model_setting": "OPENAI_MODEL",
+    "model_default_at_registration": "gpt-5.4-mini",
+    "prompt_catalog": "prompts/argument_gym.*.yaml",
+    "input_ceilings": {
+      "ARGUMENT_GYM_UNIT_BUDGET_CHARS": 260000,
+      "ARGUMENT_GYM_UNIT_TEXT_CHARS": 2400,
+      "ARGUMENT_GYM_BRIEF_TEXT_CHARS": 120000,
+      "ingestion.MAX_BRIEF_CHARS": 120000,
+      "ingestion.BRIEF_PAGE_LIMIT": 30
+    },
+    "headroom_check": {
+      "tool": "tools/check_gym_limits.py",
+      "documents_checked": 19,
+      "largest_brief_chars": 47302,
+      "largest_document_chars": 72407,
+      "largest_unit_payload": 107989,
+      "percent_of_unit_budget": 41.5,
+      "percent_of_ingestion_cap": 60.3,
+      "fixtures_truncated": 0,
+      "fixtures_sampled": 0,
+      "conclusion": "no ceiling needs raising for this corpus, provided documents are normalized and split before they are run"
+    },
+    "reported_defect_not_fixed": {
+      "location": "backend/apps/argument_gym/ingestion.py split_brief_and_exhibits",
+      "symptom": "an inline reference such as 'See attached Exhibit 2' in the first two lines of a page is treated as the start of the attachments",
+      "worst_observed": "the Notarian motion, a 13-page filing, is reported as a 2-page brief; the entire R.C. 1923.04(A) section is classified as an exhibit",
+      "why_it_matters": "silent -- the run reports a successful ingestion of a short brief -- and costs far more argument than any character ceiling",
+      "status": "reported, not fixed; fixtures are split by tools/filed_document.py instead"
+    }
+  },
+  "normalization": {
+    "version": "1.0",
+    "removed": [
+      "Lexis wrapper header",
+      "End of Document marker",
+      "star-pagination markers",
+      "authorities Lexis appended after the certificate of service (moved to attachments, not deleted)"
+    ],
+    "not_done": [
+      "prose rewriting",
+      "typo correction",
+      "citation correction",
+      "OCR spelling repair",
+      "boilerplate removal",
+      "collapsing repeated language inside a filing"
+    ],
+    "log": "normalization_log.json"
+  },
+  "verification": {
+    "status": "unverified",
+    "protocol_steps_completed": [
+      1,
+      2,
+      3,
+      4,
+      7
+    ],
+    "protocol_steps_outstanding": [
+      5,
+      6
+    ],
+    "reviewer_questions": [
+      "Are the pair identical except for the intended change?",
+      "Is the control free of the targeted defect?",
+      "Does the mutant contain the targeted defect?",
+      "Is the defect material enough that competent opposing counsel could reasonably raise it?"
+    ],
+    "admission_rule": "only yes/yes/yes/yes admits a fixture to a held-out benchmark",
+    "held_out_set": false
+  },
+  "declared_limits": [
+    "six of eight fixtures are appellate; the trial stratum is two fixtures deep and supports no general claim about trial-level eviction practice",
+    "five of eight fixtures have no independent case record; F003 remains an intra-document record-support test",
+    "n=8; report the per-pair table and the four outcome counts, not a percentage",
+    "F007 and F008 carry OCR noise that F001-F006 do not -- a between-strata difference, never a within-pair one",
+    "F008 has a known structural tell: deleting section III.B leaves its headings running A, C",
+    "no fixture has been adjudicated by an attorney; the first run is a pilot of the method, not a measurement of the system"
+  ],
+  "corpus_note": "Lexis delivery 2026-09-08 job 295074488; scanned filings transcribed by OCR, see ocr",
+  "revised_on": "2026-09-08 (OCR of scanned filings; no run had been executed, so nothing measured was revised)",
+  "eligible_case_families": 10,
+  "authored_fixtures": 8,
+  "eligible_unauthored": [
+    "jacob-v-fadel",
+    "debartolo-v-dussault-moving"
+  ],
+  "ocr": {
+    "service": "Azure AI Document Intelligence",
+    "model": "prebuilt-read",
+    "api_version": "2024-11-30",
+    "resource": "WorkflowDocs (East US), user's own subscription",
+    "contract_verified_against_live_resource": true,
+    "scans_transcribed": 29,
+    "pages": 1371,
+    "characters": 2396035,
+    "cached_by": "source SHA-256",
+    "text_corrected": false,
+    "text_correction_note": "OCR misreadings are left exactly as transcribed; only the per-page e-filing stamp and page-number footer are removed, and both are counted per fixture",
+    "human_proofread": false,
+    "recorded_per_fixture_at": "provenance.text.ocr"
+  },
+  "centrality_test": {
+    "min_argument_hits": 5,
+    "min_argument_fraction": 0.1,
+    "min_possession_hits": 3,
+    "note": "the possession threshold is what excludes a brief between a landlord and a tenant that argues about something else; heading hits are recorded but not required"
+  }
+}

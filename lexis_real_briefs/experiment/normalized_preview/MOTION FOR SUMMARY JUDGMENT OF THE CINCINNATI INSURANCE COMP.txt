@@ -1,0 +1,391 @@
+FILED
+Michael M. Neltner (0063555) April C. Tarvin (0079248) Trial Attorneys for Plaintiff
+2015 JUL -7 PM 3: 03
+MARY L. STA! BUTLER COUNT IN THE COURT OF COMMON PLEAS CLERK OF COURTS BUTLER COUNTY, OHIO
+THE CINCINNATI INSURANCE CO. Plaintiff
+Case No. CV 2012 10 3912
+Judge: POWERS
+VS.
+..
+AMERISOURCEBERGEN DRUG
+MOTION FOR SUMMARY JUDGMENT OF THE CINCINNATI INSURANCE COMPANY AND AFFIDAVIT OF ANTHONY E. HENN; EXHIBITS FILED IN SUPPORT
+CORPORATION, et al. .
+:
+Defendants
+Now comes Plaintiff, the Cincinnati Insurance Company ("CIC"), by and through counsel, and pursuant to Rule 56 of The Ohio Rules of Civil Procedure, respectfully moves this honorable Court for Summary Judgment as to all claims in this matter. This Motion is supported by:
+(i) The affidavit of CIC Vice President and member of the product management group, Tony Henn;
+(ii) The CIC insurance contract with Defendant Miami-Luken, Inc. ("Miami- Luken"); and
+(iii) The accompanying memorandum of law.
+. .
+
+Respectfully submitted
+April C. Tarvin Esq/(0079248) P. O. Box 145496
+Cincinnati, OH 45250-5496
+Tel: (513) 603-5082
+Fax: (513) 870-2900 michael_neltner@staffdefense.com
+april_tarvin@staffdefense.com
+Trial Attorneys for Plaintiff,
+The Cincinnati Insurance Company
+MEMORANDUM
+I. Statement of Relevant Facts and Procedural Posture
+This case seeks the Court's assistance in determining whether CIC owes coverage (defense or indemnity) to Defendant Miami-Luken under a commercial general liability ("CGL") insurance contract between the two parties. CIC is already defending Miami-Luken under a Directors and Officers ("D and O") policy and intends to do so throughout the course of the underlying tort litigation which spurred the present declaratory judgment action. Therefore, Miami-Luken will be defended through trial or settlement of the underlying action regardless of the Court's decision here. Still, the parties need a resolution of whether or not this particular CGL Contract (the "Contract") provides coverage.
+The underlying tort litigation was filed by the Attorney General for the State of West Virginia (the "AG" or "West Virginia AG") on June 26, 2012. This litigation was initially filed by Attorney General Darrell V. McGraw, Jr. Mr. McGraw, however, lost his re-election bid but the litigation is continuing to be prosecuted by current Attorney
+
+General, Patrick Morrisey, who filed an Amended Complaint on January 2, 2014. A copy of this Amended Complaint is attached hereto for the Court's reference. We understand that a Second Amended Complaint was filed under seal in the West Virginia action and we are attempting to obtain a copy of that Second Amended Complaint but so far have not been able to do so. If we are able to do so, we will file a copy with the Court. We understand, however, from attorneys involved in that litigation that the Second Amended Complaint is substantively and materially the same as the First Amended Complaint which is attached hereto for the Court's reference.
+In the West Virginia action, the West Virginia Attorney General is seeking recovery from a number of pharmaceutical manufacturers and distributors for what it deems an "epidemic" of prescription drug abuse in the state of West Virginia.1 The state blames these pharmaceutical manufacturers and distributors for certain economic damages it believes it has incurred due to this epidemic and lists five causes of action in its Amended Complaint, as follows:
+Count 1: For injunctive relief for violations of responsibilities and duties under the West Virginia Uniform Controlled Substances Act;
+Count 2: For damages resulting from negligence and violations of the West Virginia Uniform Controlled Substances Act;
+Count 3: For violation of the West Virginia Consumer Credit and Protection Act and unfair methods of competition or unfair or deceptive acts or practices;
+Count 4:
+For public nuisance; and
+1 See State of West Virginia Amended Complaint ("Underlying Complaint"), attached hereto as Exhibit A, at paragraph 1.
+
+Count 5: For Negligence.2
+II. The Relevant CIC Policies
+CIC has been insuring Miami-Luken under its CGL policies continuously back to at least the year 2000. Because the AG makes reference to West Virginia deaths from overdoses between the years 2001 and 2008,3 along with additional economic costs into the present date,4 we will assume that the relevant time period for the AG's tort action is roughly the year 2000 through the present date. Therefore, CIC attaches hereto as exhibits certified copies of policies between the years 2000 and 2015. See Affidavit of Anthony E. Henn, attached hereto pursuant to separate Notice as Exhibit B, and Policies attached thereto as Exhibits B.1.a-e.
+For the purposes of this Summary Judgment Motion, these policies provide, in relevant part, as follows:
+For the "older" policies (2000-2003), the coverage is governed by the 01/95 version of the CIC GA 101 policy Form. This provides, in relevant part, as follows:
+COMMERCIAL GENERAL LIABILITY COVERAGE FORM
+Various provisions in this policy restrict coverage. Read the entire policy carefully to determine rights, duties and what is and is not covered.
+Throughout this policy the words "you" and "your" refer to the Named Insured shown in the Declarations, and any other person or organization qualifying as a Named Insured under this policy. The words "we", "us" and "our" refer to the Company providing this insurance.
+The word "insured" means any person or organization qualifying as such under WHO IS AN INSURED (SECTION II).
+Other words and phrases that appear in quotation marks have special meaning. Refer to DEFINITIONS (SECTION V).
+SECTION I -- COVERAGES COVERAGE A. BODILY INJURY AND PROPERTY DAMAGE LIABILITY
+1. Insuring Agreement
+2 See Underlying Complaint.
+3 See Id., at paragraph 6.c.
++ See e.g., Id. at paragraph 7.
+
+a. We will pay those sums that the insured becomes legally obligated to pay as damages because of "bodily injury" or "property damage" to which this insurance applies. We will have the right and duty to defend any "suit" seeking those damages. We may at our discretion investigate any "occurrence" and settle any claim or "suit" that may result. But:
+(1) The amount we will pay for damages is limited as described in LIMITS OF INSURANCE (SECTION III); and
+(2) Our right and duty to defend end when we have used up the applicable limit of insurance in the payment of judgments or settlements under Coverages A or B or medical expenses under Coverage C.
+No other obligation or liability to pay sums or perform acts or services is covered unless explicitly provided for under SUPPLEMENTARY PAYMENTS - COVERAGES A AND B.
+b. This insurance applies to "bodily injury" and "property damage" only if:
+(1) The "bodily injury" or "property damage" is caused by an "occurrence" that takes place in the "coverage territory", and
+(2) The "bodily injury" or "property damage" occurs during the policy period.
+c. Damages because of "bodily injury" include damages claimed by any person or organization for care, loss of services or death resulting at any time from the "bodily injury".
+2. Exclusions
+This insurance does not apply to:
+a. Expected or Intended Injury
+"Bodily injury" or "property damage" which may reasonably be expected to result from the intentional or criminal acts of an insured or which is in fact expected or intended by the insured, even if the injury or damage is of a different degree or type than actually expected or intended. This exclusion does not apply to "bodily injury" resulting from the use of reasonable force to protect persons or property.
+b. Contractual Liability
+"Bodily injury" or "property damage" for which the insured is obligated to pay damages by reason of the assumption of liability in a contract or agreement. This exclusion does not apply to liability for damages:
+(1) Assumed in a contract or agreement that is an "insured contract", provided the "bodily injury" or "property damage" occurs subsequent to the execution of the contract or agreement; or
+(2) That the insured would have in the absence of the contract or agreement.
+.
+SECTION V -- DEFINITIONS
+.
+.
+3. "Bodily injury" means bodily injury, sickness or disease sustained by a person, including death resulting from any of these at any time.
+.
+8. "Insured contract" means:
+a. A contract for a lease of premises. However, that portion of the contract for a lease of premises that indemnifies any person or organization for damage by fire or explosion to premises while rented to you or temporarily occupied by you with permission of the owner is not an "insured contract";
+b. A sidetrack agreement;
+
+c. Any easement or license agreement, except in connection with construction or demolition operations on or within 50 feet of a railroad;
+d. An obligation, as required by ordinance, to indemnify a municipality, except in connection with work for a municipality;
+e. An elevator maintenance agreement;
+f. That part of any other contract or agreement pertaining to your business (including an indemnification of a municipality in connection with work performed for a municipality) under which you assume the tort liability of another party to pay for "bodily injury" or "property damage" to a third person or organization. Tort liability means a liability that would be imposed by law in the absence of any contract or agreement.
+Paragraph f. does not include that part of any contract or agreement:
+(1) That indemnifies a railroad for "bodily injury" or "property damage" arising out of construction or demolition operations, within 50 feet of any railroad property and affecting any railroad bridge or trestle, tracks, road-beds, tunnel, underpass or crossing;
+(2) That indemnifies an architect, engineer or surveyor for injury or damage arising out of:
+(a) Preparing, approving or failing to prepare or approve maps, drawings, opinions, reports, surveys, change orders, designs or specifications; or
+(b) Giving directions or instructions, or failing to give them, if that is the primary cause of the injury or damage; or
+(3) Under which the insured, if an architect, engineer or surveyor, assumes liability for an injury or damage arising out of the insured's rendering or failure to render professional services, including those listed in (2) above and supervisory, inspection or engineering services.
+12. "Occurrence" means an accident, including continuous or repeated exposure to substantially the same general harmful conditions.
+13. "Personal injury" means injury, other than "bodily injury", arising out of one or more of the following offenses:
+a. False arrest, detention or imprisonment;
+b. Malicious prosecution;
+The wrongful eviction from, wrongful entry into, or invasion of the right of private occupancy of a room, dwelling or premises that a person occupies by or on behalf of its owner, landlord or lessor;
+d. Oral or written publication of material that slanders or libels a person or organization or disparages a person's or organization's goods, products or services; or
+e. Oral or written publication of material that violates a person's right of privacy.
+15. "Property damage" means:
+a. Physical injury to tangible property, including all resulting loss of use of that property. All such loss of use shall be deemed to occur at the time of the physical injury that caused it; or
+b. Loss of use of tangible property that is not physically injured. All such loss of use shall be deemed to occur at the time of the "occurrence" that caused it.
+
+This Policy does not contain the "Distribution of Material in Violation of Statutes" Exclusion, as in the later Policy Forms.
+The intermediate Forms (2003 - 2012) are governed by the GA 101 (10/01)
+edition which provides, in relevant part, as follows:
+COMMERCIAL GENERAL LIABILITY COVERAGE FORM
+Various provisions in this Coverage Part restrict this insurance. Read the entire Coverage Part carefully to determine rights, duties and what is and is not covered.
+Throughout this Coverage Part the words "you" and "your" refer to the Named Insured shown in the Declarations, and any other person or organization qualifying as a Named Insured under this Coverage Part. The words "we", "us" and "our" refer to the Company providing this insurance.
+The word "insured" means any person or organization qualifying as such under SECTION II - WHO IS AN INSURED.
+Other words and phrases that appear in quotation marks have special meaning. Refer to SECTION V - DEFINITIONS.
+SECTION I - COVERAGES
+COVERAGE A. BODILY INJURY AND PROPERTY DAMAGE LIABILITY
+1. Insuring Agreement
+a. We will pay those sums that the insured becomes legally obligated to pay as damages because of "bodily injury" or "property damage" to which this insurance applies. We will have the right and duty to defend the insured against any "suit" seeking those damages. However, we will have no duty to defend the insured against any "suit" seeking damages for "bodily injury" or "property damage" to which this insurance does not apply. We may, at our discretion, investigate any "occurrence" and settle any claim or "suit" that may result. But:
+(1) The amount we will pay for damages is limited as described in SECTION III - LIMITS OF INSURANCE; and
+(2) Our right and duty to defend ends when we have used up the applicable limit of insurance in the payment of judgments or settlements under SECTION I - COVERAGES, COVERAGE A. BODILY INJURY AND PROPERTY DAMAGE LIABILITY; SECTION I - COVERAGES, COVERAGE B. PERSONAL AND ADVERTISING INJURY LIABILITY; or medical expenses under SECTION I - COVERAGES, COVERAGE C. MEDICAL PAYMENTS.
+No other obligation or liability to pay sums or perform acts or services is covered unless expressly provided for under SUPPLEMENTARY PAYMENTS - COVERAGES A AND B.
+b. This insurance applies to "bodily injury" and "property damage" only if:
+(1) The "bodily injury" or "property damage" is caused by an "occurrence" that takes place in the "coverage territory";
+(2) The "bodily injury" or "property damage" occurs during the policy period; and
+(3) Prior to the "coverage term" in which "bodily injury" or "property damage" occurs, you did not know, per Paragraph 1.d. below, that the "bodily injury" or "property damage" had occurred or had begun to occur, in whole or in part.
+c. "Bodily injury" or "property damage" which:
+(1) Occurs during the "coverage term"; and
+
+(2) Was not, prior to the "coverage term", known by you, per Paragraph 1.d. below, to have occurred;
+includes any continuation, change or resumption of that "bodily injury" or "property damage" after the end of the "coverage term" in which it first became known by you.
+d. You will be deemed to know that "bodily injury" or "property damage" has occurred at the earliest time when any "authorized representative":
+(1) Reports all, or any part, of the "bodily injury" or "property damage" to us or any other insurer;
+(2) Receives a written or verbal demand or claim for damages because of the "bodily injury" or "property damage";
+(3) First observes, or reasonably should have first observed, the "bodily injury" or "property damage";
+(4) Becomes aware, or reasonably should have become aware, by any means other than as described in (3) above, that "bodily injury" or "property damage" had occurred or had begun to occur; or
+(5) Becomes aware, or reasonably should have become aware, of a condition from which "bodily injury" or "property damage" was substantially certain to occur.
+e. Damages because of "bodily injury" include damages claimed by any person or organization for care, loss of services or death resulting at any time from the "bodily injury".
+2. Exclusions
+This insurance does not apply to:
+a. Expected or Intended Injury
+"Bodily injury" or "property damage" which may reasonably be expected to result from the intentional or criminal acts of the insured or which is in fact expected or intended by the insured, even if the injury or damage is of a different degree or type than actually expected or intended. This exclusion does not apply to "bodily injury" resulting from the use of reasonable force to protect persons or property.
+b. Contractual Liability
+"Bodily injury" or "property damage" for which the insured is obligated to pay damages by reason of the assumption of liability in a contract or agreement. This exclusion does not apply to liability for damages:
+(1) That the insured would have in the absence of the contract or agreement; or
+(2) Assumed in a contract or agreement that is an "insured contract", provided the "bodily injury" or "property damage" occurs subsequent to the execution of the contract or agreement. When a claim for such "bodily injury" or "property damage" is made, we will defend that claim provided the insured has assumed the obligation to defend such claim in the "insured contract". Such defense payments will not reduce the limits of insurance.
+SECTION V - DEFINITIONS
+.
+.
+4. "Bodily injury" means bodily injury, sickness or disease sustained by a person, including death resulting from any of these at any time.
+· .
+:
+
+12. "Insured contract" means:
+a. A contract for a lease of premises. However, that portion of the contract for a lease of premises that indemnifies any person or organization for "property damage" by fire or explosion to premises while rented to you or temporarily occupied by you with permission of the owner is not an "insured contract";
+b. A sidetrack agreement;
+c. Any easement or license agreement, except in connection with construction or demolition operations on or within 50 feet of a railroad;
+d. An obligation, as required by ordinance, to indemnify a municipality, except in connection with work for a municipality;
+e. An elevator maintenance agreement;
+f. That part of any other contract or agreement pertaining to your business (including an indemnification of a municipality in connection with work performed for a municipality) under which you assume the tort liability of another party to pay for "bodily injury", "property damage" or "personal and advertising injury" to a third person or organization. Tort liability means a liability that would be imposed by law in the absence of any contract or agreement.
+Paragraph f. does not include that part of any contract or agreement:
+(1) That indemnifies a railroad for "bodily injury", "property damage" or "personal and advertising injury" arising out of construction or demolition operations, within 50 feet of any railroad property and affecting any railroad bridge or trestle, tracks, road-beds, tunnel, underpass or crossing;
+(2) That indemnifies an architect, engineer or surveyor for injury or damage arising out of:
+(a) Preparing, approving, or failing to prepare or approve, maps, shop drawings, opinions, reports, surveys, field orders, change orders or drawings and specifications; or
+(b) Giving directions or instructions, or failing to give them, if that is the primary cause of the injury or damage;
+(3) Under which the insured, if an architect, engineer or surveyor, assumes liability for an injury or damage arising out of the insured's rendering or failure to render professional services, including those listed in Paragraph (2) above and supervisory, inspection, architectural or engineering activities;
+(4) That indemnifies an advertising, public relations or media consulting firm for "personal and advertising injury" arising out of the planning, execution or failure to execute marketing communications programs. Marketing communications programs include but are not limited to comprehensive marketing campaigns; consumer, trade and corporate advertising for all media; media planning, buying, monitoring and analysis; direct mail; promotion; sales materials; design; presentations; point-of-sale materials; market research; public relations and new product development;
+(5) Under which the insured, if an advertising, public relations or media consulting firm, assumes liability for "personal and advertising injury" arising out of the insured's rendering or failure to render professional services, including those services listed in Paragraph (4), above;
+(6) That indemnifies a web-site designer or content provider, or Internet search, access, content or service provider for injury or damage arising out of the planning, execution or failure to execute Internet services. Internet Services include but are not limited to design, production, distribution, maintenance and administration of web-sites and web-banners; hosting web-sites; registering domain names; registering with search engines; marketing analysis; and providing access to the Internet or other similar networks; or
+(7) Under which the insured, if a web-site designer or content provider, or Internet search, access, content or service provider, assumes liability for injury or damage arising out of the
+
+insured's rendering or failure to render Internet services, including those listed in Paragraph (6), above.
+16. "Occurrence" means an accident, including continuous or repeated exposure to substantially the same general harmful conditions.
+17. "Personal and advertising injury" means injury, including consequential "bodily injury", arising out of one or more of the following offenses:
+a. False arrest, detention or imprisonment;
+b. Malicious prosecution;
+c. The wrongful eviction from, wrongful entry into, or invasion of the right of private occupancy of a room, dwelling or premises that a person occupies, committed by or on behalf of its owner, landlord or lessor;
+d. Oral or written publication, in any manner, of material that slanders or libels a person or organization or disparages a person's or organization's goods, products or services;
+e. Oral or written publication, in any manner, of material that violates a person's right of privacy;
+f. The use of another's advertising idea in your "advertisement"; or
+g. Infringing upon another's copyright, trade dress or slogan in your "advertisement".
+20. "Property damage" means:
+a. Physical injury to tangible property, including all resulting loss of use of that property. All such loss of use shall be deemed to occur at the time of the physical injury that caused it; or
+b. Loss of use of tangible property that is not physically injured. All such loss of use shall be deemed to occur at the time of the "occurrence" that caused it.
+For the purposes of this insurance, "electronic data" is not tangible property.
+These policies also may contain the "Distribution of Material in Violation of Statutes" Exclusionary Endorsement which states, in relevant part, as follows:
+THIS ENDORSEMENT CHANGES THE POLICY. PLEASE READ IT CAREFULLY.
+EXCLUSION - VIOLATION OF STATUTES THAT GOVERN E-MAILS, FAX, PHONE CALLS OR OTHER METHODS OF SENDING MATERIAL OR INFORMATION
+This endorsement modifies insurance provided under the following:
+COMMERCIAL GENERAL LIABILITY COVERAGE PART
+
+A. The following exclusion is added to Paragraph 2., Exclusions of Section I - Coverage A - Bodily Injury and Property Damage Liability:
+2. Exclusions
+This insurance does not apply to:
+DISTRIBUTION OF MATERIAL IN VIOLATION OF STATUTES
+"Bodily injury" or "property damage" arising directly or indirectly out of any action or omission that violates or is alleged to violate:
+a. The Telephone Consumer Protection Act (TCPA), including any amendment of or addition to such law; or
+b. The CAN-SPAM Act of 2003, including any amendment of or addition to such law; or
+c. Any statute, ordinance or regulation, other than the TCPA or CAN-SPAM Act of 2003, that prohibits or limits the sending, transmitting, communicating or distribution of material or information.
+.
+Finally, the 2012 - 2015 Policy is governed by the Form GA 101 (12/04) which provides, in relevant part, as follows:
+COMMERCIAL GENERAL LIABILITY COVERAGE FORM
+Various provisions in this Coverage Part restrict this insurance. Read the entire Coverage Part carefully to determine rights, duties and what is and is not covered.
+Throughout this Coverage Part the words "you" and "your" refer to the Named Insured shown in the Declarations, and any other person or organization qualifying as a Named Insured under this Coverage Part. The words "we", "us" and "our" refer to the Company providing this insurance.
+The word "insured" means any person or organization qualifying as such under SECTION II - WHO IS AN INSURED.
+Other words and phrases that appear in quotation marks have special meaning. Refer to SECTION V - DEFINITIONS.
+SECTION I - COVERAGES
+COVERAGE A. BODILY INJURY AND PROPERTY DAMAGE LIABILITY
+1. Insuring Agreement
+a. We will pay those sums that the insured becomes legally obligated to pay as damages because of "bodily injury" or "property damage" to which this insurance applies. We will have the right and duty to defend the insured against any "suit" seeking those damages. However, we will have no duty to defend the insured against any "suit" seeking damages for "bodily injury" or "property damage" to which this insurance does not apply. We may, at our discretion, investigate any "occurrence" and settle any claim or "suit" that may result. But:
+(1) The amount we will pay for damages is limited as described in SECTION III - LIMITS OF INSURANCE; and
+(2) Our right and duty to defend ends when we have used up the applicable limit of insurance in the payment of judgments or settlements under SECTION I - COVERAGES, COVERAGE A. BODILY INJURY AND PROPERTY DAMAGE LIABILITY; SECTION I - COVERAGES,
+:
+
+COVERAGE B. PERSONAL AND ADVERTISING INJURY LIABILITY; or medical expenses under SECTION I - COVERAGES, COVERAGE C. MEDICAL PAYMENTS.
+No other obligation or liability to pay sums or perform acts or services is covered unless expressly provided for under SUPPLEMENTARY PAYMENTS - COVERAGES A AND B.
+b. This insurance applies to "bodily injury" and "property damage" only if:
+(1) The "bodily injury" or "property damage" is caused by an "occurrence" that takes place in the "coverage territory";
+(2) The "bodily injury" or "property damage" occurs during the policy period; and
+(3) Prior to the "coverage term" in which "bodily injury" or "property damage" occurs, you did not know, per Paragraph 1.d. below, that the "bodily injury" or "property damage" had occurred or had begun to occur, in whole or in part.
+c. "Bodily injury" or "property damage" which:
+(1) Occurs during the "coverage term"; and
+(2) Was not, prior to the "coverage term", known by you, per Paragraph 1.d. below, to have occurred;
+includes any continuation, change or resumption of that "bodily injury" or "property damage" after the end of the "coverage term" in which it first became known by you.
+d. You will be deemed to know that "bodily injury" or "property damage" has occurred at the earliest time when any "authorized representative":
+(1) Reports all, or any part, of the "bodily injury" or "property damage" to us or any other insurer;
+(2) Receives a written or verbal demand or claim for damages because of the "bodily injury" or "property damage";
+(3) First observes, or reasonably should have first observed, the "bodily injury" or "property damage";
+(4) Becomes aware, or reasonably should have become aware, by any means other than as described in (3) above, that "bodily injury" or "property damage" had occurred or had begun to occur; or
+(5) Becomes aware, or reasonably should have become aware, of a condition from which "bodily injury" or "property damage" is substantially certain to occur.
+e. Damages because of "bodily injury" include damages claimed by any person or organization for care, loss of services or death resulting at any time from the "bodily injury".
+2. Exclusions
+This insurance does not apply to:
+a. Expected or Intended Injury
+"Bodily injury" or "property damage" which may reasonably be expected to result from the intentional or criminal acts of the insured or which is in fact expected or intended by the insured, even if the injury or damage is of a different degree or type than actually expected or intended. This exclusion does not apply to "bodily injury" resulting from the use of reasonable force to protect persons or property.
+b. Contractual Liability
+"Bodily injury" or "property damage" for which the insured is obligated to pay damages by reason of the assumption of liability in a contract or agreement. This exclusion does not apply to liability for damages:
+
+(1) That the insured would have in the absence of the contract or agreement; or
+(2) Assumed in a contract or agreement that is an "insured contract", provided the "bodily injury" or "property damage" occurs subsequent to the execution of the contract or agreement. When a claim for such "bodily injury" or "property damage" is made, we will defend that claim provided the insured has assumed the obligation to defend such claim in the "insured contract". Such defense payments will not reduce the limits of insurance.
+SECTION V - DEFINITIONS
+4. "Bodily injury" means bodily injury, sickness or disease sustained by a person, including death resulting from any of these at any time.
+.
+12. "Insured contract" means:
+a. A contract for a lease of premises. However, that portion of the contract for a lease of premises that indemnifies any person or organization for "property damage" by fire or explosion to premises while rented to you or temporarily occupied by you with permission of the owner is not an "insured contract";
+b. A sidetrack agreement;
+c. Any easement or license agreement, except in connection with construction or demolition operations on or within 50 feet of a railroad;
+d. An obligation, as required by ordinance, to indemnify a municipality, except in connection with work for a municipality;
+e. An elevator maintenance agreement;
+f. That part of any other contract or agreement pertaining to your business (including an indemnification of a municipality in connection with work performed for a municipality) under which you assume the tort liability of another party to pay for "bodily injury", "property damage" or "personal and advertising injury" to a third person or organization. Tort liability means a liability that would be imposed by law in the absence of any contract or agreement.
+Paragraph f. does not include that part of any contract or agreement:
+(1) That indemnifies a railroad for "bodily injury", "property damage" or "personal and advertising injury" arising out of construction or demolition operations, within 50 feet of any railroad property and affecting any railroad bridge or trestle, tracks, road-beds, tunnel, underpass or crossing;
+(2) That indemnifies an architect, engineer or surveyor for injury or damage arising out of:
+(a) Preparing, approving, or failing to prepare or approve, maps, shop drawings, opinions, reports, surveys, field orders, change orders or drawings and specifications; or
+(b) Giving directions or instructions, or failing to give them, if that is the primary cause of the injury or damage;
+(3) Under which the insured, if an architect, engineer or surveyor, assumes liability for an injury or damage arising out of the insured's rendering or failure to render professional services, including those listed in Paragraph (2) above and supervisory, inspection, architectural or engineering activities;
+(4) That indemnifies an advertising, public relations or media consulting firm for "personal and advertising injury" arising out of the planning, execution or failure to execute marketing communications programs. Marketing communications programs include but are not limited to comprehensive marketing campaigns; consumer, trade and corporate advertising for all media; media planning, buying, monitoring and analysis; direct mail; promotion; sales
+:
+
+materials; design; presentations; point-of-sale materials; market research; public relations and new product development;
+(5) Under which the insured, if an advertising, public relations or media consulting firm, assumes liability for "personal and advertising injury" arising out of the insured's rendering or failure to render professional services, including those services listed in Paragraph (4), above;
+(6) That indemnifies a web-site designer or content provider, or Internet search, access, content or service provider for injury or damage arising out of the planning, execution or failure to execute Internet services. Internet services include but are not limited to design, production, distribution, maintenance and administration of web-sites and web-banners; hosting web-sites; registering domain names; registering with search engines; marketing analysis; and providing access to the Internet or other similar networks; or
+(7) Under which the insured, if a web-site designer or content provider, or Internet search, access, content or service provider, assumes liability for injury or damage arising out of the insured's rendering or failure to render Internet services, including those listed in Paragraph (6), above.
+16. "Occurrence" means an accident, including continuous or repeated exposure to substantially the same general harmful conditions.
+17. "Personal and advertising injury" means injury, including consequential "bodily injury", arising out of one or more of the following offenses:
+a. False arrest, detention or imprisonment;
+b. Malicious prosecution;
+c. The wrongful eviction from, wrongful entry into, or invasion of the right of private occupancy of a room, dwelling or premises that a person occupies, committed by or on behalf of its owner, landlord or lessor;
+d. Oral or written publication, in any manner, of material that slanders or libels a person or organization or disparages a person's or organization's goods, products or services;
+e. Oral or written publication, in any manner, of material that violates a person's right of privacy;
+f. The use of another's advertising idea in your "advertisement"; or
+g. Infringing upon another's copyright, trade dress or slogan in your "advertisement". -
+20. "Property damage" means:
+a. Physical injury to tangible property, including all resulting loss of use of that property. All such loss of use shall be deemed to occur at the time of the physical injury that caused it; or
+b. Loss of use of tangible property that is not physically injured. All such loss of use shall be deemed to occur at the time of the "occurrence" that caused it.
+For the purposes of this insurance, "electronic data" is not tangible property.
+
+III. Summary Judgment Standard
+A grant of Summary Judgment is appropriate if: (1) No genuine issue of material fact remains to be litigated; (2) The moving party is entitled to judgment as a matter of law; and (3) The evidence demonstrates that reasonable minds can come to but one conclusion, and that conclusion is adverse to the party opposing the Motion.5 The court must view all the evidence, and the reasonable inferences to be drawn therein, in a light most favorable to the non-moving party.6 The moving party bears the initial burden of demonstrating that there are no genuine issues of material fact concerning an essential element of the opponent's case." If the moving party satisfies this burden, the non- moving party "must set forth specific facts showing that there is a genuine issue for trial."8
+The parties agree that Ohio law applies to this Ohio Contract, entered into by two Ohio companies in Ohio, so no discussion of choice-of-law issues will be briefed here.
+IV. LEGAL ARGUMENT
+A. Because the CGL policy only provides coverage if the Underlying Complaint alleges "bodily injury," "property damage," or "personal and advertising injury," there is no coverage under the CGL policy for the allegations in the AG's Second Amended Complaint.
+CIC wishes to point out that Miami-Luken is not the only pharmaceutical company CIC is insuring in the West Virginia litigation.
+Ohio R. Civ. P. 56 (C); Temple v. Wean United, Inc. (1977), 50 Ohio St. 2d 317, 327, 364 N. E. 2d 267, 274; Davis v. Loopco Indus., Inc. (1993), 66 Ohio St. 3d 64, 65-66, 609 N. E. 2d 144, 145.
+6 Engel v. Corrigan (1983), 12 Ohio St. 3d 34, 35, 465 N. E. 2d 932, 933; Viock v. Stowe-Woodward Co. (1983), 13 Ohio St. 3d 7, 12, 467 N. E. 2d 1378, 1383.
+7 Dresher v. Burt (1996), 75 Ohio St. 3d 280, 292.
+00 Centro Midway, LLC v. Xanadu Group Incorporated (9th Dist. App. July 5, 2011), 2011-Ohio-338 at paragraph 6. citing Dresher, 75 Ohio St. 3d 280 at 293.
+
+CIC is also insuring a company by the name of Richie Enterprises, LLC. CIC filed a similar declaratory judgment action in the United States District Court for the Western District of Kentucky, Bowling Green Division (Case No. 1:12-CV-00186-JHM-HBB) on exactly the same date as the present Complaint for declaratory judgment was filed in this Court.9 Therefore, the issues before the Western District of Kentucky were exactly the same as the legal issues now before this Court.
+In Richie Enterprises, the Western District of Kentucky held that there was no coverage for Richie under the CIC CGL policy because the AG's amended complaint did not contain any allegations of "bodily injury," "property damage," or "personal or advertising injury" as required by the CGL contract of insurance.
+In awarding summary judgment to CIC, the court agreed with CIC that the West Virginia AG was seeking recovery for economic losses only and not for any kind of "bodily injury" or other recovery which is proper under a CGL policy.
+The Kentucky court relied on two 7th Circuit decisions-Medmarc Casualty Ins. Co. v. Avent America, Inc., 612 F. 3d 607 (7th Cir. 2010) and Healthcare Industry Liability Insurance Program v. Momence Meadows Nursing Center, 566 F. 3d 689 (7th
+See Memorandum Opinion and Order of the United States District Court for the Western District of Kentucky, Bowling Green Division, in Cincinnati Ins. Co. v. Richie Enterprises LLC, Case No. 1:12-cv-00186-JHM-HBB, attached hereto as Exhibit C. See also the Omnibus Order of the United States District Court for the Southern District of Florida in Travelers Property Cas. Co. of America v. Anda, Inc., 2015 WL 1020873 (S.D.Fla. March 9, 2015), appeal filed in No. 15-11510 (11th Cir. April 9, 2015) attached hereto as Exhibit D ("The Underlying Complaint makes clear that the claims asserted are for 'costs to the State of West Virginia' incurred as a result of the prescription drug abuse epidemic. Underlying Compl. 11. West Virginia alleges that the 'damage done by prescription drug abuse adversely affects West Virginia's hospitals, school, courts, social service agencies, jails and prisons ... ' to the tune of $430 million annually. Id. [[ 1, 6(a). '[T]he State has borne these massive costs ... by having to provide necessary medical care, facilities, and services for treatment of citizens of West Virginia who are unable to afford or otherwise obtain such necessary medical care, facilities, and services.' Id. 1 57. Thus, West Virginia asserts claims only for its own economic loss and not 'for bodily injury.' It does not purport to assert claims on behalf of individual citizens for the physical harm sustained personally by those citizens, for instance. Instead, West Virginia seeks relief from the massive costs suffered by the State due to Anda's distribution of drugs allegedly in excess of legitimate medical need").
+
+Cir. 2009) -- both of which sought economic loss damages only, and arrived at the following conclusion of law:
+The court finds that a similar rationale is applicable here. In this case, in the absence of the medical monitoring claim, West Virginia is solely seeking damages for the money it has been required to spend because of the prescription drug abuse epidemic in West Virginia. The state of West Virginia does not need to prove that persons were injured by prescription drugs to prove that Richie and the other drug distribution companies violated West Virginia's Uniform Controlled Substances Act or Consumer Credit and Protection Act. Likewise, they need not offer such proof that Richie and the other drug distribution companies caused a public nuisance-or to show that they were negligent in their distribution of controlled substances, causing the state of West Virginia incur excessive costs. The Attorney General's claim that persons suffered physical harm and death due to prescription drugs only explains and supports the claims of the actual harm complained of: the economic loss to the state of West Virginia. (fn omitted) Accordingly, the court finds that Cincinnati does not have a duty to provide a defense to Richie in connection with claims asserted in the amended complaint in light of the Attorney General's deletion of count 7 and its medical monitoring claim.10
+The analysis is exactly the same here. Because this is an insurance coverage declaratory judgment action, which is to be decided as a matter of law based on the insurance Contract language and the allegations in the complaint against the insured,11 and because the relevant policy provisions and Underlying Complaint language are the same, summary judgment is warranted in this case just as it was in the Richie case.
+The policies all require some sort of "bodily injury," "property damage," or "personal and advertising injury" to occur before coverage will arise.12 The purpose of this requirement is to prevent this "fortuitous loss" (i.e. "accidental" loss triggered by an
+10 A copy of the Kentucky court's decision is attached hereto as exhibit C.
+" Sauer v. Crews, 140 Ohio St.3d 314, 18 N.E.3d 410 (Ohio 2014) at | 10.
+12 See Contract language cited infra.
+
+"occurrence") policy from becoming an errors and omissions, professional liability or directors and officers policy which covers the opposite situation - i.e. a situation where the injury or damage is caused by an act of the insured and within its control.
+Here, as alleged by the AG at, inter alia, paragraphs 8, 9, 30, 32 and 44, Miami- Luken's conduct was alleged to be "intentional" and "unreasonable" as well as "willful" and a "[violation] of West Virginia law." As the Kentucky federal district court found, this is not the type of fortuitous conduct which CGL policies are designed to guard against. Which is also why CIC is defending under the D&O policy and not the CGL policy.
+B. Because Miami-Luken as manufacturer/distributor of pharmaceuticals cannot be held legally liable for actions of pharmacists and retail operations in West Virginia, there is no coverage under the CGL policy.
+The insuring agreement of the CIC CGL policy requires that before Miami-Luken in entitled to coverage, it has to be "legally obligated to pay" damages.
+Here, because Miami-Luken, as a manufacturer/distributor of the pharmaceuticals, does not owe any legal duty to the public at large to prevent them from abusing the prescriptions simply because they placed legal products into the stream of commerce, there can be no coverage under the CIC insuring agreement or policy.
+This same argument was made by gun manufacturers in The City of Chicago v. Beretta USA Corporation, 213 III. 2d 351, 821 N.E. 2d 1099 (III. 2005) and the Illinois Supreme Court upheld summary judgment on behalf of the gun manufacturers and distributors.
+:
+
+In its decision, the Illinois Supreme Court held that gun manufacturers and distributors were not liable for the City of Chicago's economic losses for two reasons: (1) Because the manufacturers and distributors owed no legal duty to prevent the misuse of their products if the products were manufactured according to specifications and operated without mechanical defect; and (2) Because the court did not want to be responsible for an overtly exaggerated expansion of the public nuisance doctrine.
+As to the duty factor, the court stated as follows:
+Applying the four traditional [Negligence] factors [and] in light of public policy, we find no duty owed to the public at large, at least with respect to the manufacturer and distributor defendants. It is reasonably foreseeable, in a nation that permits private ownership of firearms, that criminals will obtain guns and it is not only likely, but inevitable, that injuries and death will result. It is less foreseeable to these defendants that the criminal conduct of individuals who illegally take firearms into a particular community will result in the creation of a public nuisance there. Further, despite Plaintiffs' suggestion that the only burden they would place on defendants is the loss of sales to criminals, the magnitude of the burden that plaintiffs seek to impose on the manufacturer and distributor defendants by altering their business practices is immense. Finally, plaintiffs predict only positive consequences if this duty is recognized-the City will be safer and lives will be saved. Such positive consequences are speculative at best, being based on the assumption that criminals will not be able to obtain guns manufactured by other companies and sold by other dealers. The negative consequences of judicially imposing a duty upon commercial enterprises to guard against the criminal misuse of their products by others will be an unprecedented expansion of the law of public nuisance. [Emphasis added -- citation omitted]
+We hold, therefore, that with respect to the defendant manufacturers and distributors, plaintiffs have failed to state a cause of action for public nuisance predicated on negligence, because these defendants owe no duty to the City of Chicago or its residents to prevent their firearms from
+
+"ending up in the hands of persons who use and possess them illegally." 821 N.E. 2d at 1126.
+CIC submits that the same analysis should apply here: The AG argues at paragraph 63 that, "The State is without fault and the injuries to the State and its citizens would not have happened in the ordinary course of events had the Defendants used due care commensurate to the dangers involved in the distribution of controlled substances."
+But as the Illinois Supreme Court recognized, "Such positive consequences are speculative at best, being based on the assumption that criminals will not be able to obtain guns manufactured by other companies and sold by other dealers." If one substitutes the word, "drugs" for "guns" in that statement, that truth applies here: What is to prevent people who abuse prescription drugs from getting those same drugs from other sources? Further, CIC agrees with the Illinois Supreme Court when it states emphatically that, "The negative consequences of judicially imposing a duty upon commercial enterprises to guard against the criminal misuse of their products by others will be an unprecedented expansion of the law of public nuisance." The AG, like the plaintiffs in the Illinois gun case, argues the same.
+As for the Illinois court's reasoning behind the public nuisance Count (and we note that the West Virginia AD also filed a count for public nuisance in Count IV of the Amended Complaint), the Illinois Supreme Court had this to say about Chicago's attempt to do to the gun manufacturers and distributors what West Virginia is attempting to do to pharmaceutical manufacturers:
+Leaving aside for a moment the costs incurred by Plaintiffs, which we determine, below, are not recoverable as damages, we query whether the public right asserted by
+
+plaintiffs is merely an assertion, on behalf of the entire community, of the individual right not to be assaulted. See, E.D. restatement (2d) or torts section 821 B., comment G., at 92 (1979) (a public right is "not like the individual right that everyone has not to be assaulted"). We are also reluctant to recognize a public right so broad and undefined that the presence of any potentially dangerous instrumentality in the community could be deemed to threaten it.
+By posing this question, we do not intend to minimize the very real problem of violent crime and the difficult tasks facing law enforcement and other public officials. Nor do we intend to dismiss the concerns of citizens who live in areas where gun crimes are particularly frequent. Rather, we are reluctant to state that there is a public right to be free from the threat that some individuals may use an otherwise legal product (be it a gun, liquor, a car, a cell phone, or some other instrumentality) in a manner that may create a risk of harm to another.
+For example, the purchase and consumption of alcohol by adults is legal, while driving under the influence is a crime. If there is a public right to be free from the threat that others may use a lawful product to break the law, that right would include the right to drive upon the highways, free from the risk of injury posed by drunk drivers. This public right to safe passage on the highways would provide the basis for public nuisance claims against brewers and distillers, distributing companies, and proprietors of bars, taverns, liquor stores, and restaurants with liquor licenses, all of whom could be said to contribute to an interference with the public right.
+We conclude that there is no authority for the unprecedented expansion of the concept of public rights to encompass the right asserted by plaintiffs. Further, because we conclude, below, that plaintiffs' claim does not meet all of the required elements of a public nuisance action, we do not decide whether to break new ground by creating such precedent. 821 N.E. 2d at 1116 (emphasis added).
+
+To be sure, the Illinois case deals with the liability of the gun manufacturers and distributors and does not involve an insurance coverage question. The coverage question, however, hinges on the liability, at least under current relevant Ohio Supreme Court law. And while CIC does not wish to "hang its hat" (so to speak) totally on this argument since we believe summary judgment is warranted solely because no "bodily injury," "property damage," or "personal and advertising injury" is alleged in the Underlying Complaint (as the Richie and Anda courts have held), CIC does wish to bolster this "common sense" argument on some relevant Ohio caselaw.
+For example, in Snyder v. American Family Ins. Co., 114 Ohio St. 3d 239, 871 N.E. 2d 574, 2007-Ohio-4004, at paragraph 28, the Ohio Supreme Court held that because the CGL policy at issue there contained a requirement in the insuring agreement that coverage hinged upon whether or not a third-party was "legally entitled to recover" damages from the insured, there could be no coverage under the standard CGL policy containing that language where the insured was not legally obligated to pay those damages to the third-party.
+Likewise here, Miami-Luken is in a similar position to the gun manufacturers in the City of Chicago litigation discussed by the Illinois Supreme Court in the Beretta case. In other words, because it strains credulity to assume that simply by manufacturing legal drugs which are not defective products and which do exactly what Miami-Luken says they will do, Miami-Luken cannot possibly be held liable under any legal theory where West Virginia citizens abuse those products completely separate and apart from Miami-Luken's conduct and the simple act of manufacturing those products and putting them into the stream of commerce should not give rise to liability on the part
+:
+:
+
+of the manufacturer or distributor. Further, any court decision finding that what Miami- Luken did constitutes a "public nuisance" would be as unreasonable as the Illinois Supreme Court's explanation for why it was averse to unreasonably expanding the public nuisance doctrine in the state of Illinois - and maybe even more so in the case of prescription drugs because, unlike guns, many of the public benefits of prescription drugs far outweigh their harms, especially when used responsibly as directed.
+c. The policy's "Intentional Acts" exclusions preclude recovery for damages based on counts 1, 2 and 3 of the AG's Complaint.
+Further, Counts 1, 2 and 3 of the AG's Amended Complaint all seek damages and injunctive relief for "willful" and "repeated" violations of certain West Virginia codes and statutes.
+By excluding conduct based on the "intentional or criminal acts of the insured" from coverage under the CGL policy, CIC effectively precludes coverage for counts 1, 2 and 3 of the Underlying Complaint. The purpose of including such "intentional acts" exclusions in the CGL policy is to prevent it from becoming an "errors and omissions" policy or a "professional liability" policy which covers the insured for its conduct rather than for "fortuitous losses" beyond the insured's control. See e.g. Gearing v. Nationwide Ins. Co., 76 Ohio St. 3d 34, 38, 665 N.E. 2d 1115 (1996) ("Inherent in a policy's definition of 'occurrence' is the concept of an incident of an accidental, as opposed to intentional, nature. ... Liability insurance does not exist to relieve wrongdoers of liability for intentional, antisocial, criminal conduct").
+Because the entirety of the West Virginia Amended Complaint seeks recovery for economic losses based solely on Miami-Luken's conduct, therefore, and not based
+:
+
+upon fortuitous losses over which Miami-Luken had no control, CIC therefore further seeks this Court's grant of Summary Judgment for this reason as well. Likewise, to the extent that the AG argues that there is some sort of "public contract" between West Virginia and Miami-Luken such that the "illegal" distribution of pharmaceutical products in West Virginia somehow violates this contract, CIC points to the "Contractual Liability" Exclusion in the policies to prevent coverage for such arguments.
+D. The "Distribution of Material in Violation of Statutes" Exclusionary Endorsement also precludes coverage for some parts of the West Virginia Complaint.
+Some of the more recent Policy Forms also contain a "Distribution of Material in Violation of Statutes" Exclusionary Endorsement which states (as far as the facts of this case are concerned) as follows:
+"This insurance does not apply to: -- DISTRIBUTION OF MATERIAL IN VIOLATION OF STATUTES - 'Bodily injury' or 'property damage' arising directly or indirectly out of any action or omission that violates or is alleged to violate: ... c. Any statute, ordinance or regulation, other than the TCPA or CAN-SPAM Act of 2003, that prohibits or limits the sending, transmitting, communicating or distribution of material or information."
+While we have found no cases discussing the application of this Exclusionary Endorsement to an insured's distribution of drugs in violation of a statute like that of West Virginia as pled in the underlying Complaint at issue here, the language of the Exclusion is broad enough to encompass West Virginia's artful pleading and newly minted theories of liability. While one might argue that the Exclusion may not have been designed for West Virginia's statutory scheme regulating its prescription drug
+:
+
+program, CIC submits that arguably West Virginia's prescription drug program and ensuing statutes were not designed to accomplish what the AG seeks to do in its underlying lawsuit: I.E. hold Ohio pharmaceutical companies liable for abuses of prescription medications by individual citizens of West Virginia and/or their doctors simply because these Ohio companies legally manufactured medicines which help thousands of individuals cope with numerous and varied maladies and put them into the stream of commerce where they can be beneficial to those who need these medicines and who take them responsibly.
+Here, clearly the Exclusion applies where a Complainant alleges economic loss arising "directly or indirectly out of any action or omission that violates or is alleged to violate . . . [a]ny statute, ordinance or regulation ... that prohibits or limits the sending, transmitting, communicating or distribution of material or information." As the Kentucky court observed when it granted CIC's Motion for Summary Judgment on the same language, "West Virginia is solely seeking damages for the money it has been required to spend because of the prescription drug abuse epidemic in West Virginia. The state of West Virginia does not need to prove that persons were injured by prescription drugs to prove that Richie and the other drug distribution companies violated West Virginia's Uniform Controlled Substances Act or Consumer Credit and Protection Act." (Emphasis added).
+The fact that the AG's recovery is made dependent on West Virginia's statutes is made clear in paragraphs 20, 28, 30, 31 and 37 of the Underlying Complaint where the statutory provisions are cited at length and where the Complaint quite clearly states that, "The epidemic prescription drug abuse is attended and promoted by the repeated
+
+violation of various provisions of the West Virginia Uniform Controlled Substances Act"13 and that, "The Defendants' negligent acts and omissions in violation of West Virginia's drug laws have lead (sic) to the dispensing of controlled substances for non-legitimate medical purposes of epidemic proportions, including the operation of bogus pain clinics that do little more than provide prescriptions for addictive controlled substances, thereby creating and continuing addictions to prescription medications." Aside from the obvious fact that the "bogus pain clinics" are West Virginia companies over which Miami-Luken, an Ohio company, has no control or affiliation, again this language triggers the CIC Exclusion because clearly the West Virginia statute limits the distribution of prescription drugs into the State and this is exactly the type of conduct the Exclusion is designed to preclude for coverage purposes.14
+Further, these types of exclusionary endorsements, like endorsements for mold exclusions, were designed by the Insurance Services Office ("ISO") to keep insurers from going bankrupt due to the proliferation of lawsuits engendered in the wake of products liability claims which encompassed injuries to vast numbers of people and which, like the issue now before this Court, involved some element of human intentional conduct which drastically increased the number of claims made (in the mold cases, buildings were negligently manufactured such that current building practices eliminate or severely reduce the creation of mold in new houses. In the West Virginia case now
+13 See Underlying Complaint at paragraph 28.
+See Underlying Complaint at paragraph 20 (citing the West Virginia Code, § 60A-3-301, which states as follows: "Every person who manufactures, distributes or dispenses any controlled substance or who proposes to engage in the manufacture, distribution or dispensing of any controlled substance shall obtain annually a controlled substance permit unless exempted by law or pursuant to Section 3.2 of this rule. 15 WVa.C.S.R. § 2-3.1.1"; and, "All registrants shall provide effective controls and procedures to guard against theft and diversion of controlled substances. 15 W Va. C.S.R. § 2-4.2.1."). Thus clearly this statute falls directly within the coverage prohibition of the CIC policy Exclusion for any damages which arise "directly or indirectly out of any action or omission that violates or is alleged to violate . . . [a]ny statute, ordinance or regulation .. . that prohibits or limits the sending, transmitting, communicating or distribution of material ... "
+
+before this Court, curtailing illegal clinics and enforcing laws against doctors and pharmacists in West Virginia who illegally distribute legal pharmaceuticals would be a much more effective way of dealing with the problem than forcing out-of-state companies to pay for crimes committed by West Virginia residents).
+CIC therefore submits that if the West Virginia AG is going to argue that a legitimate Ohio company is liable for the misdeeds of a large number of West Virginia residents and citizens and that its insurer is therefore also liable, then certainly pursuant to this clear and unambiguous Contract language there can be no coverage under these same facts because the policy Contract language clearly precludes it. What is good for the goose is also good for the gander.
+CONCLUSION
+In conclusion, CIC asks this Court to rule in concert with the United States District Court for the Western District of Kentucky, Bowling Green Division, which granted summary judgment in favor of CIC under similar CGL coverages issued to named insured Richie Enterprises, LLC. The coverages are the same, both cases involve the same underlying tort suit filed by the Attorney General of West Virginia making identical claims against both CIC insureds, and both involve the same underlying Complaint allegations. In fact, from a purely equitable standpoint (as far as the insureds are concerned), CIC submits summary judgment is even more warranted in this case than in the Richie case because here, Miami-Luken had the foresight to also purchase Directors and Officers (professional liability) coverage and CIC is defending Miami-Luken under that Policy Form throughout the litigation and trial (if one is necessary).
+:
+:
+
+CIC further submits that in a situation where the AG is claiming that Miami-Luken violated certain of its drug statutes and "purposely" placed into the stream of commerce large volumes of prescription medicines which eventually wound up causing the State to incur economic damages well within the control of the insured to prevent such economic losses, that Directors and Officers coverage is precisely the type of coverage vehicle to protect Miami-Luken from such losses and not the more restrictive CGL policy which manifestly covers only against fortuitous - or accidental - losses.
+WHEREFORE, CIC respectfully requests that this Court grant summary judgment in its favor and award all other and further relief to which CIC is entitled in equity and under the law. A proposed Entry is attached for the Court's convenience.
+Respectfully submitted,
+Michael M. Neltner, Esq. (0063555)
+April C. Tarvin, Ésq. (0079248) P. O. Box 145496
+Cincinnati, OH 45250-5496
+Tel: (513) 603-5082
+Fax: (513) 870-2900
+michael_neltner@staffdefense.com
+april_tarvin@staffdefense.com
+Trial Attorneys for Plaintiff,
+The Cincinnati Insurance Company
+:
+:
+
+EXHIBIT LOG
+Exhibit A: West Virginia Amended Complaint
+Exhibit B: The Cincinnati Insurance Policies, filed pursuant to Affidavit and separately as a Notice of Filing (due to volume)
+Exhibit C: Cincinnati Ins. Co. v. Richie Enterprises LLC, Case No. 1:12-cv-00186- JHM-HBB, Document 33, filed July 16, 2014 (United States District Court for the Western District of Kentucky, Bowling Green Division).
+Exhibit D: Travelers Property Cas. Co. of America v. Anda, Inc., 2015 WL 1020873 (S.D.Fla. March 9, 2015).
+
+CERTIFICATE OF SERVICE
+I hereby certify that a copy of the foregoing has been served by ordinary U.S.
+Mail upon the following this 7th day of 2015.
+John D. Smith, Esq. Ira H. Thomsen, Esq. 140 N. Main Street, Suite B Springboro, OH 45066
+Tel: (937) 748-2522 Fax: (937) 748-2712
+jsmith@johndsmith.com cornell76@aol.com Trial Attorney for Defendant, Miami-Luken, Inc.
+Amy Ruth Ita, Esq. Barnes and Thornburg, LLP 41 South High Street, Suite 3300
+Columbus, Ohio 43215
+(614) 628-0096 (614) 628-1433 Fax amy.ita@btlaw.com Trial Attorney for Defendant, H D. Smith Wholesale Drug Company
+State of West Virginia, ex rel. Patrick Morrisey, Attorney General State Capitol Complex Bldg. 1, Room E-26 Charleston, WV 25305

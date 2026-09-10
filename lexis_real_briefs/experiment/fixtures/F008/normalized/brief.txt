@@ -1,0 +1,86 @@
+IN THE COURT OF COMMON PLEAS GEAUGA COUNTY, OHIO
+JOHN FRIESE
+Plaintiff
+JUDGE DAVID M. ONDREY
+VS.
+DEFENDANT CAROLYN BAKER'S MOTION FOR SUMMARY
+CAROLYN BAKER, et al.
+Defendants
+)
+) ) ) ) JUDGMENT ) ) CASE NO. 23P000020
+Pursuant to Civ.R. 56, Defendant Carolyn Baker ("Baker") respectfully moves the Court for summary judgment in her favor on the Complaint of Plaintiff John Friese ("Friese") because there are no genuine issues of material fact, and Baker is entitled to judgment as a matter of law. Specifically, the undisputed evidence, i.e., Friese's own testimony, establishes that his claims for personal injury are barred because:
+1) The allegedly hazardous steps were a well-known, frequently used, and open- and-obvious condition;
+2) Friese's Complaint is barred by res judicata because he failed to assert his claim
+for damages as a compulsory counterclaim in a prior lawsuit with Baker in the Chardon Municipal Court arising out of his tenancy.
+This Motion is supported by the attached memorandum, the deposition of Plaintiff John Friese previously filed with the Court, and by the certified copies of the Complaint and Judgment entered in the Chardon Municipal Court, Case No. 2021-CVG-456, Carolyn Baker v. John Friese, attached hereto as Exhibits B and C, respectively.
+
+Respectfully submitted, /8/ Beverly A. Adams BEVERLY A. ADAMS (0074958) COLLINS, ROCHE, UTLEY & GARNER, LLC 875 Westpoint Parkway, Suite 500 Cleveland, OH 44145 (216) 916-7730 (T) * (216) 916-7725(FAX) badams@cruglaw.com
+Attorney for Defendant Carolyn Baker
+
+MEMORANDUM
+I. Introduction
+This is a premises liability case in which Plaintiff John Friese ("Friese") seeks compensation for injuries he sustained when he fell down the stairs of a basement apartment that he rented from Defendant Carolyn Baker ("Baker"). But Friese's claims are barred by 1) the "known hazard" and "open and obvious hazard" doctrines, and 2) by res judicata/collateral estoppel, since Baker and Friese had previously been in litigation together on claims arising out the rented premises. Accordingly, Baker is entitled to summary judgment as a matter of law.
+II. Background Facts
+Baker is the owner of a residential property located at 15230 Thompson Road in Thompson, Ohio. (Complaint, Para. 2; see also, Exhibits B and C). The home had a fully finished basement apartment. Near the "very end of 2017," Baker began renting the basement apartment to Friese. (Deposition of John Friese, p. 6:16-20).1 The basement apartment had two entrances- a rear entrance that opened straight to the back yard, and an interior entrance from the garage. (Ex. A, Friese, pp. 81:25-82:25). The garage entrance had a flight of steps that descended to the basement apartment, which are the steps on which Friese fell. (Ex. A, Friese, pp. 85-88).
+The undisputed evidence, i.e. Friese's own deposition testimony, establishes that the staircase was adequately lit, with both a light in the stairwell and also an outside window. (Ex. A, Friese, pp. 87:15-88:5). Friese used the garage staircase as his primary access to the apartment, going in and out "three to four" times each day. (Ex. A, Friese, p. 83:1-3). Friese
+1 The complete deposition transcript of Plaintiff John Friese has been previously filed with this Court. The excerpts and pages referenced herein are attached as Exhibit A.
+
+lived in the basement apartment for nearly four years, traversing the staircase 3-4 times each day, without incident. (Ex. A, Friese, p. 83:4-7).
+At about 2:00 PM on January 16, 2021, Friese decided to go the store. He exited the apartment going up the staircase to the garage, drove his car to the store, and then returned, parking in the garage. (Ex. A, Friese, pp. 83:24-85:9). When he left the apartment, he did not notice anything unusual or particularly dangerous about the steps or garage entrance; they were in the same condition as always. (Ex. A, Friese, p. 85:10-14).
+When Friese returned from the store, he parked in the garage and opened the interior door to the staircase, carrying one bag.
+Q. ... And why don't you tell me in your words what happened.
+A. Okay. I opened the door. Now, the door opens out. So I opened the door, turned the light on, turned around to close the door, moved the bag to my right hand, and started down the steps. I missed the step. I don't know what happened, but I went head first.
+Q. Okay. Do you know why you fell?
+A. No, I don't.
+Q. You don't know if you slipped, tripped, missed a step?
+A. Okay. Let's go with missed a step. That's what I'm assuming. *
+Q. You missed a step, what you think possibly was the second step; is that a fair statement?
+A. Yes.
+Q. All right. And you don't know why you missed the step; is that correct?
+A. No, not for certain.
+Q. Okay.
+
+A. I have an assumption of why.
+Q. And what's your assumption?
+A. I was turning to close the -- you have to turn around to close the door, which opened out. Okay?
+Q. Okay.
+A. So when I closed the door, you're turning at the same motion, stepping down, and lost my balance and went down.
+Emphasis added. (Ex. A, Friese, p. 90:13-20, 91:8-13, 93:2-10). Missing the step, Friese fell headlong down the staircase to the bottom of the stairs. He suffered two fractured ribs and complains of continuing neck, back, and shoulder pain.
+Shortly after his fall and complaints of injuries, Friese got into a dispute with Baker about his non-payment of rent and damage to the property. On May 25, 2021, Baker filed an eviction action, which also included a claim for both back rent and for damage to the premises. See attached Exhibit B, certified copy of complaint, Carolyn Baker v. John Friese, Chardon Municipal Court No. 2021-CVG-456. After the eviction action was filed, Friese moved out of the apartment voluntarily. The second cause of action proceeded to trial on July 21, 2021, at which Friese did not appear. The trial court took evidence and granted judgment in favor of Baker for the sum of $5,336.00 together with statutory interest and court costs. See certified copy of Judgment attached as Exhibit C.
+III. Law & Argument
+A. Friese's claims are barred by the "open & obvious" doctrine.
+In his Complaint, Friese alleges that he was a "business invitee" on Baker's property and that Baker owed him a duty of reasonable care. (Complaint, Para. 1, 4). He claims that the staircase was "defective," claiming that "the staircase needed a railing." (Complaint, Para. 4).
+
+Baker does not dispute that Friese was a business invitee. But an owner of a premises is not an insurer of the safety of invitees and is obligated only to warn invitees of defects of which they are unaware and unable to observe or discover for themselves. Armstrong v. Best Buy Co., Inc., 99 Ohio St.3d 79, 2003-Ohio-2573. In Armstrong, the Ohio Supreme Court explained that "the open and obvious nature of the hazard itself serves as a warning. Thus, the owner or occupier may reasonably expect that persons entering the premises will discover those dangers and take appropriate measures to protect themselves." Id., at | 5. Thus, when the alleged hazard is observable and discoverable-or, in this case, actually known-the property owner owes no further duty to the invitee. Id.
+There is no dispute that Friese was aware of the condition of the staircase and the steps. He acknowledges his awareness of them, and repeatedly used them. (Ex. A, Friese, p. 83:4-7). Indeed, the "hazard" that he alleges-the absence of a handrail-was also well known to him; he even claims that prior to his injury "he told [Baker] the staircase needed a railing." (Complaint, Para. 4). Thus, according to his own testimony and Complaint, Friese was not only aware of the absence of a handrail, but he admits that he recognized the potential hazard posed by its absence. (Complaint, Para. 4).
+Because the alleged hazard was both observable and actually known to Friese, he cannot claim that Baker had any duty to have "warned of its existence." (Complaint, Para. 5).
+B. A landlord has no statutory duty to install handrails on stairways.
+Nor can Friese claim that Baker's status as a landlord imposed any higher duty on her. First, he has made no such allegation in his Complaint, relying instead on premises liability law applicable to "invitees." Second, Ohio courts have repeatedly held that defective or even missing handrails do not violate any statutory duties imposed on landlords. Rather, the duty of a landlord
+
+under R.C. 5321.04(A) is to keep a rented premises "fit and habitable." Ohio courts have repeatedly stated that this duty of "habitability" does not encompass staircase railings, stating:
+[T]he common law warranty of habitability deals with situations where the premises contained defective wiring, heat or water shortages, vermin infestations, etc. It cannot seriously be contended that the lack of a handrail, in and of itself, renders the premises substantially or wholly uninhabitable. Consequently, R.C. 5321.04(A)(2) cannot be used as a basis for imposing liability on appellee [for a missing or defective handrail].
+St. Germain v. Newell, 3rd Dist. Marion No. 9-15-14, 2015-Ohio-3713, 1 16, citing Taylor v. Alexander, 11th Dist. Trumbull No. 3550, 1986 WL 7800 (July 11, 1986)(emphasis added).
+Accordingly, Baker is entitled to summary judgment on the Complaint as a matter of law.
+C. Friese's claims for personal injury are barred by res judicata.
+Even if Friese could claim that Baker owed him any kind of duty with regard to the staircase or handrail, his claims for personal injury are now barred by res judicata.
+"[U]nder the doctrine of res judicata, an existing final judgment or decree binding the parties is conclusive as to all claims that were or could have been litigated in a first lawsuit. ... Res judicata requires a [party] to present every ground for relief in the first action or be forever barred from asserting it." State ex rel. Love v. O'Donnell, 150 Ohio St.3d 378, 2017-Ohio-5659, 1 6, quoting State ex rel. Robinson v. Huron Cty. Court of Common Pleas, 143 Ohio St.3d 127, 2015- Ohio-1553, 34 N.E.3d 903, 18. Specifically with regard to defendants, Civ.R. 13(A) requires a defendant to assert a compulsory counterclaim that arises out the same occurrence or transaction as the claims of the plaintiff.
+In that regard, Ohio courts hold that where a tenant claims to have suffered personal injuries from conditions at a leased premises, Civ.R. 13(A) requires that such a claim must be asserted as a compulsory counterclaim when the landlord initiates a subsequent action for both eviction and for monetary damages arising out of the tenancy. See, e.g., Adams v. Romine, 5th
+
+Dist. Muskingum No. CT2018-0043, 2019-Ohio-482 (tenant's personal injury claim for fall down steps precluded by failure to assert compulsory counterclaim during landlord's subsequent action for eviction and damages), citing Haney v. Roberts, 130 Ohio App.3d 293, 720 N.E.2d 101 (4th Dist. Scioto 1998)(Civ.R. 13(A) requires tenant to assert compulsory counterclaims in response to landlord's claim for monetary damages). See also, Maduka v. Parries (8th District) (1984), 14 Ohio App.3d 191470 N.E.2d 464 (court upheld the dismissal of the tenant's suit for personal injury as it was precluded as compulsory counterclaims to the landlord's previously filed and pending action for eviction and damages); Lujan v. Smith (Nov. 11, 1983), Lucas App. No. L-83-197, unreported, 1983 WL 6990 (landlord's claim for rent was a compulsory counterclaim to a tenant's claim for damages stemming from the landlord's failure to provide natural gas services to the rental premises).
+In Sherman v. Pearson (1996) 110 Ohio App.3d 70, 673 N.E.2d 643, the appellant was injured when she fell on a set of stairs in a common area of her apartment building. After this injury, her landlord filed an action against her for forcible entry and detainer as well as back rent. Id. After the action for forcible entry and detainer and back rent was resolved, the tenant filed a personal injury suit against the landlord asserting that the stairs were negligently maintained, and, thus, the landlord had violated the Landlord Tenant Act. The trial court held that the tenant's personal injury action was a compulsory counterclaim to the landlord's forcible entry and detainer action and for back rent and that the tenant's failure to assert the claim in the prior action resulted in it being barred by the doctrine of res judicata. Id. The Court of Appeals upheld the trial court's judgment stating:
+"[b]oth actions involved rights and duties arising from the rental agreement. Accordingly, the logical-relation test for a compulsory counterclaim, rather than merely a permissive counterclaim, is satisfied."
+
+Id. at 75, 673 N.E.2d 643, citing McCormac, Ohio Civil Rules Practice (2 Ed.1988) 199, Section 8.04.
+In the case sub judice, Friese's alleged injuries occurred on January 16, 2021. (Complaint, Para. 4). Subsequently, on May 25, 2021, Baker filed an action in the Chardon Municipal Court, Carolyn Baker v. John Friese, Chardon Municipal Court No. 2021-CVG-456, seeking both eviction and monetary damages. See certified copy of Complaint, attached as Exhibit B. Friese moved out of the apartment voluntarily, but Baker's second cause of action for monetary damages proceeded to trial on July 21, 2021, at which Friese did not appear. The trial court took evidence and granted judgment in favor of Baker for the sum of $5,336.00 together with statutory interest and court costs. See certified copy of Judgment attached as Exhibit C.
+Friese admits in his Complaint that his status as an "invitee" arises because of his tenancy relationship with Baker. (Complaint, Para. 1). Thus, under Civ.R. 13(A), Friese' claim for personal injury was a compulsory counterclaim that Friese was obligated to assert in response to Baker's municipal court action for monetary damages arising out of the tenancy. And because Baker's claim for damages proceeded to a full trial and judgment on the merits, that judgment is now final and precludes Friese's current action for bodily injury from his tenancy, under the doctrine of res judicata.
+C. Conclusion
+For each of the foregoing reasons, Defendant Carolyn Baker is entitled to summary judgment. There are no genuine issues of material fact, and as a matter of law, Baker had no duty to warn about or install handrails. Furthermore, Friese's claim for personal injury is barred under the doctrine of res judicata.
+
+WHEREFORE, Defendant Carolyn Baker requests this Honorable Court to issue an Order granting her summary judgment as a matter of law because the undisputed facts evidence that the condition of the stairwell was an open and obvious condition and Plaintiff's claimed are barred by doctrine of res judicata/collateral estoppel.
+Respectfully submitted,
+/8/ Beverly A. Adams
+BEVERLY A. ADAMS (0074958) COLLINS, ROCHE, UTLEY & GARNER, LLC 875 Westpoint Parkway, Suite 500 Cleveland, OH 44145 (216) 916-7730 (T) * (216) 916-7725(FAX) badams@cruglaw.com Attorney for Defendant Carolyn Baker
+
+CERTIFICATE OF SERVICE
+I hereby certify that a copy of the foregoing Motion for Summary Judgment was served pursuant to Civ.R. 5(B)(3) by filing with the Geauga County Court of Common Pleas E-Filing System, this 7th day of March, 2024.
+/8/ Beverly A. Adams BEVERLY A. ADAMS (0074958) Attorney for Defendant Carolyn Baker

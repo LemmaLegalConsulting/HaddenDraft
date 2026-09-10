@@ -1,0 +1,273 @@
+STATEMENT OF THE ASSIGNMENTS OF ERROR
+
+I. THE TRIAL COURT COMMITTED REVERSIBLE ERROR BY GRANTING SUMMARY JUDGMENT IN FAVOR OF DEFENDANT/APPELLEES AND OVERRULING THE MOTION FOR SUMMARY JUDGMENT OF PLAINTIFF/APPELLANT MOTORISTS MUTUAL INSURANCE COMPANY AS DEFENDANT/APPELLEE DANDY-JIM, INC. IS NOT ENTITLED TO "ADVERTISING INJURY" COVERAGE UNDER POLICY NO. 33-229234-50E FOR THE TCPA CLAIMS IN CASE NO. CV-06-583434 IN THE CUYAHOGA COUNTY COURT OF COMMON PLEAS AS A MATTER OF LAW.
+
+II. THE TRIAL COURT FAILED TO ADDRESS THE ISSUE OF WHETHER IT IS AGAINST THE PUBLIC POLICY OF OHIO TO INSURE AGAINST A STATUTORY AWARD OF TREBLE DAMAGES.
+
+STATEMENT OF THE ISSUES
+
+1. Does an insured's dissemination of "junk faxes" as part of an advertising campaign in violation of the federal Telephone Communications Privacy Act (TCPA) fall within the "advertising injury" coverage of a standard general commercial liability policy?
+
+2. Should this Court follow the holding of a federal appellate decision that was purportedly based upon Illinois law, despite the Supreme Court of Illinois' strong disagreement with the conclusion reached?
+
+3. Even though the insurance carrier failed to incorporate language into the pertinent policy excluding "seclusion" type claims from the advertising injury coverage, should this Court nevertheless impose such an unwritten limitation?
+
+4. Does the term "material" include unwanted "junk faxes"?
+
+5. Should this Court accept the insurer's invitation to afford the term "publication" the same meaning that has been adopted for purposes of defamation lawsuits, so that coverage will rarely (if ever) be owed?
+
+6. Should the benefits of the advertising injury coverage that the insured had purchased be restricted to only those instances in which the wrongdoing is sufficiently egregious in the insurer's view?
+
+7. Can a liability carrier avoid having to honor advertising injury coverage that has been purchased by an insured on the grounds that doing so would somehow violate "public policy"?
+
+STATEMENT OF THE CASE AND FACTS
+
+The parties are in apparent agreement that no dispute over the pertinent facts has arisen during the course of this proceeding. Defendant-Appellees, Kevin Chambers, Dennis Dawson, Felix Fedor, and Ali Mohammadpour (collectively the "Claimants"), had originally filed suit against Defendant-Appellee, Dandy-Jim, Inc., dba Brookgate Tire & Auto Center ("Dandy-Jim"), on February 3, 2006 in the Cuyahoga County Court of Common Pleas (the "underlying litigation"). Case No. 583434. The action was assigned to Judge Michael J. Russo. The Claimants maintained that they were all entitled to the statutory awards authorized by the federal Telephone Communications Privacy Act (TCPA) as a result of Dandy-Jim's "junk fax" advertising campaign. Each of the Claimants had received the unwanted solicitations in violation of the statute.
+
+Dandy-Jim was covered at the time under a Commercial General Liability Policy that had been purchased from Plaintiff-Appellant, Motorists Mutual Insurance Company ("Motorists"). 1 The relevant insuring agreement specifically promised that:
+
+COVERAGE B PERSONAL AND ADVERTISING INJURY LIABILITY
+
+1. Insuring Agreement.
+
+a. We will pay those sums that the insured becomes legally obligated to pay as damages because of "personal and advertising injury" to which this insurance applies. We will have the right and duty to defend the insured against any "suit" seeking these damages. However, we will have no duty to defend the insured against any "suit" seeking damages for "personal and advertising injury" to which this insurance does not apply. ***
+
+b. This insurance applies to "personal and advertising injury" caused by an offense arising out of your business but only if the offense was committed in the "coverage territory" during the policy period.
+
+Motion of Defendants for Summary Judgment filed August 22, 2007 ("Defendants' Motion"), Exhibit B, p. 4. The policy further provided the following relevant definitions:
+
+SECTION V - DEFINITIONS
+
+1. "Advertisement" means a notice that is broadcast or published to the general public or specific market segments about your goods, products or services for the purpose of attracting customers or supporters.
+
+***
+
+14. "Personal and advertising injury" means injury, including consequential "bodily injury", arising out of one or more of the following offenses:
+
+a. False arrest, detention or imprisonment;
+
+b. Malicious prosecution;
+
+c. The wrongful eviction from, wrongful entry into, or invasion of the right of private occupancy of a room, dwelling or premises that a person occupies, committed by or on behalf of its owner, landlord or lessor;
+
+d. Oral or written publication of material that slanders or libels a person or organization's goods, products or services;
+
+e. Oral or written publication of material that violates a person's right of privacy;
+
+f. The use of another's advertising idea in your "advertisement" or;
+
+g. Infringing upon another's copyright, trade dress or slogan in your "advertisement". *** [emphasis added].
+
+Id., pp. 6-7. Dandy-Jim tendered a claim for coverage under its Motorists policy. An Answer was then submitted on April 20, 2007 denying liability. Following a pre-trial conference, Judge Russo issued an order scheduling the jury trial for October 2, 2007.
+
+After the Claimants' lawsuit against Dandy-Jim had been pending for over sixteen (16) months, Motorists commenced the instant action on June 7, 2007, arguing that neither liability nor a defense was ever actually owed to the insured. Case No. 626476. Judge Lillian 1. Greene was assigned to that lawsuit. Each of the Claimants was included as a Defendant in the Complaint, which sought a declaratory judgment establishing that no coverage was available to Dandy-Jim. Answers were served disputing that the insurer was entitled to such relief. As a result of the coverage dispute which had emerged, the underlying lawsuit was stayed by Judge Russo in an Entry dated July 5, 2007.
+
+On August 22, 2007 the Claimants moved for summary judgment on the issue of whether indemnification was owed under the policy for any recovery they secured against Dandy-Jim under the TCP A. Motorists submitted a Cross-Motion for Summary Judgment on October 4, 2007. In the ensuing briefing the parties were in agreement that the pivotal issue was whether coverage would be owed if the Claimants prevailed on their underlying lawsuit.
+
+In a Final Judgment Entry that was issued on August 5, 2008, Judge Greene granted the Claimants' Motion and denied Motorists' Cross-Motion. In her declaratory judgment establishing coverage in favor of the Claimants, she explained that:
+
+* * * The court having considered briefs, arguments of counsel and the evidence fmd[s] Plaintiff Motorists Mutual is obligated to defend the insured, Dandy-Jim, against any suit arising out of any violation of the TCP A regarding transmission of unsolicited fax advertisements. The court further holds the "advertising injury" provision of the insurance policy as written does not draw a distinction between the violations of the secrecy right of privacy and the seclusion right of privacy. Therefore coverage extends to any oral or written publication of material that violates a person's right of privacy.
+
+Brief of Plaintiff-Appellant, Exhibit A. Motorists responded by commencing the instant appeal on September 2, 2008.
+
+ARGUMENT
+
+Motorists has advanced two (2) Assignments of Error in this appeal, neither of which has merit. They will be addressed separately herein.
+
+I. THE TRIAL COURT COMMITTED REVERSIBLE ERROR BY GRANTING SUMMARY JUDGMENT IN FAVOR OF DEFENDANT/APPELLEES AND OVERRULING THE. MOTION FOR SUMMARY JUDGMENT OF PLAINTIFF/APPELLANT MOTORISTS MUTUAL INSURANCE COMPANY AS DEFENDANT/APPELLEE DANDY-JIM, INC. IS NOT ENTITLED TO "ADVERTISING INJURY" COVERAGE UNDER POLICY NO. 33-229234-50E FOR THE TCPA CLAIMS IN CASE NO. CV-06-583434 IN THE CUYAHOGA COUNTY COURT OF COMMON PLEAS AS A MATTER OF LAW.
+
+A.  STANDARD OF REVIEW.
+
+1. TRIAL COURT.
+
+As previously noted, the declaratory judgment action was resolved in Claimants' favor upon cross-motions for summary judgment. The burden of establishing the appropriateness of summary judgment is upon the moving party. Hamlin v. McAlpin Co. (1964), 175 Ohio St. 517, 196 N .E.2d 781, paragraph two of the syllabus. The application should be granted only if, construing the evidence most favorably to the responding party, no genuine issues of materiail fact remain to be litigated thereby warranting a judgment for the movant as a matter of law Temple v. Wean United, Inc. (1977),50 Ohio St.2d 317, 327, 364 N.E.2d 267.
+
+2. APPELLATE COURT.
+
+Given that only legal questions exist, no special deference is to be afforded to the tri judge upon an appeal of an entry of summary judgment. Lorain Cty. Bd. of Commrs. v. United States Fire Ins. Co. (9th Dist. 1992),81 Ohio App.3d 263, 267, 610 N.E.2d 1061, 1063;Morehead v. Conley (4th Dist. 1991),75 Ohio App.3d 409,411-412,599 N.E.2d 786. Accordingly, a de novo review is appropriate. Rickel v. Cloverleaf Local School Dist. Bd. of Edn. (9th Dist. 1992), 79 Ohio App.3d 810, 813, 608 N.E.2d 767. The appellate court should independently examine the entire record. Howard v. Wills (4th Dist. 1991),77 Ohio App.3d 133, 139,601 N.E.2d 515, 519 fn 4.
+
+B. COVERAGE FOR ADVERTISING INJURY.
+
+The preliminary question whether advertising injury coverage is available through the Motorists policy is ripe for summary judgment. Schwartz v. Stewart Title Guar. Co. (8th Dist. 1999), 134 Ohio App.3d 601, 606, 731 N.E.2d 1159, 1162 (citations omitted). "It is a long-standing principle of law that an insurance policy is a contract, and that the relationship between the insurer and the insured is purely contractual in nature." Nationwide Mut. Ins. Co. v. Marsh (1984), 15 Ohio St.3d 107, 109, 472 N.E.2d 1061, 1062 (citations omitted). As a general rule, the construction and application of contracts presents matters of law which can be resolved by the Court. Chicago Title Ins. Co. v. Huntington Nat'l Bank (1999),87 Ohio St.3d 270,273, 719 N.E.2d 955,959; Novak v. American Community Mut. Ins. Co. (8th Dist. 1998), 129 Ohio App.3d 629,633, 718 N.E.2d 958,961.
+
+There was no disagreement in the proceedings below that the Claimant's underlying lawsuit against Dandy-Jim sought relief under the TCP A as a result of its junk fax advertising campaign. The federal enactment prohibits the dispatch of unsolicited fax advertisement without the "prior express invitation or permission" of the recipient. 47 u.s. C. § § 227(a)(4) and 227(b)(I)(C); see, e.g., Grady v. Lenders Interactive Sers. (Aug. 12, 2004), 8th Dist. No. 83966 2004-Ohio-4239, 2004 W.L. 1799178; Bransky v. Shahrokhi (Jan. 13, 2005), 8th Dist. No. 84262, 2005-Ohio-97, 2005 W.L. 77084; Jemiola v. XYZ Corp. (Ct. Com. PI., Cuyahoga Cty. 2003), 126 Ohio Misc.2d 68, 72, 2003-Ohio-7321, 802 N.E. 2d 745. The TCPA was adopted in 1991 to provide citizens with protection against violation of their privacy rights by fax advertisers and telemarketers. See, e.g., Charvat v. Dispatch Consumer Sers. Inc., 95 Ohio St.3d 505, 2002-Ohio-2838, 769 N.E.2d 829 (the TCPA was enacted to protect "individual privacy"); Betar v. Quantalytics, Inc. (Oct. 3, 2003), Ct. Com. PI., Cuyahoga Cty. No. 465693, 2003 W.L. 22407121; Western Rim Invest. Advisors, Inc. v. Gulf Ins. Co. (N.D. Tex. 2003), 269 F.Supp.2d 836, 847 ("The stated purpose of the TCPA" is to protect the privacy of individuals from receiving unsolicited faxed advertisements"), aff'd, (5th Cir. 2004) 96 Fed. Appx. 960; see also, TCPA, Congressional Findings, 1991 PL 102-243, Sec. 2, PP (9) and (10).
+
+As a matter of law, any damages awarded under the TCPA to Claimants will fall squarely within the "Personal and Advertising Injury Liability" coverage provided by Motorists' Commercial General Liability Policy. Defendant's Motion, Exhibit B, p. 5. The junk faxes certainly qualify as an "advertisement," which had been defined to mean "a notice that is broadcast or published to the general public or specific market segments about [the insured's] goods, products or services for purpose of attracting customers or supporters." Id., p. 6. The Claimants had also undoubtedly suffered an "advertising injury" as a result of the "written publication of material that violates [their] right of privacy." Id., p. 7. Notably, none of the numerous policy exclusions mentions, let alone prohibits coverage for, TCPA damages.
+
+The question of whether TCP A claims are covered under such standard-form commercial general liability policies has been frequently litigated throughout the United States over the last fifteen (15) years. The overwhelming consensus has found that such recoveries do qualify as "advertising injury" including several from this jurisdiction. Westfield Ins. Co. v. The Diamond Co. (Mar. 15, 2005), Ct. Com. Pl., Cuyahoga Cty. No. CV-04-540862, 2005 W.L. 3150754 copy appended hereto as Exhibit B. Compoli v. Central Mut. Ins. Co. (Oct. 14, 2004), Ct. Com. Pl., Cuyahoga Cty. No. 517014, copy appended hereto as Exhibit C; Hooters of Augusta, Inc. v. American Global Ins. Co. (S.D. Ga. 2003),272 F.Supp.2d 1365,aff'd, (11th Cir. 2006) 157 Fed.Appx. 201;Western Rim, 269 F.Supp.2d 836;Terra Nova Ins. Co. v. Metropolitan Antiques, LLC (Mass. 2007), 449 Mass. 406, 869 N.E.2d 565;Valley Forge Ins. Co. v. Swiderski Elec., Inc. (Ill. 2006), 223 Ill.2d 352, 860 N.E.2d 307;Universal Underwriters Ins. Co. v. Lou Fusz Automotive Network, Inc. (E.D. Mo. 2004), 300 F.Supp.2d 888,aff'd, (8th Cir. 2005) 401 F.3d 876;Park Univ. Ents., Inc. v. American Cas. Co. of Reading, Pa. (D. Kan. 2004),314 F.Supp.2d 1094,aff'd, (10th Cir. 2006) 442 F.3d 1239;Prime TV, LLC v. Travelers Ins. Co. (M.D. N.C. 2002),223 F.Supp.2d 744;TIG Ins. Co. v. Dallas Basketball, Ltd. (Tx. Ct. App. 2004), 129 S.W.2d 232;Registry Dallas Assocs., L.P. v. Wausau Bus. Ins. Co. (Feb. 26, 2004), U. S. Dist. Ct., N.D. Tex. No. 3:02-CV-2662, 2004 W.L. 614836;Merchants & Businessmen's Mut. Ins. Co. v. A.P.D. Health Co., Inc. (N.Y. Sup. Ct. 2002),228 N.Y.L.J. 22. Judge Greene thus justly concluded that, as a matter of law, the Claimants' TCPA claims fell within the scope of Motorists' advertising injury coverage.
+
+C. THE "SECLUSION" EXCLUSION.
+
+Seizing upon the phrase "right of privacy" which appears in subsection (e) of the "personal and advertising injury" definition, Motorists contends that coverage is only available for an insured who violates another's expectation of "secrecy" instead of "seclusion". Brief of Plaintiff-Appellant, pp. 9-16. This distinction has been drawn from the common law tort concept "privacy," which the insurer has implored this Court to engraft upon the insuring agreement. It is a fundamental tenet of Ohio insurance law, however, that: "a court must give undefined words used in an insurance contract their plain and ordinary meaning." Nationwide Mut. Fire Ins. Co. v. Guman Bros. Farm, 73 Ohio St. 3d 107, 108, I995-Ohio-214, 652 N.E. 2d 684, 686; Mastellone v. Lightning Rod Mut. Ins. Co. (8th Dist. 2008), 175 Ohio App. 3d 23, 2008-O hio-311, 884 N.E. 2d 1130, 1141.
+
+Previous attempts to recast advertising injury provisions strictly in terms of arcane tort concepts have been resoundly rejected time and time again. For example, in Hooters of Augusta, 272 F. Supp. 2d at 1372, the court observed that:
+
+In common parlance, "privacy is understood to mean "freedom from unauthorized intrusion." Webster's New Collegiate Dictionary 908(1979); cf. Hyman, 304 F. 3d at 1188 (citing case law quoting the dictionary). Thus, the phrase "right of privacy" is simply the "right to be let alone." Black's Law Dictionary 1075 (5th ed. 1979); see also Pavesich v. New England Life Ins. Co., 122 Ga. 190, 197, 50 S.E. 68 (1905) (equating, with quoted material, the right of privacy with the right "to be let lone"); Dennis v. Adcock, 138 Ga. App. 425, 429, 226 S.E. 2d 292 (1976) ("[T]he right to privacy [] is basically the right to be let alone....").
+
+In concluding that the fax advertiser was indeed entitled to advertising injury coverage, the District Judge reasoned that "a layman understands his right to be left alone to include being left alone at work by advertisers sending unsolicited faxes." Id. at 1373. The same result was reached in Universal Underwriters, which established that:
+
+Universal seeks to tie its definition for invasion of personal property to that of the common-law tort of conversation. * * * However, these definitions are inappropriate because they are not the plain and ordinary meaning of the respective terms, and the policy does not tie the disputed terms to the common-law causes of action.
+
+Id, 300 F. Supp. 2d 888, 895.
+
+Borrowing from cabalistic legal distinctions that only lawyers appreciate is unnecessary because Congress has already enacted legislation establishing a statutory "right of privacy" against unwanted fax advertising. Park Univ. Ents., 314 F. Supp. 2d at 1109. There is no dancing around the fact that damages awarded as a result of a violation of that particular "right of privacy" are covered under the plain and ordinary meaning of the terms appearing in subsection (e) of Motorists' definition of "personal and advertising injury." Defendant's Motion, Exhibit B, pp. 6-7. Had the insurer had a narrower definition of "right of privacy" in mind at the time of contracting, specific language should have been adopted to such effect.
+
+Even if Ohio law required insuring agreements to be construed in accordance with common law tort principles, Judge Greene's logic is still valid. This state has long recognized that privacy includes both "the right of a person to be let alone" and "to live without unwarranted interference by the public in matters which the public is not necessarily concerned." Housh v. Peth (1956), 165 Ohio St. 35, 133 N.E.2d 340, paragraph one of the syllabus; Salupo v. Fox, Inc. (Jan. 15, 2004), 8th Dist. No. 82761, 2004-Ohio-149, 2004 W.L. 64964, p. *3. Motorists could have easily defined the phrase "advertising injury" to include just one category or the other, but apparently opted against doing so. It is too late to modify the policy now.
+
+Insuring agreements should never be interpreted in a manner which renders coverage illusory. Barnes v. Great Am. Indem. Co. (2nd Dist. 1938),60 Ohio App. 114, 117, 19 N.E.2d 903, 905; Tamburino v. Grange Mut. Cas. Co. (Jan. 10, 1989), 7th Dist. No. 88 C.A. 134, 1989 W.L. 3935, p. *3, copy appended hereto as Exhibit A; GNFH, Inc. v. West Am. Ins. Co. (2nd Dist. 2007), 172 Ohio App.3d 127, 151-152, 2007-Ohio-2722, 873 N.E.2d 345, 364-365. But that is exactly what would occur under Motorists' peculiar interpretation of the phrase of "right to privacy." As drafted, the policy had clearly and unmistakably extended to "business" advertisements promoting the insureds "goods, products or services." Defendants' Motion Exhibit B, pp. 5-6. In Motorists' tortured view, coverage would only be owed in the inconceivable instance that the promotional material included the recipient's social security number, bank account number, or other private information. Such logic cannot be harmonized with the principle that insurance contracts "must be given a fair and reasonable interpretation to cover the risks anticipated by the parties." Snyder v. Motorists Mut. Ins. Co. (9th Dist. 1965), 2 Ohio App. 2d 19,21,206 N.E. 2d 227; Western Res. Mut. Cas. Co. v. Eberhart (9th Dist. 1991), 81 Ohio App.3d 93,98-99,610 N.E.2d 481.
+
+Motorists devotes a substantial portion of its Brief to the oft-maligned analysis provided by American States Ins. Co. v. Capital Assocs. of Jackson Cty., Inc. (7th Cir. 2004), 392 F.3d 939, which attempted to apply Illinois law to determine what types of claims constitute or give rise to "advertising injury." Brief of Plaintiff-Appellant, pp. 10, 12, 15, 16 & 19. Motorists concedes in a footnote that not long thereafter in Valley Forge, 223 Ill.2d 352, 378-379, 860 N.E.2d 307, the Supreme Court of Illinois was unimpressed with the federal court's analysis of that state's jurisprudence and forcefully rejected the Seventh Circuit's holding. Id. at p. 12, fn. 1. The high court determined instead that the TCPA violation did indeed violate a right of privacy and constituted as an "advertising injury." Valley Forge, 223 Ill.2d 352.
+
+Motorists has nevertheless implored this Court to follow the now discredited American States decision. Brief of Plaintiff-Appellant, p. 12, fn. 1. The insurer appears to be oblivious to the rudimentary principle that federal courts, like the Seventh Circuit, are required to defer to state courts, like the Supreme Court of Illinois, on issues of state law and thus American States' interpretation of the "advertising injury" provision has been effectively overruled. See generally, West v. American Tel. & Tel. Co. (1940), 311 U.S. 223, 236, 61 S.Ct. 179, 183, 85 L.Ed. 139; Terminiello v. City of Chicago (1949), 337 U.S. 1,4,69 S.Ct. 894,895,93 L.Ed. 1131; Simpson v. Jefferson Std. Life Ins. Co. (6th Cir. 1972), 465 F .2d 1320, 1323. This Court should therefore steer clear of decisions such as Ace Mortg. Funding, Inc. v. Travelers Indem Co. of Am. (Mar. 10, 2008), U.S. Dist. Ct., S.D. Ind., Case No. 1:05-CV-1631, 2008 W.L. 686953, which slavishly adhered to the untenable logic of American States.
+
+Motorists has also pinned its hopes on Resource Bankshares Corp. v. Sf. Paul Mercury Ins. Co., (4th Cir. 2005) 407 F.3d 631. Brief of Plaintiff/Appellant; pp. 11, 13, 16, & 19. However, the insurer conveniently omits the fact that the Resource Bankshares case was decided with regard to an insurance policy with entirely different provisions than the language in the policy at issue in the present case. This fact was recognized in Hooters of Augusta, 157 Fed.Appx. 201, 208, which noted that the decision in Resource Bankshares
+
+"*** involved a more tightly worded advertising-injury provision that described the covered activity as 'making known to any person or organization written or spoken material that violates a person's right to privacy.' Resource Bankshares, 407 F.3d at 641. This wording seems to have been a significant factor in the court's decision. Id. at 641-642.
+
+The insurance contract in this case, however, refers to '[O]ral or written publication' of such material, which does not suggest the focus on 'secrecy' that 'making known' does." Defendants' Motion, Exhibit B, pp. 6-7. Hence, Motorists' reliance on Resource Bankshares is misplaced.
+
+Motorists also cites ACS Systs., Inc. v. St. Paul Fire & Marine Ins. Co. (Cal. App. 2nd Dist. 2007), 147 Cal. App. 4th 137, 53 Cal. Rptr. 3d 786; Melrose Hotel Co. v. St. Paul Fire & Marine Ins. Co. (E.D. Pa., 2006), 432 F.Supp.2d 488; St. Paul Fire & Marine Ins. Co. v. Brunswick Corp. (N.D. Ill., 2005), 405 F.Supp.2d 890 and Erie Ins. Exchange v. Kevin T. Watts, Inc. (Dec. 19, 2006), U.S. Dist. Ct., S.D. Ind. No.1 :05-CV-867, 2006 W.L. 3755329, in support of its argument 2 However, the ACS, Melrose Hotel, Brunswick and Resource Bankshares cases do not involve insurance policies which are similar to the one in the instant case. Instead, the aforesaid Melrose Hotel, Brunswick and Resource Bankshares cases are all based upon the above-quoted "'making known" language that is not contained in the Motorists Mutual policy at issue in the present case. For similar reasons, the decision in Erie Ins. Exchange is utterly irrelevant, since it was based upon the "Property Damage" provisions of the policy. In the instant case, the Defendant is making no claim based upon the "Property Damage" provisions of the policy.
+
+In this context, it is worth noting that in the Melrose Hotel opinion, the court indicated that coverage would be held to exist, if the insurance policy contained "broader language." Id., 432 F. Supp. 2d at 503. The "broader language" to which the court referred was the very same language at issue here: "oral or written publication of material that violates a person's right of privacy." Melrose Hotel, 432 F. Supp. 2d at 503-04, quoting Western Rim, 269 F. Supp. 2d at 840. The insurer's own authority fully supports the conclusion reached by Judge Greene below.
+
+What should be most relevant for this Court's consideration are the Ohio cases that have considered the issue under Ohio law and rejected the nonsensical American States rationale. On no less than three (3) separate occasions, including the proceedings below, the Cuyahoga County Court of Common Pleas has concluded that the damage caused by TCP A violations does indeed fall with the purview of standard form "advertising injury" provisions. Westfield Ins. Co., 2005 W.L. 3150754, copy appended hereto as Exhibit B; Campoli, Exhibit C. In Schuetz v. State Farm Fire & Cas. Co. (Ct. Com. Pl., Franklin Cty. 2007), 147 Ohio Misc.2d 22, 2007-O hio-7267, 890 N.E.2d 374, the Franklin County Court of Common Pleas joined this consensus.
+
+[A]s the plain and ordinary meaning of "privacy" also refers to "freedom from unauthorized intrusion," the policy also potentially covers one's right to be left alone. Accordingly, the court finds that "oral or written publication of material that violates a person's right of privacy" could pertain to a violation of one's right of privacy in terms of secrecy and also to a violation of one's right of privacy in terms of seclusion.
+
+The jurisdictions that have considered this issue have found that the receipt of an unsolicited facsimile is an invasion of one's right of privacy in terms of seclusion. As the plain and ordinary meaning of "privacy" includes both the right to secrecy and the right to seclusion, and as the receipt of an unsolicited telephone call, by its very nature, is much more intrusive than a facsimile, the court finds that [plaintiff]'s allegations that [defendant] caused two unsolicited telephone calls to be made to [plaintiff]'s residence constitute allegations of a violation of his right to "freedom from unauthorized intrusion."
+
+Accordingly, the court finds that [plaintiff] has alleged conduct that potentially constitutes an "advertising injury " … (emphasis added).
+
+Id, 890 N.E.2d 374, 392. Judge Greene's sound analysis comports with this unbroken line of Ohio precedent.
+
+In another ruling, Prime TV, 223 F.Supp.2d 744, the federal court squarely held that the "advertising injury" provision did indeed cover "junk fax" claims under the TCPA. This compelling analysis has been followed elsewhere, even though the decision was issued just six (6) years ago. Park Univ. Ents., 442 F. 3d at, 1249; Hooters of Augusta, 272 F.Supp.2d at 1373; Western Rim, 269 F.Supp.2d 836,845, fn. 11.
+
+The few aberrant rulings that Motorists has dredged up from outside this jurisdiction emanated from states where courts seemingly have no qualms over adding new terms and limitations to insurance policies under the guise of contract construction. Brief of Plaintiff Appellant, pp. 11-16. Unfortunately for the carrier, the policy presently before this Court was not issued in such a state. Largely at the urging of the insurance industry, the courts of Ohio have steadfastly refused to glean new terms and provisions from- unambiguous insurance contracts. Atwood v. State Farm Mut. Ins. Co. (4th Dist. 1990), 68 Ohio App.3d 179, 182, 587 N.E.2d 936, 937 (*** insurance policies are to be given their ordinary meaning and are not to be expanded by judicial fiat ***.) Regardless of the practical implications for the parties, the courts of Ohio have never been in the business of judicially re-writing insurance policies that appear to have been drafted improvidently. McNally v. American States Ins. Co. (6th Cir. 1962), 308 F.2d 438, 445; Schwartz, 134 Ohio App.3d 601, 607, 731 N.E.2d 1159, 1163. Instead, any uncertainty must be resolved in favor of the insured. Buckeye Union Ins. Co. v. Price (1974), 39 Ohio St.2d 95, 313 N.E.2d 844, syllabus; Csulik v. Nationwide Mut. Ins. Co., 88 Ohio St.3d 17, 20, 2000-Ohio-262, 723 N.E.2d 90, 92.
+
+Examples of Ohio courts refusing to "imply" new terms in insurance contracts at the request of policyholders are legion. In Travelers Indem. Co. v. Reddick (1974), 37 Ohio St.2d 119, 308 N.E.2d 454, the insureds urged the court to construe a purportedly ambiguous "physical contact" requirement in a hit-and-run motor vehicle clause to permit uninsured motorist coverage even though the tortfeasor's vehicle had never struck their automobile. The unanimous opinion concluded that there was "nothing uncertain" about the terms appearing in the policy and refused to stray beyond the actual language employed. Id., 37 Ohio St.2d at 122. Likewise, the insureds argued in Cincinnati Indem. Co. v. Martin, 85 Ohio St.3d 604, 1999-Ohio-322, 710 N.E.2d 677, that a "bodily injury to an insured" clause should be read to permit coverage even for non-insureds. In affirming the entry of summary judgment in favor of the insurer, the majority specifically observed that:
+
+It is well established that when the language in an insurance policy is clear and unambiguous, we must enforce the contract as written and give the words their plan and ordinary meaning. Hybud Equip. Corp. v. Sphere Drake Ins. Co., Ltd. (1992), 64 Ohio St.3d 657, 665, 597 N.E.2d 1096, 1102.
+
+Id., 85 Ohio St.3d at 607. This principle has been upheld again and again during the course of Ohio jurisprudence. Rhoades v. Equitable Life Assur. Soc. of the U.S. (1978),54 Ohio St.2d 45,47,374 N.E.2d 643,644 ("Where the provisions of the policy are clear and unambiguous, courts cannot enlarge the contract by implication so as to embrace an object distinct from that originally contemplated by the parties."); Cincinnati Ins. Co. v. Kramer (1st Dist. 1993), 91 Ohio App.3d 528, 531, 632 N.E.2d 1333, 1334 ("When the provisions of an insurance contract are clear and unambiguous, courts cannot enlarge the coverage by implying terms that are not in the agreement."); Progressive Ins. Co. v. Tarpeh (8th Dist. 1996), 116 Ohio App.3d 634, 637, 688 N.E.2d 1102, 1104 (refusing to "liberally" construe policy in favor of insured since language was "clear and unambiguous"); Mueller v. Taylor Rental Cntr. (8th Dist. 1995), 106 Ohio App.3d 806, 809, 667 N.E.2d 427, 429 (affirming grant of summary judgment in favor of insurer because unambiguous policy language "must be applied as written, without judicial interpretation."); White v. Ogle (8th Dist. 1979), 67 Ohio App.2d 35, 39, 425 N.E.2d 926, 929 ("An insurance company is only liable according to the terms and provisions of its contract, and not otherwise.")
+
+Having drafted the policy which was sold to Dandy-Jim, Motorists is now in no position to demand that this Court "imply" a "seclusion" exclusion which the carrier's small army of attorneys and insurance specialists apparently neglected to incorporate into the actual terms of coverage. It must not be forgotten that the insurer bears the burden of demonstrating that a policy exception or exclusion is applicable. Continental Ins. Co. v. Louis Marx & Co., Inc. (1980),64 Ohio St.2d 399, 401- 402,415 N.E.2d 315, 317. Exclusions in an insurance contract must be clear and unambiguous to be enforceable. Moorman v. Prudential Ins. Co. of Am. (1983),4 Ohio St.3d 20, 22, 445 N.E.2d 1122, 1124;Nationwide Ins. Co. v. Johnson (12th Dist. 1992), 84 Ohio App.3d 106, 109, 616 N.E.2d 525, 527. Any uncertainty must be resolved in favor of the insured. Buckeye Union, 39 Ohio St.2d 95, 313 N.E.2d 844, syllabus; Csulik, 88 Ohio St.3d 17, 20, 723 N .E.2d 90, 92. Rather than engage in the brand of judicial activism that Motorists is now championing, this Court should hold the carrier to the plain and ordinary meaning of the phrase "right of privacy" and the concept of "seclusion" embodied therein.
+
+D. THE "MATERIAL" REQUIREMENT. Motorists' next argument also focuses upon subsection (e) of the definition of "personal and advertising injury," which encompasses: "Oral or written publication of material that violates a person's right of privacy." Brief of Plaintiff-Appellant, pp. 16-20. The insurer has proclaimed that "it is the 'material' which must violate a person's right of privacy, and not the 'publication' of such material." Id., p. 16 (emphasis original). The simple answer to this specious contention is that the undeniably broad term "material" includes: "Something, such as an idea or information, that is to be refined and made or incorporated into a finished effort." THE AMERICAN HERITAGE DICTIONARY (3rd ed. 1992) 1109. An advertisement that is faxed is a "publication of material" in every sense of the phrase.
+
+Again, Motorists is advocating a strained interpretation of the insurance policy that would render the advertising injury coverage afforded under subsection (e) effectively meaningless. If it is true that indemnity and a defense only needs to be furnished when the "contents" of the publication violate the right of privacy, as opposed to the publication itself, it is difficult to fathom how this portion of the policy would ever be implicated. Tellingly, no examples have been offered by the insurer. Brief of Plaintiff-Appellant, pp. 16-20. The advertisement would have to contain some confidential or humiliating information about the recipient, such as a social security or reference to a prior criminal conviction, which (of course) they never do. Despite the premiums which had been paid, the insureds would be left to fend for themselves in all other instances. The better reasoned view is that advertisements like junk faxes are indeed "promotional materials" which violate the recipient's federal statutory right to be "left alone" and thus fall within the plain and ordinary meaning of the applicable policy provisions. Motorists has lost sight of the principle that: "an insurance policy must be construed so that the whole instrument may stand and, when reasonably possible, effect in meaning should be given to each and every sentence, clause, and word of the contract." Tamburino, 1989 W.L. 3935.
+
+Even if this Court was inclined to adopt Motorists' seemingly endless discourse on "last antecedent rule," the trial judge would still have to be affirmed. The "contents" of the junk faxes do indeed contribute to the violation of the recipient's federal privacy right. One cannot know that the material that has been received is "unwanted" without reading it. The very purpose of the unlawful advertisements is to catch the recipient's attention and promote products or services. The notion that the "contents" of the junk faxes has nothing to do with the unlawful invasion of the federally enacted right of privacy is thus ill-conceived.
+
+E. THE "THIRD PERSONS" PUBLICATION REQUIREMENT.
+
+Motorists' reasoning grows even more bizarre with the assertion that no advertising injury coverage is owed to Dandy-Jim because the term "publication" purportedly requires dissemination to "third persons." Brief of Plaintiff-Appellant, pp. 21-22. The theory goes that:
+
+In other words, the [Claimants] allege a violation of the TCPA based upon the receipt of the unsolicited advertisements. The [Claimants] are not alleging that Dandy-Jim, Inc., disseminated the faxes or advertisements to third persons or parties. Based on this set of facts, no "publication" has occurred under Ohio law. [emphasis original].
+
+Id, p. 21. One is left to wonder why the Claimants do not qualify as "third persons or parties." If Motorists is attempting to suggest that anyone who files a TCP A claim is no longer a "third person or party," then a situation is again created where no coverage would ever be owed under subsection (e) of the advertising injury provision.
+
+Motorists is once again attempting to interpose common-law tort concepts upon the unambiguous terms of the insuring agreement. Brief of Plaintiffs/Appellant, pp. 21-22. Since the policy is bereft of any language warning the insureds that the seemingly broad coverage they were receiving was actually strictly limited by these legal concepts, this argument must be rejected. Park Univ. Ents., 314 F. Supp. 2d at 1110; Hooters of Augusta, 272 F. Supp. 2d at 1372-1373; Universal Underwriters, 300 F. Supp. 2d at 895.
+
+There is no shortage of additional flaws in this counterintuitive logic, but perhaps the easiest to identify is found in the policy language itself. Motorists has defined an "advertisement" to refer to "a notice that is broadcast or published to the general public or specific market segments." Defendants' Motion, Exhibit B, p. 6. Thus, the insurer's fixation with the tort definition of "published" is pointless since "broadcasts" are also included. More importantly, the offending advertisement only has to be disseminated to the "general public or specific market segments," which undoubtedly includes Claimants. Id These terms will be rendered superfluous if the advertising injury coverage is artificially restricted in the contrived manner suggested by Motorists.
+
+Motorists seems to be under the impression that an analogous situation was examined in David v. Nationwide Mut. Ins. Co. (1st Dist. 1995),106 Ohio App.3d 298, 665 N.E.2d 1171.Brief of Plaintiff-Appellant, pp. 21-22. Not hardly. An employer in that instance had been sued after a male employee had allegedly made offensive "sexual remarks" and exposed himself to a female employee. Id., 106 Ohio App.3d at 300. Under no stretch of the imagination had any illegal "advertisements" been disseminated. Not surprisingly, the First District concluded that no coverage was available under the "advertising injury" provision of the policy. Id. at 303-304. The case has nothing to do with junk faxes issued in violation of the TCPA as part of a business advertising campaign and is thus inapposite.
+
+F. THE EXCLUSION FOR "MARGINAL DIRECT CONTACT" CLAIMS.
+
+In what is perhaps the most inane argument, Motorists maintains that neither indemnity nor a defense is owed to an insured for just a "technical violation of the TCPA." Brief of Plaintiff-Appellant, pp. 23-27. The TCPA does not actually distinguish between "technical" and "non-technical" violations and authorizes a recovery for any unlawful intrusion. Jemiola, 126 Ohio Misc. 2d at 71-73 (imposing statutory award where recipient received just six unsolicited facsimiles). Nevertheless, Motorists insists that the advertising injury coverage is not triggered until the insured's misconduct reaches a sufficient but undefined level of egregiousness. Id. As has been the case with the previous coverage defenses that have been asserted, no policy language has actually been cited warning the insureds that they would be left unprotected for "technical" advertising injuries.
+
+This specious contention is nothing more than a further effort to artificially restrict the scope of coverage with common-law tort principles. Motorists maintained that no advertising injury coverage is owed unless there has been "an invasion of the [Claimants'] right of privacy under Ohio law." Brief of Plaintiff-Appellant, p. 24. No such requirement has been imposed in the policy. Defendants' Motion, Exhibit B, pp. 4-7. Under subsection (e), the "[o]ral or written publication of material" need only "violate[] a person's right of privacy." Id., p. 7. The "right of privacy" in this instance has been established by Congress through the TCPA. 47 U.S.C. § § 227(a)(4) and (b)(J)(C). One federal court has reasoned that:
+
+But regardless of whether Congress specifically used the term "invasion of privacy" with respect to the advertising facsimile provisions, the underlying concerns prompting the legislation support a determination that Congress also sought to address the right for facsimile recipients to be left alone. Congress endeavored to curb the interruptions in one's day due to unsolicited facsimiles and eliminate interference with the receipt of legitimate business facsimiles. Implicit in both of these concerns is recognition of the right to be left alone. Accordingly, the court concludes that the TCPA's legislative history shows that Congress sought to protect privacy rights with the legislation. [emphasis added]. The court agrees with the Hooters of Augusta and Lou Fusz Automotive Network courts. The plain and ordinary meaning of privacy includes the right to be left alone, unburdened by unsolicited facsimiles. For these reasons, the court concludes that American has a duty to defend under the advertising injury provisions of the policy.
+
+Park Univ. Ents:, 314 F. Supp. 2d at 1109. Indeed, courts recognize that the TCPA was enacted to protect that privacy and prevent unscrupulous advertisers from shifting the cost of their advertising to unwilling recipients. See, e.g., Stefano & Assocs., Inc. v. Global Lending Grp., Inc. (Jan. 23, 2008), 9th Dist. No. 23799, 2008-Ohio-177, 2008 W.L. 186638, p. *3, fn. 2 ("faxed advertisement[s], were believed to have heightened intrusiveness because [the solicitor is] unable to 'interact with the customer except in preprogrammed ways").
+
+The definition of "personal and advertising injury" set forth in subsection (e) is not constrained to common-law tort recoveries, and this Court should decline the invitation to judicially impose one. Defendants' Motion, Exhibit B, pp 6-7. Judge Greene did not err in concluding that the Claimants were entitled, as a matter of law, to a declaratory judgment confirming that any TCP A recoveries awarded in the underlying litigation are covered under the Comprehensive General Liability Policy which Dandy-Jim had purchased from Motorists.
+
+II. THE TRIAL COURT FAILED TO ADDRESS THE ISSUE OF WHETHER IT IS AGAINST THE PUBLIC POLICY OF OHIO TO INSURE AGAINST A STATUTORY AWARD OF TREBLE DAMAGES.
+
+Motorists contends in the second Assignment of Error that even if the policy language provides coverage to Dandy-Jim for the consequences of the unlawful "junk fax" advertising campaign, Ohio "public policy" will permit the insurer to avoid having to indemnify the insured. Brief of Plaintiff-Appellant, pp. 27-30. Presumably, Motorists will still be entitled to keep the premiums which have been collected notwithstanding the unfulfilled promises that were made. The insurer's analysis in this regard rests entirely upon a few generic decisions involving demonstrations of malicious misconduct and awards of punitive damages. Id. No TCPA authorities have been cited which actually support this dubious proposition. Id.
+
+Damages awarded under the TCPA are remedial, not punitive, and the statutory amounts are "set to be fair." 137 Cong. Rec. S.16, 204, 16,205-6 (daily ed. Nov. 7, 1991). In enacting the TCP A statute, Congress designed a remedy that serves both to discourage the prohibited conduct and encourage victims to bring suit to address violations. Kenro, Inc. v. Fax Daily Inc, (S.D. Ind. 1997) 962 F.Supp. 1162, 1166. See also, Reiter v. Sonotone (1979),442 u.s. 330, 344, 99 S.Ct. 2326, 60 L.Ed.2d 931 ("damages in consumer protection statutes 'open the doors of justice for every man'''). Hence, any. damages awarded under the TCPA are inherently reasonable, and entirely within the coverage of the Motorists insurance contract. While it is conceivable that a truly egregious violation of the TCPA, 47 U.S.C. § 227, could result in fines and imprisonment upon a conviction under 47 U.S.C. § 501, the statute is properly viewed as remedial in all other instances. Terra Nova Ins. Co. v. Fray-Witzer (2007), 449 Mass. 406, 419-420, 869 N.E.2d 565, 575; Universal Underwriters, 300 F.Supp.2d, 888, 893-894; Hooters of Augusta, 272 F.Supp.2d at 1275-1376. Notably, the Claimants have not sought punitive damages in the underlying litigation. They have requested the TCPA's mandatory minimum damages in the amount of $ 500.00 per violation, or treble damages if the violation was found to have been committed "willfully or knowingly." 47 U.S.C. § 227(b)(3). Treble damages are not synonymous with punitive damages. Denoyer v. Lamb (1st Dist. 1984), 22 Ohio App.3d 136, 141,490 N.E.2d 615,620-621. In light of the fact that "malice" is not required for such relief under the TCPA, the federal enactment cannot be viewed as "penal." Western Rim, 269 F.Supp.2d at 849.
+
+Motorists has assured this Court that the "United States Supreme Court found treble damages to be a form of punitive damages" in Texas Industs., Inc. v. Radcliff Materials, Inc. (1981),451 U.S. 630, 101 S.Ct. 2061, 68 L.Ed.2d 500. Brief of Plaintiff-Appellant, p. 29. The insurer is seriously mistaken. That opinion makes no mention of "punitive damages" whatsoever. And the United States Supreme Court certainly did not suggest that public policy prohibited insurance coverage for treble awards.
+
+Judge Mary Jane Boyle examined the TCPA in this context in Jemiola, 126 Ohio Misc. 2d 68, 73. She observed with respect to the allowance for minimum statutory and treble damages available under 47 U.S.C. § 227 (b) (3) that:
+
+The definition of the term "willfully" is merely that the defendant acted voluntarily, under its own free will, and regardless of whether the defendant knew that it was acting in violation of the statute. See, e.g., Section 312(f)(1), Title 47, U.S. Code; Smith v. Wade (1983), 461 U.S. 30,41, 103 S.Ct. 1625, 75 L.Ed. 2d 632.
+
+Id. She thus deduced that the TCPA was a "remedial" law. Id. Neither malice nor a deliberate intent to injure is required for such recoveries. Id.
+
+Dandy-Jim may have committed a knowing and willful act, but there is no indication that the advertiser desired to break the law or harm the Claimants. The Supreme Court of Ohio has clarified that a "willful" or "knowing" violation of the TCP A is quite different than an intentional act.
+
+* * * We hold that to establish a willful violation of the TCP A for an award of treble damages, a plaintiff must prove that the defendant consciously and deliberately committed or omitted an act that violated the statute, irrespective of any intent to violate the law. In principle then, the two standards of "knowingly" and "willfully" within the TCPA do not differ. [emphasis added].
+
+Charvat v. Ryan, 116 Ohio St.3d 394, 400, 2007-Ohio-6833, 879 N.E.2d 765.
+
+It is simply fallacious for Motorists to assert that Ohio public policy prohibits insurance coverage for all types of "intentional" acts, because the doctrine only applies to those which involve a "direct intent" (i.e., malice) to cause injury or harm. Harasyn v. Normandy Metals, Inc. (1990),49 Ohio St. 3d 173, 176-177,551 N.E. 2d 962,965-966; Buckeye Union Ins. Co. v. New England Ins. Co., 87 Ohio St. 3d 280, 283, 1999-Ohio-67, 720 N.E. 2d 495, 498. Where the act, but not the harm, was deliberate, public policy does not compel a finding that the damages flowing from the intentional act were intended and non-compensable. Physicians Ins. Co. of Ohio v. Swanson (1991), 58 Ohio St.3d 189, 569 N.E.2d 906. Since no Civ. R. 56(E) compliant evidence was ever submitted even remotely suggesting that Dandy-Jim planned to inflict some sort of harm upon the Claimants, Ohio public policy therefore will not allow Motorists to escape the coverage obligation which is owed under the plain and ordinary terms of the Commercial General Liability Policy.
+
+CONCLUSION
+
+For the foregoing reasons, this Court should reject the two (2) Assignments of Error which have been asserted and affirm the final order of the Cuyahoga County Court of Common Pleas in all respects.
+
+Respectfully Submitted,
+
+Joseph R. Compoli, Jr. (per authority)
+
+Joseph R. Compoli Jr, Esq. (#0031193)
+
+James R. Goodluck (per authority)
+
+James R. Goodluck, Esq. (#041346)
+
+Attorneys for Defendant-Appellees
+
+/s/ [Signature]
+
+Paul W. Flowers, Esq., (#0046625)
+
+PAUL W. FLOWERS Co., L.P .A.
+
+CERTIFICATE OF SERVICE
+
+I hereby certify that a copy of the foregoing Brief has been sent by regular U.S. Mail, on this 24th day of November, 2008 to:
+
+Merle D. Evans, III, Esq.
+
+DAY KETTERER, LTD.
+
+Millennium Centre - Suite 300
+
+200 Market Avenue North
+
+PO Box 24213
+
+Canton, Ohio 44701-4213
+
+Attorneys for Plaintiff-Appellant
+
+David Kolick, Esq.
+
+KOLICK, GEORGEADIS & ERNEWEIN Co.,
+
+LPA
+
+15294 Pearl Road
+
+Strongsville 44136
+
+Attorney Defendant-Appellee, Dandy-Jim,
+
+Inc. dba Brookgate Tire & Auto Center
+
+/s/ [Signature]
+
+Paul W. Flowers, Esq., (#0046625)
+
+PAUL W. FLOWERS Co., L.P.A.
+
+Attorney for Defendant-Appellees, Kevin
+
+Chambers, et al.
+
+[SEE EXHIBIT C IN ORIGINAL]

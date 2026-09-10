@@ -1,0 +1,61 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Argument Gym mutation-study run result",
+  "description": "One record per fixture per condition. Kept separate from fixture.json: fixture.json is experimental truth and never changes after freeze; this is what a run observed.",
+  "type": "object",
+  "required": ["fixture_id", "condition", "run_id", "run_at", "attack_model", "target_detected"],
+  "additionalProperties": false,
+  "properties": {
+    "fixture_id": {"type": "string", "pattern": "^F[0-9]{3}$"},
+    "condition": {"enum": ["control", "mutant"]},
+    "run_id": {"type": "string", "description": "GymRun identifier, so the record can be traced to its artifacts"},
+    "run_at": {"type": "string", "format": "date-time"},
+    "repository_commit": {"type": "string"},
+
+    "attack_model": {"type": "string", "description": "model driving the opponent stage"},
+    "judge_model": {"type": "string"},
+    "unit_budget_chars": {"type": "integer"},
+    "units_omitted": {"type": "integer", "description": "must be equal for both conditions of a pair, or the pair is not comparable"},
+
+    "target_detected": {"type": "boolean", "description": "did any challenge name the proposition in gold.gold_vulnerability"},
+    "target_survived_judge": {"type": "boolean"},
+    "target_rank": {"type": ["integer", "null"], "description": "1-based rank among challenges; null when not detected"},
+
+    "match": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "challenge_id": {"type": "string"},
+        "adjudication": {"enum": ["target_match", "partial_match", "no_match"]},
+        "confidence": {"enum": ["high", "medium", "low"]},
+        "adjudicated_by": {"type": "string"},
+        "note": {"type": "string", "description": "why this challenge does or does not name the target proposition"}
+      }
+    },
+
+    "other_challenges": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "count": {"type": "integer"},
+        "valid": {"type": "integer"},
+        "invalid": {"type": "integer"},
+        "note": {"type": "string"}
+      }
+    },
+
+    "deterministic_findings": {
+      "type": "object",
+      "description": "the offline check suite, recorded so a difference there is not mistaken for an adversarial finding",
+      "properties": {
+        "pleading_form": {"type": "integer"},
+        "grammar": {"type": "integer"},
+        "confused_words": {"type": "integer"},
+        "court_format": {"type": "integer"}
+      }
+    },
+
+    "verdict": {"type": "string"},
+    "notes": {"type": "string"}
+  }
+}

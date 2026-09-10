@@ -1,0 +1,325 @@
+STATEMENT OF ASSIGNMENTS OF ERROR
+
+I. APPELLEE HAD STANDING TO PURSUE ITS CLAIMS IN THE TRIAL COURT. (R. 75)
+
+II. THE TRIAL COURT PROPERLY DECIDED APPELLEE'S MOTION FOR JUDGMENT ON THE PLEADINGS. (R. 75)
+
+III. THE TRIAL COURT PROPERLY GRANTED APPELLEE'S MOTION FOR SUMMARY JUDGMENT. (R. 93)
+
+IV. THE TRIAL COURT PROPERLY DENIED APPELLANTS' MOTION FOR JUDGMENT NOTWITHSTANDING THE VERDICT AND FOR A NEW TRIAL. (R. 186)
+
+V. THE TRIAL COURT PROPERLY ALLOWED THE JURY TO DECIDE PUNITIVE DAMAGES AND THE JURY PROPERLY DECIDED THOSE DAMAGES.
+
+STATEMENT OF ISSUES PRESENTED FOR REVIEW
+
+1. Does a plaintiff who acquires title to property under a Sheriffs deed that has a scrivener's error obtain marketable title to the property pursuant to R.C. §5301.07 and thereby have standing to pursue claims related to the property? (Assignment of Error I)
+
+2. Does a trial court properly grant a motion for judgment on the pleadings when the pleadings demonstrate no factual issues on the relief requested? (Assignment of Error II)
+
+3. Does a trial court properly grant summary judgment when a plaintiff establishes that there are no genuine issues of material fact and the plaintiff is entitled to judgment as a matter of law, especially when the defendant does not respond to the motion or submit any evidence in opposition to the motion? (Assignment of Error III)
+
+4. Does a trial court properly deny a motion for judgment notwithstanding the judgment and motion for new trial when the movant fails to establish any grounds for relief under Civ. R. 50 and 59? (Assignment of Error IV)
+
+5. Is it proper for a claim for punitive damages to proceed to the jury when the jury has granted compensatory damages on claims of fraud and slander of title, and the record contains evidence on which the jury could find malice and ill will? (Assignment of Error V)
+
+STATEMENT OF THE CASE
+
+Appellee's Complaint was filed on July 6, 2017, requesting in part that the trial court declare that the Mechanic's Liens recorded by Appellants as Instrument Nos. 201704100047916, 201704100047917, and 201704100047918 to be void and quieting title in favor of Appellee and against Appellants. See Counts One and Four of Appellee's Complaint. R.4. Appellee's Complaint also alleged claims for slander of title and fraud. See Counts Two and Three of Appellee's Complaint. R.4.
+
+Appellee filed a Motion for Partial Judgment on the Pleadings on August 30, 2017, requesting that the trial court grant Judgment in favor of Appellee on Counts One and Four of Appellee's Complaint. R. 35. The trial court granted Appellee's Motion for Judgment on the Pleadings on July 17, 2019, on which no appeal was filed. R. 75. The Mechanic's Liens were subsequently released of record pursuant to a subsequent Order filed on August 22, 2019, R. 88, and recorded in the Franklin County Recorder's Office on August 28, 2019.
+
+Appellee filed a Motion for Summary Judgment on its claims and on all of Appellants' claims on April 12, 2018. R. 52. The trial court partially granted Appellee's Motion for Summary Judgment on September 17, 2019, finding Appellants liable on Appellee's claims of slander of title and fraud and dismissing Appellants' claim of conversion, but not their claim of unjust enrichment. R. 93.
+
+This matter came on for jury trial on December 9, 2019. On December 12, 2019, the jury found that Appellee was not liable to Appellants on their claim of unjust enrichment. R. 168. The jury awarded compensatory damages to Appellee on the fraud and slander of title claims in the amount of $ 32, 000.00, plus punitive damages in the amount of $ 11, 300.00, and attorney's fees. R. 168, 170.
+
+On December 18, 2019, Appellants filed a Motion for Judgment Notwithstanding the Verdict and New Trial. R. 181. Appellee filed a Memorandum in Opposition on December 27, 2019. R. 183. Appellants filed a Reply on January 7, 2020. R. 184. Appellee filed a Surreply on January 8, 2020. R. 185. The trial court denied Appellants' Motion on January 23, 2020. R. 186.
+
+Appellants appealed the trial court's decision to this Court in 20- AP-98 on February 13, 2020. R. 189. On March 31, 2020, this Court dismissed the appeal because it was not based on a final appealable order. See Journal Entry, 20-AP-98, filed March 31, 2020. R. 200.
+
+The trial court scheduled a hearing to determine attorney's fees in this matter. The trial court vacated the hearing because the parties reached an agreement for the amount of attorney's fees on August 13, 2020. The trial court entered the final appealable order on August 24, 2020. R. 212. Appellants filed their Notice of Appeal on August 26, 2020. R. 223.
+
+STATEMENT OF FACTS
+
+This case springs from a third-party foreclosure and its subsequent proceedings. Huntington National Bank foreclosed on real property owned by Gregory S. Poole and Karla D. Poole (the "Pooles") located at 3774 Washburn Street, Whitehall, Ohio 43213 (the "Property") in Franklin County Common Pleas Court Case No. 16 CV 010934. R. 52. The foreclosure action was filed on November 17, 2016. R. 52. Thereafter, the Property went to a Sheriff's Sale. R. 52. Appellee purchased the Property at a Sheriff's Sale on March 31, 2017, and the Sheriff's Sale was confirmed. R. 52.
+
+Appellee obtained title to the Property pursuant to a Sheriff's Deed recorded on May 16, 2017, as Instrument No. 201705160065349. R. 52. While the Sheriff's Deed contained a scrivener's error with regards of the name of the Sheriff in the Notary block, said error was corrected by the filing of an Affidavit of Matters Relating to Title, recorded on October 10, 2017, as Instrument No. 201710100141168. R. 52.
+
+On April 10, 2017, Appellant Brian K. Woods (hereinafter Appellant "Woods"), acting individually and on behalf of Appellant Metropolitan Community Services, Inc. (hereinafter Appellant "Metropolitan"), filed three (3) Affidavits for Mechanic's Lien against the Property, asserting that he entered into three (3) separate contracts for work at the Property, one contract with Realty Executives, one contract with Huntington National Bank, and one contract with the Pooles. R. 52. However, Appellants admitted that they had no contract with Realty Executives. R. 52. Appellants further admitted that they had no contract with Huntington National Bank. R. 52. While Appellants denied that they had no contract with the Pooles to perform work, Appellants failed to produce any contract or document in discovery to establish the existence of a contract for work, at some value, and containing any terms for the work. R. 52.
+
+The Affidavits for Mechanic's Liens also assert, at different locations, that Realty Executives was the owner of the Property, Huntington National Bank was the owner of the Property, and that Karla Poole was the owner of the Property. R. 52. All of those allegations are either false or legally insufficient. The true owner of the Property at the time of recording was a matter of public record and easily ascertainable, i.e. Gregory S. Poole and Karla D. Poole.
+
+Appellants admitted in their Answers that the first work was performed on December 1, 2016, after the Us pendens date. R. 30. Appellants additionally admitted this fact in their Responses to Requests for Admissions. R. 53, 54.
+
+Appellee had no knowledge that Appellants alleged to be doing work at the Property until after Appellee obtained ownership of the Property. R. 52. Appellee made no interior inspection of the Property prior to the Sheriff's Sale. R. 52. Realty Executives did not enter into any contract with Appellants for work at the Property. R. 52. The alleged work done by Appellants was of no benefit or value to Appellee, and in fact most of the alleged work described by Appellants was actually a detriment to the Property and to Appellee. R. 52.
+
+At no time did Appellee convert any asset belonging to Appellants. R. 52. Appellee never took possession of the Property until after the Sheriff's Sale, and then only after eviction proceedings were commenced. R. 52. Appellee never possessed any property belonging to Appellants. R. 52. Appellee paid value for the Property at the Sheriff's Sale, and only took possession after the payment of value, delivery of a Deed, and the occupants vacating the Property. R. 52. 1
+
+ARGUMENT
+
+Introduction
+
+An appellate court review of a grant of summary judgment is de novo. Dupler v. Mansfield Journal Co., Inc., 64 Ohio St.2d 116, 413 N.E.2d 1187 (1980); Brewer v. Cleveland Bd. of Ed., 122 Ohio App.3d 378, 383, 701 N.E.2d 1023 (1997). De novo review requires that this Court review the trial court's judgments independently and without deference to it. Brown v. County Commrs., 87 Ohio App.3d 704, 622 N.E.2d 1153 (1993).
+
+An appellate court's review of a grant of judgment on the pleadings is de novo. RotoSolutions, Inc. v. Crane Plastics Siding, LLC, 2013-Ohio-4343, SI 13 (10th Dist.) (citing Franks v. Ohio Dept, of Rehab. & Corr., 145 Ohio App. 3d 114, 2011-Ohio-2048, j[ 5, 95 8 N.E. 2d 1253 (10th Dist.).
+
+An appellate court reviews a denial of a motion notwithstanding the verdict de novo. Kenner v. Grant/Riverside Med. Care Found., 2017- Ohio-1349, SI 22 (10th Dist.). A denial of a motion for new trial is reviewed under an abuse of discretion standard. Id.
+
+Appellant Metropolitan has not challenged any determinations made by the jury, i.e. the jury's award or amount of compensatory damages, the jury's determination that Appellee was entitled to punitive damages and attorney's fees, or the jury's determination of the amount of punitive damages awarded. Furthermore, Appellants do not challenge the trial court's ruling on Appellants' claim of conversion, or the jury's determination that Appellants' claim of unjust enrichment was without merit.
+
+I. APPELLEE HAD STANDING TO PURSUE ITS CLAIMS IN THE TRIAL COURT.
+
+In its Brief, Appellant Metropolitan argues that Appellee lacked standing to proceed in the underlying matter because it lacked standing at the time Appellee filed its Complaint. Appellant Metropolitan's argument is based on the allegation that Appellee lacked marketable title at the time it filed the Complaint. Appellant Metropolitan's premise is unsupported by the facts and the law.
+
+A party has standing to invoke the jurisdiction of the court when that party has a real interest in the subject matter of the action. State ex rel. Dallman v. Court of Common Pleas, 35 Ohio St. 2d 176, 179 (1973). Standing is determined at the commencement of the lawsuit. Mousa v. Mount Carmel Health Sys., 2013-Ohio-2661, f 12(10th Dist.).
+
+R.C. §5301.07 provides as follows:
+
+(A) As used in this section, "real property instrument" means a deed, mortgage, and installment contract, lease, memorandum of trust, power of attorney, or any instrument accepted by the county recorder under section 317.08 of the Revised Code.
+
+(B)
+
+(1) When a real property instrument is delivered to and accepted by the county recorder of the county in which the real property is situated, and is signed and acknowledged by a person with an interest in the real property that is described in the instrument, the instrument raises both of the following:
+
+(a) A rebuttable presumption that the instrument conveys, encumbers, or is enforceable against the interest of the person who signed the instrument;
+
+(b) A rebuttable presumption that the instrument is valid, enforceable, and effective as if in all respects the instrument was legally made, executed, acknowledged, and recorded.
+
+(2) The presumptions described in division (B)(1) of this section may be rebutted by clear and convincing evidence of fraud, undue influence, duress, forgery, incompetency, or incapacity.
+
+The import of R.C. §5301.07 is that the Sheriff's Deed is a valid, enforceable and effective Deed in all respects, and was so at the time it was recorded.
+
+Many courts have held that a purchaser at a judicial sale has an interest in the property effective from the sale date. Freedom Mortgage Corp. v. Milhoan, 2014 Ohio 881; Ohio Savings Bank v. Ambrose, 56 Ohio St.3d 53 (1990); Mid-America National Bank v. Heiges, 1994 Ohio App. LEXIS 5145.
+
+The Court, in Centr. Mortg. Co. v. Seye, 2017-Ohio-8713, f 40
+
+(10th Dist.), held:
+
+Under Ohio law, the acknowledgement of an instrument "is not th same as the instrument itself." Seabrooke v. Garcia, 1 Ohio App. 3d 167, 169, 7 Ohio. B. 212, 454 N.E. 2d 961 (9th Dist. 1982). The Supreme Court of Ohio has noted that the acknowledgement required by R.C. § 5301.01 "is for the purpose of affording proof of the due execution of the deed by the grantor, sufficient to authorize the register of deeds to record it." Basil v. Vincello, 50 Ohio St. 3d 185, 188, 553 N.E. 2d 602 (1990). Further, "a defectively executed conveyance of an interest in land is valid as between the parties thereto, in the absence of fraud." Id at 188-189, quoting Citizens Nat'l Bank v. Denison, 165 Ohio St. 89, 95, 133 N.E. 2d 329 (1956).
+
+Appellee purchased the Property at issue in a Sheriff's Sale on March 31, 2017. The real property instrument - in this case, a deed - was recorded in the Franklin County Recorder's Office on May 16, 2017 as Instrument No. 201705160065349. When the Recorder's Office accepted the Deed, it created a rebuttable presumption that the instrument was valid, enforceable and effective. The law also supports that Appellee had a rebuttable presumption of an enforceable title from May 16, 2017. Appellee filed its Complaint on July 6, 2017, well after the date it acquired an interest in the real property.
+
+Appellant Metropolitan's argument is predicated on the fact that the original notary block on the Deed states the name of the prior Franklin County Sheriff. The Sheriff's Deed had been prepared by the Cincinnati attorney for plaintiff in the foreclosure action. In fact, the notary witnessed the current Franklin County Sheriff sign the Deed, and the notary block used prior language. Upon realizing the error, Appellee (even though Appellee had nothing to do with the preparation of the Deed) obtained and filed with the Franklin County Recorder the notary's affidavit that she witnessed the current Franklin County Sheriff sign the Deed and that the notary block misnamed the prior Sheriff.
+
+Appellant Metropolitan cites to portions of R.C. § 5301.07 that are inapplicable to this matter. R.C. § 5301.07(C) provides that after four years, a deed does not need to be corrected for scrivener's errors. As identified in R.C. § 5301.07(C), these types of errors include an instrument not properly witnessed, a lack of certificate of acknowledgment, a defective certificate of acknowledgment, or a missing name in the granting clause where the grantor did sign the instrument.
+
+Appellant Metropolitan asserts that the language of R.C. § 5301.07 states that a mistake in the deed requires correction if discovered within four years of recording. Appellant's proposition is not supported by the plain language of the statute. Nothing in R.C. § 5301.07 suggests that a deed is defective if that mistake is found prior to four years. In fact, the statute sets out the reverse: an instrument is effective, even with these errors, after four years.
+
+It does not follow that a scrivener's error on the Deed creates a lack of standing to sue. Appellee acquired a real property interest when the Deed was recorded on May 16, 2017. The holding in Centr. Mortg. Co., supra, supports that the defective acknowledgement does not destroy the validity of the document itself absent a showing of fraud.
+
+Appellant Metropolitan has not raised any argument in this Court or the trial court that the Deed resulted from fraud, undue influence, duress, forgery, incompetency, or incapacity. Nor has Appellant Metropolitan suggested that someone in the Franklin County Sheriff's Office forged the Sheriff's signature.
+
+Appellant has not brought clear and convincing evidence under R.C. § 5301.07(B)(2) to refute the rebuttable presumption that the Deed at issue is an enforceable real property instrument. Appellant has not even suggested that the Deed is unenforceable due to fraud, undue influence, duress, forgery, incompetency, or incapacity.
+
+Appellant essentially asks this Court to hold Appellee responsible for a mistake Appellee did not commit. Appellant asks this Court to rule against numerous cases, including Centr. Mortg. Co., supra, and hold that recorded documents must be letter-perfect in order to be enforceable. Such a holding would upend years of law on the subject of deeds and mortgages. In short, Appellant's arguments are unsupported by fact and law and its first Assignment of Error should be denied.
+
+II. THE TRIAL COURT PROPERLY DECIDED APPELLEE'S MOTION FOR JUDGMENT ON THE PLEADINGS.
+
+Appellant's second assignment of error alleges that the trial court improperly decided Appellee's Motion for Judgment on the Pleadings, because Appellee lacked standing and failed to satisfy the elements of a quiet title proceeding. The trial court properly determined Appellee's Motion for Judgment on the Pleadings based on the facts and law.
+
+Rule 12(C), Ohio Rules of Civil Procedure, provides that "[a]fter the pleadings are closed but within such time as not to delay the trial, any party may move for judgment on the pleadings, " In evaluating a motion for judgment on the pleadings, a trial court "must accept material allegations in the pleadings and all reasonable inferences as true" and a movant succeeds only "if it appears beyond doubt that the [nonmovant] cannot prove any set of facts entitling them to the requested relief." Dottore v. Vorys, 2012 Ohio Mise. LEXIS 142, 32-33.
+
+The Ohio Us pendens statute, R.C. § 2703.26, states that:
+
+When a complaint is filed, the action is pending so as to charge a third persons with notice of its pendency. While pending, no interest can be acquired by third persons in the subject of the action, as against the plaintiff's title.
+
+The Court in Wheeling Corp. v. Columbus, 147 Ohio App. 3d 460, 482, 2001 Ohio 8751, 771 N.E.2d 263 (10th Dist., Franklin Co. 2001), held as follows:
+
+While the doctrine of Us pendens does not prevent parties from transacting an interest in property subject to litigation, the doctrine does place any such conveyed interest at risk and subject to the final outcome of litigation.
+
+Wheeling Corp. v. Columbus, supra, citing Martin, Rochford & Durr v. Lawyers Title Ins. Corp. (1993), 86 Ohio App. 3d 20, 619 N.E. 2d 1130.
+
+The Court in Buckner v. Bank of N.Y., 2014-Ohio-5 68, 29-32 (12th
+
+Dist., Clermont Co.) held as follows:
+
+Lis pendens, which literally translates as "a pending lawsuit" is codified in R.C. 2703.26:
+
+When a complaint is filed, the action is pending so as to charge a third person with notice of its pendency. While pending, no interest can be acquired by third persons in the subject of the action, as against the plaintiff's title.
+
+"Lis pendens prevents third parties who claim to have 'acquired an interest' in the property, after service and during the pendency of the foreclosure action, from challenging the trial court's judgment." Bates v. Postulate Invests., L.L.C., - 176 Ohio App. 3d 523, 2880-Ohio-2815, 3(16, 892 N.E. 2d 937 (8th Dist.). While the doctrine does not prevent persons from transacting an interest in the property during the pending lawsuit, it "places any such conveyed interest at risk and notifies the parties that they 'are bound' by the decree and sale thereunder." Id.; Cincinnati ex rel. Ritter v. Cincinnati Reds, L.L.C., 150 Ohio App. 3d 728, 2002-Ohio- 7078, P30, 782 N.E. 2d 1225 (1st Dist.). Thus, one who acquires an interest in the property during the pending lawsuit "takes subject to the judgment or decree, and is as conclusively bound by the result of the litigation as if he had been a party thereto from the outset." Cook v. Mozer, 108 Ohio St. 30, 36, 1 Ohio Law Abs. 436, 1 Ohio Law Abs. 845, 140 N.E. 590 (1923). "The purpose of lis pendens is to protect the plaintiff's interest in the subject property." hins Mtge. Corp. v. DuPee, 197 Ohio App. 3d 177, 2012-Ohio- 1594, P10, 966 N.E.2d 315 (12th Dist.).
+
+In Ohio, a foreclosure proceeding is considered pending through the final decree and until the interest in the property in question has been foreclosed and the property sold. Martin, Rochford and Durr v. Lawyer's Title Ins. Corp., 86 Ohio App. 3d 20, 22-23, 619 N.E. 2d 1130 (9th Dist. 1993).
+
+In the case at bar, Bank of New York filed its foreclosure action against Blanton on March 25, 2008. Lis pendens attached at that time. As stated earlier, the sheriff's sale of the property was set for January 2013. When appellant acquired an interest in the property via a quitclaim deed on February 1, 2012, the appeal of the decree in foreclosure was pending and lis pendens remained in effect. Consequently, as a third-party who obtained an interest in the property at his peril during the pendency of the foreclosure action, appellant is bound by the trial court's foreclosure action and the sale of the property. See In re Seymour, 442 B.R. 652, 658 (Bankr. S.D. Ohio 2010) (finding that notwithstanding Chapter 7 trustee's allegation that the mortgage was fatally defective, trustee, who had taken an interest in the property after debtors had filed their bankruptcy petition and while foreclosure action against debtors was pending, took subject to Countrywide's interest in the property, irrespective of the allegedly defective mortgage, and was bound by the trial court's foreclosure decree and the subsequent sale of the property); Bates, 176 Ohio App. 3d 523, 2008-0hio-2815, 892 N.E. 2d 937.
+
+An admission in a pleading dispenses with proof and is equivalent to proof of the fact. J. Miller Express, Inc. v. Pentz, 107 Ohio App. 3d. 44, 667 N.E. 2d 1018, 1995 Ohio App. LEXIS 4736 (1995).
+
+First, if this Court determines that Appellant Metropolitan's first assignment of error is without merit, then Appellee had enforceable title to the Property and was able to establish that it was entitled to bring a quiet title action. For the reasons explained above, Appellee asserts that it did have enforceable title to the Property. Additionally, Appellee was in possession of the Property at the time the Complaint was filed.
+
+Here, Appellants, in their Answer, admitted that the first date of work identified in its Mechanic's Liens was December 1, 2016. R. 30. The filing date for Case No. 16CV010934 was November 16, 2016. It can be judicially determined that the lis pendens date for Case 16CV010934 was November 16, 2016. After November 16, 2016, lis pendens stands for the proposition that parties engaging in transactions with the current property owner do so with knowledge that the transaction is subject to the final outcome of the litigation.
+
+Lis pendens does not require actual notice. Lis pendens is the date from which any person or entity is on constructive notice - that is, that due diligence prior to a transaction would turn up the pending legal matter. Lis pendens does not belong to any one party, but may be used by any entity as the date by which the public at large is on notice of a potential dispute on the title.
+
+Appellants admitted facts in their Answer which made clear that they attempted to acquire an interest in the real property after the date the foreclosure Complaint was filed. Appellants were on notice that their attempt to acquire an interest was subject to the final outcome of the foreclosure litigation. Accordingly, the trial court properly determined that Appellants Mechanic's Liens were filed after the Us pendens date.
+
+Because the Mechanic's Liens were filed after the Us pendens date, Appellant Metropolitan was prohibited from acquiring an interest in the real property as against Appellee's interest. The trial court properly found that no issues of law remained and that Appellee was entitled to judgment as a matter of law quieting title to the Property in favor of Appellee and a declaratory judgment that the Mechanic's Liens were void.
+
+"[I]t is a well-established principle of law that a satisfaction of judgment renders an appeal from that judgment moot." Blodgett v. Blodgett, 49 Ohio St. 3d 243, 245 (1990). Capitol Communs., Inc. v. GBS Corp., 2010 Ohio 5964 (10th Dist.). "A party has acted voluntarily in satisfying a judgment when the party fails to obtain a stay of the trial court's judgment pending appeal." Art's Rental Equip, v. Bear Creek Constr., 2012 Ohio 5371 (1st Dist.) (citations omitted).
+
+Appellants failed to seek a stay of or appeal the trial court's Order granting Appellee's Motion for Judgment on the Pleadings. Appellee proceeded to enforce that Order by recording an Order in the Franklin County Recorder's Office, thereby effectively releasing the Mechanic's Liens.
+
+Appellants' current arguments are moot and/or have been waived. The trial court awarded a remedy on Counts One and Four of the Complaint. That remedy has now been enforced. The liens have been released. Any issue in that regard is now moot, and Appellants have waived any issue in that regard.
+
+III. THE TRIAL COURT PROPERLY GRANTED APPELLEE'S MOTION FOR SUMMARY JUDGMENT.
+
+Appellant Metropolitan alleges that the trial court improperly granted summary judgment to Appellee because Appellee failed to prove it was entitled to judgment on its claims for fraud and slander of title. Appellant Metropolitan first alleges that standing bars Appellee's right to summary judgment; Appellee disputes this position as outlined previously. Appellant Metropolitan does not raise any argument that the Court improperly granted summary judgment in Appellee's favor with regard to Appellant Metropolitan's counterclaim for conversion.
+
+Since Appellant Metropolitan failed to timely file a response to Appellee's Motion for Summary Judgment, and the trial court did not consider any argument or evidence on behalf of Appellant Metropolitan, to the extent Appellant Metropolitan asserts any argument in this matter that was not asserted in the trial court, that argument should be rejected by this Court.
+
+Civ. R. 56(C) provides, in relevant part, as follows:
+
+The motion together with all affidavits and other materials in support shall be served in accordance with Civ. R. 5. Responsive arguments, together with affidavits and other materials in opposition, and a movant's reply arguments may be served as provided by Civ. R. 6(C). Summary judgment shall be rendered forthwith if the pleadings, depositions, answers to interrogatories, written admissions, affidavits, transcripts of evidence, and written stipulations of fact, if any, timely filed in the action, show that there is no genuine issue as to any material fact and that the moving party is entitled to judgment as a matter of law. No evidence or stipulation may be considered except as stated in this rule. A summary judgment shall not be rendered unless it appears from the evidence or stipulation, and only from the evidence or stipulation, that reasonable minds can come to but one conclusion and that conclusion is adverse to the party against whom the motion for summary judgment is made, that party being entitled to have the evidence or stipulation construed most strongly in the party's favor. A summary judgment, interlocutory in character, may be rendered on the issue of liability alone although there is a genuine issue as to the amount of damages.
+
+Civ. R. 56(E) provides as follows:
+
+Supporting and opposing affidavits shall be made on personal knowledge, shall set forth such facts as would be admissible in evidence, and shall show affirmatively that the affiant is competent to testify to the matters stated in the affidavit. Sworn or certified copies of all papers or parts of papers referred to in an affidavit shall be attached to or served with the affidavit. The court may permit affidavits to be supplemented or opposed by depositions or by further affidavits. When a motion for summary judgment is made and supported as provided in this rule, an adverse party may not rest upon the mere allegations or denials of the party's pleadings, but the party's response, by affidavit or as otherwise provided in this rule, must set forth specific facts showing that there is a genuine issue for trial. If the party does not so respond, summary judgment, if appropriate, shall be entered against the party.
+
+Civ. R. 56(C) allows the Court to grant summary judgment where no genuine issue as to any material fact remains to be litigated, the moving party is entitled to judgment as a matter of law, and reasonable minds can only reach a conclusion that is adverse to the non-movant, who is entitled to have the evidence construed most strongly in his favor. State ex rel. Grady v. SERB, 78 Ohio St.3d 181, 183, 677 N.E.2d 343 (1997). To prevail on a motion for summary judgment, the movant carries the initial burden to inform the Court of the basis for the motion and to cite to the portions of the record supporting his claim that no genuine issue of fact exists for trial. Dresher v. Burt, 75 Ohio St.3d 280, 293-294, 662 N.E. 2d 264 (1996). In responding, the non-movant may not rest upon allegations in the pleadings but must present, by affidavit or other appropriate materials, evidence demonstrating the existence of genuine issues of fact for trial. Jackson v. Alert Fire & Safety Equip., Inc., 58 Ohio St.3d 48, 567 N.E.2d 1027 (1991).
+
+Slander of title to real estate is a tort action against one who maliciously defames title to property and causes pecuniary damages or loss. Childers v. Commerce Mortg. Inv., 63 Ohio App. 3d 389, 392 (9th Dist., Summit Co. 1989), 579 N.E. 2d 219. The malice does not need to be personal hatred; an act is malicious if made in reckless or wanton disregard of the rights of another. Consun Food Indus, Inc. v. Fowkes, 81 Ohio App. 3d 63, 72 (9th Dist., Lorain Co. 1991), 610 N.E. 2d 463. Slander of title to real estate involves the wrongful recording of an unfounded claim, such as a mechanic's lien, to the property of another. Green v. Lemarr, 139 Ohio App. 3d 414, 433 (2000), 744 N.E. 2d 212.
+
+Fraud consists of six elements: a representation of a fact, which is material, made falsely - either with knowledge of its falsity or utter disregard and recklessness as to falsity - with an intent to mislead, with justifiable reliance thereupon, and a resulting injury. Tokies & Son, Inc. v. Midwestern Indem. Co., 65 Ohio St. 3d 621, 631 (1992); Chemical Bank of New York v. Neman, 52 Ohio St. 3d 204, 208 (1990) (citing Cohen v. Lamko, Inc., 10 Ohio St. 3d 167, 169 (1984)). In order to establish a claim for fraud, Appellee must establish each of the following elements: (1) a representation or, where there is a duty to disclose, concealment of a fact, (2) which is material to the transaction at hand, (3) made falsely, with knowledge of its falsity, or with such utter disregard and recklessness as to whether it is true or false that knowledge may be inferred, (4) with the intent of misleading another into relying upon it, (5) justifiable reliance upon the representation or concealment, and (6) a resulting injury proximately caused by the reliance. Apple v. Coffman, 1996 Ohio App. LEXIS 2097, *8 (5th Dist., Fairfield Co. 1996) (citing Burr v. Stark Cty. Bd. Of Commrs., 23 Ohio St. 3d 69, 491 N.E.2d 1101, paragraph two of the syllabus (1986)).
+
+The "transaction at hand" has been interpreted to mean that the fraud must predate the filing of the complaint. Schiff v. Dickson, 8th Dist. Cuyahoga No. 96539 and 96541, 201 l-Ohio-6079, P 20; OneWest Bank v. Ruth, Ct. of C.P. No. CV2[TEXT REDACTED IN ORIGINAL SOURCE]2014 Ohio Mise. LEXIS 2, * 35-36. A fact is material if it is likely, under the circumstances, to affect the conduct of a reasonable person with reference to the transaction. State ex rel. SCB, Inc. v. Sheesley, 10th Dist. Franklin No. 07AP-400, 2008-Ohio-798, P 35. A recorded mechanic's lien can be the basis for a claim for fraud where the party knew that statements in the mechanic's lien were false. McClure v. Fischer Attached Homes, 145 Ohio Mise. 2d 38 (Clermont Co. 2007).
+
+Appellee filed its Motion for Summary Judgment on April 12, 2018. R. 52. On August 1, 2019, more than a year after the original Memorandum in Opposition was required, Appellants asked for an extension to file until August 11, 2019. R. 84. On August 13, 2019, two days after that extension deadline, Appellants asked for an additional extension until August 27, 2019. R. 8 6. On August 28, 2019, yet again after the requested deadline, Appellants filed a Memorandum in Opposition to Appellee's Motion for Summary Judgment, out of rule. R. 89.
+
+In its ruling, the Court found that Appellants needed to show excusable neglect for filing out of rule and that Appellants failed to demonstrate excusable neglect, a ruling not challenged by Appellants on appeal. The Court granted Appellee's claims for slander of title and fraud and granted judgment as a matter of law in favor of Appellee on Appellant Metropolitan's claim for conversion.
+
+In its Motion for Summary Judgment, Appellee demonstrated that it was entitled to summary judgment on its claims of fraud and slander of title. Appellee provided evidence of the recorded date of the Mechanic's Liens and the lis pendens date for the related foreclosure, which is additionally explained, supra, in this Brief. Appellee provided evidence that Appellants' conduct was done recklessly and wantonly with regard to Appellee's rights. Appellee provided evidence that the incurrence of damages was reasonably expected as a result of Appellants' actions, the amount of which would be specifically determined at trial. In short, Appellee provided evidence to demonstrate that it was entitled to judgment as a matter of law on its claims for fraud and slander of title.
+
+Appellee also provided evidence that Appellants recorded three (3) Affidavits which falsely stated that Appellant Metropolitan had contracts with third parties and Appellant Metropolitan was owed money. R. 52. Appellee filed Appellant Metropolitan's Request for Admissions, which contained evidence that Appellant Metropolitan knew that it had recorded Affidavits which contained false statements. R. 53. Appellee provided undisputed evidence that Appellant Metropolitan's intent in filing the false Mechanic's Liens Affidavits was to mislead Appellee and others in the attempt to receive monetary payment. R. 52. 2 Appellee provided evidence that reliance on recorded Affidavits was justifiable and the incurrence of damages was reasonably expected. R. 52.
+
+Appellant Metropolitan premises its argument that there was no fraud because no representation was made in a transaction. However, this argument is unsupported by a plain reading of the law. The representations made in this matter were the representations made as a result of a real estate transaction, from Sheriffs Sale to the recording of the Deed, and to the public, in the form of three (3) recorded Mechanic's Lien Affidavits. The transaction in this matter is the transfer of title and deeds and the interruption of free property rights that occurred when Appellant Metropolitan filed false Mechanic's Liens. Appellee provided evidence in its Motion for Summary Judgment that Appellee did not receive clear title to the Property, and as a result thereof the incurrence of damages was reasonably expected. R. 52. In fact, at trial, Appellee's witness, Matt Beckett, provided extensive credible testimony about the damages that Appellee incurred. See R. 289, pp. 362-387. Appellants' argument is without merit.
+
+Appellant Metropolitan also asserts that it was prejudicial that the jury was told that Appellants committed fraud. This allegation is unsupported in the trial transcript. The Court instructed the jury at multiple points, not that Appellants had committed fraud, but that the Court had found Appellants liable to Appellee for fraud. See R. 287, p. 45; R. 287, p. 46; R. 290, p. 524. Any time or instance the Court said Appellants committed fraud is not only consistent with the Court's findings, it is wholly outweighed by the number of times the Court stated Appellants' liability with precision.
+
+Appellee demonstrated that it was entitled to summary judgment on its claims for slander of title and fraud. Appellee put forward evidence to demonstrate that no genuine issue of material fact remained and that it was entitled to judgment as a matter of law. Appellant's assertions that Appellee failed to meet its burden is without merit, and its allegation that Appellee lacked marketable title is unsupported by the law. In conclusion, Appellee's third assignment of error should be denied.
+
+IV. THE TRIAL COURT PROPERLY DENIED APPELLANTS' MOTION FOR JUDGMENT NOTWITHSTANDING THE VERDICT AND FOR A NEW TRIAL.
+
+Appellant Metropolitan argues that, after determining summary judgment, that the jury should not have been told that Appellants were found liable for fraud. Appellant Metropolitan relies on prior assertions that Appellee lacked marketable title and that there was no representation made between the parties, and as a result, the jury was improperly instructed.
+
+Ohio Civ. 59 states, in relevant part, as follows:
+
+(A) Grounds for new trial. A new trial may be granted to all or any of the parties and on all or part of the issues upon any of the following grounds:
+
+(1) ' Irregularity in the proceedings of the court, jury, magistrate, or prevailing party, or any order of the court or magistrate, or abuse of discretion, by which an aggrieved party was prevented from having a fair trial.
+
+(9) Error or law occurring at the trial and brought to the attention of the trial court by the party making the application.
+
+The Court in First Bank of Marietta v. Mascrete, Inc., 79 Ohio St. 3d 503 (1997), held:
+
+In L.A. & D.f Inc. v. Lake Cty. Bd. of Commrs. (1981), 67 Ohio St. 2d 384, 21 Ohio Op. 3d 242, 423 N.E. 2d 1109, we held that "a summary judgment proceeding is not a trial but rather is a hearing upon a motion." Id. at 3 87, 21 Ohio Op. 3d at 243, 423 N.E. 2d at 1111.
+
+The Court in Gagliano v. Jihad Kaouk, 2012 Ohio 1047 (8th District, Cuyahoga Co. 2012), held:
+
+To obtain a new trial on grounds of misconduct or irregularities at trial, the movant must establish the presence of serious irregularities in the proceedings that deprived the party of a fair trial, such as those that "could have a material adverse effect on the character of and public confidence in judicial proceedings." Wright v. Suzuki Motor Co., 4th Dist. No. 03CA2, 2005 Ohio 3494, 1114; see also Meyer v. Srivastava, 141 Ohio App. 3d 662, 752 N.E. 2d 1011 (2d Dist. 2001); Mullins v. Inderbitzen, 6th Dist. No. L-03-1121, 2004 Ohio 1658.
+
+"'[A litigant] is entitled to a fair trial but not a perfect one, ' for there are no perfect trials." Grujtdy v. Dhillon, 120 Ohio St. 3d 415, 2008 Ohio 6324, 900 N.E. 2d 153, 130, quoting McDonough Power Equip., Inc. v. Greenwood, 464 U.S. 548, 553, 104 S. Ct. 845, 78 L. Ed. 2d 663 (1984).
+
+The Court in Wolf-Sabatino v. Sabatino, 2012 Ohio 6232 (10th Dist., Franklin Co. 2012) held:
+
+Under the doctrine of invited error, an appellant cannot attack a judgment based on error the appellant induced the court to commit or for which the appellant is actively responsible. In re J.B., 10th Dist. No. 11AP-63, 2011 Ohio 3658, 3110, citing Daimler/Chrysler Truck Fin. v. Kimball, 2d Dist. No. 2007-CA-07, 2007 Ohio 6678, i[40, citing 5 Ohio Jurisprudence 3d, Appellate Review, Section 448, at 170-71 (1999, Supp. 2007). Under this principle, a party may not complain about an action taken by the court in accordance with the party's own suggestion or request. Id.
+
+Ohio Civil Rule 50(B)(1) states, in relevant part, as follows:
+
+Whether or not a motion to direct a verdict has been made or overruled a party may serve a motion to have the verdict and any judgment entered thereon set aside and to have the judgment entered in accordance with the party's motion; or [if such] a motion shall be served within twentyeight days of the entry of judgment or, if the clerk has not completed service of the notice of judgment within the three-day period described in Civ. R. 58 (B), within twenty-eight days of the date when the clerk actually completes service. If a verdict was not returned, a party may serve a motion for judgment in accordance with the party's motion within twenty-eight days of the jury's discharge. A motion for a new trial may be joined with either motion, or a new trial may be requested in the alternative.
+
+The Court in Posin v. A. B. C. Motor Court Hotel, Inc., 45 Ohio St. 2d 271 (1976), held:
+
+The test to be applied by a trial court in ruling on a motion for judgment notwithstanding the verdict is the same test to be applied on a motion for a directed verdict. The evidence adduced at trial and the facts established by admissions in the pleadings and in the record must be construed most strongly in favor of the party against whom the motion is made, and, where there is substantial evidence to support his side of the case, upon which reasonable minds may reach different conclusions, the motion must be denied. Neither the weight of the evidence nor the credibility of the witnesses is for the court's determination in ruling upon either of the above motions. McNees v. Cincinnati Street Ry. Co. (1949), 152 Ohio St. 269; Ayers v. Woodard (1957), 166 Ohio St. 138; Civ. R. 50(A) and (B).
+
+The Court in Wagner v. Roche Labs, 77 Ohio St. 3d 116 (1996), held:
+
+The standard to be applied in considering a motion for a directed verdict is the same standard to be applied in considering a motion for judgment notwithstanding the verdict.
+
+First, Appellant Metropolitan was not entitled to judgment notwithstanding the verdict. In its Motion, Appellants challenged the introduction of Exhibits 36, 37, and 38. These exhibits were accompanied by testimony from witnesses that supported their admissibility at trial. Appellants suggest that the lack of marketable title supports a judgment notwithstanding the verdict. However, this position is without merit and should be denied.
+
+Appellant Metropolitan focuses its argument that it was entitled to a new trial for the myriad reasons included in earlier assignments of error. However, the standard of review for the denial of a motion for a new trial is an abuse of discretion. Appellant Metropolitan provides no facts or law to support its position that the trial court abused its discretion in denying its Motion for a New Trial.
+
+Additionally, there are no facts to support Appellant's proposition that the trial court abused its discretion in denying the motion for a new trial. Appellant Metropolitan points to things it did not like in the trial or that went against it in trial. Appellant Metropolitan is not entitled to a perfect trial, or a trial in its favor. Appellant Metropolitan is entitled to a fair trial, which it received. The trial court found that there were no issues that caused material prejudice to Appellants, R. 187, and that decision does not constitute an abuse of its discretion. Appellant Metropolitan's fourth assignment of error should be denied.
+
+V. THE TRIAL COURT PROPERLY ALLOWED THE JURY TO DECIDE PUNITIVE DAMAGES AND THE JURY PROPERLY DECIDED THOSE DAMAGES.
+
+Appellant Metropolitan argues that the issue of punitive damages should not have gone to the jury. Appellant Metropolitan challenges the jury's award of punitive damages in this matter, not on the jury's actual finding, but that the court allowed the matter to go to the jury. Appellant Metropolitan predicates its argument that the issues of marketable title and lack of representations mean that Appellants could not have been found liable. As a result, the jury should not have been allowed to decide damages. This argument is unsupported by the facts and law, as outlined above.
+
+The Supreme Court has determined that there is a right to trial by jury on the assessment of punitive damages. Zoppo v. Homestead Ins. Co., 11 Ohio St. 3d 552, 644 N.E. 2d 397 (1994). Ohio law provides that punitive damages may be awarded only upon a finding of actual malice. Rice v. CertainTeed Corp., 84 Ohio St. 3d, 417, 422 704 N.E. 2d 1217 (1999). Actual malice is (1) the state of mind under which a person's conducted is characterized by hatred, ill will or a prior of revenge, or (2) a conscious disregard for the rights and safety of other persons that has a great probability of causing substantial harm. Preston v Murty, 32 Ohio St. 3d 334, 512 N.E. 2d 1174, syllabus.
+
+The Court in Bauer v. Georgeff, 1998 Ohio App. LEXIS 4144 (10th Dist.), held:
+
+An award of punitive damages will generally not be overturned unless it bears no rational relationship or is so grossly disproportionate to the amount of compensatory damages awarded that the award appears to be the result of passion or prejudice.
+
+Appellant Metropolitan appears to predicate its argument on Preston, supra. Appellant Metropolitan misquotes Preston. The full paragraph from Preston, with the language excluded by Appellant Metropolitan underlined, is as follows:
+
+We therefore hold that actual malice, necessary for an award of punitive damages, is (1) that state of mind under which a person's conduct is characterized by hatred, ill will or a spirit of revenge, or (2) a conscious disregard for the rights and safety of other persons that has a great probability of causing substantial harm. In the latter case, before submitting the issue of punitive damages to the jury, a trial court must review the evidence to determine if reasonable minds can differ as to whether the party was aware his or her act had a great probability of causing substantial harm. Furthermore, the court must determine that sufficient evidence is presented revealing that the party consciously disregarded the injured party's rights or safety. If submitted to the jury, the trial court should give an instruction in accordance with the law we announce today. Appellee's basis for punitive damages was the malice and ill will
+
+of Appellants. Pursuant to Preston, no review by the trial court prior to sending the case to the jury was needed. Even if such a review was needed, the trial court obviously determined it was appropriate to send the case to the jury.
+
+Appellants' trial counsel referred to the Preston case at trial. See, R. 290 at p. 521. The trial court indicated that it would take the issue under consideration. However, when final jury instructions on punitive damages were reviewed, Appellants raised no objection to the jury instructions. R. 290 at p. 545.
+
+Additionally, Appellants made a motion for directed verdict on punitive damages, which the trial court denied. R. 290 at p. 596. Thereafter, the jury was properly instructed on punitive damages. R. 290 at pp. 614-617.
+
+Appellants argue that punitive damages were not warranted because Appellee did not demonstrate actual malice. However, the jury found, based on the evidence and testimony provided, that Appellee did demonstrate actual malice.
+
+In addition to evidence presented in the first phase of the trial, the jury also considered the evidence, and conduct of witnesses, in the second phase of the trial. The conduct of Appellant Woods in the second phase of the trial was hostile, combative, and further demonstrated his ill will and malice towards Appellee and Appellee's counsel. R. 290, at pp. 551-565. Not only did the evidence submitted support the jury's verdict, it is entirely the jury's province to judge the credibility, conduct and demeanor of the witnesses. It is obvious that the jury was not impressed with Appellant Woods' conduct, and did not find him credible.
+
+It is readily apparent that the actions and conduct of Appellants demonstrated malice and ill will, and was far more than mere negligence. While Appellant Metropolitan attempts to cast the fraudulent conduct as "an inartful attempt to salvage legitimate business expenses", as the trial court and jury determined, the actions and conduct of Appellants was fraud and punitive damages were appropriate.
+
+The jury was entitled to find that Appellee proved actual malice and the jury was entitled to award Appellee punitive damages for Appellants' conduct. The punitive damages bear a rational relationship to the award of compensatory damages and is not the result of passion or prejudice. Accordingly, the fifth assignment of error should be denied.
+
+CONCLUSION
+
+Appellee, through a foreclosure and subsequent Sheriff's Sale, obtained good and marketable title to a property. The scrivener's error in the notary block of the Deed does not invalidate that Deed; it does not even cast doubt on that Deed. Appellee had good title to a property upon which Appellants filed multiple false and fraudulent Mechanic's Liens.
+
+There is no law that supports Appellant Metropolitan's assertions that Appellee lacked good title prior to the filing of its Complaint. The trial Court properly determined, based on Appellee's good title, the facts, and the law, that Appellee was entitled to judgment on the pleadings for its quiet title and declaratory judgment claims, and that Appellee was entitled to summary judgment on its claims for fraud and slander of title. The jury was appropriately instructed on these facts, and the jury's determination of compensatory and punitive damages was proper.
+
+WHEREFORE, Appellee respectfully requests that the Court overrule Appellant Metropolitan's Assignments of Error and affirm the judgments of the trial court.
+
+Respectfully submitted,
+
+LAW OFFICE OF JEFFREY B. SAMS, LLC
+
+/s/ [Signature]
+
+JEFFERY B. SAMS (0039667)
+
+Attorney for Plaintiff-Appellee
+
+10400 Blacklick Eastern Road NW
+
+Suite 140
+
+Pickerington, Ohio 43147
+
+Telephone: (614) 322-7923
+
+Fax: (614) 322-7925
+
+Email: jsams@jeffsamslaw.com
+
+CERTIFICATE OF SERVICE
+
+The undersigned hereby certifies that a copy of the foregoing Brief of Appellee WWSD, LLC in Response to Brief of Metropolitan Community Services, Inc. was served by email on this 29th of March, 2021, to the following:
+
+Percy Squire, Esq.
+
+Percy Squire Co., LLC
+
+341 S. Third Street, Suite 10
+
+Columbus, Ohio 43215
+
+Brian K. Woods, pro se
+
+4040 East Broad Street
+
+Columbus, Ohio 43213
+
+LAW OFFICE OF JEFFREY B. SAMS, LLC
+
+/s/ [Signature]
+
+JEFFREY B. SAMS (0039667)
+
+Attorney for Plaintiff-Appellee

@@ -99,3 +99,44 @@ docs/slides
 # Real client briefs used for local CLE / testing — named by client surname,
 # never commit.
 cle_real_briefs/
+
+# The Lexis mutation study. The *filings* are public court records, and the
+# extracted text of them, the fixtures built from it and the run results are
+# committed so the paper can be checked. What is excluded is either not ours to
+# redistribute (the Lexis delivery itself, which is a licensed compilation) or
+# too large to belong in git (run databases, raw model transcripts).
+lexis_real_briefs/*
+!lexis_real_briefs/experiment/
+lexis_real_briefs/experiment/*
+!lexis_real_briefs/experiment/*.md
+!lexis_real_briefs/experiment/*.json
+!lexis_real_briefs/experiment/*.yaml
+!lexis_real_briefs/experiment/*.html
+!lexis_real_briefs/experiment/tools/
+!lexis_real_briefs/experiment/fixtures/
+!lexis_real_briefs/experiment/normalized_preview/
+!lexis_real_briefs/experiment/ocr/
+!lexis_real_briefs/experiment/review/
+!lexis_real_briefs/experiment/adjudication-baseline/
+!lexis_real_briefs/experiment/adjudication-all/
+!lexis_real_briefs/experiment/results/
+
+# The Lexis delivery as delivered: a licensed compilation, not ours to publish.
+# The extracted text of these same filings is committed instead.
+lexis_real_briefs/experiment/fixtures/*/source/
+
+# Per-run artefacts that are large and reproducible rather than evidential.
+lexis_real_briefs/experiment/results/*/run.sqlite3
+lexis_real_briefs/experiment/results/*/code-snapshot.tar.gz
+lexis_real_briefs/experiment/results/*/working-tree.patch
+lexis_real_briefs/experiment/results/*/*/call-*.json
+lexis_real_briefs/experiment/results/superseded-pre-fix/*
+!lexis_real_briefs/experiment/results/superseded-pre-fix/README.md
+
+# report.json carries 63 MB of verbatim third-party corpus text pulled by the
+# research stage. report.public.json is the same record without it, and the
+# analysis tools fall back to it, so a clone reproduces every table.
+lexis_real_briefs/experiment/results/*/report.json
+# Per-run result.json is the same record again, one file per run, retrieval
+# text included. report.public.json holds all of it for the whole cell.
+lexis_real_briefs/experiment/results/*/*/result.json

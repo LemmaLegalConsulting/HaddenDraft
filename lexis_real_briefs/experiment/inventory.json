@@ -1,0 +1,2704 @@
+[
+  {
+    "wrapper_file": "AMENDED BRIEF OF PRO SE APPELLANTS RONALD J. SIEMIENTKOWSKI AND SARA L. SIEMIENTKOWSKI AS PER JOURNA.docx",
+    "wrapper_sha256": "3dda6adc2fdcd7767592724487956c11bb904a95b053c7cebbc679485895cf4e",
+    "case_name": "SIEMIENTKOWSKI v. STATE AUTO INS. COS.",
+    "docket": "CA 05-087299",
+    "court": "COURT OF APPEALS OF OHIO, EIGHTH APPELLATE DISTRICT, CUYAHOGA COUNTY",
+    "filed": "April 4, 2006",
+    "reporter_cite": "2006 OH App. Ct. Briefs LEXIS 91\u00a0*",
+    "lexis_type": "Initial Brief: Appellant-Petitioner",
+    "title": "AMENDED BRIEF OF PRO SE APPELLANTS RONALD J. SIEMIENTKOWSKI AND SARA L. SIEMIENTKOWSKI AS PER JOURNA",
+    "header_line_count": 41,
+    "body_chars": 72793,
+    "pdf_only_wrapper": false,
+    "level": "appellate",
+    "eviction_terms": [
+      "eviction"
+    ],
+    "eviction_term_count": 1,
+    "attachments": [
+      {
+        "file": "AMENDED BRIEF OF PRO SE APPELLANTS RONALD J. SIEMIENTKOWSKI AND SARA L. SIEMIENTKOWSKI AS PER JOURNA.pdf",
+        "sha256": "50866695fc2c61d1848ee5329d5c05fecfe38085c75424696ab38bf0ce05b17e",
+        "bytes": 7715343,
+        "pages": 116,
+        "extracted_chars": 0,
+        "text_layer": false,
+        "ocr_chars": 195022,
+        "ocr_cache": "ocr/50866695fc2c61d1848ee5329d5c05fecfe38085c75424696ab38bf0ce05b17e.json"
+      }
+    ],
+    "attachment_text_layer": false,
+    "text_source": "lexis_docx",
+    "scan_filing": {
+      "brief_page_count": 22,
+      "split_rule": "certificate of service on page 22",
+      "brief_chars": 33410,
+      "record_exhibits": [
+        {
+          "label": "Exhibit 1",
+          "page_range": [
+            23,
+            26
+          ],
+          "chars": 2422
+        },
+        {
+          "label": "Exhibit 3",
+          "page_range": [
+            27,
+            61
+          ],
+          "chars": 102314
+        },
+        {
+          "label": "Exhibit 4",
+          "page_range": [
+            62,
+            66
+          ],
+          "chars": 5881
+        },
+        {
+          "label": "Exhibit 5",
+          "page_range": [
+            67,
+            71
+          ],
+          "chars": 5417
+        },
+        {
+          "label": "Exhibit 6",
+          "page_range": [
+            72,
+            112
+          ],
+          "chars": 42334
+        },
+        {
+          "label": "Exhibit 7",
+          "page_range": [
+            113,
+            114
+          ],
+          "chars": 1434
+        },
+        {
+          "label": "Exhibit 8",
+          "page_range": [
+            115,
+            116
+          ],
+          "chars": 1408
+        }
+      ],
+      "furniture_removed": {
+        "efile_stamp_lines_removed": 4,
+        "page_footer_lines_removed": 151
+      },
+      "ocr": {
+        "engine": {
+          "service": "Azure AI Document Intelligence",
+          "model": "prebuilt-read",
+          "api_version": "2024-11-30",
+          "endpoint_host": "workflowdocs.cognitiveservices.azure.com",
+          "reported_api_version": "2024-11-30",
+          "reported_model": "prebuilt-read"
+        },
+        "transcribed_on": "2026-09-08",
+        "source_sha256": "50866695fc2c61d1848ee5329d5c05fecfe38085c75424696ab38bf0ce05b17e",
+        "scan_pages": 116,
+        "scan_chars": 195022
+      }
+    }
+  },
+  {
+    "wrapper_file": "Answer Brief Of Appellee Land Title To Appellate Brief Of Appellant, Eric Lundberg.docx",
+    "wrapper_sha256": "c7f1824042a1de001327cb6f3a187e75faeeabf35209d533bb90e7e8f80139c7",
+    "case_name": "SHERIDAN v. SHERIDAN",
+    "docket": "",
+    "court": "COURT OF APPEALS OF OHIO, 8TH DISTRICT",
+    "filed": "April 9, 2012",
+    "reporter_cite": "2012 OH App. Ct. Briefs LEXIS 340\u00a0*",
+    "lexis_type": "Initial Brief: Appellee-Respondent",
+    "title": "Answer Brief Of Appellee Land Title To Appellate Brief Of Appellant, Eric Lundberg",
+    "header_line_count": 17,
+    "body_chars": 59015,
+    "pdf_only_wrapper": false,
+    "level": "appellate",
+    "eviction_terms": [
+      "eviction"
+    ],
+    "eviction_term_count": 1,
+    "attachments": [
+      {
+        "file": "Answer Brief Of Appellee Land Title To Appellate Brief Of Appellant, Eric Lundberg_Attachment1.pdf",
+        "sha256": "b0f2f9c91f5d4d5dfffd937f0ac461f39ad9a16fa91bc6fe8d50bd38dc352d12",
+        "bytes": 1542700,
+        "pages": 55,
+        "extracted_chars": 117918,
+        "text_layer": true
+      }
+    ],
+    "attachment_text_layer": true,
+    "text_source": "lexis_docx",
+    "scan_filing": null
+  },
+  {
+    "wrapper_file": "ANSWER BRIEF OF APPELLEE O'CONNOR AUTOMOTIVE [Oral Argument Requested].docx",
+    "wrapper_sha256": "e84911de595edbfce5d62468644df2a80a14f5940820c7939bdd47fd1ce23511",
+    "case_name": "MANIGAULT v. O'CONNOR AUTOMOTIVE",
+    "docket": "CA-06-087891",
+    "court": "COURT OF APPEALS OF OHIO, EIGHTH APPELLATE DISTRICT, CUYAHOGA COUNTY",
+    "filed": "May 1, 2006",
+    "reporter_cite": "2006 OH App. Ct. Briefs LEXIS 566\u00a0*",
+    "lexis_type": "Initial Brief: Appellee-Respondent",
+    "title": "ANSWER BRIEF OF APPELLEE O'CONNOR AUTOMOTIVE [Oral Argument Requested]",
+    "header_line_count": 57,
+    "body_chars": 31626,
+    "pdf_only_wrapper": false,
+    "level": "appellate",
+    "eviction_terms": [
+      "eviction"
+    ],
+    "eviction_term_count": 1,
+    "attachments": [
+      {
+        "file": "ANSWER BRIEF OF APPELLEE O'CONNOR AUTOMOTIVE [Oral Argument Requested]_Attachment1.pdf",
+        "sha256": "41a077272a77953b2946127bc9211aac17fe23bde43c5927f0fd306551a18fcc",
+        "bytes": 1304306,
+        "pages": 26,
+        "extracted_chars": 0,
+        "text_layer": false,
+        "ocr_chars": 41025,
+        "ocr_cache": "ocr/41a077272a77953b2946127bc9211aac17fe23bde43c5927f0fd306551a18fcc.json"
+      }
+    ],
+    "attachment_text_layer": false,
+    "text_source": "lexis_docx",
+    "scan_filing": {
+      "brief_page_count": 22,
+      "split_rule": "certificate of service on page 22",
+      "brief_chars": 37238,
+      "record_exhibits": [
+        {
+          "label": "Record",
+          "page_range": [
+            23,
+            26
+          ],
+          "chars": 3738
+        }
+      ],
+      "furniture_removed": {
+        "efile_stamp_lines_removed": 1,
+        "page_footer_lines_removed": 8
+      },
+      "ocr": {
+        "engine": {
+          "service": "Azure AI Document Intelligence",
+          "model": "prebuilt-read",
+          "api_version": "2024-11-30",
+          "endpoint_host": "workflowdocs.cognitiveservices.azure.com",
+          "reported_api_version": "2024-11-30",
+          "reported_model": "prebuilt-read"
+        },
+        "transcribed_on": "2026-09-08",
+        "source_sha256": "41a077272a77953b2946127bc9211aac17fe23bde43c5927f0fd306551a18fcc",
+        "scan_pages": 26,
+        "scan_chars": 41025
+      }
+    }
+  },
+  {
+    "wrapper_file": "Appellant Brief of Plaintiff-Appellants.docx",
+    "wrapper_sha256": "9d9446dfec1c556661598ca5b07119453a4f514f09fdb59559c95096ce4e76ba",
+    "case_name": "CRENSHAW v. INTEGRITY REALTY GROUP",
+    "docket": "",
+    "court": "COURT OF APPEALS OF OHIO, 8TH DISTRICT",
+    "filed": "May 4, 2012",
+    "reporter_cite": "2012 OH App. Ct. Briefs LEXIS 225\u00a0*",
+    "lexis_type": "Initial Brief: Appellant-Petitioner",
+    "title": "Appellant Brief of Plaintiff-Appellants",
+    "header_line_count": 15,
+    "body_chars": 26866,
+    "pdf_only_wrapper": false,
+    "level": "appellate",
+    "eviction_terms": [
+      "eviction",
+      "forcible entry",
+      "forcible entry and detainer",
+      "tenancy"
+    ],
+    "eviction_term_count": 4,
+    "attachments": [
+      {
+        "file": "Appellant Brief of Plaintiff-Appellants_Attachment1.pdf",
+        "sha256": "e564ea18a39ee0100f7866b5cfeb8376e148c99d3be4674dc0d6d22c1458a1f7",
+        "bytes": 1942258,
+        "pages": 71,
+        "extracted_chars": 98211,
+        "text_layer": true
+      }
+    ],
+    "attachment_text_layer": true,
+    "text_source": "lexis_docx",
+    "scan_filing": null
+  },
+  {
+    "wrapper_file": "APPELLANT'S BRIEF IN OPPOSITION TO TRIAL COURT JUDGMENT DENYING APPELLANT'S THEFT CLAIM, CONTRACT FR.docx",
+    "wrapper_sha256": "138dda05e2f10305bc6208384130196c2ca7f3e6dd4d4195b7d47888ae29a2d2",
+    "case_name": "Williams v. State",
+    "docket": "",
+    "court": "COURT OF APPEALS OF OHIO, 8TH DISTRICT",
+    "filed": "February 19, 2008",
+    "reporter_cite": "2008 OH App. Ct. Briefs LEXIS 682\u00a0*",
+    "lexis_type": "Initial Brief: Appellant-Petitioner",
+    "title": "APPELLANT'S BRIEF IN OPPOSITION TO TRIAL COURT JUDGMENT DENYING APPELLANT'S THEFT CLAIM, CONTRACT FR",
+    "header_line_count": 15,
+    "body_chars": 23312,
+    "pdf_only_wrapper": false,
+    "level": "appellate",
+    "eviction_terms": [
+      "eviction"
+    ],
+    "eviction_term_count": 1,
+    "attachments": [],
+    "attachment_text_layer": false,
+    "text_source": "lexis_docx",
+    "scan_filing": null
+  },
+  {
+    "wrapper_file": "Appellants' Brief.docx",
+    "wrapper_sha256": "833b0901dcfccf9a004b505711e09228862173efaf228c2e181b4d649992a2b8",
+    "case_name": "JACKSON v. CARLTON TOWNHOUSE CONDO. ASSOC",
+    "docket": "",
+    "court": "COURT OF APPEALS OF OHIO, 8TH DISTRICT",
+    "filed": "August 27, 2013",
+    "reporter_cite": "2013 OH App. Ct. Briefs LEXIS 1311\u00a0*",
+    "lexis_type": "Initial Brief: Appellant-Petitioner",
+    "title": "Appellants' Brief",
+    "header_line_count": 14,
+    "body_chars": 21442,
+    "pdf_only_wrapper": false,
+    "level": "appellate",
+    "eviction_terms": [
+      "eviction",
+      "tenancy"
+    ],
+    "eviction_term_count": 2,
+    "attachments": [
+      {
+        "file": "Appellants' Brief_Attachment1.pdf",
+        "sha256": "3ff9b9878208e052297a3f20bf9a0ed4e955d253283339ce0c7d897bb7386956",
+        "bytes": 461073,
+        "pages": 18,
+        "extracted_chars": 24366,
+        "text_layer": true
+      }
+    ],
+    "attachment_text_layer": true,
+    "text_source": "lexis_docx",
+    "scan_filing": null
+  },
+  {
+    "wrapper_file": "Appellee's Answer Brief.docx",
+    "wrapper_sha256": "bfc08344e10a92fda33bce6ae61d373c2e7c0c1b11c8055c447368a3d9ef7d9c",
+    "case_name": "ANDERSON v. MITCHELL",
+    "docket": "",
+    "court": "COURT OF APPEALS OF OHIO, 8TH DISTRICT",
+    "filed": "November 12, 2013",
+    "reporter_cite": "2013 OH App. Ct. Briefs LEXIS 1299\u00a0*",
+    "lexis_type": "Initial Brief: Appellee-Respondent",
+    "title": "Appellee's Answer Brief",
+    "header_line_count": 15,
+    "body_chars": 20353,
+    "pdf_only_wrapper": false,
+    "level": "appellate",
+    "eviction_terms": [
+      "evict",
+      "evicted",
+      "eviction"
+    ],
+    "eviction_term_count": 3,
+    "attachments": [
+      {
+        "file": "Appellee's Answer Brief_Attachment1.pdf",
+        "sha256": "34e0a26227b4a1ce13f4e2bdee42afe073395d81a4b77eaa984a0d7e2789b143",
+        "bytes": 257108,
+        "pages": 16,
+        "extracted_chars": 22311,
+        "text_layer": true
+      }
+    ],
+    "attachment_text_layer": true,
+    "text_source": "lexis_docx",
+    "scan_filing": null
+  },
+  {
+    "wrapper_file": "Appellee, Nancy Wallace's Brief.docx",
+    "wrapper_sha256": "3e95a1c68d8ba24f30c6fcbc8507d08579dcc6f853fdf15dab4bec26535c3c4b",
+    "case_name": "LEE v. WALLACE",
+    "docket": "",
+    "court": "COURT OF APPEALS OF OHIO, 8TH DISTRICT",
+    "filed": "July 15, 2009",
+    "reporter_cite": "2009 OH App. Ct. Briefs LEXIS 606\u00a0*",
+    "lexis_type": "Initial Brief: Appellee-Respondent",
+    "title": "Appellee, Nancy Wallace's Brief",
+    "header_line_count": 15,
+    "body_chars": 14183,
+    "pdf_only_wrapper": false,
+    "level": "appellate",
+    "eviction_terms": [
+      "eviction",
+      "forcible entry and detainer",
+      "landlord tenant",
+      "r.c. 5321",
+      "tenancy"
+    ],
+    "eviction_term_count": 5,
+    "attachments": [
+      {
+        "file": "Appellee, Nancy Wallace's Brief_Attachment1.pdf",
+        "sha256": "cbdd78c09b1657661850ee525419a73a567a2b2481d5571012cae997d2e4044c",
+        "bytes": 1167524,
+        "pages": 23,
+        "extracted_chars": 0,
+        "text_layer": false,
+        "ocr_chars": 62095,
+        "ocr_cache": "ocr/cbdd78c09b1657661850ee525419a73a567a2b2481d5571012cae997d2e4044c.json"
+      }
+    ],
+    "attachment_text_layer": false,
+    "text_source": "lexis_docx",
+    "scan_filing": {
+      "brief_page_count": 2,
+      "split_rule": "certificate of service on page 2",
+      "brief_chars": 1670,
+      "record_exhibits": [
+        {
+          "label": "Record",
+          "page_range": [
+            3,
+            23
+          ],
+          "chars": 60342
+        }
+      ],
+      "furniture_removed": {
+        "efile_stamp_lines_removed": 1,
+        "page_footer_lines_removed": 23
+      },
+      "ocr": {
+        "engine": {
+          "service": "Azure AI Document Intelligence",
+          "model": "prebuilt-read",
+          "api_version": "2024-11-30",
+          "endpoint_host": "workflowdocs.cognitiveservices.azure.com",
+          "reported_api_version": "2024-11-30",
+          "reported_model": "prebuilt-read"
+        },
+        "transcribed_on": "2026-09-08",
+        "source_sha256": "cbdd78c09b1657661850ee525419a73a567a2b2481d5571012cae997d2e4044c",
+        "scan_pages": 23,
+        "scan_chars": 62095
+      }
+    }
+  },
+  {
+    "wrapper_file": "Assignment of Error and Brief of Plaintiff-Appellant.docx",
+    "wrapper_sha256": "93021cfcd57451902f6e9b6ff519e4120fffb22edd87634e104b8a343bb119e1",
+    "case_name": "KERR v. LAKEWOOD SHORE TOWERS, INC.",
+    "docket": "",
+    "court": "COURT OF APPEALS OF OHIO, 8TH DISTRICT",
+    "filed": "July 28, 2009",
+    "reporter_cite": "2009 OH App. Ct. Briefs LEXIS 632\u00a0*",
+    "lexis_type": "Initial Brief: Appellant-Petitioner",
+    "title": "Assignment of Error and Brief of Plaintiff-Appellant",
+    "header_line_count": 15,
+    "body_chars": 24850,
+    "pdf_only_wrapper": false,
+    "level": "appellate",
+    "eviction_terms": [
+      "forcible entry",
+      "forcible entry and detainer",
+      "landlord-tenant"
+    ],
+    "eviction_term_count": 3,
+    "attachments": [
+      {
+        "file": "Assignment of Error and Brief of Plaintiff-Appellant_Attachment1.pdf",
+        "sha256": "f20310f4cbd3e49dd9863b2af0b8368f83cce08bd3cbbff4a643ef0ceaee8bc3",
+        "bytes": 611690,
+        "pages": 19,
+        "extracted_chars": 0,
+        "text_layer": false,
+        "ocr_chars": 27576,
+        "ocr_cache": "ocr/f20310f4cbd3e49dd9863b2af0b8368f83cce08bd3cbbff4a643ef0ceaee8bc3.json"
+      }
+    ],
+    "attachment_text_layer": false,
+    "text_source": "lexis_docx",
+    "scan_filing": {
+      "brief_page_count": 19,
+      "split_rule": "certificate of service on page 19",
+      "brief_chars": 27493,
+      "record_exhibits": [],
+      "furniture_removed": {
+        "efile_stamp_lines_removed": 1,
+        "page_footer_lines_removed": 20
+      },
+      "ocr": {
+        "engine": {
+          "service": "Azure AI Document Intelligence",
+          "model": "prebuilt-read",
+          "api_version": "2024-11-30",
+          "endpoint_host": "workflowdocs.cognitiveservices.azure.com",
+          "reported_api_version": "2024-11-30",
+          "reported_model": "prebuilt-read"
+        },
+        "transcribed_on": "2026-09-08",
+        "source_sha256": "f20310f4cbd3e49dd9863b2af0b8368f83cce08bd3cbbff4a643ef0ceaee8bc3",
+        "scan_pages": 19,
+        "scan_chars": 27576
+      }
+    }
+  },
+  {
+    "wrapper_file": "Assignments Of Error And Brief Of Appellants.docx",
+    "wrapper_sha256": "a77cada0084f78e8723da47cf1109f386630014084c09cb725c2732663affbb7",
+    "case_name": "DEBARTOLO v. DUSSAULT MOVING, INC.",
+    "docket": "",
+    "court": "COURT OF APPEALS OF OHIO, 8TH DISTRICT",
+    "filed": "June 13, 2011",
+    "reporter_cite": "2011 OH App. Ct. Briefs LEXIS 509\u00a0*",
+    "lexis_type": "Initial Brief: Appellant-Petitioner",
+    "title": "Assignments Of Error And Brief Of Appellants",
+    "header_line_count": 16,
+    "body_chars": 29042,
+    "pdf_only_wrapper": false,
+    "level": "appellate",
+    "eviction_terms": [
+      "evicted",
+      "forcible entry and detainer",
+      "r.c. 5321",
+      "writ of restitution"
+    ],
+    "eviction_term_count": 4,
+    "attachments": [
+      {
+        "file": "Assignments Of Error And Brief Of Appellants_Attachment1.pdf",
+        "sha256": "5f45ab5bf0e2fdb7e721ac0d35011fc6ada62bdfeae091c079be4b52f5e9f201",
+        "bytes": 514225,
+        "pages": 21,
+        "extracted_chars": 33109,
+        "text_layer": true
+      }
+    ],
+    "attachment_text_layer": true,
+    "text_source": "lexis_docx",
+    "scan_filing": null
+  },
+  {
+    "wrapper_file": "Brief fof Appellee.docx",
+    "wrapper_sha256": "59b3a70ee930bfc150daba89e36a37a3c7b9116dd149221c86c20fd0b688ecc7",
+    "case_name": "CRENSHAW v. INTEGRITY REALTY",
+    "docket": "",
+    "court": "COURT OF APPEALS OF OHIO, 8TH DISTRICT",
+    "filed": "June 8, 2012",
+    "reporter_cite": "2012 OH App. Ct. Briefs LEXIS 226\u00a0*",
+    "lexis_type": "Initial Brief: Appellee-Respondent",
+    "title": "Brief fof Appellee",
+    "header_line_count": 15,
+    "body_chars": 37670,
+    "pdf_only_wrapper": false,
+    "level": "appellate",
+    "eviction_terms": [
+      "evict",
+      "eviction",
+      "landlord-tenant"
+    ],
+    "eviction_term_count": 3,
+    "attachments": [
+      {
+        "file": "Brief fof Appellee_Attachment1.pdf",
+        "sha256": "02d18c0e6e5c7afde762ff4ede584d433088c8b050b0f9e35eb84eb9faf40cef",
+        "bytes": 1638006,
+        "pages": 57,
+        "extracted_chars": 95535,
+        "text_layer": true
+      }
+    ],
+    "attachment_text_layer": true,
+    "text_source": "lexis_docx",
+    "scan_filing": null
+  },
+  {
+    "wrapper_file": "Brief For The Appellant.docx",
+    "wrapper_sha256": "9ddb929bed241986b2cf0d65608ea52755de17670dff716c086eda8a587fa964",
+    "case_name": "MASTEN v. K&D MGMT.",
+    "docket": "",
+    "court": "COURT OF APPEALS OF OHIO, 8TH DISTRICT",
+    "filed": "December 17, 2012",
+    "reporter_cite": "2012 OH App. Ct. Briefs LEXIS 757\u00a0*",
+    "lexis_type": "Initial Brief: Appellant-Petitioner",
+    "title": "Brief For The Appellant",
+    "header_line_count": 14,
+    "body_chars": 41956,
+    "pdf_only_wrapper": false,
+    "level": "appellate",
+    "eviction_terms": [
+      "chapter 1923",
+      "evict",
+      "eviction",
+      "forcible entry",
+      "forcible entry and detainer",
+      "holdover",
+      "landlord tenant",
+      "landlord-tenant",
+      "r.c. 5321",
+      "tenancy",
+      "three day notice",
+      "unlawful detainer"
+    ],
+    "eviction_term_count": 12,
+    "attachments": [
+      {
+        "file": "Brief For The Appellant_Attachment1.pdf",
+        "sha256": "659acf18fb791fb0b78741300b80538f3ee3aa5d823a6f9e02ea002946279d84",
+        "bytes": 840585,
+        "pages": 28,
+        "extracted_chars": 50648,
+        "text_layer": true
+      }
+    ],
+    "attachment_text_layer": true,
+    "text_source": "lexis_docx",
+    "scan_filing": null
+  },
+  {
+    "wrapper_file": "BRIEF OF APPELLANT.docx",
+    "wrapper_sha256": "9b878b8914f00d79bc5af67d81b9331e527ab5e368dd0de4db6c149029b879d7",
+    "case_name": "POTTS v. 3M CO.",
+    "docket": "CA 06-87977",
+    "court": "COURT OF APPEALS OF OHIO",
+    "filed": "July 7, 2006",
+    "reporter_cite": "2006 OH App. Ct. Briefs LEXIS 1013\u00a0*",
+    "lexis_type": "Initial Brief: Appellant-Petitioner",
+    "title": "BRIEF OF APPELLANT",
+    "header_line_count": 102,
+    "body_chars": 35607,
+    "pdf_only_wrapper": false,
+    "level": "appellate",
+    "eviction_terms": [
+      "r.c. 1923"
+    ],
+    "eviction_term_count": 1,
+    "attachments": [
+      {
+        "file": "BRIEF OF APPELLANT_Attachment1.pdf",
+        "sha256": "9550eeced6001ae9cb11c59018dee3339cf1985b2af6c1d355fed51e19f2861b",
+        "bytes": 1087702,
+        "pages": 33,
+        "extracted_chars": 0,
+        "text_layer": false,
+        "ocr_chars": 44299,
+        "ocr_cache": "ocr/9550eeced6001ae9cb11c59018dee3339cf1985b2af6c1d355fed51e19f2861b.json"
+      }
+    ],
+    "attachment_text_layer": false,
+    "text_source": "lexis_docx",
+    "scan_filing": {
+      "brief_page_count": 3,
+      "split_rule": "certificate of service on page 3",
+      "brief_chars": 2773,
+      "record_exhibits": [
+        {
+          "label": "Record",
+          "page_range": [
+            4,
+            33
+          ],
+          "chars": 41232
+        }
+      ],
+      "furniture_removed": {
+        "efile_stamp_lines_removed": 3,
+        "page_footer_lines_removed": 59
+      },
+      "ocr": {
+        "engine": {
+          "service": "Azure AI Document Intelligence",
+          "model": "prebuilt-read",
+          "api_version": "2024-11-30",
+          "endpoint_host": "workflowdocs.cognitiveservices.azure.com",
+          "reported_api_version": "2024-11-30",
+          "reported_model": "prebuilt-read"
+        },
+        "transcribed_on": "2026-09-08",
+        "source_sha256": "9550eeced6001ae9cb11c59018dee3339cf1985b2af6c1d355fed51e19f2861b",
+        "scan_pages": 33,
+        "scan_chars": 44299
+      }
+    }
+  },
+  {
+    "wrapper_file": "BRIEF OF APPELLANTS ALLEN, ET. AL.; ORAL ARGUMENT REQUESTED.docx",
+    "wrapper_sha256": "64e9a2d9a53157f75f607e2cde562be3ebfbf8fa16c84ff931e6f139ee7b6e46",
+    "case_name": "ALLEN v. TANSKI",
+    "docket": "CA 09 93526",
+    "court": "COURT OF APPEALS OF OHIO, 8TH DISTRICT",
+    "filed": "July 31, 2009",
+    "reporter_cite": "2009 OH App. Ct. Briefs LEXIS 167\u00a0*",
+    "lexis_type": "Initial Brief: Appellant-Petitioner",
+    "title": "BRIEF OF APPELLANTS ALLEN, ET. AL.; ORAL ARGUMENT REQUESTED",
+    "header_line_count": 14,
+    "body_chars": 13109,
+    "pdf_only_wrapper": false,
+    "level": "appellate",
+    "eviction_terms": [
+      "3-day notice",
+      "eviction"
+    ],
+    "eviction_term_count": 2,
+    "attachments": [
+      {
+        "file": "BRIEF OF APPELLANTS ALLEN, ET. AL.; ORAL ARGUMENT REQUESTED_Attachment1.pdf",
+        "sha256": "6efcb652da928f0e2d5bde987c7cee76feb8e042f2944f0979f46a3ea68315cc",
+        "bytes": 382842,
+        "pages": 13,
+        "extracted_chars": 0,
+        "text_layer": false,
+        "ocr_chars": 14665,
+        "ocr_cache": "ocr/6efcb652da928f0e2d5bde987c7cee76feb8e042f2944f0979f46a3ea68315cc.json"
+      }
+    ],
+    "attachment_text_layer": false,
+    "text_source": "lexis_docx",
+    "scan_filing": {
+      "brief_page_count": 13,
+      "split_rule": "certificate of service on page 13",
+      "brief_chars": 14608,
+      "record_exhibits": [],
+      "furniture_removed": {
+        "efile_stamp_lines_removed": 1,
+        "page_footer_lines_removed": 23
+      },
+      "ocr": {
+        "engine": {
+          "service": "Azure AI Document Intelligence",
+          "model": "prebuilt-read",
+          "api_version": "2024-11-30",
+          "endpoint_host": "workflowdocs.cognitiveservices.azure.com",
+          "reported_api_version": "2024-11-30",
+          "reported_model": "prebuilt-read"
+        },
+        "transcribed_on": "2026-09-08",
+        "source_sha256": "6efcb652da928f0e2d5bde987c7cee76feb8e042f2944f0979f46a3ea68315cc",
+        "scan_pages": 13,
+        "scan_chars": 14665
+      }
+    }
+  },
+  {
+    "wrapper_file": "BRIEF OF APPELLEE.docx",
+    "wrapper_sha256": "630b3569cacfbcb1375e0f98758443ba852088f50227270ce8feb593df2c18fe",
+    "case_name": "WILLIAMS v. DEUTSCHE BANK",
+    "docket": "",
+    "court": "COURT OF APPEALS OF OHIO, 8TH DISTRICT",
+    "filed": "March 4, 2008",
+    "reporter_cite": "2008 OH App. Ct. Briefs LEXIS 690\u00a0*",
+    "lexis_type": "Initial Brief: Appellee-Respondent",
+    "title": "BRIEF OF APPELLEE",
+    "header_line_count": 15,
+    "body_chars": 19698,
+    "pdf_only_wrapper": false,
+    "level": "appellate",
+    "eviction_terms": [
+      "eviction"
+    ],
+    "eviction_term_count": 1,
+    "attachments": [
+      {
+        "file": "BRIEF OF APPELLEE_Attachment1.pdf",
+        "sha256": "f28e9cb1eca06edf83af2273cb14cfb7d7fb9a863bf3e7796dd7424f16d501c1",
+        "bytes": 475207,
+        "pages": 14,
+        "extracted_chars": 0,
+        "text_layer": false,
+        "ocr_chars": 21622,
+        "ocr_cache": "ocr/f28e9cb1eca06edf83af2273cb14cfb7d7fb9a863bf3e7796dd7424f16d501c1.json"
+      }
+    ],
+    "attachment_text_layer": false,
+    "text_source": "lexis_docx",
+    "scan_filing": {
+      "brief_page_count": 2,
+      "split_rule": "certificate of service on page 2",
+      "brief_chars": 1258,
+      "record_exhibits": [
+        {
+          "label": "Record",
+          "page_range": [
+            3,
+            14
+          ],
+          "chars": 20340
+        }
+      ],
+      "furniture_removed": {
+        "efile_stamp_lines_removed": 0,
+        "page_footer_lines_removed": 16
+      },
+      "ocr": {
+        "engine": {
+          "service": "Azure AI Document Intelligence",
+          "model": "prebuilt-read",
+          "api_version": "2024-11-30",
+          "endpoint_host": "workflowdocs.cognitiveservices.azure.com",
+          "reported_api_version": "2024-11-30",
+          "reported_model": "prebuilt-read"
+        },
+        "transcribed_on": "2026-09-08",
+        "source_sha256": "f28e9cb1eca06edf83af2273cb14cfb7d7fb9a863bf3e7796dd7424f16d501c1",
+        "scan_pages": 14,
+        "scan_chars": 21622
+      }
+    }
+  },
+  {
+    "wrapper_file": "BRIEF OF APPELLEE WWSD, LLC IN RESPONSE TO BRIEF OF APPELLANT METROPOLITAN COMMUNITY SERVICES, INC.docx",
+    "wrapper_sha256": "3479a8d52d34599939e3d2af5559bb327f7fc6170ff081777d3d055a63559ee7",
+    "case_name": "WWSD v. WOODS",
+    "docket": "20AP-403",
+    "court": "COURT OF APPEALS OF OHIO, TENTH APPELLATE DISTRICT",
+    "filed": "March 29, 2021",
+    "reporter_cite": "2021 OH APP. CT. BRIEFS LEXIS 77\u00a0*",
+    "lexis_type": "Brief",
+    "title": "BRIEF OF APPELLEE WWSD, LLC IN RESPONSE TO BRIEF OF APPELLANT METROPOLITAN COMMUNITY SERVICES, INC",
+    "header_line_count": 16,
+    "body_chars": 50414,
+    "pdf_only_wrapper": false,
+    "level": "appellate",
+    "eviction_terms": [
+      "eviction"
+    ],
+    "eviction_term_count": 1,
+    "attachments": [
+      {
+        "file": "BRIEF OF APPELLEE WWSD, LLC IN RESPONSE TO BRIEF OF APPELLANT METROPOLITAN COMMUNITY SERVICES, INC._.pdf",
+        "sha256": "ca3e1241ccbd9904b5085587d02c40bcd4acbe27e2a93dd4b9a361710c0f4dff",
+        "bytes": 1795880,
+        "pages": 49,
+        "extracted_chars": 0,
+        "text_layer": false,
+        "ocr_chars": 61817,
+        "ocr_cache": "ocr/ca3e1241ccbd9904b5085587d02c40bcd4acbe27e2a93dd4b9a361710c0f4dff.json"
+      }
+    ],
+    "attachment_text_layer": false,
+    "text_source": "lexis_docx",
+    "scan_filing": {
+      "brief_page_count": 40,
+      "split_rule": "no boundary found; first 40 pages read as the brief",
+      "brief_chars": 47882,
+      "record_exhibits": [
+        {
+          "label": "Record",
+          "page_range": [
+            41,
+            49
+          ],
+          "chars": 9642
+        }
+      ],
+      "furniture_removed": {
+        "efile_stamp_lines_removed": 49,
+        "page_footer_lines_removed": 44
+      },
+      "ocr": {
+        "engine": {
+          "service": "Azure AI Document Intelligence",
+          "model": "prebuilt-read",
+          "api_version": "2024-11-30",
+          "endpoint_host": "workflowdocs.cognitiveservices.azure.com",
+          "reported_api_version": "2024-11-30",
+          "reported_model": "prebuilt-read"
+        },
+        "transcribed_on": "2026-09-08",
+        "source_sha256": "ca3e1241ccbd9904b5085587d02c40bcd4acbe27e2a93dd4b9a361710c0f4dff",
+        "scan_pages": 49,
+        "scan_chars": 61817
+      }
+    }
+  },
+  {
+    "wrapper_file": "BRIEF OF APPELLEE-DEFENDANT TRAVELERS INDEMNITY COMPANY.docx",
+    "wrapper_sha256": "af11cef00f6f23fc0bb4f8ca6858dbbb7b9fba8224ed8af96fb30b973db99d16",
+    "case_name": "McPHILLIPS v. TRAVELERS PROP. CAS. INS. CO.",
+    "docket": "91286",
+    "court": "COURT OF APPEALS OF OHIO, 8TH DISTRICT",
+    "filed": "August 21, 2008",
+    "reporter_cite": "2008 OH App. Ct. Briefs LEXIS 2277\u00a0*",
+    "lexis_type": "Initial Brief: Appellee-Respondent",
+    "title": "BRIEF OF APPELLEE-DEFENDANT TRAVELERS INDEMNITY COMPANY",
+    "header_line_count": 14,
+    "body_chars": 78097,
+    "pdf_only_wrapper": false,
+    "level": "appellate",
+    "eviction_terms": [],
+    "eviction_term_count": 0,
+    "attachments": [
+      {
+        "file": "BRIEF OF APPELLEE-DEFENDANT TRAVELERS INDEMNITY COMPANY_Attachment1.pdf",
+        "sha256": "e03d97182b98d023edf5d84792105e88096b8bed88d335182c5097236df19430",
+        "bytes": 3841689,
+        "pages": 109,
+        "extracted_chars": 0,
+        "text_layer": false,
+        "ocr_chars": 199453,
+        "ocr_cache": "ocr/e03d97182b98d023edf5d84792105e88096b8bed88d335182c5097236df19430.json"
+      }
+    ],
+    "attachment_text_layer": false,
+    "text_source": "lexis_docx",
+    "scan_filing": {
+      "brief_page_count": 40,
+      "split_rule": "no boundary found; first 40 pages read as the brief",
+      "brief_chars": 76703,
+      "record_exhibits": [
+        {
+          "label": "Record",
+          "page_range": [
+            41,
+            54
+          ],
+          "chars": 23809
+        },
+        {
+          "label": "Exhibit 1",
+          "page_range": [
+            55,
+            69
+          ],
+          "chars": 38903
+        },
+        {
+          "label": "Exhibit 2",
+          "page_range": [
+            70,
+            71
+          ],
+          "chars": 2408
+        },
+        {
+          "label": "Exhibit 3",
+          "page_range": [
+            72,
+            78
+          ],
+          "chars": 18111
+        },
+        {
+          "label": "Exhibit 4",
+          "page_range": [
+            79,
+            82
+          ],
+          "chars": 6312
+        },
+        {
+          "label": "Exhibit 5",
+          "page_range": [
+            83,
+            85
+          ],
+          "chars": 5688
+        },
+        {
+          "label": "Exhibit 6",
+          "page_range": [
+            86,
+            87
+          ],
+          "chars": 1631
+        },
+        {
+          "label": "Exhibit 7",
+          "page_range": [
+            88,
+            109
+          ],
+          "chars": 25381
+        }
+      ],
+      "furniture_removed": {
+        "efile_stamp_lines_removed": 2,
+        "page_footer_lines_removed": 91
+      },
+      "ocr": {
+        "engine": {
+          "service": "Azure AI Document Intelligence",
+          "model": "prebuilt-read",
+          "api_version": "2024-11-30",
+          "endpoint_host": "workflowdocs.cognitiveservices.azure.com",
+          "reported_api_version": "2024-11-30",
+          "reported_model": "prebuilt-read"
+        },
+        "transcribed_on": "2026-09-08",
+        "source_sha256": "e03d97182b98d023edf5d84792105e88096b8bed88d335182c5097236df19430",
+        "scan_pages": 109,
+        "scan_chars": 199453
+      }
+    }
+  },
+  {
+    "wrapper_file": "BRIEF OF APPELLEES.docx",
+    "wrapper_sha256": "f8c856607da7e07a0991a49f0aaaff4a38e7bcbb31cb6f491b63202e9a654387",
+    "case_name": "PAVLIK v. PAVLIK",
+    "docket": "CA-06-089199",
+    "court": "COURT OF APPEALS OF OHIO",
+    "filed": "March 2, 2007",
+    "reporter_cite": "2007 OH App. Ct. Briefs LEXIS 164\u00a0*",
+    "lexis_type": "Initial Brief: Appellee-Respondent",
+    "title": "BRIEF OF APPELLEES",
+    "header_line_count": 36,
+    "body_chars": 22806,
+    "pdf_only_wrapper": false,
+    "level": "appellate",
+    "eviction_terms": [
+      "evict",
+      "eviction",
+      "forcible entry",
+      "forcible entry and detainer"
+    ],
+    "eviction_term_count": 4,
+    "attachments": [
+      {
+        "file": "BRIEF OF APPELLEES_Attachment1(2).pdf",
+        "sha256": "0e8bdd1e0d73475f6fae08f013a561defec500a71e8929edd9eee8eb2b0c3746",
+        "bytes": 1452547,
+        "pages": 33,
+        "extracted_chars": 0,
+        "text_layer": false,
+        "ocr_chars": 60368,
+        "ocr_cache": "ocr/0e8bdd1e0d73475f6fae08f013a561defec500a71e8929edd9eee8eb2b0c3746.json"
+      },
+      {
+        "file": "BRIEF OF APPELLEES_Attachment1(3).pdf",
+        "sha256": "be10db701854dfbd026f181ee58c238f5cd4e5b7efb72e3a7f45b43b1932ee81",
+        "bytes": 2963099,
+        "pages": 44,
+        "extracted_chars": 0,
+        "text_layer": false
+      },
+      {
+        "file": "BRIEF OF APPELLEES_Attachment1.pdf",
+        "sha256": "4f584c6242fc04172a204af9397dc196550cfad5ddffece8ee7771cd62728b25",
+        "bytes": 1430615,
+        "pages": 30,
+        "extracted_chars": 0,
+        "text_layer": false
+      }
+    ],
+    "attachment_text_layer": false,
+    "text_source": "lexis_docx",
+    "scan_filing": {
+      "brief_page_count": 2,
+      "split_rule": "certificate of service on page 2",
+      "brief_chars": 1143,
+      "record_exhibits": [
+        {
+          "label": "Record",
+          "page_range": [
+            3,
+            33
+          ],
+          "chars": 58669
+        }
+      ],
+      "furniture_removed": {
+        "efile_stamp_lines_removed": 4,
+        "page_footer_lines_removed": 59
+      },
+      "ocr": {
+        "engine": {
+          "service": "Azure AI Document Intelligence",
+          "model": "prebuilt-read",
+          "api_version": "2024-11-30",
+          "endpoint_host": "workflowdocs.cognitiveservices.azure.com",
+          "reported_api_version": "2024-11-30",
+          "reported_model": "prebuilt-read"
+        },
+        "transcribed_on": "2026-09-08",
+        "source_sha256": "0e8bdd1e0d73475f6fae08f013a561defec500a71e8929edd9eee8eb2b0c3746",
+        "scan_pages": 33,
+        "scan_chars": 60368
+      }
+    }
+  },
+  {
+    "wrapper_file": "BRIEF OF APPELLEES(2).docx",
+    "wrapper_sha256": "5f6546d960952cbfe2eddb92397bb255f3daa3c8456f2db2de692a2d59aef5da",
+    "case_name": "JACOB v. FADEL",
+    "docket": "",
+    "court": "COURT OF APPEALS OF OHIO",
+    "filed": "February 10, 2006",
+    "reporter_cite": "2006 OH App. Ct. Briefs LEXIS 612\u00a0*",
+    "lexis_type": "Initial Brief: Appellee-Respondent",
+    "title": "BRIEF OF APPELLEES(2)",
+    "header_line_count": 53,
+    "body_chars": 37497,
+    "pdf_only_wrapper": false,
+    "level": "appellate",
+    "eviction_terms": [
+      "evict",
+      "eviction",
+      "forcible entry",
+      "forcible entry and detainer"
+    ],
+    "eviction_term_count": 4,
+    "attachments": [],
+    "attachment_text_layer": false,
+    "text_source": "lexis_docx",
+    "scan_filing": null
+  },
+  {
+    "wrapper_file": "BRIEF OF APPELLEES(3).docx",
+    "wrapper_sha256": "d9f92f66175fb85f1be2dff0e39e09cf5e9ff3c017382ec1590ecafc2abc66b6",
+    "case_name": "SHERWIN-WILLIAMS CO. v. TRAVELERS CAS. & SUR. CO.",
+    "docket": "",
+    "court": "COURT OF APPEALS OF OHIO, EIGHTH JUDICIAL DISTRICT, CUYAHOGA COUNTY",
+    "filed": "July 17, 2005",
+    "reporter_cite": "2005 OH App. Ct. Briefs LEXIS 167\u00a0*",
+    "lexis_type": "Initial Brief: Appellee-Respondent",
+    "title": "BRIEF OF APPELLEES(3)",
+    "header_line_count": 111,
+    "body_chars": 70504,
+    "pdf_only_wrapper": false,
+    "level": "appellate",
+    "eviction_terms": [
+      "evicted",
+      "eviction",
+      "landlord-tenant"
+    ],
+    "eviction_term_count": 3,
+    "attachments": [],
+    "attachment_text_layer": false,
+    "text_source": "lexis_docx",
+    "scan_filing": null
+  },
+  {
+    "wrapper_file": "BRIEF OF APPELLEES(4).docx",
+    "wrapper_sha256": "13f124fdcc0de12f41a41da959a9526a5b277467c75938772a7028bad36cd31e",
+    "case_name": "SHERWIN-WILLIAMS CO. v. TRAVELERS CAS. & SUR. CO.",
+    "docket": "",
+    "court": "COURT OF APPEALS OF OHIO",
+    "filed": "July 17, 2003",
+    "reporter_cite": "2003 OH App. Ct. Briefs LEXIS 20\u00a0*",
+    "lexis_type": "Initial Brief: Appellee-Respondent",
+    "title": "BRIEF OF APPELLEES(4)",
+    "header_line_count": 111,
+    "body_chars": 70323,
+    "pdf_only_wrapper": false,
+    "level": "appellate",
+    "eviction_terms": [
+      "evicted",
+      "eviction",
+      "landlord-tenant"
+    ],
+    "eviction_term_count": 3,
+    "attachments": [],
+    "attachment_text_layer": false,
+    "text_source": "lexis_docx",
+    "scan_filing": null
+  },
+  {
+    "wrapper_file": "BRIEF OF APPELLEES DAYTON TOOL RENTAL AND ST. JOSEPH INVESTMENTS, LLC.docx",
+    "wrapper_sha256": "242d09030443c92fec51ad22b0e42887de6e21dd12c62ce415acf035af4bdb2f",
+    "case_name": "Dayton Tool Rental, St. Joseph Invs. v. Ealy",
+    "docket": "",
+    "court": "COURT OF APPEALS OF OHIO, 2ND DISTRICT",
+    "filed": "July 9, 2007",
+    "reporter_cite": "2007 OH App. Ct. Briefs LEXIS 1382\u00a0*",
+    "lexis_type": "Initial Brief: Appellee-Respondent",
+    "title": "BRIEF OF APPELLEES DAYTON TOOL RENTAL AND ST. JOSEPH INVESTMENTS, LLC",
+    "header_line_count": 15,
+    "body_chars": 14592,
+    "pdf_only_wrapper": false,
+    "level": "appellate",
+    "eviction_terms": [
+      "eviction",
+      "forcible entry and detainer",
+      "three-day notice",
+      "writ of restitution"
+    ],
+    "eviction_term_count": 4,
+    "attachments": [
+      {
+        "file": "BRIEF OF APPELLEES DAYTON TOOL RENTAL AND ST. JOSEPH INVESTMENTS, LLC._Attachment1.pdf",
+        "sha256": "2a826701394fab861a842a89a700560c67ce7480f3c6d2a86ea7233b5cd9dfac",
+        "bytes": 924089,
+        "pages": 31,
+        "extracted_chars": 2718,
+        "text_layer": true
+      }
+    ],
+    "attachment_text_layer": true,
+    "text_source": "lexis_docx",
+    "scan_filing": null
+  },
+  {
+    "wrapper_file": "Brief of Defendant-Appellee Estate of John F. Wallace, Deceased.docx",
+    "wrapper_sha256": "02f401b5008d051b41c96e0d31ed77adfbd10cde3089118fb7825a49b04a1dcb",
+    "case_name": "LEE v. WALLACE",
+    "docket": "",
+    "court": "COURT OF APPEALS OF OHIO, 8TH DISTRICT",
+    "filed": "June 15, 2009",
+    "reporter_cite": "2009 OH App. Ct. Briefs LEXIS 604\u00a0*",
+    "lexis_type": "Initial Brief: Appellee-Respondent",
+    "title": "Brief of Defendant-Appellee Estate of John F. Wallace, Deceased",
+    "header_line_count": 15,
+    "body_chars": 32235,
+    "pdf_only_wrapper": false,
+    "level": "appellate",
+    "eviction_terms": [
+      "chapter 1923",
+      "evict",
+      "evicted",
+      "eviction",
+      "forcible entry",
+      "forcible entry and detainer",
+      "landlord tenant",
+      "landlord-tenant",
+      "r.c. 1923",
+      "r.c. 5321",
+      "tenancies",
+      "tenancy",
+      "unlawful detainer"
+    ],
+    "eviction_term_count": 13,
+    "attachments": [
+      {
+        "file": "Brief of Defendant-Appellee Estate of John F. Wallace, Deceased_Attachment1.pdf",
+        "sha256": "1fa80950b5aa0290d765471219848910aad8c75b535dd9fa2c1be6d9b8511225",
+        "bytes": 2040274,
+        "pages": 63,
+        "extracted_chars": 0,
+        "text_layer": false,
+        "ocr_chars": 87603,
+        "ocr_cache": "ocr/1fa80950b5aa0290d765471219848910aad8c75b535dd9fa2c1be6d9b8511225.json"
+      }
+    ],
+    "attachment_text_layer": false,
+    "text_source": "lexis_docx",
+    "scan_filing": {
+      "brief_page_count": 23,
+      "split_rule": "certificate of service on page 23",
+      "brief_chars": 34274,
+      "record_exhibits": [
+        {
+          "label": "Record",
+          "page_range": [
+            24,
+            63
+          ],
+          "chars": 53282
+        }
+      ],
+      "furniture_removed": {
+        "efile_stamp_lines_removed": 0,
+        "page_footer_lines_removed": 46
+      },
+      "ocr": {
+        "engine": {
+          "service": "Azure AI Document Intelligence",
+          "model": "prebuilt-read",
+          "api_version": "2024-11-30",
+          "endpoint_host": "workflowdocs.cognitiveservices.azure.com",
+          "reported_api_version": "2024-11-30",
+          "reported_model": "prebuilt-read"
+        },
+        "transcribed_on": "2026-09-08",
+        "source_sha256": "1fa80950b5aa0290d765471219848910aad8c75b535dd9fa2c1be6d9b8511225",
+        "scan_pages": 63,
+        "scan_chars": 87603
+      }
+    }
+  },
+  {
+    "wrapper_file": "Brief Of Defendant-Appellees, Kevin Chambers, Dennis Dawson, Felix Fedor, And Ali Mohammadpour.docx",
+    "wrapper_sha256": "85ee53c30b0e92177c9cc8886a9b8bf472e9b326e43b6f5beb97efa1207dcc1a",
+    "case_name": "Motorists Mut. Ins. Co. v. Dandy-Jim, Inc.",
+    "docket": "",
+    "court": "COURT OF APPEALS OF OHIO, EIGHTH DISTRICT",
+    "filed": "November 24, 2008",
+    "reporter_cite": "2008 OH App. Ct. Briefs LEXIS 2408\u00a0*",
+    "lexis_type": "Initial Brief: Appellee-Respondent",
+    "title": "Brief Of Defendant-Appellees, Kevin Chambers, Dennis Dawson, Felix Fedor, And Ali Mohammadpour",
+    "header_line_count": 14,
+    "body_chars": 48576,
+    "pdf_only_wrapper": false,
+    "level": "appellate",
+    "eviction_terms": [
+      "eviction"
+    ],
+    "eviction_term_count": 1,
+    "attachments": [],
+    "attachment_text_layer": false,
+    "text_source": "lexis_docx",
+    "scan_filing": null
+  },
+  {
+    "wrapper_file": "BRIEF OF DEFENDANT_APPELLEE WESTPORT INSURANCE CORPORATION.docx",
+    "wrapper_sha256": "2be4ee2a9be830b515184a0e5df84f4f450b3ff9fea99c4409f5382784ae4e6e",
+    "case_name": "PRESS v. WESTPORT INS. CORP.",
+    "docket": "",
+    "court": "COURT OF APPEALS OF OHIO",
+    "filed": "August 17, 2007",
+    "reporter_cite": "2007 OH App. Ct. Briefs LEXIS 1005\u00a0*",
+    "lexis_type": "Initial Brief: Appellant-Petitioner",
+    "title": "BRIEF OF DEFENDANT_APPELLEE WESTPORT INSURANCE CORPORATION",
+    "header_line_count": 17,
+    "body_chars": 28001,
+    "pdf_only_wrapper": false,
+    "level": "appellate",
+    "eviction_terms": [],
+    "eviction_term_count": 0,
+    "attachments": [
+      {
+        "file": "BRIEF OF DEFENDANT_APPELLEE WESTPORT INSURANCE CORPORATION_Attachment1.pdf",
+        "sha256": "d7a3f5630c540c312ae675e46cfe6fe30ea716ecb873d9f148004cd1dcc47919",
+        "bytes": 7451175,
+        "pages": 211,
+        "extracted_chars": 0,
+        "text_layer": false,
+        "ocr_chars": 404558,
+        "ocr_cache": "ocr/d7a3f5630c540c312ae675e46cfe6fe30ea716ecb873d9f148004cd1dcc47919.json"
+      }
+    ],
+    "attachment_text_layer": false,
+    "text_source": "lexis_docx",
+    "scan_filing": {
+      "brief_page_count": 40,
+      "split_rule": "no boundary found; first 40 pages read as the brief",
+      "brief_chars": 47718,
+      "record_exhibits": [
+        {
+          "label": "Record",
+          "page_range": [
+            41,
+            211
+          ],
+          "chars": 355439
+        }
+      ],
+      "furniture_removed": {
+        "efile_stamp_lines_removed": 2,
+        "page_footer_lines_removed": 245
+      },
+      "ocr": {
+        "engine": {
+          "service": "Azure AI Document Intelligence",
+          "model": "prebuilt-read",
+          "api_version": "2024-11-30",
+          "endpoint_host": "workflowdocs.cognitiveservices.azure.com",
+          "reported_api_version": "2024-11-30",
+          "reported_model": "prebuilt-read"
+        },
+        "transcribed_on": "2026-09-08",
+        "source_sha256": "d7a3f5630c540c312ae675e46cfe6fe30ea716ecb873d9f148004cd1dcc47919",
+        "scan_pages": 211,
+        "scan_chars": 404558
+      }
+    }
+  },
+  {
+    "wrapper_file": "Brief of Plaintiff-Appellants.docx",
+    "wrapper_sha256": "f5c6265c311184b8099cb79deefbd45bba3644ea77575dc15027976f411c244d",
+    "case_name": "SOLOMON v. HARWOOD",
+    "docket": "",
+    "court": "COURT OF APPEALS OF OHIO, 8TH DISTRICT",
+    "filed": "March 2, 2011",
+    "reporter_cite": "2011 OH App. Ct. Briefs LEXIS 350\u00a0*",
+    "lexis_type": "Initial Brief: Appellant-Petitioner",
+    "title": "Brief of Plaintiff-Appellants",
+    "header_line_count": 20,
+    "body_chars": 74237,
+    "pdf_only_wrapper": false,
+    "level": "appellate",
+    "eviction_terms": [
+      "evict",
+      "evicted",
+      "eviction",
+      "forcible entry",
+      "forcible entry and detainer",
+      "writ of restitution"
+    ],
+    "eviction_term_count": 6,
+    "attachments": [
+      {
+        "file": "Brief of Plaintiff-Appellants_Attachment1.pdf",
+        "sha256": "df4890cd57330752fd97f948eaee0ca8c63790034dd8ef4a31532c4c48d97998",
+        "bytes": 1331220,
+        "pages": 50,
+        "extracted_chars": 80750,
+        "text_layer": true
+      }
+    ],
+    "attachment_text_layer": true,
+    "text_source": "lexis_docx",
+    "scan_filing": null
+  },
+  {
+    "wrapper_file": "Brief Of Plaintiff_Appellant Motorists Mutual Insurance Company.docx",
+    "wrapper_sha256": "b276d55220397ccb8186adb48a8997826983c65c97eaecc4e303e0889144923d",
+    "case_name": "Motorists Mut. Ins. Co. v. Dandy-Jim, Inc.",
+    "docket": "",
+    "court": "COURT OF APPEALS OF OHIO, EIGHTH DISTRICT",
+    "filed": "October 16, 2008",
+    "reporter_cite": "2008 OH App. Ct. Briefs LEXIS 2405\u00a0*",
+    "lexis_type": "Initial Brief: Appellant-Petitioner",
+    "title": "Brief Of Plaintiff_Appellant Motorists Mutual Insurance Company",
+    "header_line_count": 14,
+    "body_chars": 70874,
+    "pdf_only_wrapper": false,
+    "level": "appellate",
+    "eviction_terms": [
+      "eviction"
+    ],
+    "eviction_term_count": 1,
+    "attachments": [
+      {
+        "file": "Brief Of Plaintiff_Appellant Motorists Mutual Insurance Company_Attachment1.pdf",
+        "sha256": "23666b9adef608d4e34c403cc8473ede0d8fa1c029ba0f24edfe779982411acf",
+        "bytes": 1728795,
+        "pages": 41,
+        "extracted_chars": 941,
+        "text_layer": true
+      }
+    ],
+    "attachment_text_layer": true,
+    "text_source": "lexis_docx",
+    "scan_filing": null
+  },
+  {
+    "wrapper_file": "Corrected Assignments of Error and Brief of Appellant.docx",
+    "wrapper_sha256": "4c0467ed5f2fcd73a374c861e2ca67babf86a2b2c0e20d5f5cba26f4a17fa859",
+    "case_name": "CLEVELAND DEV. v. CARTER",
+    "docket": "",
+    "court": "COURT OF APPEALS OF OHIO, 8TH DISTRICT",
+    "filed": "March 18, 2011",
+    "reporter_cite": "2011 OH App. Ct. Briefs LEXIS 40\u00a0*",
+    "lexis_type": "Initial Brief: Appellant-Petitioner",
+    "title": "Corrected Assignments of Error and Brief of Appellant",
+    "header_line_count": 14,
+    "body_chars": 47474,
+    "pdf_only_wrapper": false,
+    "level": "appellate",
+    "eviction_terms": [
+      "eviction",
+      "forcible entry and detainer",
+      "r.c. 5321"
+    ],
+    "eviction_term_count": 3,
+    "attachments": [
+      {
+        "file": "Corrected Assignments of Error and Brief of Appellant_Attachment1.pdf",
+        "sha256": "08158c41a8ee4aa140c4e58b698e125fa9fba4ef92a281460a1b1f13ce7363bd",
+        "bytes": 2569801,
+        "pages": 67,
+        "extracted_chars": 54758,
+        "text_layer": true
+      }
+    ],
+    "attachment_text_layer": true,
+    "text_source": "lexis_docx",
+    "scan_filing": null
+  },
+  {
+    "wrapper_file": "CORRECTED BRIEF OF APPELLANT.docx",
+    "wrapper_sha256": "3360b5a6581f8291d84b0289cb464082fc560019b895681e04f21f8d7cb0cd54",
+    "case_name": "CARANO v. SCHOTTENSTEIN",
+    "docket": "99APG-10-1222",
+    "court": "COURT OF APPEALS OF OHIO, TENTH DISTRICT, FRANKLIN COUNTY, APPEALS DIVISION",
+    "filed": "January 5, 2000",
+    "reporter_cite": "2000 OH App. Ct. Briefs LEXIS 104\u00a0*",
+    "lexis_type": "Initial Brief: Appellant-Petitioner",
+    "title": "CORRECTED BRIEF OF APPELLANT",
+    "header_line_count": 28,
+    "body_chars": 19118,
+    "pdf_only_wrapper": false,
+    "level": "appellate",
+    "eviction_terms": [
+      "forcible entry and detainer"
+    ],
+    "eviction_term_count": 1,
+    "attachments": [
+      {
+        "file": "CORRECTED BRIEF OF APPELLANT_Attachment1.pdf",
+        "sha256": "26ed1cbd4c30f26d3daa78e898a4a1c826711817ead405600ac39680489a2973",
+        "bytes": 22166933,
+        "pages": 16,
+        "extracted_chars": 0,
+        "text_layer": false,
+        "ocr_chars": 20271,
+        "ocr_cache": "ocr/26ed1cbd4c30f26d3daa78e898a4a1c826711817ead405600ac39680489a2973.json"
+      }
+    ],
+    "attachment_text_layer": false,
+    "text_source": "lexis_docx",
+    "scan_filing": {
+      "brief_page_count": 2,
+      "split_rule": "certificate of service on page 2",
+      "brief_chars": 1025,
+      "record_exhibits": [
+        {
+          "label": "Record",
+          "page_range": [
+            3,
+            16
+          ],
+          "chars": 19221
+        }
+      ],
+      "furniture_removed": {
+        "efile_stamp_lines_removed": 0,
+        "page_footer_lines_removed": 17
+      },
+      "ocr": {
+        "engine": {
+          "service": "Azure AI Document Intelligence",
+          "model": "prebuilt-read",
+          "api_version": "2024-11-30",
+          "endpoint_host": "workflowdocs.cognitiveservices.azure.com",
+          "reported_api_version": "2024-11-30",
+          "reported_model": "prebuilt-read"
+        },
+        "transcribed_on": "2026-09-08",
+        "source_sha256": "26ed1cbd4c30f26d3daa78e898a4a1c826711817ead405600ac39680489a2973",
+        "scan_pages": 16,
+        "scan_chars": 20271
+      }
+    }
+  },
+  {
+    "wrapper_file": "DEFENDANT CAROLYN BAKER'S MOTION FOR SUMMARY JUDGMENT FILED. PO.docx",
+    "wrapper_sha256": "be0f00668c9aa2b356b87d344072237d04d531ce61b3466af634b1516ad7b16f",
+    "case_name": "FRIESE, JOHN VS . BAKER, CAROLYN et al",
+    "docket": "",
+    "court": "Ohio Common Pleas Court, Geauga County",
+    "filed": "March 7, 2024",
+    "reporter_cite": "",
+    "lexis_type": "Unknown",
+    "title": "DEFENDANT CAROLYN BAKER'S MOTION FOR SUMMARY JUDGMENT FILED. PO",
+    "header_line_count": 11,
+    "body_chars": 15345,
+    "pdf_only_wrapper": true,
+    "level": "trial",
+    "eviction_terms": [
+      "eviction",
+      "forcible entry and detainer",
+      "landlord tenant",
+      "r.c. 5321",
+      "tenancy"
+    ],
+    "eviction_term_count": 5,
+    "attachments": [
+      {
+        "file": "DEFENDANT CAROLYN BAKER'S MOTION FOR SUMMARY JUDGMENT FILED. PO_Attachment1.pdf",
+        "sha256": "cd8c2c38e0654b8c643c060d2892aa51fe1097b496d30632d28c955f75f7ab9f",
+        "bytes": 1561841,
+        "pages": 27,
+        "extracted_chars": 0,
+        "text_layer": false,
+        "ocr_chars": 30802,
+        "ocr_cache": "ocr/cd8c2c38e0654b8c643c060d2892aa51fe1097b496d30632d28c955f75f7ab9f.json"
+      }
+    ],
+    "attachment_text_layer": false,
+    "text_source": "ocr_scan",
+    "scan_filing": {
+      "brief_page_count": 11,
+      "split_rule": "certificate of service on page 11",
+      "brief_chars": 15345,
+      "record_exhibits": [
+        {
+          "label": "Record",
+          "page_range": [
+            12,
+            27
+          ],
+          "chars": 15316
+        }
+      ],
+      "furniture_removed": {
+        "efile_stamp_lines_removed": 1,
+        "page_footer_lines_removed": 23
+      },
+      "ocr": {
+        "engine": {
+          "service": "Azure AI Document Intelligence",
+          "model": "prebuilt-read",
+          "api_version": "2024-11-30",
+          "endpoint_host": "workflowdocs.cognitiveservices.azure.com",
+          "reported_api_version": "2024-11-30",
+          "reported_model": "prebuilt-read"
+        },
+        "transcribed_on": "2026-09-08",
+        "source_sha256": "cd8c2c38e0654b8c643c060d2892aa51fe1097b496d30632d28c955f75f7ab9f",
+        "scan_pages": 27,
+        "scan_chars": 30802
+      }
+    }
+  },
+  {
+    "wrapper_file": "DEFENDANT'S BRIEF IN OPPOSITION TO PLAINTIFF'S MOTION FOR SUMMARY JUDGMENT FILED.docx",
+    "wrapper_sha256": "1a624575867204f8b4f70ec42fe62636549164e53b7488593a39c09ff30980d5",
+    "case_name": "ESTATE OF ANTHONY NOTARIAN et al VS . NOTARIAN, JULIA et al",
+    "docket": "",
+    "court": "Ohio Common Pleas Court, Geauga County",
+    "filed": "April 8, 2024",
+    "reporter_cite": "",
+    "lexis_type": "Unknown",
+    "title": "DEFENDANT'S BRIEF IN OPPOSITION TO PLAINTIFF'S MOTION FOR SUMMARY JUDGMENT FILED",
+    "header_line_count": 11,
+    "body_chars": 8088,
+    "pdf_only_wrapper": true,
+    "level": "trial",
+    "eviction_terms": [
+      "evict",
+      "eviction"
+    ],
+    "eviction_term_count": 2,
+    "attachments": [
+      {
+        "file": "DEFENDANT'S BRIEF IN OPPOSITION TO PLAINTIFF'S MOTION FOR SUMMARY JUDGMENT FILED._Attachment1.pdf",
+        "sha256": "f97e786e2827912551021eefd0ba0e196e9b4c245fbd485fee9f8a7265ad5795",
+        "bytes": 1253676,
+        "pages": 24,
+        "extracted_chars": 0,
+        "text_layer": false,
+        "ocr_chars": 33623,
+        "ocr_cache": "ocr/f97e786e2827912551021eefd0ba0e196e9b4c245fbd485fee9f8a7265ad5795.json"
+      }
+    ],
+    "attachment_text_layer": false,
+    "text_source": "ocr_scan",
+    "scan_filing": {
+      "brief_page_count": 5,
+      "split_rule": "certificate of service on page 5",
+      "brief_chars": 8088,
+      "record_exhibits": [
+        {
+          "label": "Record",
+          "page_range": [
+            6,
+            24
+          ],
+          "chars": 25252
+        }
+      ],
+      "furniture_removed": {
+        "efile_stamp_lines_removed": 3,
+        "page_footer_lines_removed": 19
+      },
+      "ocr": {
+        "engine": {
+          "service": "Azure AI Document Intelligence",
+          "model": "prebuilt-read",
+          "api_version": "2024-11-30",
+          "endpoint_host": "workflowdocs.cognitiveservices.azure.com",
+          "reported_api_version": "2024-11-30",
+          "reported_model": "prebuilt-read"
+        },
+        "transcribed_on": "2026-09-08",
+        "source_sha256": "f97e786e2827912551021eefd0ba0e196e9b4c245fbd485fee9f8a7265ad5795",
+        "scan_pages": 24,
+        "scan_chars": 33623
+      }
+    }
+  },
+  {
+    "wrapper_file": "DEFENDANT'S REPLY BRIEF IN SUPPORT OF MOTION FOR SUMMARY JUDGMENT.docx",
+    "wrapper_sha256": "c98f49aa15d4719bf12ca6552d08098ab9a54d0d250d3254bfaf356801a15c53",
+    "case_name": "CARROLL v. HOUSER",
+    "docket": ": CV-2006-06-4106",
+    "court": "COURT OF COMMON PLEAS OF OHIO, SUMMIT COUNTY",
+    "filed": "April 26, 2007",
+    "reporter_cite": "2007 OH C.P. CT. BRIEFS LEXIS 6281\u00a0*",
+    "lexis_type": "Brief",
+    "title": "DEFENDANT'S REPLY BRIEF IN SUPPORT OF MOTION FOR SUMMARY JUDGMENT",
+    "header_line_count": 16,
+    "body_chars": 81887,
+    "pdf_only_wrapper": false,
+    "level": "trial",
+    "eviction_terms": [
+      "eviction",
+      "landlord-tenant",
+      "notice to leave the premises",
+      "r.c. 5321",
+      "three-day notice"
+    ],
+    "eviction_term_count": 5,
+    "attachments": [
+      {
+        "file": "DEFENDANT'S REPLY BRIEF IN SUPPORT OF MOTION FOR SUMMARY JUDGMENT_Attachment1.pdf",
+        "sha256": "a1ca73bc5b0feb9cb0dbbd3b561623281a7a5b83b3895ad39de34049cdda3616",
+        "bytes": 2057719,
+        "pages": 29,
+        "extracted_chars": 0,
+        "text_layer": false,
+        "ocr_chars": 82436,
+        "ocr_cache": "ocr/a1ca73bc5b0feb9cb0dbbd3b561623281a7a5b83b3895ad39de34049cdda3616.json"
+      }
+    ],
+    "attachment_text_layer": false,
+    "text_source": "lexis_docx",
+    "scan_filing": {
+      "brief_page_count": 10,
+      "split_rule": "certificate of service on page 10",
+      "brief_chars": 17935,
+      "record_exhibits": [
+        {
+          "label": "Record",
+          "page_range": [
+            11,
+            29
+          ],
+          "chars": 64469
+        }
+      ],
+      "furniture_removed": {
+        "efile_stamp_lines_removed": 1,
+        "page_footer_lines_removed": 14
+      },
+      "ocr": {
+        "engine": {
+          "service": "Azure AI Document Intelligence",
+          "model": "prebuilt-read",
+          "api_version": "2024-11-30",
+          "endpoint_host": "workflowdocs.cognitiveservices.azure.com",
+          "reported_api_version": "2024-11-30",
+          "reported_model": "prebuilt-read"
+        },
+        "transcribed_on": "2026-09-08",
+        "source_sha256": "a1ca73bc5b0feb9cb0dbbd3b561623281a7a5b83b3895ad39de34049cdda3616",
+        "scan_pages": 29,
+        "scan_chars": 82436
+      }
+    }
+  },
+  {
+    "wrapper_file": "DEFENDANT-APPELLANT'S ASSIGNMENTS OF ERROR AND BRIEF.docx",
+    "wrapper_sha256": "d10968236ef4a9c119f63077a1a05f5ce38f0e9486e32afeb4e06b139b6b1d4f",
+    "case_name": "CITY OF LYNDHURST v. RAPOPORT",
+    "docket": "CA 07 089270",
+    "court": "COURT OF APPEALS OF OHIO",
+    "filed": "February 7, 2007",
+    "reporter_cite": "2007 OH App. Ct. Briefs LEXIS 155\u00a0*",
+    "lexis_type": "Initial Brief: Appellant-Petitioner",
+    "title": "DEFENDANT-APPELLANT'S ASSIGNMENTS OF ERROR AND BRIEF",
+    "header_line_count": 87,
+    "body_chars": 44258,
+    "pdf_only_wrapper": false,
+    "level": "appellate",
+    "eviction_terms": [
+      "eviction"
+    ],
+    "eviction_term_count": 1,
+    "attachments": [
+      {
+        "file": "DEFENDANT-APPELLANT'S ASSIGNMENTS OF ERROR AND BRIEF_Attachment1.pdf",
+        "sha256": "7d5586bbff8f0ebf3c65268aedef541e88bd404e8fea98cf938b684800bcb5e0",
+        "bytes": 1204360,
+        "pages": 33,
+        "extracted_chars": 0,
+        "text_layer": false,
+        "ocr_chars": 48495,
+        "ocr_cache": "ocr/7d5586bbff8f0ebf3c65268aedef541e88bd404e8fea98cf938b684800bcb5e0.json"
+      }
+    ],
+    "attachment_text_layer": false,
+    "text_source": "lexis_docx",
+    "scan_filing": {
+      "brief_page_count": 33,
+      "split_rule": "certificate of service on page 33",
+      "brief_chars": 48388,
+      "record_exhibits": [],
+      "furniture_removed": {
+        "efile_stamp_lines_removed": 0,
+        "page_footer_lines_removed": 57
+      },
+      "ocr": {
+        "engine": {
+          "service": "Azure AI Document Intelligence",
+          "model": "prebuilt-read",
+          "api_version": "2024-11-30",
+          "endpoint_host": "workflowdocs.cognitiveservices.azure.com",
+          "reported_api_version": "2024-11-30",
+          "reported_model": "prebuilt-read"
+        },
+        "transcribed_on": "2026-09-08",
+        "source_sha256": "7d5586bbff8f0ebf3c65268aedef541e88bd404e8fea98cf938b684800bcb5e0",
+        "scan_pages": 33,
+        "scan_chars": 48495
+      }
+    }
+  },
+  {
+    "wrapper_file": "DEFENDANT-APPELLANT'S BRIEF.docx",
+    "wrapper_sha256": "380de5124770fd1b7ecfd0e135eb58c2615b949775f8c33fe584c64f3f5f5bf6",
+    "case_name": "BUSH v. ECKMAN",
+    "docket": "2007 CA 00115",
+    "court": "COURT OF APPEALS OF OHIO",
+    "filed": "October 17, 2007",
+    "reporter_cite": "2007 OH App. Ct. Briefs LEXIS 118\u00a0*",
+    "lexis_type": "Initial Brief: Appellant-Petitioner",
+    "title": "DEFENDANT-APPELLANT'S BRIEF",
+    "header_line_count": 22,
+    "body_chars": 14587,
+    "pdf_only_wrapper": false,
+    "level": "appellate",
+    "eviction_terms": [
+      "forcible entry and detainer",
+      "r.c. 5321"
+    ],
+    "eviction_term_count": 2,
+    "attachments": [
+      {
+        "file": "DEFENDANT-APPELLANT'S BRIEF_Attachment1.pdf",
+        "sha256": "b5d38e76e2d8d1b52eb06703f44657fb471f688e913d20e6d67d6740b5805849",
+        "bytes": 300590,
+        "pages": 14,
+        "extracted_chars": 0,
+        "text_layer": false,
+        "ocr_chars": 18669,
+        "ocr_cache": "ocr/b5d38e76e2d8d1b52eb06703f44657fb471f688e913d20e6d67d6740b5805849.json"
+      }
+    ],
+    "attachment_text_layer": false,
+    "text_source": "lexis_docx",
+    "scan_filing": {
+      "brief_page_count": 2,
+      "split_rule": "certificate of service on page 2",
+      "brief_chars": 1296,
+      "record_exhibits": [
+        {
+          "label": "Record",
+          "page_range": [
+            3,
+            14
+          ],
+          "chars": 17337
+        }
+      ],
+      "furniture_removed": {
+        "efile_stamp_lines_removed": 0,
+        "page_footer_lines_removed": 24
+      },
+      "ocr": {
+        "engine": {
+          "service": "Azure AI Document Intelligence",
+          "model": "prebuilt-read",
+          "api_version": "2024-11-30",
+          "endpoint_host": "workflowdocs.cognitiveservices.azure.com",
+          "reported_api_version": "2024-11-30",
+          "reported_model": "prebuilt-read"
+        },
+        "transcribed_on": "2026-09-08",
+        "source_sha256": "b5d38e76e2d8d1b52eb06703f44657fb471f688e913d20e6d67d6740b5805849",
+        "scan_pages": 14,
+        "scan_chars": 18669
+      }
+    }
+  },
+  {
+    "wrapper_file": "DEFENDANT-APPELLEES' APPELLATE BRIEF.docx",
+    "wrapper_sha256": "55ace6854978b30ef34ce99f332eacb3b00e8b1675e1b43e00e63c63c258e3e9",
+    "case_name": "PRESSER v. RCP MAYFIELD, LLC,",
+    "docket": ": CA 08 92073",
+    "court": "COURT OF APPEALS OF OHIO, 8TH DISTRICT",
+    "filed": "December 30, 2008",
+    "reporter_cite": "2008 OH App. Ct. Briefs LEXIS 2130\u00a0*",
+    "lexis_type": "Initial Brief: Appellee-Respondent",
+    "title": "DEFENDANT-APPELLEES' APPELLATE BRIEF",
+    "header_line_count": 15,
+    "body_chars": 44152,
+    "pdf_only_wrapper": false,
+    "level": "appellate",
+    "eviction_terms": [
+      "eviction",
+      "tenancy"
+    ],
+    "eviction_term_count": 2,
+    "attachments": [
+      {
+        "file": "DEFENDANT-APPELLEES' APPELLATE BRIEF_Attachment1.pdf",
+        "sha256": "068ba2e287e0b243a1b6463abebf84d3568c6c249cdf8b5809ae2bdc1b204458",
+        "bytes": 1058692,
+        "pages": 32,
+        "extracted_chars": 0,
+        "text_layer": false,
+        "ocr_chars": 46675,
+        "ocr_cache": "ocr/068ba2e287e0b243a1b6463abebf84d3568c6c249cdf8b5809ae2bdc1b204458.json"
+      }
+    ],
+    "attachment_text_layer": false,
+    "text_source": "lexis_docx",
+    "scan_filing": {
+      "brief_page_count": 32,
+      "split_rule": "certificate of service on page 32",
+      "brief_chars": 46559,
+      "record_exhibits": [],
+      "furniture_removed": {
+        "efile_stamp_lines_removed": 1,
+        "page_footer_lines_removed": 35
+      },
+      "ocr": {
+        "engine": {
+          "service": "Azure AI Document Intelligence",
+          "model": "prebuilt-read",
+          "api_version": "2024-11-30",
+          "endpoint_host": "workflowdocs.cognitiveservices.azure.com",
+          "reported_api_version": "2024-11-30",
+          "reported_model": "prebuilt-read"
+        },
+        "transcribed_on": "2026-09-08",
+        "source_sha256": "068ba2e287e0b243a1b6463abebf84d3568c6c249cdf8b5809ae2bdc1b204458",
+        "scan_pages": 32,
+        "scan_chars": 46675
+      }
+    }
+  },
+  {
+    "wrapper_file": "LENDER SALONE'S MEMORANDUM IN RESPONSE TO THE STOVALLS' MEMORANDUM IN SUPPORT OF JURISDICTION.docx",
+    "wrapper_sha256": "025838925e55b76433974811e6a9aca3d3f0b1c93f4dabc6ba2dce06e30c98d5",
+    "case_name": "SALONE v. STOVALL",
+    "docket": "2025-0617",
+    "court": "SUPREME COURT OF OHIO",
+    "filed": "June 4, 2025",
+    "reporter_cite": "2025 OH S. CT. BRIEFS LEXIS 777\u00a0*",
+    "lexis_type": "Brief",
+    "title": "LENDER SALONE'S MEMORANDUM IN RESPONSE TO THE STOVALLS' MEMORANDUM IN SUPPORT OF JURISDICTION",
+    "header_line_count": 15,
+    "body_chars": 12411,
+    "pdf_only_wrapper": false,
+    "level": "appellate",
+    "eviction_terms": [
+      "evict",
+      "eviction"
+    ],
+    "eviction_term_count": 2,
+    "attachments": [
+      {
+        "file": "LENDER SALONE'S MEMORANDUM IN RESPONSE TO THE STOVALLS' MEMORANDUM IN SUPPORT OF JURISDICTION_Attach.pdf",
+        "sha256": "e50e25bdd2a2f12907af76aaa59a7a19fe1b927afde86030e6ca82763e0c2b09",
+        "bytes": 158590,
+        "pages": 10,
+        "extracted_chars": 15016,
+        "text_layer": true
+      }
+    ],
+    "attachment_text_layer": true,
+    "text_source": "lexis_docx",
+    "scan_filing": null
+  },
+  {
+    "wrapper_file": "MEMORANDUM.docx",
+    "wrapper_sha256": "ac1280a90e8b052b7d04b95b940b030e7ff294d3756577d80b097c0f710a34ae",
+    "case_name": "OTARMA vs MIAMI TOWNSHIP OHIO",
+    "docket": "",
+    "court": "Ohio Common Pleas Court, Montgomery County",
+    "filed": "January 7, 2019",
+    "reporter_cite": "",
+    "lexis_type": "Memorandum",
+    "title": "MEMORANDUM",
+    "header_line_count": 11,
+    "body_chars": 0,
+    "pdf_only_wrapper": true,
+    "level": "trial",
+    "eviction_terms": [],
+    "eviction_term_count": 0,
+    "attachments": [
+      {
+        "file": "MEMORANDUM_Attachment1.pdf",
+        "sha256": "d9386b13411081dceab7538f8acf97c80fc08346161e59caf276cf1ed8968efc",
+        "bytes": 154043,
+        "pages": 17,
+        "extracted_chars": 29564,
+        "text_layer": true
+      }
+    ],
+    "attachment_text_layer": true,
+    "text_source": "lexis_docx",
+    "scan_filing": null
+  },
+  {
+    "wrapper_file": "MEMORANDUM IN RESPONSE TO JURISDICTION BY APPELLEE JOSEPH DiBAGGIO, ESQ.docx",
+    "wrapper_sha256": "3daf87da31c06afae1ec22b0e5e496facab7be5b575e21cd629fb07a22f8c5ad",
+    "case_name": "LICITRI v. DiBAGGIO",
+    "docket": "2024-0653",
+    "court": "SUPREME COURT OF OHIO",
+    "filed": "June 4, 2024",
+    "reporter_cite": "2024 OH S. CT. BRIEFS LEXIS 890\u00a0*",
+    "lexis_type": "Brief",
+    "title": "MEMORANDUM IN RESPONSE TO JURISDICTION BY APPELLEE JOSEPH DiBAGGIO, ESQ",
+    "header_line_count": 15,
+    "body_chars": 22290,
+    "pdf_only_wrapper": false,
+    "level": "appellate",
+    "eviction_terms": [],
+    "eviction_term_count": 0,
+    "attachments": [
+      {
+        "file": "MEMORANDUM IN RESPONSE TO JURISDICTION BY APPELLEE JOSEPH DiBAGGIO, ESQ._Attachment1.pdf",
+        "sha256": "527be311bad70e6f442a3d97ecf8179ae87e8bcce3a54b045bc40fedaa52b1aa",
+        "bytes": 302315,
+        "pages": 16,
+        "extracted_chars": 27644,
+        "text_layer": true
+      }
+    ],
+    "attachment_text_layer": true,
+    "text_source": "lexis_docx",
+    "scan_filing": null
+  },
+  {
+    "wrapper_file": "MEMORANDUM IN SUPPORT OF JURISIDICTION OF DEFENDANTS_APPELLANTS, MATTHEW AND KATHI YEVTICH.docx",
+    "wrapper_sha256": "2e9dde1a91d559bdfa7e0dd24c9faa05f449015dc1b5b87b19d849aae8d32662",
+    "case_name": "Deutsche Bank Nat'l Trust Co. v. Yevtich",
+    "docket": "",
+    "court": "Supreme Court Case No.: 2017-1304",
+    "filed": "September 18, 2017",
+    "reporter_cite": "2017 OH S. Ct. Briefs LEXIS 1872\u00a0*",
+    "lexis_type": "Brief",
+    "title": "MEMORANDUM IN SUPPORT OF JURISIDICTION OF DEFENDANTS_APPELLANTS, MATTHEW AND KATHI YEVTICH",
+    "header_line_count": 15,
+    "body_chars": 13637,
+    "pdf_only_wrapper": false,
+    "level": "appellate",
+    "eviction_terms": [
+      "eviction"
+    ],
+    "eviction_term_count": 1,
+    "attachments": [
+      {
+        "file": "MEMORANDUM IN SUPPORT OF JURISIDICTION OF DEFENDANTS_APPELLANTS, MATTHEW AND KATHI YEVTICH_Attachmen.pdf",
+        "sha256": "3ae79c1dfda65a1b95a2c826d3461145c02eb631a5856d1fa4b47873c1bed113",
+        "bytes": 67537,
+        "pages": 9,
+        "extracted_chars": 15619,
+        "text_layer": true
+      }
+    ],
+    "attachment_text_layer": true,
+    "text_source": "lexis_docx",
+    "scan_filing": null
+  },
+  {
+    "wrapper_file": "MERIT BRIEF OF APPELLANT.docx",
+    "wrapper_sha256": "bcca071de8a9f23c2ba1d65c5c7d3b5ea87e5df0411998827fae25a041194d79",
+    "case_name": "STONE v. CAZEAU",
+    "docket": "07CA009164",
+    "court": "COURT OF APPEALS OF OHIO, 9TH DISTRICT",
+    "filed": "July 25, 2007",
+    "reporter_cite": "2007 OH App. Ct. Briefs LEXIS 2790\u00a0*",
+    "lexis_type": "Initial Brief: Appellant-Petitioner",
+    "title": "MERIT BRIEF OF APPELLANT",
+    "header_line_count": 14,
+    "body_chars": 15787,
+    "pdf_only_wrapper": false,
+    "level": "appellate",
+    "eviction_terms": [
+      "chapter 1923",
+      "evicted",
+      "eviction",
+      "forcible entry and detainer"
+    ],
+    "eviction_term_count": 4,
+    "attachments": [
+      {
+        "file": "MERIT BRIEF OF APPELLANT_Attachment1.pdf",
+        "sha256": "6262babdd0c05001684efff7a117d6f0f90514519aa392bc25f3cb50fac934a8",
+        "bytes": 538534,
+        "pages": 18,
+        "extracted_chars": 0,
+        "text_layer": false,
+        "ocr_chars": 20605,
+        "ocr_cache": "ocr/6262babdd0c05001684efff7a117d6f0f90514519aa392bc25f3cb50fac934a8.json"
+      }
+    ],
+    "attachment_text_layer": false,
+    "text_source": "lexis_docx",
+    "scan_filing": {
+      "brief_page_count": 18,
+      "split_rule": "certificate of service on page 18",
+      "brief_chars": 20565,
+      "record_exhibits": [],
+      "furniture_removed": {
+        "efile_stamp_lines_removed": 0,
+        "page_footer_lines_removed": 25
+      },
+      "ocr": {
+        "engine": {
+          "service": "Azure AI Document Intelligence",
+          "model": "prebuilt-read",
+          "api_version": "2024-11-30",
+          "endpoint_host": "workflowdocs.cognitiveservices.azure.com",
+          "reported_api_version": "2024-11-30",
+          "reported_model": "prebuilt-read"
+        },
+        "transcribed_on": "2026-09-08",
+        "source_sha256": "6262babdd0c05001684efff7a117d6f0f90514519aa392bc25f3cb50fac934a8",
+        "scan_pages": 18,
+        "scan_chars": 20605
+      }
+    }
+  },
+  {
+    "wrapper_file": "MOTION FOR RECONSIDERATION OF APPELLANT KATHLEEN TALLIERE.docx",
+    "wrapper_sha256": "7d941d5a60de60150b293397258188b2649985a523b0a45142576bd52fbe4cab",
+    "case_name": "DEUTSCHE BANK NAT'L TRUST CO. v. TALLIERE",
+    "docket": "",
+    "court": "Supreme Court Case No. 2024-0635",
+    "filed": "August 2, 2024",
+    "reporter_cite": "2024 OH S. CT. BRIEFS LEXIS 936\u00a0*",
+    "lexis_type": "Brief",
+    "title": "MOTION FOR RECONSIDERATION OF APPELLANT KATHLEEN TALLIERE",
+    "header_line_count": 14,
+    "body_chars": 19434,
+    "pdf_only_wrapper": false,
+    "level": "appellate",
+    "eviction_terms": [],
+    "eviction_term_count": 0,
+    "attachments": [],
+    "attachment_text_layer": false,
+    "text_source": "lexis_docx",
+    "scan_filing": null
+  },
+  {
+    "wrapper_file": "MOTION FOR SUMMARY JUDGMENT.docx",
+    "wrapper_sha256": "b36cab6b8227efbfd0475f1a54fa8e8d44e65c801a4404d40f478248ec12acb2",
+    "case_name": "DEUTSCHE BANK NATIONAL TRUST COMPANY vs. ROSS, ALANDA et al EHK",
+    "docket": "",
+    "court": "Ohio Common Pleas Court, Delaware County",
+    "filed": "December 30, 2015",
+    "reporter_cite": "",
+    "lexis_type": "Motion",
+    "title": "MOTION FOR SUMMARY JUDGMENT",
+    "header_line_count": 11,
+    "body_chars": 104778,
+    "pdf_only_wrapper": true,
+    "level": "trial",
+    "eviction_terms": [
+      "eviction"
+    ],
+    "eviction_term_count": 1,
+    "attachments": [
+      {
+        "file": "MOTION FOR SUMMARY JUDGMENT_Attachment1.pdf",
+        "sha256": "14e7e02c920c719f517903721740c13b99de35ae384eab8b7c77b523681cb632",
+        "bytes": 3252592,
+        "pages": 72,
+        "extracted_chars": 0,
+        "text_layer": false,
+        "ocr_chars": 161233,
+        "ocr_cache": "ocr/14e7e02c920c719f517903721740c13b99de35ae384eab8b7c77b523681cb632.json"
+      }
+    ],
+    "attachment_text_layer": false,
+    "text_source": "ocr_scan",
+    "scan_filing": {
+      "brief_page_count": 40,
+      "split_rule": "no boundary found; first 40 pages read as the brief",
+      "brief_chars": 104778,
+      "record_exhibits": [
+        {
+          "label": "Record",
+          "page_range": [
+            41,
+            72
+          ],
+          "chars": 55832
+        }
+      ],
+      "furniture_removed": {
+        "efile_stamp_lines_removed": 0,
+        "page_footer_lines_removed": 182
+      },
+      "ocr": {
+        "engine": {
+          "service": "Azure AI Document Intelligence",
+          "model": "prebuilt-read",
+          "api_version": "2024-11-30",
+          "endpoint_host": "workflowdocs.cognitiveservices.azure.com",
+          "reported_api_version": "2024-11-30",
+          "reported_model": "prebuilt-read"
+        },
+        "transcribed_on": "2026-09-08",
+        "source_sha256": "14e7e02c920c719f517903721740c13b99de35ae384eab8b7c77b523681cb632",
+        "scan_pages": 72,
+        "scan_chars": 161233
+      }
+    }
+  },
+  {
+    "wrapper_file": "MOTION FOR SUMMARY JUDGMENT FILED. PO.docx",
+    "wrapper_sha256": "86e7b8e8e8a49fd09a1ad22e985095b3948892801f8a65ffee01ac28bfe22e54",
+    "case_name": "GEAUGA COUNTY BOARD OF HEALTH et al VS . ECHOLS, SELLIE et al",
+    "docket": "",
+    "court": "Ohio Common Pleas Court, Geauga County",
+    "filed": "October 15, 2024",
+    "reporter_cite": "",
+    "lexis_type": "Unknown",
+    "title": "MOTION FOR SUMMARY JUDGMENT FILED. PO",
+    "header_line_count": 11,
+    "body_chars": 4937,
+    "pdf_only_wrapper": true,
+    "level": "trial",
+    "eviction_terms": [],
+    "eviction_term_count": 0,
+    "attachments": [
+      {
+        "file": "MOTION FOR SUMMARY JUDGMENT FILED. PO_Attachment1.pdf",
+        "sha256": "9a57269e9fec6347a50ceb544eae64bd00a002bfb68e1611f088d00f75e76b0b",
+        "bytes": 269976,
+        "pages": 8,
+        "extracted_chars": 0,
+        "text_layer": false,
+        "ocr_chars": 10219,
+        "ocr_cache": "ocr/9a57269e9fec6347a50ceb544eae64bd00a002bfb68e1611f088d00f75e76b0b.json"
+      }
+    ],
+    "attachment_text_layer": false,
+    "text_source": "ocr_scan",
+    "scan_filing": {
+      "brief_page_count": 4,
+      "split_rule": "certificate of service on page 4",
+      "brief_chars": 4937,
+      "record_exhibits": [
+        {
+          "label": "Record",
+          "page_range": [
+            5,
+            8
+          ],
+          "chars": 5055
+        }
+      ],
+      "furniture_removed": {
+        "efile_stamp_lines_removed": 2,
+        "page_footer_lines_removed": 6
+      },
+      "ocr": {
+        "engine": {
+          "service": "Azure AI Document Intelligence",
+          "model": "prebuilt-read",
+          "api_version": "2024-11-30",
+          "endpoint_host": "workflowdocs.cognitiveservices.azure.com",
+          "reported_api_version": "2024-11-30",
+          "reported_model": "prebuilt-read"
+        },
+        "transcribed_on": "2026-09-08",
+        "source_sha256": "9a57269e9fec6347a50ceb544eae64bd00a002bfb68e1611f088d00f75e76b0b",
+        "scan_pages": 8,
+        "scan_chars": 10219
+      }
+    }
+  },
+  {
+    "wrapper_file": "MOTION FOR SUMMARY JUDGMENT OF THE CINCINNATI INSURANCE COMPANY AND AFFIDAVIT OF ANTHONY E HENN; EXH.docx",
+    "wrapper_sha256": "1cb869981a1878c05faca8de0895b67f98117e96093aa3ca36e39cc337e767c8",
+    "case_name": "CINCINNATI INSURANCE COMPANY Vs. AMERISOURCEBERGEN DRUG CORPORATIONet al",
+    "docket": "",
+    "court": "Ohio Common Pleas Court, Butler County",
+    "filed": "July 7, 2015",
+    "reporter_cite": "",
+    "lexis_type": "Motion",
+    "title": "MOTION FOR SUMMARY JUDGMENT OF THE CINCINNATI INSURANCE COMPANY AND AFFIDAVIT OF ANTHONY E HENN; EXH",
+    "header_line_count": 11,
+    "body_chars": 63129,
+    "pdf_only_wrapper": true,
+    "level": "trial",
+    "eviction_terms": [
+      "eviction"
+    ],
+    "eviction_term_count": 1,
+    "attachments": [
+      {
+        "file": "MOTION FOR SUMMARY JUDGMENT OF THE CINCINNATI INSURANCE COMPANY AND AFFIDAVIT OF ANTHONY E HENN; EXH.pdf",
+        "sha256": "90ca097783a06c14443639b6ee9d0a0fbe7143fe30371124f6746a811b82456f",
+        "bytes": 12796882,
+        "pages": 91,
+        "extracted_chars": 0,
+        "text_layer": false,
+        "ocr_chars": 163648,
+        "ocr_cache": "ocr/90ca097783a06c14443639b6ee9d0a0fbe7143fe30371124f6746a811b82456f.json"
+      }
+    ],
+    "attachment_text_layer": false,
+    "text_source": "ocr_scan",
+    "scan_filing": {
+      "brief_page_count": 30,
+      "split_rule": "certificate of service on page 30",
+      "brief_chars": 63129,
+      "record_exhibits": [
+        {
+          "label": "Record",
+          "page_range": [
+            31,
+            31
+          ],
+          "chars": 816
+        },
+        {
+          "label": "Exhibit A",
+          "page_range": [
+            32,
+            57
+          ],
+          "chars": 42083
+        },
+        {
+          "label": "Exhibit B",
+          "page_range": [
+            58,
+            61
+          ],
+          "chars": 1885
+        },
+        {
+          "label": "Exhibit C",
+          "page_range": [
+            62,
+            72
+          ],
+          "chars": 21371
+        },
+        {
+          "label": "Exhibit D",
+          "page_range": [
+            73,
+            91
+          ],
+          "chars": 34278
+        }
+      ],
+      "furniture_removed": {
+        "efile_stamp_lines_removed": 0,
+        "page_footer_lines_removed": 63
+      },
+      "ocr": {
+        "engine": {
+          "service": "Azure AI Document Intelligence",
+          "model": "prebuilt-read",
+          "api_version": "2024-11-30",
+          "endpoint_host": "workflowdocs.cognitiveservices.azure.com",
+          "reported_api_version": "2024-11-30",
+          "reported_model": "prebuilt-read"
+        },
+        "transcribed_on": "2026-09-08",
+        "source_sha256": "90ca097783a06c14443639b6ee9d0a0fbe7143fe30371124f6746a811b82456f",
+        "scan_pages": 91,
+        "scan_chars": 163648
+      }
+    }
+  },
+  {
+    "wrapper_file": "Motion Summary Judgment Filed.docx",
+    "wrapper_sha256": "a8751a8da4a19644cff06e8ba6f2693b43ce4d382fa9d863de1b6e6388c812be",
+    "case_name": "(CD)YODER VS WATERFORD ET AL",
+    "docket": "",
+    "court": "Ohio Common Pleas Court, Lucas County",
+    "filed": "October 16, 2024",
+    "reporter_cite": "",
+    "lexis_type": "Motion",
+    "title": "Motion Summary Judgment Filed",
+    "header_line_count": 11,
+    "body_chars": 0,
+    "pdf_only_wrapper": true,
+    "level": "trial",
+    "eviction_terms": [],
+    "eviction_term_count": 0,
+    "attachments": [
+      {
+        "file": "Motion Summary Judgment Filed_Attachment1.pdf",
+        "sha256": "4d8ddb66601390d042a272cc1bb6f028352178152cb9814c39d96d75160954f3",
+        "bytes": 15363352,
+        "pages": 91,
+        "extracted_chars": 309032,
+        "text_layer": true
+      }
+    ],
+    "attachment_text_layer": true,
+    "text_source": "lexis_docx",
+    "scan_filing": null
+  },
+  {
+    "wrapper_file": "No Title in Original.docx",
+    "wrapper_sha256": "dac9d4201140fcef0e3dfecd33a6d72f196c3c4b29bf8d273005ca74c8e5a4a2",
+    "case_name": "OTARMA vs MIAMI TOWNSHIP OHIO",
+    "docket": "",
+    "court": "Ohio Common Pleas Court, Montgomery County",
+    "filed": "August 31, 2022",
+    "reporter_cite": "",
+    "lexis_type": "Unknown",
+    "title": "No Title in Original",
+    "header_line_count": 10,
+    "body_chars": 0,
+    "pdf_only_wrapper": true,
+    "level": "trial",
+    "eviction_terms": [],
+    "eviction_term_count": 0,
+    "attachments": [
+      {
+        "file": "No Title in Original_Attachment1.pdf",
+        "sha256": "6b70dc6f1fd7ed8e666562b28cd7d200909c4884cda246fd3a371f2203cea9a5",
+        "bytes": 225691,
+        "pages": 15,
+        "extracted_chars": 24956,
+        "text_layer": true
+      }
+    ],
+    "attachment_text_layer": true,
+    "text_source": "lexis_docx",
+    "scan_filing": null
+  },
+  {
+    "wrapper_file": "PLAINTIFF'S MOTION FOR PARTIAL SUMMARY JUDGMENT FILED. PO.docx",
+    "wrapper_sha256": "cba40ad9ce56b709e3a0fbe2fb798c41ac5f31dc89239dd99ca3df87b446a8c7",
+    "case_name": "ESTATE OF ANTHONY NOTARIAN et al VS . NOTARIAN, JULIA et al",
+    "docket": "",
+    "court": "Ohio Common Pleas Court, Geauga County",
+    "filed": "January 25, 2024",
+    "reporter_cite": "",
+    "lexis_type": "Unknown",
+    "title": "PLAINTIFF'S MOTION FOR PARTIAL SUMMARY JUDGMENT FILED. PO",
+    "header_line_count": 11,
+    "body_chars": 14224,
+    "pdf_only_wrapper": true,
+    "level": "trial",
+    "eviction_terms": [
+      "evict",
+      "evicted",
+      "eviction",
+      "forcible entry",
+      "forcible entry and detainer",
+      "writ of restitution"
+    ],
+    "eviction_term_count": 6,
+    "attachments": [
+      {
+        "file": "PLAINTIFF'S MOTION FOR PARTIAL SUMMARY JUDGMENT FILED. PO_Attachment1.pdf",
+        "sha256": "555070cc92d509f17930470b0c074c0e1a490f02faf4a263c2baf2cf311baf87",
+        "bytes": 12260761,
+        "pages": 78,
+        "extracted_chars": 0,
+        "text_layer": false,
+        "ocr_chars": 86924,
+        "ocr_cache": "ocr/555070cc92d509f17930470b0c074c0e1a490f02faf4a263c2baf2cf311baf87.json"
+      }
+    ],
+    "attachment_text_layer": false,
+    "text_source": "ocr_scan",
+    "scan_filing": {
+      "brief_page_count": 12,
+      "split_rule": "certificate of service on page 12",
+      "brief_chars": 14224,
+      "record_exhibits": [
+        {
+          "label": "Record",
+          "page_range": [
+            13,
+            78
+          ],
+          "chars": 72406
+        }
+      ],
+      "furniture_removed": {
+        "efile_stamp_lines_removed": 1,
+        "page_footer_lines_removed": 47
+      },
+      "ocr": {
+        "engine": {
+          "service": "Azure AI Document Intelligence",
+          "model": "prebuilt-read",
+          "api_version": "2024-11-30",
+          "endpoint_host": "workflowdocs.cognitiveservices.azure.com",
+          "reported_api_version": "2024-11-30",
+          "reported_model": "prebuilt-read"
+        },
+        "transcribed_on": "2026-09-08",
+        "source_sha256": "555070cc92d509f17930470b0c074c0e1a490f02faf4a263c2baf2cf311baf87",
+        "scan_pages": 78,
+        "scan_chars": 86924
+      }
+    }
+  },
+  {
+    "wrapper_file": "PLAINTIFFS REPLY TO DEFENDANT'S BRIEF IN OPPOSITION TO PLAINTIFF'S MOTION FOR PARTIAL SUMMARY JUDGME.docx",
+    "wrapper_sha256": "24a85fdc885ff0c0afebce833043c643559592ae0e9144aae7b6b10ef6cabd9b",
+    "case_name": "ESTATE OF ANTHONY NOTARIAN et al VS . NOTARIAN, JULIA et al",
+    "docket": "",
+    "court": "Ohio Common Pleas Court, Geauga County",
+    "filed": "April 15, 2024",
+    "reporter_cite": "",
+    "lexis_type": "Unknown",
+    "title": "PLAINTIFFS REPLY TO DEFENDANT'S BRIEF IN OPPOSITION TO PLAINTIFF'S MOTION FOR PARTIAL SUMMARY JUDGME",
+    "header_line_count": 11,
+    "body_chars": 9268,
+    "pdf_only_wrapper": true,
+    "level": "trial",
+    "eviction_terms": [
+      "chapter 1923",
+      "eviction",
+      "forcible entry",
+      "forcible entry and detainer"
+    ],
+    "eviction_term_count": 4,
+    "attachments": [
+      {
+        "file": "PLAINTIFFS REPLY TO DEFENDANT'S BRIEF IN OPPOSITION TO PLAINTIFF'S MOTION FOR PARTIAL SUMMARY JUDGME.pdf",
+        "sha256": "a4c2023105bdb2177bcb282a124127b9a53d15f6eb50e12ad15480c0904b64e2",
+        "bytes": 337423,
+        "pages": 8,
+        "extracted_chars": 0,
+        "text_layer": false,
+        "ocr_chars": 9464,
+        "ocr_cache": "ocr/a4c2023105bdb2177bcb282a124127b9a53d15f6eb50e12ad15480c0904b64e2.json"
+      }
+    ],
+    "attachment_text_layer": false,
+    "text_source": "ocr_scan",
+    "scan_filing": {
+      "brief_page_count": 8,
+      "split_rule": "certificate of service on page 8",
+      "brief_chars": 9268,
+      "record_exhibits": [],
+      "furniture_removed": {
+        "efile_stamp_lines_removed": 1,
+        "page_footer_lines_removed": 8
+      },
+      "ocr": {
+        "engine": {
+          "service": "Azure AI Document Intelligence",
+          "model": "prebuilt-read",
+          "api_version": "2024-11-30",
+          "endpoint_host": "workflowdocs.cognitiveservices.azure.com",
+          "reported_api_version": "2024-11-30",
+          "reported_model": "prebuilt-read"
+        },
+        "transcribed_on": "2026-09-08",
+        "source_sha256": "a4c2023105bdb2177bcb282a124127b9a53d15f6eb50e12ad15480c0904b64e2",
+        "scan_pages": 8,
+        "scan_chars": 9464
+      }
+    }
+  },
+  {
+    "wrapper_file": "Pleading Memorandum In Opposition.docx",
+    "wrapper_sha256": "092e097495fa18b67de58e5445ef62b89870912fb7438f66596bafab7c87f38e",
+    "case_name": "(CD)YODER VS WATERFORD ET AL",
+    "docket": "",
+    "court": "Ohio Common Pleas Court, Lucas County",
+    "filed": "November 27, 2024",
+    "reporter_cite": "",
+    "lexis_type": "Memorandum",
+    "title": "Pleading Memorandum In Opposition",
+    "header_line_count": 11,
+    "body_chars": 31776,
+    "pdf_only_wrapper": true,
+    "level": "trial",
+    "eviction_terms": [
+      "eviction"
+    ],
+    "eviction_term_count": 1,
+    "attachments": [
+      {
+        "file": "Pleading Memorandum In Opposition_Attachment1(2).pdf",
+        "sha256": "d17ffdba540f06a71959e9bfdf8643895d8b7e992a814e07fb5bd6acc3c06f57",
+        "bytes": 1249313,
+        "pages": 31,
+        "extracted_chars": 42580,
+        "text_layer": true
+      },
+      {
+        "file": "Pleading Memorandum In Opposition_Attachment1.pdf",
+        "sha256": "43a429731adb0008bb48ef804dd86bd10d92d1e400c46cc6ca6340bf6630fff8",
+        "bytes": 689193,
+        "pages": 17,
+        "extracted_chars": 0,
+        "text_layer": false,
+        "ocr_chars": 31899,
+        "ocr_cache": "ocr/43a429731adb0008bb48ef804dd86bd10d92d1e400c46cc6ca6340bf6630fff8.json"
+      }
+    ],
+    "attachment_text_layer": true,
+    "text_source": "ocr_scan",
+    "scan_filing": {
+      "brief_page_count": 17,
+      "split_rule": "certificate of service on page 17",
+      "brief_chars": 31776,
+      "record_exhibits": [],
+      "furniture_removed": {
+        "efile_stamp_lines_removed": 1,
+        "page_footer_lines_removed": 18
+      },
+      "ocr": {
+        "engine": {
+          "service": "Azure AI Document Intelligence",
+          "model": "prebuilt-read",
+          "api_version": "2024-11-30",
+          "endpoint_host": "workflowdocs.cognitiveservices.azure.com",
+          "reported_api_version": "2024-11-30",
+          "reported_model": "prebuilt-read"
+        },
+        "transcribed_on": "2026-09-08",
+        "source_sha256": "43a429731adb0008bb48ef804dd86bd10d92d1e400c46cc6ca6340bf6630fff8",
+        "scan_pages": 17,
+        "scan_chars": 31899
+      }
+    }
+  },
+  {
+    "wrapper_file": "Pleading Memorandum In Opposition(2).docx",
+    "wrapper_sha256": "4b4d5faa1719b8e69ae8cd98295058a305193dfd63bb5885923f250d790acdfb",
+    "case_name": "(CD)YODER VS WATERFORD ET AL",
+    "docket": "",
+    "court": "Ohio Common Pleas Court, Lucas County",
+    "filed": "August 27, 2024",
+    "reporter_cite": "",
+    "lexis_type": "Memorandum",
+    "title": "Pleading Memorandum In Opposition(2)",
+    "header_line_count": 11,
+    "body_chars": 0,
+    "pdf_only_wrapper": true,
+    "level": "trial",
+    "eviction_terms": [],
+    "eviction_term_count": 0,
+    "attachments": [],
+    "attachment_text_layer": false,
+    "text_source": "lexis_docx",
+    "scan_filing": null
+  },
+  {
+    "wrapper_file": "PRAECIPE FOR WRIT OF RESTITUTION_ POSSESSION Receipt_ 1402930 Date_ 06_30_2023.docx",
+    "wrapper_sha256": "2f5e19ccba23439a66c9b5f2a85cd6df662f8bf4583c7589e25a9740d38304ef",
+    "case_name": "ANGELA ELLAN MOBLEY vs BRAYAN OLIVAS",
+    "docket": "",
+    "court": "Ohio Common Pleas Court, Montgomery County",
+    "filed": "June 30, 2023",
+    "reporter_cite": "",
+    "lexis_type": "Writ",
+    "title": "PRAECIPE FOR WRIT OF RESTITUTION_ POSSESSION Receipt_ 1402930 Date_ 06_30_2023",
+    "header_line_count": 11,
+    "body_chars": 0,
+    "pdf_only_wrapper": true,
+    "level": "trial",
+    "eviction_terms": [],
+    "eviction_term_count": 0,
+    "attachments": [
+      {
+        "file": "PRAECIPE FOR WRIT OF RESTITUTION_ POSSESSION Receipt_ 1402930 Date_ 06_30_2023_Attachment1.pdf",
+        "sha256": "c041d9a504064dcce88eab8888187536d4612cb6524b828d09075324ae31b6d2",
+        "bytes": 508004,
+        "pages": 11,
+        "extracted_chars": 22759,
+        "text_layer": true
+      }
+    ],
+    "attachment_text_layer": true,
+    "text_source": "lexis_docx",
+    "scan_filing": null
+  },
+  {
+    "wrapper_file": "REPLY BRIEF FOR DEFENDANT-APPELLANT GATOR HILLCREST PARTNERS LLLP.docx",
+    "wrapper_sha256": "60bd1d1fb94f003599e81bcaf854af03789b80c0a378862347d0ee70af297fe9",
+    "case_name": "TEXLO v. GATOR HILLCREST",
+    "docket": "C-240090",
+    "court": "COURT OF APPEALS OF OHIO, FIRST APPELLATE DISTRICT, HAMILTON COUNTY",
+    "filed": "August 29, 2024",
+    "reporter_cite": "2024 OH APP. CT. BRIEFS LEXIS 164\u00a0*",
+    "lexis_type": "Brief",
+    "title": "REPLY BRIEF FOR DEFENDANT-APPELLANT GATOR HILLCREST PARTNERS LLLP",
+    "header_line_count": 15,
+    "body_chars": 24024,
+    "pdf_only_wrapper": false,
+    "level": "appellate",
+    "eviction_terms": [
+      "evict",
+      "eviction"
+    ],
+    "eviction_term_count": 2,
+    "attachments": [],
+    "attachment_text_layer": false,
+    "text_source": "lexis_docx",
+    "scan_filing": null
+  },
+  {
+    "wrapper_file": "RESPONSE.docx",
+    "wrapper_sha256": "de1e6e237d0e85d09f04b698e0eece8952e56fcd1d8b816423140a0e3ff0cc30",
+    "case_name": "OTARMA vs MIAMI TOWNSHIP OHIO",
+    "docket": "",
+    "court": "Ohio Common Pleas Court, Montgomery County",
+    "filed": "March 14, 2019",
+    "reporter_cite": "",
+    "lexis_type": "Response",
+    "title": "RESPONSE",
+    "header_line_count": 11,
+    "body_chars": 53310,
+    "pdf_only_wrapper": true,
+    "level": "trial",
+    "eviction_terms": [],
+    "eviction_term_count": 0,
+    "attachments": [
+      {
+        "file": "RESPONSE_Attachment1.pdf",
+        "sha256": "d6caac3073f8f1adf8f793b3817c3ee3991acbce01d2381030bbed72d79a2350",
+        "bytes": 7880415,
+        "pages": 121,
+        "extracted_chars": 175,
+        "text_layer": false,
+        "ocr_chars": 284595,
+        "ocr_cache": "ocr/d6caac3073f8f1adf8f793b3817c3ee3991acbce01d2381030bbed72d79a2350.json"
+      }
+    ],
+    "attachment_text_layer": false,
+    "text_source": "ocr_scan",
+    "scan_filing": {
+      "brief_page_count": 28,
+      "split_rule": "certificate of service on page 28",
+      "brief_chars": 53310,
+      "record_exhibits": [
+        {
+          "label": "Record",
+          "page_range": [
+            29,
+            121
+          ],
+          "chars": 230546
+        }
+      ],
+      "furniture_removed": {
+        "efile_stamp_lines_removed": 0,
+        "page_footer_lines_removed": 191
+      },
+      "ocr": {
+        "engine": {
+          "service": "Azure AI Document Intelligence",
+          "model": "prebuilt-read",
+          "api_version": "2024-11-30",
+          "endpoint_host": "workflowdocs.cognitiveservices.azure.com",
+          "reported_api_version": "2024-11-30",
+          "reported_model": "prebuilt-read"
+        },
+        "transcribed_on": "2026-09-08",
+        "source_sha256": "d6caac3073f8f1adf8f793b3817c3ee3991acbce01d2381030bbed72d79a2350",
+        "scan_pages": 121,
+        "scan_chars": 284595
+      }
+    }
+  }
+]

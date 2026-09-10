@@ -1,0 +1,110 @@
+{
+  "fixture_id": "F001",
+  "case_family_id": "stone-v-cazeau--07ca009164",
+  "stratum": "appellate_eviction",
+  "document": {
+    "title": "Merit Brief of Appellant",
+    "court": "Court of Appeals of Ohio, Ninth District (Lorain County)",
+    "jurisdiction": "Ohio",
+    "pleading_type": "appellate_merit_brief",
+    "side": "appellant",
+    "filed": "2007-07-25"
+  },
+  "files": {
+    "source": "source/original.docx",
+    "source_scan": "source/as-filed-scan.pdf",
+    "control": "normalized/brief.txt",
+    "mutant": "mutant/brief.txt",
+    "attachments": [],
+    "attachment_notes": []
+  },
+  "mutation": {
+    "type": "missing_element",
+    "subtype": "removed_status_element_for_statutory_protection",
+    "operation": "delete",
+    "section": "Argument of Law -- Discussion",
+    "description": "Deleted the two sentences (and their supporting citation) that establish Stone's legal status as a tenant at sufferance once the owner revoked her permission to occupy. Everything else -- the R.C. 1923.02 and 5321.15 discussion, the facts, the relief -- is untouched.",
+    "gold_vulnerability": "The brief concludes that Stone was entitled to the protections of R.C. Chapter 1923 without ever establishing the status that brings her within the statute. The immediately following sentences still assert that Chapter 1923 applies and that even a tenant at sufferance may be removed only by statutory process, so the argument now asserts the conclusion with the qualifying step removed.",
+    "expected_direction": "mutant_worse",
+    "materiality": "high",
+    "why_this_is_realistic": "The Ninth District affirmed against Stone on precisely this point, and the appellee's brief in the companion Lee matter argues the same gap. A drafter who omits the status step produces a brief that reads as complete and loses for a reason nothing in its own text names.",
+    "target_location": {
+      "section": "Argument of Law -- Discussion",
+      "control_excerpt": "Alice Stone's status could change once Cazeau had expressed his \"will\" to end and no longer \"suffer\" her occupation. That is, her status would then become one of a tenant at sufferance. Sutherland v. Moore (Sept. 15, 1988), 10th Dist. No. 88AP-482.",
+      "mutant_excerpt": ""
+    },
+    "characters_changed": 249,
+    "control_chars": 15760,
+    "mutant_chars": 15511,
+    "fraction_of_brief_changed": 0.0158
+  },
+  "gold": {
+    "control_has_target_defect": false,
+    "mutant_has_target_defect": true,
+    "expected_direction": "mutant_worse",
+    "materiality": "high",
+    "verified_by": [],
+    "verification_status": "unverified",
+    "verification_note": "Drafted by a language model and not yet adjudicated. The four reviewer questions in REGISTER.md (pair identical but for the intended change; control free of the target defect; mutant contains it; a competent opponent could raise it) have not been answered, so this fixture is development material, not benchmark."
+  },
+  "provenance": {
+    "source_sha256": "bcca071de8a9f23c2ba1d65c5c7d3b5ea87e5df0411998827fae25a041194d79",
+    "source_scan_sha256": "6262babdd0c05001684efff7a117d6f0f90514519aa392bc25f3cb50fac934a8",
+    "control_sha256": "5d2f2c189a51779c53b45b9efbdb0ec2074802a575cf7621d9c977918b55822b",
+    "mutant_sha256": "5fea6b337d7ac6c9a577d7ddba3f027de0737e46a8e27f9db6fe116c4994a12b",
+    "attachment_sha256": {},
+    "normalization_version": "1.0",
+    "text": {
+      "control_text_source": "lexis_docx",
+      "ocr": {
+        "engine": {
+          "service": "Azure AI Document Intelligence",
+          "model": "prebuilt-read",
+          "api_version": "2024-11-30",
+          "endpoint_host": "workflowdocs.cognitiveservices.azure.com",
+          "reported_api_version": "2024-11-30",
+          "reported_model": "prebuilt-read"
+        },
+        "transcribed_on": "2026-09-08",
+        "source_sha256": "6262babdd0c05001684efff7a117d6f0f90514519aa392bc25f3cb50fac934a8",
+        "scan_pages": 18,
+        "scan_chars": 20605
+      },
+      "record_recovered_from_scan": false,
+      "scan_split_rule": "certificate of service on page 18",
+      "normalization_log": {
+        "wrapper_file": "MERIT BRIEF OF APPELLANT.docx",
+        "source_sha256": "bcca071de8a9f23c2ba1d65c5c7d3b5ea87e5df0411998827fae25a041194d79",
+        "normalization_version": "1.0",
+        "removed_header_lines": 14,
+        "removed_header_preview": [
+          "STONE v. CAZEAU",
+          "CASE NO. 07CA009164",
+          "COURT OF APPEALS OF OHIO, 9TH DISTRICT"
+        ],
+        "removed_end_of_document_marker": true,
+        "removed_star_pagination_markers": 13,
+        "appended_authority_lines_moved_to_attachments": 0,
+        "raw_body_chars": 15860,
+        "normalized_brief_chars": 15760,
+        "appended_authorities_chars": 0,
+        "normalized_sha256": "5d2f2c189a51779c53b45b9efbdb0ec2074802a575cf7621d9c977918b55822b",
+        "prose_edits": 0,
+        "typos_fixed": 0,
+        "citations_fixed": 0,
+        "boilerplate_removed": 0
+      },
+      "appended_authorities": ""
+    },
+    "mutation_version": "1.0",
+    "generator": {
+      "mutations_authored_by": "claude-opus-5",
+      "control_text_prepared_by": "claude-opus-5 (selection, normalization and splitting only; no wording changed)",
+      "generator_display_name": "Claude Opus 5 (Claude Code)",
+      "generator_role": "drafted the candidate mutations and the gold-vulnerability text",
+      "authored_on": "2026-09-08",
+      "human_review": "none yet"
+    },
+    "built_on": "2026-09-09"
+  }
+}

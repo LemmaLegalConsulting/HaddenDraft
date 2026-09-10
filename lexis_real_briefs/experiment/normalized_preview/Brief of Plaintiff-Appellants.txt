@@ -1,0 +1,499 @@
+ASSIGNMENTS OF ERROR
+
+I. THE TRIAL COURT ERRED IN GRANTING SUMMARY JUDGMENT TO APPELLEES WHERE APPELLEES HARWOOD, RESOURCE TITLE, AND HORVATH HAVE UNCLEAN HANDS.
+
+II. THE TRIAL COURT ERRED IN GRANTING SUMMARY JUDGMENT TO MUSTAFA WHERE MUSTAFA INTERFERED WITH SOLOMON'S CONTRACT AND TOOK TITLE TO THE PROPERTY IN VIOLATION OF THE DOCTRINE OF LIS PENDENS WITH ACTUAL NOTICE OF SOLOMON'S INTEREST IN THE PROPERTY.
+
+III. THE TRIAL COURT ERRED IN GRANTING SUMMARY JUDGMENT TO APPELLEES WHERE GENUINE ISSUES OF FACT AND CREDIBILITY EXIST REGARDING WHETHER HARWOOD HAD ANTICIPATORILY BREACHED THE PURCHASE AGREEMENT, AND WHETHER SOLOMON HAD FINANCING TO PURCHASE THE PROPERTY AND COULD HAVE CLOSED SUCH TRANSACTION HAD HARWOOD NOT BREACHED THE CONTRACT THE DAY PRECEDING THE SCHEDULED CLOSING.
+
+IV. THE TRIAL COURT ERRED IN ENFORCING INDEMNIFICATION AGREEMENT LANGUAGE IN RESOURCE'S STANDARD CONDITIONS OF ESCROW WHERE THE EVIDENCE ESTABLISHED UNEQUIVOCALLY THAT RESOURCE BREACHED ITS FIDUCIARY DUTY AND CONTRACTUAL RESPONSIBILITIES TO SOLOMON TO ASSIST HARWOOD IN AVOIDING HIS CONTRACTUAL OBLIGATIONS TO SOLOMON AND/OR WAS NEGLIGENT IN TERMINATING THE ESCROW PREMATURELY.
+
+V. THE TRIAL COURT ERRED IN GRANTING SUMMARY JUDGMENT TO HORVATH WHERE SOLOMON SATISFIED BOTH THE PRIVITY AND MALICE PRONGS OF SCHOLLER, THE QUESTION OF WHETHER MALICE EXISTED WAS A JURY ISSUE, AND SOLOMON PROVIDED EXPERT TESTIMONY IN SUPPORT OF HIS LEGAL MALPRACTICE CLAIM.
+
+VI. THE TRIAL COURT ERRED IN GRANTING SUMMARY JUDGMENT TO RSB AS THE VALIDITY OF RSB'S MORTGAGE DEEDS DEPENDS UPON THE ERRONEOUS SUMMARY JUDGMENT IN FAVOR OF MUSTAFA.
+
+VII. THE TRIAL COURT ERRED IN DISREGARDING THE APPLICATION OF THE OCCUPYING CLAIMANT LAW RC § 5303.08, TO THE CLAIMS OF SOLOMON.
+
+VIII. THE TRIAL COURT ERRED IN DENYING SOLOMON THE RIGHT TO A JURY TRIAL ON DAMAGES.
+
+IX. THE TRIAL COURT ERRED IN DISCHARGING SOLOMON'S MECHANIC'S LIEN.
+
+X. THE TRIAL COURT ERRED IN AWARDING DAMAGES TO APPELLEES HARWOOD, RESOURCE AND MUSTAFA, AND ALL SUCH AWARDS MUST BE VACATED. FURTHER, THERE WAS NO LAWFUL BASIS TO RENDER PUNITIVE DAMAGES AGAINST SOLOMON.
+
+XI. THE TRIAL COURT ERRED IN FAILING TO ISSUE FINDINGS OF FACT AND CONCLUSIONS OF LAW AS REQUIRED BY LAW.
+
+Go to table1
+
+ASSIGNMENTS OF ERROR
+
+I.  THE TRIAL COURT ERRED IN GRANTING SUMMARY JUDGMENT TO APPELLEES WHERE APPELLEES HARWOOD, RESOURCE TITLE, AND HORVATH HAVE UNCLEAN HANDS.
+
+II.  THE TRIAL COURT ERRED IN GRANTING SUMMARY JUDGMENT TO MUSTAFA WHERE MUSTAFA INTERFERED WITH SOLOMON'S CONTRACT AND TOOK TITLE TO THE PROPERTY IN VIOLATION OF THE DOCTRINE OF LIS PENDENS WITH ACTUAL NOTICE OF SOLOMON'S INTEREST IN THE PROPERTY.
+
+III.  THE TRIAL COURT ERRED IN GRANTING SUMMARY JUDGMENT TO APPELLEES WHERE GENUINE ISSUES OF FACT AND CREDIBILITY EXIST REGARDING WHETHER HARWOOD HAD ANTICIPATORILY BREACHED THE PURCHASE AGREEMENT, AND WHETHER SOLOMON HAD FINANCING TO PURCHASE THE PROPERTY AND COULD HAVE CLOSED SUCH TRANSACTION HAD HARWOOD NOT BREACHED THE CONTRACT THE DAY PRECEDING THE SCHEDULED CLOSING.
+
+IV.  THE TRIAL COURT ERRED IN ENFORCING INDEMNIFICATION AGREEMENT LANGUAGE IN RESOURCE'S STANDARD CONDITIONS OF ESCROW WHERE THE EVIDENCE ESTABLISHED UNEQUIVOCALLY THAT RESOURCE BREACHED ITS FIDUCIARY DUTY AND CONTRACTUAL RESPONSIBILITIES TO SOLOMON TO ASSIST HARWOOD IN AVOIDING HIS CONTRACTUAL OBLIGATIONS TO SOLOMON AND/OR WAS NEGLIGENT IN TERMINATING THE ESCROW PREMATURELY.
+
+V.  THE TRIAL COURT ERRED IN GRANTING SUMMARY JUDGMENT TO HORVATH WHERE SOLOMON SATISFIED BOTH THE PRIVITY AND MALICE PRONGS OF SCHOLLER, THE QUESTION OF WHETHER MALICE EXISTED WAS A JURY ISSUE, AND SOLOMON PROVIDED EXPERT TESTIMONY IN SUPPORT OF HIS LEGAL MALPRACTICE CLAIM.
+
+VI.  THE TRIAL COURT ERRED IN GRANTING SUMMARY JUDGMENT TO RSB AS THE VALIDITY OF RSB'S MORTGAGE DEEDS DEPENDS UPON THE ERRONEOUS SUMMARY JUDGMENT IN FAVOR OF MUSTAFA.
+
+VII.  THE TRIAL COURT ERRED IN DISREGARDING THE APPLICATION OF THE OCCUPYING CLAIMANT LAW RC § 5303.08, TO THE CLAIMS OF SOLOMON.
+
+VIII.  THE TRIAL COURT ERRED IN DENYING SOLOMON THE RIGHT TO A JURY TRIAL ON DAMAGES.
+
+IX.  THE TRIAL COURT ERRED IN DISCHARGING SOLOMON'S MECHANIC'S LIEN.
+
+X.  THE TRIAL COURT ERRED IN AWARDING DAMAGES TO APPELLEES HARWOOD, RESOURCE AND MUSTAFA, AND ALL SUCH AWARDS MUST BE VACATED. FURTHER, THERE WAS NO LAWFUL BASIS TO RENDER PUNITIVE DAMAGES AGAINST SOLOMON.
+
+XI. THE TRIAL COURT ERRED IN FAILING TO ISSUE FINDINGS OF FACT AND CONCLUSIONS OF LAW AS REQUIRED BY LAW.
+
+STANDARD OF REVIEW
+
+This Court stated in American Express Travel Related Services Company, Inc., v. Mandilakis (1996), 111 Ohio App.3d 160, that
+
+The standard of review for an appeal from summary judgment is plenary. This court applies the same test as the trial court, which is set forth in Civ.R. 56, and we evaluate the record according to Civ.R. 56. Civ.R. 56 specifically provides before summary judgment may be granted it must be determined that "(1) [n]o genuine issue as to any material fact remains to be litigated; (2) the moving party is entitled to judgment as a matter of law; and (3) it appears from the evidence that reasonable minds can come to but one conclusion, and viewing such evidence most strongly in favor of the party against whom the motion for summary judgment is made, that conclusion is adverse to that party." Temple v. Wean United, Inc. (1977), 50 Ohio St.2d 317, 327, 4 0.0.3d 466, 472, 364 N.E.2d 267, 274.
+
+Moreover, it is well settled that the party seeking summary judgment bears the burden of showing that no genuine issue of material fact exists for trial. Celotex Corp. v. Catrett (1987), 477 U.S. 317, 330, 106 S.Ct. 2548, 2556, 91 L.Ed.2d 265, 278; Mitseff v. Wheeler (1988), 38 Ohio St.3d 112, 115, 526 N.E.2d 798, 801-802. Doubts must be resolved in favor of the nonmovant. Murphy v. Reynoldsburg (1992), 65 Ohio St.3d 356, 359, 604 N.E.2d 138, 140. Under Civ.R. 56(E) "a nonmovant may not rest upon the mere allegations or denials of his pleadings but must set forth specific facts showing there is a genuine issue for trial." Chaney v. Clark Cty. Agricultural Soc. (1993), 90 Ohio App.3d 421, 424, 629 N.E.2d 513, 515.
+
+Mankilakis, at 163-64.
+
+Moreover, when reviewing a summary judgment, an appellate court must independently review the record to determine if summary judgment was appropriate. An appellate court need not defer to the trial court's decision in summary judgment cases. See Coburn v. Maynard (1996) 111 Ohio App.3d 246; Morehead v. Conley (1991), 75 Ohio App.3d 409, 599 N.E.2d 788.
+
+STATEMENT OF THE CASE
+
+On December 17, 2007, Solomon filed the within complaint against numerous parties, including but not limited to Harwood, Mustafa, Resource Title ("Resource"), and Horvath. 1 The claims included specific performance, breach of contract, conspiracy to induce/cause breach of contract, interference with contract, fraud and misrepresentation, legal malpractice, injunctive relief, and a claim for breach of fiduciary duty against Resource (R#-l). On December 19, 2007, Solomon filed an amended complaint. (R#-3).
+
+On January 15, 2008, Harwood filed an answer. (R#-30). On January 22, 2008, Mustafa filed an answer. (R#-35).
+
+On February 12, 2008, and February 13, 2008, Resource and Harwood filed motions for judgment on the pleadings. (R##-45, 47).
+
+On February 13, 2008, Mustafa filed a forcible entry and detainer action in Rocky River Municipal Court. (Case No. 08 CVG 566). On February 15, 2008, Solomon filed a motion to dismiss or transfer the forcible entry case to common pleas court. That case was subsequently transferred to the common pleas court, and consolidated with this case.
+
+On March 13, 2008, Solomon filed a motion for leave to file secono amended complaint. (R#-68). On June 10, 2008, the trial court granted leave to file second amended comnlaint (R#-76), and declared the pending motions for judgment on the pleadings moot. (R#-77).
+
+On June 20, 2008, Solomon filed a second amended complaint. (R#-81). All defendants filed answers, Resource (R#-98); Harwood (R#-124), RSB (R#-136); Mustafa (R#-142); Horvath (R# 122). Harwood, Resource, and Mustafa also filed counterclaims. Solomon filed replies to those counterclaims. (R##-96, 102, 127, 151).
+
+On June 24, 2008, Resource filed a renewed motion for judgment on the pleadings. (R#-90). On August 28, 2008, the trial court denied said motion. (R#-144).
+
+On September 5, 2008, Solomon filed a motion for partial summary judgment against Mustafa. (R#-148).
+
+On December 1, 2008, Harwood filed a motion for partial summary judgment and/or to discharge Solomon's mechanics lien. (R#-199). On December 31, 2008, Solomon filed an opposition to Harwood's motion for partial summary judgment and/or to discharge Solomon's mechanic's lien. (R#-202) On January 9, 2009, Harwood filed a reply brief regarding such motion. (R#-148).
+
+On February 6, 2009, Resource filed a motion for summary judgment. (R#-208). On March 5, 2009, Mustafa filed an opposition to Solomon's motion for summary, and counter-motion for summary judgment. (R#-209). On April 2, 2009, Solomon filed an opposition to Mustafa's cross-motion for summary judgment, and reply to Mustafa's opposition to Solomon's motion for summary judgment (R#-214).
+
+On July 28, 2009, the trial court denied Solomon's motion for summary judgment against Mustafa, granted Mustafa's counter-motion for summary judgment, and ordered that a writ of restitution be issued to Mustafa. The Court also granted Harwood's motion for summary judgment on all of Solomon's claims and Harwood's counterclaims. The trial court did not decide Solomon's specific performance claim, or any of his other claims against Harwood. (R#-219).
+
+On August 20, 2009, Horvath filed a motion for summary judgment. (R#-227).
+
+On August 26, 2009, Solomon filed a notice of appeal from order granting a writ of restitution. CA No. 93832. That appeal was dismissed as moot. (R#-243).
+
+On March 1, 2010, Solomon filed a motion for summary judgment on Mustafa's rent claim. (R#-257).
+
+On March 2, 2010, the trial court granted Horvath's motion for summary judgment (R#-258), and Resource's motion for summary judgment on all of Solomon's claims and Resource's Counterclaims. (R#-259).
+
+On March 17, 2010, Appellants filed a motion for reconsideration or clarification of order, (R#-264). Appellants amended that motion on March 22, 2010. (R#-265).
+
+On April 2, 2010, RSB filed a motion for summary judgment. (R#-270).
+
+On April 9, 2010, Harwood filed a motion for summary judgment on damages. (R#-271). On April 23, 2010, Resource filed a motion for summary judgment on damages. (R#-273).
+
+On May 4, 2010, Solomon filed an opposition to RSB's motion for summary judgment. (R#-274).
+
+On May 10, 2010, Solomon filed an opposition to Harwoods' motion for summary judgment on damages. (R#-275). On May 27, 2010, the trial court granted RSB's motion for summary judgment. (R#-280).
+
+On May 28, 2010, the trial court granted Harwood's motion for summary judgment on damages, awarding Harwood compensatory damages of $ 97,829.88, punitive damages of $ 75,000.00, and attorneys' fees and expenses of $ 56,188.98, and court costs. (R#-286). The trial court also granted Resource's motion for summary judgment on damages, awarding judgment in the amount of $ 52,832.35 for attorneys' fees, expenses, and court costs. (R#-288). The Court also denied Solomon's amended motion for reconsideration or clarification of order (R#-285), and denied Solomon's motion for summary judgment on Mustafa's rent claim. (R#-287). On June 2, 2010, the trial court converted the June 7, 2010, jury trial date to a pretrial. (R#-289).
+
+On June 7, 2010, the trial court granted Appellants' previously filed motion for reconsideration and clarification of orders in part to clarify that the judgments entered by the Court
+
+on May 28, 2010, were not against Georgette Solomon. On June 7, 2010, the trial court also granted Mustafa leave to file a motion for summary judgment on damages. (R#-291).
+
+On June 28, 2010, Mustafa filed a motion for summary judgment on damages. (R#-301).
+
+On December 3, 2010, the trial court granted Mustafa's motion for summary judgment on damages against Solomon personally and the Solomon Trust in the amount of $ 90,200.83, plus interest and costs. (R#-309).
+
+On December 8, 2010, Harwood filed a motion for findings of fact and conclusions of law. (R#-310). On December 20, 2010, the trial court denied said motion. (R#-314)
+
+STATEMENT OF FACTS
+
+This lawsuit pertains to real property located at 1359 Adelaide, Westlake, Ohio ("the property"). It involves conniving defendants seeking to frustrate the jurisdiction of the common pleas court and a specific performance plaintiff by transferring the property subject to the litigation to a second buyer/defendant (Mustafa) during the pendency of the specific performance action, then using the lis pendens deed to evict the specific performance plaintiff (Solomon) from the property. This is a case that cries out for justice.
+
+Appellee Dale Harwood ("Harwood") is a real estate investor who acquired the property in 2003 when he agreed to act as an accommodation buyer for Ashraf Zayed and/or Mr. Zayed's wife, Layali Ibrahim, who wanted to purchase the property. (Harwood Tr. pp. 77-79). 2 Harwood obtained financing from Washington Mutual Bank ("WaMu ") in the amount of $ 825,000.00. Litigation arose over that transaction. Harwood v. BPJ Investments, et al., CP 558582, Eighth District Court of Appeals Case No. 91832. During his deposition in the BPJ case Harwood admitted to having defrauded WaMu to secure the loan:
+
+Q. Am I to understand, Mr. Harwood, that you along with all of these defendants, engaged in activity that may not be legal?
+
+A. I believe so.
+
+(Harwood v. BPJ Investments, et al., CP 05 558582 6/06 Harwood Tr. p 194 filed with the Court), affirming dismissal of all Harwood claims that were decided on the merits.
+
+In August, 2005, Harwood and Solomon entered into a purchase agreement whereby Harwood agreed to sell the property to Solomon for the sum of $ 595,000.00. ("the "First Solomon Contract"). Solomon had sufficient cash at that time to pay the entire purchase price in cash. Thereafter, Harwood advised Solomon that he was unable to transfer title to the property, and needed additional time to clear title. Solomon and Harwood executed an addendum to the purchase agreement providing that Solomon would "rent" the property until Harwood could clear title. 3 On or about October, 2005, Solomon took possession of the property under the executory purchase agreement. Solomon thereafter made certain "rental" payments under the interim lease addendum to the purchase agreement provision. In anticipation of closing and the transfer of title to the property, Solomon made improvements to the property.
+
+In October 2006, WaMu foreclosed on the property. (CP 06-604474). Solomon learned of the foreclosure. On or about April, 2007, because Harwood had been unable to clear title to the property, Solomon, with the consent of Harwood, utilized a portion of his available cash to purchase other investment property.
+
+On July 20, 2007, while Solomon was still occupying the property under the first contract, Solomon and Harwood entered into a second contract. The purchase price under that contract was $ 575,000.00.
+
+By the middie of 2007, Harwood began negotiating a sale of the property to Mustafa. (Harwood Tr. p. 94). Harwood informed Mustafa of his contract with Solomon. (Harwood Tr. p. 201). Mustafa was also on inquiry notice of Solomon's rights because Solomon was in possession of the property. An initial offer from Mustafa was submitted by Mustafa in mid-2007. This offer expired without acceptance. (Harwood Tr. p. 198; Mustafa Tr. p. 14, 18, 44). In October, 2007 Mustafa made another offer. (Mustafa Tr. p. 61).
+
+In September, 2007, Harwood negotiated a shout payoff with WaMu to allow the sale of the property to Solomon to close. The reduced payoff was valid through November 3, 2007. Harwood told Solomon that they needed to change the contract price to $ 525,000.00. Harwood and Solomon then entered a third contract ("the Solomon Contract") on September 6, 2007. That contract was deposited in escrow with Resource Title Agency, Inc. ("Resource "). WaMu provided a stipulation sheet ("stip sheet") to Resource which stated in pertinent part as follows:
+
+This transaction is between the Seller and Buyer as indicated on the certified HUD.
+
+1. Any unauthorized title transfer or change a Buyer(s) will be a violation of this demand making it immediately null and void.
+
+Further, at the bottom of the second page of the stip sheet states:
+
+*** Failure of the Escrow Agent to comply with these requirements will result in a breach I of the demand conditions/stipulations, thus making Washington Mutual's approval of this discounted payoff null and void.
+
+Harwood executed the stip sheet. Harwood was precluded by the terms thereof from receiving any monies from the disposition of the property. (Harwood Tr. p. 151). Harwood informed Solomon that WaMu had approved the $ 525,000.00 short sale contract and that an escrow had been opened with Resource. In that time period Harwood left the country. Harwood executed a durable power of attorney for in favor of his attorney, Horvath, empowering Horvath to handle the sale of the property in Harwood's absence.
+
+Solomon intended to pay $ 200,000.00 down on the property, and finance the balance of the purchase price. Harwood did not want to lose the short sale opportunity because he stood to receive a debt reduction of approximately $ 275,000.00. As Solomon had not obtained financing for the balance of the $ 525,000.00 short sale purchase price, Harwood proposed to pool his available funds with Solomon's funds to make the short payoff. Solomon agreed. Harwood then routed at least $ 300,000.00 to Resource through Horvath's IOLTA Trust Account, and Solomon deposited $ 200,000.00. The parties executed an addendum to purchase agreement that provided as follows:
+
+1. that Harwood would deposit a deed to Solomon in escrow with Resource;
+
+2. that provided if Solomon paid $ 325,000.00 to Harwood within thirty days the transaction would close, and the deed be recorded;
+
+3. that failing such payment, the purchase agreement would be null and void provided that Harwood reimbursed Solomon in the sum of $ 200,000.00.
+
+Harwood secreted the addendum from WaMu and caused Horvath to insert a confidentiality provision in the document providing that WaMu was not to be informed of the addendum.
+
+On or about November 3, 2007, Resource used the deposited funds and issued a check to WaMu for $ 511,208.36, the net proceeds of the alleged $ 525,000.00 sale. Resource prepared and furnished WaMu with a false HUD-1 statement reflecting that the sale had closed, and that title transferred to Solomon. The fictitious HUD-1 was prepared to induce WaMu to accept the short payoff, and subjected WaMu to a loss in excess of $ 275,000.00. Harwood and Resource certified the HUD-1 statement to be true and accurate. Neither Harwood nor Resource provided a copy of the fraudulent HUD-1 to Solomon, and Solomon never signed it.
+
+In late November, 2007, Solomon discovered that Harwood had entered into and/or was negotiating, a sale of the property to Mustafa. Solomon's counsel, David Lynch ("Lynch"), confronted Horvath about this matter. Horvath denied the existence of such transaction. In fact, an escrow for this second transaction had already been opened with Mutual Title Agency, Inc.
+
+On or about December 1, 2007, Lynch advised Horvath that Solomon had not yet been able to obtain the additional funds needed to close the transaction. Horvath agreed to extend the closing date through the close of business on December 14, 2007. Horvath assured Lynch that Harwood would close the sale to Solomon. The short extension was contrary to the previous agreement between Lynch and Horvath to grant Solomon as much time as Solomon needed to arrange financing. Unbeknownst to Lynch, the reason for the limited two week extension was Harwood's desire to sell the property to Mustafa at a higher price.
+
+In early December, 2007 Lynch contacted Richard Gill, a "hard money" lender, about making a loan to Solomon. (Gill Tr, pg. 49). On December 6, 2007, Horvath faxed an extension letter to Lynch. Solomon executed the December 6 extension letter. Lynch orally informed Horvath that Solomon had accepted the terms of the extension letter. Lynch did not fax the letter back to Horvath because Lynch believed the parties were proceeding in good faith to close the transaction. Horvath assured Lynch that Harwood would close the sale to Solomon. Unbeknownst to Solomon and Lynch, Harwood was attempting to finalize an alternative contract with Mustafa. That contract, ("the Mustafa December, 2007 Contract") was faxed from Russell Realty on December 6, 2007, signed by Mustafa on December 7, 2007, then executed by Horvath as attorney-in-fact for Harwood on December 10, 2007. 4
+
+The Mustafa contract was executed by Horvath/Harwood because it afforded Harwood the opportunity to make an unlawful profit of $ 50,000.00 on the short sale of the property. On December 10, 2007, an addendum to the contract was created and dated as of that date. The addendum provided that Harwood would pay one-half of Mustafas' mortgage payments until Solomon vacated the property 5 Mustafa and Harwood planned to work together to evict Solomon from the property.
+
+The December 10, 2007 contract provided that Mustafa would deposit his funds and documents into escrow by December 26, 2007, and close by December 27, 2007. The Mustafa December, 2007 contract contained no contingency for Solomon's contract, but provided that it was contingent upon a "release by tenant."
+
+On or about December 11, 2007, Lynch contacted Gill again, not knowing that Horvath had already executed the Mustafa contract the preceding day. Lynch informed Gill that Solomon had negative credit information in his credit file because of a dispute over an unrelated mortgage loan. In addition, Solomon personally had suffered a federal tax lien against him.
+
+Lynch informed Gill that the sale of the property had to close by December 14, 2007 at 4:00 p.m. (Gill Tr. p. 49). Gill did not request a loan application, credit report, tax returns, or bank statements. Instead, Gill asked to inspect the property. Gill represented to Lynch that he could close the loan on such short notice, provided, according to Gill, "everything was in order". (Gill Tr. p. 49). Gill inspected the property on December 12, 2007, and satisfied himself that he would be in a safe equity position. (Gill Tr. p. 51). In his notes Gill recorded that he would have a first mortgage on their property for $ 320,000.00 and a property worth at least $ 540,000.00 as security, and, under the circumstances "320K loan is probably a safe equity position". Gill evaluated the transaction on the loan to value ratio, like any other hard money lender would. Gill then requested a title commitment from Resource, which he received early on December 13, 2007 (Gill Tr. p. 51)." Gill faxed a note to Lynch at 1:35 p.m. on December 13, 2007 inquiring about the tax lien exception reflected in the Resource commitment. In his cover letter to Resource Gill, referring to himself, stated:
+
+"The above named individual, a private lender, will be funding the above transaction."
+
+On December 13, 2007, Lynch informed Deborah Woodward at Resource that Solomon was about to deposit the funds needed to close the transaction. (Woodard Tr. p. 74). Lynch advised Woodard that the parties had extended the time for closing until the end of the business day on December 14, 2007. (Woodard Tr. p. 79). Woodward then alerted Horvath. Horvath confirmed to Resource that Solomon had until the close of business on December 14, 2007 to consummate the transaction. (Resource Answer and Counterclaim P 70). Resource informed Horvath that it was closing its office at 2:00 P.M. on December 14, 2007 to hold a Christmas party, and that Solomon would have to deposit his funds by that time if Solomon wanted to close. Resource also informed Lynch. 6 Horvath informed Resource that he and/or Harwood would wire $ 200,000.00 in replacement funds to Resource on December 14, 2007. Horvath and Resource agreed that unless Solomon deposited the funds needed to close the transaction by 2:00 P.M on December 14, 2007 that Resource would, at that time, fedex a check to Solomon for the amount deposited by him. Resource took unilateral instruction from Horvath on that matter.
+
+After talking with Resource on December 13, 2007, Horvath faxed a note to Lynch attempting to declare the Solomon contract terminated on the basis that Horvath had not received a facsimile of the signed extension letter. Horvath did this in order to allow Harwood to proceed with the Mustafa sale. Upon receipt of that letter Lynch informed Gill that Harwood had terminated the contract and the transaction could not close. At that time Solomon, Lynch, and Gill were still intending to, and Gill was in a financial position to, close the loan the following day. Gill was angry at the termination of the transaction because he was working toward closing the transaction.
+
+At approximately 2:00 PM on December 14, 2007, Resource, without explanation to or further communication with Solomon or Lynch, terminated the escrow and Fedexed Solomon a check for $ 200,000.00. Resource made no effort to contact Solomon in order to confirm that the parties had terminated the transaction despite the inconsistent information it had received from the two parties on December 13, 2007 and December 14, 2007. 7
+
+On December 14, 2007, Solomon filed a mechanic's lien on the Property in the amount of One Hundred Seven Thousand Dollars ($ 107,000.00), to secure payment for improvements he had made to the property.
+
+On or about December 17, 2007, Solomon filed the within action. On or about December 18, 2007, the December 10, 2007 Mustafa Contract was altered to make it appear that it had been executed on December 18, 2007.
+
+After this action was filed the Harwood-Mustafa transaction was transferred to Cleveland Home Title, Ltd. ("CHT"). Harwood, by email to CHT dated January 15, 2008, transmitted a copy of the deed previously issued to Solomon, which deed was then in escrow at Resource. On or about January 25, 2008, Horvath discussed the eviction plan with CHT. CHT agreed to file the deed from Harwood to Mustafa, but informed Horvath through counsel that it could not provide title insurance against Solomon's claims. On or about January 31, 2008, Harwood and Mustafa executed a new purchase agreement to replace the December 10, 2007 purchase agreement.
+
+On February 4, 2008, Harwood transferred title to the property to Mustafa. Mustafa then granted two mortgages on the property to RSB Citizens ("RSB"). On that same date, Mustafa served a notice to vacate the premises on Solomon. On February 14, 2008, Mustafa filed a forcible entry action in Rocky River Municipal Court. (Case No. 08 CVG 566). Mustafa sought to circumvent the jurisdiction of the common pleas court. The Rocky River Court thereafter transferred the forcible entry case to the common pleas court for consolidation with this case. Mustafa then renewed his
+
+LAW AND ARGUMENT
+
+I.  THE TRIAL COURT ERRED IN GRANTING SUMMARY JUDGMENT TO APPELLEES WHERE APPELLEES HARWOOD. RESOURCE. AND HORVATH HAVE UNCLEAN HANDS.
+
+Harwood, in a voice mail message left on Solomon's cell phone, alluded to his commission of criminal activity in connection with the sale to Solomon. What Harwood was referring to was the mortgage fraud on WaMu; i.e., the manner in which the WaMu short payoff was handled, and the creation of a fictitious HUD-1 by Resource, which Harwood certified to be accurate. The tape recording of Harwood was played by Solomon at his deposition. The following is the relevant excerpt.
+
+. Harwood: Anyway, we're just looking at more money and more - more litigation, possibly some criminal stuff . . . (See Solomon Tr. Excerpt p. 5.)
+
+Horvath was deeply involved in that transaction. There can be no doubt that Harwood and Horvath came before the Court with unclean hands. See Seitz v. Kozma, 2006 WL 1934547 (Ohio App. 8 Dist.) The facts supporting this defense include, but are not limited to, the following:
+
+Commission of illegal act(s) and/or fraud on WaMu, as evidenced by the $ 880,000.00 mortgage loan obtained by Harwood from WaMu during the initial purchase transaction of the Adelaide property; the subsequent negotiation of the "short sale" of the property, which was approved by WaMu as to the Harwood/Solomon purchase agreement; the creation of a fraudulent HUD-1 certified by Harwood and Resource to be true and accurate in all respects and delivered to WaMu, thus satisfying the $ 880,000.00 mortgage lien on the property;
+
+Horvath's assistance to Harwood in terminating Solomon's contract to allow Harwood to sell the property to Mustafa.
+
+The use of Horvath's IOLTA account to funnel money to Resource to effect the WaMu short payoff;
+
+Alteration of the December 10, 2007, contract between Harwood and Mustafa;
+
+Horvath and Harwood's concealment from, and/or lying to, Solomon regarding dealings with Mustafa and the existence of a contract with Mustafa;
+
+Connivance between Harwood, Horvath, and Mustafa in causing record title to the property to be conveyed to the Mustafas in an effort to evict Solomon from the property, afterlis pendens had operated in this case;
+
+Utilizing Mustafa as a front to attempt to evict Solomon from the property because Harwood was unable to do so due to unclean hands, bad faith, fraud, and illegal conduct in connection with the purchase and short sale of the property;
+
+Defying the common pleas court's jurisdiction and attempting to frustrate its ability to grant effective relief by forum shopping to Rocky River Court;
+
+Horvath's filing of a materially false answer on behalf of Harwood claiming that the Mustafa contract was terminated due to filing of this lawsuit, where the transaction had simply been shifted to CHT to close.
+
+These facts collectively constitute an overwhelming case of unclean hands as to Harwood and Horvath. For all the reasons set forth herein the trial court should have denied them summary judgment.
+
+II. THE TRIAL COURT ERRED IN GRANTING SUMMARY JUDGMENT TO MUSTAFA WHERE MUSTAFA INTERFERED WITH SOLOMON'S CONTRACT AND TOOK TITLE TO THE PROPERTY IN VIOLATION OF THE DOCTRINE OF LIS PENDENS WITH ACTUAL NOTICE OF SOLOMON'S INTEREST IN THE PROPERTY.
+
+The doctrine of lis pendens is a fundamental tenet of law. This case involves a flagrant violation of the doctrine of lis pendens. The trial court erred in treating the deed to Mustafa as valid where such deed was issued during the pendency of this litigation in violation of lis pendens.
+
+The Ohio Supreme Court stated in Cook v. Mozer (1923), 108 Ohio St. 30, 36, 140 N.E. 590, 592, that the purpose of the doctrine is to preserve the status quo of the interests in the property that is the subject of pending litigation until the court can render a final adjudication on the issues pertaining to that property.
+
+In an effort to oust Solomon from the property, and to circumvent the jurisdiction of the trial court, Harwood improperly transferred title to the property to Mustafa after both had been sued and filed answers in this case, and before Solomon's claim for specific performance claim against Harwood was adjudicated. Mustafa then utilized the lis pendens deed to evict Solomon from the property.
+
+Documents obtained from CHT reveal that Mustafa knew he was taking title to the property subject to Solomon's claim. (See CHT title insurance commitment). The documents further reveal that CHT was aware of this lawsuit, and that William Schill, an attorney acting for CHT, specifically informed Horvath on January 30, 2008 that CHT could not issue title evidence insuring over Solomon's claim. In an email to Horvath, Schill stated:
+
+"Upon reviewing the file, it is clear from the addendum to the contract that Mr. Solomon may have rights to acquire the subject real property. I realize that your client and the prospective purchaser have now voided the addendum. Howeven, the fact that they have done so does not in any way diminish the rights of Mr. Solomon. In order for CHT to issue a title insurance policy for the benefit Mr. Mustafa, it will be necessary for said policy to be subject to the rights of Mr. Solomon."
+
+Consistent with the opinion of counsel, CHT issued title insurance to Mustafa and RSB which specifically excluded liability for Solomon's claim. CHT also held the sum of $ 160,500.00 in escrow to secure against Solomon's mechanic's lien. The documents provided by CHT further reveal that on January 25, 2008 CHT was in communication with Horvath about the eviction of Solomon from the property. This e-mail suggests that Harwood was controlling the eviction process.
+
+Appellants have not found a single Ohio case where a second purchaser being sued for interference with a real estate purchase agreement has been permitted to take title during the specific performance action and utilize a lis pendens deed to evict the specific performance plaintiff before the adjudication of that claim. As in Smith v. VanKirk, et al. (1945) 76 N.E.2d 924, 49 Ohio Law Abs. 372, the deed in issue here should be considered fraudulent, and to have conveyed no rights.
+
+In Levin, Trustee, et al. v. George Fraam & Sons, Inc. et al. (1990), 65 Ohio App.3d 841, 585 N.E.2d 527, the Ninth District Court of Appeals stated as follows:
+
+The common-law doctrine of lis pendens has been codified in R.C. 2703.26, which reads:
+
+When summons has been served or publication made, the action is pending so as to charge third persons with notice of its pendency. While pending, no interest can be acquired by third persons in the subject of the action, as against the plaintiffs title." The doctrine protects the plaintiff's interest in the property that is the subject of the litigation between the parties. If while the lawsuit on that property is pending, a third party acquires an interest in the property, that party takes subject to the final outcome of the suit. Dickerson v. Curtin (1947), 80 Ohio App. 486, 490, 36 O.O. 249, 251, 76 N.E.2d 619, 621. Thus, if the trial court awards the plaintiff rights in the property, the plaintiff takes free of any interest acquired by third parties during the lawsuit. Foundation S. & L. Co. v. Rosenbaum (1960), 113 Ohio App. 501, 502, 18 0.0.2d 101, 102, 171 N.E.2d 359, 360.
+
+[2] [3] In Cook v. Mozer (1923), 108 Ohio St. 30, 36, 140 N.E. 590, 592, the Supreme Court of Ohio explained the doctrine:
+
+The purpose of the doctrine is to preserve the status quo of the mterests in the property that is the subject of the litigation until the court renders a final adjudication of the issues arising from that property. Id. at 39, 140 N.E. at 592.
+
+Similarly, the Court in Chester A. Meck v. Clabaugh (1922) 35 Ohio CD. 781, 45 Ohio C.C. 781, 16 Ohio App. 367, 1922 WL 1722 (Ohio App. 3 Dist.), stated that the purpose of the rule of lis pendens is founded on its necessity to prevent alienation of property and give effect to court proceedings.
+
+"The rule, as to the effect of lis pendens, is founded on the necessity of such rule to give effect to the proceeding of a court of justice. Without it, every judgment and decree for specific property might be rendered abortive by successive alienations. This necessity is so obvious that there is no occasion to resort to the presumption of notice of the pendency of the suit, to justify the rule.
+
+*2 "The sole object of lis pendens is to keep the subject in controversy within the power of the court, until the judgment or decree shall be entered, and thus make it possible to give effect to decrees and judgments of courts of justice." Cook v. Hendricks (Ga) 90 S. E., 383; Glatti v. Bradford, 105 Miss. 573 [62 So. 643].
+
+In Dicker son, et al. v. Curtin et al. (1947) 80 Ohio App. 486, 76 N.E.2d 619, 49 Ohio Law Abs. 632, 36 O.O. 249, the Franklin County Court of Appeals held that a purchaser who had acquired title to real property while an action was pending pertaining to the seller's title was subject to the outcome of the pending legal action under lis pendens. The Court stated:
+
+A question is raised as to whether the doctrine of lis pendens was properly applied. The quitclaim deed under which the plaintiffs claim title was executed while the case of McAllister v. Worley was pending. Under the provisions of Section 11300, General Code, the plaintiffs were charged with notice *490 of the pendency of the suit. During the pendency of that action, the plaintiffs could not acquire any interest under the quitclaim deed against the parties to that litigation. Any interest which the plaintiffs would acquire would be subject to the judgment or decree in that case. See 25 Ohio Jurisprudence 654; Cook v. Mozer, 108 Ohio St. 30, 140 N.E. 590. However, the trial court did not rely entirely on the doctrine of lis pendens, since the undisputed evidence shows that at the time the transfer was made to the plaintiffs they had actual knowledge of the pendency of the case of McAllister v. Worley, and of the issues raised therein. In that case the court decreed that the Worleys had no title to the property in question. It follows that if the Worleys had no title they could not convey title to the plaintiffs.
+
+It that a purchaser was a bena fide purchaser and for a valuable consideration. ABN. Inc. AMRO Mortgage Group, Inc., v. Jackson et al. (2005) 159 Ohio App.3d 551, 824 N.E.2d 600.
+
+Under the doctrine of lis pendens Mustafa could not obtain an interest in the property superior to that of Solomon in this action. Mustafa has trampled upon the. rule of lis pendens.
+
+III.  THE TRIAL COURT ERRED IN GRANTING SUMMARY JUDGMENT TO APPELLEES WHERE GENUINE ISSUES OF FACT AND CREDIBILITY EXISTED REGARDING WHETHER HARWOOD HAD ANTICIPATORILY BREACHED THE PURCHASE AGREEMENT. AND WHETHER SOLOMON HAD FINANCING TO PURCHASE THE PROPERTY AND COULD HAVE CLOSED SUCH TRANSACTION HAD HARWOOD NOT BREACHED THE CONTRACT THE DAY PRECEDING THE SCHEDULED CLOSING.
+
+A.  Solomon Did Not Fail to Fulfill Conditions Precedent and Was Able To Close the Purchase of the Property by the Agreed Extension Date Absent Harwood's/Horvath's Anticipatory Repudiation of the Contract.
+
+Appellees argue that Solomon's contractual rights in the property expired on November 30, 2007, and that no extension existed beyond that date because Lynch failed to fax a copy of the extension letter back to Horvath. A careful review of the letter reveals that the extension was not conditioned upon a copy of the signed extension letter being faxed back to Horvath. Rather, it states that:
+
+Mr. Harwood is willing to grant you client an extension until the end of business Friday December 14th.
+
+Your client has until 4:00 PM on December 14th to reimburse Mr. Harwood the entire balance of funds transferred and expended by Resource Agency to close the calse on the property.
+
+Further, Lynch orally communicated back to horvath mat Solomon had signed the extension letter. Moreover, Harwood is estopped to deny that an extension was in effect because Horvath notified Resource the closing date had been extended to the close of business on December 14, 2007. 8 (Resource Answer and Counterclaim P 70).
+
+Further, Horvath's contention that the sum of $ 2,000.00 was to be paid for the extension at the time the extension was offered is also erroneous, as the letter contemplated that the extension fee would be paid at closing.
+
+Solomon has alleged that an agreement existed to extend the closing date through the close of business on December 14, 2007, as evidenced by the December 6, 2007, extension letter drafted by Horvath. Horvath terminated the transaction on December 13, 2007, before the time for performance had expired. Such termination constituted an anticipatory breach of contract, and excused Solomon from having to make a showing of ability to perform. 9 Solomon could have closed the transaction by December 14, 2007 absent Harwood's anticipatory repudiation of the contract.
+
+B. Issues of Fact. Harwood admits that there are issues of fact in dispute in this case. (Harwood motion for judgment on the pleadings. p. 2, R#-47). Most significantly, a genuine issue of fact exists regarding whether Solomon was able to obtain the financing necessary to close the transaction. Additionally, an issue of material fact exists regarding whether Horvath signed the Mustafa contract on December 10, 2007, before the purported revocation of Solomon's extension, or on December 17, 2007, after the attempted revocation of the extension of time. This issue exists because of the obvious alteration of the Mustafa purchase agreement.
+
+As to Horvath's motion for summary judgment, an issue of fact exists as to whether he acted maliciously toward Solomon. This determination must be made for purposes of applying the Scholler test, and is a jury issue. As noted in Davis v. Black (1991), 70 Ohio App.3d 359, 368, 591 N.E.2d 11, 17, "the existence or nonexistence of malice is ordinarily a question of fact to be predicated upon the evidence." Since Horvath is the person who attempted to terminate the contract for Harwood a jury could reasonably conclude that Horvath knowingly assisted Harwood in terminating the contract where he knew or had reason to know that a valid extension to Solomon was in place. Therefore, Horvath's conduct in entering into a contract to sell the property to Mustafa while Harwood was under contract to Solomon was improper can only have been deliberate. This action was pursuant to a scheme between Harwood and Horvath to sell the property to Mustafa for more money than Solomon was paying.
+
+C. Issues of Credibility. Cases in which the credibility of witnesses is in dispute are only rarely resolved through dispositive motions. It is outside the province of a summary judgment hearing to resolve issues of credibility, and such questions should be left to the jury who have the opportunity to observe the demeanor of the witnesses. Duke v. Sanymetal Products Co., Inc., 31 O. App. 2d 78, 60 O.O. 2d 171, 286 N.E. 2d 324 (1972), See also Kililia v. Sears, Roebuck & Co., 27 O.App. 3d 163, 27 O.B.R. 196, 499 N.E. 2d 1291 (1986). Appellees claim in this case that the December 6, 2007 extension of time was not effective. However, Resource admitted that Horvath told Resource on or about December 13, 2007, that Solomon had until the close of business on December 14, 2007 to close the transaction. (See Resource answer to second amended complaint, PP 70)
+
+Issues of credibility abound with respect to material witness Richard Gill. Hard money lenders like Gill make loans on the basis of the equity in the properties. They do not follow normal underwriting procedures. They do not generally require loan applications, or care about a borrower's credit. They do not request tax returns or bank statements. They receive above market interest rates, sometimes a premium, for the risk associated with making difficult loans. Appellees' contention that Solomon lacked the necessary financing to close is based upon the testimony of Gill. Gill's testimony is rife with contradictions. He gave dramatically different testimony on two different occasions. Further, he changed his testimony and testified for the benefit of Appellees only after Solomon declined to pay him money for his testimony. (See Pollock affidavit in support of opposition to Resource motion for sanctions, R#- 263)
+
+1.  Gill's Affidavit.
+
+On March 26, 2008, Gill signed a sworn affidavit in this case. The affidavit was prepared by Lynch, with assistance and input from Gill. The Gill affidavit states:
+
+One. That I have personal knowledge of the facts herein and am qualified to testify to them in court.
+
+Two. That I was willing and able to proceed with the financing of Solomon, Trustee's purchase of property located at 1359 Adelaide Street, Westlake, Ohio in the amount of approximately $ 320,000.00, which amount was available to me to close the deal before the end of the day December 14, 2007.
+
+Three. I had examined this deal, and intended to proceed with the financing when all loan conditions were met. However, before I could move forward any further, Mr. Lynch informed me that the seller was reneging on the contract.
+
+In March, 2008, Gill met with Lynch to review the proposed affidavit. Gill requested that the language in Paragraph 3 of the affidavit be added. Thereafter, Gill aligned with Appellees, and materially changed his testimony. On or about July 10, 2008, Gill's counsel Spencer Muse, faxed to Resource's counsel several documents, including three pages of handwritten "notes" that Gill would later testify were made "contemporaneous with the events as they occur." (Gill Tr. p. 42)
+
+2.  Gill's Deposition - Changing Sworn Statements.
+
+On September 22, 2008, Gill was deposed in this case. During questioning by Resource's counsel, Gill's testimony was in sharp contrast to his previously signed affidavit of March 26, 2008. In relevant part, Gill testified:
+
+1. That he is a private lender and real estate investment banker (Gill Tr. pp. 11, 13);
+
+2. That he uses five criteria in establishing his loans: credit, collateral, capacity, cash flow, and character (Gill Tr. p. 13);
+
+3. That he routinely mails out an FYI package which includes six (6) items needed to proceed: 1) an application; 2) tax returns; 3) employment verification; 4) credit report; 5) bank statements; and 6) full disclosure of all assets and liabilities. (Gill Tr. pp. 25-26);
+
+4. That although he visited and inspected the property, he was not provided with all of the documentation necessary for him to make the loan commitment prior to the deal being "cut off. Gill testified that he needed the following: legal opinion with regard to the federal tax lien; he had no financials, loan application, tax returns; didn't have any information as to character, capacity, and cash flow and credit; and he had not discussed the terms and conditions and interest rate (Gill Tr. pp. 57-58); 10
+
+5. Gill did admit that he was still "ready, willing and able if we had gotten over these hurdles" (Tr. pg. 62).
+
+As previously stated, due to Gill's changing testimony, Gill's credibility and any actions between March 26, 2008 and July, 2008 are in issue. Gill admitted that he had other dealings with Resource, however he was unable to specifically identify any. (Gill Tr. pp. 105-106). Gill also noted that he had a client who worked with Resource, but was no longer doing business with that individual, and that those transactions were some time ago. (Gill Tr. pp. 130-131). In the course of the deposition, Gill admitted the following:
+
+A. that he did not adhere to his normal procedures with respect to the loan to Solomon because the loan had been initiated by an attorney (Gill Tr. pp. 112-113);
+
+B. that if he had received all the information from Solomon that he claims he needed to make the loan he could have made the loan. (Gill Tr. p. 86)
+
+The credibility of Gill's post-affidavit testimony was compromised by cross-examination at deposition and revealed the following:
+
+. That Gill's "notes" are entered "after the date"; that he makes his "notes" "as contemporaneous as any human being could make them", but he made some of his "notes" based on billing entries from his counsel, Mr. Muse (Gill Tr. pp. 117-118);
+
+. That Gill does not remember and is not sure he ever met or talked to someone named "Faye" at Resource, despite the fact that Gill's cell phone records indicated that Gill had several telephone communications to Faye Gerstenfeld's Resource direct line from June 27, 2008 and into July, 2008 11 (Gill Tr. pg. 108);
+
+. That although Gill testified on examination by Cuppage that the terms of the loan was also not discussed or agreed to, Gill later testified that he routinely charges a "simple" 10% rate (Gill Tr. pg. 67);
+
+. That Gill had not been in contact with Lynch about the Adelaide property in the thirty day period preceding December 11, 2007. (Gill Tr. pg. 115). Gill's cell phone records reveal that he communicated with Lynch at least twice between December 4, 2007 and December 8, 2007.
+
+Although Gill's "notes" were faxed to Resource's counsel on July 10, 2008, the last entry is dated "03-26-08". During the deposition of Gill, Gill produced another copy of these alleged "contemporaneous" notes, with entries dated "07-03-08" and "07-08-08".
+
+Despite assisting in drafting and executing the March 26, 2008 affidavit, Gill's notes contradict the very language that Gill added to the affidavit, i.e., that he "had examined this deal, and intended to proceed with the financing when all loan conditions were met. However, before I could move forward any further, Mr. Lynch informed me that the seller was reneging on the contract". In his notes, allegedly made "contemporaneous" 12 to assisting in drafting and executing this affidavit, Gill's entry, dated "03-26-08" states, in part:
+
+I wouldn't sign his draft, added item 3 for my protection I had the money available to make this loan if all my loan conditions were met. However: I had no financials on A.S., no loan application, no tax returns from him all I had was a property I inspected & determined was worthy collateral to make a loan of this amount. 2 other points credit & character still had to be looked at. Not to mention terms & conditions - how long, what interest or rate or amount to be charged.
+
+* I figured if Harwood really wanted to sell to Solomon he would give Solomon an extension at least enough time for me to determine if I would make the loan commitment.
+
+Upon receiving these "notes", it became apparent that Gill's testimony had changed sometime after he executed his affidavit on March 26, 2008 and prior to July 10, 2008.
+
+A December 15, 2007 entry to Gill's notes reflects that he was "pissed" that the deal did not close and he did not make any money on the transaction.
+
+As previously set forth, in March, 2008, Gill met with Lynch to review a proposed affidavit. Gill requested that, in part, the following language be added to the affidavit.
+
+3. I had examined this deal and intended to proceed with the financing when all loan conditions were met. However, before I could move forward any further, Mr. Lynch informed me that the seller was reneging on the contract.
+
+Lynch added the above-cited language to the affidavit and Gill executed it. The Gill language explicitly states that, after examining the deal, Gill intended to proceed with the financing "when all loan conditions were met", however, before such time, he was informed the seller reneged on the contract. This affidavit implicitly states that the "loan conditions" could have been met to Gill's satisfaction by December 14, 2007 at 4:00 p.m. given the time constraints of which Gill was already aware.
+
+Despite assisting in the preparation of, and signing, the affidavit, Gill's testimony clearly changed after March 26, 2008. In his notes, first produced at this deposition, Gill clearly displayed anger toward Lynch (and by association, Solomons herein), in an entry dated "07-03-08" (which was, again, curiously not part of his "contemporaneous" notes faxed to Cuppage on July 10, 2008), Gill states, in relevant part:
+
+. . . called D.L. had conversation, faxed him 2:15 p.m. subpoena, would hold him personally responsible for costs involved for dragging me into this - he said they did Bull Shit!
+
+Thereafter, in direct contradiction to his March 26, 2008 affidavit, Gill writes, in an entry dated "07-16-08", in relevant part:.
+
+My loan evaluation process is not like typical bank. My loan commitment comes after all due diligence is done I am committed to making the loan. If asked directly whether I would have, could have made this loan given 24 hrs till 5:00 p.m. on 12-14-07 I would answer no I don't feel that I could have resolved issues with regard to this loan in 24 hrs & be 100% certain I would have made this loan.
+
+In preparation for his deposition testimony, Solomon's counsel subpoenaed cell phone records of Gill and discovered numerous telephone communications between Gill and Defendant Resource, at or about the time that Gill received the first subpoena and prior to the stated dates of Gill's "notes" of July 3 and July 16, 2008. Between the dates of June 27, 2008 through July 6, 2007, Gill had at least eight telephone conversations with Resource. (See Gill cell phone record).
+
+Despite Gill's deposition testimony (as well as his "contemporaneous" notes) that he still required financial documentation from Solomon a loan application, and tax returns, Gill faxed a note to Lynch on December 13, 2007 at 1:35 p.m. inquiring about the tax lien exception reflected in the Resource commitment. Significantly, this note only requests information regarding this lien, and does not request any other financial documents for Solomon, such as the aforementioned financial documentation, loan application, or tax returns. If these "financial documents" were necessary for Gill to complete the loan, and if Gill had not requested them by December 13, 2007 as of 1:35 p.m., when was Gill planning on requesting these documents?
+
+When Harwood, through Horvath, improperly terminated Solomon's contract later on December 13, 2007, Lynch informed Gill that Harwood had reneged on the deal and the transaction could not close. (See Lynch affidavit). Although Gill's "contemporaneous" notes, and testimony in conformity therewith, reflects that Gill was contacted by Lynch that the deal had been reneged on by Harwood/Horvath on December 14, 2007, it is significant that at the time of the unilateral termination of the transaction by Harwood/Horvath on December 13, 2007, Gill was clearly still working towards closing the transaction as of 1:35 p.m. on December 13, 2007, i.e., at or about the time that Harwood/Horvath terminated the transaction.
+
+The changing sworn statements of Gill as to the issue of whether Solomon was in a position to close the Adelaide sale by the end of business on December 14, 2007, has resulted in placing the credibility of Gill's post March 26, 2007 affidavit squarely at issue in the within matter. Due to this change by Gill, Appellees relied in large part on Gill's deposition testimony in their motions for summary judgment.
+
+Appellees tried to bolster Gill's credibility by arguing that his testimony is consistent with his notes, Gill testified, on multiple occasions that his notes were made "contemporaneous with the events as they occur" (Gill Tr. p. 42). However, Gill later admitted that his notes were not necessarily made contemporaneously with events, even to the extent that some entries were apparently made by Gill after receiving a bill from his counsel, Muse. Gill's credibility is in issue in this case, as are the events leading to his clear change of testimony. These are significant areas for a jury to consider.
+
+Additional issues of credibility exist in this case regarding the testimony of Horvath. In support of his motion Harwood attached an affidavit of Horvath. This affidavit claims that Horvath spoke with Lynch on or about December 12, 2007, and that Lynch stated at that time that Solomon had not procured the necessary financing to close the transaction. Lynch denies making this statement. (See Lynch affidavit) Lynch maintains that he did not have a conversation with Horvath on that date. He further states that in his last conversation with Horvath before that date, which was significantly before that date, Lynch told Horvath that Solomon was still attempting to procure financing and that Lynch expected him to complete the transaction. (See Lynch affidavit) The conflict between the testimony of Horvath and Lynch creates issues of fact for the jury. In order to decide these matters, the jury must evaluate the credibility of each witness.
+
+IV.  THE TRIAL COURT ERRED IN ENFORCING INDEMNIFICATION AGREEMENT LANGUAGE IN RESOURCE'S STANDARD CONDITIONS OF ESCROW WHERE THE EVIDENCE ESTABLISHED UNEQUIVOCALLY THAT RESOURCE BREACHED ITS FIDUCIARY DUTY AND CONTRACTUAL RESPONSIBILITIES TO SOLOMON TO ASSIST HARWOOD IN AVOIDING HIS CONTRACTUAL OBLIGATIONS TO SOLOMON AND/OR WAS NEGLIGENT IN TERMINATING THE ESCROW PREMATURELY.
+
+The main function of an escrow agent is to hold documents and funds until the conditions are met whereupon the escrow agent releases the documents and funds. Spaulding v. Coulson (1995), 104 Ohio App. 3d 62, 81. Moreover, the duty of the escrow agent is "to carry out the terms of the agreement as intended by the parties." Pippin v. Kern-Ward Building Co. (1982), 8 Ohio App. 3d 196, 198. Moreover, "[a]n escrow holder occupies a fiduciary relationship with both the parties to the escrow agreement, and has attendant duties of loyalty, disclosure/and care, but the particular tasks with which the escrow holder is charged are those set forth in the escrow agreement." West Knoxville Associates Ltd. Partnership v. Ticor Title Ins. Co. (1998) 124 F. 3d 201 (6th Cir.)
+
+Here, Resource as escrow agent owed a fiduciary duty to Solomon as a party to the real estate transaction, with regard to the implementation of the purchase agreement. Resource therefore had a fiduciary duty to act honestly and fairly in handling their transaction, and not to prefer one party over the other. Further, it was prohibited from engaging in any illegal conduct with respect to the transaction, or in dealing with the parties' fundo.
+
+It is indisputable that in the course of the transaction, Resource issued a fictitious HUD-1 statement to WaMu representing that the sale to Solomon had closed. Resource did this to permit Harwood to obtain a reduction of his mortgage balance. Resource issued the false HUD-1 without Solomon's knowledge or authority to involve him in the fraud which Harwood and Resource were committing upon WaMu. Further, Resource utilized funds provided by Solomon to effect an illegal short payoff. Solomon was unaware that the manner in which Resource was handling the transaction was illegal. Solomon would not have sanctioned this conduct. The addendum to the purchase agreement which Solomon had signed provided that the transaction would close when Solomon obtained his financing.
+
+The preparation and issuance of the fictitious HUD-1, the use of funds of Solomon and Harwood to effect a short payoff on the premise of a transfer, the premature termination of the escrow, and the partiality shown to Harwood and Horvath, all constituted breaches of Resource's fiduciary and contractual duties to Solomon. As a result, Solomon has stated a valid claim against Resource.
+
+Solomon has also stated a valid claim in negligence. Numerous Ohio courts, including this Court in Calhoun, et al. v. Mccullough, et al., 1991 WL 64317 (Ohio App. 8 Dist.) have recognized that where facts support a breach of contract or breach of fiduciary duty claim against an escrow agent, the escrow agent can also be liable in negligence. See also Lashua, et al. v. Lakeside Title & Escrow Agency 2005 WL 844973 (Ohio, App. 5 Dist.), 2005 -Ohio- 1728 No. 2004CA00237, a title company/escrow agent was held liable for negligence for failure to disburse funds according to statutory and contract law; and Meerhoff, Executor. v. Huntington Mortgage Company, 103 Ohio App.3d 164, 658 N.E.2d 1109 (Ohio App. 3 Dist.), escrow agent was held liable for negligence for failure to cause a deed to be recorded promptly upon closing, thereby allowing a post-closing lien filed against seller to attach to the property.
+
+V.  THE TRIAL COURT ERRED IN GRANTING SUMMARY JUDGMENT TO HORVATH WHERE SOLOMON SATISFIED BOTH THE PRIVITY AND MALICE PRONGS OF SCHOLLER, THE QUESTION OF WHETHER MALICE EXISTED WAS A JURY ISSUE. AND SOLOMON PROVIDED EXPERT TESTIMONY IN SUPPORT OF HIS LEGAL MALPRACTICE CLAIM.
+
+A third person can maintain a legal malpractice claim against the lawyer of another where such third person is in privity of contract with the client or the attorney acts maliciously. Scholler v.Scholler, 10 Ohio St.3d at 103 (1984). Horvath contends that Solomon cannot maintain a claim against Horvath for legal malpractice because Solomon is not a client of Horvath and because privity of contract is lacking and because the interests of Harwood and Solomon are allegedly not concurrent. The privity requirement is satisfied because of the contract between Solomon and Harwood.
+
+As to concurrency, the Ninth District Court of Appeals discussed that issue in Macken v. KDR, 2007 Ohio 4106, 2007 Ohio App. LEXIS 3733 (Ohio App. 9 Dist). The dispute centered around the preparation of a mortgage deed on real property in Lorain County, and whether the Wickens law firm prepared that mortgage deed. Macken was in privity of contract with Wickens' client. Wickens argued that the privity exception to the attorney third party immunity was not satisfied because the interests of KDR and Macken were not concurrent with respect to the Macken mortgage deed. The Ninth District concluded that the interests of Macken and KDR were in fact concurrent because both KDR and Macken wanted the indebtedness to Macken secured by a mortgage.
+
+Here, both Harwood and Solomon had agreed on terms of sale, which included extending the closing date of sale through the close of business on December 14, 2007. Therefore, their interests were concurrent. There is more than an arm's-length dealing between Solomon and Harwood. They had ongoing negotiations about the sale of the property to Solomon, and entered into multiple contracts. This was not a case of one party offering a form contract and the other accepting.
+
+Solomon has also established here that Horvath acted maliciously because the conduct of Horvath clearly constitutes conscious disregard for the rights and safety of Solomon, i.e., malice. Malice has been defined to mean "conscious disregard for the rights and safety of others." 13
+
+Solomon alleges that Horvath, in his representation of Harwood and acting has his attorney-in-fact, participated in a scheme to defraud Solomon by selling the property to Mustafa while Solomon's contract was still in effect, without exception for Solomon's rights. Even if the December 6, 2007, extension communicated by Horvath is deemed as an offer to extend the contract, as opposed to an actual extension, Horvath entered into the alternative contract with Mustafa without having revoked or attempted to revoke December 6, 2007, extension. Horvath knew that he had extended, or offered to extend, the time for closing by Solomon until the close of business on December 14, 2007. He knowingly, and with reckless disregard for Solomon's rights, asserted to Lynch that Harwood was not seeking to sell the property to another, and concealed the fact he was negotiating with Mustafa and had entered into that contract. Horvath consciously disregarded Solomon's rights by deliberately choosing to assist Harwood in perpetrating this fraud on Solomon. Paragraph 135 of Count V and Paragraph 193 of Count XIV of Solomon's second amended complaint clearly declare the conduct of Horvath to be malicious,
+
+Here, Solomon satisfies both criteria of the Scholler test; Solomon had privity of contract with Horvath's client, Harwood, and Horvath acted maliciously in the representation of Harwood. Further, the unrebutted expert testimony by Solomon's expert establishes Horvath's liability for legal malpractice assuming that the/facts alleged are true. Summary judgment should not have been granted to Horvath.
+
+VI.  THE TRIAL COURT ERRED IN GRANTING SUMMARY JUDGMENT TO RSB AS THE VALIDITY OF RSB'S MORTGAGE DEEDS DEPENDS UPON THE ERRONEOUS SUMMARY JUDGMENT IN FAVOR OF MUSTAFA.
+
+RSB is the holder of two mortgages filed against the property. RSB'S rights all derive from Mustafa. Accordingly, the same arguments which pertain to Mustafa pertain with equal force and effect to RSB. If Mustafas are ultimately determined not to have received good title to
+
+VII.  THE TRIAL COURT ERRED IN DISREGARDING THE APPLICATION OF THE OCCUPYING CLAIMANT LAW RC § 5303.08. TO SOLOMON'S CLAIMS.
+
+Solomon's second amended complaint included a claim under Ohio's Occupying Claimant Law, for the value of improvements made to the Adelaide property. R.C. 5303.08, the current codification of occupying claimant law, provides as follows:
+
+a person who, without fraud or collusion on his part, obtained title to and is in the quiet possession of lands or tenements, claiming to own them, shall not be evicted or turned out of possession by any person who sets up and proves an adverse and better title, until the occupying claimant * * * is paid the value of lasting improvements made by the occupying claimant on the land * * * before the commencement of suit on the adverse claim by which such eviction may be effected, unless the occupying claimant refuses to pay to the party establishing a better title the value of the lands without such improvements, on demand by him or his heirs, when such occupying claimant holds:
+
+(B) By deed * * * from and under a person claiming a plain and connected title, in law or equity, derived from the records of a public office, or by deed authenticated and recorded; * * *." (Emphasis added.)
+
+VIII. Solomon was an occupying claimant of the property as that term is defined in RC § 5303.08. Until evicted by the trial court Solomon maintained possession of the property from October, 2005, under a series of executory purchase agreements allowing early occupancy for an indefinite term. He also had color of title/equitable ownership under the deed executed by Harwood and deposited in escrow with Resource on or about October, 2007. Solomon could not be lawfully dispossessed of the property without compensation equal to the fair market value of all the improvements made by him to the property as provided in RC § 5303.08. As noted in Easterling v. Miller, 1998 WL 3642 (Ohio App. 4 Dist.) THE TRIAL COURT ERRED IN DENYING SOLOMON THE RIGHT TO A JURY TRIAL ON DAMAGES.
+
+"The text of [R.C. 5303.08] contemplates that the person being evicted will assert his claim for the value of improvements, and obtain an adjudication of that claim, before, and as a condition of, his eviction." Platt v. Petrosky (March 23, 1994), Montgomery App. No. 14212, unreported.
+
+Solomon filed a jury demand in this case. In Galayda v. Lake Hosp. System, Inc., 1993 WL 389754 (Ohio App. 8 Dist., 1993), the Court stated:
+
+With regard to the right to jury trial, such right is guaranteed by Section 5, Article I, of the Ohio Constitution. The legislature may not attempt to either limit or abolish the right to a trial by jury. See, Gibbs v. Girard (1913), 88 Ohio St. 43. The right to have a jury determine the amount of damages is a substantive right not to be abridged by any action. Kneisley v. Lattimer-Stevens Co. (1988), 40 Ohio St.3d 354.
+
+In Zoppo v. Homestead Ins. Co. (1994), 71 Ohio St.3d 552, 557, 644 N.E.2d 397, the Court stated:
+
+"Ohio courts have consistently understood that all damages, without distinction as to type, are for the jury to determine as part of the jury trial right."
+
+Where a party has a cause of action, it is entitled to have damages determined by a jury. Sorrell, 69 Ohio St.3d at 422, 633 N.E.2d 504.
+
+In the case of Stonehenge Land Company v. Beazer Homes Investments, L. L. C., (2008) 177 Ohio App.3d 7, 893 N.E.2d 855, 2008 -Ohio-148, the Tenth District Court of Appeals specifically addressed the right to jury trial where attorneys fees were claimed as compensatory damages as Harwood and Resource sought in their motions for summary judgment. The Court ruled that because the attorney fees being sought herein were in the nature of damages, the trial court was required to submit the issue to the jury. See also Keal v. Day (2005) 164 Ohio App.3d 21, 840 N.E.2d 1139, 2005 -Ohio- 5551 (Ohio App. 1 Dist.) when award of attorney fees are awarded by contract, matter must be decided by a jury.
+
+Harwood and Resource sought attorneys' fees as part of its claim for compensatory damages in this action. Therefore, Solomon has an absolute right to have a jury determine whether attorney fees should be awarded and the amount of same, after hearing all the evidence at trial.
+
+IX.  THE TRIAL COURT ERRED IN DISCHARGING SOLOMON'S MECHANIC'S LIEN.
+
+Harwood's motion for summary judgment regarding Solomon's mechanic's lien should have been denied because a genuine issue of fact exist because regarding Solomon's legal status. Harwood contends that Solomon's lien is invalid because the work performed was not authorized by Harwood as the "owner" of the property. Harwood further contends that Solomon is simply a lessee of the property. In fact, he is the equitable owner of the property.
+
+Section 1311.01 of the Ohio Revised Code states:
+
+Lien definitions. As used in sections 1311.01 to 1311.22 of the Revised Code:
+
+(A) "Owner," "part owner," or "lessee" includes all the interests either legal or equitable, which such person may have in the real estate upon which the improvements are made, including the interests held by any person under contracts of purchase, whether in writing or otherwise. (Emphasis added)
+
+Here, the original purchase agreement was entered into on August 24, 2005. At all relevant times a purchase agreement was in effect. As a result, Solomon as at all relevant times has been the equitable owner of the property. Harwood admitted in his deposition that Solomon is contract purchaser and not a lessee. (Harwood Tr. p. 133) Under the doctrine of equitable conversion, Solomon became the equitable owner of the property when the first purchase agreement was executed by in 2005. See Wood v. Donohue (1999). Ohio App. 1 Dist. 136 Ohio App.3d 336, 736 N.E.2d 556. 14 As the equitable owner of the property Solomon could authorize work to be done on the property. He could also, as here, act as the general contractor to perform the work.
+
+Further, RC § 1311.10 oreates a presumption that Solomon was authorized to contract for or cause work to be done on the property.
+
+1311.10 Pressumptions.
+
+(A) Any person who contracts for an improvement to real property which gives rise to lien rights under sections 1311.01 to 1311.22 of the Revised Code is presumed to be the authorized agent of all part owners of the real property, except when the relationship between the person contracting for the improvement and the other part owners is that of lessee and lessor or sublessee and sublessor.
+
+(C) The presumptions established by this section may be overcome only by clear and convincing evidence.
+
+Effective Date: 04-16-1993
+
+Harwood's motion for partial summary judgment should have also been denied because a genuine issue of fact exists regarding the amount due on Solomon's lien.
+
+X.  THE TRIAL COURT ERRED IN AWARDING DAMAGES TO APPELLEES HARWOOD, RESOURCE AND MUSTAFA. AND ALL SUCH AWARDS MUST BE VACATED.
+
+All of the damage awards on this case are predicated upon determinations of liability which are erroneous. Therefore, all damage awards in this case must be vacated. Further, there were no valid grounds to impose punitive damages against Solomon for filing a lien.
+
+XI. THE TRIAL COURT ERRED IN FAILING TO ISSUE FINDINGS OF FACT AND CONCLUSIONS OF LAW AS REQUIRED BY LAW.
+
+The trial court erred in failing and refusing to make findings of fact and conclusions of law despite requests by Appellants and Harwood. As Harwood noted in his request for same (R#-310), because the ruling of the trial court regarding the Solomon contract was a "potentially final order," such findings and conclusions were required pursuant to Civil Rule 52. As Harwood states,
+
+"Ohio case law and appellate procedure require that a trial court submit findings of fact and conclusions of law in support of any judgment on a declaratory judgment action." (R#-310)
+
+Now, despite knowing he has an invalid judgment, Harwood is executing on that judgment.
+
+CONCLUSION
+
+In arriving at a decision in this case, this Court should review the entire record of this case and decide this case de novo. In so doing, this Court must consider all of the evidence and the totality of the circumstances. If this Court does so, this Court must be compelled to reverse the judgments of the trial court.
+
+Accordingly, for these reasons, Plaintiff-Appellants Solomon request that this Court reverse the decision of the trial court and enter judgment in favor of Plaintiff-Appellants or remand this case for further proceedings.
+
+HAROLD POLLOCK CO., L.P.A.
+
+By: /s/ Harold Pollock
+
+Harold Pollock (0009271)
+
+Attorney for Plaintiff-Appellants
+
+Alex A. Solomon, Trustee of The Alex A.
+
+Solomon Trust, et al.
+
+SERVICE
+
+A copy of the foregoing Appellants' Brief was mailed by ordinary U.S. mail this 2d day of March, 2011, to David M. Cuppage, Attorney for Defendant-Appellee Resource Title, 55 Public Square, Suite 1950, Cleveland, Ohio 44113; to Ronald Rispo, Attorney for Defendants Harwood, 1301 East 9th Street, Suite 1900, Cleveland, Ohio 44114-1862; to Nicholas Satullo, Attorney for Defendant-Appellee David Horvath, 1400 Midland Building, 101 Prospect Avenue, Cleveland, Ohio 44115-1093; to Russell S. Bensing, Attorney for Defendant-Appellees Mustafa, 1350 Standard Building, 1370 Ontario Street, Cleveland, Ohio 44113; to Kathleen Nitschke, Attorney for Defendant-Appellee RSB Citizens, 1300 E. Ninth Street, Suite 1600, Cleveland, Ohio 44114; and to Gregory Amend, Co-counsel for Defendant-Appellee RSB Citizens, One Cleveland Center, 20th Floor, 1375 East 9th Street, Cleveland, Ohio 44114-1793.
+
+By: /s/ Harold Pollock
+
+Harold Pollock
+
+Attorney for Plaintiff-Appellants
+
+Alex A. Solomon, Trustee of
+
+The Alex A. Solomon Trust, et al.
+
+Table1 (Return to related document text)
+
+CONCLUSION
+
+40
+
+CERTIFICATE OF SERVICE
+
+41
+
+Table1 (Return to related document text)

@@ -1,0 +1,90 @@
+[
+  {
+    "fixture_id": "F001",
+    "case_family_id": "stone-v-cazeau--07ca009164",
+    "stratum": "appellate_eviction",
+    "control_text_source": "lexis_docx",
+    "attachments": 0,
+    "mutation_type": "missing_element",
+    "control_chars": 15760,
+    "characters_changed": 249,
+    "verification_status": "unverified"
+  },
+  {
+    "fixture_id": "F002",
+    "case_family_id": "cleveland-dev-v-carter--95135",
+    "stratum": "appellate_eviction",
+    "control_text_source": "lexis_docx",
+    "attachments": 0,
+    "mutation_type": "missing_element",
+    "control_chars": 47302,
+    "characters_changed": 316,
+    "verification_status": "unverified"
+  },
+  {
+    "fixture_id": "F003",
+    "case_family_id": "dayton-tool-rental-st-joseph-invs-v-ealy",
+    "stratum": "appellate_eviction",
+    "control_text_source": "lexis_docx",
+    "attachments": 0,
+    "mutation_type": "record_support",
+    "control_chars": 14558,
+    "characters_changed": 45,
+    "verification_status": "unverified"
+  },
+  {
+    "fixture_id": "F004",
+    "case_family_id": "masten-v-k-d-mgmt--ca-12-098894",
+    "stratum": "appellate_eviction",
+    "control_text_source": "lexis_docx",
+    "attachments": 0,
+    "mutation_type": "authority_applicability",
+    "control_chars": 41806,
+    "characters_changed": 4,
+    "verification_status": "unverified"
+  },
+  {
+    "fixture_id": "F005",
+    "case_family_id": "kerr-v-lakewood-shore-towers-inc",
+    "stratum": "appellate_eviction",
+    "control_text_source": "lexis_docx",
+    "attachments": 0,
+    "mutation_type": "authority_applicability",
+    "control_chars": 24795,
+    "characters_changed": 25,
+    "verification_status": "unverified"
+  },
+  {
+    "fixture_id": "F006",
+    "case_family_id": "lee-v-wallace",
+    "stratum": "appellate_eviction",
+    "control_text_source": "lexis_docx",
+    "attachments": 1,
+    "mutation_type": "removed_counterargument",
+    "control_chars": 32140,
+    "characters_changed": 210,
+    "verification_status": "unverified"
+  },
+  {
+    "fixture_id": "F007",
+    "case_family_id": "estate-of-anthony-notarian-v-notarian--23m000467",
+    "stratum": "trial_eviction",
+    "control_text_source": "ocr_scan",
+    "attachments": 1,
+    "mutation_type": "record_support",
+    "control_chars": 14224,
+    "characters_changed": 45,
+    "verification_status": "unverified"
+  },
+  {
+    "fixture_id": "F008",
+    "case_family_id": "friese-v-baker--23p000020",
+    "stratum": "trial_eviction",
+    "control_text_source": "ocr_scan",
+    "attachments": 1,
+    "mutation_type": "removed_counterargument",
+    "control_chars": 15345,
+    "characters_changed": 1343,
+    "verification_status": "unverified"
+  }
+]
