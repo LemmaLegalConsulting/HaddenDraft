@@ -4,6 +4,7 @@ import test from "node:test";
 import {
   RUN_POLL_MS,
   auditBadges,
+  auditedRules,
   availableFilters,
   caseLabel,
   clamp,
@@ -29,10 +30,13 @@ import {
   effectiveSelection,
   elementState,
   findingCounts,
+  findingsByCategory,
   findingsByCheck,
   groupChecks,
   ruleAuditSummary,
+  setGroupChecks,
   toggleCheck,
+  unauditedRules,
   unverifiedRules,
   cleanJurisdictionDetail,
   complianceGroups,
@@ -293,21 +297,72 @@ test("a brief too long to read whole says so instead of reporting a clean run", 
 
 
 const CATALOG = [
-  { id: "adversarial", label: "Opponent, judge, and coach", category: "argument", defaultEnabled: true },
-  { id: "rule_elements", label: "Elements of the rules invoked", category: "argument", defaultEnabled: true },
+  {
+    id: "rule_elements",
+    label: "Elements of the rules invoked",
+    category: "correctness",
+    categoryLabel: "Correctness",
+    categoryDescription: "Is the law right?",
+    defaultEnabled: true,
+  },
+  {
+    id: "adversarial",
+    label: "Opponent, judge, and coach",
+    category: "completeness",
+    categoryLabel: "Argumentative completeness",
+    defaultEnabled: true,
+  },
+  {
+    id: "persuasion_issue_framing",
+    label: "Issue framing",
+    category: "persuasion",
+    categoryLabel: "Persuasive communication",
+    defaultEnabled: true,
+  },
+  {
+    id: "persuasion_emphasis",
+    label: "Emphasis",
+    category: "persuasion",
+    categoryLabel: "Persuasive communication",
+    defaultEnabled: true,
+  },
   { id: "pleading_form", label: "Form of the pleading", category: "form", defaultEnabled: true },
   { id: "passive_voice", label: "Passive voice", category: "language", defaultEnabled: false },
 ];
 
 test("checks are grouped the way an author reads them", () => {
   const groups = groupChecks(CATALOG);
-  assert.deepEqual(groups.map((group) => group.id), ["argument", "form", "language"]);
-  assert.equal(groups[0].label, "Argument");
-  assert.equal(groups[0].checks.length, 2);
+  assert.deepEqual(
+    groups.map((group) => group.id),
+    ["correctness", "completeness", "persuasion", "form", "language"],
+  );
+  // The catalog names its own groups; the panel does not keep a second copy.
+  assert.equal(groups[0].label, "Correctness");
+  assert.equal(groups[0].description, "Is the law right?");
+  assert.equal(groups[2].label, "Persuasive communication");
+  assert.equal(groups[2].checks.length, 2);
+  // A group with no label of its own still reads as something.
+  assert.equal(groups[3].label, "Form of the filing");
+});
+
+test("a whole suite goes on or off in one decision", () => {
+  const suite = CATALOG.filter((check) => check.category === "persuasion");
+  assert.deepEqual(setGroupChecks(["grammar"], suite, true), [
+    "grammar",
+    "persuasion_issue_framing",
+    "persuasion_emphasis",
+  ]);
+  assert.deepEqual(setGroupChecks(["grammar", "persuasion_emphasis"], suite, false), ["grammar"]);
 });
 
 test("a session that has chosen nothing starts from the defaults, not from nothing", () => {
-  assert.deepEqual(effectiveSelection(null, CATALOG), ["adversarial", "rule_elements", "pleading_form"]);
+  assert.deepEqual(effectiveSelection(null, CATALOG), [
+    "rule_elements",
+    "adversarial",
+    "persuasion_issue_framing",
+    "persuasion_emphasis",
+    "pleading_form",
+  ]);
   assert.deepEqual(effectiveSelection(null, CATALOG, ["grammar"]), ["grammar"]);
   // An explicit empty choice is respected as an empty choice.
   assert.deepEqual(effectiveSelection([], CATALOG), []);
@@ -349,6 +404,46 @@ test("findings stay attributed to the check that produced them", () => {
   assert.deepEqual(findingCounts(groups), { errors: 1, warnings: 1, infos: 1 });
 });
 
+test("findings are gathered under the group of tests that produced them", () => {
+  const checksRun = [
+    { id: "persuasion_issue_framing", label: "Issue framing", category: "persuasion", categoryLabel: "Persuasive communication" },
+    { id: "persuasion_emphasis", label: "Emphasis", category: "persuasion", categoryLabel: "Persuasive communication" },
+    { id: "grammar", label: "Grammar and mechanics", category: "language" },
+  ];
+  const groups = findingsByCategory(
+    {
+      persuasion_issue_framing: { summary: "Needs work", findings: [{ severity: "warning" }] },
+      persuasion_emphasis: { summary: "Working", findings: [{ severity: "info" }] },
+      grammar: { findings: [{ severity: "warning" }] },
+    },
+    checksRun,
+  );
+  assert.deepEqual(groups.map((group) => group.id), ["persuasion", "language"]);
+  assert.equal(groups[0].label, "Persuasive communication");
+  assert.equal(groups[0].findings, 2);
+  assert.equal(groups[0].warnings, 1);
+  assert.equal(groups[0].infos, 1);
+  assert.deepEqual(groups[0].checks.map((check) => check.id), ["persuasion_issue_framing", "persuasion_emphasis"]);
+  assert.equal(groups[0].checks[0].summary, "Needs work");
+});
+
+test("the audit badges separate the kinds of problem rather than counting them together", () => {
+  const badges = auditBadges({
+    checkResults: {
+      persuasion_emphasis: { findings: [{ severity: "warning" }] },
+      grammar: { findings: [{ severity: "info" }] },
+    },
+    checksRun: [
+      { id: "persuasion_emphasis", label: "Emphasis", category: "persuasion", categoryLabel: "Persuasive communication" },
+      { id: "grammar", label: "Grammar and mechanics", category: "language" },
+    ],
+  });
+  assert.deepEqual(badges.map((badge) => badge.label), ["Persuasive communication", "Language"]);
+  assert.equal(badges[0].count, 1);
+  assert.equal(badges[1].count, 0);
+  assert.equal(badges[1].note, "1 note");
+});
+
 test("an element says separately whether it is pleaded and whether it is supported", () => {
   assert.equal(elementState({ pled: "yes", supported: "no" }), "pleaded, unsupported");
   assert.equal(
@@ -357,6 +452,25 @@ test("an element says separately whether it is pleaded and whether it is support
   );
   assert.equal(elementState({ pled: "partial" }), "partly pleaded");
   assert.equal(elementState({}), "unknown");
+});
+
+test("a rule the brief only used the words of is not counted as a rule carried", () => {
+  // A real brief reciting that a security deposit was paid drew a full deposit
+  // audit whose every element came back unmet. Nothing is decided about a
+  // phrase match now, so it cannot be reported as carried or as unmet.
+  const audit = [
+    { citation: "R.C. 1923.04", audited: true, unmetCount: 0 },
+    { citation: "R.C. 5321.16", audited: false, unmetCount: 0, matched: "security deposit" },
+  ];
+  assert.deepEqual(auditedRules(audit).map((rule) => rule.citation), ["R.C. 1923.04"]);
+  assert.deepEqual(unauditedRules(audit).map((rule) => rule.citation), ["R.C. 5321.16"]);
+  assert.equal(
+    ruleAuditSummary(audit),
+    "1 rule invoked; every element on file is carried. 1 phrase match was not audited.",
+  );
+  // And it does not inflate the badge's count of rules invoked.
+  const badges = auditBadges({ ruleAudit: audit });
+  assert.equal(badges[0].note, "1 rule invoked");
 });
 
 test("the rule audit summary counts elements the brief did not carry", () => {
@@ -534,7 +648,7 @@ test("the audit sidebar is a number and a word per area", () => {
   const badges = auditBadges({
     compliance: { checked: true, findings: [{ severity: "error" }, { severity: "info" }] },
     checkResults: { grammar: { findings: [{ severity: "warning" }] } },
-    checksRun: [{ id: "grammar", label: "Grammar", status: "on" }],
+    checksRun: [{ id: "grammar", label: "Grammar", category: "language", status: "on" }],
     ruleAudit: [{ unmetCount: 7, elements: [] }],
     checklistResults: { results: [{ outcome: "fail" }, { outcome: "pass" }] },
   });
@@ -542,7 +656,7 @@ test("the audit sidebar is a number and a word per area", () => {
   assert.equal(byId.compliance.count, 1);
   assert.equal(byId.compliance.tone, "high");
   assert.equal(byId.compliance.note, "1 not measurable");
-  assert.equal(byId.checks.count, 1);
+  assert.equal(byId["checks-language"].count, 1);
   assert.equal(byId.rules.count, 7);
   assert.equal(byId.rules.note, "1 rule invoked");
   assert.equal(byId.checklist.count, 1);

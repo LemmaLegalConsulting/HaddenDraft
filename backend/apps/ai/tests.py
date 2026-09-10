@@ -140,6 +140,7 @@ class PromptCatalogTests(TestCase):
                 "argument_gym.assessment",
                 "argument_gym.benchmark",
                 "argument_gym.rule_elements",
+                "argument_gym.persuasion",
                 "argument_gym.checklist",
                 "argument_gym.record_audit",
                 "argument_gym.research_queries",
@@ -217,6 +218,12 @@ class PromptCatalogTests(TestCase):
             with self.settings(PROMPT_CATALOG_DIR=Path(directory)):
                 with self.assertRaisesRegex(PromptCatalogError, "user prompt"):
                     get_prompt("anything", allow_database_override=False)
+
+    def test_argument_gym_adversarial_models_configured(self):
+        opponent = get_prompt("argument_gym.opponent", allow_database_override=False)
+        judge = get_prompt("argument_gym.judge", allow_database_override=False)
+        self.assertEqual(opponent.default_model, "gpt-5.6-sol")
+        self.assertEqual(judge.default_model, "deepseek-v4-pro")
 
 
 class ToolLoopTests(TestCase):

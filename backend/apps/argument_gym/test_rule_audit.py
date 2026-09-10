@@ -138,6 +138,31 @@ class RuleAuditTests(TestCase):
         audits[0]["elements"][0]["pled"] = "no"
         self.assertEqual(challenges_from_audit(audits), [])
 
+    def test_a_phrase_the_brief_happens_to_use_is_not_audited_at_all(self):
+        """A real brief recited paying a security deposit and drew a full deposit audit.
+
+        Every element came back "nothing supplied" -- which reads as a defect in
+        a claim the brief never made. The match is still reported, because the
+        advocate may have meant to invoke the rule, but nothing is decided.
+        """
+        brief = "Ms. Wheeler signed a lease and paid a security deposit of $700 before moving in."
+        audits, traces = run_rule_audit(brief, [], profiles=[make_profile(aliases=["security deposit"])])
+        self.assertEqual(len(audits), 1)
+        audit = audits[0]
+        self.assertFalse(audit["audited"])
+        self.assertTrue(audit["requiresApplicabilityReview"])
+        self.assertEqual(audit["unmetCount"], 0)
+        self.assertIn("security deposit", audit["verdict"])
+        self.assertIn("Nothing was audited", audit["verdict"])
+        # No element carries a verdict, and no model call was made for one.
+        self.assertEqual({element["pled"] for element in audit["elements"]}, {""})
+        self.assertFalse(any(element["unmet"] for element in audit["elements"]))
+        self.assertEqual(traces, [])
+
+    def test_a_rule_the_brief_cites_is_still_audited(self):
+        audits, _ = run_rule_audit(NOTICE_BRIEF, [], profiles=[make_profile()])
+        self.assertTrue(audits[0]["audited"])
+
     def test_a_brief_that_carries_every_element_produces_no_challenges(self):
         profile = make_profile(
             elements=[

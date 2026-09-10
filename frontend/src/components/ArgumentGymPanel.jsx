@@ -26,6 +26,7 @@ import {
   RUN_POLL_MS,
   RUN_POLL_TIMEOUT_MS,
   auditBadges,
+  auditedRules,
   availableFilters,
   canStartRun,
   caseOptions,
@@ -45,7 +46,7 @@ import {
   emptyStateMessage,
   evidenceCount,
   exhibitSummary,
-  findingsByCheck,
+  findingsByCategory,
   groupChecks,
   isRunFinished,
   materialsByOrigin,
@@ -66,8 +67,10 @@ import {
   skippedChecksSummary,
   sortSessions,
   targetLabel,
+  setGroupChecks,
   toggleCheck,
   truncationNotice,
+  unauditedRules,
   updatePlanItem,
   usesMunicipality,
 } from "./argumentGym.js";
@@ -299,13 +302,16 @@ function JurisdictionControls({ workspace, courts, courtTypes, detection, busy, 
   );
 }
 
-function FindingLines({ findings }) {
+// `heading` is what the finding is already filed under. A check that produces one
+// finding about itself -- a persuasion dimension -- would otherwise print its own
+// name twice in a row.
+function FindingLines({ findings, heading = "" }) {
   if (!findings.length) return <p className="muted">Nothing found.</p>;
   return (
     <ul className="gym-finding-lines">
       {findings.map((finding) => (
         <li key={finding.findingId} className={`tone-${finding.severity}`}>
-          <span className="gym-finding-target">{finding.target}</span>
+          {finding.target !== heading && <span className="gym-finding-target">{finding.target}</span>}
           {finding.message}
         </li>
       ))}
@@ -375,14 +381,45 @@ function ChecklistEditor({ checklists, activeId, busy, onSave, onDelete, onSelec
   );
 }
 
-function CheckSelector({ catalog, selected, checklists, checklistId, busy, onToggle, onChecklist, onManageChecklists, onManagePassive }) {
+function CheckSelector({
+  catalog,
+  selected,
+  checklists,
+  checklistId,
+  busy,
+  onToggle,
+  onToggleGroup,
+  onChecklist,
+  onManageChecklists,
+  onManagePassive,
+}) {
   return (
     <div className="gym-checks">
       <div className="gym-checks-body">
-        <p className="muted">Pick which tests you want to run.</p>
-        {groupChecks(catalog).map((group) => (
+        <p className="muted">Pick which tests you want to run. Each group asks a different kind of question.</p>
+        {groupChecks(catalog).map((group) => {
+          const chosen = group.checks.filter((check) => selected.includes(check.id)).length;
+          return (
           <fieldset key={group.id} className="gym-check-group">
             <legend>{group.label}</legend>
+            <div className="gym-check-group-head">
+              {group.description && <p className="muted">{group.description}</p>}
+              {/* A twelve-question suite is a decision about a kind of review,
+                  not twelve separate decisions. */}
+              {group.checks.length > 2 && (
+                <button
+                  className="btn btn-light btn-inline"
+                  type="button"
+                  disabled={busy}
+                  onClick={(event) => {
+                    event.preventDefault();
+                    onToggleGroup(group.checks, chosen !== group.checks.length);
+                  }}
+                >
+                  {chosen === group.checks.length ? "Turn all off" : "Turn all on"}
+                </button>
+              )}
+            </div>
             {group.checks.map((check) => (
               <label key={check.id} className="gym-check">
                 <input
@@ -423,7 +460,8 @@ function CheckSelector({ catalog, selected, checklists, checklistId, busy, onTog
               </label>
             ))}
           </fieldset>
-        ))}
+          );
+        })}
 
         {selected.includes("custom_checklist") && !checklistId && (
           <p className="gym-needs-attention">
@@ -513,12 +551,13 @@ function PassivePhraseModal({ open, phrases, busy, onClose, onSave }) {
 function AuditSummary({ run, onOpenArtifact, actionsDisabled }) {
   const badges = auditBadges(run);
   const skipped = skippedChecksSummary(run.checksRun || []);
-  const checkGroups = findingsByCheck(run.checkResults || {}, run.checksRun || []);
+  const checkGroups = findingsByCategory(run.checkResults || {}, run.checksRun || []);
   const compliance = complianceGroups(run.compliance || {});
-  const rules = run.ruleAudit || [];
+  const rules = auditedRules(run.ruleAudit || []);
   // Findings first; the rules that were satisfied are a list, not a report.
   const unmetRules = rules.filter((audit) => audit.unmetCount > 0);
   const metRules = rules.filter((audit) => !audit.unmetCount);
+  const possibleRules = unauditedRules(run.ruleAudit || []);
   const checklist = run.checklistResults?.results || [];
 
   return (
@@ -569,6 +608,23 @@ function AuditSummary({ run, onOpenArtifact, actionsDisabled }) {
         </details>
       )}
 
+      {possibleRules.length > 0 && (
+        <details className="gym-audit-detail">
+          <summary>Possible rule matches ({possibleRules.length})</summary>
+          <p className="muted">
+            The brief used the words of these rules without citing them. Nothing was audited: if you are not invoking
+            one, there is nothing here to answer.
+          </p>
+          <ul className="gym-plain-list">
+            {possibleRules.map((audit) => (
+              <li key={audit.slug}>
+                {audit.label} — “{audit.matched}”
+              </li>
+            ))}
+          </ul>
+        </details>
+      )}
+
       {compliance.checked && compliance.total > 0 && (
         <details className="gym-audit-detail">
           <summary>Filing format</summary>
@@ -576,19 +632,32 @@ function AuditSummary({ run, onOpenArtifact, actionsDisabled }) {
         </details>
       )}
 
-      {checkGroups.some((group) => group.findings.length > 0) && (
-        <details className="gym-audit-detail">
-          <summary>Document checks</summary>
-          {checkGroups
-            .filter((group) => group.findings.length > 0)
-            .map((group) => (
-              <div key={group.id} className="gym-audit-rule">
-                <span className="gym-context-label">{group.label}</span>
-                <FindingLines findings={group.findings} />
-              </div>
-            ))}
-        </details>
-      )}
+      {/* One disclosure per group of tests. A brief that states the law wrongly
+          and a brief that buries its best argument need different revisions, so
+          the reader picks the kind of problem they are ready to work on rather
+          than reading one undifferentiated list. */}
+      {checkGroups
+        .filter((group) => group.findings > 0)
+        .map((group) => (
+          <details key={group.id} className="gym-audit-detail">
+            <summary>
+              {group.label}
+              <span className="gym-badge-inline">{group.errors + group.warnings || group.findings}</span>
+            </summary>
+            {group.description && <p className="muted">{group.description}</p>}
+            {group.checks
+              .filter((check) => check.findings.length > 0)
+              .map((check) => (
+                <div key={check.id} className="gym-audit-rule">
+                  <span className="gym-context-label">
+                    {check.label}
+                    {check.summary && <em> — {check.summary}</em>}
+                  </span>
+                  <FindingLines findings={check.findings} heading={check.label} />
+                </div>
+              ))}
+          </details>
+        ))}
 
       {checklist.length > 0 && (
         <details className="gym-audit-detail">
@@ -1250,6 +1319,10 @@ export function ArgumentGymPanel({ matter = null, cases = [], focusRun = null, o
     await patchWorkspace({ enabledChecks: toggleCheck(selectedChecks, checkId) });
   };
 
+  const changeCheckGroup = async (checks, enabled) => {
+    await patchWorkspace({ enabledChecks: setGroupChecks(selectedChecks, checks, enabled) });
+  };
+
   const saveChecklist = async ({ id, title, items }) => {
     setBusy(true);
     setError("");
@@ -1573,6 +1646,7 @@ export function ArgumentGymPanel({ matter = null, cases = [], focusRun = null, o
               checklistId={workspace?.checklist?.id}
               busy={busy}
               onToggle={changeChecks}
+              onToggleGroup={changeCheckGroup}
               onChecklist={(value) => patchWorkspace({ checklistId: value ? Number(value) : null })}
               onManageChecklists={() => setChecklistModalOpen(true)}
               onManagePassive={() => setPassiveModalOpen(true)}
@@ -1709,6 +1783,7 @@ export function ArgumentGymPanel({ matter = null, cases = [], focusRun = null, o
               checklistId={workspace?.checklist?.id}
               busy={actionsDisabled}
               onToggle={changeChecks}
+              onToggleGroup={changeCheckGroup}
               onChecklist={(value) => patchWorkspace({ checklistId: value ? Number(value) : null })}
               onManageChecklists={() => setChecklistModalOpen(true)}
               onManagePassive={() => setPassiveModalOpen(true)}

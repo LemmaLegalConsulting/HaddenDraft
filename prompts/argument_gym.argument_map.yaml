@@ -4,6 +4,8 @@ user prompt: |
   Brief title: {brief_title}
   Case context: {matter_summary}
 
+  {brief_coverage}
+
   Numbered units of the brief. Each has a stable id you must reuse:
   {brief_units}
 

@@ -3,6 +3,8 @@ system prompt: |
 user prompt: |
   Jurisdiction: {jurisdiction}
 
+  {brief_coverage}
+
   Passages of the brief, with unit ids:
   {brief_units}
 

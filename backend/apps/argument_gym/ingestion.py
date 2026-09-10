@@ -550,9 +550,26 @@ def _is_exhibit_cover(page_text):
     return None
 
 
+# A page that opens an exhibit is nearly empty; a page of argument that happens
+# to cite one is not. This is the length above which the opening lines are prose.
+_COVER_SHEET_CHARS = 200
+
+
 def _first_exhibit_heading(page_text):
-    """A page that opens by naming an exhibit, even without a blank cover sheet."""
-    head = "\n".join([line for line in (page_text or "").splitlines() if line.strip()][:2])
+    """A page that opens by naming an exhibit, even without a blank cover sheet.
+
+    The opening lines must look like a cover sheet, not like a sentence. Without
+    that test this fires on an ordinary inline reference: page 3 of a filed
+    motion for summary judgment began mid-sentence with "...See attached Exhibit
+    2.", and the whole of the argument from page 3 onward -- nine pages of a
+    filing whose own footer read "Page 13 of 13" -- was classified as an exhibit
+    and never reached the model. The run reported a successful ingestion of a
+    two-page brief.
+    """
+    lines = [line for line in (page_text or "").splitlines() if line.strip()][:2]
+    head = "\n".join(lines)
+    if len(head) > _COVER_SHEET_CHARS:
+        return None
     match = _EXHIBIT_ANYWHERE.search(head)
     if match and not _EXHIBIT_INDEX.search(head):
         return f"{match.group(1).title()} {match.group(2).upper()}"

@@ -53,6 +53,29 @@ class PleadingFormTests(TestCase):
             self.assertNotIn("prayer_for_relief", targets(check_pleading_form(text, pleading_type="motion")))
         self.assertIn("prayer_for_relief", targets(check_pleading_form("Judgment was entered last year.", pleading_type="motion")))
 
+    def test_an_appellate_prayer_is_recognized_as_asking_for_something(self):
+        """Both of these are the real conclusions of real Cleveland appellate briefs.
+
+        Each was reported as asking the court for nothing, because the patterns
+        only knew how a trial-court prayer is worded.
+        """
+        for text in (
+            "Appellant Angela Hooper requests this Court reverse the judgment of the Cleveland "
+            "Housing Court and remand this matter for hearing.",
+            "Appellant-Defendant respectfully asks this Honorable Court to REVERSE the trial court's "
+            "default judgment against her and REMAND this matter with instructions to DISMISS the Complaint.",
+            "For the foregoing reasons the judgment should be reversed.",
+        ):
+            with self.subTest(text=text[:40]):
+                self.assertNotIn(
+                    "prayer_for_relief", targets(check_pleading_form(text, pleading_type="appellate_brief"))
+                )
+        # Still reported when the paper really does not ask for anything.
+        self.assertIn(
+            "prayer_for_relief",
+            targets(check_pleading_form("The trial court entered judgment last year.", pleading_type="appellate_brief")),
+        )
+
     def test_a_conventional_answer_produces_no_findings(self):
         self.assertEqual(check_pleading_form(ANSWER, pleading_type="answer", document_id=1), [])
 

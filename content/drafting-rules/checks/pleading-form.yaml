@@ -39,13 +39,20 @@ checks:
     kind: required_text
     severity: warning
     pleading_types: [complaint, answer, motion, memorandum, appellate_brief]
+    # An appellate brief asks for its relief in the register of an appellate
+    # brief: "Appellant requests this Court reverse", "respectfully asks this
+    # Honorable Court to REVERSE ... and REMAND". Four real Cleveland appellate
+    # briefs were reported as asking the court for nothing because the earlier
+    # patterns only recognized a trial-court prayer.
     patterns:
       - "wherefore"
       - "respectfully requests?"
       - "prays? for"
       - "relief requested"
       - "\\b(seeks?|requests?)\\s+(an?\\s+)?(partial\\s+|summary\\s+)*(judgment|dismissal|relief|order|injunction)\\b"
-      - "\\bmoves?\\s+(this|the)\\s+court\\s+(for|to)\\b"
+      - "\\b(moves?|asks?|requests?|urges?|prays?|petitions?)\\s+(that\\s+)?(this|the)\\s+(honorable\\s+)?court\\b"
+      - "\\b(reverse|remand|vacate|affirm|modify|dismiss)\\s+(the|this|his|her|their|appellee|appellant|plaintiff|defendant)"
+      - "\\bshould\\s+be\\s+(reversed|remanded|vacated|affirmed|modified|granted|denied|dismissed)\\b"
     message: >
       No passage asks the court for anything. A filing that does not state the
       relief it seeks leaves the court to infer it.

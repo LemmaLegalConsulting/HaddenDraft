@@ -6,6 +6,8 @@ the viewer may not see is a document the gym cannot read either. What the gym
 stores about it is a pointer and, when the advocate excludes it, that decision.
 """
 
+from django.conf import settings
+
 from apps.ai.case_chat import rank_document_groups_by_salience
 from apps.argument_gym.models import GymDocument
 from apps.matters.document_context import get_case_documents, get_document_text, summarize_text
@@ -134,7 +136,28 @@ def rank_materials(materials, case_context, request_text, *, limit=6, llm_client
     return selected[:limit], trace
 
 
-def material_text(material, *, workspace=None, client=None, max_chars=6000):
+def record_budget_chars():
+    return getattr(settings, "ARGUMENT_GYM_RECORD_BUDGET_CHARS", 150_000)
+
+
+def material_floor_chars():
+    return getattr(settings, "ARGUMENT_GYM_RECORD_MATERIAL_FLOOR_CHARS", 6_000)
+
+
+def share_of_budget(material_count):
+    """How much of the record budget each selected material may spend.
+
+    An even split, with a floor so that selecting six materials does not reduce
+    each to a fragment too small to answer anything. The floor can push the
+    total above the budget; that is the intended trade, because a material read
+    too shallowly to verify a proposition is worse than a slightly larger prompt.
+    """
+    if material_count <= 0:
+        return record_budget_chars()
+    return max(record_budget_chars() // material_count, material_floor_chars())
+
+
+def material_text(material, *, workspace=None, client=None, max_chars=None):
     """Read a material's text at the moment it is needed, not before."""
     if material["origin"] == "upload":
         document = GymDocument.objects.filter(id=material["documentId"]).first()
@@ -151,7 +174,8 @@ def material_text(material, *, workspace=None, client=None, max_chars=6000):
                 None,
             )
         text = get_document_text(document, client=client) if document else ""
-    return (text or "")[:max_chars]
+    limit = record_budget_chars() if max_chars is None else max_chars
+    return (text or "")[:limit]
 
 
 def public_material(material):

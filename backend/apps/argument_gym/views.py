@@ -714,7 +714,13 @@ def check_catalog_view(request):
     """Every check the gym can run, so the author can choose among them."""
     if request.method != "GET":
         return method_not_allowed(["GET"])
-    return JsonResponse({"checks": check_catalog.catalog(), "defaults": check_catalog.DEFAULT_CHECK_IDS})
+    return JsonResponse(
+        {
+            "checks": check_catalog.catalog(),
+            "categories": check_catalog.category_catalog(),
+            "defaults": check_catalog.DEFAULT_CHECK_IDS,
+        }
+    )
 
 
 @api_login_required

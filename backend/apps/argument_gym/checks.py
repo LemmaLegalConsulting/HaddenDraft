@@ -6,6 +6,23 @@ was turned off and a check that could not apply are different things and are
 reported differently, because "no findings" from a check that never ran is the
 one result that must never look like a clean bill.
 
+Checks belong to a **category**, and the category is not decoration: it is the
+order an advocate can act in. Getting the law wrong is not the same kind of
+problem as burying the strongest argument on page nine, and a revision pass that
+mixes the two produces neither. So the catalog separates:
+
+* **Correctness** -- is the law right, is the authority controlling, are the
+  required elements present.
+* **Argumentative completeness** -- does the brief connect its rules to its
+  facts, work the hard element instead of restating the rule, confront adverse
+  authority, and answer the objection a court will think of on its own.
+* **Persuasive communication** -- whether a reader who is neither hostile nor
+  patient can follow the argument and be moved by it.
+
+The first two are about whether the brief is right. The third is about whether
+it lands, and it is deliberately kept apart so an author can decide which of the
+three they are ready to work on rather than reading one undifferentiated list.
+
 `requires` names a precondition the session either has or does not:
 
 * ``native_draft`` -- the brief is a HaddenDraft document, so the drafting
@@ -20,6 +37,136 @@ from dataclasses import dataclass, field
 
 DETERMINISTIC = "deterministic"
 MODEL = "model"
+
+
+@dataclass(frozen=True)
+class CheckCategory:
+    """A group of checks an advocate can decide to work on as one pass."""
+
+    id: str
+    label: str
+    description: str
+
+    def to_dict(self):
+        return {"id": self.id, "label": self.label, "description": self.description}
+
+
+CATEGORY_CATALOG = (
+    CheckCategory(
+        id="correctness",
+        label="Correctness",
+        description=(
+            "Is the law right? Is the authority controlling? Are the required elements present, "
+            "and does the record establish what the brief says it does?"
+        ),
+    ),
+    CheckCategory(
+        id="completeness",
+        label="Argumentative completeness",
+        description=(
+            "Does the brief connect its rules to its facts? Does it work the difficult element "
+            "instead of restating the rule? Does it confront adverse authority and answer the "
+            "counterargument a court will think of on its own?"
+        ),
+    ),
+    CheckCategory(
+        id="persuasion",
+        label="Persuasive communication",
+        description=(
+            "Not whether the brief is right, but whether it lands: how the question is framed, "
+            "how the argument is ordered and emphasized, and whether a busy judge can follow it "
+            "and believe it."
+        ),
+    ),
+    CheckCategory(
+        id="custom",
+        label="Your own checks",
+        description="Review questions you wrote, in your words, applied to this brief.",
+    ),
+    CheckCategory(
+        id="form",
+        label="Form of the filing",
+        description="Whether the paper meets this court's rules and the conventions of practice.",
+    ),
+    CheckCategory(
+        id="language",
+        label="Language",
+        description="Sentence-level mechanics, reported as nudges rather than as defects in the argument.",
+    ),
+)
+CATEGORIES_BY_ID = {category.id: category for category in CATEGORY_CATALOG}
+
+
+# The persuasive communication suite. Each dimension is a check of its own, so an
+# author can run the two or three they are ready to act on; they are answered in
+# one model call rather than twelve, because the answers depend on each other --
+# what belongs in the roadmap depends on what the emphasis should be.
+PERSUASION_PREFIX = "persuasion_"
+PERSUASION_DIMENSIONS = (
+    (
+        "issue_framing",
+        "Issue framing",
+        "Does the brief identify the real dispute early and frame it around the favorable legal question?",
+    ),
+    (
+        "macro_organization",
+        "Macro-organization",
+        "Are arguments ordered logically and by importance? Can the reader see the roadmap?",
+    ),
+    (
+        "paragraph_organization",
+        "Paragraph-level organization",
+        "Do paragraphs have discernible propositions or topic sentences, and develop one point at a time?",
+    ),
+    (
+        "rule_synthesis",
+        "Rule synthesis",
+        "Does the writer synthesize authorities into a rule rather than serially summarize cases?",
+    ),
+    (
+        "rule_application",
+        "Rule-to-fact application",
+        'Is the reasoning explicit -- "because X fact satisfies Y element" -- rather than leaving the '
+        "inferential step to the court?",
+    ),
+    (
+        "fact_selection",
+        "Fact selection and narrative coherence",
+        "Are legally significant facts foregrounded and organized in a comprehensible chronology or theory?",
+    ),
+    (
+        "use_of_authority",
+        "Use of authority",
+        "Are important propositions backed by strong authorities placed where they actually matter, "
+        "rather than citation dumping?",
+    ),
+    (
+        "counterarguments",
+        "Handling counterarguments",
+        "Does the brief acknowledge and answer the strongest objection rather than arguing past it?",
+    ),
+    (
+        "concision",
+        "Concision and reader burden",
+        "Does it say the same thing once, in the right place, without unnecessary throat-clearing?",
+    ),
+    (
+        "calibration",
+        "Calibrated confidence and credibility",
+        "Does it distinguish strong propositions from uncertain ones and avoid overclaiming?",
+    ),
+    (
+        "relief_alignment",
+        "Requested-relief alignment",
+        "Does the argument actually lead to the precise thing the brief asks the court to do?",
+    ),
+    (
+        "emphasis",
+        "Emphasis",
+        "Does the document devote its space to the issues that matter rather than treating every point "
+        "as equally important?",
+    ),
+)
 
 
 @dataclass(frozen=True)
@@ -40,13 +187,15 @@ class CheckDefinition:
             "description": self.description,
             "kind": self.kind,
             "category": self.category,
+            "categoryLabel": CATEGORIES_BY_ID[self.category].label,
+            "categoryDescription": CATEGORIES_BY_ID[self.category].description,
             "defaultEnabled": self.default_enabled,
             "requires": list(self.requires),
             "settingsHelp": self.settings_help,
         }
 
 
-CHECK_CATALOG = (
+_DECLARED_CHECKS = (
     CheckDefinition(
         id="adversarial",
         label="Opposing counsel, a judge, and a coach",
@@ -55,14 +204,14 @@ CHECK_CATALOG = (
             "against the brief, a judge weighs them, and a coach proposes answers."
         ),
         kind=MODEL,
-        category="argument",
+        category="completeness",
     ),
     CheckDefinition(
         id="record_audit",
         label="Check the brief against the case record",
         description="Whether the case materials actually establish what the brief asserts.",
         kind=MODEL,
-        category="argument",
+        category="correctness",
         requires=("case_record",),
     ),
     CheckDefinition(
@@ -73,7 +222,7 @@ CHECK_CATALOG = (
             "of those rules: is it pleaded, and is it supported."
         ),
         kind=MODEL,
-        category="argument",
+        category="correctness",
     ),
     CheckDefinition(
         id="custom_checklist",
@@ -84,7 +233,7 @@ CHECK_CATALOG = (
             "Attach a checklist for this to run."
         ),
         kind=MODEL,
-        category="argument",
+        category="custom",
         default_enabled=False,
         requires=("checklist",),
     ),
@@ -159,7 +308,38 @@ CHECK_CATALOG = (
     ),
 )
 
+
+def _persuasion_checks():
+    """One check per dimension of the persuasive communication suite.
+
+    They are declared from `PERSUASION_DIMENSIONS` rather than written out again
+    so a dimension cannot exist as a selectable check the reviewing stage does
+    not ask about, or the reverse.
+    """
+    return tuple(
+        CheckDefinition(
+            id=f"{PERSUASION_PREFIX}{slug}",
+            label=label,
+            description=question,
+            kind=MODEL,
+            category="persuasion",
+        )
+        for slug, label, question in PERSUASION_DIMENSIONS
+    )
+
+
+# Ordered by category, so the panel offers the groups in the order an advocate
+# can work in: get it right, then make it complete, then make it land.
+_CATEGORY_ORDER = {category.id: index for index, category in enumerate(CATEGORY_CATALOG)}
+CHECK_CATALOG = tuple(
+    sorted(
+        (*_DECLARED_CHECKS, *_persuasion_checks()),
+        key=lambda check: _CATEGORY_ORDER.get(check.category, len(_CATEGORY_ORDER)),
+    )
+)
+
 CHECKS_BY_ID = {check.id: check for check in CHECK_CATALOG}
+PERSUASION_CHECK_IDS = [check.id for check in CHECK_CATALOG if check.category == "persuasion"]
 # Stored when the author turns every check off. An empty list cannot carry that:
 # a new session also has an empty list, and there it means "the defaults". Making
 # the two the same would silently re-enable everything the author switched off.
@@ -175,6 +355,20 @@ REQUIREMENT_REASONS = {
 
 def catalog():
     return [check.to_dict() for check in CHECK_CATALOG]
+
+
+def category_catalog():
+    return [category.to_dict() for category in CATEGORY_CATALOG]
+
+
+def persuasion_dimensions(selected_ids):
+    """The dimensions of the suite the author left on, in catalog order."""
+    chosen = set(selected_ids)
+    return [
+        {"id": f"{PERSUASION_PREFIX}{slug}", "label": label, "question": question}
+        for slug, label, question in PERSUASION_DIMENSIONS
+        if f"{PERSUASION_PREFIX}{slug}" in chosen
+    ]
 
 
 def normalize_selection(selected):

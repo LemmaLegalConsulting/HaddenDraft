@@ -260,6 +260,35 @@ AI_DRAFTING_ENABLED = env_bool("AI_DRAFTING_ENABLED", bool(OPENAI_API_KEY))
 ARGUMENT_GYM_BACKGROUND_RUNS = env_bool("ARGUMENT_GYM_BACKGROUND_RUNS", True)
 # A run whose worker died leaves a row claiming to be running forever.
 ARGUMENT_GYM_RUN_TIMEOUT_SECONDS = int(os.environ.get("ARGUMENT_GYM_RUN_TIMEOUT_SECONDS", "1800"))
+# How much of the brief a single model stage is given. The defaults are set so
+# that every brief in the local corpus -- the largest is 694 units and 71,450
+# characters -- is read whole rather than sampled, which a large-context model
+# such as gpt-5.5 has room for. They are settings rather than constants because
+# the right value is a property of the deployment's model, not of the gym: a
+# deployment pointed at a smaller context lowers them and the run says it
+# sampled instead of failing.
+ARGUMENT_GYM_UNIT_BUDGET_CHARS = int(os.environ.get("ARGUMENT_GYM_UNIT_BUDGET_CHARS", "260000"))
+# The cap on any one unit, so a single enormous block quote cannot crowd out the
+# rest of the brief. The longest unit in the corpus is 1,735 characters.
+ARGUMENT_GYM_UNIT_TEXT_CHARS = int(os.environ.get("ARGUMENT_GYM_UNIT_TEXT_CHARS", "2400"))
+# The stages that read the brief as raw text rather than as units: the rule
+# element audit and the author's own checklist. Both read 12,000 characters
+# before this existed, so an element pleaded in section V of a seventy-page
+# brief was reported unpleaded.
+ARGUMENT_GYM_BRIEF_TEXT_CHARS = int(os.environ.get("ARGUMENT_GYM_BRIEF_TEXT_CHARS", "120000"))
+# What the run reads of the case record, shared across the materials it selected.
+# This was a hard-coded 6,000 characters per material, applied after every
+# brief-side budget had already been satisfied, so a record could pass every
+# other ceiling and still arrive as its first two pages: an exhibit bundle of
+# 72,000 characters reached the model as 8% of itself, and a challenge that the
+# record "does not contain" the notice was correct about what it had been given
+# and wrong about the record. Budgeted like the brief is, and for the same
+# reason -- so that the record in the local corpus is read whole.
+ARGUMENT_GYM_RECORD_BUDGET_CHARS = int(os.environ.get("ARGUMENT_GYM_RECORD_BUDGET_CHARS", "150000"))
+# No single material may crowd out the rest of the record.
+ARGUMENT_GYM_RECORD_MATERIAL_FLOOR_CHARS = int(
+    os.environ.get("ARGUMENT_GYM_RECORD_MATERIAL_FLOOR_CHARS", "6000")
+)
 CASE_ACTION_MODEL = os.environ.get("CASE_ACTION_MODEL", OPENAI_MODEL)
 PROMPT_CATALOG_DIR = Path(os.environ.get("PROMPT_CATALOG_DIR", REPO_DIR / "prompts"))
 CONTENT_LIBRARY_DIR = Path(os.environ.get("CONTENT_LIBRARY_DIR", REPO_DIR / "content"))

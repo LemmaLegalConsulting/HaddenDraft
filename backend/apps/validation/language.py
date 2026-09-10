@@ -48,9 +48,46 @@ PASSIVE_RE = re.compile(
 DOUBLED_WORD_RE = re.compile(r"\b(\w{2,})\s+\1\b", re.IGNORECASE)
 MISSING_SPACE_RE = re.compile(r"\b[a-z]{2,}[.!?][A-Z][a-z]{2,}")
 EG_IE_RE = re.compile(r"\b(e\.g\.|i\.e\.)(?!,)", re.IGNORECASE)
-SENTENCE_SPLIT_RE = re.compile(r"(?<=[.!?])\s+|\n+")
 CITATION_LIKE_RE = re.compile(r"\b(?:v\.|§|R\.C\.|U\.S\.C\.|C\.F\.R\.|No\.|Nos\.|Ohio App\.|Ohio St\.)")
 DELIMITERS = [("(", ")", "parenthesis"), ("[", "]", "bracket"), ("{", "}", "brace")]
+
+# A period in a brief is usually not the end of a sentence. Case names,
+# reporters, courts, parties and dates are all abbreviated -- "Ohio App.",
+# "Hous. Auth.", "Inc.", "F." -- and splitting on every period manufactures a
+# "sentence" starting mid-citation. Across fifteen real filings, every single
+# lowercase-sentence-start finding came from one of those splits and not one was
+# a real error.
+#
+# What separates the two is the word before the period, not a list of
+# abbreviations to keep up to date: a legal abbreviation is short and
+# capitalized, and an English sentence ends on an ordinary lowercase word. So a
+# period only ends a sentence when a run of lowercase letters precedes it; ! and
+# ? always do.
+# The word before the period has to be an ordinary lowercase word: "Invests.",
+# "Assoc." and "Freed." are abbreviations even though they end in lowercase
+# letters, so the token must not begin with a capital either.
+_CLOSERS = "[\u201d\u2019\"')\]]*"
+SENTENCE_BOUNDARY_RE = re.compile(rf"(?:(?<![A-Za-z])[a-z]{{4,}}\.|[!?]){_CLOSERS}\s+")
+# A fragment that opens with a subsection marker, a citation signal, or a
+# pinpoint is not a sentence that forgot its capital.
+SENTENCE_START_EXEMPT_RE = re.compile(
+    r"^(?:"
+    r"[a-z0-9]{1,4}[.)](?:\s|[A-Z])"  # a. / 2) / iii. subsection headings
+    r"|(?:see|accord|cf|e\.g|i\.e|id|but see|compare|contra|accord|quoting|citing|v|vs)\b\.?"
+    r"|\S+@\S+|https?://\S+|c/o\s"
+    r"|at\s+(?:\d|§|¶|p\.)"  # a pinpoint citation, not "at trial ..."
+    r")",
+    re.IGNORECASE,
+)
+
+# A closing parenthesis with nothing opened is usually not an unbalanced
+# delimiter. It is an enumerator -- "1)", "a)", "iii)" -- or the column of ')'
+# down the side of a caption, and every filing has both. Neither is checked by
+# removing them from the text first: "(Attached as Appendix A)" would lose its
+# closer and the check would then report the opening parenthesis as unclosed.
+# They are recognized only at a closer the scan could not match.
+ENUMERATOR_RE = re.compile(r"(?:^|[\s(\u201c\"';:,.])(?:\d{1,2}|[a-zA-Z]|[ivxlcIVXLC]{1,5})\)$")
+CAPTION_COLUMN_RE = re.compile(r"(?m)(?:^[ \t]*\)[ \t]*\n(?:[ \t]*\n)*){2,}")
 
 
 def load_rules():
@@ -63,6 +100,55 @@ def load_rules():
 @functools.lru_cache(maxsize=1)
 def _cached_rules():
     return load_rules()
+
+
+def split_sentences(text):
+    """Sentences, treating a period inside a citation as part of the citation."""
+    sentences = []
+    current = 0
+    for boundary in SENTENCE_BOUNDARY_RE.finditer(text):
+        sentences.append(text[current : boundary.end()])
+        current = boundary.end()
+    sentences.append(text[current:])
+    return sentences
+
+
+# A drafting note left in the text -- "[from who?]", "[Add facts here]" -- carries
+# its own punctuation and splits the sentence it interrupts. The placeholder
+# check already reports the note; the grammar check must not report the split as
+# a second, different problem. Short brackets are alterations in a quotation
+# ("[t]he act"), not notes, and are left alone.
+DRAFTING_NOTE_RE = re.compile(r"\[[^\]]{8,300}\]")
+
+
+def strip_delimiter_conventions(text):
+    """Remove the one piece of layout that is punctuation only by accident."""
+    return CAPTION_COLUMN_RE.sub("", text)
+
+
+def unmatched_delimiters(text, opener, closer):
+    """Where a delimiter is actually unbalanced, rather than how many are.
+
+    Counting says "6 closing parenthesis(s) with nothing opened", which an
+    advocate cannot act on and which an enumerated list produces without
+    anything being wrong. Scanning says which passage to look at, and lets an
+    unmatched closer be recognized as an enumerator where a count cannot.
+    """
+    open_positions = []
+    unmatched = []
+    for index, char in enumerate(text):
+        if char == opener:
+            open_positions.append(index)
+        elif char == closer:
+            if open_positions:
+                open_positions.pop()
+            elif not (closer == ")" and ENUMERATOR_RE.search(text[max(0, index - 8) : index + 1])):
+                unmatched.append(("close", index))
+    return unmatched + [("open", index) for index in open_positions]
+
+
+def _around(text, index, width=60):
+    return re.sub(r"\s+", " ", text[max(0, index - width) : index + width]).strip()
 
 
 def _finding(document_id, severity, number, *, target, message, label, details=None):
@@ -183,16 +269,14 @@ def check_grammar(text, rules, document_id):
 
     spec = _grammar_spec(rules, "unbalanced_delimiters")
     if spec:
-        # A column of isolated ')' characters is conventional caption layout.
-        # Remove only runs of at least three such lines, not punctuation in prose.
-        delimiter_text = re.sub(r"(?m)(?:^[ \t]*\)[ \t]*\n(?:[ \t]*\n)*){3,}", "", text)
+        delimiter_text = strip_delimiter_conventions(text)
         for opener, closer, name in DELIMITERS:
-            difference = delimiter_text.count(opener) - delimiter_text.count(closer)
-            if difference:
+            unmatched = unmatched_delimiters(delimiter_text, opener, closer)
+            for kind, index in unmatched[:3]:
                 detail = (
-                    f"{abs(difference)} unclosed opening {name}(s)."
-                    if difference > 0
-                    else f"{abs(difference)} closing {name}(s) with nothing opened."
+                    f"An opening {name} is never closed."
+                    if kind == "open"
+                    else f"A closing {name} has nothing opened before it."
                 )
                 findings.append(
                     _finding(
@@ -200,12 +284,15 @@ def check_grammar(text, rules, document_id):
                         spec.get("severity", "warning"),
                         CODE_GRAMMAR,
                         target=f"{name}s",
-                        message=str(spec.get("message", "{detail}")).format(detail=detail),
+                        # A count on its own ("6 closing parenthesis(s)") cannot be
+                        # acted on. The passage can.
+                        message=str(spec.get("message", "{detail}")).format(detail=detail)
+                        + f' Near: "{_around(delimiter_text, index)}"',
                         label=spec.get("label", "Balance the delimiters."),
-                        details={"opener": opener, "difference": difference},
+                        details={"opener": opener, "kind": kind, "excerpt": _around(delimiter_text, index)},
                     )
                 )
-        quotes = text.count('"')
+        quotes = delimiter_text.count('"')
         if quotes % 2:
             findings.append(
                 _finding(
@@ -239,17 +326,14 @@ def check_grammar(text, rules, document_id):
     spec = _grammar_spec(rules, "lowercase_sentence_start")
     if spec:
         reported = 0
-        for sentence in SENTENCE_SPLIT_RE.split(text):
+        sentences = split_sentences(DRAFTING_NOTE_RE.sub(" ", text))
+        for sentence in sentences:
             stripped = sentence.strip()
             if reported >= 5 or len(stripped) < 12 or not stripped[:1].islower():
                 continue
-            # A sentence opening with a citation signal or a subsection letter is
-            # conventional, not a slip.
-            if re.match(r"^(see|accord|cf\.|e\.g\.|id\.|but see|compare)\b", stripped, flags=re.IGNORECASE):
-                continue
-            # Addresses and pinpoint citations are not sentence starts. The
-            # numeric/paragraph marker after 'at' avoids hiding 'at trial ...'.
-            if re.match(r"^(?:\S+@\S+|https?://\S+|c/o\s|at\s+(?:\d|§|¶))", stripped, re.IGNORECASE):
+            # A citation signal, a subsection heading, an address or a pinpoint
+            # is conventional, not a slip.
+            if SENTENCE_START_EXEMPT_RE.match(stripped):
                 continue
             reported += 1
             findings.append(

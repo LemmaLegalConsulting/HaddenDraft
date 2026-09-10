@@ -4,6 +4,8 @@ user prompt: |
   Argument map of the brief:
   {argument_map}
 
+  {brief_coverage}
+
   Passages of the brief, with unit ids:
   {brief_units}
 
@@ -18,5 +20,5 @@ user prompt: |
 
   Assess every attack. Keep at most {max_kept}. Importance is 0-100 and orders the kept attacks by how much the outcome turns on them.
 settings:
-  default model: gpt-5.5
+  default model: deepseek-v4-pro
   default reasoning level: medium

@@ -5028,6 +5028,21 @@ button:disabled {
   padding: 0 4px;
 }
 
+/* The group's own sentence, and the control that takes the whole suite on or
+   off, share one line above the checkboxes. */
+.gym-check-group-head {
+  align-items: baseline;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  justify-content: space-between;
+}
+
+.gym-check-group-head p {
+  flex: 1 1 16rem;
+  margin: 0;
+}
+
 .gym-check {
   align-items: start;
   cursor: pointer;

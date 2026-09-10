@@ -13,7 +13,7 @@ record, which is weaker and says so.
 
 import re
 
-from apps.argument_gym.pipeline import Stage, clean, choice, dumps
+from apps.argument_gym.pipeline import Stage, brief_text_limit, clean, choice, dumps
 from apps.rules.legal_rules import detect_invoked_rules, ensure_legal_rule_profiles, rule_elements
 from apps.rules.models import CourtProfile
 
@@ -123,7 +123,10 @@ def audit_rule(rule, elements, brief_text, excerpts, *, jurisdiction, llm_client
             "rule_summary": profile.summary or "No summary is recorded for this rule.",
             "invoked_by": "a citation" if rule["invokedBy"] == "citation" else "a phrase, without citing the rule",
             "matched": rule["matched"],
-            "brief_excerpts": brief_text[:12000],
+            # The whole brief, not its first twelve thousand characters: an
+            # element pleaded in section V of a seventy-page brief was reported
+            # unpleaded because the audit never saw section V.
+            "brief_excerpts": brief_text[: brief_text_limit()],
             "record_excerpts": dumps(excerpts),
             "elements": dumps(
                 [
@@ -163,6 +166,15 @@ def run_rule_audit(brief_text, excerpts, *, jurisdiction="", llm_client=None, pr
         elements = rule_elements(profile)
         if not elements:
             continue
+        # A rule matched only by a phrase has not been invoked, and auditing it
+        # is worse than not auditing it: "security deposit" in a recitation of
+        # the facts produced a full R.C. 5321.16 audit whose every element came
+        # back "nothing supplied", which reads as a defect in a claim the brief
+        # never made. The match is still reported -- the advocate may have meant
+        # to invoke the rule -- but as a question, not as an audit.
+        if rule["invokedBy"] == "phrase":
+            audits.append(_unaudited(rule, profile, elements))
+            continue
         results, trace = audit_rule(
             rule, elements, brief_text, excerpts, jurisdiction=jurisdiction, llm_client=llm_client
         )
@@ -189,30 +201,52 @@ def run_rule_audit(brief_text, excerpts, *, jurisdiction="", llm_client=None, pr
         unmet_count = sum(1 for element in audited if element["unmet"])
         audits.append(
             {
-                "slug": profile.slug,
-                "name": profile.name,
-                "citation": profile.citation,
-                "label": profile.label(),
-                "summary": profile.summary,
-                "verification": profile.verification,
-                "source": profile.source,
-                "sourceUrl": profile.source_url,
-                "invokedBy": rule["invokedBy"],
-                "requiresApplicabilityReview": rule["invokedBy"] == "phrase",
-                "matched": rule["matched"],
-                "excerpt": rule["excerpt"],
+                **_identity(rule, profile),
+                "audited": True,
+                "requiresApplicabilityReview": False,
                 "elements": audited,
                 "unmetCount": unmet_count,
                 "verdict": (
-                    "Possible rule match; confirm applicability before treating these as required elements."
-                    if rule["invokedBy"] == "phrase"
-                    else "Every element on file is pleaded and supported."
+                    "Every element on file is pleaded and supported."
                     if not unmet_count
                     else f"{unmet_count} of {len(audited)} elements need review; unavailable evidence or unrecognized wording does not establish a defect."
                 ),
             }
         )
     return audits, traces
+
+
+def _identity(rule, profile):
+    return {
+        "slug": profile.slug,
+        "name": profile.name,
+        "citation": profile.citation,
+        "label": profile.label(),
+        "summary": profile.summary,
+        "verification": profile.verification,
+        "source": profile.source,
+        "sourceUrl": profile.source_url,
+        "invokedBy": rule["invokedBy"],
+        "matched": rule["matched"],
+        "excerpt": rule["excerpt"],
+    }
+
+
+def _unaudited(rule, profile, elements):
+    """A rule the brief used the words of, listed without any verdict about it."""
+    return {
+        **_identity(rule, profile),
+        "audited": False,
+        "requiresApplicabilityReview": True,
+        # The elements are worth seeing -- they are what the rule would require --
+        # but nothing was decided about any of them, so none carries a state.
+        "elements": [{**element, "pled": "", "supported": "", "unmet": False, "explanation": "", "quote": "", "materialIds": []} for element in elements],
+        "unmetCount": 0,
+        "verdict": (
+            f"The brief uses the phrase \u201c{rule['matched']}\u201d without citing {profile.citation}. "
+            "Nothing was audited: if you are not invoking this rule, there is nothing here to answer."
+        ),
+    }
 
 
 def challenges_from_audit(audits, *, limit=4):

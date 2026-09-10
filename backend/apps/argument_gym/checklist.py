@@ -20,7 +20,15 @@ from apps.ai.openai_client import OpenAIBackendError, OpenAICompatibleClient
 from apps.ai.prompt_catalog import PromptCatalogError, render_prompt
 from apps.ai.tool_loop import ToolEvaluation, run_tool_with_repair
 from apps.argument_gym import record
-from apps.argument_gym.pipeline import ai_enabled, choice, clean, dumps, json_object, run_research
+from apps.argument_gym.pipeline import (
+    ai_enabled,
+    brief_text_limit,
+    choice,
+    clean,
+    dumps,
+    json_object,
+    run_research,
+)
 
 
 MAX_TOOL_CALLS = 3
@@ -165,7 +173,9 @@ def apply_item(item, *, tools, brief_text, matter_summary, jurisdiction, llm_cli
                     jurisdiction=jurisdiction or "the filing jurisdiction",
                     matter_summary=matter_summary,
                     item=dumps({"id": item["id"], "text": item["text"]}),
-                    brief_excerpts=brief_text[:12000],
+                    # An item asking "does every date in the facts appear in a
+                    # document in the file" has to be able to read the facts.
+                    brief_excerpts=brief_text[: brief_text_limit()],
                     tool_results=dumps(tool_results) if tool_results else "Nothing yet.",
                     max_tool_calls=MAX_TOOL_CALLS,
                 )

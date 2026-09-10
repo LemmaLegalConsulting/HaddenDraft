@@ -298,23 +298,49 @@ export function truncationNotice(document = {}) {
 
 // Checks
 
+// The catalog names its own groups; these are the fallback for a run stored
+// before it did, and for anything a future catalog adds without a label.
 export const CHECK_CATEGORY_LABELS = {
-  argument: "Argument",
+  correctness: "Correctness",
+  completeness: "Argumentative completeness",
+  persuasion: "Persuasive communication",
+  custom: "Your own checks",
   form: "Form of the filing",
   language: "Language",
+  argument: "Argument",
 };
 
+export function categoryLabel(check = {}) {
+  return check.categoryLabel || CHECK_CATEGORY_LABELS[check.category] || check.category || "Other";
+}
+
+// Groups keep catalog order, which the backend sorts by category, so the panel
+// offers them in the order an advocate can work in: get it right, then make it
+// complete, then make it land.
 export function groupChecks(catalog = []) {
   const groups = [];
   for (const check of catalog) {
     let group = groups.find((item) => item.id === check.category);
     if (!group) {
-      group = { id: check.category, label: CHECK_CATEGORY_LABELS[check.category] || check.category, checks: [] };
+      group = {
+        id: check.category,
+        label: categoryLabel(check),
+        description: check.categoryDescription || "",
+        checks: [],
+      };
       groups.push(group);
     }
     group.checks.push(check);
   }
   return groups;
+}
+
+// Turning a whole suite on or off. Twelve checkboxes is a suite, not a choice,
+// and an author who wants none of it should not have to click twelve times.
+export function setGroupChecks(selected = [], checks = [], enabled) {
+  const ids = checks.map((check) => check.id);
+  const rest = selected.filter((id) => !ids.includes(id));
+  return enabled ? [...rest, ...ids] : rest;
 }
 
 // An empty selection means the catalog's defaults, so the first toggle has to
@@ -366,6 +392,34 @@ export function findingsByCheck(checkResults = {}, checksRun = []) {
     .sort((left, right) => right.errors.length - left.errors.length || right.findings.length - left.findings.length);
 }
 
+// The same findings, gathered under the group of tests that produced them, so a
+// reader can take on one kind of problem at a time: a brief that states the law
+// wrongly and a brief that buries its best argument need different revisions,
+// and a single list of findings asks for both at once.
+export function findingsByCategory(checkResults = {}, checksRun = []) {
+  const byId = Object.fromEntries(checksRun.map((entry) => [entry.id, entry]));
+  const order = [];
+  for (const entry of checksRun) {
+    if (!order.includes(entry.category)) order.push(entry.category);
+  }
+  const groups = [];
+  for (const check of findingsByCheck(checkResults, checksRun)) {
+    const entry = byId[check.id] || {};
+    const id = entry.category || "other";
+    let group = groups.find((item) => item.id === id);
+    if (!group) {
+      group = { id, label: categoryLabel(entry), description: entry.categoryDescription || "", checks: [] };
+      groups.push(group);
+    }
+    group.checks.push(check);
+  }
+  for (const group of groups) {
+    Object.assign(group, findingCounts(group.checks));
+    group.findings = group.checks.reduce((total, check) => total + check.findings.length, 0);
+  }
+  return groups.sort((left, right) => order.indexOf(left.id) - order.indexOf(right.id));
+}
+
 export function findingCounts(groups = []) {
   return groups.reduce(
     (totals, group) => ({
@@ -395,12 +449,29 @@ export function elementState(element = {}) {
   return supported ? `${pled}, ${supported}` : pled;
 }
 
+// A rule the brief only used the words of was not invoked and was not audited.
+// It cannot be counted among the rules carried -- that would report a clean
+// audit that never happened -- nor among the rules at issue.
+export function auditedRules(ruleAudit = []) {
+  return ruleAudit.filter((audit) => audit.audited !== false);
+}
+
+export function unauditedRules(ruleAudit = []) {
+  return ruleAudit.filter((audit) => audit.audited === false);
+}
+
 export function ruleAuditSummary(ruleAudit = []) {
   if (!ruleAudit.length) return "No maintained rule was invoked by this brief.";
-  const unmet = ruleAudit.reduce((total, audit) => total + (audit.unmetCount || 0), 0);
-  const rules = `${ruleAudit.length} rule${ruleAudit.length === 1 ? "" : "s"}`;
-  if (!unmet) return `${rules} invoked; every element on file is carried.`;
-  return `${rules} invoked; ${unmet} element${unmet === 1 ? "" : "s"} not carried.`;
+  const audited = auditedRules(ruleAudit);
+  const possible = unauditedRules(ruleAudit).length;
+  const aside = possible
+    ? ` ${possible} phrase match${possible === 1 ? " was" : "es were"} not audited.`
+    : "";
+  if (!audited.length) return `No rule was cited.${aside}`;
+  const unmet = audited.reduce((total, audit) => total + (audit.unmetCount || 0), 0);
+  const rules = `${audited.length} rule${audited.length === 1 ? "" : "s"}`;
+  if (!unmet) return `${rules} invoked; every element on file is carried.${aside}`;
+  return `${rules} invoked; ${unmet} element${unmet === 1 ? "" : "s"} not carried.${aside}`;
 }
 
 export function unverifiedRules(ruleAudit = []) {
@@ -612,25 +683,27 @@ export function auditBadges(run = {}) {
       note: compliance.unmeasured.length ? `${compliance.unmeasured.length} not measurable` : "",
     });
   }
-  const findings = findingsByCheck(run.checkResults || {}, run.checksRun || []);
-  const counts = findingCounts(findings);
-  if (findings.length) {
+  for (const group of findingsByCategory(run.checkResults || {}, run.checksRun || [])) {
+    const problems = group.errors + group.warnings;
     badges.push({
-      id: "checks",
-      label: "Document checks",
-      count: counts.errors + counts.warnings,
-      tone: counts.errors ? "high" : counts.errors + counts.warnings ? "medium" : "ok",
-      note: counts.infos ? `${counts.infos} note${counts.infos === 1 ? "" : "s"}` : "",
+      id: `checks-${group.id}`,
+      label: group.label,
+      count: problems,
+      tone: group.errors ? "high" : problems ? "medium" : "ok",
+      note: group.infos ? `${group.infos} note${group.infos === 1 ? "" : "s"}` : "",
     });
   }
-  const unmet = (run.ruleAudit || []).reduce((total, audit) => total + (audit.unmetCount || 0), 0);
-  if ((run.ruleAudit || []).length) {
+  // Only rules the brief actually cited were audited, so only those can be
+  // counted: a phrase match with nothing decided about it is not a rule carried.
+  const audited = auditedRules(run.ruleAudit || []);
+  const unmet = audited.reduce((total, audit) => total + (audit.unmetCount || 0), 0);
+  if (audited.length) {
     badges.push({
       id: "rules",
       label: "Rule elements",
       count: unmet,
       tone: unmet ? "high" : "ok",
-      note: `${run.ruleAudit.length} rule${run.ruleAudit.length === 1 ? "" : "s"} invoked`,
+      note: `${audited.length} rule${audited.length === 1 ? "" : "s"} invoked`,
     });
   }
   const checklist = (run.checklistResults?.results || []).filter((item) => item.outcome === "fail");

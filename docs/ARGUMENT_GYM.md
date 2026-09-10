@@ -40,21 +40,42 @@ session has. Turning *every* check off stores a sentinel instead, because an
 empty list and a new session must not mean the same thing — otherwise the next
 run would silently re-enable everything the author switched off.
 
+### Three kinds of question
+
+Checks belong to a **category**, and the category is not decoration: it is the
+order an advocate can revise in. Getting the law wrong and burying the strongest
+argument on page nine are different problems, and a revision pass that mixes
+them produces neither.
+
+| Group | Asks |
+| --- | --- |
+| **Correctness** | Is the law right? Is the authority controlling? Are the required elements present, and does the record establish what the brief says it does? |
+| **Argumentative completeness** | Does the brief connect its rules to its facts? Does it work the difficult element instead of restating the rule? Does it confront adverse authority and answer the counterargument a court will think of on its own? |
+| **Persuasive communication** | Not whether the brief is right, but whether it lands: framing, order, synthesis, emphasis, candour. |
+| **Your own checks** | The review questions the author wrote. |
+| **Form of the filing** | This court's rules and the conventions of practice. |
+| **Language** | Sentence-level mechanics, reported as nudges. |
+
+The catalog is served in this order, the panel offers one fieldset per group,
+and the results are disclosed one group at a time — so a reader can take on the
+kind of problem they are ready to work on rather than one undifferentiated list.
+
 ### The catalog
 
-| Check | Kind | Needs |
-| --- | --- | --- |
-| Opponent, judge, and coach | AI | — |
-| Brief against the case record | AI | case materials |
-| Elements of the rules the brief invoked | AI | — |
-| Your own checklist | AI | a checklist |
-| This court's filing rules | deterministic | a court profile |
-| Form of the pleading | deterministic | — |
-| Draft-mode validation | deterministic | a native draft |
-| Grammar and mechanics | deterministic | — |
-| Commonly misspelled and confused words | deterministic | — |
-| Passive voice | deterministic | — |
-| Readability | deterministic | — |
+| Check | Group | Kind | Needs |
+| --- | --- | --- | --- |
+| Brief against the case record | correctness | AI | case materials |
+| Elements of the rules the brief invoked | correctness | AI | — |
+| Opponent, judge, and coach | completeness | AI | — |
+| The twelve persuasion dimensions | persuasion | AI | — |
+| Your own checklist | custom | AI | a checklist |
+| This court's filing rules | form | deterministic | a court profile |
+| Form of the pleading | form | deterministic | — |
+| Draft-mode validation | form | deterministic | a native draft |
+| Grammar and mechanics | language | deterministic | — |
+| Commonly misspelled and confused words | language | deterministic | — |
+| Passive voice | language | deterministic | — |
+| Readability | language | deterministic | — |
 
 **Draft-mode validation** is the same `apps.validation.services.validate_document`
 Draft mode runs — template data, unresolved placeholders, structure, rendered
@@ -86,6 +107,33 @@ deliberate limits, each of them the reason the module exists:
   unbalanced delimiters. Subject-verb agreement is left out because getting it
   wrong on legal prose is worse than not checking.
 
+The same principle is what fifteen real Cleveland filings were used to enforce.
+Two checks were producing findings at scale and getting nearly all of them wrong:
+
+- *A period in a brief is usually not the end of a sentence.* Case names,
+  reporters, courts and parties are abbreviated, so splitting on every period
+  manufactured a lowercase "sentence" starting mid-citation — "of Am., 159 Ohio
+  App.3d 410", "v Williams, 3 Ohio App.3d 288", "of City of Raleigh, 595 F." It
+  produced 71 findings across those briefs and not one was an error. A period
+  now ends a sentence only when an ordinary lowercase word precedes it: a legal
+  abbreviation is short and capitalized, which separates the two without a list
+  to keep up to date. Drafting notes left in the text (`[from who?]`) are removed
+  before splitting, because the placeholder check already reports them and the
+  sentence they interrupt is not a second problem.
+- *Delimiters are scanned, not counted.* "6 closing parenthesis(s) with nothing
+  opened" is both unactionable and usually wrong — it is a caption's column of
+  `)` or the enumerators in "1) … 2) … 3)". The check now scans for the position
+  that is actually unbalanced, quotes the passage, and recognizes an enumerator
+  only at a closer it could not match. Nothing is stripped from the text first:
+  removing "A)" would leave "(Attached as Appendix" reported as unclosed. On the
+  same fifteen briefs this turned 13 caption false positives into 20 findings
+  that each name a real unclosed delimiter.
+
+**Prayer for relief** knows how an appellate brief asks. "Appellant requests this
+Court reverse … and remand" and "respectfully asks this Honorable Court to
+REVERSE" are prayers; four real appellate briefs were reported as asking the
+court for nothing because the patterns only recognized a trial-court prayer.
+
 ## The pipeline
 
 ```text
@@ -93,6 +141,7 @@ brief ingestion
   -> filing-format compliance           (deterministic, no model call)
   -> the author's deterministic checks  (form, language, draft validation)
   -> argument map
+  -> the persuasive communication suite (one call, every selected dimension)
   -> brief-to-record support check      (only when case materials exist)
   -> adversarial research queries
   -> augmented_search over the existing sources
@@ -115,6 +164,23 @@ answerable, which is the failure this feature exists to prevent.
 Every stage has a deterministic fallback and a single bounded repair back to it
 (`apps.ai.tool_loop.run_tool_with_repair`), so a run always produces reviewable
 output and the whole pipeline is testable with `AI_DRAFTING_ENABLED=False`.
+
+**What the offline stand-in may claim.** Without a model the only question the
+opponent can answer about a passage is whether it cites anything, and "cites
+nothing" is not "argues without authority": a caption, a table-of-contents line,
+a heading, the "Now comes …" preamble and a dated recitation of what happened all
+cite nothing, and none of them is a vulnerability. Real filings were reported as
+exposed on their opening paragraph for exactly that reason. The stand-in now
+raises the point only where the passage is unmistakably asserting a legal
+proposition, and stays quiet elsewhere — which cut the spurious offline
+challenges across the fifteen briefs from 18 to 4.
+
+Staying quiet then creates the opposite risk, so the run says which it is: a run
+whose opponent fell back looks identical to one that read the brief closely and
+found nothing, and the second is what an advocate will assume. The deterministic
+assessment carries the difference — verdict **"not reviewed"**, and "No model
+read this brief. The offline stand-in can only see whether a passage cites
+anything, which is not a reading of the argument."
 
 Prompts are file-backed in `prompts/argument_gym.*.yaml`. Changing a stage's
 required variables means changing the YAML and the call site in
@@ -235,6 +301,54 @@ is then checked against the brief, not against what was stapled behind it.
 Beyond the split, `MAX_BRIEF_CHARS` caps what any run reads, and a brief that
 hit the cap says so rather than reporting a clean result on a partial read.
 
+### What a stage is actually shown
+
+Splitting the exhibits off is not enough on its own. Every model stage used to
+read the **first 80 units** of the brief, and a filing is not 80 units: a real
+appellate brief ran to 694, so the argument map, the opponent and the judge saw
+the caption, the procedural history and the opening facts, and never saw a word
+of the argument they were asked to attack. Any finding about the later two
+thirds of that brief was a finding about text nothing had read.
+
+`select_units` replaces the cap with a **character budget** spent by priority —
+headings first, because they are cheap and carry the document's shape, then
+requested relief, argument, asserted facts, paragraphs, and citations last since
+the argument map already summarizes them. Selection stays in document order.
+
+Three settings govern it, because the right value is a property of the
+deployment's model rather than of the gym:
+
+| Setting | Default | What it bounds |
+| --- | --- | --- |
+| `ARGUMENT_GYM_UNIT_BUDGET_CHARS` | 260,000 | the serialized units one stage is given |
+| `ARGUMENT_GYM_UNIT_TEXT_CHARS` | 2,400 | any single unit, so one block quote cannot crowd out the brief |
+| `ARGUMENT_GYM_BRIEF_TEXT_CHARS` | 120,000 | the raw text the rule audit and the checklist read |
+
+The defaults are set so that **every brief in the local corpus is read whole** —
+the largest is 694 units and 71,450 characters, serializing to 206,143 characters
+(~52k tokens), which a large-context model such as gpt-5.5 has room for. A
+deployment pointed at a smaller context lowers them, and the run reports that it
+sampled rather than failing.
+
+Sampling is therefore the safety valve for a filing larger than any budget, not
+the normal case. Where it happens the selection is **spread across the document
+rather than taken from its front**, and each unit is charged as it is taken: a
+brief's units run from a thirteen-character citation to a block quote, so
+sampling by the tier's average overshot the budget by a few percent on real
+briefs while passing against a fixture whose units were all the same size. Cost
+is measured as the length a unit adds to the serialized payload, not estimated
+from it — two earlier approximations were both wrong in the direction that
+matters, and a budget that does not mean what it says is worse than no budget.
+
+Every stage is also told what it was given (`{brief_coverage}`), so a stage that
+read a sample says so instead of reasoning about passages it never saw.
+
+The element audit and the author's checklist read the brief as raw text rather
+than as units, and each read only its first 12,000 characters before
+`ARGUMENT_GYM_BRIEF_TEXT_CHARS` existed — so an element pleaded in section V of a
+seventy-page brief was reported unpleaded, and a checklist item asking whether
+every date in the facts appears in a document in the file could not see the facts.
+
 ## Rules the brief invoked
 
 A cited rule is a candidate for an element audit. Applicability and the party's
@@ -251,9 +365,18 @@ element: is it *pleaded*, and is it *supported*. An assertion is not support, an
 the audit never merges the two. A deterministic pattern miss reports uncertain
 wording rather than absence. Missing record documents and partial support remain
 visible in the audit but do not by themselves create adverse challenge cards.
-Phrase-only matches require an applicability review before any element becomes
-a challenge. Conclusive adverse assessments can still become `GymChallenge`
-records for the ranked cards, prep sheet, and revision plan.
+Conclusive adverse assessments can still become `GymChallenge` records for the
+ranked cards, prep sheet, and revision plan.
+
+**A phrase match is not audited at all.** A real brief that recited paying a
+security deposit drew a full R.C. 5321.16 audit whose every element came back
+"nothing supplied" — which reads as a defect in a claim the brief never made.
+A rule matched only by a phrase now costs no model call and produces no element
+verdicts: it is reported as a question ("the brief uses the phrase X without
+citing R.C. …; if you are not invoking this rule there is nothing here to
+answer"), carries `audited: false`, and the panel lists it under **Possible rule
+matches** rather than among the rules carried or the rules at issue. Counting it
+as carried would report a clean audit that never happened.
 
 ### Reusing the decision tables
 
@@ -275,6 +398,56 @@ Like court profiles, each states its own `verification`, and only a verified
 element list reports at error severity. **Every profile shipped here is
 unverified**: the elements are substantive law, and a wrong element list tells an
 advocate their pleading is complete when it is not.
+
+## The persuasive communication suite
+
+Twelve dimensions, in `apps/argument_gym/checks.py` as `PERSUASION_DIMENSIONS`
+and run by `apps/argument_gym/persuasion.py`:
+
+| Dimension | The question it asks |
+| --- | --- |
+| Issue framing | Does the brief identify the real dispute early and frame it around the favorable legal question? |
+| Macro-organization | Are arguments ordered logically and by importance? Can the reader see the roadmap? |
+| Paragraph-level organization | Do paragraphs have discernible propositions or topic sentences, and develop one point at a time? |
+| Rule synthesis | Does the writer synthesize authorities into a rule rather than serially summarize cases? |
+| Rule-to-fact application | Is the reasoning explicit — "because X fact satisfies Y element" — rather than leaving the inferential step to the court? |
+| Fact selection and narrative coherence | Are legally significant facts foregrounded and organized in a comprehensible chronology or theory? |
+| Use of authority | Are important propositions backed by strong authorities placed where they actually matter, rather than citation dumping? |
+| Handling counterarguments | Does the brief acknowledge and answer the strongest objection rather than arguing past it? |
+| Concision and reader burden | Does it say the same thing once, in the right place, without unnecessary throat-clearing? |
+| Calibrated confidence and credibility | Does it distinguish strong propositions from uncertain ones and avoid overclaiming? |
+| Requested-relief alignment | Does the argument actually lead to the precise thing the brief asks the court to do? |
+| Emphasis | Does the document devote its space to the issues that matter rather than treating every point as equally important? |
+
+Four things about how it runs:
+
+- **Each dimension is its own check.** They appear as twelve entries in the
+  catalog (`persuasion_issue_framing`, `persuasion_emphasis`, …), so an author
+  can run the two they are ready to act on. The panel offers the group a
+  "turn all on/off" control, because a twelve-question suite is one decision
+  about a kind of review rather than twelve separate ones.
+- **They are answered in one model call.** The dimensions are not independent:
+  what belongs in the roadmap depends on what the emphasis should be, and
+  whether the concision is a problem depends on which passages matter. Twelve
+  calls would answer each with the others out of view, and cost twelve times as
+  much to do it worse.
+- **Nothing here is an error.** A judgment about how a brief reads is the kind
+  of finding an advocate is entitled to disagree with, so a weak verdict is a
+  warning and everything else is a note. Codes are E/W/I1200-1299.
+- **Every selected dimension is reported, including the ones that read well.**
+  A suite that only lists problems cannot be told apart from a suite that failed
+  to run. Without a model, each dimension reports itself *not assessed* — a
+  judgment call is the one thing a deterministic fallback cannot fake, and
+  silence would read as a pass.
+
+Results land in `GymRun.check_results` under each dimension's own check id, so a
+persuasion finding is attributable to the test the author switched on exactly
+like a grammar finding, and the audit sidebar groups it under its category with
+everything else.
+
+Why the opponent is not asked this instead: an opponent looking for a weakness
+calls bad organization a legal problem, which sends the advocate to rewrite an
+argument that only needed moving.
 
 ## Your own checklist
 
@@ -363,7 +536,7 @@ operation that answered it.
 
 | Method and path | Purpose |
 | --- | --- |
-| `GET /api/argument-gym/checks/` | The check catalog and its defaults |
+| `GET /api/argument-gym/checks/` | The check catalog, its groups, and its defaults |
 | `GET POST /api/argument-gym/checklists/` | List or create your own checklists |
 | `GET PATCH DELETE /api/argument-gym/checklists/<id>/` | Read, edit, or remove one |
 | `GET /api/argument-gym/courts/` | Court profiles and which court types use a municipality |

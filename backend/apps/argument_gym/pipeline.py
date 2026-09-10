@@ -2,6 +2,7 @@
 
     brief ingestion
         -> argument map
+        -> the persuasive communication suite (how the brief reads)
         -> brief-to-record support check (when case materials exist)
         -> adversarial research queries
         -> existing research / augmented_search
@@ -92,6 +93,24 @@ VERDICT_LIMIT = GymRun._meta.get_field("assessment_verdict").max_length
 def choice(value, allowed, default):
     normalized = str(value or "").strip().casefold()
     return normalized if normalized in allowed else default
+
+
+def known(value, allowed):
+    """Is this model-supplied id one we recognise?
+
+    Written as its own helper because the obvious spelling of it is a trap. Every
+    parser here rejects a claim, finding or attack whose ``unitId`` is not a real
+    unit, and the obvious way to write that -- ``claim.get("unitId") not in
+    unit_ids`` -- raises ``TypeError: unhashable type`` when the model answers
+    with a list instead of a string. The guard against malformed output then
+    fails on the malformed output it exists to catch, and takes the whole run
+    down with a bare TypeError that names no field.
+
+    A model did exactly that: it returned ``"unitId": ["u3", "u7", ...]`` for a
+    claim spanning several units. So membership is tested only for values that
+    can be members.
+    """
+    return isinstance(value, (str, int)) and value in allowed
 
 
 class Stage:
@@ -189,22 +208,175 @@ def _units_of_type(units, *types):
     return [unit for unit in units if unit["type"] in types]
 
 
-def _unit_payload(units, *, limit=80, types=None):
-    selected = [unit for unit in units if not types or unit["type"] in types]
-    return [
-        {
-            "id": unit["id"],
-            "type": unit["type"],
-            "section": unit["locator"]["section"],
-            "paragraph": unit["locator"]["paragraph"],
-            "page": unit["locator"]["page"],
-            "text": unit["text"][:900],
-        }
-        for unit in selected[:limit]
-    ]
+# What a stage reads of the brief, budgeted in characters rather than in units.
+#
+# The first 80 units used to be the whole of it, and a filing is not 80 units:
+# a real appellate brief ran to 694, so the opponent, the judge and the argument
+# map read the caption, the procedural history and the opening facts, and never
+# saw a word of the argument they were asked to attack. Any finding about the
+# later two thirds of that brief was a finding about text nothing had read.
+#
+# The budget is set (in settings) so that every brief in the local corpus is read
+# whole, which a large-context model has room for. Sampling is what happens when
+# a brief is larger than any budget -- a three-hundred-page filing still exists --
+# and where it happens the selection is spread across the document rather than
+# taken from the front, because the last assignment of error matters as much as
+# the first.
+UNIT_PRIORITY = {
+    ingestion.SECTION: 0,  # headings are cheap and carry the document's shape
+    ingestion.REQUESTED_RELIEF: 1,
+    ingestion.ARGUMENT: 2,
+    ingestion.ASSERTED_FACT: 3,
+    ingestion.PARAGRAPH: 4,
+    ingestion.CITATION: 5,  # already summarized into the argument map
+}
+
+
+def unit_budget_chars():
+    return getattr(settings, "ARGUMENT_GYM_UNIT_BUDGET_CHARS", 260_000)
+
+
+def unit_text_limit():
+    return getattr(settings, "ARGUMENT_GYM_UNIT_TEXT_CHARS", 2_400)
+
+
+def brief_text_limit():
+    """How much raw brief text the stages that do not read units are given."""
+    return getattr(settings, "ARGUMENT_GYM_BRIEF_TEXT_CHARS", 120_000)
+
+
+def _payload_item(unit, text_limit):
+    return {
+        "id": unit["id"],
+        "type": unit["type"],
+        "section": unit["locator"]["section"],
+        "paragraph": unit["locator"]["paragraph"],
+        "page": unit["locator"]["page"],
+        "text": unit["text"][:text_limit],
+    }
+
+
+_EMPTY_LIST_CHARS = len(dumps([]))
+
+
+def _unit_cost(unit, text_limit):
+    """What this unit actually costs in the payload, not an estimate of it.
+
+    Measured as the length it adds to the serialized list, indentation and
+    separator included, because the two approximations tried before it were both
+    wrong in the direction that matters: eighty characters of envelope per unit
+    (the real figure is nearer a hundred and fifty, so a brief measured as
+    fitting serialized to half again as much), then the standalone length of the
+    item, which misses the two spaces of list indentation on each of its lines.
+    A budget that does not mean what it says is worse than no budget.
+    """
+    return len(dumps([_payload_item(unit, text_limit)])) - _EMPTY_LIST_CHARS
+
+
+def _spread(units, keep):
+    """`keep` of these units, evenly spaced, so the end of the brief survives."""
+    if keep >= len(units):
+        return list(units)
+    if keep <= 0:
+        return []
+    step = len(units) / keep
+    return [units[min(int(index * step), len(units) - 1)] for index in range(keep)]
+
+
+def select_units(units, *, budget=None, types=None):
+    """The units a stage reads, in document order, and what had to be left out."""
+    budget = unit_budget_chars() if budget is None else budget
+    text_limit = unit_text_limit()
+    candidates = [unit for unit in units if not types or unit["type"] in types]
+    order = {id(unit): index for index, unit in enumerate(candidates)}
+    cost = lambda unit: _unit_cost(unit, text_limit)  # noqa: E731 - one line, used three times
+
+    chosen = []
+    spent = 0
+    for tier in sorted({UNIT_PRIORITY.get(unit["type"], 9) for unit in candidates}):
+        tier_units = [unit for unit in candidates if UNIT_PRIORITY.get(unit["type"], 9) == tier]
+        tier_cost = sum(cost(unit) for unit in tier_units)
+        if spent + tier_cost <= budget:
+            chosen.extend(tier_units)
+            spent += tier_cost
+            continue
+        # This tier does not fit whole. Take as many as the remaining budget
+        # allows, spread across the document instead of taken from its front.
+        #
+        # The count comes from the tier's average unit, but real units are not
+        # the average: a brief's units run from a thirteen-character citation to
+        # a block quote, so the evenly-spaced sample can cost more than the
+        # average predicted. Each one is therefore charged as it is taken, and
+        # one that no longer fits is skipped rather than ending the walk -- which
+        # would re-bias the selection back towards the front of the document.
+        average = max(1, tier_cost // max(1, len(tier_units)))
+        for unit in _spread(tier_units, max(0, (budget - spent) // average)):
+            unit_cost = cost(unit)
+            if spent + unit_cost > budget:
+                continue
+            chosen.append(unit)
+            spent += unit_cost
+        break
+
+    chosen.sort(key=lambda unit: order[id(unit)])
+    return chosen, len(candidates) - len(chosen)
+
+
+def _unit_payload(units, *, budget=None, types=None):
+    selected, _omitted = select_units(units, budget=budget, types=types)
+    text_limit = unit_text_limit()
+    return [_payload_item(unit, text_limit) for unit in selected]
+
+
+def unit_coverage(units, *, budget=None, types=None):
+    """What the stage that reads these units can and cannot say it looked at."""
+    selected, omitted = select_units(units, budget=budget, types=types)
+    if not omitted:
+        return f"All {len(selected)} units of the brief are listed below."
+    return (
+        f"{len(selected)} of {len(selected) + omitted} units are listed below, sampled across the whole "
+        "document because the brief does not fit in one read. Say nothing about the passages you were not given."
+    )
 
 
 # Stage 2: argument map
+
+
+# What the offline stand-in can and cannot tell apart.
+#
+# Without a model the only question it can answer about a passage is whether it
+# cites anything, and "cites nothing" is not "argues without authority": a
+# caption, a table-of-contents line, a heading, the "Now comes ..." preamble and
+# a dated recitation of what happened all cite nothing and none of them is a
+# vulnerability. Real filings were reported as exposed on their opening
+# paragraph for exactly that reason. So the stand-in raises the point only where
+# the passage is unmistakably asserting a legal proposition, and stays quiet --
+# which is honest -- everywhere else.
+LEGAL_PROPOSITION_RE = re.compile(
+    r"\b(?:must|shall|may not|cannot|is entitled|are entitled|requires?|required|"
+    r"violat\w+|unlawful|improper|erred|reversible|breach\w*|liable|liability|"
+    r"as a matter of law|genuine issue|precludes?|preempts?|bars?|barred|estopped|"
+    r"held|holds|holding|establishes?|constitutes?|is not permitted|does not apply)\b",
+    re.IGNORECASE,
+)
+TOC_LEADER_RE = re.compile(r"[.\u2026]{4,}\s*\d+\s*$")
+RELIEF_PREAMBLE_RE = re.compile(
+    r"^(?:now comes|pursuant to)\b|\b(?:moves?|respectfully requests?|wherefore)\b", re.IGNORECASE
+)
+
+
+def asserts_a_legal_proposition(text):
+    """Whether a passage is making a legal claim, as far as looking can tell."""
+    stripped = str(text or "").strip()
+    if len(stripped) < 40 or TOC_LEADER_RE.search(stripped):
+        return False
+    # A heading names a topic; it does not advance a proposition, and it has no
+    # sentence in it to be uncited.
+    if not re.search(r"[.!?]", stripped):
+        return False
+    if RELIEF_PREAMBLE_RE.search(stripped[:120]):
+        return False
+    return bool(LEGAL_PROPOSITION_RE.search(stripped))
 
 
 def _fallback_argument_map(units):
@@ -226,7 +398,11 @@ def _fallback_argument_map(units):
                 "citedAuthority": citations,
                 "assertedFacts": [],
                 "impliedSteps": [],
-                "weakestLink": "" if citations else "This passage argues without citing authority.",
+                "weakestLink": (
+                    ""
+                    if citations or not asserts_a_legal_proposition(unit["text"])
+                    else "This passage argues without citing authority."
+                ),
             }
         )
     return claims[:12]
@@ -241,7 +417,7 @@ def argument_map_stage(units, *, brief_title, jurisdiction, matter_summary, llm_
             return []
         cleaned = []
         for claim in claims:
-            if not isinstance(claim, dict) or claim.get("unitId") not in unit_ids:
+            if not isinstance(claim, dict) or not known(claim.get("unitId"), unit_ids):
                 continue
             cleaned.append(
                 {
@@ -263,6 +439,7 @@ def argument_map_stage(units, *, brief_title, jurisdiction, matter_summary, llm_
             "brief_title": brief_title,
             "jurisdiction": jurisdiction,
             "matter_summary": matter_summary,
+            "brief_coverage": unit_coverage(units),
             "brief_units": dumps(_unit_payload(units)),
         },
         parse=parse,
@@ -320,14 +497,14 @@ def record_audit_stage(units, excerpts, argument_map, *, jurisdiction, llm_clien
             return []
         cleaned = []
         for finding in findings:
-            if not isinstance(finding, dict) or finding.get("unitId") not in unit_ids:
+            if not isinstance(finding, dict) or not known(finding.get("unitId"), unit_ids):
                 continue
             cleaned.append(
                 {
                     "unitId": finding["unitId"],
                     "status": choice(finding.get("status"), statuses, "unsupported"),
                     "explanation": clean(finding.get("explanation"), limit=800),
-                    "materialIds": [item for item in finding.get("materialIds") or [] if item in material_ids],
+                    "materialIds": [item for item in finding.get("materialIds") or [] if known(item, material_ids)],
                     "quote": clean(finding.get("quote"), limit=600),
                 }
             )
@@ -338,7 +515,7 @@ def record_audit_stage(units, excerpts, argument_map, *, jurisdiction, llm_clien
         context={
             "jurisdiction": jurisdiction,
             "argument_map": dumps(argument_map),
-            "asserted_facts": dumps(_unit_payload(fact_units, limit=40)),
+            "asserted_facts": dumps(_unit_payload(fact_units, budget=unit_budget_chars() // 2)),
             "record_excerpts": dumps(excerpts),
         },
         parse=parse,
@@ -500,7 +677,7 @@ def _fallback_attacks(units, argument_map, record_findings, legal_sources):
                 "An assertion the record does not carry is one opposing counsel can ask the court to disregard.",
                 material_ids=finding["materialIds"],
             )
-        if not claim["citedAuthority"]:
+        if not claim["citedAuthority"] and asserts_a_legal_proposition(claim["proposition"]):
             add(
                 claim["unitId"],
                 GymChallenge.LEGAL_AUTHORITY,
@@ -541,7 +718,7 @@ def opponent_stage(units, argument_map, record_findings, legal_sources, *, juris
             return []
         cleaned = []
         for index, attack in enumerate(attacks, start=1):
-            if not isinstance(attack, dict) or attack.get("unitId") not in unit_ids:
+            if not isinstance(attack, dict) or not known(attack.get("unitId"), unit_ids):
                 continue
             argument = clean(attack.get("argument"), limit=1500)
             if not argument:
@@ -554,7 +731,7 @@ def opponent_stage(units, argument_map, record_findings, legal_sources, *, juris
                     "argument": argument,
                     "whyItMatters": clean(attack.get("whyItMatters"), limit=800),
                     "legalSourceIds": [str(item) for item in attack.get("legalSourceIds") or [] if str(item) in source_ids],
-                    "recordMaterialIds": [item for item in attack.get("recordMaterialIds") or [] if item in material_ids],
+                    "recordMaterialIds": [item for item in attack.get("recordMaterialIds") or [] if known(item, material_ids)],
                 }
             )
         return cleaned[:MAX_ATTACKS]
@@ -565,6 +742,7 @@ def opponent_stage(units, argument_map, record_findings, legal_sources, *, juris
             "jurisdiction": jurisdiction,
             "matter_summary": matter_summary,
             "argument_map": dumps(argument_map),
+            "brief_coverage": unit_coverage(units),
             "brief_units": dumps(_unit_payload(units)),
             "record_findings": dumps(record_findings),
             "legal_sources": dumps(legal_sources),
@@ -629,7 +807,7 @@ def judge_stage(units, argument_map, attacks, legal_sources, *, jurisdiction, ll
             return []
         cleaned = []
         for assessment in assessments:
-            if not isinstance(assessment, dict) or assessment.get("attackId") not in attack_ids:
+            if not isinstance(assessment, dict) or not known(assessment.get("attackId"), attack_ids):
                 continue
             try:
                 importance = int(assessment.get("importance", 50))
@@ -655,6 +833,7 @@ def judge_stage(units, argument_map, attacks, legal_sources, *, jurisdiction, ll
         context={
             "jurisdiction": jurisdiction,
             "argument_map": dumps(argument_map),
+            "brief_coverage": unit_coverage(units),
             "brief_units": dumps(_unit_payload(units)),
             "legal_sources": dumps(legal_sources),
             "attacks": dumps(attacks),
@@ -699,7 +878,7 @@ def coach_stage(units, challenges, legal_sources, record_findings, *, jurisdicti
             return []
         cleaned = []
         for response in responses:
-            if not isinstance(response, dict) or response.get("attackId") not in attack_ids:
+            if not isinstance(response, dict) or not known(response.get("attackId"), attack_ids):
                 continue
             cleaned.append(
                 {
@@ -716,6 +895,7 @@ def coach_stage(units, challenges, legal_sources, record_findings, *, jurisdicti
         prompt_key="argument_gym.coach",
         context={
             "jurisdiction": jurisdiction,
+            "brief_coverage": unit_coverage(units),
             "brief_units": dumps(_unit_payload(units)),
             "legal_sources": dumps(legal_sources),
             "record_findings": dumps(record_findings),
@@ -733,15 +913,31 @@ SEVERITY_RANK = {"high": 0, "medium": 1, "low": 2}
 MAX_ASSESSMENT_WORDS = 130
 
 
-def _fallback_assessment(challenges):
-    """A plain reading of what the run found, when no model wrote one."""
+def _fallback_assessment(challenges, *, opponent_method="llm"):
+    """A plain reading of what the run found, when no model wrote one.
+
+    `opponent_method` is what actually read the brief. A run whose opponent fell
+    back to the deterministic stand-in and raised nothing looks exactly like a
+    run that read the brief closely and found nothing, and the second is the one
+    an advocate will assume. It is the difference between "no challenges" and
+    "no review", and the verdict has to carry it.
+    """
+    if opponent_method == "off":
+        unread = "The adversarial check was turned off for this run, so nothing argued against this brief."
+    elif opponent_method != "llm":
+        unread = (
+            "No model read this brief. The offline stand-in can only see whether a passage cites "
+            "anything, which is not a reading of the argument."
+        )
+    else:
+        unread = ""
     if not challenges:
         return [{
-            "verdict": "no challenges raised",
+            "verdict": "not reviewed" if unread else "no challenges raised",
             "assessment": (
-                "This run raised no challenges against the brief. That is a statement about the review, "
+                f"{unread} No challenges were raised. That is a statement about the review, "
                 "not a finding that the brief is sound: check the research coverage below before relying on it."
-            ),
+            ).strip(),
         }]
     ranked = sorted(challenges, key=lambda item: (SEVERITY_RANK.get(item["severity"], 1), -item["importance"]))
     serious = [item for item in ranked if item["severity"] == "high"]
@@ -765,7 +961,7 @@ def _fallback_assessment(challenges):
     )
     return [{
         "verdict": verdict,
-        "assessment": f"{opening} The most important to address: {points}",
+        "assessment": f"{unread} {opening} The most important to address: {points}".strip(),
     }]
 
 
@@ -779,7 +975,7 @@ def _one_paragraph(text, *, max_words=MAX_ASSESSMENT_WORDS):
     return " ".join(words[:max_words]).rstrip(",;:") + "..."
 
 
-def assessment_stage(challenges, coverage, *, brief_title, jurisdiction, matter_summary, llm_client=None):
+def assessment_stage(challenges, coverage, *, brief_title, jurisdiction, matter_summary, opponent_method="llm", llm_client=None):
     def parse(payload):
         # Measured against the column, not a number chosen here. A verdict
         # longer than the column takes the whole run down at the final save --
@@ -801,7 +997,7 @@ def assessment_stage(challenges, coverage, *, brief_title, jurisdiction, matter_
             "coverage": dumps(coverage),
         },
         parse=parse,
-        fallback=lambda: _fallback_assessment(challenges),
+        fallback=lambda: _fallback_assessment(challenges, opponent_method=opponent_method),
         temperature=0.1,
     )
 
@@ -1174,16 +1370,34 @@ def execute_run(run, *, user=None, request=None, llm_client=None, connector_regi
         for material in selected_materials:
             reasons = {item["id"]: item.get("reason", "") for item in ranking_trace.get("selected", [])}
             material["reason"] = reasons.get(material["id"], "")
+        material_share = record.share_of_budget(len(selected_materials))
         excerpts = [
             {
                 "id": material["id"],
                 "title": material["title"],
-                "text": record.material_text(material, workspace=workspace),
+                "text": record.material_text(material, workspace=workspace, max_chars=material_share),
             }
             for material in selected_materials
         ]
         excerpts = [excerpt for excerpt in excerpts if excerpt["text"].strip()]
-        note_stage({"stage": "materials", "method": ranking_trace.get("method", "none"), "count": len(excerpts), "trace": ranking_trace.get("trace", [])})
+        # A record read only in part is the kind of thing a run must say out
+        # loud: a challenge about what the record does not contain means one
+        # thing when the record was read whole and another when it was not.
+        shortened = [
+            {"id": material["id"], "title": material["title"],
+             "read": len(excerpt["text"]), "of": len(record.material_text(material, workspace=workspace))}
+            for material, excerpt in zip(selected_materials, excerpts)
+            if len(excerpt["text"]) >= material_share
+        ]
+        note_stage({
+            "stage": "materials",
+            "method": ranking_trace.get("method", "none"),
+            "count": len(excerpts),
+            "budgetChars": record.record_budget_chars(),
+            "perMaterialChars": material_share,
+            "truncated": shortened,
+            "trace": ranking_trace.get("trace", []),
+        })
 
         argument_map, trace = argument_map_stage(
             units,
@@ -1192,6 +1406,32 @@ def execute_run(run, *, user=None, request=None, llm_client=None, connector_regi
             matter_summary=matter_summary,
             llm_client=llm_client,
         )
+        note_stage(trace)
+
+        # How the brief reads is a separate question from whether it is right,
+        # and it is asked here rather than of the opponent: an opponent looking
+        # for a weakness will call bad organization a legal problem, which sends
+        # the advocate to rewrite an argument that only needed moving.
+        persuasion_selection = [
+            check_id for check_id in check_catalog.PERSUASION_CHECK_IDS if check_catalog.will_run(plan, check_id)
+        ]
+        if persuasion_selection:
+            from apps.argument_gym.persuasion import run_persuasion_review
+
+            persuasion_results, trace = run_persuasion_review(
+                persuasion_selection,
+                units,
+                document_id=run.brief.id,
+                brief_title=run.brief.title,
+                jurisdiction=jurisdiction,
+                matter_summary=matter_summary,
+                argument_map=argument_map,
+                llm_client=llm_client,
+            )
+            check_results.update(persuasion_results)
+            run.check_results = check_results
+        else:
+            trace = {"stage": "persuasion", "method": "off", "count": 0, "trace": []}
         note_stage(trace)
 
         if check_catalog.will_run(plan, "record_audit"):
@@ -1236,6 +1476,7 @@ def execute_run(run, *, user=None, request=None, llm_client=None, connector_regi
             )
         else:
             attacks, trace = [], {"stage": "opponent", "method": "off", "count": 0, "trace": []}
+        opponent_method = trace["method"]
         note_stage(trace)
 
         # A rule the brief invoked without carrying its elements, and a failed
@@ -1414,6 +1655,7 @@ def execute_run(run, *, user=None, request=None, llm_client=None, connector_regi
             brief_title=run.brief.title,
             jurisdiction=jurisdiction,
             matter_summary=matter_summary,
+            opponent_method=opponent_method,
             llm_client=llm_client,
         )
         note_stage(trace)

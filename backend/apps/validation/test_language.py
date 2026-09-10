@@ -58,6 +58,46 @@ class GrammarTests(TestCase):
             self.assertNotIn("sentence start", [f["target"] for f in check_language(text, include=("grammar",))])
         self.assertIn("sentence start", [f["target"] for f in check_language("at trial the witness testified.", include=("grammar",))])
 
+    def test_a_citation_is_not_a_sentence_that_forgot_its_capital(self):
+        """Every one of these came from a real Cleveland filing.
+
+        A period inside a citation is not a sentence end, and splitting on it
+        manufactures a lowercase "sentence" that starts mid-case-name. Across
+        fifteen real briefs this produced seventy-one findings and not one of
+        them was an error.
+        """
+        for citation in (
+            "The rule is settled. Professional Invests. of Am., Inc. v. McCormick, 14 Ohio Misc.2d 1 (1984).",
+            "See Surgical Servs. Assoc. v. Naples, 125 Ohio App.3d 394 (1998). Although that was not an eviction.",
+            "The claim failed. Hous. Auth. of City of Raleigh, 595 F.Supp. 2d 1 (E.D.N.C. 2009).",
+            "It was dismissed. Bd. of Commissioners, 2019-Ohio-3729, 144 N.E.3d 1010, ¶33 (11th Dist.).",
+        ):
+            self.assertNotIn(
+                "sentence start", [f["target"] for f in check_language(citation, include=("grammar",))], citation
+            )
+
+    def test_a_subsection_heading_is_not_a_sentence_that_forgot_its_capital(self):
+        text = "The service was not perfected under the Civil Rules.\n\na. R.C. 1923.06 service requirements\n"
+        self.assertNotIn("sentence start", [f["target"] for f in check_language(text, include=("grammar",))])
+
+    def test_a_genuinely_lowercase_sentence_is_still_reported(self):
+        text = "Inclusive Communities promulgated a three-step burden shifting framework. under the first step, the plaintiff must show causation."
+        self.assertIn("sentence start", [f["target"] for f in check_language(text, include=("grammar",))])
+
+    def test_a_drafting_note_does_not_split_the_sentence_it_interrupts(self):
+        """The placeholder check already reports the note; this must not report it twice."""
+        text = "On October 11, 2022, Pine Creek [from who? confirm this] received an email about the abatement."
+        self.assertNotIn("sentence start", [f["target"] for f in check_language(text, include=("grammar",))])
+
+    def test_an_enumerator_is_not_a_closing_parenthesis_with_nothing_opened(self):
+        text = 'The movant must prove: 1) no genuine issue of fact, 2) entitlement as a matter of law, and 3) one conclusion.'
+        self.assertNotIn("parenthesis", messages(check_language(text, include=("grammar",))))
+
+    def test_an_enumerator_inside_a_parenthetical_still_closes_it(self):
+        """Stripping "A)" as an enumerator would leave "(Attached as Appendix" unclosed."""
+        text = "Smith v. Jones, No. CV-17-875960 (Apr. 20, 2017) (Attached as Appendix A). The rule is settled."
+        self.assertNotIn("parenthesis", messages(check_language(text, include=("grammar",))))
+
     def test_a_doubled_word_is_reported(self):
         findings = check_language("The the notice was defective.", include=("grammar",))
         self.assertIn("appears twice", messages(findings))
@@ -74,7 +114,10 @@ class GrammarTests(TestCase):
 
     def test_an_unclosed_parenthesis_is_reported(self):
         findings = check_language("The notice (served on June 1 was defective.", include=("grammar",))
-        self.assertIn("unclosed opening parenthesis", messages(findings))
+        # The finding names the passage: a count of unbalanced delimiters is
+        # not something an advocate can act on.
+        self.assertIn("An opening parenthesis is never closed.", messages(findings))
+        self.assertIn("The notice (served on June 1", messages(findings))
 
     def test_an_unclosed_quotation_is_reported(self):
         findings = check_language('The notice said "vacate the premises within three days.', include=("grammar",))

@@ -37,6 +37,8 @@ A. The notice was defective.
 
 The three-day notice omitted the statutory language required by R.C. 1923.04, so the complaint must be dismissed. The notice also arrived after the filing date.
 
+Acceptance of rent after service of the notice bars the eviction as a matter of law, and the landlord accepted rent for June.
+
 B. The landlord breached the duty to repair.
 
 The landlord's failure to repair the furnace violates R.C. 5321.04 and supports a rent abatement.
@@ -183,6 +185,7 @@ class StandalonePipelineTests(TestCase):
                 "document_checks",
                 "materials",
                 "argument_map",
+                "persuasion",
                 "record_audit",
                 "research_queries",
                 "research",
