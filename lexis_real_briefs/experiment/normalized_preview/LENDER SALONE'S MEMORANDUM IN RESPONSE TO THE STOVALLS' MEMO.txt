@@ -1,0 +1,119 @@
+INTRODUCTION
+
+Defendant-Appellants Marreitta Stovall and AdeWe Stovall defrauded Plaintiff-Appellee Lender Salone out of the deed to her home. Then they tried to evict her. After roughly two years of litigation--first in Housing Court and then in Common Pleas--Lender finally secured summary judgment quieting title in her favor. The Stovalls 1 appealed that judgment. But the Eighth District correctly dismissed the case as moot because Lender, through counsel, had already executed the trial court's judgment by filing it with the county recorder. Now, the Stovalls continue their attempts to snatch Lender's home out from under her by asking the Court to overturn the decisions below. 2
+
+This Court should decline to resurrect this twice-dead case for at least four reasons. First, nothing about this case presents an issue of public and great general interest or a substantial constitutional question. The decisions below rest comfortably on well-settled principles. Second, the memorandum in support of jurisdiction does not challenge--and in fact, concedes--the grounds for the Eighth District's decision below: This appeal was (and remains) moot. Third, even reading the Stovalls' filing generously, it asks this Court only to correct what the Stovalls perceive to be errors it in the proceedings below--not to resolve any open question of law. Fourth, even if the Stovalls did not forfeit any argument that this case is justiciable (they have) and even if their claimed errors could properly invoke this Court's jurisdiction (they can't), there was no error below. It is axiomatic that appeals from an already-executed judgment are moot. And anyways, because the Stovalls presented no evidence in response to Lender's summary judgment motion (which was well-grounded in evidence and law), the trial court properly quieted title in Lender's favor. For any or all of these reasons, this Court should decline jurisdiction.
+
+ STATEMENT OF THE CASE AND FACTS
+
+The Fraud . In late 2022, the Stovalls defrauded Lender, a nearly-80-year-old retiree on a fixed income, out of the deed to her home. R. 40 at 18-23 (MSJ Ex. 1 - Affidavit of Lender Salone). 3 Marreitta obtained Lender's notarized signature on a document under false pretenses. Id. at 22; R. 40 at 30-31 (MSJ Ex. 4 - Affidavit of Tyrome Hinson). She then took that signature page, attached it to a "deed" (prepared by Marrietta herself) purporting to transfer title of Lender's home to AdeWe, and recorded the fraudulent deed with the county recorder. R. 40 at 22. Marreitta represented to the County that the transfer of property was a gift. R. 1 (Compl. Ex. E - Tax Form - 10/19/2022).
+
+Housing Court . After months of attempting to constructively evict Lender, the Stovalls filed eviction proceedings in a bid to oust Lender from her home in January 2023. R. 40 at 45 (MSJ Ex. 6 - 01/09/2023 Complaint, Stovall v. Salone, No. 2023-CVG-000261 (M.C.) [the "Housing Court Case"]). Lender retained pro bono legal counsel and counterclaimed to quiet title. Litigation over proper ownership of the house proceeded until January 2024, when the Housing Court decided sua sponte that it lacked subject-matter jurisdiction over the quiet-title claim. R. 40 at 49 (MSJ Ex. 7 - 01/31/2024 Judgment Entry, Housing Court Case). During the Housing Court Case's pendency, Lender also obtained a Civil Stalking Protection Order against Marreitta from the Court of Common Pleas. R. 11 (Sealed Compl. Ex. I - 12/18/2023 Civil Stalking Protection Order). The Court of Common Pleas denied a Civil Protection Stalking Order filed by Marreitta in retaliation against Lender. R. 11 (Sealed Compl. Ex. J - 12/18/2023).
+
+Court of Common Pleas . In February 2024, Lender sued the Stovalls in the trial court below to quiet title to her home. R. 1 (02/05/2024 Redacted Complaint); R. 15 (02/09/2024 Sealed Complaint). Three days later, the trial court entered a temporary restraining order and, with no objection from the Stovalls, enjoined the Stovalls from restricting Lender's access to her home during the pendency of this action. See R. 13 (02/08/2024 Journal Entry).
+
+Lender moved for summary judgment on June 28, 2024. R. 39 (06/28/2024 Motion for Summary Judgment). In support, Lender offered evidence comprising eight exhibits over 36 pages, including sworn affidavits from Lender herself and the disinterested notary public who notarized the signature page attached to the purported "deed" at issue. R. 40 (06/28/2024 Memorandum in Support of Motion for Summary Judgment). Marreitta filed a two-page response in opposition that included no evidentiary exhibits and cited no substantive law. R. 42 (07/23/2024 Opposition to Motion for Summary Judgment). 4 AdeWe filed no response at all, thus waiving any counterargument against summary judgment.
+
+On August 5, 2024, the trial court granted Lender's summary judgment motion. R. 45 (08/05/2024 Journal Entry). The trial court declared the deed that Marreitta recorded fraudulent and void as a matter of law and quieted title in Lender's favor. Id.
+
+On August 13, 2024, Lender recorded a certified copy of the judgment with the Cuyahoga County Recorder. The following day, the Stovalls filed a Notice of Appeal. 08/14/2024 Notice of Appeal. On August 19--two weeks after the trial court entered its final judgment and nearly a week after Lender executed her judgment--the Stovalls moved to stay execution of the trial court's judgment. The trial court denied Appellants' motion to stay as moot because Lender had "already executed judgment." R. 46 (09/12/2024 Journal Entry).
+
+The parties fully briefed the Stovalls' appeal before the Eighth District. On March 20, 2025, the appellate court dismissed the appeal as moot because Lender had already executed the judgment. Salone v. Stovall, 2025-Ohio-968 (8th Dist.).
+
+THIS CASE IS NOT OF PUBLIC AND GREAT GENERAL INTEREST; NOR DOES IT INVOLVE ANY SUBSTANTIAL CONSTITUTIONAL QUESTION
+
+Nothing about this case justifies this Court's review. In fact, the Stovalls do not even argue otherwise. Nowhere in their notice of appeal or jurisdictional memorandum do they claim their appeal presents a matter of public or great general interest, or a substantial constitutional question. See generally Mem. Nor, for that matter, do they challenge the appeals court's decision that the case was moot. See Mem. at 2 (conceding satisfaction of the judgment).
+
+Instead, the Stovalls' jurisdictional memorandum raises only the issues that the Eighth District did not even reach: Whether the trial court properly granted summary judgment. It did. Lender moved for summary judgment and provided sufficient, proper evidence to meet the Rule 56 standard. Marreitta responded with a two-page opposition, which did not substantively address Lender's arguments and attached no evidence. AdeWe filed no response at all. The trial court thus properly granted Lender summary judgment and quieted title in her favor. This run-of-the- mill application of Rule 56 hardly presents a case of "public and great general interest."
+
+Nor does the Stovalls' due process claim raise a "substantial constitutional question." The Stovalls had their "fair opportunity to be heard"--they could have engaged in discovery and filed briefing and evidence in opposition to summary judgment. Contra Mem. at 3. Squandering that opportunity hardly implicates their due process rights, let alone in any unsettled or substantial way. See Disciplinary Counsel v. Maney, 2017-Ohio-8799, P 28 ("'[I]t is well established that failure to follow procedural rules can result in forfeiture of rights,' and due process does not require us to afford [parties] a second chance ") (emphasis added), quoting Goldfuss v. Davidson, 79 Ohio St.3d 116, 122 (1997).
+
+ARGUMENT
+
+A. The Stovalls do not even challenge the Eighth District's decision that their appeal is moot. Indeed, they concede that Lender executed the judgment before the Stovalls took an appeal or moved to stay. See Mem. at 2 (arguing that the Eighth District should have reached the merits despite the judgment having been executed). The Stovalls have thus forfeited any argument that this appeal is not moot--this Court does not consider issues that a party "failed to raise... in its jurisdictional memorandum." Corporex Dev. & Constr. Mgt., Inc. v. Shook, Inc., 2005-Ohio-5409, P 5, fn. 1. Because none of the merits issues the Stovalls raise in their jurisdictional memorandum would change the outcome below, this appeal would be purely academic. See State ex rel. Cincinnati Enquirer v. Hunter, 2014-Ohio-5457, P 4, citing In re L.W., 2006-Ohio-644, P 11 (10th Dist.).
+
+B. Even if the Court reaches the Stovalls' "grounds" for "reconsideration," 5 it will find nothing that properly invokes its jurisdiction under the Ohio Constitution or this Court's Rules of Practice. Section 2, Article IV of the Ohio Constitution enumerates the cases over which this Court exercises jurisdiction--and it does not encompass mere error correction. See State v. O'Malley, 2022-Ohio-3207, P 50; Baughman v. State Farm Mut. Auto. Ins. Co., 88 Ohio St.3d 480, 492 (2000) (Cook, J., concurring) ("According to Section 2, Article IV of the Ohio Constitution, this court sits to settle the law, not to settle cases."). None of the Stovalls' grounds for reconsideration raise any questions of unsettled law--only long-moot questions whether the trial court properly granted summary judgment. This appeal therefore offers nothing for this Court to decide.
+
+C. Finally, even if the Court is able to divine proper Propositions of Law from the merits issues the Stovalls raise, it will find no error. The Stovalls argue, verbatim and without any legal support, the following grounds for "reconsideration":
+
+1. Abuse of discretion - The ruling was unreasonable and unsupported by admissible evidence.
+
+2. Lack of Substantial Evidence - under oath supported the decision.
+
+3. Reliance on Inadmissible Evidence. The affidavit was false and untested under cross-examination.
+
+4. Denial of Due Process - Our valid evidence was ignored , and we were not given a fair opportunity to be heard.
+
+(Emphases in original) Mem. at 3. The first three of these arguments challenge the admissibility and sufficiency of the evidence Lender presented at summary judgment. The Stovalls do not state any cognizable legal reason that any evidence was inadmissible. Nor could they--Lender's evidence complied with Rule 56's requirements: She offered affidavits and "other types of evidence" that she properly "authenticated by way of an attached affidavit." State ex rel. Bradford v. Bowen, 2022-Ohio-351, P 9, quoting State ex rel. Parker v. Russo, 2019-Ohio-4420, P 10. As for the Stovalls' bare assertions that an affidavit was "false," they presented no evidence--not even their own sworn statement--to support the existence of any disputed material fact.
+
+That leaves the Stovalls' due process claim. But as already discussed above, the Stovalls received due process--they simply declined to meaningfully participate in the trial court. See Maney, 2017-Ohio-8799, P 28.
+
+In sum, even if this case were not moot (it is), the Stovalls raise no meritorious issues--let alone issues that warrant this Court's attention.
+
+CONCLUSION
+
+For these reasons, the Court should decline to exercise jurisdiction over this appeal.
+
+Dated: June 4, 2025
+
+/s Andrew S. Rumschlag
+
+Michael S. Quinlan* (Ohio Bar No. 88386)
+
+* Counsel of Record
+
+Alexander W. Prunka (Ohio Bar No. 100431)
+
+Patrick F. Callahan (Ohio Bar No. 102651)
+
+Andrew S. Rumschlag (Ohio Bar No.102708)
+
+JONES DAY
+
+ North Point
+
+901 Lakeside Avenue
+
+Cleveland, Ohio 44114
+
+Telephone: (216) 586-3939
+
+Facsimile: (216) 579-0212
+
+Email: msquinlan@jonesday.com
+
+Email: aprunka@jonesday.com
+
+Email: pcallahan@jonesday.com
+
+Email: arumschlag@jonesday.com
+
+Attorneys for Plaintiff-Appellee Lender Salone
+
+CERTIFICATE OF SERVICE
+
+I certify that a copy of the foregoing Memorandum in Response to the Stovalls' Memorandum in Support of Jurisdiction was served by email this 4th day of June 2025, upon the following pro se parties:
+
+Marreitta D. Stovall
+
+13415 Cormere Avenue
+
+Shaker Heights, Ohio 44120
+
+godplusoneisthemajority7@gmail.com
+
+-and-
+
+M. AdeWe Stovall
+
+13415 Cormere Avenue
+
+Shaker Heights, Ohio 44120
+
+adewestovall@gmail.com
+
+/s Alexander W. Prunka
+
+Alexander W. Prunka
+
+One of the Attorneys for Plaintiff-Appellee Lender Salone

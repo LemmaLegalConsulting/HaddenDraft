@@ -1,0 +1,183 @@
+Regular Calendar
+
+III.  ASSIGNMENT OF ERROR
+
+THE TRIAL COURT DID NOT ERR IN GRANTING SUMMARY JUDGMENT IN FAVOR OF DEFENDANT-APPELLEE WESTPORT WHERE THE INSURANCE POLICIES ARE NOT SUBJECT TO OHIO REVISED CODE SECTION 3937.18 AND UNINSURED/UNDERINSURED MOTORISTS COVERAGE CANNOT BE IMPLIED UPON THE POLICIES AS A MATTER OF LAW.
+
+IV.  STATEMENT OF ISSUES
+
+1. Whether the trial court erred in granting summary judgment in favor of defendant-appellee Westport where Ohio Revised Code Section 3937.18 is not applicable to the Westport polices because they were not issued for delivery in Ohio with respect to motor vehicles registered or principally garaged in Ohio.
+
+2. Whether the trial court erred in granting summary judgment in favor of defendant-appellee Westport where Senate Bill 97 governs the policies at issue and no longer requires policies to offer UM/UIM coverage and no longer permits such coverage to be implied by operation of law.
+
+V. STATEMENT OF THE CASE
+
+Plaintiffs-appellants Martin Press ("Press"), Kathleen Press, Jay Press and Rachel Press filed their original Complaint against defendant-appellant Westport Insurance Corporation ("Westport"), and defendant Progressive Insurance Company ("Progressive") on July 14, 2004 (Case No. CV-04-535882) seeking medical payments and uninsured/underinsured motorist ("UM/UIM") benefits under policies of insurance issued by Westport to Press' former employer, and UM/UIM benefits under a personal automobile policy issued by their carrier, Progressive. Plaintiffs-appellants ultimately settled their claims with Progressive
+
+Press was employed as a showroom manager by PS Management in 2002. He was hired in April, 2002 to work at its Westlake, Ohio location. (Deposition of John T. Marett, pgs. 11, 47, 71, attached at Exhibit 1). Press was involved in a motor vehicle accident on July 15, 2002. It is undisputed that he was driving his own vehicle at the time of the accident, and he was not operating a vehicle described as a covered vehicle under any policy of insurance issued by Westport to PS Management. He did not notify his supervisors at PS Management that he was involved in an accident and he left his employment with PS Management shortly after the accident. (Deposition of Martin Press, pgs. 75, 80 - 81, attached as Exhibit 2).
+
+On or about November 24, 2003 1, Press filed a Workers Compensation claim with the Industrial Commission of Ohio seeking compensation for injuries related to the July, 2002 accident. On April 19, 2004 the claim was disallowed on the grounds that Press was not within the course and scope of his employment at the time of the accident. An appeal resulted in an affirmance of this decision by the Staff Hearing Officer on or about December 9, 2004 and a further appeal to two Staff Hearing Officers was denied.
+
+Press filed a Notice of Appeal to the Cuyahoga County Court of Common Pleas on January 31, 2005 that was consolidated with Case No. CV-04-535882 on July 27, 2005. The issue before the Court with regard to the Workers Compensation claim was whether Press was within the course and scope of his employment at the time of the automobile accident. 2
+
+Westport filed its Motion for Summary Judgment on November 30, 2005. Without filing a brief opposing the Motion, plaintiffs-appellants filed a Notice of Voluntary Dismissal of their claims against Westport on January 18, 2006. The remainder of the case was voluntarily dismissed on March 27, 2006.
+
+On May 9, 2006 plaintiffs-appellants re-filed their Complaint against defendant-appellee Westport, again seeking medical payments and UM/UIM benefits under policies of insurance issued by Westport to PS Management. Specifically, plaintiffs-appellants seek medical payments and underinsured motorists coverage under automobile, general liability and excess and/or umbrella policies of insurance issued by Westport to PS Management. Plaintiffs-appellants allege that each policy issued by Westport "tracks the policy language in Scott-Pontzer v. Liberty Mut. Ins. Co. and, therefore, Plaintiffs are an insured under said policy." (Complaint PP 6, 9, 12). Westport filed its Answer denying the allegations of the Complaint on July 10, 2006.
+
+On July 11, 2006 Westport filed its Motion for Summary Judgment on the grounds that, contrary to the claims of the Complaint, this is not a Scott-Pontzer case. The Westport policies do not contain Scott-Pontzer language and, even if Press was within the course and scope of his employment at the time of his automobile accident, he is not entitled to coverage under any policy of insurance issued to PS Management by Westport where:
+
+1) The applicable version of Ohio Revised Code Section 3937.18, as amended by Senate Bill 97, does not require that automobile policies offer UM/UIM coverage, and such coverage can no longer be implied as a matter of law;
+
+2) Even if the policies are subject to an earlier version of the code section, they are not subject to Ohio Revised Code Section 3937.18 where the General Liability Policy is not an automobile liability policy of insurance and none of the polices were issued in this state with respect to any vehicle registered or principally garaged in Ohio, and
+
+3) The Commercial Excess Policy is not required to provide UM/UIM coverage where there is no such coverage under the underlying Auto and General Liability policies.
+
+The Trial Court entered summary judgment in favor of Westport on February 27, 2007. An appeal filed by plaintiffs-appellants on March 26, 2007 was dismissed by this Court on April 13, 2007 for lack of a final appealable order. On June 5, 2007 the Trial Court issued its Nunc Pro Tunc Order finding that Westport was entitled to summary judgment as a matter of law where Westport was under no obligation to offer UM/UIM coverage. Further, the Trial Court found that the Westport policies are not subject to Ohio Revised Code Section 3937.18 because the policies were not issued in this state with respect to any vehicles registered or garaged in this state, the general liability policy is not an automobile liability policy of insurance, and the excess policy is not required to provide UM/UIM coverage where the underlying policies do not provide such coverage. Plaintiffs-appellants filed their Notice of Appeal on June 25, 2007.
+
+VI.  STATEMENT OF FACTS
+
+PS Management was insured for Commercial Automobile liability by Westport Insurance Corporation through policy number WIP-A105860, renewed for the period January 1, 2002 to January 1, 2003 (Policy number WIP-A105860-02 attached hereto as Exhibit 3 and hereinafter referred to as "Business Auto Policy"). The Business Auto Policy provided coverage to PS Management and a number of other named insureds. (See Schedule of Other Named Insureds, Endorsement Serial No. W100A (03/99) of Exhibit 3). The policy insures seven listed covered autos including four private passenger vehicles garaged in Florida, and two trailers and one tractor garaged in Pennsylvania. (See Item Three of Business Auto Coverage Part Declarations of Exhibit 3). There is no Ohio uninsured motorists endorsement on this policy and no vehicles registered or garaged in Ohio are covered under this policy.
+
+Westport also insured PS Management for Commercial General Liability through Policy number WIP-G105860, renewed for the period January 1, 2002 to January 1, 2003 (Policy number WIP-G105860-02 attached hereto as Exhibit 4 and hereinafter referred to as "General Liability Policy"). The policy provides general liability coverage to PS Management and a number of other named insureds. (See Schedule of Other Named Insureds, Endorsement Serial No. W100A (03/99) of Exhibit 4). This policy does not identify any automobiles and provides no automobile liability coverage.
+
+PS Management was also insured for excess liability through Westport Commercial Excess Liability and Umbrella Liability Policy number WIP-U105860, renewed for the period January 1, 2002 to January 1, 2003 (Policy number WIP-U105860-2 attached hereto as Exhibit 5 and hereinafter referred to as "Commercial Excess Policy"). This policy provides excess coverage to PS Management and a number of other named insureds. (See Schedule of Other Named Insureds, Endorsement Serial No. W100A (03/99) of Exhibit 5.) This policy provides sums in excess of primary insurance that the insured becomes obligated to pay, and sums in excess of a retained limit for certain injuries for which primary insurance coverage is not afforded. 3
+
+Coverage under each of these three policies was originally bound for the period December 1, 2000 to January 1, 2001 and subsequently renewed for the policy periods January 1, 2001 to January 1, 2002 and January 1, 2002 to January 1, 2003. The policies were not renewed thereafter. (See Defendants Answers to Interrogatories Nos. 2-7, attached as Exhibit 6). No physical policies were printed for the one month period December 1, 2000 to January 1, 2001. A binder was printed as evidence of coverage for this period. Policies were printed for the January 1, 2001 to January 1, 2002 and January 1, 2002 to January 1, 2003 policy periods. (See Affidavit of John Shea, attached to Defendant, Westport Insurance Corporation's Motion for Leave to File Affidavit in Support of Motion for Summary Judgment, attached as Exhibit 7).
+
+VII. LAW AND ARGUMENT
+
+ASSIGNMENT OF ERROR
+
+THE TRIAL COURT DID NOT ERR IN GRANTING SUMMARY JUDGMENT IN FAVOR OF DEFENDANT-APPELLEE WHERE THE WESTPORT INSURANCE POLICIES ARE NOT SUBJECT TO OHIO REVISED CODE SECTION 3937.18 AND UNINSURED/UNDERINSURED MOTORISTS COVERAGE CANNOT BE IMPLIED AS A MATTER OF LAW.
+
+In opposing defendant-appellee's Motion for Summary Judgment in the lower court, plaintiffs-appellants did not dispute the law set forth in the Motion. Rather, they claimed to have been denied production of policies of insurance; therefore, UM/UIM coverage was to be implied as a matter of law. Plaintiffs-appellants make this same argument before this Court - that Senate Bill 267 and Senate Bill 97 cannot have any bearing on this case because the December 1, 2000 insurance policies were never produced; therefore, UM/UIM coverage is implied as a matter of law under the Westport auto and excess policies. (Plaintiffs-appellants concede that they are not entitled to coverage under the Westport Commercial General Liability Policy 4 and defendant-appellee will not discuss coverage under this policy.) Plaintiffs-appellants further argue that "exclusions" in the policies are not controlling because the December 1, 2000 policies are controlling and these were never produced. Therefore, summary judgment should not have been granted in favor of defendant-appellee.
+
+Coverage was first bound by Westport on PS Management on December 1, 2000. Policies were issued on January 1, 2001 and renewal policies were issued on January 1, 2002. (See Defendant's Answers to Interrogatories 2-7, Exhibit 6). No policies of insurance were physically printed for the one month period December 1, 2000 to January 1, 2000. (See Affidavit of John Shea, Exhibit 7). The policies generated for the period January 1, 2001 to January 1, 2002 were produced to plaintiffs-appellants, as was the Binder of Insurance evidencing the coverage for the period December 1, 2000 to January 1, 2001. (See Defendant, Westport Insurance Corporation's Notice of Compliance with Order of Court Regarding Production of Documents, attached as Exhibit 8). The policies generated for the period January 1, 2002 to January 1, 2003 (which are the policies at issue in this case) were produced to plaintiffs-appellants and were attached as exhibits to the summary judgment motions filed by defendant-appellee. It is simply untrue that there is a policy of insurance issued by Westport to PS Management that has not been produced to plaintiffs-appellants.
+
+Further, plaintiffs-appellants fail to offer any legal support for their claim that the failure to produce an earlier version of an insurance policy results in implying UM/UIM coverage as a matter of law. Nor do they support their claim that Senate Bill 267 (effective September 21, 2000) cannot be applied to the policies in this case because the "December, 2000 policies" have never been produced.
+
+The policy at issue is the January 1, 2002 to January 1, 2003 policy period. Defendant-appellee is not claiming that there are exclusions in the policy that preclude coverage for plaintiffs-appellants. Rather, it is the position of defendant-appellee that Ohio Revised Code Section 3937.18 does not apply to the Westport policies because they were not issued in Ohio for vehicles registered or principally garaged in Ohio. Even if this section were applicable; however, section 3937.18, as amended by Senate Bill 97, does not require that automobile policies offer UM/UIM coverage, and such coverage can no longer be implied as a matter of law. As a result, the Trial Court properly entered summary judgment in favor of defendant-appellee Westport.
+
+A. SUMMARY JUDGMENT WAS PROPERLY GRANTED IN FAVOR OF APPELLEE WHERE OHIO REVISED CODE SECTION 3937.18 IS NOT APPLICABLE TO POLICIES NOT ISSUED FOR DELIVERY IN OHIO WITH RESPECT TO MOTOR VEHICLES REGISTERED OR PRINCIPALLY GARAGED IN OHIO.
+
+The first step in an analysis of UM/UIM coverage is to determine whether Ohio Revised Code Section 3937.18 applies to the case under consideration. Hunt v. Nationwide Mutual Insurance Company (Jul. 6, 1995), Cuyahoga App. No. 66562, 1995 WL 396365, at *4 (attached as Exhibit 9). Ohio Revised Code Section 3937.18 applies to automobile or motor vehicle liability policies of insurance "issued for delivery in this state with respect to any motor vehicle registered or principally garaged in this state...." Ohio Revised Code §3937.18(A) (See Exhibits 15 and 17.)
+
+Neither the Business Auto Policy nor Commercial Excess Policy issued by Westport to PS Management were issued for delivery in this state, and neither were issued with respect to any vehicle registered or principally garaged in Ohio. As a result, Ohio Revised Code Section 3937.18 is not applicable to these policies and the Trial Court correctly granted summary judgment in favor of Westport as a matter of law.
+
+A review of the Business Auto and Commercial Excess policies (Exhibits 3 and 5) reveals that both were issued by Westport Insurance Corporation of Overland Park, Kansas to the named insured, PS Management of Volant, Pennsylvania. The policies were not issued for delivery in Ohio. Item Three of the Business Auto Coverage Part Declarations contains a Schedule of Covered Autos You Own which lists the covered autos as four private passenger vehicles garaged in Florida, and two trailers and one tractor garaged in Pennsylvania. The policy provides $ 50,000 in UM/UIM coverage for "owned autos only" and contains Pennsylvania and Florida UM/UIM coverage forms. The policy does not contain an Ohio UM/UIM coverage form. (See Exhibit 3.) While the Commercial Excess policy does not identify any vehicles, it is subject to the same terms, conditions, exclusions, definitions and limitations as the primary insurance which, for automobile liability, is identified as Westport Insurance Corporation policy WIP-A105860-02. 5 As a result, the Commercial Excess Policy provides coverage for the four private passenger vehicles garaged in Florida and two trailers and one tractor garaged in Pennsylvania as listed in the primary auto policy.
+
+These policies, which are not issued in Ohio for vehicles registered or principally garaged in Ohio, are not subject to Ohio Revised Code Section 3937.18. As a result, UM/UIM coverage cannot be implied as a matter of law and defendant-appellee Westport is entitled to an entry of summary judgment in its favor as a matter of law. Ohio Revised Code Section 3937.18 has not been applied to an automobile insurance policy delivered out of state for vehicles registered and garaged out of state at the time of the policy's delivery. McGuire v. Mills (Aug. 30, 1999), Ross App. No. 98CA2462, 1999 WL 685873, at *12 (attached as Exhibit 10). As explained by the Third District Court of Appeals:
+
+Because National Union's commercial auto policy was not delivered, or issued for delivery, in Ohio and because the policy does not cover vehicles registered or principally garaged in Ohio, R.C. 3937.18 is inapplicable to the National Union policy. National Union was not, therefore, required to offer UM/UIM coverage in accordance with R.C. 3937.18, and UM/UIM insurance does not arise by operation of law to extend coverage to Foster in the case sub judice.
+
+Foster v. Motorists Insurance Company, Mercer App. No. 10-03-07, 2004-Ohio-1049 at P 22 (attached as Exhibit 11).
+
+Similarly, this Court has held that Section 3937.18 "expressly applies only to policies delivered in Ohio to insure vehicles registered or principally garaged in Ohio. The statute does not purport to apply to policies delivered to insure automobiles registered and garaged elsewhere." Jarvis v. State Farm Mutual Automobile Insurance Company (Dec. 30, 1993), Cuyahoga App. No. 64597, 1993 WL 541583, at *2 (attached as Exhibit 12). See also, Misseldine v. Progressive Casualty Company, Cuyahoga App. No. 81770, 2003-Ohio-1359 ("R.C. 3937.18 is only applicable to vehicles registered and/or principally garaged in Ohio." Id. at PP 43-45) (attached as Exhibit 13); Burkett v. Zurich-American Insurance Companies (Jun. 18, 1987), Cuyahoga App. No. 53435, 1987 WL 13031 ("R.C. 3937.18 applies to policies of insurance delivered or issued for delivery in Ohio with respect to vehicles registered or principally garaged in Ohio. The insurance policy herein was not delivered in this state; therefore, R.C. 3937.18 is not applicable." Id. at *1) (attached as Exhibit 14).
+
+The Westport Business Auto and Commercial Excess Policies were delivered to a named insured in Pennsylvania and the insured vehicles were registered and/or garaged in Pennsylvania and Florida; therefore, Ohio Revised Code Section 3937.18 does not apply to these policies. As a result, Westport was under no obligation to offer UM/UIM coverage to PS Management in Ohio and such coverage cannot arise by operation of law. Plaintiffs-appellants do not dispute this law, nor do they meet their burden to bring to the Court's attention any genuine issue of material fact in the record. Therefore, the Trial Court properly granted summary judgment in favor of defendant-appellee as a matter of law.
+
+B. SUMMARY JUDGMENT WAS PROPERLY GRANTED IN FAVOR OF APPELLEE WHERE SENATE BILL 97 GOVERNS THE WESTPORT POLICIES AND UM/UIM COVERAGE CAN NO LONGER BE IMPLIED AS A MATTER OF LAW.
+
+The Trial Court properly entered summary judgment in favor of defendant-appellee Westport in this case where the policies at issue do not offer UM/UIM coverage in the State of Ohio, and Ohio Revised Code Section 3937.18 as amended by Senate Bill 267 and Senate Bill 97 no longer requires automobile policies of insurance to offer such coverage, and such coverage can no longer be implied as a matter of law.
+
+The Westport policies insuring PS Management were originally written on December 1, 2000 and subsequently renewed for one year periods on January 1, 2001 and January 1, 2002. When the coverage was originally written, Am. Sub. S.B. No. 267 was in effect which added subsection (E) to Ohio Revised Code Section 3937.18:
+
+(E) Nothing in this section prohibits an insurer from incorporating into a policy any changes that are permitted or required by this section or other sections of the Revised Code at the beginning of any policy period within the two-year period set forth in division (A) of this section.
+
+Ohio Revised Code Section 3937.18(E) (attached as Exhibit 15).
+
+In enacting this section, it was the intent of the General Assembly to allow statutory changes to be incorporated into policies at the beginning of any policy period during the two year guarantee period. Advent v. Allstate Insurance Company, 169 Ohio App.3d 318, 2006-Ohio-5522, 862 N.E.2d 871, at P 13. See, McDaniel v. Rollins, Allen App. No. 1-04-82, 2005-Ohio-3079, at P 21 fn. 1 (attached as Exhibit 16). Thus, statutory changes could be incorporated into policies at renewal and not just at the beginning of a new two year guarantee period.
+
+Am.Sub.S.B. No. 97, or Senate Bill 97, which went into effect on October 31, 2001 (attached as Exhibit 17) amended Ohio Revised Code Section 3937.18(A) by deleting the requirement that insurers provide uninsured or underinsured motorists coverage. The amended section provides:
+
+Any policy of insurance delivered or issued for delivery in this state with respect to any motor vehicle registered or principally garaged in this state that insures against loss resulting from liability imposed by law for bodily injury or death suffered by any person arising out of the ownership, maintenance, or use of a motor vehicle may, but is not required to, include uninsured motorist coverage, underinsured motorist coverage, or both uninsured and underinsured motorist coverages.
+
+Ohio Revised Code Section 3937.18(A) (emphasis added). The intent of the General Assembly in passing Senate Bill 97 was to eliminate the possibility of UM/UIM coverage being implied by operation of law and to eliminate the requirement of a written offer or rejection form. Arn v. McLean, 159 Ohio App.3d 662, 2005-Ohio-654, 825 N.E.2d 181, at PP 31 - 33.
+
+In Arn, the insured was involved in an automobile accident on July 12, 2002. Her automobile coverage through State Farm had most recently renewed on February 21, 2002. Id. at PP 6, 16. State Farm maintained that its obligation with regard to UM/UIM coverage was determined by Ohio Revised Code Section 3937.18 as amended by Senate Bill 97 which had gone into effect shortly before the February, 2002 policy renewal. Id. at P 16.
+
+The Court agreed with State Farm that Senate Bill 97 applied to the policy. Id. at P28. It explained:
+
+[A]t the time of the February 21, 2002 renewal, State Farm did not have to offer or include UM/UIM coverage with its insurance policies, and such coverage could no longer be implied by operation of law. There was also no longer any need for an offer or a rejection of the coverage.
+
+Id. at P37.
+
+Similarly, the Tenth District Court of Appeals concluded that where Senate Bill 267 was in effect prior to the beginning of a relevant two year guarantee period, statutory changes, including Senate Bill 97, occurring during the two year period could be incorporated at a policy renewal. Advent, supra, at PP 11 - 16, 31. See also, St. Clair v. Allstate Insurance Company, Hamilton App. No. C-060028, 2006-Ohio-6159:
+
+In amending R.C. 3937.18, the legislature did not state its intent to supercede any part of the Wolfe holding. But the language used by the legislature in the statute indicates an intent to do so. As a result, we hold that when a policy is actually renewed as defined in the contract during the two-year guaranteed period, the law in effect at the time of the renewal governs the scope of the UM/UIM coverage.
+
+***
+
+Like the Arn and the Advent courts, we hold that the amendments to R.C. 3937.31 have superceded a part of the holding in Wolfe. Now a policy must be guaranteed renewable for two years, but the insurer can incorporate into a renewal policy statutory changes that will then govern the scope of UM/UIM coverage in the policy. Additionally, where, as in this case, S.B. No. 267 was effective prior to the start of the last two-year guaranteed period and S.B. No. 97 was effective prior to the date of the last renewal, the application of these provisions to determine the scope of the UM/UIM coverage in an insurance policy does not retroactively impair the insured's contract rights.
+
+Id. at PP 12, 16 (attached as Exhibit 18).
+
+Arn, Advent and St. Clair are on point with the case now before this Court. In this case, Senate Bill 267 went into effect on September 21, 2000 and was the law of the State of Ohio at the time the P.S. Management policies were first written and, therefore, was incorporated into the policies. As a result, statutory changes were incorporated into policies at the beginning of any policy period, not just at the beginning of a two year Wolfe 6 policy period.
+
+In this case, the two year Wolfe period commenced on December 1, 2000. Senate Bill 97 became effective on October 31, 2001 and then became incorporated into the Westport policies on January 1, 2002 when the policy next renewed. As a result, on the date of loss of July 15, 2002 Ohio law did not require that policies of insurance offer UM/UIM coverage, and such coverage could not be implied as a matter of law.
+
+This Court has previously held that a policy cannot be amended to reflect statutory changes that occur during the two year guarantee period. Storer v. Sharp, Cuyahoga App. No. 86525, 2006-Ohio-1577, at P 15 (attached as Exhibit 19). Storer is distinguishable from the situation in the present case where Senate Bill 267 was the law of the State of Ohio before the coverage contained in the Westport policies was first written. In each of the cases relied upon by the Storer court, however, Senate Bill 267 did not become effective until during the two year guarantee period at issue. In fact, one of the decisions relied upon by the Storer court has been reversed by the Ohio Supreme Court in Shay v. Shay, 113 Ohio St.3d 172, 2007-Ohio-1384, 863 N.E.2d 591, in which the Supreme Court did not forbid all changes during the two year guarantee period.
+
+The resolution of this question is currently before the Ohio Supreme Court. The Tenth District Court of Appeals has certified a conflict between Advent, supra, and Storer, supra. Advent v. Allstate Insurance Company, Franklin App. No. 06AP-103, 2006-Ohio-6791, at P 9 (attached as Exhibit 20). The certified question is: "Can the S.B. No. 97 amendments to R.C. 3937.18 be incorporated into an insurance policy during a two-year guarantee period that commenced subsequent to the S.B. No. 267 amendments to R.C. 3937.18 and R.C. 3937.31, but prior to the S.B. No.97 amendments?" Id. Oral argument before the Ohio Supreme Court is scheduled in this matter for October 17, 2007.
+
+The Trial Court properly entered summary judgment in favor of defendant-appellee Westport in this case where Ohio Revised Code Section 3937.18 as amended by Senate Bill 267 and Senate Bill 97 no longer requires automobile policies of insurance to offer such coverage, and such coverage can no longer be implied as a matter of law, and defendantappellee respectfully requests that this Court affirm the finding of the Trial Court.
+
+VIII. CONCLUSION
+
+For the reasons stated above, appellee Westport Insurance Corporation respectfully requests that this Honorable Court overrule appellants' assignment of error and affirm the decision of the Trial Court entering summary judgment in favor of appellee, there being no genuine issues of material fact, and appellee being entitled to judgment in its favor as a matter of law.
+
+Respectfully submitted,
+
+/s/ Kathryn A. Kerka
+
+Kathryn A. Kerka (0030307)
+
+Jeffrey M. Elzeer (0056026)
+
+VALORE & CRUSE CO. L.P.A.
+
+23550 Center Ridge Road, Suite 204
+
+Westlake, OH 44145
+
+(440) 333-7330
+
+(440) 333-7576
+
+kkerka@valorecruse.com
+
+Attorneys for defendantappellee, Westport
+
+Insurance Corporation
+
+IX. CERTIFICATE OF SERVICE
+
+A copy of Brief of DefendantAppellee Westport Insurance Corporation was served, by regular U.S. Mail, postage prepaid, upon the following this 20th day of August, 2007:
+
+Thomas B. Pyle, Esq.
+
+PODOR & PYLE
+
+33565 Solon Road
+
+Solon, Ohio 44139
+
+/s/ Kathryn A. Kerka
+
+Kathryn A. Kerka
+
+[SEE APPENDIX TAB 1 IN ORIGINAL]
+
+[SEE APPENDIX TAB 2 IN ORIGINAL]
+
+[SEE APPENDIX TAB 3 IN ORIGINAL]
+
+[SEE APPENDIX TAB 4 IN ORIGINAL]
+
+[SEE APPENDIX TAB 5 IN ORIGINAL]
+
+[SEE APPENDIX TAB 6 IN ORIGINAL]
+
+[SEE APPENDIX TAB 7 IN ORIGINAL]
+
+[SEE APPENDIX TAB 8 IN ORIGINAL]

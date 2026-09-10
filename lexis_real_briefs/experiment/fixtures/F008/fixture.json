@@ -1,0 +1,103 @@
+{
+  "fixture_id": "F008",
+  "case_family_id": "friese-v-baker--23p000020",
+  "stratum": "trial_eviction",
+  "document": {
+    "title": "Defendant Carolyn Baker's Motion for Summary Judgment",
+    "court": "Court of Common Pleas of Ohio, Geauga County",
+    "jurisdiction": "Ohio",
+    "pleading_type": "motion_summary_judgment",
+    "side": "defendant",
+    "filed": "2024-03-07"
+  },
+  "files": {
+    "source": "source/original.docx",
+    "source_scan": "source/as-filed-scan.pdf",
+    "control": "normalized/brief.txt",
+    "mutant": "mutant/brief.txt",
+    "attachments": [
+      "record-01-record.txt"
+    ],
+    "attachment_notes": [
+      {
+        "file": "record-01-record.txt",
+        "chars": 15317,
+        "note": "pages 12-27 of the as-filed scan, transcribed by Azure Document Intelligence"
+      }
+    ]
+  },
+  "mutation": {
+    "type": "removed_counterargument",
+    "subtype": "deleted_preemptive_answer_to_the_landlord_duty_theory",
+    "operation": "delete",
+    "section": "III.B -- no statutory duty to install handrails",
+    "description": "Deleted the section that preemptively answers the landlord-duty theory. The open-and-obvious argument in section A and the res judicata argument in section C are untouched, and the tenancy that gives rise to the theory remains described throughout the motion -- the background facts still say Friese rented the basement apartment, and the res judicata argument still turns on the tenancy.",
+    "gold_vulnerability": "The motion is brought by a residential landlord, on facts that establish a tenancy on every page -- Friese rented the basement apartment for four years, and the res judicata argument depends on that tenancy -- and it now offers the court no answer to the theory that R.C. 5321.04 imposes a statutory landlord duty whose breach is negligence per se. What remains of its duty argument is entirely invitee premises-liability law, which does not reach a statutory duty. The defect is not that a persuasive passage went missing; it is that the motion no longer engages a duty theory its own facts invite and its own res judicata argument presupposes.",
+    "expected_direction": "mutant_worse",
+    "materiality": "high",
+    "why_this_is_realistic": "The adverse argument is the one the plaintiff will actually make in opposition, and it is the same theory the appellant advances affirmatively in the Cleveland Development fixture: that R.C. 5321.04 imposes a statutory landlord duty and its breach is negligence per se. Removing the answer leaves a motion that reads as complete and rests entirely on invitee law while the movant is, on the motion's own facts, a residential landlord.",
+    "note_on_size": "At 1,344 characters this is the largest deletion in the study, 8.8% of the motion, because the rebuttal is a titled section rather than a sentence. It is still one legally meaningful change -- the removal of one answer to one adverse theory -- but a reviewer should confirm that nothing else of substance left with it.",
+    "target_location": {
+      "section": "III.B -- no statutory duty to install handrails",
+      "control_excerpt": "B. A landlord has no statutory duty to install handrails on stairways.\nNor can Friese claim that Baker's status as a landlord imposed any higher duty on her. First, he has made no such allegation in his Complaint, relying instead on premises liability law applicable to \"invitees.\" Second, Ohio courts have repeatedly held that defective or even missing handrails do not violate any statutory duties imposed on landlords. Rather, the duty of a landlord\n\nunder R.C. 5321.04(A) is to keep a rented premises \"fit and habitable.\" Ohio courts have repeatedly stated that this duty of \"habitability\" does not encompass staircase railings, stating:\n[T]he common law warranty of habitability deals with situations where the premises contained defective wiring, heat or water shortages, vermin infestations, etc. It cannot seriously be contended that the lack of a handrail, in and of itself, renders the premises substantially or wholly uninhabitable. Consequently, R.C. 5321.04(A)(2) cannot be used as a basis for imposing liability on appellee [for a missing or defective handrail].\nSt. Germain v. Newell, 3rd Dist. Marion No. 9-15-14, 2015-Ohio-3713, 1 16, citing Taylor v. Alexander, 11th Dist. Trumbull No. 3550, 1986 WL 7800 (July 11, 1986)(emphasis added).\nAccordingly, Baker is entitled to summary judgment on the Complaint as a matter of law.",
+      "mutant_excerpt": ""
+    },
+    "characters_changed": 1343,
+    "control_chars": 15345,
+    "mutant_chars": 14002,
+    "fraction_of_brief_changed": 0.08752
+  },
+  "gold": {
+    "control_has_target_defect": false,
+    "mutant_has_target_defect": true,
+    "expected_direction": "mutant_worse",
+    "materiality": "high",
+    "verified_by": [],
+    "verification_status": "unverified",
+    "verification_note": "Drafted by a language model and not yet adjudicated. The four reviewer questions in REGISTER.md (pair identical but for the intended change; control free of the target defect; mutant contains it; a competent opponent could raise it) have not been answered, so this fixture is development material, not benchmark."
+  },
+  "provenance": {
+    "source_sha256": "be0f00668c9aa2b356b87d344072237d04d531ce61b3466af634b1516ad7b16f",
+    "source_scan_sha256": "cd8c2c38e0654b8c643c060d2892aa51fe1097b496d30632d28c955f75f7ab9f",
+    "control_sha256": "9455829dcb65c6561ea67c1211df60ecde6d1de8cc0a199967443b6794b63d2b",
+    "mutant_sha256": "3f8742124abe6b3333ebad7afca1a2290a674a9655a0eed7769e978e70c91f5c",
+    "attachment_sha256": {
+      "record-01-record.txt": "8d7f272508eb13fa718a569f386d36bd4f7e7616de0f07091c43fcc4fee8e8b0"
+    },
+    "normalization_version": "1.0",
+    "text": {
+      "control_text_source": "ocr_scan",
+      "ocr": {
+        "engine": {
+          "service": "Azure AI Document Intelligence",
+          "model": "prebuilt-read",
+          "api_version": "2024-11-30",
+          "endpoint_host": "workflowdocs.cognitiveservices.azure.com",
+          "reported_api_version": "2024-11-30",
+          "reported_model": "prebuilt-read"
+        },
+        "transcribed_on": "2026-09-08",
+        "source_sha256": "cd8c2c38e0654b8c643c060d2892aa51fe1097b496d30632d28c955f75f7ab9f",
+        "scan_pages": 27,
+        "scan_chars": 30802
+      },
+      "scan_split_rule": "certificate of service on page 11",
+      "scan_brief_page_count": 11,
+      "page_furniture_removed": {
+        "efile_stamp_lines_removed": 1,
+        "page_footer_lines_removed": 23
+      },
+      "normalization_log": null
+    },
+    "mutation_version": "1.0",
+    "generator": {
+      "mutations_authored_by": "claude-opus-5",
+      "control_text_prepared_by": "claude-opus-5 (selection, normalization and splitting only; no wording changed)",
+      "generator_display_name": "Claude Opus 5 (Claude Code)",
+      "generator_role": "drafted the candidate mutations and the gold-vulnerability text",
+      "authored_on": "2026-09-08",
+      "human_review": "none yet"
+    },
+    "built_on": "2026-09-09"
+  }
+}

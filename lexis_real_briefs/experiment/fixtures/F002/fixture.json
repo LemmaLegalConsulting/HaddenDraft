@@ -1,0 +1,97 @@
+{
+  "fixture_id": "F002",
+  "case_family_id": "cleveland-dev-v-carter--95135",
+  "stratum": "appellate_eviction",
+  "document": {
+    "title": "Corrected Assignments of Error and Brief of Appellant",
+    "court": "Court of Appeals of Ohio, Eighth District (Cuyahoga County)",
+    "jurisdiction": "Ohio",
+    "pleading_type": "appellate_merit_brief",
+    "side": "appellant",
+    "filed": "2011-03-18"
+  },
+  "files": {
+    "source": "source/original.docx",
+    "source_scan": "source/as-filed-scan.pdf",
+    "control": "normalized/brief.txt",
+    "mutant": "mutant/brief.txt",
+    "attachments": [],
+    "attachment_notes": []
+  },
+  "mutation": {
+    "type": "missing_element",
+    "subtype": "removed_landlord_knowledge_application",
+    "operation": "delete",
+    "section": "Preliminary Statement and Assignments of Error",
+    "description": "Deleted the clause that applies the knowledge element, leaving the sentence's assertion that knowledge is not at issue standing on nothing. The negligence per se argument, the statutes and ordinances relied on, and the Shroades line of authority are unchanged.",
+    "gold_vulnerability": "The brief's own statement of the rule (quoting Sikora clarifying Shroades) preserves the excuse that a landlord is not liable under R.C. 5321.04 if it neither knew nor should have known of the circumstances causing the violation. With the clause removed, nothing in the brief applies that element to this appellee, so the negligence per se argument no longer answers the defense its own rule statement invites.",
+    "expected_direction": "mutant_worse",
+    "materiality": "high",
+    "why_this_is_realistic": "Landlord knowledge is the element most often asserted rather than shown in habitability and lead-hazard briefing, and the control brief's own structure makes the omission invisible: the rule statement stays put in a later section, so the brief still looks like it addresses knowledge.",
+    "target_location": {
+      "section": "Preliminary Statement and Assignments of Error",
+      "control_excerpt": "posed by the subject premises because Appellee's actual knowledge of these hazards is clearly evidenced by the fact that the City of Cleveland ordered Appellee to remediate numerous lead paint hazards after the City conducted an inspection of the premises after a previous child residing at the subject premises was diagnosed with lead poisoning.",
+      "mutant_excerpt": "posed by the subject premises."
+    },
+    "characters_changed": 316,
+    "control_chars": 47302,
+    "mutant_chars": 46986,
+    "fraction_of_brief_changed": 0.00668
+  },
+  "gold": {
+    "control_has_target_defect": false,
+    "mutant_has_target_defect": true,
+    "expected_direction": "mutant_worse",
+    "materiality": "high",
+    "verified_by": [],
+    "verification_status": "unverified",
+    "verification_note": "Drafted by a language model and not yet adjudicated. The four reviewer questions in REGISTER.md (pair identical but for the intended change; control free of the target defect; mutant contains it; a competent opponent could raise it) have not been answered, so this fixture is development material, not benchmark."
+  },
+  "provenance": {
+    "source_sha256": "4c0467ed5f2fcd73a374c861e2ca67babf86a2b2c0e20d5f5cba26f4a17fa859",
+    "source_scan_sha256": "08158c41a8ee4aa140c4e58b698e125fa9fba4ef92a281460a1b1f13ce7363bd",
+    "control_sha256": "bb64c9f4bce8cd864b5ed7b0e159ec4f29eae02c7a9fca22eefc5343a4d2102d",
+    "mutant_sha256": "dfeb7ee49d57f92088e6b23d8f0261c782cc6d5d972ea9bccff6b278e5071bdc",
+    "attachment_sha256": {},
+    "normalization_version": "1.0",
+    "text": {
+      "control_text_source": "lexis_docx",
+      "ocr": null,
+      "record_recovered_from_scan": false,
+      "scan_split_rule": null,
+      "normalization_log": {
+        "wrapper_file": "Corrected Assignments of Error and Brief of Appellant.docx",
+        "source_sha256": "4c0467ed5f2fcd73a374c861e2ca67babf86a2b2c0e20d5f5cba26f4a17fa859",
+        "normalization_version": "1.0",
+        "removed_header_lines": 14,
+        "removed_header_preview": [
+          "CLEVELAND DEV. v. CARTER",
+          "No. 95135",
+          "COURT OF APPEALS OF OHIO, 8TH DISTRICT"
+        ],
+        "removed_end_of_document_marker": true,
+        "removed_star_pagination_markers": 40,
+        "appended_authority_lines_moved_to_attachments": 0,
+        "raw_body_chars": 47597,
+        "normalized_brief_chars": 47302,
+        "appended_authorities_chars": 0,
+        "normalized_sha256": "bb64c9f4bce8cd864b5ed7b0e159ec4f29eae02c7a9fca22eefc5343a4d2102d",
+        "prose_edits": 0,
+        "typos_fixed": 0,
+        "citations_fixed": 0,
+        "boilerplate_removed": 0
+      },
+      "appended_authorities": ""
+    },
+    "mutation_version": "1.0",
+    "generator": {
+      "mutations_authored_by": "claude-opus-5",
+      "control_text_prepared_by": "claude-opus-5 (selection, normalization and splitting only; no wording changed)",
+      "generator_display_name": "Claude Opus 5 (Claude Code)",
+      "generator_role": "drafted the candidate mutations and the gold-vulnerability text",
+      "authored_on": "2026-09-08",
+      "human_review": "none yet"
+    },
+    "built_on": "2026-09-09"
+  }
+}

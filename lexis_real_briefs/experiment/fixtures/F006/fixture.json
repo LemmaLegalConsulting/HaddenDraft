@@ -1,0 +1,120 @@
+{
+  "fixture_id": "F006",
+  "case_family_id": "lee-v-wallace",
+  "stratum": "appellate_eviction",
+  "document": {
+    "title": "Brief of Defendant-Appellee Estate of John F. Wallace, Deceased",
+    "court": "Court of Appeals of Ohio, Eighth District (Cuyahoga County)",
+    "jurisdiction": "Ohio",
+    "pleading_type": "appellate_answer_brief",
+    "side": "appellee",
+    "filed": "2009-06-15"
+  },
+  "files": {
+    "source": "source/original.docx",
+    "source_scan": "source/as-filed-scan.pdf",
+    "control": "normalized/brief.txt",
+    "mutant": "mutant/brief.txt",
+    "attachments": [
+      "record-01-record.txt"
+    ],
+    "attachment_notes": [
+      {
+        "file": "record-01-record.txt",
+        "chars": 53283,
+        "note": "pages 24-63 of the as-filed scan, transcribed by Azure Document Intelligence"
+      }
+    ]
+  },
+  "mutation": {
+    "type": "removed_counterargument",
+    "subtype": "deleted_rebuttal_to_statutory_text_quoted_by_opponent",
+    "operation": "delete",
+    "section": "Assignment of Error One",
+    "description": "Deleted only the paragraph answering the appellant's strongest statutory point. The appellant's position stays in the brief: the preceding paragraph still quotes R.C. 1923.02(A)(1) and (A)(5) as she framed them, and the surrounding argument is unchanged.",
+    "gold_vulnerability": "The brief quotes the adverse statutory text -- that forcible entry and detainer lies against an \"occupier of lands or tenements, without color of title,\" which would reach this appellant whether or not she was a tenant -- and no longer answers it. The permissive \"may be had\" language, which is what makes the appellee's whole in-pari-materia argument work, is gone.",
+    "expected_direction": "mutant_worse",
+    "materiality": "high",
+    "why_this_is_realistic": "This is the adversarial test rather than a citation test: nothing is malformed, no placeholder is left behind, and the brief reads as finished. The opponent stage has to rediscover the vulnerability from the statute the brief itself quotes.",
+    "target_location": {
+      "section": "Assignment of Error One",
+      "control_excerpt": "Importantly, Appellant fails to include the first sentence of R.C. 1923.02(A) which precedes these two subsections on which she relies: \"Proceedings under this chapter may be had as follows:\" (Emphasis added)",
+      "mutant_excerpt": ""
+    },
+    "characters_changed": 210,
+    "control_chars": 32140,
+    "mutant_chars": 31930,
+    "fraction_of_brief_changed": 0.00653
+  },
+  "gold": {
+    "control_has_target_defect": false,
+    "mutant_has_target_defect": true,
+    "expected_direction": "mutant_worse",
+    "materiality": "high",
+    "verified_by": [],
+    "verification_status": "unverified",
+    "verification_note": "Drafted by a language model and not yet adjudicated. The four reviewer questions in REGISTER.md (pair identical but for the intended change; control free of the target defect; mutant contains it; a competent opponent could raise it) have not been answered, so this fixture is development material, not benchmark."
+  },
+  "provenance": {
+    "source_sha256": "02f401b5008d051b41c96e0d31ed77adfbd10cde3089118fb7825a49b04a1dcb",
+    "source_scan_sha256": "1fa80950b5aa0290d765471219848910aad8c75b535dd9fa2c1be6d9b8511225",
+    "control_sha256": "7d9118e00fa38b0bfc6871e66494270d930a4b2fea3ec3d97e137b4182354c9f",
+    "mutant_sha256": "408d9df5c9f3fb0e6def98817ced0e91c4bdddb1b75c471171c402c67924719f",
+    "attachment_sha256": {
+      "record-01-record.txt": "e385fafb2877eff27dfb74ba965f0977ab7db94f660ddfdef22161cc8d940d34"
+    },
+    "normalization_version": "1.0",
+    "text": {
+      "control_text_source": "lexis_docx",
+      "ocr": {
+        "engine": {
+          "service": "Azure AI Document Intelligence",
+          "model": "prebuilt-read",
+          "api_version": "2024-11-30",
+          "endpoint_host": "workflowdocs.cognitiveservices.azure.com",
+          "reported_api_version": "2024-11-30",
+          "reported_model": "prebuilt-read"
+        },
+        "transcribed_on": "2026-09-08",
+        "source_sha256": "1fa80950b5aa0290d765471219848910aad8c75b535dd9fa2c1be6d9b8511225",
+        "scan_pages": 63,
+        "scan_chars": 87603
+      },
+      "record_recovered_from_scan": true,
+      "scan_split_rule": "certificate of service on page 23",
+      "normalization_log": {
+        "wrapper_file": "Brief of Defendant-Appellee Estate of John F. Wallace, Deceased.docx",
+        "source_sha256": "02f401b5008d051b41c96e0d31ed77adfbd10cde3089118fb7825a49b04a1dcb",
+        "normalization_version": "1.0",
+        "removed_header_lines": 15,
+        "removed_header_preview": [
+          "LEE v. WALLACE",
+          "No. 92850",
+          "COURT OF APPEALS OF OHIO, 8TH DISTRICT"
+        ],
+        "removed_end_of_document_marker": true,
+        "removed_star_pagination_markers": 28,
+        "appended_authority_lines_moved_to_attachments": 0,
+        "raw_body_chars": 32352,
+        "normalized_brief_chars": 32140,
+        "appended_authorities_chars": 0,
+        "normalized_sha256": "7d9118e00fa38b0bfc6871e66494270d930a4b2fea3ec3d97e137b4182354c9f",
+        "prose_edits": 0,
+        "typos_fixed": 0,
+        "citations_fixed": 0,
+        "boilerplate_removed": 0
+      },
+      "appended_authorities": ""
+    },
+    "mutation_version": "1.0",
+    "generator": {
+      "mutations_authored_by": "claude-opus-5",
+      "control_text_prepared_by": "claude-opus-5 (selection, normalization and splitting only; no wording changed)",
+      "generator_display_name": "Claude Opus 5 (Claude Code)",
+      "generator_role": "drafted the candidate mutations and the gold-vulnerability text",
+      "authored_on": "2026-09-08",
+      "human_review": "none yet"
+    },
+    "built_on": "2026-09-09"
+  }
+}

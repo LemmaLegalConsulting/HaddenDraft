@@ -1,0 +1,110 @@
+{
+  "fixture_id": "F005",
+  "case_family_id": "kerr-v-lakewood-shore-towers-inc",
+  "stratum": "appellate_eviction",
+  "document": {
+    "title": "Assignment of Error and Brief of Plaintiff-Appellant",
+    "court": "Court of Appeals of Ohio, Eighth District (Cuyahoga County)",
+    "jurisdiction": "Ohio",
+    "pleading_type": "appellate_merit_brief",
+    "side": "appellant",
+    "filed": "2009-07-28"
+  },
+  "files": {
+    "source": "source/original.docx",
+    "source_scan": "source/as-filed-scan.pdf",
+    "control": "normalized/brief.txt",
+    "mutant": "mutant/brief.txt",
+    "attachments": [],
+    "attachment_notes": []
+  },
+  "mutation": {
+    "type": "authority_applicability",
+    "subtype": "dissenting_opinion_presented_as_holding",
+    "operation": "replace",
+    "section": "Assignment of Error I -- res judicata",
+    "description": "Removed the parenthetical identifying the quoted passage as coming from Judge Painter's dissent. Nothing else changed: the quotation, the reporter cite, the pin cites and the surrounding argument are identical.",
+    "gold_vulnerability": "The brief now presents a dissenting opinion as the court's holding, and does so in the very case the appellees rely on against it -- whose majority reached the opposite result on the compulsory-counterclaim question. A four-word deletion converts an honest use of persuasive reasoning into a misrepresentation of authority.",
+    "expected_direction": "mutant_worse",
+    "materiality": "high",
+    "why_this_is_realistic": "Dissent-as-holding is a documented citation failure in generated briefing and is invisible to any check that verifies a citation exists and is correctly formatted -- this one is both.",
+    "target_location": {
+      "section": "Assignment of Error I -- res judicata",
+      "control_excerpt": "See, Sherman v. Pearson (1996), 110 Ohio App. 3d 70, 77, 673 N.E. 2d 643, 648 (J. Painter, dissenting).",
+      "mutant_excerpt": "See, Sherman v. Pearson (1996), 110 Ohio App. 3d 70, 77, 673 N.E. 2d 643, 648."
+    },
+    "characters_changed": 25,
+    "control_chars": 24795,
+    "mutant_chars": 24770,
+    "fraction_of_brief_changed": 0.00101
+  },
+  "gold": {
+    "control_has_target_defect": false,
+    "mutant_has_target_defect": true,
+    "expected_direction": "mutant_worse",
+    "materiality": "high",
+    "verified_by": [],
+    "verification_status": "unverified",
+    "verification_note": "Drafted by a language model and not yet adjudicated. The four reviewer questions in REGISTER.md (pair identical but for the intended change; control free of the target defect; mutant contains it; a competent opponent could raise it) have not been answered, so this fixture is development material, not benchmark."
+  },
+  "provenance": {
+    "source_sha256": "93021cfcd57451902f6e9b6ff519e4120fffb22edd87634e104b8a343bb119e1",
+    "source_scan_sha256": "f20310f4cbd3e49dd9863b2af0b8368f83cce08bd3cbbff4a643ef0ceaee8bc3",
+    "control_sha256": "fa9982d84b3563254ebbc6974cd0b614a7adfa784ef7c8d85dd131b79dca686d",
+    "mutant_sha256": "4656c22119ace67938335f7fc8cb46ad7ed4aa3eb3e1eac917f553bcd6280e2f",
+    "attachment_sha256": {},
+    "normalization_version": "1.0",
+    "text": {
+      "control_text_source": "lexis_docx",
+      "ocr": {
+        "engine": {
+          "service": "Azure AI Document Intelligence",
+          "model": "prebuilt-read",
+          "api_version": "2024-11-30",
+          "endpoint_host": "workflowdocs.cognitiveservices.azure.com",
+          "reported_api_version": "2024-11-30",
+          "reported_model": "prebuilt-read"
+        },
+        "transcribed_on": "2026-09-08",
+        "source_sha256": "f20310f4cbd3e49dd9863b2af0b8368f83cce08bd3cbbff4a643ef0ceaee8bc3",
+        "scan_pages": 19,
+        "scan_chars": 27576
+      },
+      "record_recovered_from_scan": false,
+      "scan_split_rule": "certificate of service on page 19",
+      "normalization_log": {
+        "wrapper_file": "Assignment of Error and Brief of Plaintiff-Appellant.docx",
+        "source_sha256": "93021cfcd57451902f6e9b6ff519e4120fffb22edd87634e104b8a343bb119e1",
+        "normalization_version": "1.0",
+        "removed_header_lines": 15,
+        "removed_header_preview": [
+          "KERR v. LAKEWOOD SHORE TOWERS, INC.",
+          "No. 93462",
+          "COURT OF APPEALS OF OHIO, 8TH DISTRICT"
+        ],
+        "removed_end_of_document_marker": true,
+        "removed_star_pagination_markers": 22,
+        "appended_authority_lines_moved_to_attachments": 0,
+        "raw_body_chars": 24967,
+        "normalized_brief_chars": 24795,
+        "appended_authorities_chars": 0,
+        "normalized_sha256": "fa9982d84b3563254ebbc6974cd0b614a7adfa784ef7c8d85dd131b79dca686d",
+        "prose_edits": 0,
+        "typos_fixed": 0,
+        "citations_fixed": 0,
+        "boilerplate_removed": 0
+      },
+      "appended_authorities": ""
+    },
+    "mutation_version": "1.0",
+    "generator": {
+      "mutations_authored_by": "claude-opus-5",
+      "control_text_prepared_by": "claude-opus-5 (selection, normalization and splitting only; no wording changed)",
+      "generator_display_name": "Claude Opus 5 (Claude Code)",
+      "generator_role": "drafted the candidate mutations and the gold-vulnerability text",
+      "authored_on": "2026-09-08",
+      "human_review": "none yet"
+    },
+    "built_on": "2026-09-09"
+  }
+}

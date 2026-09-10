@@ -1,0 +1,97 @@
+{
+  "fixture_id": "F003",
+  "case_family_id": "dayton-tool-rental-st-joseph-invs-v-ealy",
+  "stratum": "appellate_eviction",
+  "document": {
+    "title": "Brief of Appellees Dayton Tool Rental and St. Joseph Investments, LLC",
+    "court": "Court of Appeals of Ohio, Second District (Montgomery County)",
+    "jurisdiction": "Ohio",
+    "pleading_type": "appellate_answer_brief",
+    "side": "appellee",
+    "filed": "2007-07-09"
+  },
+  "files": {
+    "source": "source/original.docx",
+    "source_scan": "source/as-filed-scan.pdf",
+    "control": "normalized/brief.txt",
+    "mutant": "mutant/brief.txt",
+    "attachments": [],
+    "attachment_notes": []
+  },
+  "mutation": {
+    "type": "record_support",
+    "subtype": "service_and_acknowledgment_not_established_by_cited_exhibit",
+    "operation": "replace",
+    "section": "Statement of Undisputed Facts",
+    "description": "Upgraded a supported proposition (the notice was left at the premises, per Exhibit A) into two stronger propositions the same exhibit does not establish: personal service, and an on-the-record acknowledgment of receipt. The citation is unchanged and still points at Exhibit A.",
+    "gold_vulnerability": "The brief now attributes to Exhibit A a manner of service the exhibit does not show, and attributes to the July 21, 2006 hearing an acknowledgment of notice that the brief's own account of that hearing (an admission of non-payment of rent) does not contain. Service under R.C. 1923.04 is jurisdictional in a forcible entry and detainer action, so the overstatement is on the element the appellee most needs.",
+    "expected_direction": "mutant_worse",
+    "materiality": "high",
+    "why_this_is_realistic": "This is the characteristic generated-text failure: the proposition is adjacent to what the record shows, the citation is real and correctly formatted, and only the strength of the claim has drifted.",
+    "target_location": {
+      "section": "Statement of Undisputed Facts",
+      "control_excerpt": "On June 14, 2006 STJ, through its agent Appellee Dayton Rental, delivered to Ealy and his wife a statutory three-day Notice to Leave the Premises in accordance with Ohio Revised Code Section 1923.04. (See Exhibit \"A\" to STJ's Complaint) by leaving such Notice at the premises.",
+      "mutant_excerpt": "On June 14, 2006 STJ, through its agent Appellee Dayton Rental, personally served Ealy and his wife with a statutory three-day Notice to Leave the Premises in accordance with Ohio Revised Code Section 1923.04, and Ealy acknowledged receipt of that Notice at the July 21, 2006 hearing. (See Exhibit \"A\" to STJ's Complaint)"
+    },
+    "characters_changed": 45,
+    "control_chars": 14558,
+    "mutant_chars": 14603,
+    "fraction_of_brief_changed": 0.00309
+  },
+  "gold": {
+    "control_has_target_defect": false,
+    "mutant_has_target_defect": true,
+    "expected_direction": "mutant_worse",
+    "materiality": "high",
+    "verified_by": [],
+    "verification_status": "unverified",
+    "verification_note": "Drafted by a language model and not yet adjudicated. The four reviewer questions in REGISTER.md (pair identical but for the intended change; control free of the target defect; mutant contains it; a competent opponent could raise it) have not been answered, so this fixture is development material, not benchmark."
+  },
+  "provenance": {
+    "source_sha256": "242d09030443c92fec51ad22b0e42887de6e21dd12c62ce415acf035af4bdb2f",
+    "source_scan_sha256": "2a826701394fab861a842a89a700560c67ce7480f3c6d2a86ea7233b5cd9dfac",
+    "control_sha256": "ae5a9fef0f41f489aa144f38f803165270acedcd6013c0fac813410358a8b217",
+    "mutant_sha256": "449df4168309da2cda9144d9b4f73c60b61ff0f2c42c072c9a08be615dd9f6ed",
+    "attachment_sha256": {},
+    "normalization_version": "1.0",
+    "text": {
+      "control_text_source": "lexis_docx",
+      "ocr": null,
+      "record_recovered_from_scan": false,
+      "scan_split_rule": null,
+      "normalization_log": {
+        "wrapper_file": "BRIEF OF APPELLEES DAYTON TOOL RENTAL AND ST. JOSEPH INVESTMENTS, LLC.docx",
+        "source_sha256": "242d09030443c92fec51ad22b0e42887de6e21dd12c62ce415acf035af4bdb2f",
+        "normalization_version": "1.0",
+        "removed_header_lines": 15,
+        "removed_header_preview": [
+          "Dayton Tool Rental, St. Joseph Invs. v. Ealy",
+          "21849",
+          "COURT OF APPEALS OF OHIO, 2ND DISTRICT"
+        ],
+        "removed_end_of_document_marker": true,
+        "removed_star_pagination_markers": 12,
+        "appended_authority_lines_moved_to_attachments": 0,
+        "raw_body_chars": 14650,
+        "normalized_brief_chars": 14558,
+        "appended_authorities_chars": 0,
+        "normalized_sha256": "ae5a9fef0f41f489aa144f38f803165270acedcd6013c0fac813410358a8b217",
+        "prose_edits": 0,
+        "typos_fixed": 0,
+        "citations_fixed": 0,
+        "boilerplate_removed": 0
+      },
+      "appended_authorities": ""
+    },
+    "mutation_version": "1.0",
+    "generator": {
+      "mutations_authored_by": "claude-opus-5",
+      "control_text_prepared_by": "claude-opus-5 (selection, normalization and splitting only; no wording changed)",
+      "generator_display_name": "Claude Opus 5 (Claude Code)",
+      "generator_role": "drafted the candidate mutations and the gold-vulnerability text",
+      "authored_on": "2026-09-08",
+      "human_review": "none yet"
+    },
+    "built_on": "2026-09-09"
+  }
+}

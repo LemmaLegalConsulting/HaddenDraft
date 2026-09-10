@@ -1,0 +1,479 @@
+ASSIGMENTS OF ERROR ON APPEAL 1
+
+1. THE TRIAL COURT ERRED IN GRANTING THE SUBJECT MOTION FOR SUMMARY JUDGMENT OF LAND TITLE GROUP, LLC.
+
+2. THE TRIAL COURT ERRED IN GRANTING THE SUBJECT MOTION FOR SUMMARY JUDGMENT OF MICHAEL A. ROBUSTO AND UAW-GM LEGAL SERVICES PLAN.
+
+3. THE TRIAL COURT ERRED IN FINDING THAT "THE LUNDBERG LIEN WAS VALIDLY RELEASED.
+
+4. THE TRIAL COURT ERRED IN FINDING THAT "THE MORTGAGE ON THE PROPERTY, RECORDED AS INSTRUMENT NUMBER 200702201238 IS CANCELLED."
+
+STATEMENT OF ISSUES PRESENTED FOR REVIEW
+
+1. DID THE TRIAL COURT PROPERLY CONCLUDE THAT THE ACCOMMODATION FILING OF THE LUNDBERG MORTGAGE BY LAND TITLE WAS NOT THE PROXIMATE CAUSE OF ANY ALLEGED DAMAGES INCURRED BY APPELLANT LUNDBERG? (Assignments of Error Nos. 1, 3, and 4) 2
+
+2. DID THE TRIAL COURT PROPERLY CONCLUDE THAT THE LUNDBERG MORTGAGE AT ISSUE WAS VALIDLY RELEASED BY APPELLANT, ERIC LUNDBERG? (Assignments of Error Nos. 1, 3 and 4)
+
+I. STATEMENT OF THE CASE
+
+While Appellee Land Title Group, LLC ("Land Title") would like to accept the Statement of the Case as it is set forth at page 6 of Appellant Eric Lundberg's Appellate Brief ("Appellate Brief or "Lundberg Appellate Brief), it cannot. Appellant Eric Lundberg's ("Lundberg", "Appellant" or "Appellant Lundberg") Statement of the Case selectively redacts key language from the trial court's September 7, 2011 Journal Entry, mischaracterizing and misstating the trial court's decision. 1
+
+In his Statement of the Case, Lundberg selectively omits from the trial court's Entry the pivotal language upon which this appeal rises and falls, which is: whether the accommodation filing of the Lundberg Mortgage (aka "the Lundberg Lien") by Land Title was the proximate cause of any alleged damages incurred by Lundberg (or by Plaintiff/Cross-Appellant Christine E. Sheridan, individually and as Co-Trustee ("Cross-Appellant" or "Cross-Appellant Christine Sheridan")). In concluding that no proximate cause of injury could be shown since Lundberg is in the same position today as he expected himself to be in when he signed the March 1, 2007 Release of Lien and provided the original of same to Appellee Kevin Sheridan for filing, on September 7, 2011, the trial court granted summary judgment in Land Title's favor. In doing so, the trial court found that whether the claims against Land Title sounded in negligence, fraud, breach of fiduciary duty or some other cause of action, proximate cause of injury is a common thread through each of these claims, whereby in the absence of same, there is (and can be) no liability.
+
+Specifically, the trial court's Journal Entry provides, in relevant part, as follows:
+
+Through its prior Order, the Court determined that the Lundberg Mortgage at issue in this case was validly released by Defendant/Third Party Plaintiff Lundberg. As such, Lundberg cannot claim that he suffered injury as a result of the acts or omissions of the Defendant Land Title relative to the initial filing of the mortgage instrument. The accommodation filing of the mortgage by Land Title is not the proximate cause of any alleged damages that Lundberg incurred. Therefore, Lundberg's claims against Land Title for breach of fiduciary duty, negligent misrepresentation, fraud and breach of duty as a notary are not cognizable. The Court grants judgment in favor of Land Title and against Defendant/Third Party Plaintiff Lundberg with respect to those claims. (bold emphasis added; underlined text represents the text Appellant Lundberg redacted from the Statement of the Case at page 6 of his Appellate Brief).
+
+Lundberg's Statement of the Case is further inaccurate to the extent it fails to mention, whether intentionally or inadvertently, that the trial court struck from the record the Sur-Reply Lundberg filed in response to Land Title's Reply in support of its summary judgment motion ("Land Title Sur-Reply"), as well as the Sur-Reply he and his wife filed in response to Third-Party Defendants/Appellees Michael A. Robusto and UAW-GM Legal Services Plans' Motion for Reconsideration ("Robusto/UAW-GM Sur-Reply"). See trial court's two 8/24/11 Journal Entries relating to these Sur-Replies. Nowhere in his Notice of Appeal (or in his Assignments of Error) has Lundberg asserted that the trial court improperly struck from the record and/or refused to accept these Sur-Replies for filing. Accordingly, these Sur-Replies (and the arguments set forth therein) are not properly before this Court as a part of this appeal. Any attempt to try and back door in these arguments and assertions by Appellant Lundberg in his Appellate Brief is improper and inappropriate.
+
+Notably, the first that Lundberg raised the argument that he never possessed the "apparent authority" to execute the Release of Lien was not until his Sur-Reply at page 8. See Land Title Sur-Reply at p. 8; see also Robusto/UAW-GM Sur-Reply at p. 14. Prior to that, Lundberg had simply taken the position that he had as much authority as the "Easter Bunny or Santa Claus" to execute the Release of Lien-claiming that while he had the authority to enforce the lien, his signature was "completely useless" since he had no authority to release it, despite knowingly and voluntarily signing a written agreement (the Release of Lien) that expressly and specifically indicated to the contrary. See Lundberg's 8/4/11 Reply Brief filed in response to Land Title Summary Judgment Motion (also referred to herein as "Lundberg Reply Brief) at p. 8, which states:
+
+Nor does [Lundberg] dispute that he knowingly and willingly signed that Release in the presence of a witness or that he knowingly and willingly signed it in the presence of a notary public. But Eric Lundberg's signature on the Alleged Release 2 is completely useless. As stated in a previous filing, Eric Lundberg had no more authority to release the subject Mortgage than the Easter Bunny or Santa Claus. (citation to Eric Lundberg's deposition omitted; emphasis added).
+
+Accordingly, these portions of Lundberg's Appellate Brief are not properly before this Court and should not be considered on appeal. See Lundberg Appellate Brief at pp. 9-12. Had Lundberg wanted this Court to consider this argument, the trial court's August 24, 2011 Journal Entries should have been included in his Notice of Appeal and Assignments of Error. They were not.
+
+Lastly, Land Title further notes that despite the strong assertions in Lundberg's Appellate Brief that it acted fraudulently, Land Title was not an original party to this action when it was filed in 2009. Land Title was only added as a party by Plaintiffs/Cross-Appellants Christine E. Sheridan (individually and as Co-Trustee) in June 2010 after the trial court granted Lundberg's summary judgment motion on May 25, 2010 and found that Kevin Sheridan owned a one-half interest in the property located at 7777 East Linden Lane, Parma, OH 44130 (aka "the Sheridan family home"). This May 25, 2010 decision of the trial court further resulted in Appellant Lundberg amending his Third-Party Complaint against Land Title on June 1, 2010 (original Third-Party Complaint was filed November 25, 2009) to include for the first time, allegations of false misrepresentation (fraud) and breach of duty as a notary.
+
+As it relates to the remaining dates and filings, Land Title generally accepts the remainder of Lundberg's Statement of the Case, absent the conclusory statements contained therein.
+
+II.  STATEMENT OF FACTS
+
+As it relates to Land Title, this case is simple. It is straight forward. It comes down to the issue of proximate cause: whether Plaintiff/Cross-Appellant Christine Sheridan's and Appellant Lundberg's claimed damages and injuries were proximately caused by any purported wrongdoing by Land Title. They were not. The facts material to this analysis are not in dispute.
+
+Land Title is, as the name suggests, a title company. See Denise Roldan Depo. at pp. 4-5. It performed an accommodation filing for Kevin and Christine Sheridan relative to the February 2, 2007 $ 150,000 Open End Mortgage at issue in this case (also referred to herein as "Lundberg Mortgage" or "Lundberg Lien"). Id. at pp. 17-18; see also, Kevin Sheridan 5/5/10 Depo. at p. 118 and Exhibits 1 and 2 attached at Tabs 1 and 2 of Land Title's 6/13/11 Summary Judgment Motion (also referred to herein as "Land Title's Summary Judgment Motion"). It is this Lundberg Mortgage that serves as the sole basis for Plaintiff/Cross-Appellant Christine Sheridan's and Appellant Lundberg's claims against Land Title. See Cross-Appellant Christine Sheridan's Complaint at P4 (" . . . Lundberg may gain a lien interest against the subject property and proceed in foreclosure against the subject property"); Appellant Lundberg's Amended Third-Party Complaint at PPl, 2, 3, and 4 ("There remains currently due and owing the balance of said Note and Mortgage; the Note and Mortgage are in default as a result of non-payment thereof; and the Third-Party Plaintiff [Eric Lundberg] has elected, declared and demanded all principal in the Note and Mortgage be immediately due and payable.").
+
+More specifically, as a result of the Lundberg Mortgage, Plaintiff/Cross-Appellant Christine Sheridan sued Land Title for negligence and fraud, and Appellant Lundberg sued Land Title for breach of fiduciary duty, negligent misrepresentation, false misrepresentation (fraud), and breach of duty as a notary. While each of these claims has different elements, each of these claims shares a common element. They all require proximate cause of injury, whereby no such proximate cause can be shown to exist in this case. See March 1, 2007 Release of Lien signed by Appellant Lundberg attached as Exhibit 1 at Tab 1 of Land Title's 6/13/11 Summary Judgment Motion (also referred to herein as "Land Title's Summary Judgment Motion"). This Release of Lien was also marked as Plaintiff's Exhibit 17 at Lundberg's 4/21/10 deposition and as Plaintiff's Exhibit I at Kevin Sheridan's 5/5/10 deposition.
+
+Additionally, Lundberg does not dispute that it is his signature on this Release of Lien. Nor does he dispute that he knowingly and willingly signed that Release in the presence of a witness, or that he knowingly and willingly signed it in the presence of a notary public. See Eric Lundberg Depo. at pp. 81-82; see also Lundberg Reply Brief at p. 8. Yet, it is this Release of Lien that Lundberg is now claiming that he never had the authority (standing) to sign. See Lundberg's Reply Brief filed in response to Land Title's Summary Judgment Motion where Lundberg argued for the first time (in the attempt to thwart Land Title's summary judgment motion) that he did not have (and never had) the standing to sign the Release of Lien despite his verbal and written affirmations to the contrary; see also Lundberg's Appellate Brief at pp. 9-14.
+
+Lundberg and Appellee Kevin Sheridan had made other arrangements for Kevin Sheridan to pay back the loan. See Kevin Sheridan 12/17/10 Depo. at p. 148 ("We had made other arrangements to pay back the loan, yeah.").
+
+Appellant Lundberg cannot have it both ways. Either he is the real party in interest and had the authority to both release and enforce the lien, or he is not. He certainly cannot claim (at least not successfully) that he is only a real party in interest when it benefits him, but not when it adversely impacts him. Yet, that is precisely what he is attempting to do in this case.
+
+III. LAW AND ARGUMENT
+
+A.  THE TRIAL COURT PROPERLY GRANTED SUMMARY JUDGMENT IN LAND TITLE'S FAVOR AS A MATTER OF LAW.
+
+1.  THE TRIAL COURT PROPERLY CONCLUDED THE ACCOMMODATION FILING OF THE MORTGAGE BY LAND TITLE WAS NOT THE PROXIMATE CAUSE OF ANY ALLEGED DAMAGES INCURRED BY APPELLANT LUNDBERG.
+
+The accommodation filing 3 of the Lundberg Mortgage by Land Title was not the proximate cause of Lundberg's alleged injuries and damages. The trial court properly concluded that based upon the undisputed facts of this case, proximate cause of injury cannot be shown.
+
+This is true whether the claims against Land Title sound in negligence, fraud, breach of fiduciary duty, or some other cause action. Proximate cause of injury is a common thread through each of these claims. In the absence of proximate cause, there is no liability. See Gaudio v. Harrington, 8th Dist. No. 43814, 1982 Ohio App. LEXIS 13512, 11-12 (July 29, 1982), copy attached at Tab 1; Walter E. Haller & Co. v. Fouse, 62 Ohio App. 147, 150-151 (5th Dist. 1939) ("If the property mortgaged was valueless, then the mortgage was valueless, no matter whether the certificate was true or false, and the damage sustained by one taking such mortgage could not be the proximate result of the false certificate."); see also Sugar v. Blum, 7th Dist. No. 02 CA 234, 2004-Ohio-1384, P29 (setting forth proximate cause as an element of fraud); Strother v. Hutchinson, 67 Ohio St.2d 282 (1981) (setting forth proximate cause as an element of negligence); and Key Bank Nat'l Assoc, v. Guarnieri & Secrest, P.L.L., 7 Dist. No. 07 CO 46, 2008-Ohio-6362, P33 (setting forth proximate cause as an element of breach of fiduciary duty).
+
+The lack of proximate cause stems from the Release of Lien signed by Eric Lundberg on March 1, 2007 ("Release of Lien"). See Exhibit 1 at Tab 1 attached to Land Title's 6/13/11 Summary Judgment Motion. This Release of Lien, on its face, clearly and unambiguously releases Plaintiff/Cross-Appellant Christine Sheridan and Appellee Kevin Sheridan from any and all liability relative to the Lundberg Mortgage at issue in this case. Specifically, this Release of Lien provides in relevant part as follows:
+
+Know all Men by these presents that the undersigned, Equity Trust Company, Custodian FBO Eric Lundberg IRA #49550, the present legal and equitable owner and holder of that certain note in the original principal sum of $ 150,000 dated February 2, 2007, and executed by Kevin Sheridan and Christine Sheridan, More fully described in a Mortgage duly recorded on February 20, 2007 in instrument number 200702201238 . . .
+
+***
+
+For good and valuable consideration paid to the undersigned, the receipt and sufficiency of which is hereby acknowledged, hereby releases and discharges the above described Property from said liens.
+
+Id.
+
+Appellant Lundberg does not dispute that it is his signature on this Release of Lien. Nor does he dispute that he knowingly and willingly signed that Release in the presence of a witness, or that he knowingly and willingly signed it in the presence of a notary public. See Eric Lundberg Depo. at pp. 81-82:
+
+Q. All right. If you'll go to Plaintiff's Exhibit 17, it's a one page document entitled release of lien, is it not?
+
+A. Yeah. . . .
+
+Q. Is it signed by you on the right-hand side?
+
+A. That it is.
+
+Q. And is it witnessed by Dan Kurszewski?
+
+A. Kurszewski.
+
+Q. Thank you. Do you know Dan?
+
+A. I do.
+
+Q. Who is he?
+
+A. He's a friend of mine in Wisconsin . . .
+
+Q. All. right. And it is notarized at the bottom by Nancy Harlan; is that correct?
+
+A. Correct.
+
+Q. And on March 1st, 2007, you signed that document in front of Dan Kurszewski and had it notarized by Nancy Harlan; is that correct?
+
+A. Yeah.
+
+That Appellant Lundberg agreed to voluntarily release Appellee Kevin Sheridan and Cross-Appellant Christine Sheridan from this lien more than four years ago is beyond dispute. Yet, this is the same lien Appellant Lundberg is now trying to use as a sword against Land Title. See Lundberg Amended Third-Party Complaint filed June 1, 2010.
+
+Not in dispute is that the Release of Lien was valid on its face. It could have been filed at any time. In fact, it could still be filed today if either Appellant Lundberg, Cross-Appellant Christine Sheridan, or Appellee Kevin Sheridan knew where the original of that document was. According to Appellee Kevin Sheridan, he gave the original Release of Lien to Cross-Appellant Christine Sheridan. Christine Sheridan, however, denies ever seeing it, or even knowing about its existence. See Kevin Sheridan 5/5/10 Depo. at pp. 37, line 25-38:
+
+. . . This [Release of Lien] came from Eric. I mean if you look at it, the notary is from Wisconsin. I don't know. This just came across. When I received this, I gave this to Chris. 4 I don't know what else to tell you.
+
+The parties do not dispute the purpose of the lien release was to "take the mortgage off of Linden Lane" (the Sheridan family home), making Lundberg an unsecured creditor. He and Lundberg had made alternative arrangements to pay back the loan. See Kevin Sheridan 5/5/10 Depo. at p. 70:
+
+Q. And your understanding is that the purpose of this release of lien was to take the mortgage off the house on Linden Lane; is that correct?
+
+A. Yes.
+
+See also Kevin Sheridan 5/5/10 Depo. at p. 34:
+
+Q. In your own words, what is that document?
+
+A. This was a release of lien given to me by Eric Lundberg for the property, for the mortgage that you saw there.
+
+See also Kevin Sheridan 12/17/10 Depo. at p. 148:
+
+Q. That after he gave you this Release of Lien, he was agreeing that [he] would be an unsecured creditor because he was giving up his security interest, isn't that correct?
+
+A. We had made other arrangements to try to pay back the loan, yeah.
+
+See also Exhibit 1 at Tab 1 attached to Land Title's 6/13/11 Summary Judgment Motion, which specifically cross-references Instrument No. 20702201238, which matches the Instrument No. of the Lundberg Mortgage attached to as Exhibit 3 at Tab 3 to Land Title's 6/13/11 Summary Judgment Motion. See also Eric Lundberg Depo. at p. 82:
+
+Q. And on March 1st, 2007, you signed that document [the Release of Lien] in front of Dan Kurszewski and had it notarized by Nancy Harlan; is that correct?
+
+A. Yeah.
+
+Had the Release of Lien been filed, it would have immediately extinguished the Lundberg Lien in its entirety, making Appellant Lundberg exactly what he is today, an unsecured creditor, consistent with the intent of the parties back in March 2007. Id.; see also Kevin Sheridan Kevin Sheridan 12/17/10 Depo. at p. 148 and Kevin Sheridan 5/5/10 Depo. at pp. 34, 37, lines 9-10 (" . . . even though this released the house, I wasn't trying to release myself of paying Eric back."), 70 and pp. 35-36:
+
+A. Basically I stated earlier that Eric Lundberg and I were really close personal friends. He was going through marital problems due to the fact of failing real estate career also. At that time, I was still living with my wife and we were having marital problems based on the fact that I put a big mess here in front of us and she had asked me for the release of lien because it was her understanding at the time that, you know, the house was encumbered and that kind of thing. I called up Eric . . . I called up Eric Lundberg and explained to him I was going to lose my marriage over this real estate stuff . . . Eric and I quite a few times had tried to work out different scenarios to get me out of this fix . . .
+
+Based upon the undisputed facts of this case, reasonable minds can only further conclude that at least as of March 1, 2007 (the date Appellant Lundberg signed the Release of the Lundberg Mortgage), Appellant Lundberg had no expectation or belief his lien on the Sheridan home would be secured by the Sheridan home. The decision to trust Kevin Sheridan that the unsecured loan would be paid by other means was a risk Appellant Lundberg, and Appellant Lundberg alone, chose to take. It is a risk Appellant Lundberg should now have to live with. He should not now be permitted to use as a sword against Land Title a lien he previously agreed to release. Yet, that is precisely what he is attempting to do. The fact remains that he is in no worse position today than he agreed (and expected to be in) as of March 1, 2007 when he signed the Release of Lien. Any purported wrongdoing by Land Title did not proximately cause harm to Eric Lundberg.
+
+A case providing guidance on this issue is the Cuyahoga County case of Gaudio v. Harrington, 8th Dist. No. 43814, 1982 Ohio App. LEXIS 13512, 4-5 (July 29, 1982), a copy is attached at Tab 1. This case, in part, is factually similar to the case at hand (assuming arguendo that the facts of this case are as Cross-Appellant Christine Sheridan claims them to be, which is that her then husband, Appellee Kevin Sheridan, forged her name to the mortgage) 5. The pertinent assignment of error in the Gaudio case is No. 4. This assignment of error is also legally similar to this case in that it similarly focuses on proximate cause.
+
+In Gaudio, the husband, like Cross-Appellant Christine Sheridan in this case, was claiming his wife forged his signature on a deed notarized by a third party. The purpose of this deed was to convey property to Mr. Harrington who had agreed to reconvey the property back to the Gaudios after they paid rent for a year. The wife admitted that she did in fact sign her husband's name without his permission. She did so because she needed "money to pay the bills." Mrs. Gaudio told the notary that her husband was not there to sign the deed because he could not afford to miss work. Based upon Mrs. Gaudio's representations, the third party notary notarized the deed even though he did not actually witness Mr. Gaudio sign the document. When the Gaudios defaulted on their commitments (failed to pay rent), Mr. Harrington obtained a judgment for eviction, which subsequently led to the Gaudios filing an action seeking reconveyance of the home. The basis for their suit was that the deed conveying the property to Mr. Harrington was defective based upon a deficiency with the deed (the forged signature). Mr. Harrington then counter sued, seeking to quiet title. Mr. Harrington also filed suit against the third party notary, alleging the third party notary breached his notarial duties.
+
+Similar to the circumstances in this case, Mr. Gaudio claimed he had no knowledge of the family's financial difficulties until he was notified by his bank that his wife had overdrawn their savings account. Mr. Gaudio claims that it was only then that his wife told him she had borrowed money on the house. The basis for Mr. Harrington's claims against the third party notary was that the notary was liable because he failed to "properly authenticate the signature of Louis P. Gaudio on the deed in question." Id. at * 11.
+
+In holding that the trial court did not err in ruling that the Gaudios failed to show proximate cause of injury and the third party notary was not liable as a result, the Eighth District Court of Appeals stated and held as follows:
+
+In the instant case the representation involved [that the deed had been signed by her husband] was not that of a stranger. This weakens the case for the notary's negligence. The lack of proximate cause is even more compelling. Any damage sustained by the defendant [Mr. Harrison] would have eventuated anyway . . . The fourth assignment of error lacks merit.
+
+Id. at * 11-12 (emphasis added).
+
+The same is true in this case, Appellee Kevin Sheridan was not a stranger to the notary, Denise Roldan, or Land Title. See Denise Roldan Depo. at pp. 13-14. And like the Gaudio case, the purported improper authentication of signature was not the proximate cause of the injured parties' damages. Therefore, in Gaudio, even though it was undisputed that: (1) Mrs. Gaudio had forged her husband's signature, (2) the notarized document was not signed in the presence of the notary, and (3) the notary authenticated the signature as if the husband had signed it in his presence when he did not, the trial court still found that this was insufficient to impose liability upon the notary. The injured party, like the parties claiming injury in this case, must still show proximate cause of injury. Having failed to do so, the allegedly injured party (Mr. Harrington) was precluded from recovering. Id.
+
+Like Mr. Gaudio's harm in the Gaudio case, Cross-Appellant Christine Sheridan's and Appellant Lundberg's harm in this case (if any), was not proximately caused by any act or omission by the notary public. Like the notary in the Gaudio case, Land Title is similarly entitled to a finding of no liability, even assuming, arguendo, for purposes of this appeal only, that the facts of this case are as Cross-Appellant Christine Sheridan claims them to be (which Land Title and Denise Roldan specifically deny). Id.
+
+An additional case of interest is the Stark County case of Walter E. Holler & Co. v. Fouse, 62 Ohio App. 147, 150-151 (5th Dist. 1939) where the Court similarly found lack of proximate cause, stating and holding as follows:
+
+Assuming for the moment that plaintiff had a right to rely upon the notarial acknowledgment, we advance the logic found in Governor, ex rel. Mlekus, v. Maryland Casualty Co., 192 Wis., 472, 213 N. W., 287, 51 A. L. R., 1478:
+
+'If the property mortgaged was valueless, then the mortgage was valueless, no matter whether the certificate was true or false, and the damage sustained by one taking such mortgage could not be the proximate result of the false certificate.' (citation in original; emphasis added).
+
+Further supporting a finding of no liability is Appellee Kevin Sheridan's testimony as to why the Lundberg Mortgage was put in place in the first place. The parties never intended to enforce the Lundberg Mortgage. It was instead intended to be used as a shield against "predators"-unhappy tenants who hire lawyers. This is a tact Appellee Kevin Sheridan and Appellant Lundberg had learned at one of their real estate courses. Their goal was to make the family home "look" over encumbered. See Kevin Sheridan 5/5/10 Depo. at pp. 20-21:
+
+Q. Is there anything you could tell me about this loan, how it came about? What was the-
+
+A. All right. Well, basically-well it started off with Eric and I were looking at courses and basically Eric-we seen in there that once you have properties, that you're actually a predator to people trying to what you have, okay? And the one course basically said if you put in place, you know, a mortgage on a house that, you know, the house would look over encumbered, okay, you know, so the original thought process was to put a mortgage on the house and then get a release of lien on it and basically keep that in your file cabinet and that way if somebody was going to try and sue you like a tenant or something like that-the problem with tenants is they constantly get free attorneys. The first thing the attorney does is look up to see if you own anything. If you own anything, they're going to go after you pretty simple and I had that a few times in my career of real estate, but-so this was originally going to be a mortgage that was put on the house just for asset protection and personal liability or however-asset protection I should say. (emphasis added)
+
+This intent to make the property look over encumbered is consistent with the $ 150,000 actually having been loaned and wired to Kevin Sheridan on November 3, 2006, three months prior to the Lundberg Mortgage being filed. See Kevin Sheridan 12/17/10 Depo. at pp. 52-53 and the deposition exhibit referenced therein (Deposition Exhibit 7 at p. 2, under the Deposits and Credits Section) which shows an incoming wire transfer in the amount of $ 150,000 on November 3, 2006.
+
+Appellant Lundberg should not now be permitted to use the precise lien he agreed to release as the basis for his claim.
+
+Even more disturbing is that Appellant Lundberg, in his Appellate Brief, completely and utterly disregards the testimony of Land Title's employee, Denise Roldan, and plays fast and loose with the testimony of Appellee Kevin Sheridan. See Lundberg Appellate Brief at pp. 3-5 (including fn. 4), 7, and 18-21. Denise Roldan adamantly (and consistently) denied at her deposition that she ever notarized a pre-signed document, let alone notarized a "forged" signature. She instead testified throughout her deposition that Cross-Appellant Christine Sheridan personally appeared before her and signed the Lundberg Mortgage at issue in this case (in addition to various other documents that she notarized for Cross-Appellant Christine Sheridan). See Denise Roldan Depo. at pp. 13-14, 25-26 and 78; see also pp. 68-77.
+
+Notably, Denise Roldan was noticed for deposition and deposed by Cross-Appellant and Appellant prior to either Denise Roldan or Land Title being sued in this case and prior to either Land Title or Denise Roldan being represented by counsel. Regardless, nowhere in her deposition did Denise Roldan "admit," let alone indicate or even remotely suggest, that Cross-Appellant Christine Sheridan did not sign the Lundberg Mortgage. That instead is one of the many false and misleading contentions and "legal conclusions" that was made by Cross-Appellant Christine Sheridan in her Affidavit that was the subject of the trial court's August 23, 2011 Journal Entry striking same. See Land Title's Answer Brief to Cross-Appellant Christine Sheridan's Answer Brief and Brief in Support of Cross-Appeal at pp. 26-27. Yet, in his Appellate Brief, Lundberg makes it sound like a foregone conclusion that Land Title engaged in fraud in this case, when that is not the case-nor is it the state of the record. See Lundberg Appellate Brief at pp. 3-5 (including fn. 4), 7, and 18-21.
+
+Appellant Lundberg further makes it sound as if it is a foregone conclusion (by omitting selective lines of testimony in his Appellate Brief) that Appellee Kevin Sheridan "forged" his wife's name to the Lundberg Mortgage, when that is not the case. In spite of bold assertions to the contrary, Appellee Kevin Sheridan never testified to this at either of his depositions. What he did testify to is that if and/or when he signed his wife's name, he did it with the belief and understanding that he had her authority to do so. See Kevin Sheridan 5/5/10 Depo. at pp. 28-29; Kevin Sheridan 12/17/10 Depo. at pp. 167-168, 170-171 6; see also Kevin Sheridan 12/17/10 Depo. at pp. 161-166, 169 and 174.
+
+Signing someone's name with the belief you have the authority to do so is, by definition, not a "forgery," despite Appellant's and Cross-Appellant's attempt to call it (and make it) so. See R.C. § § 2913.21(A)(1) and (2) which requires the lack of authority to sign one's name as a precondition to committing a forgery; see also State v. Foster, 8th Dist. No. 58363,1991 Ohio App. LEXIS 1843 (April 25, 1991), a copy is attached at Tab 2. Regardless, these assertions and overreaching statements by Appellant Lundberg throughout his Appellate Brief are a red herring. Land Title's liability in this case comes down to the issue of proximate cause. Land Title readily acknowledged at footnote 4 of page 12 of this brief (formerly footnote 6, at page 10, of Land Title's Summary Judgment Motion) that issues of fact exist in this case. However, they are not issues of fact that preclude summary judgment in Land Title's favor. Whether or not Cross-Appellant signed the Lundberg Mortgage, whether Appellee Kevin Sheridan signed the Lundberg Mortgage with the belief he had the authority to do so, either pursuant to the Trust documents or the Limited Power of Attorney signed by Cross-Appellant (see Land Title's Answer Brief to Cross-Appellant's Answer Brief and Brief in Support of Cross-Appeal filed contemporaneously with this brief at pp. 20-22 for discussion regarding this Limited Power of Attorney and the evolution of Cross-Appellant's testimony relating to this document)), or whether Appellee Kevin Sheridan "forged" Cross-Appellant's signature, are all issues of fact that are not "material" to the analysis currently facing this Court.
+
+The issue currently before this Court is: whether Appellant's and Cross-Appellant's claimed damages and injuries were proximately caused by any purported wrongdoing by Land Title. They were not. Based upon the undisputed facts of this case, reasonable minds can only conclude that Appellant Lundberg is in no worse position today than he agreed (and expected to be in) as of March 1, 2007 when he signed the Release of Lien. Any purported wrongdoing by Land Title did not proximately cause harm to Appellant Lundberg. See discussion, supra. There exist no genuine issues of material fact on this issue.
+
+The trial court properly granted summary judgment in Land Title's favor as a matter of law on this basis.
+
+2.  APPELLANT LUNDBERG CANNOT HAVE IT BOTH WAYS-IF HE DOES NOT HAVE THE AUTHORITY TO RELEASE THE LIEN AT ISSUE, AS HE CLAIMS, THEN HE ALSO DOES NOT HAVE THE AUTHORITY (STANDING) TO ENFORCE IT.
+
+If Appellant Lundberg does not have the authority to release the lien at issue, then he also does not have the authority (necessary standing) to enforce it, entitling Land Title to summary judgment on this alternative basis.
+
+Lundberg argues in his Appellate Brief, as he did in his August 4, 2011 Reply Brief filed in response to Land Title's Summary Judgment Motion, that he did not have, and currently does not have, the authority to release the Open End Mortgage at issue. His rationale for this is that he does not hold the mortgage. See Lundberg Appellate Brief at pp. 9-14. The mortgage is instead held by, and owned by, Equity Trust Company. At the trial court level, Lundberg originally argued at page 7 of his Reply Brief filed in response to Land Title's Summary Judgment Motion that:
+
+Review of the subject Mortgage confirms that "Equity Trust Company Custodian FBO Eric Lundberg IRA" is named as the "Mortgagee" thereon. Eric Lundberg is NOT named as the Mortgagee on the Mortgage. Consequently, Eric Lundberg did not hold the Mortgage; Equity Trust did. (bold, underlined, and capitalized emphasis in original)
+
+See Lundberg's Reply Brief at p. 7. This argument is consistent with the assertions at page 10 of Lundberg's Reply Brief where he further argued:
+
+Pursuant to Ohio law, only Equity Trust, and NOT Eric Lundberg, could release the subject Mortgage. (capitalized emphasis in original; bold emphasis added)
+
+Id. at p. 10.
+
+As evidenced above, Lundberg took the position in the lower court that he was not the real party in interest. Id. Lundberg cannot have it both ways. Either he is the real party in interest and has the authority to both release and enforce the lien, or he is not. After all, the same lien that Lundberg was purporting to release on March 1, 2007, is the exact same lien he is now seeking to enforce by and through his Amended Third-Party Complaint. He certainly cannot claim (at least not successfully) that he is only a real party in interest when it benefits him, but not when it adversely impacts him. Yet, that is precisely what he is attempting to do here.
+
+As was recognized by the Eighth Appellate District Court in Deutsche Bank Nat'l Trust Co. v. Triplett, 8th Dist. No. 94924, 2011-Ohio-478, the policy behind this real party in interest requirement is to help ensure the finality of judgment and protect a party from being subjected to more than one suit over the same subject matter. See id. at P15 ("The real-party-in-interest requirement, 'enables the defendant to avail himself of evidence and defenses that the defendant has against the real party in interest, and to assure him finality of the judgment, and that he will be protected against another suit brought by the real party at interest on the same matter.'" (emphasis added)).
+
+Standing is a prerequisite to being able to file suit. See Ohio Pyro, Inc. v. Ohio Dep't of Commerce, 115 Ohio St.3d 375 (2007) ("Before an Ohio court can consider the merits of a legal claim, the person or entity seeking relief must establish standing to sue."); Kincaid v. Erie Ins. Co., 128 Ohio St.3d 322, 323 (2010) ("Standing is a preliminary inquiry that must be made before a court may consider the merits of a legal claim."). Without standing, no suit can be brought or maintained (at least by the party lacking standing). Id.
+
+As the holder of the mortgage, only Equity Trust Company has standing to sue Land Title to enforce the lien or seek damages flowing from it. Id. To hold to the contrary, would inappropriately and improperly expose Land Title to the potential of two suits and duplicate recoveries. Id.
+
+Equity Trust Company, however, is not a party to this suit. Nor has Lundberg's counsel been retained by Equity Trust Company to represent it in this suit. This is evidenced by the language of the opening paragraph of the Amended Third-Party Complaint, which states:
+
+Now Comes Defendant and Third-Party Plaintiff, Eric Lundberg,
+
+individually and as the beneficial owner of the Equity Trust Company IRA being held for him by said Equity Trust Company as custodian . . .
+
+There further is no evidence Equity Trust Company has assigned its rights to Appellant Lundberg. Nor is there any evidence that any power of attorney approved by resolution of Equity Trust Company exists. 7 No such documents were ever presented. Presumably, that is because none exist. Certainly, if such documentation existed, the Amended Third-Party Complaint would have been drafted differently, and this documentation would have been produced at the trial court level. It was not.
+
+Therefore, taking what Lundberg claimed during the trial court summary judgment briefing process to be true-that Equity Trust Company holds the mortgage, not Eric Lundberg-then it follows that Lundberg's claims against Land Title fail as a matter of law, as standing (or lack thereof) is an issue that is decided by the Court as a matter of law. Lundberg simply has no standing to assert claims against Land Title per the logic of his own arguments in his August 4, 2011 Reply Brief. See Portage County Bd. of Comm'rs v. City of Akron, 109 Ohio St.3d 106, 124 (2006) ("Whether established facts confer standing to assert a claim is a matter of law."); In re C.J., 8th Dist. Nos. 94210 and 94233, 2010-Ohio-3202, P15 ("Whether an individual has standing is a matter of law."); and Coleman v. Davis, 4th Dist. No. 10 CA 5, 2011-Ohio-506 P16 ("'Whether established facts confer standing to assert a claim is a matter of law.").
+
+Notably, Lundberg has failed to address this issue head on in his Appellate Brief, instead choosing to reverse his position on this issue and affirmatively side step it. Presumably, this is due, in part, because Lundberg has realized the flaw in his logic after having it thrown back at him during the summary judgment briefing process. Now, in his Appellate Brief, Lundberg has chosen to wield a different approach and argue that he could not have acted with apparent authority when he signed the Release of Lien since only a principal (not an agent, like him) can provide his agent (himself) with apparent authority. See Lundberg Appellate Brief, pp. 9-14. As stated in the Statement of the Case at page 2 of this brief, this apparent authority argument by Lundberg was first raised in his Sur-Replies, Sur-Replies which the trial court struck from the record and/or refused to accept for filing. See trial court's 8/24/11 two Journal Entries. Lundberg did not appeal these decisions-they are not included in his Notice of Appeal, nor are they part of his Assignments of Error. Accordingly, this apparent authority argument is not properly a part of this appeal. Had Lundberg desired to rely upon these arguments upon appeal, he needed to have appealed the trial court's rulings striking these arguments from the record and/or refusing to include them as part of the record by denying Lundberg leave to file his Sur-Reply. Having not done so, Lundberg may not now attempt to back door in this argument at the appellate court level. To do so, would blatantly fly in the face of the trial court's 8/24/11 Journal Entries. Land Title further notes that the filing of a Sur-Reply is not provided for in the Civil Rules.
+
+However, to the extent this Court were to find that this argument is appropriately before it, this argument is both factually and legally flawed. The lack of apparent authority defense is an affirmative defense that is to be used by the principal, not the agent, in arguing that the principal should not be bound by the acts of its agent. It is not a defense to be asserted by the agent who has acted with "apparent authority" to try and escape from liability for his own actions. See, e.g., Master Consol. Corp. v. BancOhio Nat'l Bank, 61 Ohio St.3d 570, 576 (1991) ("Thus, in order for a principal to be bound by the acts of his agent under the theory of apparent agency . . ." (emphasis added)); Groob v. Keybank, 108 Ohio St.3d 348, 358 (2006) ("For the principal to be liable . . . "). Equity Trust Company, however, has not entered an appearance in this case. As such, no such lack of apparent authority "defense" has been raised, nor have any such assertions been made by Equity Trust by way of deposition testimony, Affidavit, or otherwise. See also, the arguments of Appellee Kevin Sheridan at pp. 1-6 of the Argument Section of his Answer Brief filed March 9, 2012, which arguments are incorporated herein by reference to the extent they are equally applicable to Land Title and support the release of the Lundberg lien. Of particular interest is as it relates to Lundberg's claim that there was no consideration. As Appellee Kevin Sheridan duly points out at the next to last page of his Answer Brief, the consideration provided was the "consideration of maintaining the business relationship between the parties and avoiding interference of that relationship by the spouse of Kevin." See Appellee Kevin Sheridan's Answer Brief at p. 6 and the deposition testimony of Appellant Lundberg cited to therein at pp. 81-82; see also Cross-Appellant Christine Sheridan's combined Answer Brief and Brief in Support of Cross-Appeal at pp. 3-4 where she similarly directs this Court to places in the record supporting the existence of consideration, despite Appellant Lundberg's assertion to the contrary that there was none. Rather than re-cite to these same portions of the record, Land Title incorporates herein by reference, as if fully re-written, these portions of Kevin Sheridan's and Christine Sheridan's respective Answer Briefs. See also, the express language of the Release of Lien signed by Lundberg which expressly acknowledges the existence of "valuable and good consideration" having been paid and received by the "undersigned," Eric Lundberg. Lundberg's lack of consideration defense is without merit.
+
+Based upon the undisputed facts of this case, reasonable minds can only conclude that if Lundberg does not have the authority to release the lien at issue, then he also does not have the authority (standing) to enforce it. Land Title is entitled to summary judgment as a matter of law on this additional basis.
+
+3. ALTERNATIVELY, IF APPELLANT LUNDBERG HAS STANDING TO ENFORCE THE MORTGAGE LIEN, THEN HE ALSO HAD THE AUTHORITY TO RELEASE IT; HE CANNOT HAVE IT BOTH WAYS SIMPLY BECAUSE ONE ARGUMENT BENEFITS HIM AND THE OTHER HURTS HIM.
+
+Alternatively, if this Court were to find that Appellant Lundberg has standing and authority to enforce the Lundberg lien, then it follows that he also had the authority to release it when he signed the Release of Lien on March 1, 2007. He cannot have it both ways.
+
+If Appellant Lundberg is found to have the authority to enforce the lien, then he certainly had the authority to release it. Even if he did not have the actual authority to do so, he clearly, through his words and actions, led Appellee Kevin Sheridan to believe he had the "apparent" authority to do so. There is no question, based upon the record, that Lundberg represented to Kevin Sheridan, verbally and by virtue of providing him with the original signed Release of Lien, that he had the authority to release the mortgage and had the ability to provide him with an alternative way to pay back the loans (unless Lundberg is now suggesting that he knew the document he voluntarily signed, had witnessed and notarized, was a document he knew to be false at the time he signed it). See Release of Lien attached as Exhibit 1 at Tab 1 to Land Title's Summary Judgment Motion, which provides in pertinent part:
+
+Know all Men by these presents [sic] that the undersigned. EQUITY TRUST COMPANY, CUSTODIAN FBO ERIC LUNDBERG IRA #49550, the present legal and equitable owner and holder of that certain note . . . (emphasis added).
+
+This document, on its face, clearly and unequivocally indicates that the "undersigned," is "Equity Trust Company, Custodian FBO Eric Lundberg IRA #49550." It further indicates that the "undersigned" is the "present and legal and equitable owner and holder" of the Lundberg Mortgage when, according to Appellant Lundberg, that is not true. Undisputed by the parties, and as is evidenced by the authenticated signature on the document itself, Appellant Lundberg was the "undersigned" on this Release of Lien, as that term has been used in the document. See Release of Lien and Eric Lundberg Depo. at pages 81-82 where he acknowledges that is his signature. However, in response to Land Title's summary judgment motion, Lundberg claimed, for the first time, that each of these affirmations in the Release of Lien is false and untrue. This is the same position Lundberg is now taking on appeal. See Lundberg Appellate Brief at pp. 5-7 and 9-14. Stated differently, Appellant Lundberg, for the first time in his Reply Brief filed in response to Land Title's Summary Judgment Motion, took the position that he had no standing or authority to release the lien on the Sheridan family home, even despite the language in the Release of Lien expressly and unequivocally indicating to the contrary.
+
+That Lundberg, at the very least, "appeared" to have the apparent, if not actual, authority to release the lien at issue is evidenced by the Release language quoted above and the 5/5/10 deposition testimony of Kevin Sheridan at pages 34, 37, and 148, quoted above at page 10 of this brief. Appellant Lundberg, therefore, should be legally bound by this document and not be permitted to side step it, as he is attempting to do. At the very least, he should be estopped from now denying, several years later, that he possessed no such authority. See Master Consol. Corp. v. BancOhio Nat'l Bank, 61 Ohio St.3d 570, 576 (1991) ("Even where one assuming to act as agent for a party in the making of a contract has no actual authority to so act, such party will be bound by the contract if such party has, by his words or conduct, reasonably interpreted, caused the other party to the contract to believe that the one assuming to act as agent had the necessary authority to make the contract. ").
+
+See also Miller v. Wick Bldg. Co., 154 Ohio St. 93, 95-96 (1950), where the Ohio Supreme Court stated and held as follows relating to the apparent authority concept:
+
+In the instant case, it is conceded that the building company never expressly authorized Wick to enter into an agreement such as the one which Miller seeks to enforce.
+
+However, even where one assuming to act as agent for a party in the making of a contract has no actual authority to so act, such party will be bound by the contract if he has by his words or conduct, reasonably interpreted, caused the other party to the contract to believe that the one assuming to act as agent had the necessary authority to make the contract. Restatement of the Law of Agency, 76, Section 27; 1 Ohio Jurisprudence, 674, Section 34. See Kroeger, Supt., v. Brody, Trustee, 130 Ohio St., 559, 200 N. E., 836. In such instance, the term 'apparent authority' is often used to describe or label what is so treated as the equivalent of authority.
+
+As Appellee Kevin Sheridan explained, he understood that he and Lundberg had reached an agreement. In exchange for Lundberg agreeing to release the lien and become an unsecured creditor, 8 Kevin Sheridan agreed to perform rehab and other services for him. See the 5/5/10 deposition testimony of Kevin Sheridan at pages 34, 37, and 148. See also, Kevin Sheridan 12/17/10 Depo. at pp. 144-146, quoted below:
+
+Kevin Sheridan 12/17/10 Depo. pp. 144-145 (emphasis added):
+
+Q. And this release [of lien] was given to you in March, sometime after March 1, 2007, correct?
+
+A. Correct.
+
+Q. And when you had that release, isn't it true that you could have taken it and recorded it any time you wanted?
+
+A. At the time, you've got to understand, Eric and me were trying to do business together and he had stresses from his wife, I had stresses from my wife. My wife wanted this Release of Lien. She asked for it. I basically begged him to give me the Release of Lien so that I could, you know, get in my house. And we worked out another deal for me to rehab houses in order to pay him back. (emphasis added)
+
+Kevin Sheridan 12/17/10 Depo. at p. 145:
+
+Q. Okay. Your testimony is that you had this Release of Lien because of a concern that your wife had, is that correct?
+
+A. Because at the time I think we were so deep in debt, deep in trouble, relationship wise, that she-Originally the mortgage was put on the house to over-encumber the house so that predators would not attack the house, and the house was looked over.
+
+Q. Are we talking predators or creditors?
+
+A. Predators. I call them predators. People that would sue you.
+
+Kevin Sheridan Depo. at p. 146 (emphasis added):
+
+Q. So Eric had given you a legal document that would enable you to clear the mortgage that you signed on February 2, 2007, is that correct?
+
+A. Yes.
+
+Q. And you could have filed this anytime you wanted?
+
+A. Yes.
+
+Q. And the reason why you didn't is because you wanted potential predators or creditors to think that your property did not have-you wanted people to think it was over-encumbered?
+
+A. Right. There was no equity, yeah.
+
+Q. So basically, this would have been a deception against anybody who might have had a claim against you that you owed them money?
+
+A. Now you're feeding words in my mouth.
+
+Q. Well, is it true?
+
+A. No, It's not a deception. Deception is-It's asset protection is what it is. They try to protect their assets, right?
+
+See also, the bottom of page 146 through page 147 of Kevin Sheridan's 12/17/10 deposition. There, Kevin Sheridan once again describes the agreement he and Lundberg reached and confirms he was given the original Release of Lien:
+
+Q. Well, Eric is telling you if you want to get this lien released, that I am releasing the lien. Eric is representing to you -
+
+MR. MILLS: Objection.
+
+Q. Eric is representing to you that this lien is released, isn't that right?
+
+MR. MILLS: Objection.
+
+Q. He signed a Release of Lien? You can answer the question.
+
+A. He gave me the Release of Lien, but, you know, I don't know what we did with the Release of Lien.
+
+***
+
+Q. And you had the original document in your possession?
+
+A. I did at one time.
+
+Q. And the reason why you didn't record the Release of Lien is because you wanted to appear over-encumbered to people who might have claims against you?
+
+A. Yeah.
+
+Q. Okay.
+
+A. We had worked out a deal that I was going to rehab some house for him and do different things, and we were still trying to continue a business relationship.
+
+Kevin Sheridan 12/17/10 Depo. at p. 147 (emphasis added).
+
+Page 148 of Kevin Sheridan's 12/17/10 Depo. further provides:
+
+Q. So even if you still owed money to Eric, and you've told me that you've paid him something back, but you don't know how much right? But you paid him something back?
+
+A. Sure.
+
+Q. That after he gave you this Release of Lien, he was agreeing that you (sic) would be an unsecured creditor because he was giving up his security interest, isn't that correct?
+
+MR. MILLS: Objection
+
+A. We had made other arrangements to try to pay back the loan, yeah. (emphasis added).
+
+As evidenced by the above testimony, Appellee Kevin Sheridan clearly believed Lundberg had the necessary authority to release the lien on his house and agree to other arrangements for him to pay back the loan. Id. This belief arose as a result of Appellant Lundberg's words and conduct, which words and conduct Appellee Kevin Sheridan "reasonably interpreted," causing him to believe that Lundberg had the authority to enter into the agreement with him to release the lien and make other arrangements to pay back to the loan. Id. Appellant Lundberg should, therefore, be bound by this Release, either because he had the actual authority to enter into it, or because he falsely led Kevin Sheridan to believe he possessed such authority. At the very least, Eric Lundberg should be estopped from denying, more four years later, that he possessed no such authority. See Miller v. Wick Bldg. Co., supra.
+
+Regardless of whether the Release of Lien is valid or invalid, reasonable minds can still only conclude as the trial court did, which is that proximate cause of injury cannot be shown by virtue of the fact that Eric Lundberg is no worse off today than he was on March 1, 2007 when he signed the Release of Lien with the expectation it would be filed and the mortgage on the Sheridan family home would be extinguished. Invalidity of the Release of Lien, or a question of fact relating to same, therefore, does not preclude the granting of summary judgment in Land Title's favor as Lundberg argues in his Appellate Brief at pp. 17-21. The outcome of this case remains the same: Appellant Lundberg is in the exact same position he would have been had the Release of Lien actually been filed. Any purported wrongdoing by Land Title in this case has not proximately caused harm to Appellant Lundberg. The decision to become an unsecured creditor and to work with Appellee Kevin Sheridan to pay back the loan, by means other than enforcing the Open End Mortgage (i.e., by means other than taking a security interest in the Sheridan home), was a risk Lundberg, and Lundberg alone, chose to take. He should not now be permitted to try and shift this voluntarily assumed risk to Land Title under the auspices that he purportedly lacked the authority to release the same lien he is now trying to enforce. See, e.g., Lundberg Reply Brief filed in response to Land Title's Summary Judgment Motion at p. 8 ("But Eric Lundberg's signature on the Alleged Release is completely useless. As state in a previous filing, Eric Lundberg had no more authority to release the subject Mortgage than did the Easter Bunny or Santa Claus. (emphasis added).").
+
+Thus, while issues of fact may exist in this case (see, e.g., fn 4 at page 12 of this brief), there exist no genuine issues of "material" fact pertinent to the analysis currently before this Court that preclude summary judgment in Land Title's favor. For Land Title, this case essentially comes down to two issues-either one of which warrants affirmation of the trial court's grant of summary judgment in Land Title's favor as a matter of law. Either: (1) Appellant Lundberg is not the real party in interest, as Appellant Lundberg claims, and he, therefore, has no standing to release or enforce the Open End Mortgage at issue, or (2) Appellant Lundberg had the apparent or actual authority to release the Open End Mortgage, which Release of Lien specifically cross-referenced Instrument No. 20702201238 (which matches the Instrument No. of the Lundberg Mortgage), and no proximate cause of injury on any of Lundberg's claims can be shown since he is in the same position today as he expected himself to be in when he signed the Release of Lien and provided the original to Kevin Sheridan for filing in March of 2007.
+
+The decision of the trial court should be affirmed.
+
+IV. CONCLUSION
+
+For the reasons discussed above, Land Title respectfully requests this Court AFFIRM the trial court's September 7, 2011 Journal Entry granting summary judgment in Land Title's favor on the claims of Appellant Lundberg and Cross-Appellant, Christine Sheridan (individually and as Co-Trustee). On the issues material and germane to Land Title, there exist no genuine issues of material fact, and the trial court properly concluded that Land Title was entitled to judgment as a matter of law. Proximate cause of injury cannot be shown. This is evidenced by the Release of Lien signed by Appellant Lundberg on March 1, 2007, which releases the precise lien he is seeking to now enforce against Land Title. Had this Release of Lien been filed, the lien at issue would have been extinguished and Appellant Lundberg would be in the same position he currently claims to be in, which is that of an unsecured creditor. Simply stated, either: (1) Appellant Lundberg is not the real party in interest, as Lundberg claims, and, therefore, he has no standing to release or enforce the lien at issue; or (2) Appellant Lundberg had the apparent or actual authority to release the Open End Mortgage, which Release of Lien specifically cross-referenced Instrument No. 20702201238 (which matches the Instrument No. of the Lundberg Mortgage at issue), resulting in no proximate cause of injury being able to be shown, either of which warrants affirmation of the trial court's grant of summary judgment in Land Title's favor.
+
+The decision of the trial court was right. It was proper. It should be affirmed.
+
+Respectfully submitted,
+
+/s/ [Signature]
+
+JOHN G. FARNAN (0038558)
+
+Jfarnan@westonhurd.com
+
+AMY K. SCHERMER (0068012)
+
+Aschermer@westonhurd.com
+
+Weston Hurd LLP
+
+The Tower at Erieview
+
+1301 East 9th Street, Suite 1900
+
+Cleveland, Ohio 44114-1862
+
+216.241.6602 Fax 216.621.8369
+
+Attorneys for Appellee Land Title Group, LLC
+
+CERTIFICATE OF SERVICE
+
+The undersigned hereby certifies that a copy of the foregoing instrument was made by mailing true and correct copies thereof, in sealed envelopes, postage fully prepaid and by depositing same in the U.S. mail on this 9th day of April, 2012, to the following:
+
+James M. Hungerford
+
+2424 Broadview Road
+
+Cleveland, OH 44109
+
+Attorney for Cross-Appellant
+
+Christine E. Sheridan (Individually
+
+and as Co-Trustee)
+
+John F. Hersch
+
+8536 Crow Drive, Suite 240
+
+Macedonia, OH 44056
+
+Attorney for Appellee
+
+UAW-GM Legal Service Plan And
+
+Michael Robusto
+
+Christopher Shelitto
+
+5510 Pearl Road, Suite 300
+
+Parma, OH 44129
+
+Attorney for Appellee
+
+Kevin Sheridan
+
+John J. Wargo, Jr.
+
+Jack P. Mills, Jr.
+
+30 Park Drive
+
+Berea, OH 44017
+
+Attorney for Appellant Eric
+
+Lundberg
+
+Matthew H. Hallett, Esq.
+
+110 Moore Road
+
+Avon Lake, OH 44012
+
+Co-Counsel for Appellee
+
+Land Title Group, LLC
+
+Donn D. Rosenblum
+
+Collections Enforcement Section
+
+150 East Gay Street, 21st Floor
+
+Columbus, OH 43215
+
+Attorney for State of Ohio
+
+Department of Taxation
+
+Scott E. Collister
+
+Pamela S. Petas
+
+Gerner & Kearns Co., L.P.A.
+
+215 West Ninth Street
+
+Cincinnati, OH 45202
+
+Attorneys for RBS Citizens N.A.
+
+Successor by merger to Charter One
+
+Bank, N.A.
+
+Gregory B. Rowinski
+
+Justice Center
+
+1200 Ontario Street
+
+Cleveland, OH 44113
+
+Attorney for Cuyahoga
+
+County Treasurer
+
+Equity Trust Company
+
+c/o Richard Desich, S.A.
+
+225 Burns Road
+
+Elyria, OH 44035
+
+/s/ [Signature]
+
+John G. Farnan
+
+Amy K. Schermer
+
+[SEE EXHIBIT 1 IN ORIGINAL]
+
+[SEE EXHIBIT 2 IN ORIGINAL]

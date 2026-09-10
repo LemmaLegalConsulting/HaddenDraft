@@ -1,0 +1,222 @@
+.
+EXHIBIT D
+
+L
+Case 0:12-cv-62392-KMM Document 262 Entered on FLSD Docket 03/09/2015 Page 1 of 18
+UNITED STATES DISTRICT COURT SOUTHERN DISTRICT OF FOLORIDA CASE NO. 0:12-cv-62392-KMM
+THE TRAVELERS PROPERTY CASUALTY COMPANY OF AMERICA and ST. PAUL FIRE AND MARINE INSURANCE COMPANY,
+Plaintiffs/Counter Defendants,
+VS.
+ANDA, INC. and WATSON PHARMACEUTICALS, INC.,
+Defendants/Counter Plaintiffs. 1
+FEDERAL INSURANCE COMPANY and GREAT NORTHERN INSURANCE COMPANY,
+Plaintiff/Counter Defendant,
+VS.
+ANDA, INC.,
+Defendant/Counter Plaintiff.
+ANDA INC.,
+Counter Plaintiff,
+vs.
+GEMINI INSURANCE COMPANY,
+Counter Defendant.
+/
+OMNIBUS ORDER ON MOTIONS AND CROSS-MOTIONS FOR SUMMARY JUDGMENT
+tabbies*
+EXHIBIT D
+
+Case 0:12-cv-62392-KMM Document 262 Entered on FLSD Docket 03/09/2015 Page 2 of 18
+THIS CAUSE comes before the Court upon the Motions and Cross-Motions for Summary Judgment filed by Gemini Insurance Company ("Gemini"); Anda Inc. ("Anda"); Watson Pharmaceuticals, Inc. ("Watson") (referred to jointly with Anda as "Anda"); Federal Insurance Company ("Federal") and Great North Insurance Company ("Great Northern") (referred to jointly as "Federal"); and St. Paul Fire and Marine Insurance Company ("St. Paul") and The Travelers Property Casualty Company of America ("Travelers") (referred to jointly as "S&T")." The Motions and Cross-Motions for Summary Judgment have been fully briefed and the Court has fully considered each of the filings.
+Accordingly, UPON CONSIDERATION of the Motions for Summary Judgment, the Cross-Motions for Summary Judgment, the Responses, the Replies, the applicable evidence, and being otherwise fully advised in the premises, the Court enters the following Omnibus Order.
+I. Gemini's Motion for Summary Judgment
+A. Background
+The issue in this Motion is whether Gemini owes Anda a duty to defend and indemnify Anda for a lawsuit brought by the State of West Virginia. West Virginia filed its Amended Complaint (ECF No. 191-6) (the "Underlying Complaint") seeking injunctive relief and damages for costs to the State resulting from the prescription drug abuse epidemic in West Virginia. See
+1 St. Paul and Travelers jointly filed a Motion for Summary Judgment (ECF No. 180) (the "S&T MSJ"). Anda and Watson jointly filed a Response (ECF No. 208) to that Motion and a Cross-Motion for Summary Judgment (ECF No. 209) that are substantively identical. S&T filed a Response and a Reply (ECF Nos. 218, 219), and Anda and Watson filed a Reply (ECF No. 238).
+Gemini filed a Motion for Summary Judgment (ECF No. 196) (the "Gemini MSJ"). Anda filed a Response (ECF No. 229) to that Motion and a Cross-Motion for Summary Judgment (ECF No. 202) that are substantively identical. Gemini filed a Response and a Reply (ECF Nos. 231, 240), and Anda filed a Reply (ECF No. 237).
+Federal and Great Northern jointly filed a Motion for Summary Judgment (ECF No. 184) (the "Federal MSJ"). Anda filed a Response (ECF No. 204) to that Motion and a Cross-Motion for Summary Judgment (ECF No. 205) that are substantively identical. Federal and Great Northern filed a Response and a Reply (ECF Nos. 220, 221), and Anda filed a Reply (ECF No. 239).
+
+Case 0:12-cv-62392-KMM Document 262 Entered on FLSD Docket 03/09/2015 Page 3 of 18
+generally Underlying Compl. Anda is a major distributor of prescription drugs, which are also controlled substances. Id. [{ 2-3. West Virginia alleges that Anda "violated West Virginia statutes and regulations that govern controlled substances and consumer protection" by "distributing controlled substances without sufficient monitoring and controls." Id. IT 5, 7. For example, West Virginia alleges that Anda and other prescription drug manufacturers sold pharmacies such large quantities of abused prescription drugs that the number of prescription drugs in some communities is far greater than the population could actually warrant. Id. [ 3. This practice of unfettered distribution to "pill mills" cost West Virginia an estimated "$430 million annually in . .. 2010 with costs projected to be as much as $695 million annually by 2017." Id. IT 3, 6(a). These figures are derived from additional costs to West Virginia's hospitals, schools, courts, social service agencies, jails, and prisons due to the epidemic. Id. [ 1.
+The Underlying Complaint alleges the following counts: (I) Injunctive Relief for Violations of . . . the West Virginia Uniform Controlled Substances Act; (II) Damages Resulting from Negligence and Violations of the West Virginia Uniform Controlled Substances Act; (III) Unfair Methods of Competition or Unfair or Deceptive Acts or Practices in Violation of the West Virginia Consumer Credit and Protection Act (WVCCPA); (IV) Public Nuisance; and (V) Negligence. See generally id. Key to the conceptualization of the Underlying Complaint is West Virginia's theory of relief - the State seeks relief solely for its own economic loss and not for any individual claims the persons harmed directly by the prescription drugs might assert.
+Gemini moves for summary judgment against Anda's Second Amended Counter Complaint (ECF No. 74) and argues it has no duty to defend or indemnify Anda. Gemini argues it has no duty to defend or indemnify because: (1) the claims in the Underlying Complaint are not covered by the Policy because they are not claims "for bodily injury"; and (2) the Underlying
+
+Case 0:12-cv-62392-KMM Document 262 Entered on FLSD Docket 03/09/2015 Page 4 of 18
+Complaint alleges unfair competition, and the Policy's Unfair Competition Exclusion specifically excludes coverage for an entire suit where unfair competition is alleged.
+Anda, on the other hand, argues that Gemini owes Anda a duty to defend and indemnify because the Policy covers claims "for bodily injury," and the damages alleged in the Underlying Complaint stem from the drug abuse and associated injuries suffered by West Virginia residents.
+Prior to the Underlying Lawsuit, Gemini issued Anda an insurance policy (the "Gemini Policy") (ECF No. 191-9). The Parties agree that only the "Bodily Injury and Property Damage ... Coverage" is implicated in this case. See Gemini MSJ at 5; Anda Resp. to Gemini MSJ at 5; Gemini Policy at 27. The relevant Policy coverage is as follows:
+LIFE SCIENCES LIABILITY POLICY
+SECTION I - COVERAGE PART INSURING AGREEMENTS
+A. COVERAGE PART A - PRODUCTS-COMPLETED OPERATIONS LIABILITY
+1. SUBPART 1. BODILY INJURY AND PROPERTY DAMAGE - CLAIMS MADE COVERAGE
+a. We will pay all damages that the insured becomes legally obligated to pay for bodily injury or property damage included within the products-completed operations hazard.
+b. We will also pay all defense costs to defend a claim seeking such damages.
+MODIFIED DEFINITION OF BODLIY INJURY ENDORSEMENT ...
+Bodily injury means:
+Physical:
+· Injury;
+· Sickness; or
+· Disease
+sustained by a person, including death where resulting from such injury, sickness or disease at any time.
+2 The term "Parties" refers to Gemini and Anda in Part I.
+
+Case 0:12-cv-62392-KMM Document 262 Entered on FLSD Docket 03/09/2015 Page 5 of 18
+Bodily injury also means mental anguish . .. sustained by that person or by any relative of that person as a result of such bodily injury.
+Gemini Policy at 27, 75 (emphasis in original).
+The relevant exclusion is as follows:
+SECTION IV - EXCLUSIONS
+The following exclusions apply to all loss unless otherwise stated below. Where an exclusion applies to loss, it shall also apply to any covered defense costs associated with such loss:
+c. Antitrust/Unfair Competition/Consumer Fraud
+Loss ... in any way related to ... alleged: ...
+2. Unfair competition; . . .
+4. False, deceptive, or unfair trade practices;
+5. Consumer fraud; or
+6. Violation of consumer protection laws.
+In the event a claim is made or suit is brought against the insured alleging:
+· Any loss excluded in Paragraphs c.1., 2. or 3. above; and
+· Any other loss;
+then this exclusion shall apply to preclude coverage from the entire claim or suit even if any portion of the claim or suit would have been covered or a duty to defend the insured owed by us in the absence of such allegations.
+Id. at 46-47 (emphasis in original).
+B. Legal Standard
+Summary judgment may be entered only where there is no genuine issue as to any material fact such that the moving party is entitled to judgment as a matter of law. Twiss v. Kury, 25 F.3d 1551, 1554 (11th Cir. 1994); Fed. R. Civ. P. 56(a). An issue of fact is "material" if it is a legal element of the claim under the substantive law applicable to the case. Allen v. Tyson Foods, Inc., 121 F.3d 642, 646 (11th Cir. 1997). An issue of fact is "genuine" if the record taken as a whole could lead a rational trier of fact to find for the nonmoving party. Id .; see Matsushita Elec. Indus. Co. v. Zenith Radio Corp., 475 U.S. 574, 587 (1986). However, if the nonmoving party's evidence and arguments are merely colorable and raise only some doubt,
+
+Case 0:12-cv-62392-KMM Document 262 Entered on FLSD Docket 03/09/2015 Page 6 of 18
+summary judgment may be granted in favor of the moving party. See id. at 586. "The mere existence of a scintilla of evidence in support of the [nonmovant's] position will be insufficient; there must be evidence on which the jury could reasonably find for the [nonmovant]." Anderson v. Liberty Lobby, Inc., 477 U.S. 242, 252 (1986).
+The moving party bears the burden of meeting this standard, id., and the district court views the evidence and makes all factual inferences therefrom in the light most favorable to the nonmoving party. Tyson Foods, 121 F.3d at 646.
+Declaratory judgment actions seeking a declaration regarding insurance coverage may be decided on summary judgment "when the insurer's duty, if any, rests solely on the applicability of the insurance policy, the construction and effect of which is a matter of law." Maryland Cas. Co. v. Fla. Atl. Orthopedics, LLC, 771 F. Supp. 2d 1328, 1331-32 (S.D. Fla. 2011), aff'd, 469 Fed. App'x 722 (11th Cir. 2012).
+C. Choice of Law
+The first issue is whether New Jersey law applies because the Policy was executed in New Jersey, or whether Florida law applies because Florida is the forum state.
+Gemini moved the Court for a choice of law determination (ECF No. 122). Anda stipulated that New Jersey law applies and asked Gemini to withdraw its choice of law motion, but Gemini failed to do so. See Anda Resp. to Gemini MSJ at 2 n.2. Gemini agrees with Anda that, at least where there is a true conflict of law, New Jersey law applies. Gemini MSJ at 3.
+A district court exercising diversity jurisdiction generally applies the law of the forum state, including choice of law rules. Klaxon v. Stentor Elec. Mfg. Co., 313 U.S. 487, 496 (1941); Grupo Televisio, S.A. v. Telemundo Communs. Group, Inc., 485 F.3d 1233, 1240 (11th Cir. 2007). Florida's choice of law rules therefore apply to the choice of law determination here.
+
+Case 0:12-cv-62392-KMM Document 262 Entered on FLSD Docket 03/09/2015 Page 7 of 18
+"Where the laws of two jurisdictions would produce the same result on the particular issue presented, there is a 'false conflict,' and the Court should avoid the choice-of-law question." James River Ins. Co. v. Med Waste Mgmt., Case No. 1:13-cv-23608-KMM, 2014 WL 4749551 *4 (S.D. Fla. Sept. 22, 2014); Levy v. Brown & Williamson Tobacco Corp., Case No. 96-2280-CIV, 1998 WL 35184005 *3 (M.D. Fla. April 9, 1998) (citing Williams v. Stone, 109 F.3d 890, 893 (3d Cir. 1997)); see Tune v. Philip Morris Inc., 766 So.2d 350, 352 (Fla. Dist. Ct. App. 2000) (deciding whether a "false conflict" exists as a threshold issue, and noting that a choice of law analysis is not required where a "false conflict" exists).
+Here, the dispositive issue is one that requires only insurance contract interpretation - whether the provisions in the Gemini Policy obligate Gemini to indemnify and defend Anda for the Underlying Complaint. However, under both New Jersey law and Florida law, insurance contracts are interpreted according to their plain meaning, while ambiguous provisions and exclusions are interpreted against the insurer and in favor of the insured. See Sinopoli v. North River Ins. Co., 581 A.2d 1368, 1370 (N.J. Super. Ct. App. Div. 1990); Garcia v. Federal Ins. Co., 969 So.2d 288, 291 (Fla. 2007). Thus, the New Jersey rule for insurance contract interpretation applicable to this case does not differ in any material respect from the Florida rule. Because the result in this case would be the same under both New Jersey law and Florida law, as further discussed below, the Court is presented with a "false conflict" and therefore foregoes a choice of law determination. See James River Ins., 2014 WL 4749551 at *4.
+D. The Scope of the Gemini Policy
+The Court next addresses whether the Gemini Policy imposes on Gemini a duty to defend and indemnify Anda for the claims asserted in the Underlying Complaint.
+
+Case 0:12-cv-62392-KMM Document 262 Entered on FLSD Docket 03/09/2015 Page 8 of 18
+Gemini argues that it does not owe Anda any duty, because: (1) West Virginia does not assert claims for bodily injury, but rather asserts claims for its own economic losses, Gemini MSJ at 2; and (2) even if the claims in the Underlying Complaint are "for bodily injury," the Unfair Competition Exclusion is triggered by the Unfair Competition Count alleged in the Underlying Complaint (Count III), thus precluding any coverage for the lawsuit. Id. at 3.
+Anda argues it is covered by the Gemini Policy because West Virginia seeks damages "for bodily injury" given that its claims stem from addictions, diseases, and sickness related to West Virginia citizens' abuse of prescription drugs. Anda Resp. to Gemini MSJ at 7.
+The interpretation of an insurance agreement is a question of law. See Maryland Cas. Co., 771 F. Supp. 2d at 1331-32. Thus, any coverage determination "begins with a review of the plain language of the insurance policy as bargained for by the parties." Koikos v. Travelers Ins. Co., 849 So.2d 263, 266 (Fla. 2003). "[C]lear and unambiguous" provisions and exclusions are enforced according to the plain meaning of their terms, whereas ambiguous provisions and exclusions are interpreted against the insurer and in favor of the insured. Garcia, 969 So.2d at 291; Sinopoli, 581 A.2d at 1370.
+"However, 'a provision is not ambiguous merely because it requires analysis to interpret it."" James River Ins., 2014 WL 4749551 at *5 (quoting Interline Brands, Inc. v. Chartis Specialty Ins. Co., 749 F.3d 962, 965 (11th Cir. 2014)). "Likewise, 'provisions in a contract are not ambiguous merely because the parties attempt to interpret them differently." Id. (quoting Mount Vernon Fire Ins. Co. v. Creative Hous. Ltd., 668 N.E.2d 404, 406 (N.Y. 1996)).
+Here, the relevant coverage provision states:
+[Gemini] will pay all damages that the insured becomes legally obligated to pay for bodily injury or property damage included within the products-completed operations hazard . . . [and] bodily injury means ... physical ... injury; sickness; or disease
+
+Case 0:12-cv-62392-KMM Document 262 Entered on FLSD Docket 03/09/2015 Page 9 of 18
+sustained by a person, including death where resulting from such injury, sickness, or disease at any time.
+[Gemini] will also pay all defense costs to defend a claim seeking such damages . . . .
+Gemini Policy at 27, 75 (emphasis in original).
+Another district court has analyzed the insurance policy of a different pharmaceutical drug company sued in the same Underlying Complaint. Cincinnati Ins. Co. v. Richie Enterprises LLC, Case No. 1:12-CV-00816-JHM-HBB, 2014 WL 3513211 (W.D. Ky. 2014). That court determined that the claims in the Underlying Complaint sought "damages for the money [West Virginia] has been required to spend because of the prescription drug abuse epidemic," i.e. "economic loss to the State of West Virginia," and not damages "because of bodily injury." Id. at *5. This Court finds the analysis in Richie Enterprises persuasive and also finds that the Gemini Policy does not cover the claims asserted in the Underlying Complaint because it seeks damages for the economic loss to the state of West Virginia and not "for bodily injury." See id .; Gemini Policy at 27, 75.
+The Underlying Complaint makes clear that the claims asserted are for "costs to the State of West Virginia" incurred as a result of the prescription drug abuse epidemic. Underlying Compl. 11. West Virginia alleges that the "damage done by prescription drug abuse adversely affects West Virginia's hospitals, school, courts, social service agencies, jails and prisons .. . " to the tune of $430 million annually. Id. TT 1, 6(a). "[T]he State has borne these massive costs . . . by having to provide necessary medical care, facilities, and services for treatment of citizens of West Virginia who are unable to afford or otherwise obtain such necessary medical care, facilities, and services." Id. [ 57. Thus, West Virginia asserts claims only for its own economic loss and not "for bodily injury." It does not purport to assert claims on behalf of individual citizens for the physical harm sustained personally by those citizens, for instance. Instead, West
+
+Case 0:12-cv-62392-KMM Document 262 Entered on FLSD Docket 03/09/2015 Page 10 of 18
+Virginia seeks relief from the massive costs suffered by the State due to Anda's distribution of drugs allegedly in excess of legitimate medical need.3 See Richie Enterprises, 2014 WL 3513211 at *5. Any reference to the drug abuse and physical harm to West Virginia citizens merely provides context explaining the economic loss to the State. Id.
+E. The Unfair Competition Exclusion
+The Gemini Policy also contains the aforementioned Unfair Competition Exclusion which states that "[i]n the event a claim is made or suit is brought . . . alleging ... any loss" "in any way related to any actual or alleged . . . [u]nfair competition ... and ... [a]ny other loss; then this exclusion shall apply to preclude coverage for the entire claim or suit . . . or a duty to defend .... " Gemini Policy at 46-47. Count III of the Underlying Complaint ("Violations of the West Virginia Consumer Credit and Protection Act (WVCCPA) - Unfair Methods of Competition or Unfair or Deceptive Acts or Practices") alleges unfair competition by Anda. Underlying Compl. 11 33-41. Thus, the Court finds that even if the Underlying Complaint asserted claims "for bodily injury," the Unfair Competition Exclusion clearly and unambiguously applies to preclude any duty on the part of Gemini to indemnify or defend Anda for the Underlying Complaint.
+Anda argues that the Unfair Competition Exclusion is facially ambiguous and must therefore be interpreted in favor of Anda as the insured. Anda Resp. to Gemini MSJ at 13. However, this is a sham argument that has no basis in the actual language of the exclusion. There is nothing ambiguous about the exclusion. It straightforwardly excludes coverage for any
+3 For example, West Virginia alleges that Anda "violated West Virginia statutes and regulations that govern controlled substances and consumer protection" by "distributing controlled substances without sufficient monitoring and controls," Underlying Compl. IT 5, 7, yet West Virginia need not prove that persons were injured in order to prevail on its claims that Anda violated West Virginia's Uniform Controlled Substances Act or Consumer Credit and Protection Act. See Richie Enterprises, 2014 WL 3513211 at *5.
+
+Case 0:12-cv-62392-KMM Document 262 Entered on FLSD Docket 03/09/2015 Page 11 of 18
+lawsuit in which unfair competition is alleged in conjunction with any other theory of damages. As this Court has stated previously, a provision in an insurance contract is not ambiguous merely because a party might wish to interpret it differently. James River Ins., 2014 WL 4749551 at *5, 6 (citing Mount Vernon Fire Ins. Co., 668 N.E.2d at 406).
+F. Conclusion
+For the foregoing reasons, the Court finds that Gemini owes Anda no duty to indemnify or defend against the Underlying Complaint.4 The Court therefore GRANTS Gemini's Motion for Summary Judgment.
+II. Federal and Great Northern's Motion for Summary Judgment
+A. Background
+Federal and Great Northern issued Anda six insurance policies (ECF No. 72-1) (the "Federal Policies")" that were in force during the relevant time period. Federal and Anda dispute
+4 The Parties originally moved to stay a determination on the duty to indemnify issue pending this Court's resolution of the duty to defend issue. See Mot. to Stay (ECF No. 28). The Parties believed that if a duty to defend were found, then the Court would have to consider factual issues to make a determination on the duty to indemnify. See id. at 4-6. For instance, if the Court had found a duty to defend, the Court would then have to undertake the additional inquiry of whether Anda had satisfied the self-insured retention requirement to decide whether Gemini owed a duty to indemnify. Judge Zloch therefore stayed the duty to indemnify issue. June 27, 2013 Order (ECF No. 29). However the Court's holding applies to both the duty to defend and the duty to indemnify for the following two reasons. First, the Court's finding that Gemini owes no duty to defend in this case necessitates as a matter of law the finding that Gemini also owes no duty to indemnify. Both findings are based solely on interpretation of the same provision and not any factual questions. See Part I.D., supra (citing Maryland Cas. Co., 771 F. Supp. 2d at 1331-32); James River Ins., 2014 WL 4749551 at *3 (holding summary judgment appropriate on declaration of coverage where insurer's duty rests solely on interpretation of insurance policy, which is a question of law). Moreover, the Parties agreed that "[a]n insurer's duty to defend is broader than the duty to indemnify, and depends 'solely on the allegations of the complaint filed against the insured."" Mot. to Stay at 3 (quoting Northland Cas. Co. v. HBE Corp., 160 F. Supp. 2d 1348, 1360 (M.D. Fla. 2001). Hence, "[a]n insurer has no duty to indemnify when it has no duty to defend the insured." Mt. Hawley Ins. Co. v. Dania Distribution Centre, Ltd., 763 F. Supp. 2d 1359, 1364 (S.D. Fla. 2011), aff'd, 513 Fed. App'x 890 (11th Cir. 2013). In this case, Gemini owes no duty to indemnify Anda as a matter of law because it owes no duty to defend Anda. The stay is therefore mooted. Second, the Parties argued the duty to defend issue by citing and arguing the applicable duty to indemnify provision and thereby mooted and waived their stay. See Gemini MSJ at 5; Anda Resp. to Gemini MSJ at 2, 5. In fact, the provision that the Parties agree determines the duty to defend does not even speak of a duty to defend, but instead only speaks of a duty to pay, or indemnify. See Gemini Policy at 27 ("[Gemini] will pay all damages that the insured becomes legally obligated to pay for bodily injury .... " (emphasis added)).
+
+Case 0:12-cv-62392-KMM Document 262 Entered on FLSD Docket 03/09/2015 Page 12 of 18
+whether the Federal Policies cover Anda for the same Underlying Complaint discussed above.
+The Federal Policies contain the following relevant provisions:
+Coverage
+Subject to the applicable Limits Of Insurance, we will pay damages the insured becomes legally obligated to pay by reason of liability imposed by law or assumed under an insured contract for:
+· bodily injury or property damage to which this insurance applies caused by an occurrence . . .
+Bodily Injury
+Bodily injury means physical:
+· injury;
+· sickness; or
+· disease
+sustained by a person and, if arising out of the foregoing, mental anguish, mental injury, shock, humiliation or death at any time.
+Occurrence
+Occurrence means an accident, including continuous or repeated exposure to substantially the same general harmful conditions.
+Investigation, Defense, and Payment of Damages
+We will have the right and duty to defend any insured against a suit seeking damages for bodily injury .... However we will have no duty to defend any insured against a suit seeking damages to which this insurance does not apply.
+Federal Policies at 93, 95, 105, 108 (emphasis in original).
+B. The Scope of the Federal Policies
+5 Federal and Great Northern are referred to in Part II jointly as "Federal."
+6 The Federal Policies were issued to Andrx Corporation, and Anda is a wholly owned subsidiary of Andrx Corporation. For purposes of this Order, the Parties have agreed that Andrx Corporation and Anda are interchangeable. Thus, this Order shall refer only to "Anda."
+" The relevant terms in the Federal Policies are identical except as explained below. The Court's citations therefore refer to only one of the Federal Policies, but the Court's analysis applies to all, unless otherwise stated.
+
+Case 0:12-cv-62392-KMM Document 262 Entered on FLSD Docket 03/09/2015 Page 13 of 18
+The above Federal Policies do not differ from the Gemini Policy in any appreciable manner. Compare Gemini Policy at 27, 75 ("We will pay all damages ... for bodily injury"), with Federal Policies at 93, 105, 108 ("we will pay damages ... for: bodily injury .... "). Thus, for the same reasons discussed in Part I, supra, the Court finds that the Federal Policies do not cover the claims asserted in the Underlying Complaint. Specifically, the Underlying Complaint does not assert claims "for bodily injury."
+C. Federal's Bodily Injury/Property Damage Exclusions
+In addition to arguing the Federal Policies do not cover Anda for the Underlying Complaint because it does not allege claims for bodily injury, Federal also argues that certain of the Federal Policies contain "Bodily Injury/Property Damage Exclusions." The Exclusions state:
+"This insurance does not apply to bodily injury or property damage included within the products-completed operations hazard . . . [which] includes all bodily injury and property damage occurring away from premises you own or rent and arising out of your product or your work . . .. "
+Federal Policies at 109; 2005-2006 Federal Policies (ECF No. 72-4) at 90. Federal therefore argues the Federal Policies exclude coverage for the Underlying Complaint because "all alleged damages arise out of Anda's distribution of its products." Federal MSJ at 11.
+Federal's argument is flawed. Federal prevailed on its coverage argument because the Underlying Complaint alleges only economic damages to the State and not claims "for bodily injury." Hence, the Bodily Injury Exclusion is not triggered by the Underlying Complaint. Nonetheless, the Federal Policies do not cover the claims asserted in the Underlying Complaint, as discussed in Part II.B, supra.
+
+Case 0:12-cv-62392-KMM Document 262 Entered on FLSD Docket 03/09/2015 Page 14 of 18
+D. Conclusion
+Based on the foregoing, the Court finds that Federal owes no duty to indemnify or defend Anda for the Underlying Complaint.8 The Court therefore GRANTS Federal's Motion for Summary Judgment.
+III. S&T's Motion for Summary Judgment
+A. Background
+St. Paul issued Anda insurance policies covering the period May 15, 2006-May 15, 2010 (ECF No. 181-3) (the "St. Paul Policies). Travelers issued Anda insurance policies covering the period May 15, 2010-May 15, 2013 (ECF No. 181-4) (the "Travelers Policies") (together with the St. Paul Policies, the "S&T Policies"). S&T and Anda dispute whether the S&T Policies cover Anda for the Underlying Complaint.
+The St. Paul Policies' relevant provisions are as follows:
+What This Agreement Covers
+Bodily injury and property damage liability.
+We'll pay amounts any protected person is legally required to pay as damages for covered bodily injury or property damage that: . . .
+· Is caused by an event.
+Protected person means any person or organization that qualifies ... under the Who is Protected Under This Agreement section.
+Bodily injury means any physical harm, including sickness or disease, to the physical health of other persons . . .
+Event means an accident, including continuous or repeated exposure to substantially the same general harmful conditions ...
+Right and duty to defend a protected person.
+8 Federal and Anda have also argued the duty to defend issue citing and arguing only the applicable duty to indemnify provision. See Federal MSJ at 3; Anda Cross-MSJ at 6; Federal Policies at 93. Thus, for the same reasons stated in Part II.F. n.4, supra, Federal owes no duty to indemnify Anda for the Underlying Lawsuit because it owes no duty to defend Anda for the same.
+:
+:
+
+Case 0:12-cv-62392-KMM Document 262 Entered on FLSD Docket 03/09/2015 Page 15 of 18
+We'll have the right and duty to defend any protected person against a claim or suit for injury or damage covered by this agreement.
+St. Paul Policies at 21, 22, 23 (emphasis in original).
+The Travelers Policies' relevant provisions are as follows:
+SECTION I - COVERAGES
+COVERAGE A BODILY INJURY AND PROPERTY DAMAGE LIABILITY
+1. Insuring Agreement
+a. We will pay those sums that the insured becomes legally obligated to pay as damages because of "bodily injury" or "property damage" to which this insurance applies. We will have the right and duty to defend the insured against any "suit" seeking those damages. However, we will have no duty to defend the insured against any "suit" seeking damages for "bodily injury" or "property damage" to which this insurance does not apply . . . .
+"Bodily injury" means:
+a. Physical harm, including sickness or disease, sustained by a person . .. .
+Travelers Policies at 16, 84 (emphasis in original).
+B. The Scope of the S&T Policies
+The above S&T Policies do not differ from the Gemini Policy in any appreciable manner. Compare Gemini Policy at 27, 75 ("We will pay all damages ... for bodily injury"), with St. Paul Policies at 21, 22, 23 ("We'll pay ... damages ... for covered bodily injury . . . that: ... [i]s caused by an event."), and Travelers Policies at 16, 84 ("We will pay ... damages because of "bodily injury" ... to which this insurance applies."). Thus, for the same reasons discussed in Part I, supra, the Court finds that the S&T Policies do not cover Anda for the Underlying Complaint. Specifically, the State does not assert claims "for bodily injury" or "because of bodily injury," because the claims are "for" and "because of" economic harm to the State.
+C. The S&T Policies' Products Exclusions
+
+Case 0:12-cv-62392-KMM Document 262 Entered on FLSD Docket 03/09/2015 Page 16 of 18
+The St. Paul Policies also contain a "Products Exclusion," which states: "We won't cover bodily injury or property damage that results from your products or completed work." St. Paul Policies at 58. The Travelers Policies also contains a similar Products Exclusion, which excludes from coverage: "Bodily injury' or 'property damage' ... occurring away from premises owned by or rented or loaned to you and arising out of 'your product' or 'your work' . . " Travelers Policies at 55.
+The S&T Products Exclusions do not differ from Federal's Bodily Injury/Property Damage Exclusion in any material manner. Hence, for the same reason discussed in Part II.C, supra, the Court finds that the S&T Policies' Products Exclusions are not triggered. Specifically, the Underlying Complaint does not assert claims for "bodily injury"; therefore, the S&T Products Exclusions for "bodily injury" are not triggered. Nonetheless, the S&T Policies do not cover the Underlying Complaint, as discussed in Part III.B, supra.
+D. Conclusion
+Based on the foregoing, the Court finds that S&T owe no duty to indemnify or defend Anda (and Watson) for the Underlying Complaint.9 The Court therefore GRANTS S&T's Motion for Summary Judgment.
+IV. DISPOSITION
+For the foregoing reasons, it is
+Hereby ORDERED AND ADJUDGED as follows:
+1. Gemini's Motion for Summary Judgment (ECF No. 196) is GRANTED;
+a S&T and Anda have also argued the duty to defend issue by citing and arguing the applicable duty to indemnify provision. See S&T MSJ at 5, 6; Anda Cross-MSJ at 6-8; St. Paul Policies at 21; Travelers Policies at 16. Thus, for the same reasons stated in Part II.F. n.4, supra, S&T owe no duty to indemnify Anda for the Underlying Complaint because they owe no duty to defend Anda for the same.
+
+Case 0:12-cv-62392-KMM Document 262 Entered on FLSD Docket 03/09/2015 Page 17 of 18
+2. Federal and Great Northern's Motion for Summary Judgment (ECF No. 184) is GRANTED;
+3. St. Paul and Travelers' Motion for Summary Judgment (ECF No. 180) is GRANTED;
+4. The Court DECLARES that Gemini, Federal, Great Northern, St. Paul, and Travelers owe no duty to defend or indemnify Anda and/or Watson for the Underlying Complaint;
+5. Declaratory Judgment as to Count I of Federal and Great Northern's Second Amended Complaint (ECF No. 136) is GRANTED; and
+6. Declaratory Judgment as to Counts I and II of St. Paul and Travelers' Amended Complaint (ECF No. 73) is GRANTED;
+It is therefore FURTHER ORDERED AND ADJUDGED as follows:
+1. Anda's Cross-Motion for Summary Judgment against Gemini (ECF No. 202) is DENIED;
+2. Anda's Cross-Motion for Summary Judgment against Federal and Great Northern (ECF No. 205) is DENIED;
+3. Anda and Watson's Cross-Motion for Summary Judgment against St. Paul and Travelers (ECF No. 209) is DENIED;
+4. All Counts in Anda and Watson's Counterclaims against Gemini, Federal, Great Northern, St. Paul, and/or Travelers (ECF Nos. 74, 151) are DISMISSED; and
+5. JUDGMENT as to all claims and counterclaims asserted in this case is ENTERED consistent with the Court's Order that Gemini, Federal, Great Northern, St. Paul, and Travelers owe no duty to defend or indemnify Anda and/or Watson for the Underlying Complaint.
+
+Case 0:12-cv-62392-KMM Document 262 Entered on FLSD Docket 03/09/2015 Page 18 of 18
+All other Motions and relief requested in this case are DENIED AS MOOT. Should any Party contend it is entitled to fees or costs, it may move the Court for fees and costs and shall support its motion with all relevant arguments and, where applicable, exhibits.
+The Clerk of Court is instructed to CLOSE this case.
+DONE and ORDERED in chambers in Miami, Florida this 9th day of March, 2015.
+Kevin Michael Moore
+Digitally signed by Kevin Michael Moore DN: cn=Kevin Michael Moore, o=USDC, ou=FLSD, email=K_Michael_Moore@fisd.uscourts.gov, c=US Date: 2015.03.09 10:16:41 -04'00'
+K. MICHAEL MOORE CHIEF UNITED STATES DISTRICT JUDGE
+Copies furnished to: All counsel of record

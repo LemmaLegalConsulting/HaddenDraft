@@ -1,0 +1,271 @@
+APPENDIX
+CITATIONS
+Amick v. Sickles
+4" App. Dist. No. 07-CA-6, 2008-Ohio-3913
+Ogle v. Disbrow 6th Dist. Nos. L-04-1373, L-05-1102, 2005-Ohio-4869 Stone v. Cazeau 9th Dist. No. 07CA09164, 2007-Ohio-6213
+:
+
+.
+Amick v. Sickles 4th App. Dist. No. 07-CA-6 2008-Ohio-3913
+
+[Cite as Amick v. Sickles , 177 Ohio App.3d 337, 2008-Ohio-3913.]
+IN THE COURT OF APPEALS OF OHIO FOURTH APPELLATE DISTRICT ATHENS COUNTY
+AMICK,
+Appellee,
+Case No. 07CA6
+V.
+Released: July 21, 2008
+SICKLES,
+DECISION AND JUDGMENT
+ENTRY
+Appellant.
+..
+APPEARANCES:
+Stuart Y. Itani, for appellant.
+Tamera Amick, pro se.
+MCFARLAND, Judge.
+{{1} Defendant-appellant, Deborah Sue Sickles, appeals the decision of the Athens County Municipal Court. The court granted appellee's complaint in forcible detention, but the eviction was stayed pending the resolution of ongoing divorce proceedings. Appellant contends that the trial court erred in (1) exercising subject-matter jurisdiction, (2) denying motions to dismiss due to lack of subject-matter jurisdiction, (3) finding that appellant had received proper notification of the termination of
+
+Athens App. No. 07CA6
+her tenancy under R.C. 5321.17, (4) granting the eviction based on evidence that was not in the record, and (5) determining that defendant's tenancy was properly terminated under R.C. 5321.17. We find that because appellant was not a periodic tenant, the notice requirements of R.C. 5321.17 were not applicable and the trial court properly found in favor of appellee.
+Accordingly, appellant's assignments of error are overruled, and the judgment of the trial court is affirmed.
+I. Facts
+{12} For approximately six years, appellant and her then husband, Michael Robinson, lived in a house owned by Michael's mother, Mary. During this entire period, appellant and Michael lived in the house rent-free. It is undisputed that there was no written or oral lease between appellant and Michael and Mary regarding the occupation of the home.
+{3} In 2006, appellant and Michael separated and began divorce proceedings. Michael moved out, but appellant continued to reside at the house in question without paying rent. Subsequently, pursuant to a quit- claim deed dated September 14, 2006, Mary sold the property to appellee, a friend of Michael's, for $1,000. Shortly thereafter, appellee commenced proceedings to evict appellant. Appellee's initial eviction action was dismissed without prejudice because she failed to wait three full business
+
+Athens App. No. 07CA6
+days between serving the notice to leave the premises and filing the complaint.
+{14} On December 23, 2006, appellee again posted a notice to leave the premises. The notice asked appellant to leave that day and listed as grounds: "no pre-existing or existing rental or lease contract: not pay rent [sic]. Destruction of property." On December 29, appellee filed a complaint in forcible detention. The complaint stated that on September 21, 2006, appellee had first served, in writing, notice to leave the premises. The complaint listed the same grounds for eviction as did the notice to leave.
+{[5} A hearing on the complaint took place on January 11, 2007. At the hearing, the trial court stated that its inclination at the time was to treat the December 23, 2006 notice to leave as a 30-day notice and to continue the hearing until February. After the first hearing, appellant filed a motion to dismiss, contending that appellee did not provide adequate notice to leave the premises and, thus, the trial court lacked subject-matter jurisdiction.
+At the February hearing, the trial court denied the motion to dismiss and proceeded to hear the case on its merits. At the conclusion of testimony, the trial court granted the eviction, effective February 7, 2007. However, the court stayed the eviction pending the outcome of appellant and
+
+Athens App. No. 07CA6
+Michael's divorce proceedings. At the conclusion of the hearing, appellant renewed her motion to dismiss for lack of subject-matter jurisdiction.
+{{7} In its journal entry, the trial court's findings of fact included the following: "For approximately six years, Michael Robinson and [appellant] lived at the subject property rent free. There was no written or oral agreement, but Michael and [appellant] expected that someday the property would be given to them." In its conclusions of law, the trial court determined that appellant was, and always had been, a tenant at will and that no consideration had been given to appellee or the previous owner, Mary. The court also stated, "Plaintiff's December 23, 2006 Notice To Leave Premises, attached to the December 29, 2006 Complaint, satisfies the jurisdictional requirements of R.C. Chapter 1923."
+Following the trial court's journal entry, appellant filed the current appeal.
+II. Assignments of Error
+{19} 1. The trial court erred by exercising subject matter jurisdiction.
+{{10} 2. The trial court erred by denying Defendant's written Motion to Dismiss, and oral motions to dismiss for lack of subject matter jurisdiction.
+
+Athens App. No. 07CA6
+{[11} 3. The trial court erred by finding that Defendant received notice of termination pursuant to R.C. 5321.17.
+{[12} 4. The trial court erred in granting an eviction based on a September 18, 2006 notice that was not in evidence.
+{[13} 5. The trial court erred by determining that Plaintiff properly terminated Defendant's tenancy under R.C. 5321.17.
+III. First and Second Assignments of Error
+{[14} Appellant's first and second assignments of error both contend that the trial erred by exercising subject-matter jurisdiction in this matter. Accordingly, we address the assignments of error together.
+{[15} Initially, we note the appropriate standard of review. Subject- matter jurisdiction is defined as the power of a court to hear and decide a case on its merits. State ex rel. Jones v. Suster (1998), 84 Ohio St.3d 70, 73, 701 N.E.2d 1002. "A court possesses initial authority to determine its own jurisdiction over the parties and the subject matter absent a patent and unambiguous lack of jurisdiction. The existence of the trial court's subject matter jurisdiction is a question of law which we review de novo." Yazdani-Isfehani v. Yazdani-Isfehani, 4th Dist. No. 06CA6, 2006-Ohio- 7105, 865 N.E.2d 924, 120.
+
+.
+Athens App. No. 07CA6
+{[16} Appellant contends that the trial court lacked subject-matter jurisdiction to hear this matter because appellee failed to comply with the notice requirements of R.C. 5321.17 and 1923.04. R.C. 5321.17 governs the termination of periodic tenancies. Under R.C. 5321.17(B), "the landlord or the tenant may terminate or fail to renew a month-to-month tenancy by notice given the other at least thirty days prior to the periodic rental date." R.C. 1923.04 governs notice requirements for forcible entry and detainer actions. Under R.C. 1923.04(A), "a party desiring to commence an action under this chapter shall notify the adverse party to leave the premises, for the possession of which the action is about to be brought, three or more days before beginning the action, by certified mail, return receipt requested, or by handing a written copy of the notice to the defendant in person, or by leaving it at the defendant's usual place of abode or at the premises from which the defendant is sought to be evicted."
+{[17} Appellant correctly notes that before commencing an eviction action, a landlord must serve a month-to-month residential tenant a 30-day notice pursuant to R.C. 5321.17. Maggiore v. Kovach, 101 Ohio St.3d 184, 2004-Ohio-722, 803 N.E.2d 790, at 114; DeBenedictus v. Gialamas (Jan. 24, 1997), 11th Dist. No. 96-L-006, at *3; Detweiter v. Galt (Dec. 26, 2001), 4th Dist. No. 01CA34, at *2. Appellant also correctly points out that before any
+
+Athens App. No. 07CA6
+complaint may be filed in forcible entry and detainer, R.C. 1923.04(A) requires a three-day notice. Cincinnati Metro. Hous. Auth. v. Morgan, 104 Ohio St.3d 445, 2004-Ohio-6554, 820 N.E.2d 315, at [1. Thus, when a tenant is in possession of property under a month-to-month tenancy, a landlord must comply with a three-step eviction process: (1) serve a proper 30-day notice of termination of the tenancy, (2) serve a proper three-day notice to vacate after the expiration of the 30-day notice, and (3) file a complaint against the tenant in forcible entry and detainer after the expiration of the three-day notice. Voyager Village Ltd. v. Williams (1982), 3 Ohio App.3d 288, 291, 3 O.B.R. 333, 444 N.E.2d 1337. Appellant's jurisdictional arguments are based on the premise that appellee failed to abide by this three-step eviction process and, therefore, the trial court lacked subject-matter jurisdiction. However, these arguments fail because appellant was not, in fact, a month-to-month tenant. Accordingly, R.C. 5321.17 has no application in this matter.
+{[18} It is undisputed that appellant and Michael lived in Mary's home rent-free for six years. Appellant admits that there was no lease agreement between the parties. When asked whether she had entered into any agreements as to what she was to do in return for living at the property, appellant replied: "Not really. It was ours to, I mean, we remodeled and,
+
+Athens App. No. 07CA6
+you know, we gutted it, remodeled it. Put new stuff in it. We didn't have any, there was never any question of rent. It was eventually supposed to go into our names." Appellant states that the fact that she and Michael paid utilities while residing at the property established a month-to-month tenancy to which appellee became subject when she purchased the property. We do not find this argument persuasive.
+{[19} "A lease is a conveyance of an estate in realty for a limited term, with conditions attached, in consideration of rent, and anything which creates the relationship of landlord and tenant. As such, the term lease encompasses month-to-month leases which arise by implication or oral agreement whereby the landlord-tenant relationship is created." Swartz v. Schutte (Jan. 9, 1991), 9th Dist. No. 14717, 1991 WL 2022 at *2. In the case sub judice, no lease of any kind was established between appellant and Mary. Appellant admits that she had no real agreement with the owner regarding the occupation of the home. It is undisputed that appellant lived rent-free. Further, the trial court found that appellant had given no consideration in return for residing in the house, either to appellee or Mary. Because there was no consideration, no landlord-tenant relationship was established. "An individual who lives in a residence with another without a rental agreement and without the payment of rent is not a tenant and cannot
+
+Athens App. No. 07CA6
+maintain an action for wrongful eviction." Stone v. Cazeau, 9th Dist. No. 07CA009164, 2007-Ohio-6213, at 16, citing Ogle v. Disbrow, 6th Dist. Nos. L-04-1373 and L-05-1102, 2005-Ohio-4869, at 117. Because appellant did not hold the property as a periodic tenant, R.C. 5321.17, governing the termination of periodic tenancies, was not applicable. Thus, R.C. 5321.17(B) could not be a jurisdictional bar to the trial court to proceed on appellee's complaint.
+{[20} We next turn to R.C. 1923.04 as a bar to the trial court's subject-matter jurisdiction. In order to bring an action in forcible entry and detainer, R.C. 1923.04(A) requires a notice to vacate three or more days before beginning the action. Further, the statute requires service by one of a number of methods, including leaving the notice at the property in question. Here, it is undisputed that appellee left a notice to vacate at the premises. It is also undisputed that the notice was served on December 23, 2006, and that the complaint was not filed until December 29, six days later. Accordingly, the requirements of R.C. 1923.04 were met and the trial court had subject- matter jurisdiction over the action. Thus, appellant's first and second assignments of error are overruled.
+
+:
+Athens App. No. 07CA6
+IV. Third and Fourth Assignments of Error
+{[21} In her brief, appellant argues her third and fourth assignments of error as one and we address them as such. Appellant contends that the trial court erred by basing its decision - both to exercise jurisdiction and terminate appellant's tenancy - upon a September 2006 notice that was not in evidence. Appellant bases this argument on the following conclusion of the trial court: "Plaintiff's September 18, 2006 notice was sufficient to notify Defendant of the end of the tenancy at will effective October 31, 2006." Appellant contends that the September 18 notice does not appear in the record and, therefore, the trial court was not permitted to rely on it in making its decision.
+{[22} As discussed earlier, appellant's subject-matter jurisdiction argument has no merit. The trial court was not bound by the jurisdictional requirements imposed by R.C. 5321.17 because appellant was not a periodic tenant. Similarly, whether or not the September notice was in evidence, the trial court was not required to rely on it in deciding in favor of appellee. Again, appellant's argument is predicated upon the application of R.C. 5321.17 and its 30-day notice requirement. Here, no such 30-day notice was needed.
+.
+
+Athens App. No. 07CA6
+{[23} Regardless, despite appellant's claim to the contrary, there is evidence of appellee's September 2006 notice in the record. Appellee's December 29, 2006 complaint states that she first served, in writing, notice to leave the premises in September 2006. Thus, even had the trial court needed to rely on such evidence in making its decision, that evidence was properly before it.
+{{24} There is no question that appellant received multiple notices to vacate the premises. Appellee bought the property in September 2006 and gave appellant notice to vacate soon thereafter. Appellant was again given notice on December 23. In January 2007, the trial court continued the proceedings to give appellant additional notice. The actual eviction did not take effect until February 7, 2007. Even if R.C. 5321.17 had any application in this matter, the purpose of that statute is to ensure that periodic tenants have time to search for other lodgings. Reith v. Skruck (1995), 71 Ohio Misc.2d 1, 653 N.E.2d 755. Appellant has certainly had time to do so in this case. Her third and fourth assignments of error are overruled.
+V. Fifth Assignment of Error
+{[25} As her fifth and final assignment of error, appellant contends that the trial court erred by determining that appellee properly ended her tenancy under R.C. 5321.17. First, we note that the trial court did not refer
+
+Athens App. No. 07CA6
+to R.C. 5321.17 in its journal entry. What the court did state is that the jurisdictional requirements of R.C. 1923 were met by the December 23 notice to vacate the premises. In any event, as stated above, because appellant was not a month-to-month tenant, R.C. 5321.17 had no application in this matter. Appellant's fifth assignment of error is overruled.
+VI. Conclusion
+{[26} After reviewing the record below, we find that the trial court's decision to grant appellee's complaint and evict appellant from the premises in question was proper. Because appellant was not a periodic tenant, the notice requirements of R.C. 5321.17 had no application in this case. Because appellee gave proper notice under R.C. 1923.04, the trial court had subject-matter jurisdiction to hear appellee's complaint and rule on the merits. Accordingly, appellant's assignments of error are overruled, and the judgment of the trial court is affirmed.
+Judgment affirmed.
+ABELE, P.J., and KLINE, J., concur in judgment only.
+-
+:
+
+Ogle v. Disbrow 6th Dist. Nos. L-04-1373, L-05-1102, 2005-Ohio-4869
+
+[Cite as Ogle v. Disbrow, 2005-Ohio-4869.]
+IN THE COURT OF APPEALS OF OHIO SIXTH APPELLATE DISTRICT LUCAS COUNTY
+Bertha Jane Ogle
+Court of Appeals No.
+L-04-1373
+L-05-1102
+Appellant
+Trial Court No. CI-03-4700
+V.
+Carl Disbrow
+DECISION AND JUDGMENT ENTRY
+Appellee
+Decided: September 16, 2005
+Alan Kirshner, for appellant. Jeffrey D. Levy, for appellee.
+* *
+PARISH, J. {{ 1} This is a consolidated appeal from judgments of the Lucas County Court of Common Pleas that granted summary judgment in favor of appellee and denied appellant's motion for relief from judgment pursuant to Civ.R. 60(B). For the following reasons, this court affirms the judgments of the trial court.
+{{2} Appellant Bertha Jane Ogle sets forth three assignments of error:
+{{ 3} "First Assignment of Error
+{{ 4} "I. The trial court failed to consider appellant's verified complaint and thus erred in granting summary judgment.
+* *
+
+{{5} "II. The trial court erred in not requiring appellee to demonstrate evidence of the absence of material fact on all essential elements of the two non-verified causes of action and thus erred in granting summary judgment.
+{{ 6} "Second Assignment of Error
+{7} "III. The trial court erred in not holding a hearing on appellant's Civ.R. 60(B) motion.
+{[8} "Third Assignment of Error
+{19} "IV. The trial court erred in failing to grant appellant's Civ.R. 60(B) motion."
+{{ 10} In 1996, appellant and appellee entered into a relationship. In 1999, appellant sold her home and moved into appellee's house. Several months later, appellant quit her job. Appellant alleges appellee insisted she stop working. During the time they lived together, appellee gave appellant $100 each week for spending money. He also bought her a car, paid her car insurance, provided her with medical insurance and paid all of their living expenses. Appellant also alleges appellee promised her she could live with him for the rest of her life. Appellee asserts he asked appellant to leave the home in early 2003 and gave her ample opportunity to locate other housing. According to appellant, however, she first learned appellee wanted her to move out when a stranger handed her a note as she left the hairdresser on September 3, 2003. The note stated that, effective immediately, she would no longer be permitted to reside in appellee's home, the locks had been changed, and her possessions would be delivered to whatever location she desired. Appellant immediately contacted an attorney and, later that day, filed a
+2.
+
+complaint along with a request for a restraining order and preliminary and permanent injunctions preventing appellee from interfering with her access to the home. On September 4, 2003, a hearing was held and the parties settled the issues of injunctive relief. The parties also agreed that a temporary restraining order should not be issued. Appellee agreed to pay appellant $5,350 by the end of the day and arrangements were made for appellant to remove her possessions from the house. All other matters in the complaint were continued.
+{{ 11} On November 7, 2003, appellant filed an amended complaint in which she alleged appellee violated several promises to her and that she had relied on those promises when she quit her job, sold her house, and moved in with him. Appellant also alleged appellee's self-help eviction was in violation of Ohio statutory and common law; appellee was unjustly enriched in the amount of $10,000 by a garden she cultivated on his property; and appellee converted approximately $6,500 of appellant's property to his own use. Appellant demanded an order requiring appellee to specifically perform on the parties' "contract." Appellant further asked for a judgment in the amount of $761,000 to cover 11 years lost wages; medical insurance until appellant would become eligible for Medicare, supplemental Medicare, and prescription coverage; 10 years automobile insurance coverage; and the reasonable rental value for her promised life estate in appellee's home.
+{[ 12} On October 6, 2004, appellee filed a motion for summary judgment as to all counts of appellant's complaint. In support of his motion, appellee argued that during the time appellant lived in his home she was a social guest and therefore he had no obligation
+3.
+
+to give her notice before recinding his invitation to her. Appellee asserted that appellant became a trespasser when she refused to leave. Appellee also argued he fulfilled his promises to her regarding payment of her expenses but he never promised she could live there for the rest of her life. Appellee further asserted he never executed a deed or other writing that would have given appellant a life estate in his property. Also, as to appellant's unjust enrichment claim based on the garden she planted in his yard, appellee asserted appellant planted the garden of her own volition. Finally, as to the several items of personal property appellant claimed appellee refused to allow her to remove from the home, appellee asserted they were not gifts to her but were items he purchased with his own money for their use in the home.
+{{ 13} Appellant did not file a response, and on November 16, 2004, the trial court granted summary judgment in favor of appellee. On December 9, 2004, appellant filed a motion for relief from judgment pursuant to Civ.R. 60(B), asking the trial court to vacate the summary judgment and grant her leave to file a response to appellee's motion. Appellant asserted her failure to file a timely response was due to mistake, inadvertence, surprise and/or excusable neglect. On December 15, 2004, while appellant's motion for relief from judgment was pending in the trial court, she filed a timely notice of appeal with this court from the order granting summary judgment. She then moved this court to remand the appeal to the trial court for a ruling on her Civ.R. 60(B) motion. On January 28, 2005, while appellant's motion for remand was pending in this court, the trial court denied her Civ.R. 60(B) motion. On February 11, 2005, this court remanded the appeal to the trial court for a ruling on the Civ.R. 60(B) motion. On February 24, 2005, the trial
+4.
+
+court again denied appellant's motion to vacate and on March 25, 2005, appellant filed a notice of appeal from that judgment. On April 4, 2005, this court consolidated appellant's two appeals.
+{{ 14} In her first assignment of error, appellant asserts the trial court erred in granting summary judgment. Appellant argues that the trial court erred by failing to consider her complaint, her testimony at the hearing on her request for a temporary · restraining order, and her deposition testimony. She also asserts the trial court erred by not requiring appellee to demonstrate the absence of material fact as to all essential elements of her causes of action based on unjust enrichment and conversion.
+{{ 15} We note at the outset that, in reviewing a motion for summary judgment, we must apply the same standard as the trial court. Lorain Natl. Bank v. Saratoga Apts. (1989), 61 Ohio App.3d 127. Summary judgment will be granted when there remains no genuine issue of material fact and, when construing the evidence most strongly in favor of the non-moving party, reasonable minds can only conclude that the moving party is entitled to judgment as a matter of law. Civ.R. 56(C). Initially, the party seeking summary judgment bears the burden of informing the trial court of the basis for the motion and identifying portions of the record demonstrating an absence of genuine issues of material fact as to the essential elements of the non-moving party's claims. Dresher v. Burt (1996), 75 Ohio St.3d 280, 293, 1996 Ohio 107. There is no "default summary judgment" in Ohio. Maust v. Palmer (1994), 94 Ohio App.3d 764, 769. Therefore, the moving party must still meet its burden under Dresher, supra, even if the nonmoving party fails to file a memorandum in opposition, as occurred in this case.
+5.
+
+{[ 16} Appellant asserts appellee's actions created a cause of action for estoppel because he made promises which led her to sell her house and quit her job, and then broke those promises, thereby subjecting her to loss and injury. It is undisputed that appellee said he would provide for her medical and automobile insurance, buy her a new car, pay all household expenses, and give her spending money. However, it is also undisputed appellee took care of those things while appellant lived with him and their relationship was on solid ground. Further, there is no evidence in the record to support appellant's claim that appellee promised her she could live in his house for the rest of her life, let alone that she is entitled to several hundred thousand dollars in damages for "improper termination of [her] right to reside in the premises." At her deposition, appellant testified appellee told her if he died first she could remain in the house until her death. She further testified he never told her she could stay there until she died if he were still living.
+{[ 17} Appellant also asserts she set forth a cause of action for unlawful eviction. This argument is premised on appellant's belief that she possessed status as a tenant, not a social guest, while living with appellee, because they had an agreement concerning the use and occupancy of the home. There is no evidence in the record that the parties entered into a rental agreement of any sort or that either of them considered her a tenant in the home. At the hearing on appellant's motion for a temporary restraining order, appellant testified appellee never asked her to pay rent while she lived with him and stated she moved in at his invitation.
+6.
+
+{{ 18} Next we will consider appellant's claims for unjust enrichment and conversion. To prove conversion, a plaintiff must show "the wrongful exercise of dominion over property to the exclusion of the rights of the owner, or withholding it from his possession under a claim inconsistent with his rights." Joyce v. General Motors Corp. (1990), 49 Ohio St.3d 93, 96. Ohio courts have observed that "[t]here is no precedent in Ohio for dividing assets or property based on mere cohabitation without marriage and we think it advisable not to start or follow a trend to the contrary." Lauper v. Harold (1985), 23 Ohio App.3d 168, 170. See, also, Seward v. Mentrup (1993), 87 Ohio App.3d 601. Although the issue before the court in Lauper was the trial court's division of property, we agree with the rationale expressed by that court and believe it can reasonably be applied to appellant's claim for conversion of property in this case. We are unwilling to involve this court or the lower court in what amounts to the division of personal property between two unmarried individuals upon the conclusion of their relationship. Appellant has stated that she was not permitted to remove several items that she claimed were hers but she has presented no evidence of ownership or evidence that appellee is withholding property under a claim inconsistent with his rights.
+{[ 19} Appellant's claim for unjust enrichment is based on the garden she planted. Appellant testified she purchased plantings with her own spending money and transplanted flowers from her yard before she moved in with appellee. With respect to this claim, we do not find any evidence appellee was unjustly enriched by the garden appellant planted in his yard. Unjust enrichment occurs where a party retains money or benefits which in justice and equity belong to another. Hummel v. Hummel (1938), 133
+7.
+
+Ohio St. 520, 528. While it is undisputed appellant planted and maintained the garden, it did not "belong" to her. Also, she did not offer any evidence as to the value of any of the plants and did not otherwise support her claim that the garden enhances the value of appellee's property by $10,000. Further, appellant lived in appellee's home for approximately four years and was able to enjoy the garden herself during that time. We therefore find no evidence appellee was unjustly enriched by the garden.
+{{ 20} Based on the foregoing, we find appellant failed to come forward with any evidence which might raise an issue of fact on any point necessary for her to prevail in this action. Thus, even construing the unsupported assertions presented in appellant's testimony at the TRO hearing and in her deposition in a light most favorable to her, we find appellee carried his burden of demonstrating he is entitled to judgment as a matter of law with respect to these claims. Accordingly, we find the trial court did not err by granting appellee's motion for summary judgment and appellant's first assignment of error is not well-taken.
+{[ 21} Appellant's second and third assignments of error both raise issues relating to her Civ.R. 60(B) motion to vacate. We will first address appellant's third assignment of error, in which she asserts the trial court erred by denying her motion.
+{[ 22} The decision to grant or deny a Civ.R. 60(B) motion is within the sound discretion of the trial court, and will not be disturbed on appeal absent a clear abuse of that discretion. Adomeit v. Baltimore (1974), 39 Ohio App.2d 97, 103. The term "abuse of discretion" connotes more than a mere error of law or judgment, instead requiring a
+8.
+
+finding that the trial court's decision was unreasonable, arbitrary, or unconscionable. Blakemore v. Blakemore (1983), 5 Ohio St.3d 217, 219.
+{{ 23} The grounds for relief set forth in Civ.R. 60(B) are: (1) mistake, inadvertence, surprise or excusable neglect; (2) newly discovered evidence which by due diligence could not have been discovered in time to move for a new trial under Rule 59(B); (3) fraud* * * , misrepresentation or other misconduct of an adverse party; (4) the judgment has been satisfied, released or discharged* * *; or (5) any other reason justifying relief from the judgment* "
+{[ 24} In order to succeed on a motion seeking relief from judgment pursuant to Civ.R. 60(B) , a movant must demonstrate that: "(1) the party has a meritorious defense or claim to present if relief is granted; (2) the party is entitled to relief under one of the grounds stated in Civ.R. 60(B)(1) through (5); and (3) the motion is made within a reasonable time, and, where the grounds of relief are Civ.R. 60(B)(1) , (2) or (3), not more than one year after the judgment, order or proceeding was entered or taken." GTE Automatic Elec., Inc. v. ARC Indus., Inc. (1976), 47 Ohio St.2d 146, paragraph two of the syllabus. Relief pursuant to Civ.R. 60(B) will be denied if the movant fails to adequately demonstrate any one of the three requirements set forth in GTE, supra. Argo Plastic Products Co. v. Cleveland (1984), 15 Ohio St.3d 389, 391.
+{{ 25} Appellant asserted in her motion for relief from judgment that she failed to file a response to appellee's motion for summary judgment due to "inadvertence, mistake and/or excusable neglect." She stated the filing of appellee's motion for leave to file and the trial court's order granting leave were duly noted in her attorney's file but that
+9.
+
+appellee's subsequent filing of the motion mistakenly was not entered on the calendar. Appellant asserted that was a result of inadvertence, mistake and excusable neglect, not a willful or complete disregard for the judicial system.
+{{ 26} The determination of whether a party's neglect is excusable or inexcusable must take into consideration the surrounding facts and circumstances. Colley v. Bazell (1980), 64 Ohio St. 2d 243, 249. The party attempting to demonstrate relief should be granted must make a prima facie showing that the ends of justice will be better served by setting the judgment aside. Rose Chevrolet, Inc. v. Adams (1998), 36 Ohio St.3d 17 at 21.
+{[ 27} This court has considered the entire record of these proceedings and, upon consideration thereof and the law, finds appellant has not established that her failure to file a response to appellee's motion for summary judgment was due to excusable neglect or that the ends of justice would be better served if the trial court's summary judgment was set aside. Appellant did not demonstrate the existence of any compelling facts or circumstances that would have "excused" the failure to file a response to the motion for summary judgment. Because appellant has failed to meet the second requirement for the granting of a Civ.R. 60(B) motion as set forth in GTE Automatic Elec., Inc., supra, we need not address the issue of whether she has a meritorious claim or defense to present if relief is granted. Argo Plastic Products Co., supra. The trial court did not abuse its discretion when it denied appellant's motion for relief from judgment pursuant to Civ.R. 60(B)(1) and, accordingly, appellant's third assignment of error is not well-taken.
+10.
+
+{ 28} In her second assignment of error, appellant asserts the trial court should have held a hearing on her motion. Appellant supports this argument simply by quoting a decision of the Supreme Court of Ohio which states that a trial court abuses its discretion by denying a hearing where grounds for relief from judgment are sufficiently alleged and are supported with evidence which would warrant relief from judgment. See Kay v. Marc Glassman, Inc., 76 Ohio St.3d 18, 1996-Ohio-430.
+{ 29} Generally, a trial court has discretion whether or not to hold an evidentiary hearing before ruling on a motion for relief from judgment. U.A.P. Columbus JV326132 v. Plum (1986), 27 Ohio App. 3d 293, 294. If a trial court has before it enough evidence to make a decision, an evidentiary hearing on the motion is not necessary. Matson v. Marks (1972), 32 Ohio App. 2d 319, 328. In other words, an evidentiary hearing is not required in cases where "the motion and attached evidentiary material do not contain allegations of operative facts which would warrant relief under Civ.R. 60(B)." State ex rel. Richard v. Seidner, 76 Ohio St.3d 149, 151, 1996-Ohio-54, citing S. Ohio Coal Co. v. Kidney (1995), 100 Ohio App.3d 661, 667.
+{{ 30} Based on the foregoing, and in particular our finding as to appellant's third assignment of error, we find that an evidentiary hearing was not necessary in this case because appellant did not present allegations of operative facts which would have warranted relief pursuant to Civ.R. 60(B). Accordingly, we find that the trial court did not abuse its discretion by failing to hold an evidentiary hearing in this case and appellant's second assignment of error is not well-taken.
+11.
+
+{{ 31} On consideration whereof, we find that substantial justice was done the party complaining and the judgments of the Lucas County Court of Common Pleas entered November 16, 2004, and February 24, 2005, are affirmed. Appellant is ordered to pay the costs of this appeal pursuant to App.R. 24. Judgment for the clerk's expense incurred in preparation of the record, fees allowed by law, and the fee for filing the appeal is awarded to Lucas County.
+JUDGMENT AFFIRMED.
+A certified copy of this entry shall constitute the mandate pursuant to App.R. 27. See, also, 6th Dist.Loc.App.R. 4, amended 1/1/98.
+Peter M. Handwork, J.
+JUDGE
+Arlene Singer. P. J.
+Dennis M. Parish, J.
+JUDGE
+CONCUR.
+JUDGE
+This decision is subject to further editing by the Supreme Court of Ohio's Reporter of Decisions. Parties interested in viewing the final reported version are advised to visit the Ohio Supreme Court's web site at: http://www.sconet.state.oh.us/rod/newpdf/?source=6.
+12.
+
+Stone v. Cazeau 9th Dist. No. 07CA09164 2007-Ohio-6213
+
+-
+[Cite as Stone v. Cazeau, 2007-Ohio-6213.]
+STATE OF OHIO
+) )ss:
+IN THE COURT OF APPEALS NINTH JUDICIAL DISTRICT
+COUNTY OF LORAIN )
+ALICE STONE
+C. A. No. 07CA009164
+Appellant
+V. EDWIN CAZEAU, et al.
+Appellees
+APPEAL FROM JUDGMENT ENTERED IN THE COURT OF COMMON PLEAS COUNTY OF LORAIN, OHIO CASE No. 05 CV 143672
+DECISION AND JOURNAL ENTRY
+Dated: November 26, 2007
+This cause was heard upon the record in the trial court. Each error assigned
+has been reviewed and the following disposition is made:
+DICKINSON, Judge.
+INTRODUCTION
+{{1} Alice Stone and Edwin Cazeau lived together for four years until 2005, when Mr. Cazeau asked his daughter, Cathryn Nixon, to bar Ms. Stone from his home and end her access to his bank accounts. Ms. Stone sued Mr. Cazeau and Ms. Nixon, alleging wrongful eviction and conversion. The trial court granted summary judgment to the defendants, and Ms. Stone has appealed. She has argued that the trial court incorrectly granted summary judgment to the defendants. This Court affirms the trial court's judgment on the wrongful eviction claim because there is no genuine issue of material fact regarding whether Ms.
+
+Stone was a tenant in Mr. Cazeau's home and the defendants are entitled to judgment as a matter of law. This Court reverses the trial court's judgment on Ms. Stone's conversion claim, however, because Ms. Stone's affidavit, which is properly considered in opposition to the defendants' motion for summary judgment, demonstrates that there are genuine issues of material fact. In reaching this conclusion, this Court overrules previous decisions of this Court to the extent those decisions held that a nonmoving party can never avoid summary judgment by submitting a "self-serving affidavit containing no more than bald contradictions of the evidence offered by the moving party."
+BACKGROUND
+{{2} Mr. Cazeau purchased a home in Lorain County in 2004. Ms. Stone, with whom he had been living for several years, also owned a home in Lorain County, which she continued to maintain. Neither had an ownership interest in the property of the other. Although the two resided together in Mr. Cazeau's home, the nature of their relationship is unclear. Mr. Cazeau has insisted that Ms. Stone was nothing more than a social guest in his home; Ms. Stone, on the other hand, has maintained that the two were "consorts" who shared a sexual relationship. Mr. Cazeau gave Ms. Stone access to several bank accounts. Ms. Stone claims to have deposited her retirement and social security checks into those accounts and contributed toward their living expenses.
+Court of Appeals of Ohio, Ninth Judicial District
+
+{3} Mr. Cazeau claims that, in late 2004 or early 2005, he decided it would be prudent to sell his home and give his daughter control of his assets. He asked Ms. Nixon to remove Ms. Stone from his home so that Ms. Nixon could attempt to sell it. Acting on her father's instructions, Ms. Nixon blocked Ms. Stone's access to the home by chaining the entrance closed and changing the locks. Ms. Stone entered on several occasions despite the barriers. According to her version of events, she did so because her possessions were locked inside the house. Mr. Cazeau, however, has claimed that Ms. Stone successfully removed her belongings then reentered the house to vandalize it.
+THE STANDARD OF REVIEW
+{{4} Ms. Stone's sole assignment of error is that the trial court incorrectly granted summary judgment to Mr. Cazeau and Ms. Nixon. In reviewing a trial court's ruling on a motion for summary judgment, this Court applies the same standard a trial court is required to apply in the first instance: whether there were any genuine issues of material fact and whether the moving party was entitled to judgment as a matter of law. Parenti v. Goodyear Tire & Rubber Co., 66 Ohio App. 3d 826, 829 (1990).
+THE WRONGFUL EVICTION CLAIM
+{{5} Ms. Stone has argued that the trial court incorrectly granted summary judgment to the defendants on her wrongful eviction claim. According to Ms. Stone, Mr. Cazeau ousted her from her place of residence illegally, without
+Court of Appeals of Ohio, Ninth Judicial District
+
+following the procedures required for a forcible entry and detainer action under Chapter 1923 of the Ohio Revised Code.
+{{6} The Landlord-Tenant Act, Chapter 5321 of the Ohio Revised Code, regulates the relationship between residential landlords and their tenants. Section 5321.15(A) provides that landlords may only evict residential tenants by following the procedures set forth in Chapters 1923, 5303, and 5321 of the Ohio Revised Code. Section 5321.01(B) defines a landlord as "the owner, lessor, or sublessor of residential premises, the agent of the owner, lessor, or sublessor, or any person authorized by the owner, lessor, or sublessor to manage the premises or to receive rent from a tenant under a rental agreement." A tenant is an individual who is "entitled under a rental agreement to the use and occupancy of residential premises to the exclusion of others," while a rental agreement is "any agreement or lease, written or oral, which establishes or modifies the terms, conditions, rules, or any other provisions concerning the use and occupancy of residential premises by one of the parties." Sections 5321.01(A) and (D) of the Ohio Revised Code. A tenant at will is one who, under the terms of a written lease agreement, continues in a tenancy as long as the parties mutually agree. Freedline v. Cielensky, 115 Ohio App. 138, 141 (1961), quoting Say v. Stoddard, 27 Ohio St. 478 (1875). An individual who lives in a residence with another without a rental agreement and without the payment of rent is not a tenant and cannot maintain an action for
+Court of Appeals of Ohio, Ninth Judicial District
+
+wrongful eviction. Ogle v. Disbrow, 6th Dist. Nos. L-04-1373, L-05-1102, 2005- Ohio-4869, at 117.
+{7} Mr. Cazeau and Ms. Nixon argued to the trial court that Ms. Stone was not a tenant for purposes of Chapters 5321 and 1923 of the Ohio Revised Code, but merely a friend and social companion with whom he had resided at various times and in various places, including both her residence and his own. Their motion for summary judgment was supported by Mr. Cazeau's affidavit setting forth facts to that effect; by Ms. Stone's discovery responses; and by admissions deemed admitted by Ms. Stone's failure to respond in a timely manner.
+{[8} Ms. Stone agreed with Mr. Cazeau's characterization of their relationship, but argued that she was a tenant at will in Mr. Cazeau's residence. Ms. Stone, however, did not produce any evidence that she paid rent to Mr. Cazeau or that the two entered into a rental agreement of any kind, and there is no evidence in the record tending to prove that either Mr. Cazeau or Ms. Stone considered themselves to be in a landlord-tenant relationship while residing in the home of the other. Although Ms. Stone supported her response to the motion for summary judgment with an affidavit, she failed to establish a genuine issue of fact regarding whether she was a tenant in Mr. Cazeau's residence.
+{19} The defendants were entitled to judgment on Ms. Stone's wrongful eviction claim as a matter of law. Mr. Cazeau and Ms. Stone lived together in his residence without any type of rental agreement and without the existence of a
+Court of Appeals of Ohio, Ninth Judicial District
+
+..
+landlord-tenant relationship. Ms. Stone, therefore, was not a tenant to whom the protections of Chapter 5321 of the Ohio Revised Code apply, nor was Mr. Cazeau a landlord. To the extent that Ms. Stone's assignment of error pertains to her wrongful eviction claim, it is overruled.
+THE CONVERSION CLAIM
+{10} Ms. Stone has also argued that the trial court incorrectly granted summary judgment to Mr. Cazeau and Ms. Nixon on her conversion claim. A claim for conversion is based on the wrongful exertion of control over property in a manner that is inconsistent with the plaintiff's right of ownership. State Farm Mut. Auto. Ins. Co. v. Advanced Impounding & Recovery Servs., 165 Ohio App. 3d 718, 2006-Ohio-760, at 19. According to Ms. Stone, Ms. Nixon - acting on Mr. Cazeau's behalf - blocked Ms. Stone's access to the home and prevented her from removing personal belongings that were stored there. Specifically, Ms. Stone claimed that Mr. Cazeau and Ms. Nixon prevented her from retrieving "among other things, three dress suits and more than twenty dresses, my crafts and brushes, my birth certificate and my income tax returns, my polarized sun glasses, rotisserie and a juicer, and a wheel barrow, tools and garden supplies." Ms. Stone estimated the value of this property to be in excess of $950. Mr. Cazeau, on the other hand, maintained that Ms. Stone removed all of her personal property from the home without hindrance.
+Court of Appeals of Ohio, Ninth Judicial District
+
+{[11} A party seeking summary judgment must identify evidence in the record that demonstrates that there are no genuine issues of material fact on an essential element of the nonmoving party's claims. Dresher v. Burt, 75 Ohio St. 3d 280, 294 (1996). The nonmoving party then bears a reciprocal burden to set forth specific facts that demonstrate that there are issues for trial. Id. Both the moving party and the nonmoving party must satisfy their respective burdens with evidence of the type listed in Rule 56(C) of the Ohio Rules of Civil Procedure: "pleadings, depositions, answers to interrogatories, written admissions, affidavits, transcripts of evidence, and written stipulations of fact, if any, timely filed in the action."
+{[12} In this case, Mr. Cazeau and Ms. Nixon supported their motion for summary judgment on the conversion claim with the affidavit of Mr. Cazeau, in which he maintained that Ms. Stone removed all of her property from his house. Mr. Cazeau and Ms. Nixon, therefore, satisfied their burden under Rule 56 of the Ohio Rules of Civil Procedure and Dresher by reference to Mr. Cazeau's sworn statement. Ms. Stone responded by affidavit, setting forth specific facts related to her conversion claim that conflict with Mr. Cazeau's affidavit.
+{[13} Mr. Cazeau and Ms. Nixon have argued that Ms. Stone's affidavit is insufficient to carry her burden of demonstrating a genuine issue of material fact and have directed this Court's attention to McPherson v. Goodyear Tire & Rubber Co., 9th Dist. No. 21499, 2003-Ohio-7190, in which a panel of this Court wrote:
+Court of Appeals of Ohio, Ninth Judicial District
+
+A party's unsupported and self-serving assertions offered to demonstrate issues of fact, standing alone and without corroborating materials contemplated by Civ.R. 56, are simply insufficient [to overcome a properly supported motion for summary judgment]. In other words, when the moving party puts forth evidence tending to show that there are no genuine issues of material fact, the nonmoving party may not avoid summary judgment solely by submitting a self-serving affidavit containing no more than bald contradictions of the evidence offered by the moving party. To conclude otherwise would enable the nonmoving party to avoid summary judgment in every case, crippling the use of Civ.R. 56 as a means to facilitate "the early assessment of the merits of claims, pre- trial dismissal of meritless claims, and defining and narrowing issues for trial."
+Id at 136 (quoting from the dissent in Bank One, N.A. v. Burkey, 9th Dist. No. 99CA007359, 2000 WL 763341, at *5 (June 14, 2000)) (alterations in original). This Court has included similar language in a number of cases. See, e.g., Boyd v. Hariani, 9th Dist. No. 22500, 2005-Ohio-4536, at 110; Haas v. Bradley, 9th Dist. No. 04CA008541, 2005-Ohio-4256 at [22; Hooks v. Ciccolini, 9th Dist. No. 20745, 2002 WL 1023172 at *2 (May 15, 2002); Scheman v. Jeglie, 9th Dist. No. 20760, 2002 WL 389054, at *3 (Mar. 13, 2002). In most of these cases the nonmoving party's affidavit was inadequate, not because it was "unsupported and self-serving," but for a different reason. In Hooks v. Ciccolini, for example, the plaintiff's affidavit was insufficient to create an issue of fact regarding alleged legal malpractice in view of the defendant lawyer's affidavit that "he used the skill, knowledge, care, and diligence possessed by criminal defense attorneys in representing [the plaintiff]." Hooks v. Ciccolini, 9th Dist. No. 20745, 2002 WL 1023172 at *2 (May 15, 2002). In light of the language of Rule 56 of the Ohio
+Court of Appeals of Ohio, Ninth Judicial District
+
+Rules of Civil Procedure and the Ohio Supreme Court's opinion in Byrd v. Smith, 110 Ohio St. 3d 24, 2006-Ohio-3455, to the extent prior decisions from this Court appear to hold that a nonmoving party may never defeat a properly supported motion for summary judgment with a "self-serving" affidavit, they are overruled.
+{[14} Rule 56(C) of the Ohio Rules of Civil Procedure contemplates that both moving and nonmoving parties may fulfill their evidentiary burdens by providing affidavits, and Rule 56(E) provides that the nonmoving party may satisfy its burden "by affidavit or as otherwise provided in this rule[.]" The use of the disjunctive in Rule 56(E) means that the nonmoving party may support its response by reference to affidavits, to the other forms of evidence described in Rule 56(C), or both. Indeed, Rule 56(E) provides the only limitations that the Ohio Rules of Civil Procedure impose upon the use of affidavits:
+Supporting and opposing affidavits shall be made on personal knowledge, shall set forth such facts as would be admissible in evidence, and shall show affirmatively that the affiant is competent to testify to the matters stated in the affidavit. Sworn or certified copies of all papers or parts of papers referred to in an affidavit shall be attached to or served with the affidavit. The court may permit affidavits to be supplemented or opposed by depositions or by further affidavits.
+While affidavits are required in some instances to authenticate documents submitted in support of or in response to a motion for summary judgment, the reverse is not true. In other words, neither a moving party nor a nonmoving party is required by Rule 56 to provide documents, discovery responses, or transcripts of evidence in addition to properly framed affidavits. When a motion for summary
+Court of Appeals of Ohio, Ninth Judicial District
+
+judgment or its response points to evidence set forth in affidavits, those affidavits must be evaluated as would any other evidence permitted by Rule 56 to determine whether the affidavits demonstrate the existence or lack of genuine issues of material fact. Affidavits are, therefore, entitled to no greater weight than other evidence permitted by Rule 56(E) of the Ohio Rules of Civil Procedure. Conversely, they are not to be discounted out-of-hand.
+{[15} This point is underscored by the recent opinion of the Ohio Supreme Court in Byrd v. Smith, 100 Ohio St. 3d 24, 2006-Ohio-3455. In that case, the Court held that, when a nonmoving party's affidavit apparently contradicts his prior deposition testimony, the affidavit still may be sufficient to overcome the motion for summary judgment if the nonmoving party offers a sufficient explanation for the inconsistency. Id. at [27-29.
+{[16} If a nonmoving party may overcome a motion for summary judgment with his own affidavit to establish genuine issues of material fact, even in the face of his earlier, apparently contradictory deposition testimony, it stands to reason that this Court can not maintain the position that an affidavit alone is insufficient to carry the nonmoving party's burden. To the extent decisions of this Court appear to hold otherwise, those decisions are overruled. A nonmoving party may defeat a properly supported motion for summary judgment with his own affidavit that demonstrates the existence of genuine issues of material fact.
+Court of Appeals of Ohio, Ninth Judicial District
+
+{[17} In this case, application of the rule compels this Court to sustain Ms. Stone's assignment of error to the extent it is addressed to her conversion claim. Both parties relied on affidavits to fulfill their evidentiary burdens on summary judgment. Ms. Stone's affidavit contradicted Mr. Cazeau's on a point that is material to her conversion claim: she maintained that he and Ms. Nixon prevented her from retrieving her property from the home; Mr. Cazeau maintained that Ms. Stone had successfully retrieved all of her property. To the extent that Ms. Stone's assignment of error relates to her claim for conversion, it is sustained.
+CONCLUSION
+{[18} Ms. Stone's assignment of error is overruled to the extent it is addressed to her wrongful eviction claim, but is sustained to the extent it is addressed to her conversion claim. The judgment of the Lorain County Court of Common Pleas is affirmed in part and reversed in part, and this matter is remanded to the trial court for further proceedings consistent with this opinion.
+Judgment affirmed in part, reversed in part, and cause remanded.
+The Court finds that there were reasonable grounds for this appeal.
+We order that a special mandate issue out of this Court, directing the Court of Common Pleas, County of Lorain, State of Ohio, to carry this judgment into
+Court of Appeals of Ohio, Ninth Judicial District
+
+execution. A certified copy of this journal entry shall constitute the mandate, pursuant to App.R. 27.
+Immediately upon the filing hereof, this document shall constitute the journal entry of judgment, and it shall be file stamped by the Clerk of the Court of Appeals at which time the period for review shall begin to run. App.R. 22(E). The Clerk of the Court of Appeals is instructed to mail a notice of entry of this judgment to the parties and to make a notation of the mailing in the docket, pursuant to App.R. 30.
+Costs taxed to both parties equally.
+CLAIR E. DICKINSON FOR THE COURT
+WHITMORE, P. J. CARR, J. CONCUR
+APPEARANCES:
+JAMES R. COUCH, Attorney at Law, for appellant.
+JONATHAN E. ROSENBAUM, Attorney at Law for appellees.
+Court of Appeals of Ohio, Ninth Judicial District

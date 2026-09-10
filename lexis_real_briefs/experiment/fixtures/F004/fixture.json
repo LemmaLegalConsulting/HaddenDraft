@@ -1,0 +1,97 @@
+{
+  "fixture_id": "F004",
+  "case_family_id": "masten-v-k-d-mgmt--ca-12-098894",
+  "stratum": "appellate_eviction",
+  "document": {
+    "title": "Brief for the Appellant",
+    "court": "Court of Appeals of Ohio, Eighth District (Cuyahoga County)",
+    "jurisdiction": "Ohio",
+    "pleading_type": "appellate_merit_brief",
+    "side": "appellant",
+    "filed": "2012-12-17"
+  },
+  "files": {
+    "source": "source/original.docx",
+    "source_scan": "source/as-filed-scan.pdf",
+    "control": "normalized/brief.txt",
+    "mutant": "mutant/brief.txt",
+    "attachments": [],
+    "attachment_notes": []
+  },
+  "mutation": {
+    "type": "authority_applicability",
+    "subtype": "binding_circuit_authority_replaced_with_out_of_circuit_district_court",
+    "operation": "replace",
+    "section": "Argument I",
+    "description": "Replaced the binding Sixth Circuit authority for the scope of 42 U.S.C. \u00a7 3617 with a real out-of-circuit federal district court decision that the brief already cites elsewhere for a different proposition. The legal proposition asserted is word-for-word unchanged.",
+    "gold_vulnerability": "An Ohio court sitting in the Sixth Circuit is now offered an Eastern District of Virginia decision, rather than its own circuit's, for the breadth of \u00a7 3617 -- and Matarese does not hold what the sentence attributes to it. No case name is invented and no citation is malformed; only the authority's applicability is defective.",
+    "expected_direction": "mutant_worse",
+    "materiality": "medium",
+    "why_this_is_realistic": "It reproduces the failure the Cleveland attorneys described: a cited case that says something very similar, offered in place of the authority the court is actually bound by.",
+    "target_location": {
+      "section": "Argument I",
+      "control_excerpt": "The Sixth Circuit found that \u00a7 3617 extended to situations involving a wide range of circumstances, such as exclusionary zoning practices, deflated appraisals, and insurance redlining. Michigan Protection and Advocacy Service, Inc. v. Babin, 18 F.3d 337, 347 (6th Cir.1994).",
+      "mutant_excerpt": "The court in Matarese found that \u00a7 3617 extended to situations involving a wide range of circumstances, such as exclusionary zoning practices, deflated appraisals, and insurance redlining. Matarese v. Archstone Pentagon City, 795 F. Supp. 2d 402, 442-43 (E.D. Va. 2011)."
+    },
+    "characters_changed": 4,
+    "control_chars": 41806,
+    "mutant_chars": 41802,
+    "fraction_of_brief_changed": 0.0001
+  },
+  "gold": {
+    "control_has_target_defect": false,
+    "mutant_has_target_defect": true,
+    "expected_direction": "mutant_worse",
+    "materiality": "medium",
+    "verified_by": [],
+    "verification_status": "unverified",
+    "verification_note": "Drafted by a language model and not yet adjudicated. The four reviewer questions in REGISTER.md (pair identical but for the intended change; control free of the target defect; mutant contains it; a competent opponent could raise it) have not been answered, so this fixture is development material, not benchmark."
+  },
+  "provenance": {
+    "source_sha256": "9ddb929bed241986b2cf0d65608ea52755de17670dff716c086eda8a587fa964",
+    "source_scan_sha256": "659acf18fb791fb0b78741300b80538f3ee3aa5d823a6f9e02ea002946279d84",
+    "control_sha256": "3bee19ac239e658fdc78b4c77a535ebe410ac9d3c8ec3602b92c5877de952811",
+    "mutant_sha256": "69af3c36bb573b5d5e3270d93653664a1fb31604d95e8183e2941fbcef216c7e",
+    "attachment_sha256": {},
+    "normalization_version": "1.0",
+    "text": {
+      "control_text_source": "lexis_docx",
+      "ocr": null,
+      "record_recovered_from_scan": false,
+      "scan_split_rule": null,
+      "normalization_log": {
+        "wrapper_file": "Brief For The Appellant.docx",
+        "source_sha256": "9ddb929bed241986b2cf0d65608ea52755de17670dff716c086eda8a587fa964",
+        "normalization_version": "1.0",
+        "removed_header_lines": 14,
+        "removed_header_preview": [
+          "MASTEN v. K&D MGMT.",
+          "No. 98894",
+          "COURT OF APPEALS OF OHIO, 8TH DISTRICT"
+        ],
+        "removed_end_of_document_marker": true,
+        "removed_star_pagination_markers": 37,
+        "appended_authority_lines_moved_to_attachments": 0,
+        "raw_body_chars": 42075,
+        "normalized_brief_chars": 41806,
+        "appended_authorities_chars": 0,
+        "normalized_sha256": "3bee19ac239e658fdc78b4c77a535ebe410ac9d3c8ec3602b92c5877de952811",
+        "prose_edits": 0,
+        "typos_fixed": 0,
+        "citations_fixed": 0,
+        "boilerplate_removed": 0
+      },
+      "appended_authorities": ""
+    },
+    "mutation_version": "1.0",
+    "generator": {
+      "mutations_authored_by": "claude-opus-5",
+      "control_text_prepared_by": "claude-opus-5 (selection, normalization and splitting only; no wording changed)",
+      "generator_display_name": "Claude Opus 5 (Claude Code)",
+      "generator_role": "drafted the candidate mutations and the gold-vulnerability text",
+      "authored_on": "2026-09-08",
+      "human_review": "none yet"
+    },
+    "built_on": "2026-09-09"
+  }
+}

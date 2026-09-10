@@ -1,0 +1,1770 @@
+{
+  "survival": [
+    {
+      "cell": "gpt-gpt",
+      "fixture_id": "F001",
+      "condition": "control",
+      "given": 8,
+      "opponent_authored": 8,
+      "assessed": 8,
+      "unassessed": 0,
+      "kept": 5,
+      "dropped_explicitly": 3,
+      "rate": 0.625,
+      "answered_rate": 1.0,
+      "challenges": 5
+    },
+    {
+      "cell": "gpt-gpt",
+      "fixture_id": "F001",
+      "condition": "mutant",
+      "given": 10,
+      "opponent_authored": 10,
+      "assessed": 10,
+      "unassessed": 0,
+      "kept": 3,
+      "dropped_explicitly": 7,
+      "rate": 0.3,
+      "answered_rate": 1.0,
+      "challenges": 3
+    },
+    {
+      "cell": "gpt-gpt",
+      "fixture_id": "F002",
+      "condition": "control",
+      "given": 10,
+      "opponent_authored": 10,
+      "assessed": 10,
+      "unassessed": 0,
+      "kept": 6,
+      "dropped_explicitly": 4,
+      "rate": 0.6,
+      "answered_rate": 1.0,
+      "challenges": 6
+    },
+    {
+      "cell": "gpt-gpt",
+      "fixture_id": "F002",
+      "condition": "mutant",
+      "given": 11,
+      "opponent_authored": 8,
+      "assessed": 11,
+      "unassessed": 0,
+      "kept": 6,
+      "dropped_explicitly": 5,
+      "rate": 0.5454545454545454,
+      "answered_rate": 1.0,
+      "challenges": 6
+    },
+    {
+      "cell": "gpt-gpt",
+      "fixture_id": "F003",
+      "condition": "control",
+      "given": 12,
+      "opponent_authored": 10,
+      "assessed": 12,
+      "unassessed": 0,
+      "kept": 7,
+      "dropped_explicitly": 5,
+      "rate": 0.5833333333333334,
+      "answered_rate": 1.0,
+      "challenges": 7
+    },
+    {
+      "cell": "gpt-gpt",
+      "fixture_id": "F003",
+      "condition": "mutant",
+      "given": 6,
+      "opponent_authored": 6,
+      "assessed": 6,
+      "unassessed": 0,
+      "kept": 2,
+      "dropped_explicitly": 4,
+      "rate": 0.3333333333333333,
+      "answered_rate": 1.0,
+      "challenges": 3
+    },
+    {
+      "cell": "gpt-gpt",
+      "fixture_id": "F004",
+      "condition": "control",
+      "given": 13,
+      "opponent_authored": 10,
+      "assessed": 13,
+      "unassessed": 0,
+      "kept": 5,
+      "dropped_explicitly": 8,
+      "rate": 0.38461538461538464,
+      "answered_rate": 1.0,
+      "challenges": 5
+    },
+    {
+      "cell": "gpt-gpt",
+      "fixture_id": "F004",
+      "condition": "mutant",
+      "given": 13,
+      "opponent_authored": 10,
+      "assessed": 13,
+      "unassessed": 0,
+      "kept": 5,
+      "dropped_explicitly": 8,
+      "rate": 0.38461538461538464,
+      "answered_rate": 1.0,
+      "challenges": 5
+    },
+    {
+      "cell": "gpt-gpt",
+      "fixture_id": "F005",
+      "condition": "control",
+      "given": 9,
+      "opponent_authored": 9,
+      "assessed": 9,
+      "unassessed": 0,
+      "kept": 5,
+      "dropped_explicitly": 4,
+      "rate": 0.5555555555555556,
+      "answered_rate": 1.0,
+      "challenges": 5
+    },
+    {
+      "cell": "gpt-gpt",
+      "fixture_id": "F005",
+      "condition": "mutant",
+      "given": 10,
+      "opponent_authored": 10,
+      "assessed": 10,
+      "unassessed": 0,
+      "kept": 6,
+      "dropped_explicitly": 4,
+      "rate": 0.6,
+      "answered_rate": 1.0,
+      "challenges": 6
+    },
+    {
+      "cell": "gpt-gpt",
+      "fixture_id": "F006",
+      "condition": "control",
+      "given": 13,
+      "opponent_authored": 10,
+      "assessed": 13,
+      "unassessed": 0,
+      "kept": 6,
+      "dropped_explicitly": 7,
+      "rate": 0.46153846153846156,
+      "answered_rate": 1.0,
+      "challenges": 6
+    },
+    {
+      "cell": "gpt-gpt",
+      "fixture_id": "F006",
+      "condition": "mutant",
+      "given": 11,
+      "opponent_authored": 9,
+      "assessed": 11,
+      "unassessed": 0,
+      "kept": 4,
+      "dropped_explicitly": 7,
+      "rate": 0.36363636363636365,
+      "answered_rate": 1.0,
+      "challenges": 4
+    },
+    {
+      "cell": "gpt-gpt",
+      "fixture_id": "F007",
+      "condition": "control",
+      "given": 7,
+      "opponent_authored": 6,
+      "assessed": 7,
+      "unassessed": 0,
+      "kept": 2,
+      "dropped_explicitly": 5,
+      "rate": 0.2857142857142857,
+      "answered_rate": 1.0,
+      "challenges": 3
+    },
+    {
+      "cell": "gpt-gpt",
+      "fixture_id": "F007",
+      "condition": "mutant",
+      "given": 9,
+      "opponent_authored": 7,
+      "assessed": 9,
+      "unassessed": 0,
+      "kept": 2,
+      "dropped_explicitly": 7,
+      "rate": 0.2222222222222222,
+      "answered_rate": 1.0,
+      "challenges": 3
+    },
+    {
+      "cell": "gpt-gpt",
+      "fixture_id": "F008",
+      "condition": "control",
+      "given": 7,
+      "opponent_authored": 6,
+      "assessed": 7,
+      "unassessed": 0,
+      "kept": 6,
+      "dropped_explicitly": 1,
+      "rate": 0.8571428571428571,
+      "answered_rate": 1.0,
+      "challenges": 6
+    },
+    {
+      "cell": "gpt-gpt",
+      "fixture_id": "F008",
+      "condition": "mutant",
+      "given": 9,
+      "opponent_authored": 9,
+      "assessed": 9,
+      "unassessed": 0,
+      "kept": 3,
+      "dropped_explicitly": 6,
+      "rate": 0.3333333333333333,
+      "answered_rate": 1.0,
+      "challenges": 3
+    },
+    {
+      "cell": "ds-ds",
+      "fixture_id": "F001",
+      "condition": "control",
+      "given": 7,
+      "opponent_authored": 7,
+      "assessed": 3,
+      "unassessed": 4,
+      "kept": 3,
+      "dropped_explicitly": 0,
+      "rate": 0.42857142857142855,
+      "answered_rate": 0.42857142857142855,
+      "challenges": 3
+    },
+    {
+      "cell": "ds-ds",
+      "fixture_id": "F001",
+      "condition": "mutant",
+      "given": 6,
+      "opponent_authored": 6,
+      "assessed": 6,
+      "unassessed": 0,
+      "kept": 4,
+      "dropped_explicitly": 2,
+      "rate": 0.6666666666666666,
+      "answered_rate": 1.0,
+      "challenges": 4
+    },
+    {
+      "cell": "ds-ds",
+      "fixture_id": "F002",
+      "condition": "control",
+      "given": 9,
+      "opponent_authored": 9,
+      "assessed": 6,
+      "unassessed": 3,
+      "kept": 6,
+      "dropped_explicitly": 0,
+      "rate": 0.6666666666666666,
+      "answered_rate": 0.6666666666666666,
+      "challenges": 6
+    },
+    {
+      "cell": "ds-ds",
+      "fixture_id": "F002",
+      "condition": "mutant",
+      "given": 6,
+      "opponent_authored": 6,
+      "assessed": 6,
+      "unassessed": 0,
+      "kept": 6,
+      "dropped_explicitly": 0,
+      "rate": 1.0,
+      "answered_rate": 1.0,
+      "challenges": 6
+    },
+    {
+      "cell": "ds-ds",
+      "fixture_id": "F003",
+      "condition": "control",
+      "given": 3,
+      "opponent_authored": 2,
+      "assessed": 3,
+      "unassessed": 0,
+      "kept": 3,
+      "dropped_explicitly": 0,
+      "rate": 1.0,
+      "answered_rate": 1.0,
+      "challenges": 3
+    },
+    {
+      "cell": "ds-ds",
+      "fixture_id": "F003",
+      "condition": "mutant",
+      "given": 8,
+      "opponent_authored": 6,
+      "assessed": 3,
+      "unassessed": 5,
+      "kept": 3,
+      "dropped_explicitly": 0,
+      "rate": 0.375,
+      "answered_rate": 0.375,
+      "challenges": 3
+    },
+    {
+      "cell": "ds-ds",
+      "fixture_id": "F004",
+      "condition": "control",
+      "given": 9,
+      "opponent_authored": 8,
+      "assessed": 6,
+      "unassessed": 3,
+      "kept": 6,
+      "dropped_explicitly": 0,
+      "rate": 0.6666666666666666,
+      "answered_rate": 0.6666666666666666,
+      "challenges": 6
+    },
+    {
+      "cell": "ds-ds",
+      "fixture_id": "F004",
+      "condition": "mutant",
+      "given": 9,
+      "opponent_authored": 6,
+      "assessed": 5,
+      "unassessed": 4,
+      "kept": 5,
+      "dropped_explicitly": 0,
+      "rate": 0.5555555555555556,
+      "answered_rate": 0.5555555555555556,
+      "challenges": 5
+    },
+    {
+      "cell": "ds-ds",
+      "fixture_id": "F005",
+      "condition": "control",
+      "given": 6,
+      "opponent_authored": 6,
+      "assessed": 4,
+      "unassessed": 2,
+      "kept": 4,
+      "dropped_explicitly": 0,
+      "rate": 0.6666666666666666,
+      "answered_rate": 0.6666666666666666,
+      "challenges": 4
+    },
+    {
+      "cell": "ds-ds",
+      "fixture_id": "F005",
+      "condition": "mutant",
+      "given": 10,
+      "opponent_authored": 10,
+      "assessed": 7,
+      "unassessed": 3,
+      "kept": 7,
+      "dropped_explicitly": 0,
+      "rate": 0.7,
+      "answered_rate": 0.7,
+      "challenges": 7
+    },
+    {
+      "cell": "ds-ds",
+      "fixture_id": "F006",
+      "condition": "control",
+      "given": 7,
+      "opponent_authored": 5,
+      "assessed": 4,
+      "unassessed": 3,
+      "kept": 4,
+      "dropped_explicitly": 0,
+      "rate": 0.5714285714285714,
+      "answered_rate": 0.5714285714285714,
+      "challenges": 4
+    },
+    {
+      "cell": "ds-ds",
+      "fixture_id": "F006",
+      "condition": "mutant",
+      "given": 11,
+      "opponent_authored": 9,
+      "assessed": 7,
+      "unassessed": 4,
+      "kept": 7,
+      "dropped_explicitly": 0,
+      "rate": 0.6363636363636364,
+      "answered_rate": 0.6363636363636364,
+      "challenges": 7
+    },
+    {
+      "cell": "ds-ds",
+      "fixture_id": "F007",
+      "condition": "control",
+      "given": 11,
+      "opponent_authored": 10,
+      "assessed": 2,
+      "unassessed": 9,
+      "kept": 2,
+      "dropped_explicitly": 0,
+      "rate": 0.18181818181818182,
+      "answered_rate": 0.18181818181818182,
+      "challenges": 3
+    },
+    {
+      "cell": "ds-ds",
+      "fixture_id": "F007",
+      "condition": "mutant",
+      "given": 6,
+      "opponent_authored": 6,
+      "assessed": 5,
+      "unassessed": 1,
+      "kept": 5,
+      "dropped_explicitly": 0,
+      "rate": 0.8333333333333334,
+      "answered_rate": 0.8333333333333334,
+      "challenges": 5
+    },
+    {
+      "cell": "ds-ds",
+      "fixture_id": "F008",
+      "condition": "control",
+      "given": 13,
+      "opponent_authored": 10,
+      "assessed": 7,
+      "unassessed": 6,
+      "kept": 7,
+      "dropped_explicitly": 0,
+      "rate": 0.5384615384615384,
+      "answered_rate": 0.5384615384615384,
+      "challenges": 7
+    },
+    {
+      "cell": "ds-ds",
+      "fixture_id": "F008",
+      "condition": "mutant",
+      "given": 7,
+      "opponent_authored": 7,
+      "assessed": 7,
+      "unassessed": 0,
+      "kept": 2,
+      "dropped_explicitly": 5,
+      "rate": 0.2857142857142857,
+      "answered_rate": 1.0,
+      "challenges": 3
+    },
+    {
+      "cell": "gpt-ds",
+      "fixture_id": "F001",
+      "condition": "control",
+      "given": 8,
+      "opponent_authored": 8,
+      "assessed": 3,
+      "unassessed": 5,
+      "kept": 3,
+      "dropped_explicitly": 0,
+      "rate": 0.375,
+      "answered_rate": 0.375,
+      "challenges": 3
+    },
+    {
+      "cell": "gpt-ds",
+      "fixture_id": "F001",
+      "condition": "mutant",
+      "given": 10,
+      "opponent_authored": 10,
+      "assessed": 6,
+      "unassessed": 4,
+      "kept": 6,
+      "dropped_explicitly": 0,
+      "rate": 0.6,
+      "answered_rate": 0.6,
+      "challenges": 6
+    },
+    {
+      "cell": "gpt-ds",
+      "fixture_id": "F002",
+      "condition": "control",
+      "given": 11,
+      "opponent_authored": 10,
+      "assessed": 7,
+      "unassessed": 4,
+      "kept": 7,
+      "dropped_explicitly": 0,
+      "rate": 0.6363636363636364,
+      "answered_rate": 0.6363636363636364,
+      "challenges": 7
+    },
+    {
+      "cell": "gpt-ds",
+      "fixture_id": "F002",
+      "condition": "mutant",
+      "given": 11,
+      "opponent_authored": 10,
+      "assessed": 7,
+      "unassessed": 4,
+      "kept": 7,
+      "dropped_explicitly": 0,
+      "rate": 0.6363636363636364,
+      "answered_rate": 0.6363636363636364,
+      "challenges": 7
+    },
+    {
+      "cell": "gpt-ds",
+      "fixture_id": "F003",
+      "condition": "control",
+      "given": 14,
+      "opponent_authored": 10,
+      "assessed": 4,
+      "unassessed": 10,
+      "kept": 4,
+      "dropped_explicitly": 0,
+      "rate": 0.2857142857142857,
+      "answered_rate": 0.2857142857142857,
+      "challenges": 4
+    },
+    {
+      "cell": "gpt-ds",
+      "fixture_id": "F003",
+      "condition": "mutant",
+      "given": 8,
+      "opponent_authored": 8,
+      "assessed": 5,
+      "unassessed": 3,
+      "kept": 5,
+      "dropped_explicitly": 0,
+      "rate": 0.625,
+      "answered_rate": 0.625,
+      "challenges": 5
+    },
+    {
+      "cell": "gpt-ds",
+      "fixture_id": "F004",
+      "condition": "control",
+      "given": 14,
+      "opponent_authored": 10,
+      "assessed": 7,
+      "unassessed": 7,
+      "kept": 7,
+      "dropped_explicitly": 0,
+      "rate": 0.5,
+      "answered_rate": 0.5,
+      "challenges": 7
+    },
+    {
+      "cell": "gpt-ds",
+      "fixture_id": "F004",
+      "condition": "mutant",
+      "given": 12,
+      "opponent_authored": 9,
+      "assessed": 7,
+      "unassessed": 5,
+      "kept": 7,
+      "dropped_explicitly": 0,
+      "rate": 0.5833333333333334,
+      "answered_rate": 0.5833333333333334,
+      "challenges": 7
+    },
+    {
+      "cell": "gpt-ds",
+      "fixture_id": "F005",
+      "condition": "control",
+      "given": 9,
+      "opponent_authored": 9,
+      "assessed": 7,
+      "unassessed": 2,
+      "kept": 7,
+      "dropped_explicitly": 0,
+      "rate": 0.7777777777777778,
+      "answered_rate": 0.7777777777777778,
+      "challenges": 7
+    },
+    {
+      "cell": "gpt-ds",
+      "fixture_id": "F005",
+      "condition": "mutant",
+      "given": 8,
+      "opponent_authored": 8,
+      "assessed": 7,
+      "unassessed": 1,
+      "kept": 7,
+      "dropped_explicitly": 0,
+      "rate": 0.875,
+      "answered_rate": 0.875,
+      "challenges": 7
+    },
+    {
+      "cell": "gpt-ds",
+      "fixture_id": "F006",
+      "condition": "control",
+      "given": 11,
+      "opponent_authored": 8,
+      "assessed": 6,
+      "unassessed": 5,
+      "kept": 6,
+      "dropped_explicitly": 0,
+      "rate": 0.5454545454545454,
+      "answered_rate": 0.5454545454545454,
+      "challenges": 6
+    },
+    {
+      "cell": "gpt-ds",
+      "fixture_id": "F006",
+      "condition": "mutant",
+      "given": 12,
+      "opponent_authored": 10,
+      "assessed": 7,
+      "unassessed": 5,
+      "kept": 7,
+      "dropped_explicitly": 0,
+      "rate": 0.5833333333333334,
+      "answered_rate": 0.5833333333333334,
+      "challenges": 7
+    },
+    {
+      "cell": "gpt-ds",
+      "fixture_id": "F007",
+      "condition": "control",
+      "given": 7,
+      "opponent_authored": 6,
+      "assessed": 7,
+      "unassessed": 0,
+      "kept": 2,
+      "dropped_explicitly": 5,
+      "rate": 0.2857142857142857,
+      "answered_rate": 1.0,
+      "challenges": 3
+    },
+    {
+      "cell": "gpt-ds",
+      "fixture_id": "F007",
+      "condition": "mutant",
+      "given": 8,
+      "opponent_authored": 8,
+      "assessed": 8,
+      "unassessed": 0,
+      "kept": 5,
+      "dropped_explicitly": 3,
+      "rate": 0.625,
+      "answered_rate": 1.0,
+      "challenges": 5
+    },
+    {
+      "cell": "gpt-ds",
+      "fixture_id": "F008",
+      "condition": "control",
+      "given": 10,
+      "opponent_authored": 8,
+      "assessed": 7,
+      "unassessed": 3,
+      "kept": 7,
+      "dropped_explicitly": 0,
+      "rate": 0.7,
+      "answered_rate": 0.7,
+      "challenges": 7
+    },
+    {
+      "cell": "gpt-ds",
+      "fixture_id": "F008",
+      "condition": "mutant",
+      "given": 6,
+      "opponent_authored": 6,
+      "assessed": 2,
+      "unassessed": 4,
+      "kept": 2,
+      "dropped_explicitly": 0,
+      "rate": 0.3333333333333333,
+      "answered_rate": 0.3333333333333333,
+      "challenges": 3
+    },
+    {
+      "cell": "ds-gpt",
+      "fixture_id": "F001",
+      "condition": "control",
+      "given": 8,
+      "opponent_authored": 8,
+      "assessed": 8,
+      "unassessed": 0,
+      "kept": 5,
+      "dropped_explicitly": 3,
+      "rate": 0.625,
+      "answered_rate": 1.0,
+      "challenges": 5
+    },
+    {
+      "cell": "ds-gpt",
+      "fixture_id": "F001",
+      "condition": "mutant",
+      "given": 6,
+      "opponent_authored": 6,
+      "assessed": 6,
+      "unassessed": 0,
+      "kept": 1,
+      "dropped_explicitly": 5,
+      "rate": 0.16666666666666666,
+      "answered_rate": 1.0,
+      "challenges": 3
+    },
+    {
+      "cell": "ds-gpt",
+      "fixture_id": "F002",
+      "condition": "control",
+      "given": 5,
+      "opponent_authored": 5,
+      "assessed": 5,
+      "unassessed": 0,
+      "kept": 3,
+      "dropped_explicitly": 2,
+      "rate": 0.6,
+      "answered_rate": 1.0,
+      "challenges": 3
+    },
+    {
+      "cell": "ds-gpt",
+      "fixture_id": "F002",
+      "condition": "mutant",
+      "given": 11,
+      "opponent_authored": 10,
+      "assessed": 11,
+      "unassessed": 0,
+      "kept": 3,
+      "dropped_explicitly": 8,
+      "rate": 0.2727272727272727,
+      "answered_rate": 1.0,
+      "challenges": 3
+    },
+    {
+      "cell": "ds-gpt",
+      "fixture_id": "F003",
+      "condition": "control",
+      "given": 12,
+      "opponent_authored": 10,
+      "assessed": 12,
+      "unassessed": 0,
+      "kept": 1,
+      "dropped_explicitly": 11,
+      "rate": 0.08333333333333333,
+      "answered_rate": 1.0,
+      "challenges": 3
+    },
+    {
+      "cell": "ds-gpt",
+      "fixture_id": "F003",
+      "condition": "mutant",
+      "given": 3,
+      "opponent_authored": 3,
+      "assessed": 3,
+      "unassessed": 0,
+      "kept": 0,
+      "dropped_explicitly": 3,
+      "rate": 0.0,
+      "answered_rate": 1.0,
+      "challenges": 3
+    },
+    {
+      "cell": "ds-gpt",
+      "fixture_id": "F004",
+      "condition": "control",
+      "given": 13,
+      "opponent_authored": 10,
+      "assessed": 13,
+      "unassessed": 0,
+      "kept": 4,
+      "dropped_explicitly": 9,
+      "rate": 0.3076923076923077,
+      "answered_rate": 1.0,
+      "challenges": 4
+    },
+    {
+      "cell": "ds-gpt",
+      "fixture_id": "F004",
+      "condition": "mutant",
+      "given": 8,
+      "opponent_authored": 5,
+      "assessed": 8,
+      "unassessed": 0,
+      "kept": 2,
+      "dropped_explicitly": 6,
+      "rate": 0.25,
+      "answered_rate": 1.0,
+      "challenges": 3
+    },
+    {
+      "cell": "ds-gpt",
+      "fixture_id": "F005",
+      "condition": "control",
+      "given": 8,
+      "opponent_authored": 8,
+      "assessed": 8,
+      "unassessed": 0,
+      "kept": 2,
+      "dropped_explicitly": 6,
+      "rate": 0.25,
+      "answered_rate": 1.0,
+      "challenges": 3
+    },
+    {
+      "cell": "ds-gpt",
+      "fixture_id": "F005",
+      "condition": "mutant",
+      "given": 5,
+      "opponent_authored": 5,
+      "assessed": 5,
+      "unassessed": 0,
+      "kept": 1,
+      "dropped_explicitly": 4,
+      "rate": 0.2,
+      "answered_rate": 1.0,
+      "challenges": 3
+    },
+    {
+      "cell": "ds-gpt",
+      "fixture_id": "F006",
+      "condition": "control",
+      "given": 7,
+      "opponent_authored": 5,
+      "assessed": 7,
+      "unassessed": 0,
+      "kept": 2,
+      "dropped_explicitly": 5,
+      "rate": 0.2857142857142857,
+      "answered_rate": 1.0,
+      "challenges": 3
+    },
+    {
+      "cell": "ds-gpt",
+      "fixture_id": "F006",
+      "condition": "mutant",
+      "given": 12,
+      "opponent_authored": 10,
+      "assessed": 12,
+      "unassessed": 0,
+      "kept": 1,
+      "dropped_explicitly": 11,
+      "rate": 0.08333333333333333,
+      "answered_rate": 1.0,
+      "challenges": 3
+    },
+    {
+      "cell": "ds-gpt",
+      "fixture_id": "F007",
+      "condition": "control",
+      "given": 7,
+      "opponent_authored": 6,
+      "assessed": 7,
+      "unassessed": 0,
+      "kept": 1,
+      "dropped_explicitly": 6,
+      "rate": 0.14285714285714285,
+      "answered_rate": 1.0,
+      "challenges": 3
+    },
+    {
+      "cell": "ds-gpt",
+      "fixture_id": "F007",
+      "condition": "mutant",
+      "given": 6,
+      "opponent_authored": 5,
+      "assessed": 6,
+      "unassessed": 0,
+      "kept": 0,
+      "dropped_explicitly": 6,
+      "rate": 0.0,
+      "answered_rate": 1.0,
+      "challenges": 3
+    },
+    {
+      "cell": "ds-gpt",
+      "fixture_id": "F008",
+      "condition": "control",
+      "given": 7,
+      "opponent_authored": 5,
+      "assessed": 7,
+      "unassessed": 0,
+      "kept": 2,
+      "dropped_explicitly": 5,
+      "rate": 0.2857142857142857,
+      "answered_rate": 1.0,
+      "challenges": 3
+    },
+    {
+      "cell": "ds-gpt",
+      "fixture_id": "F008",
+      "condition": "mutant",
+      "given": 7,
+      "opponent_authored": 7,
+      "assessed": 7,
+      "unassessed": 0,
+      "kept": 0,
+      "dropped_explicitly": 7,
+      "rate": 0.0,
+      "answered_rate": 1.0,
+      "challenges": 3
+    }
+  ],
+  "dropped_by_category": {
+    "gpt-gpt": {
+      "missing_element": 21,
+      "remedy_scope": 7,
+      "framing": 9,
+      "factual_support": 12,
+      "legal_authority": 12,
+      "procedural": 4,
+      "?": 20
+    },
+    "ds-ds": {
+      "missing_element": 2,
+      "framing": 1,
+      "factual_support": 1,
+      "legal_authority": 1,
+      "procedural": 1,
+      "record_conflict": 1
+    },
+    "gpt-ds": {
+      "factual_support": 3,
+      "framing": 3,
+      "missing_element": 1,
+      "?": 1
+    },
+    "ds-gpt": {
+      "missing_element": 10,
+      "legal_authority": 35,
+      "framing": 4,
+      "factual_support": 19,
+      "remedy_scope": 3,
+      "procedural": 8,
+      "?": 16,
+      "record_conflict": 2
+    }
+  },
+  "kept_by_category": {
+    "gpt-gpt": {
+      "missing_element": 19,
+      "legal_authority": 23,
+      "framing": 8,
+      "procedural": 3,
+      "factual_support": 12,
+      "remedy_scope": 6,
+      "record_conflict": 2
+    },
+    "ds-ds": {
+      "legal_authority": 46,
+      "missing_element": 6,
+      "factual_support": 13,
+      "procedural": 4,
+      "?": 1,
+      "framing": 1,
+      "record_conflict": 3
+    },
+    "gpt-ds": {
+      "missing_element": 28,
+      "framing": 15,
+      "legal_authority": 21,
+      "procedural": 5,
+      "factual_support": 8,
+      "remedy_scope": 11,
+      "record_conflict": 1
+    },
+    "ds-gpt": {
+      "legal_authority": 18,
+      "record_conflict": 1,
+      "factual_support": 2,
+      "missing_element": 3,
+      "procedural": 2,
+      "framing": 1,
+      "?": 1
+    }
+  },
+  "verdicts": {
+    "gpt-gpt": {
+      "serious": 36,
+      "answerable": 34,
+      "weak": 5,
+      "misplaced": 1
+    },
+    "ds-ds": {
+      "serious": 44,
+      "answerable": 19,
+      "weak": 11,
+      "misplaced": 1,
+      "(none)": 1
+    },
+    "gpt-ds": {
+      "serious": 74,
+      "answerable": 13,
+      "weak": 3,
+      "(none)": 1
+    },
+    "ds-gpt": {
+      "answerable": 19,
+      "serious": 13,
+      "misplaced": 3,
+      "weak": 16
+    }
+  },
+  "top3_overlaps": [
+    {
+      "fixture_id": "F001",
+      "condition": "control",
+      "pair": "ds-ds vs gpt-gpt",
+      "shared": 0,
+      "union": 5,
+      "jaccard": 0.0
+    },
+    {
+      "fixture_id": "F001",
+      "condition": "control",
+      "pair": "ds-ds vs gpt-ds",
+      "shared": 0,
+      "union": 5,
+      "jaccard": 0.0
+    },
+    {
+      "fixture_id": "F001",
+      "condition": "control",
+      "pair": "ds-ds vs ds-gpt",
+      "shared": 1,
+      "union": 3,
+      "jaccard": 0.3333333333333333
+    },
+    {
+      "fixture_id": "F001",
+      "condition": "control",
+      "pair": "gpt-ds vs gpt-gpt",
+      "shared": 1,
+      "union": 5,
+      "jaccard": 0.2
+    },
+    {
+      "fixture_id": "F001",
+      "condition": "control",
+      "pair": "ds-gpt vs gpt-gpt",
+      "shared": 1,
+      "union": 4,
+      "jaccard": 0.25
+    },
+    {
+      "fixture_id": "F001",
+      "condition": "control",
+      "pair": "ds-gpt vs gpt-ds",
+      "shared": 0,
+      "union": 5,
+      "jaccard": 0.0
+    },
+    {
+      "fixture_id": "F001",
+      "condition": "mutant",
+      "pair": "ds-ds vs gpt-gpt",
+      "shared": 0,
+      "union": 6,
+      "jaccard": 0.0
+    },
+    {
+      "fixture_id": "F001",
+      "condition": "mutant",
+      "pair": "ds-ds vs gpt-ds",
+      "shared": 0,
+      "union": 6,
+      "jaccard": 0.0
+    },
+    {
+      "fixture_id": "F001",
+      "condition": "mutant",
+      "pair": "ds-ds vs ds-gpt",
+      "shared": 2,
+      "union": 4,
+      "jaccard": 0.5
+    },
+    {
+      "fixture_id": "F001",
+      "condition": "mutant",
+      "pair": "gpt-ds vs gpt-gpt",
+      "shared": 0,
+      "union": 6,
+      "jaccard": 0.0
+    },
+    {
+      "fixture_id": "F001",
+      "condition": "mutant",
+      "pair": "ds-gpt vs gpt-gpt",
+      "shared": 0,
+      "union": 6,
+      "jaccard": 0.0
+    },
+    {
+      "fixture_id": "F001",
+      "condition": "mutant",
+      "pair": "ds-gpt vs gpt-ds",
+      "shared": 0,
+      "union": 6,
+      "jaccard": 0.0
+    },
+    {
+      "fixture_id": "F002",
+      "condition": "control",
+      "pair": "ds-ds vs gpt-gpt",
+      "shared": 0,
+      "union": 6,
+      "jaccard": 0.0
+    },
+    {
+      "fixture_id": "F002",
+      "condition": "control",
+      "pair": "ds-ds vs gpt-ds",
+      "shared": 0,
+      "union": 6,
+      "jaccard": 0.0
+    },
+    {
+      "fixture_id": "F002",
+      "condition": "control",
+      "pair": "ds-ds vs ds-gpt",
+      "shared": 0,
+      "union": 6,
+      "jaccard": 0.0
+    },
+    {
+      "fixture_id": "F002",
+      "condition": "control",
+      "pair": "gpt-ds vs gpt-gpt",
+      "shared": 1,
+      "union": 5,
+      "jaccard": 0.2
+    },
+    {
+      "fixture_id": "F002",
+      "condition": "control",
+      "pair": "ds-gpt vs gpt-gpt",
+      "shared": 0,
+      "union": 6,
+      "jaccard": 0.0
+    },
+    {
+      "fixture_id": "F002",
+      "condition": "control",
+      "pair": "ds-gpt vs gpt-ds",
+      "shared": 0,
+      "union": 6,
+      "jaccard": 0.0
+    },
+    {
+      "fixture_id": "F002",
+      "condition": "mutant",
+      "pair": "ds-ds vs gpt-gpt",
+      "shared": 0,
+      "union": 6,
+      "jaccard": 0.0
+    },
+    {
+      "fixture_id": "F002",
+      "condition": "mutant",
+      "pair": "ds-ds vs gpt-ds",
+      "shared": 1,
+      "union": 5,
+      "jaccard": 0.2
+    },
+    {
+      "fixture_id": "F002",
+      "condition": "mutant",
+      "pair": "ds-ds vs ds-gpt",
+      "shared": 0,
+      "union": 6,
+      "jaccard": 0.0
+    },
+    {
+      "fixture_id": "F002",
+      "condition": "mutant",
+      "pair": "gpt-ds vs gpt-gpt",
+      "shared": 1,
+      "union": 5,
+      "jaccard": 0.2
+    },
+    {
+      "fixture_id": "F002",
+      "condition": "mutant",
+      "pair": "ds-gpt vs gpt-gpt",
+      "shared": 0,
+      "union": 6,
+      "jaccard": 0.0
+    },
+    {
+      "fixture_id": "F002",
+      "condition": "mutant",
+      "pair": "ds-gpt vs gpt-ds",
+      "shared": 0,
+      "union": 6,
+      "jaccard": 0.0
+    },
+    {
+      "fixture_id": "F003",
+      "condition": "control",
+      "pair": "ds-ds vs gpt-gpt",
+      "shared": 1,
+      "union": 4,
+      "jaccard": 0.25
+    },
+    {
+      "fixture_id": "F003",
+      "condition": "control",
+      "pair": "ds-ds vs gpt-ds",
+      "shared": 0,
+      "union": 5,
+      "jaccard": 0.0
+    },
+    {
+      "fixture_id": "F003",
+      "condition": "control",
+      "pair": "ds-ds vs ds-gpt",
+      "shared": 1,
+      "union": 3,
+      "jaccard": 0.3333333333333333
+    },
+    {
+      "fixture_id": "F003",
+      "condition": "control",
+      "pair": "gpt-ds vs gpt-gpt",
+      "shared": 0,
+      "union": 6,
+      "jaccard": 0.0
+    },
+    {
+      "fixture_id": "F003",
+      "condition": "control",
+      "pair": "ds-gpt vs gpt-gpt",
+      "shared": 1,
+      "union": 4,
+      "jaccard": 0.25
+    },
+    {
+      "fixture_id": "F003",
+      "condition": "control",
+      "pair": "ds-gpt vs gpt-ds",
+      "shared": 0,
+      "union": 5,
+      "jaccard": 0.0
+    },
+    {
+      "fixture_id": "F003",
+      "condition": "mutant",
+      "pair": "ds-ds vs gpt-gpt",
+      "shared": 0,
+      "union": 6,
+      "jaccard": 0.0
+    },
+    {
+      "fixture_id": "F003",
+      "condition": "mutant",
+      "pair": "ds-ds vs gpt-ds",
+      "shared": 0,
+      "union": 6,
+      "jaccard": 0.0
+    },
+    {
+      "fixture_id": "F003",
+      "condition": "mutant",
+      "pair": "ds-ds vs ds-gpt",
+      "shared": 1,
+      "union": 5,
+      "jaccard": 0.2
+    },
+    {
+      "fixture_id": "F003",
+      "condition": "mutant",
+      "pair": "gpt-ds vs gpt-gpt",
+      "shared": 0,
+      "union": 6,
+      "jaccard": 0.0
+    },
+    {
+      "fixture_id": "F003",
+      "condition": "mutant",
+      "pair": "ds-gpt vs gpt-gpt",
+      "shared": 1,
+      "union": 5,
+      "jaccard": 0.2
+    },
+    {
+      "fixture_id": "F003",
+      "condition": "mutant",
+      "pair": "ds-gpt vs gpt-ds",
+      "shared": 1,
+      "union": 5,
+      "jaccard": 0.2
+    },
+    {
+      "fixture_id": "F004",
+      "condition": "control",
+      "pair": "ds-ds vs gpt-gpt",
+      "shared": 0,
+      "union": 5,
+      "jaccard": 0.0
+    },
+    {
+      "fixture_id": "F004",
+      "condition": "control",
+      "pair": "ds-ds vs gpt-ds",
+      "shared": 0,
+      "union": 5,
+      "jaccard": 0.0
+    },
+    {
+      "fixture_id": "F004",
+      "condition": "control",
+      "pair": "ds-ds vs ds-gpt",
+      "shared": 0,
+      "union": 5,
+      "jaccard": 0.0
+    },
+    {
+      "fixture_id": "F004",
+      "condition": "control",
+      "pair": "gpt-ds vs gpt-gpt",
+      "shared": 0,
+      "union": 6,
+      "jaccard": 0.0
+    },
+    {
+      "fixture_id": "F004",
+      "condition": "control",
+      "pair": "ds-gpt vs gpt-gpt",
+      "shared": 1,
+      "union": 5,
+      "jaccard": 0.2
+    },
+    {
+      "fixture_id": "F004",
+      "condition": "control",
+      "pair": "ds-gpt vs gpt-ds",
+      "shared": 0,
+      "union": 6,
+      "jaccard": 0.0
+    },
+    {
+      "fixture_id": "F004",
+      "condition": "mutant",
+      "pair": "ds-ds vs gpt-gpt",
+      "shared": 0,
+      "union": 5,
+      "jaccard": 0.0
+    },
+    {
+      "fixture_id": "F004",
+      "condition": "mutant",
+      "pair": "ds-ds vs gpt-ds",
+      "shared": 0,
+      "union": 5,
+      "jaccard": 0.0
+    },
+    {
+      "fixture_id": "F004",
+      "condition": "mutant",
+      "pair": "ds-ds vs ds-gpt",
+      "shared": 0,
+      "union": 5,
+      "jaccard": 0.0
+    },
+    {
+      "fixture_id": "F004",
+      "condition": "mutant",
+      "pair": "gpt-ds vs gpt-gpt",
+      "shared": 1,
+      "union": 5,
+      "jaccard": 0.2
+    },
+    {
+      "fixture_id": "F004",
+      "condition": "mutant",
+      "pair": "ds-gpt vs gpt-gpt",
+      "shared": 1,
+      "union": 5,
+      "jaccard": 0.2
+    },
+    {
+      "fixture_id": "F004",
+      "condition": "mutant",
+      "pair": "ds-gpt vs gpt-ds",
+      "shared": 0,
+      "union": 6,
+      "jaccard": 0.0
+    },
+    {
+      "fixture_id": "F005",
+      "condition": "control",
+      "pair": "ds-ds vs gpt-gpt",
+      "shared": 0,
+      "union": 6,
+      "jaccard": 0.0
+    },
+    {
+      "fixture_id": "F005",
+      "condition": "control",
+      "pair": "ds-ds vs gpt-ds",
+      "shared": 0,
+      "union": 6,
+      "jaccard": 0.0
+    },
+    {
+      "fixture_id": "F005",
+      "condition": "control",
+      "pair": "ds-ds vs ds-gpt",
+      "shared": 1,
+      "union": 5,
+      "jaccard": 0.2
+    },
+    {
+      "fixture_id": "F005",
+      "condition": "control",
+      "pair": "gpt-ds vs gpt-gpt",
+      "shared": 1,
+      "union": 5,
+      "jaccard": 0.2
+    },
+    {
+      "fixture_id": "F005",
+      "condition": "control",
+      "pair": "ds-gpt vs gpt-gpt",
+      "shared": 0,
+      "union": 6,
+      "jaccard": 0.0
+    },
+    {
+      "fixture_id": "F005",
+      "condition": "control",
+      "pair": "ds-gpt vs gpt-ds",
+      "shared": 0,
+      "union": 6,
+      "jaccard": 0.0
+    },
+    {
+      "fixture_id": "F005",
+      "condition": "mutant",
+      "pair": "ds-ds vs gpt-gpt",
+      "shared": 1,
+      "union": 4,
+      "jaccard": 0.25
+    },
+    {
+      "fixture_id": "F005",
+      "condition": "mutant",
+      "pair": "ds-ds vs gpt-ds",
+      "shared": 1,
+      "union": 4,
+      "jaccard": 0.25
+    },
+    {
+      "fixture_id": "F005",
+      "condition": "mutant",
+      "pair": "ds-ds vs ds-gpt",
+      "shared": 0,
+      "union": 4,
+      "jaccard": 0.0
+    },
+    {
+      "fixture_id": "F005",
+      "condition": "mutant",
+      "pair": "gpt-ds vs gpt-gpt",
+      "shared": 1,
+      "union": 5,
+      "jaccard": 0.2
+    },
+    {
+      "fixture_id": "F005",
+      "condition": "mutant",
+      "pair": "ds-gpt vs gpt-gpt",
+      "shared": 0,
+      "union": 5,
+      "jaccard": 0.0
+    },
+    {
+      "fixture_id": "F005",
+      "condition": "mutant",
+      "pair": "ds-gpt vs gpt-ds",
+      "shared": 0,
+      "union": 5,
+      "jaccard": 0.0
+    },
+    {
+      "fixture_id": "F006",
+      "condition": "control",
+      "pair": "ds-ds vs gpt-gpt",
+      "shared": 0,
+      "union": 6,
+      "jaccard": 0.0
+    },
+    {
+      "fixture_id": "F006",
+      "condition": "control",
+      "pair": "ds-ds vs gpt-ds",
+      "shared": 0,
+      "union": 6,
+      "jaccard": 0.0
+    },
+    {
+      "fixture_id": "F006",
+      "condition": "control",
+      "pair": "ds-ds vs ds-gpt",
+      "shared": 0,
+      "union": 6,
+      "jaccard": 0.0
+    },
+    {
+      "fixture_id": "F006",
+      "condition": "control",
+      "pair": "gpt-ds vs gpt-gpt",
+      "shared": 1,
+      "union": 5,
+      "jaccard": 0.2
+    },
+    {
+      "fixture_id": "F006",
+      "condition": "control",
+      "pair": "ds-gpt vs gpt-gpt",
+      "shared": 1,
+      "union": 5,
+      "jaccard": 0.2
+    },
+    {
+      "fixture_id": "F006",
+      "condition": "control",
+      "pair": "ds-gpt vs gpt-ds",
+      "shared": 1,
+      "union": 5,
+      "jaccard": 0.2
+    },
+    {
+      "fixture_id": "F006",
+      "condition": "mutant",
+      "pair": "ds-ds vs gpt-gpt",
+      "shared": 0,
+      "union": 6,
+      "jaccard": 0.0
+    },
+    {
+      "fixture_id": "F006",
+      "condition": "mutant",
+      "pair": "ds-ds vs gpt-ds",
+      "shared": 0,
+      "union": 6,
+      "jaccard": 0.0
+    },
+    {
+      "fixture_id": "F006",
+      "condition": "mutant",
+      "pair": "ds-ds vs ds-gpt",
+      "shared": 1,
+      "union": 5,
+      "jaccard": 0.2
+    },
+    {
+      "fixture_id": "F006",
+      "condition": "mutant",
+      "pair": "gpt-ds vs gpt-gpt",
+      "shared": 0,
+      "union": 6,
+      "jaccard": 0.0
+    },
+    {
+      "fixture_id": "F006",
+      "condition": "mutant",
+      "pair": "ds-gpt vs gpt-gpt",
+      "shared": 0,
+      "union": 6,
+      "jaccard": 0.0
+    },
+    {
+      "fixture_id": "F006",
+      "condition": "mutant",
+      "pair": "ds-gpt vs gpt-ds",
+      "shared": 0,
+      "union": 6,
+      "jaccard": 0.0
+    },
+    {
+      "fixture_id": "F007",
+      "condition": "control",
+      "pair": "ds-ds vs gpt-gpt",
+      "shared": 0,
+      "union": 6,
+      "jaccard": 0.0
+    },
+    {
+      "fixture_id": "F007",
+      "condition": "control",
+      "pair": "ds-ds vs gpt-ds",
+      "shared": 0,
+      "union": 6,
+      "jaccard": 0.0
+    },
+    {
+      "fixture_id": "F007",
+      "condition": "control",
+      "pair": "ds-ds vs ds-gpt",
+      "shared": 0,
+      "union": 6,
+      "jaccard": 0.0
+    },
+    {
+      "fixture_id": "F007",
+      "condition": "control",
+      "pair": "gpt-ds vs gpt-gpt",
+      "shared": 1,
+      "union": 5,
+      "jaccard": 0.2
+    },
+    {
+      "fixture_id": "F007",
+      "condition": "control",
+      "pair": "ds-gpt vs gpt-gpt",
+      "shared": 0,
+      "union": 6,
+      "jaccard": 0.0
+    },
+    {
+      "fixture_id": "F007",
+      "condition": "control",
+      "pair": "ds-gpt vs gpt-ds",
+      "shared": 0,
+      "union": 6,
+      "jaccard": 0.0
+    },
+    {
+      "fixture_id": "F007",
+      "condition": "mutant",
+      "pair": "ds-ds vs gpt-gpt",
+      "shared": 0,
+      "union": 6,
+      "jaccard": 0.0
+    },
+    {
+      "fixture_id": "F007",
+      "condition": "mutant",
+      "pair": "ds-ds vs gpt-ds",
+      "shared": 1,
+      "union": 5,
+      "jaccard": 0.2
+    },
+    {
+      "fixture_id": "F007",
+      "condition": "mutant",
+      "pair": "ds-ds vs ds-gpt",
+      "shared": 1,
+      "union": 5,
+      "jaccard": 0.2
+    },
+    {
+      "fixture_id": "F007",
+      "condition": "mutant",
+      "pair": "gpt-ds vs gpt-gpt",
+      "shared": 0,
+      "union": 6,
+      "jaccard": 0.0
+    },
+    {
+      "fixture_id": "F007",
+      "condition": "mutant",
+      "pair": "ds-gpt vs gpt-gpt",
+      "shared": 0,
+      "union": 6,
+      "jaccard": 0.0
+    },
+    {
+      "fixture_id": "F007",
+      "condition": "mutant",
+      "pair": "ds-gpt vs gpt-ds",
+      "shared": 1,
+      "union": 5,
+      "jaccard": 0.2
+    },
+    {
+      "fixture_id": "F008",
+      "condition": "control",
+      "pair": "ds-ds vs gpt-gpt",
+      "shared": 1,
+      "union": 5,
+      "jaccard": 0.2
+    },
+    {
+      "fixture_id": "F008",
+      "condition": "control",
+      "pair": "ds-ds vs gpt-ds",
+      "shared": 2,
+      "union": 4,
+      "jaccard": 0.5
+    },
+    {
+      "fixture_id": "F008",
+      "condition": "control",
+      "pair": "ds-ds vs ds-gpt",
+      "shared": 1,
+      "union": 5,
+      "jaccard": 0.2
+    },
+    {
+      "fixture_id": "F008",
+      "condition": "control",
+      "pair": "gpt-ds vs gpt-gpt",
+      "shared": 1,
+      "union": 5,
+      "jaccard": 0.2
+    },
+    {
+      "fixture_id": "F008",
+      "condition": "control",
+      "pair": "ds-gpt vs gpt-gpt",
+      "shared": 1,
+      "union": 5,
+      "jaccard": 0.2
+    },
+    {
+      "fixture_id": "F008",
+      "condition": "control",
+      "pair": "ds-gpt vs gpt-ds",
+      "shared": 1,
+      "union": 5,
+      "jaccard": 0.2
+    },
+    {
+      "fixture_id": "F008",
+      "condition": "mutant",
+      "pair": "ds-ds vs gpt-gpt",
+      "shared": 1,
+      "union": 5,
+      "jaccard": 0.2
+    },
+    {
+      "fixture_id": "F008",
+      "condition": "mutant",
+      "pair": "ds-ds vs gpt-ds",
+      "shared": 0,
+      "union": 6,
+      "jaccard": 0.0
+    },
+    {
+      "fixture_id": "F008",
+      "condition": "mutant",
+      "pair": "ds-ds vs ds-gpt",
+      "shared": 2,
+      "union": 4,
+      "jaccard": 0.5
+    },
+    {
+      "fixture_id": "F008",
+      "condition": "mutant",
+      "pair": "gpt-ds vs gpt-gpt",
+      "shared": 0,
+      "union": 6,
+      "jaccard": 0.0
+    },
+    {
+      "fixture_id": "F008",
+      "condition": "mutant",
+      "pair": "ds-gpt vs gpt-gpt",
+      "shared": 1,
+      "union": 5,
+      "jaccard": 0.2
+    },
+    {
+      "fixture_id": "F008",
+      "condition": "mutant",
+      "pair": "ds-gpt vs gpt-ds",
+      "shared": 0,
+      "union": 6,
+      "jaccard": 0.0
+    }
+  ]
+}

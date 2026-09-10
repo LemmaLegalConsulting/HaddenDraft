@@ -1,0 +1,144 @@
+# Reviewer adjudication — protocol steps 5 and 6.
+#
+# Fill in one block per fixture. Answer yes / no / unsure.
+# Only yes/yes/yes/yes admits a fixture to the held-out benchmark.
+#
+# 'saw_results_first' exists so contamination is recorded rather than
+# hidden. Answering yes there does not waste the fixture; it moves it to
+# the development set, which is where a contaminated fixture belongs.
+
+- fixture_id: F001
+  # stone-v-cazeau--07ca009164 — missing_element, 249 chars changed
+  reviewer: ""                       # your name
+  reviewed_on: ""                    # YYYY-MM-DD
+  saw_results_first: no              # yes | no
+  # Are the control and the mutant identical except for the intended change?
+  pair_identical_except_intended_change: ""                # yes | no | unsure
+  # Is the control free of the targeted defect?
+  control_free_of_target_defect: ""                # yes | no | unsure
+  # Does the mutant actually contain the targeted defect?
+  mutant_contains_target_defect: ""                # yes | no | unsure
+  # Is the defect material enough that competent opposing counsel could reasonably raise it?
+  material_enough_to_raise: ""                # yes | no | unsure
+  notes: ""                          # anything the yes/no does not carry
+  # If any answer is no or unsure, say what a better mutation here would be:
+  suggested_alternative: ""
+
+- fixture_id: F002
+  # cleveland-dev-v-carter--95135 — missing_element, 316 chars changed
+  reviewer: ""                       # your name
+  reviewed_on: ""                    # YYYY-MM-DD
+  saw_results_first: no              # yes | no
+  # Are the control and the mutant identical except for the intended change?
+  pair_identical_except_intended_change: ""                # yes | no | unsure
+  # Is the control free of the targeted defect?
+  control_free_of_target_defect: ""                # yes | no | unsure
+  # Does the mutant actually contain the targeted defect?
+  mutant_contains_target_defect: ""                # yes | no | unsure
+  # Is the defect material enough that competent opposing counsel could reasonably raise it?
+  material_enough_to_raise: ""                # yes | no | unsure
+  notes: ""                          # anything the yes/no does not carry
+  # If any answer is no or unsure, say what a better mutation here would be:
+  suggested_alternative: ""
+
+- fixture_id: F003
+  # dayton-tool-rental-st-joseph-invs-v-ealy — record_support, 45 chars changed
+  reviewer: ""                       # your name
+  reviewed_on: ""                    # YYYY-MM-DD
+  saw_results_first: no              # yes | no
+  # Are the control and the mutant identical except for the intended change?
+  pair_identical_except_intended_change: ""                # yes | no | unsure
+  # Is the control free of the targeted defect?
+  control_free_of_target_defect: ""                # yes | no | unsure
+  # Does the mutant actually contain the targeted defect?
+  mutant_contains_target_defect: ""                # yes | no | unsure
+  # Is the defect material enough that competent opposing counsel could reasonably raise it?
+  material_enough_to_raise: ""                # yes | no | unsure
+  notes: ""                          # anything the yes/no does not carry
+  # If any answer is no or unsure, say what a better mutation here would be:
+  suggested_alternative: ""
+
+- fixture_id: F004
+  # masten-v-k-d-mgmt--ca-12-098894 — authority_applicability, 4 chars changed
+  reviewer: ""                       # your name
+  reviewed_on: ""                    # YYYY-MM-DD
+  saw_results_first: no              # yes | no
+  # Are the control and the mutant identical except for the intended change?
+  pair_identical_except_intended_change: ""                # yes | no | unsure
+  # Is the control free of the targeted defect?
+  control_free_of_target_defect: ""                # yes | no | unsure
+  # Does the mutant actually contain the targeted defect?
+  mutant_contains_target_defect: ""                # yes | no | unsure
+  # Is the defect material enough that competent opposing counsel could reasonably raise it?
+  material_enough_to_raise: ""                # yes | no | unsure
+  notes: ""                          # anything the yes/no does not carry
+  # If any answer is no or unsure, say what a better mutation here would be:
+  suggested_alternative: ""
+
+- fixture_id: F005
+  # kerr-v-lakewood-shore-towers-inc — authority_applicability, 25 chars changed
+  reviewer: ""                       # your name
+  reviewed_on: ""                    # YYYY-MM-DD
+  saw_results_first: no              # yes | no
+  # Are the control and the mutant identical except for the intended change?
+  pair_identical_except_intended_change: ""                # yes | no | unsure
+  # Is the control free of the targeted defect?
+  control_free_of_target_defect: ""                # yes | no | unsure
+  # Does the mutant actually contain the targeted defect?
+  mutant_contains_target_defect: ""                # yes | no | unsure
+  # Is the defect material enough that competent opposing counsel could reasonably raise it?
+  material_enough_to_raise: ""                # yes | no | unsure
+  notes: ""                          # anything the yes/no does not carry
+  # If any answer is no or unsure, say what a better mutation here would be:
+  suggested_alternative: ""
+
+- fixture_id: F006
+  # lee-v-wallace — removed_counterargument, 210 chars changed
+  reviewer: ""                       # your name
+  reviewed_on: ""                    # YYYY-MM-DD
+  saw_results_first: no              # yes | no
+  # Are the control and the mutant identical except for the intended change?
+  pair_identical_except_intended_change: ""                # yes | no | unsure
+  # Is the control free of the targeted defect?
+  control_free_of_target_defect: ""                # yes | no | unsure
+  # Does the mutant actually contain the targeted defect?
+  mutant_contains_target_defect: ""                # yes | no | unsure
+  # Is the defect material enough that competent opposing counsel could reasonably raise it?
+  material_enough_to_raise: ""                # yes | no | unsure
+  notes: ""                          # anything the yes/no does not carry
+  # If any answer is no or unsure, say what a better mutation here would be:
+  suggested_alternative: ""
+
+- fixture_id: F007
+  # estate-of-anthony-notarian-v-notarian--23m000467 — record_support, 45 chars changed
+  reviewer: ""                       # your name
+  reviewed_on: ""                    # YYYY-MM-DD
+  saw_results_first: no              # yes | no
+  # Are the control and the mutant identical except for the intended change?
+  pair_identical_except_intended_change: ""                # yes | no | unsure
+  # Is the control free of the targeted defect?
+  control_free_of_target_defect: ""                # yes | no | unsure
+  # Does the mutant actually contain the targeted defect?
+  mutant_contains_target_defect: ""                # yes | no | unsure
+  # Is the defect material enough that competent opposing counsel could reasonably raise it?
+  material_enough_to_raise: ""                # yes | no | unsure
+  notes: ""                          # anything the yes/no does not carry
+  # If any answer is no or unsure, say what a better mutation here would be:
+  suggested_alternative: ""
+
+- fixture_id: F008
+  # friese-v-baker--23p000020 — removed_counterargument, 1343 chars changed
+  reviewer: ""                       # your name
+  reviewed_on: ""                    # YYYY-MM-DD
+  saw_results_first: no              # yes | no
+  # Are the control and the mutant identical except for the intended change?
+  pair_identical_except_intended_change: ""                # yes | no | unsure
+  # Is the control free of the targeted defect?
+  control_free_of_target_defect: ""                # yes | no | unsure
+  # Does the mutant actually contain the targeted defect?
+  mutant_contains_target_defect: ""                # yes | no | unsure
+  # Is the defect material enough that competent opposing counsel could reasonably raise it?
+  material_enough_to_raise: ""                # yes | no | unsure
+  notes: ""                          # anything the yes/no does not carry
+  # If any answer is no or unsure, say what a better mutation here would be:
+  suggested_alternative: ""

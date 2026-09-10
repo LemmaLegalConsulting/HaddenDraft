@@ -1,0 +1,102 @@
+{
+  "fixture_id": "F007",
+  "case_family_id": "estate-of-anthony-notarian-v-notarian--23m000467",
+  "stratum": "trial_eviction",
+  "document": {
+    "title": "Plaintiff's Motion for Partial Summary Judgment",
+    "court": "Court of Common Pleas of Ohio, Geauga County",
+    "jurisdiction": "Ohio",
+    "pleading_type": "motion_summary_judgment",
+    "side": "plaintiff",
+    "filed": "2024-01-25"
+  },
+  "files": {
+    "source": "source/original.docx",
+    "source_scan": "source/as-filed-scan.pdf",
+    "control": "normalized/brief.txt",
+    "mutant": "mutant/brief.txt",
+    "attachments": [
+      "record-01-record.txt"
+    ],
+    "attachment_notes": [
+      {
+        "file": "record-01-record.txt",
+        "chars": 72407,
+        "note": "pages 13-78 of the as-filed scan, transcribed by Azure Document Intelligence"
+      }
+    ]
+  },
+  "mutation": {
+    "type": "record_support",
+    "subtype": "manner_of_service_contradicted_by_the_attached_notice_and_affidavit",
+    "operation": "replace",
+    "section": "III.C -- compliance with R.C. 1923.04(A)",
+    "description": "Added a manner of service to the first of the four R.C. 1923.04(A) elements the motion applies. The date is unchanged, the citation is unchanged, and the exhibits it points to are byte-identical between the two conditions.",
+    "gold_vulnerability": "The record the motion cites establishes posting at the premises, not certified mail. Exhibit 3, the process server's affidavit, swears she \"served a Three-Day-Notice for the occupants to Leave the Premises at 8127 Cedar Road\" and documents it with photographs of the notice at the property; Exhibit 12 is the notice itself, signed and dated 6-28-23. Nothing in the record is a return receipt. R.C. 1923.04(A) makes certified mail one permitted manner and personal or premises service another, and service is jurisdictional in a forcible entry and detainer action, so the brief now claims a manner of service its own record disproves on the element it can least afford to lose.",
+    "expected_direction": "mutant_worse",
+    "materiality": "high",
+    "why_this_is_realistic": "This is the mutation the design asked for and the appellate stratum could not supply: the attachments are fixed, the assertion is adjacent to what they show, and catching it requires actually reading the record rather than inspecting the prose. A drafter reciting the statute's list of permitted methods and picking the wrong one produces exactly this.",
+    "target_location": {
+      "section": "III.C -- compliance with R.C. 1923.04(A)",
+      "control_excerpt": "First, plaintiff served the defendants with an eviction notice on June 28, 2023. See attached Exhibit 12 and Exhibit 3.",
+      "mutant_excerpt": "First, plaintiff served the defendants with an eviction notice by certified mail, return receipt requested, on June 28, 2023. See attached Exhibit 12 and Exhibit 3."
+    },
+    "characters_changed": 45,
+    "control_chars": 14224,
+    "mutant_chars": 14269,
+    "fraction_of_brief_changed": 0.00316
+  },
+  "gold": {
+    "control_has_target_defect": false,
+    "mutant_has_target_defect": true,
+    "expected_direction": "mutant_worse",
+    "materiality": "high",
+    "verified_by": [],
+    "verification_status": "unverified",
+    "verification_note": "Drafted by a language model and not yet adjudicated. The four reviewer questions in REGISTER.md (pair identical but for the intended change; control free of the target defect; mutant contains it; a competent opponent could raise it) have not been answered, so this fixture is development material, not benchmark."
+  },
+  "provenance": {
+    "source_sha256": "cba40ad9ce56b709e3a0fbe2fb798c41ac5f31dc89239dd99ca3df87b446a8c7",
+    "source_scan_sha256": "555070cc92d509f17930470b0c074c0e1a490f02faf4a263c2baf2cf311baf87",
+    "control_sha256": "25c278e6c41bf47cd10191abcb8f997f16c7a2a62c5b87cd282a5e1c8dc6fd58",
+    "mutant_sha256": "3cc5eaf97a507a75a4e4f32b12b620288c4fafba7f7b9b584f285515b5375126",
+    "attachment_sha256": {
+      "record-01-record.txt": "09b94bcbf54f940600b314f8a389ba75c62cc364ac25a9bdacaefaef15b4a160"
+    },
+    "normalization_version": "1.0",
+    "text": {
+      "control_text_source": "ocr_scan",
+      "ocr": {
+        "engine": {
+          "service": "Azure AI Document Intelligence",
+          "model": "prebuilt-read",
+          "api_version": "2024-11-30",
+          "endpoint_host": "workflowdocs.cognitiveservices.azure.com",
+          "reported_api_version": "2024-11-30",
+          "reported_model": "prebuilt-read"
+        },
+        "transcribed_on": "2026-09-08",
+        "source_sha256": "555070cc92d509f17930470b0c074c0e1a490f02faf4a263c2baf2cf311baf87",
+        "scan_pages": 78,
+        "scan_chars": 86924
+      },
+      "scan_split_rule": "certificate of service on page 12",
+      "scan_brief_page_count": 12,
+      "page_furniture_removed": {
+        "efile_stamp_lines_removed": 1,
+        "page_footer_lines_removed": 47
+      },
+      "normalization_log": null
+    },
+    "mutation_version": "1.0",
+    "generator": {
+      "mutations_authored_by": "claude-opus-5",
+      "control_text_prepared_by": "claude-opus-5 (selection, normalization and splitting only; no wording changed)",
+      "generator_display_name": "Claude Opus 5 (Claude Code)",
+      "generator_role": "drafted the candidate mutations and the gold-vulnerability text",
+      "authored_on": "2026-09-08",
+      "human_review": "none yet"
+    },
+    "built_on": "2026-09-09"
+  }
+}

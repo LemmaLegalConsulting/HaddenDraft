@@ -1,0 +1,99 @@
+EXPLANATION OF WHY THIS CASE IS A CASE OF PUBLIC OR GREAT GENERAL INTEREST
+
+This case is a case of public or great general interest for two reasons. First, if allowed to stand, the Decision of the Court below would, at least in foreclosure actions, effectively alter by lowering the standard to be met before a party could gain summary judgment under Civ.R. 56.
+
+The second reason, closely related to the first, is that this Decision is in direct conflict with the rulings of several other appellate court rulings in foreclosure cases. Those courts held that if two materially different versions of the subject promissory note are entered into the record, then it is incumbent on the plaintiff to explain the difference before it can be awarded summary judgment. 1 Here, the facts in this foreclosure case demonstrate that the Plaintiff itself offered two materially different versions of the subject Promissory Note into the record evidence. Both versions were sworn to be a true and accurate copy in the possession of the Plaintiff in Affidavits in support of its Motion for Summary Judgment.
+
+The first version, sworn to be accurate, bears no allonges or endorsements, and is payable to the loan originator BankUnited. The second version bears three allonges, the last one in blank, making the Note payable to the holder. Thus, these Notes are materially different from each other and beg for an explanation for the difference, yet none was forthcoming.
+
+This is especially true in the summary judgment setting requiring that there be "no genuine issue of material fact", and where the non-movant is entitled to have the evidence most strongly construed in his or her favor. When the lower Court granted summary judgment, it essentially chose to believe one Affidavit over the other, and engaged in impermissible credibility weighing.
+
+If this Decision is not reversed, it will continue to stand for the proposition that a summary judgment movant can succeed even where genuine issues of fact are present. This would be not only a substantial departure of long-standing case law, but from the express language of Civ.R. 56 itself. For this reason, this case is a case of public or great general interest.
+
+Furthermore, this case is of public or great general interest because the Decision is in direct conflict with the rulings of several other appellate courts on an important point. This Court is well aware that as foreclosure cases crowd the docket, many people's lives hang in the balance with each court ruling on important issues.
+
+In addition, in this day and age of loan securitization, where notes and mortgages change hands a number of times before coming to rest in a loan pool or trust, it is not uncommon for different versions of the note to be introduced into the record. That is exactly what happened here. However, unlike other appellate courts facing this situation, the Court below chose one Note over the other, without requiring an explanation by the Plaintiff of the difference. If allowed to stand, this Decision would grant foreclosing banks a proof preference not enjoyed in Ohio courts by anyone else. For this reason as well, this is a case of public or great general interest.
+
+STATEMENT OF THE CASE AND FACTS
+
+This foreclosure case involves an almost head-spinning sequence of pleadings filed by Deutsche Bank. The Complaint alleged that Plaintiff, Deutsche Bank, Trustee, was in possession of the Note. The Note attached to the Complaint has one Allonge attached, from the loan originator, BankUnited, indorsing the Note in blank ("the First Allonge").
+
+On November 12, 2015, Deutsche Bank filed its Motion for Summary Judgment. Attached to the Motion is the sworn Affidavit of Sean Bishop which among other things, states that a true and accurate copy of the Note is attached ("the Bishop Affidavit"). However, the Note attached to the Bishop Affidavit has no allonges attached to it. In other words, the Note attested by Mr. Bishop to be true and accurate is payable to the loan originator, BankUnited.
+
+On December 23, 2015, Deutsche Bank filed its "Notice of Filing Amended Exhibit 'A' to its Complaint". Attached to this pleading is a copy of the Note with three Allonges attached. This Note had the First Allonge which was attached to the Complaint, but also had two additional Allonges, one from the FDIC, pursuant to a Limited Power of attorney to One West FSB ("the Second allonge"), and yet another from One West, FSB, by its Attorney in Fact, Ocwen Loan Servicing, LLC, in blank ("the Third Allonge"). No explanation is offered for the discrepancies between this version of the Note, the one attached to the Complaint, or the one attached to the Bishop Affidavit.
+
+On January 12, 2016, Deutsche Bank filed another Affidavit in support of its Motion for Summary Judgement. This one was executed by Jesse Rosenthal ("the Rosenthal Affidavit"). Attached to this Affidavit is the same copy of the Note as the one filed on November 12, 2015. No explanation was offered in this pleading, or any other pleading for the critical differences between this version of the Note and the one attached to the Complaint, and more importantly, the one attached to the Bishop affidavit, having no Allonges, making the Note payable to the originator, BankUnited. Based on these documents, the trial court granted Plaintiff's Motion for Summary Judgment, and its decision was affirmed by the Court below.
+
+ARGUMENT IN SUPPORT OF PROPOSITIONS OF LAW
+
+Proposition of Law I: Plaintiff/Appellee failed to meet its burden under Civ. R. 56 in order to be awarded summary judgment.
+
+In order to prove it is entitled to summary judgment, the moving party must establish that: "(1) there is no genuine issue of material fact, (2) the moving party is entitled to judgment as a matter of law, and (3) reasonable minds can come to but one conclusion and that conclusion is adverse to the nonmoving party, said party being entitled to have the evidence construed most strongly in his favor." Zivich v. Mentor Soccer Club, Inc., 1998-Ohio-389.
+
+Summary judgment is a procedural device used to terminate litigation and avoid a formal trial where there are no issues in a case to try. Burkes v. Stidham (1995), 107 Ohio App.3d 363, 370, citing Norris v. Ohio Std. Oil Co. (1982), 70 Ohio St.2d 1, 2. A trial court should not enter a summary judgment if it appears a material fact is genuinely disputed, nor if, construing the allegations most favorable towards the non-moving party, reasonable minds could draw different conclusions from the undisputed facts. Houndshell v. American States Ins. Co. (1981), 67 Ohio St.2d 427. A fact is material if it affects the outcome of the case under the applicable substantive law. Russell v. Interim Personnel, Inc. (1999), 135 Ohio App.3d 301. The court may not resolve ambiguities in the evidence presented. Inland Refuse Transfer Company v. Browning-Ferris Industries of Ohio, Inc. (1984), 15 Ohio St.3d 321.
+
+Consistent with the above principles, in U.S. Bank v. McGinn, 2013-Ohio-8 (CA6), the Court below faced a situation where the foreclosing Plaintiff had submitted different copies of the subject Note. In that Case, the lender even went so far as to submit an Affidavit which attempted to explain the discrepancies. However, that Court rejected the explanation as being insufficient, stating:
+
+"U.S. Bank argues that Knapp's second affidavit resolves any issue concerning the difference in the original note and the copy that was attached to the complaint. However, the language of that affidavit is indecisive. Rather than providing a definitive explanation for the additional endorsements on the original note, Knapp states that he believes that the wrong copy of the complaint (sic) was attached to the foreclosure complaint. However, Civ.R. 56(C) requires personal knowledge. Indeed, believing something to be true is different that (sic) knowing something is true." Id., at P24.
+
+The McGinn decision was cited with approval by the Tenth District Court of Appeals in the case of U.S. Bank Nat. Assn, Trustee v. George, 2015-Ohio-4957 (CA 10).
+
+Here, contrary to the foregoing law, the bar was lowered on Plaintiff when it was granted summary judgment. The critical differences between the Notes attached to the Bishop Affidavit and the Rosenthal affidavit created a genuine issue of material fact. Despite that fact, Plaintiff was granted summary judgment with its ruling being upheld by the Court below. That Decisions should not be allowed to stand.
+
+Proposition of Law II: The Decision of the Court below in this foreclosure case is in direct conflict with rulings of other appellate courts on an important issue.
+
+The Decision of the Court below is in direct conflict with other courts of appeals facing the situation where two materially different versions of the subject promissory note were entered into the record. Those courts held that when this occurs, it is incumbent on the plaintiff to explain the reason for the difference.
+
+For example, in U.S. Bank National Assn, as Trustee v. George, 2015-Ohio-4957 (CA10). the Court stated:
+
+"In Lackey, unlike Najar, the plaintiff did not offer any explanation of the different versions of the note. The affidavit in support of the motion for summary judgment contained the attestation that the plaintiff had possession of the note and mortgage prior to the filing of the complaint and addressed the assignment history of the mortgage, but failed to address the two different versions of the note, which contained different indorsements. We held: "Absent any explanation for the discrepancy between the two versions of the Note, and construing the evidence in favor of appellant as the party opposing summary judgment, it appears that there is a genuine issue of material fact as to whether appellee was entitled to enforce the Note (citation omitted)." Id. at Par. 20 (Emphasis added.)
+
+Thus, the underlying issue dealt with in George is the same as faced here-"Can a foreclosing party be awarded summary judgment when there are two materially different versions of the subject promissory note in the record without explaining the reason for the difference?" Therefore, should this Decision be allowed to stand, then it would be in direct conflict with George.
+
+Further the Decision is in conflict with the ruling in Fannie Mae v. Trahey, 2013-Ohio-3071 (CA9). The Trahey Court summarized its decision overruling the trial court's grant of summary judgement to foreclosing plaintiff where two different versions of the note were in the record, with no explanation by plaintiff being offered, by stating; "The inconsistencies between the indorsements contained in the two copies of the promissory notes raises a genuine issue of material fact." Id. at Par. 12.
+
+In a subsequent decision, the Ninth District expounded the logic of Trahey by saying:
+
+"In the recent case of Fannie Mae v. Trahey, (citation omitted), this Court also faced a similar issue when the foreclosing lender attached a copy of the note to its complaint that contained a blank indorsement from the original lender. In that case, the foreclosing lender filed an amended complaint, which included a different copy of the note. The note attached to the amended complaint demonstrated an indorsement from the original lender to another lender and then a second indorsement from that lender in blank. We concluded that the inconsistencies between the indorsements contained on the notes created a genuine issue of material fact that precluded summary judgment as we could not ascertain which lender possessed the note at the time the foreclosure was filed." Deutsche Bank National Trust Company v. Holden, 2014-Ohio-1333 (CA9), rev'd on other grounds, 147 Ohio St.3d 85, 2016-Ohio-4603 (S.Ct.), at para. 14.
+
+Thus, the issue identified by in Trahey is the same as faced here; that is, whether a foreclosing party can be awarded summary judgment when there are two versions of the subject note in the record, with no explanation as to the reason for the difference.
+
+Here, unlike George and Trahey, the Plaintiff was allowed to succeed in gaining summary judgment even though it introduced two materially different versions of the Note without offering any explanation for the difference. It is a matter of public or great general interest that this conflict be resolved by this Court.
+
+CONCLUSION
+
+This case presents two related, but separate reasons, why this case is of public or great general interest. The implications of the first reason are so vast they could change the entire landscape in the summary judgment area, by allowing judgment to be granted where a genuine issue of material fact exists. The implications of the second are more narrow, but no less important to those families facing eviction from their home through foreclosure. Respectfully, this Court should take jurisdiction of this matter in order to resolve these important issues for the benefit of all Ohioans.
+
+/s/ Daniel L. McGookey
+
+Daniel L. McGookey (Reg. No. 0015771)
+
+McGOOKEY LAW OFFICES, LLC
+
+Counsel for Defendants/Appellants
+
+Matthew and Kathi Yevtich
+
+CERTIFICATE OF SERVICE
+
+This is to certify that a copy of the foregoing was sent by regular United States mail, postage prepaid, on this 18th day of September, 2017, as follows:
+
+Kimberly Y. Smith Rivera, Esq.
+
+McGlinchey Stafford
+
+25550 Chagrin Blvd., Suite 406
+
+Cleveland, Ohio 44122
+
+Counsel for Plaintiff/Appellee
+
+/s/ Daniel L. McGookey
+
+Daniel L. McGookey (Reg. No. 0015771)
+
+McGOOKEY LAW OFFICES, LLC
+
+Counsel for Defendants/Appellants
+
+Matthew and Kathi Yevtich

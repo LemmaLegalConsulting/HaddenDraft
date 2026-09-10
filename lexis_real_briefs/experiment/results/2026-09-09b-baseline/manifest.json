@@ -1,0 +1,107 @@
+{
+  "registry_id": "lexis-mutation-2026-09",
+  "created_at": "2026-09-09T13:04:50.332156+00:00",
+  "mode": "live",
+  "git_commit": "2f818467e88b50c55444ff0441fa85d7e7dffa8d",
+  "git_status": " M .gitignore\n M backend/apps/ai/tests.py\n M backend/apps/argument_gym/checklist.py\n M backend/apps/argument_gym/checks.py\n M backend/apps/argument_gym/ingestion.py\n M backend/apps/argument_gym/pipeline.py\n M backend/apps/argument_gym/record.py\n M backend/apps/argument_gym/rule_audit.py\n M backend/apps/argument_gym/test_rule_audit.py\n M backend/apps/argument_gym/tests.py\n M backend/apps/argument_gym/views.py\n M backend/apps/validation/language.py\n M backend/apps/validation/test_language.py\n M backend/apps/validation/test_pleading_form.py\n M backend/config/settings.py\n M content/drafting-rules/checks/pleading-form.yaml\n M docs/ARGUMENT_GYM.md\n M frontend/src/components/ArgumentGymPanel.jsx\n M frontend/src/components/argumentGym.js\n M frontend/src/styles/app.css\n M frontend/test/argument-gym.test.js\n M prompts/argument_gym.argument_map.yaml\n M prompts/argument_gym.coach.yaml\n M prompts/argument_gym.judge.yaml\n M prompts/argument_gym.opponent.yaml\n?? backend/apps/argument_gym/persuasion.py\n?? backend/apps/argument_gym/test_brief_coverage.py\n?? backend/apps/argument_gym/test_malformed_model_output.py\n?? backend/apps/argument_gym/test_persuasion.py\n?? lab_notebook/\n?? prompts/argument_gym.persuasion.yaml\n",
+  "command": [
+    "/home/quinten/agentic_housing_drafting/.venv/bin/python",
+    "lexis_real_briefs/experiment/tools/run_experiment.py",
+    "--output-dir",
+    "lexis_real_briefs/experiment/results/2026-09-09b-baseline",
+    "--live",
+    "--cell",
+    "baseline",
+    "--base-model",
+    "gpt-5.4-mini",
+    "--attack-model",
+    "gpt-5.4-mini",
+    "--judge-model",
+    "gpt-5.4-mini"
+  ],
+  "python": "3.12.3 (main, Jun 19 2026, 12:46:00) [GCC 13.3.0]",
+  "cell": "baseline",
+  "models": {
+    "attack": "gpt-5.4-mini",
+    "judge": "gpt-5.4-mini",
+    "base": "gpt-5.4-mini"
+  },
+  "model": "gpt-5.4-mini",
+  "attack_family": "openai",
+  "judge_family": "openai",
+  "same_family_judge": true,
+  "role_routing": "prompt key -> role: argument_gym.opponent=attack, argument_gym.judge=judge, everything else=base",
+  "reasoning": "medium",
+  "temperature": 0,
+  "provider_host": "quint-mln02sj6-eastus2.cognitiveservices.azure.com",
+  "model_version_note": "Requested deployment alias; the provider's snapshot identity is not exposed to the application client.",
+  "code_sha256": "24045ff8ce78555a6fb73f29b4d1a0eb727c83ca5e645d3f47b9b88a0ef14abb",
+  "dependencies_sha256": "f5f5236ee56cf7f75c2f0f59f570b7386388e27164eb9ec999572462072c4366",
+  "unit_budget_chars": 260000,
+  "unit_text_chars": 2400,
+  "brief_text_chars": 120000,
+  "source_ids": [
+    "ohio-cases",
+    "ohio-statutes",
+    "ohio-ordinances",
+    "treatise"
+  ],
+  "blinding": "The Gym receives brief text and record text only. No fixture id, condition label, mutation class or gold vulnerability reaches any prompt.",
+  "scoring": "Not done here. Challenges are written raw; adjudication is a separate step so the run cannot grade itself.",
+  "fixtures": [
+    {
+      "fixture_id": "F001",
+      "control_sha256": "5d2f2c189a51779c53b45b9efbdb0ec2074802a575cf7621d9c977918b55822b",
+      "mutant_sha256": "5fea6b337d7ac6c9a577d7ddba3f027de0737e46a8e27f9db6fe116c4994a12b",
+      "attachment_sha256": {}
+    },
+    {
+      "fixture_id": "F002",
+      "control_sha256": "bb64c9f4bce8cd864b5ed7b0e159ec4f29eae02c7a9fca22eefc5343a4d2102d",
+      "mutant_sha256": "dfeb7ee49d57f92088e6b23d8f0261c782cc6d5d972ea9bccff6b278e5071bdc",
+      "attachment_sha256": {}
+    },
+    {
+      "fixture_id": "F003",
+      "control_sha256": "ae5a9fef0f41f489aa144f38f803165270acedcd6013c0fac813410358a8b217",
+      "mutant_sha256": "449df4168309da2cda9144d9b4f73c60b61ff0f2c42c072c9a08be615dd9f6ed",
+      "attachment_sha256": {}
+    },
+    {
+      "fixture_id": "F004",
+      "control_sha256": "3bee19ac239e658fdc78b4c77a535ebe410ac9d3c8ec3602b92c5877de952811",
+      "mutant_sha256": "69af3c36bb573b5d5e3270d93653664a1fb31604d95e8183e2941fbcef216c7e",
+      "attachment_sha256": {}
+    },
+    {
+      "fixture_id": "F005",
+      "control_sha256": "fa9982d84b3563254ebbc6974cd0b614a7adfa784ef7c8d85dd131b79dca686d",
+      "mutant_sha256": "4656c22119ace67938335f7fc8cb46ad7ed4aa3eb3e1eac917f553bcd6280e2f",
+      "attachment_sha256": {}
+    },
+    {
+      "fixture_id": "F006",
+      "control_sha256": "7d9118e00fa38b0bfc6871e66494270d930a4b2fea3ec3d97e137b4182354c9f",
+      "mutant_sha256": "408d9df5c9f3fb0e6def98817ced0e91c4bdddb1b75c471171c402c67924719f",
+      "attachment_sha256": {
+        "record-01-record.txt": "e385fafb2877eff27dfb74ba965f0977ab7db94f660ddfdef22161cc8d940d34"
+      }
+    },
+    {
+      "fixture_id": "F007",
+      "control_sha256": "25c278e6c41bf47cd10191abcb8f997f16c7a2a62c5b87cd282a5e1c8dc6fd58",
+      "mutant_sha256": "3cc5eaf97a507a75a4e4f32b12b620288c4fafba7f7b9b584f285515b5375126",
+      "attachment_sha256": {
+        "record-01-record.txt": "09b94bcbf54f940600b314f8a389ba75c62cc364ac25a9bdacaefaef15b4a160"
+      }
+    },
+    {
+      "fixture_id": "F008",
+      "control_sha256": "9455829dcb65c6561ea67c1211df60ecde6d1de8cc0a199967443b6794b63d2b",
+      "mutant_sha256": "3f8742124abe6b3333ebad7afca1a2290a674a9655a0eed7769e978e70c91f5c",
+      "attachment_sha256": {
+        "record-01-record.txt": "8d7f272508eb13fa718a569f386d36bd4f7e7616de0f07091c43fcc4fee8e8b0"
+      }
+    }
+  ]
+}
