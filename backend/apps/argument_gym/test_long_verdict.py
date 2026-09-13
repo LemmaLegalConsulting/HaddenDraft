@@ -50,7 +50,7 @@ class VerdictClient:
 
 
 def make_run(user):
-    workspace = GymWorkspace.objects.create(owner=user, title="Appellant brief")
+    workspace = GymWorkspace.objects.create(owner=user, title="Appellant brief", enabled_checks=["adversarial"])
     ingested = ingestion.ingest_upload(BRIEF.encode("utf-8"), filename="brief.txt")
     brief = GymDocument.objects.create(
         workspace=workspace,

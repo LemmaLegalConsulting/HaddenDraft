@@ -1148,6 +1148,7 @@ export function ArgumentGymPanel({ matter = null, cases = [], focusRun = null, o
   const [uploadNote, setUploadNote] = useState("");
   const [checkCatalog, setCheckCatalog] = useState([]);
   const [checkDefaults, setCheckDefaults] = useState([]);
+  const [checkModes, setCheckModes] = useState([]);
   const [checklists, setChecklists] = useState([]);
   const [editingChecklistId, setEditingChecklistId] = useState("");
   const [checklistModalOpen, setChecklistModalOpen] = useState(false);
@@ -1185,6 +1186,7 @@ export function ArgumentGymPanel({ matter = null, cases = [], focusRun = null, o
       .then((response) => {
         setCheckCatalog(response.checks || []);
         setCheckDefaults(response.defaults || []);
+        setCheckModes(response.modes || []);
       })
       .catch((err) => setError(err.message));
   }, [loadChecklists]);
@@ -1321,6 +1323,10 @@ export function ArgumentGymPanel({ matter = null, cases = [], focusRun = null, o
 
   const changeCheckGroup = async (checks, enabled) => {
     await patchWorkspace({ enabledChecks: setGroupChecks(selectedChecks, checks, enabled) });
+  };
+
+  const chooseCheckMode = async (mode) => {
+    await patchWorkspace({ enabledChecks: mode.checkIds || [] });
   };
 
   const saveChecklist = async ({ id, title, items }) => {
@@ -1539,7 +1545,7 @@ export function ArgumentGymPanel({ matter = null, cases = [], focusRun = null, o
         title="Argument gym"
         description={workspace
           ? sessionSubtitle(workspace)
-          : "An opponent attacks the brief, a judge weighs it, and a coach proposes answers. Nothing here edits your document."}
+          : "Named tests constrain the opponent; a judge rules on the evidence, and a coach proposes the smallest safe correction. Nothing here edits your document."}
       >
         <button className="btn btn-light" type="button" onClick={() => setSessionsOpen(true)}>
           <FolderOpen size={16} /> Open session{sessions.length ? ` (${sessions.length})` : ""}
@@ -1639,6 +1645,28 @@ export function ArgumentGymPanel({ matter = null, cases = [], focusRun = null, o
               <ListChecks size={16} /> Checks to run
               <span className="disclosure-summary">{selectedChecks.length} of {checkCatalog.length} selected</span>
             </summary>
+            <div className="gym-mode-row" aria-label="Argument Gym mode">
+              {checkModes.map((mode) => {
+                const active = mode.checkIds.length === selectedChecks.length
+                  && mode.checkIds.every((checkId) => selectedChecks.includes(checkId));
+                return (
+                  <button
+                    className={`btn ${active ? "btn-primary" : "btn-light"}`}
+                    type="button"
+                    key={mode.id}
+                    disabled={busy}
+                    onClick={() => chooseCheckMode(mode)}
+                    title={mode.description}
+                  >
+                    {mode.label}
+                  </button>
+                );
+              })}
+            </div>
+            <p className="muted">
+              In Correctness mode, named tests constrain what Opponent may challenge, Judge rules only on supplied
+              evidence, and Coach suggests the smallest safe correction after the ruling.
+            </p>
             <CheckSelector
               catalog={checkCatalog}
               selected={selectedChecks}

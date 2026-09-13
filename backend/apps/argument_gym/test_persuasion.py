@@ -50,7 +50,8 @@ class CatalogTests(TestCase):
     def test_correctness_and_completeness_are_kept_apart(self):
         catalog = {check["id"]: check for check in checks.catalog()}
         self.assertEqual(catalog["rule_elements"]["category"], "correctness")
-        self.assertEqual(catalog["record_audit"]["category"], "correctness")
+        self.assertEqual(catalog["record_support"]["category"], "correctness")
+        self.assertEqual(catalog["authority_support"]["category"], "correctness")
         self.assertEqual(catalog["adversarial"]["category"], "completeness")
         self.assertEqual(catalog["adversarial"]["categoryLabel"], "Argumentative completeness")
 

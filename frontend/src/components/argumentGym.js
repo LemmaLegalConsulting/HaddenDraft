@@ -516,6 +516,13 @@ const STAGE_LABELS = {
   materials: "Choosing case materials",
   argument_map: "Mapping the argument",
   record_audit: "Checking the brief against the record",
+  record_targets: "Identifying atomic material facts",
+  "opponent:record_support": "Opponent is testing record support",
+  "opponent:authority_support": "Opponent is testing cited authority",
+  "judge:rule_elements": "Judge is ruling on rule-element tests",
+  "judge:cited_record_support": "Judge is ruling on cited record support",
+  "judge:uncited_material_fact": "Judge is ruling on uncited material facts",
+  "judge:authority_support": "Judge is ruling on authority support",
   research_queries: "Writing adversarial research queries",
   research: "Researching",
   opponent: "Opposing counsel is building its attacks",
@@ -573,7 +580,7 @@ export function defaultFilter(challenges = []) {
 
 export function emptyStateMessage(challenges = [], filter = "all") {
   if (!challenges.length) {
-    return "This run raised no challenges. That is a statement about the review, not a finding that the brief is sound — check the research coverage below.";
+    return "These tests did not establish a defect. That is not a conclusion that the brief is persuasive or that untested issues are sound.";
   }
   if (filter === "open") return "Every challenge from this run has been handled.";
   return "Nothing has been handled yet.";

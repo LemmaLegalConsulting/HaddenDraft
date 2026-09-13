@@ -205,11 +205,15 @@ _DECLARED_CHECKS = (
         ),
         kind=MODEL,
         category="completeness",
+        default_enabled=False,
     ),
     CheckDefinition(
-        id="record_audit",
-        label="Check the brief against the case record",
-        description="Whether the case materials actually establish what the brief asserts.",
+        id="record_support",
+        label="Test material facts against the record",
+        description=(
+            "Opponent tests only atomic, record-verifiable, material claims; Judge sustains a defect "
+            "only when the supplied evidence and record coverage establish it."
+        ),
         kind=MODEL,
         category="correctness",
         requires=("case_record",),
@@ -220,6 +224,15 @@ _DECLARED_CHECKS = (
         description=(
             "Detects the rules the brief cites or invokes by name, then audits each element "
             "of those rules: is it pleaded, and is it supported."
+        ),
+        kind=MODEL,
+        category="correctness",
+    ),
+    CheckDefinition(
+        id="authority_support",
+        label="Test cited authority support",
+        description=(
+            "Whether each cited authority supports the material legal proposition for which the brief uses it."
         ),
         kind=MODEL,
         category="correctness",
@@ -243,6 +256,7 @@ _DECLARED_CHECKS = (
         description="Required elements, type size, spacing, margins, and page limits for the selected court.",
         kind=DETERMINISTIC,
         category="form",
+        default_enabled=False,
         requires=("court_profile",),
     ),
     CheckDefinition(
@@ -255,6 +269,7 @@ _DECLARED_CHECKS = (
         ),
         kind=DETERMINISTIC,
         category="form",
+        default_enabled=False,
     ),
     CheckDefinition(
         id="draft_validation",
@@ -266,6 +281,7 @@ _DECLARED_CHECKS = (
         ),
         kind=DETERMINISTIC,
         category="form",
+        default_enabled=False,
         requires=("native_draft",),
     ),
     CheckDefinition(
@@ -274,6 +290,7 @@ _DECLARED_CHECKS = (
         description="Doubled words, missing sentence spacing, unbalanced quotes and parentheses.",
         kind=DETERMINISTIC,
         category="language",
+        default_enabled=False,
     ),
     CheckDefinition(
         id="confused_words",
@@ -285,6 +302,7 @@ _DECLARED_CHECKS = (
         ),
         kind=DETERMINISTIC,
         category="language",
+        default_enabled=False,
     ),
     CheckDefinition(
         id="passive_voice",
@@ -323,6 +341,7 @@ def _persuasion_checks():
             description=question,
             kind=MODEL,
             category="persuasion",
+            default_enabled=False,
         )
         for slug, label, question in PERSUASION_DIMENSIONS
     )
@@ -340,11 +359,26 @@ CHECK_CATALOG = tuple(
 
 CHECKS_BY_ID = {check.id: check for check in CHECK_CATALOG}
 PERSUASION_CHECK_IDS = [check.id for check in CHECK_CATALOG if check.category == "persuasion"]
+CORRECTNESS_CHECK_IDS = ["rule_elements", "record_support", "authority_support"]
 # Stored when the author turns every check off. An empty list cannot carry that:
 # a new session also has an empty list, and there it means "the defaults". Making
 # the two the same would silently re-enable everything the author switched off.
 NONE_SELECTED = "__none__"
-DEFAULT_CHECK_IDS = [check.id for check in CHECK_CATALOG if check.default_enabled]
+DEFAULT_CHECK_IDS = list(CORRECTNESS_CHECK_IDS)
+CHECK_MODES = [
+    {
+        "id": "correctness",
+        "label": "Correctness",
+        "description": "Bounded Opponent → Judge → Coach tests. Zero findings is allowed.",
+        "checkIds": CORRECTNESS_CHECK_IDS,
+    },
+    {
+        "id": "stress_test",
+        "label": "Stress test",
+        "description": "Optional open-ended adversarial and persuasion review.",
+        "checkIds": ["adversarial", *PERSUASION_CHECK_IDS],
+    },
+]
 REQUIREMENT_REASONS = {
     "native_draft": "This brief was uploaded rather than drafted here, so there is no template or draft session to validate.",
     "court_profile": "No court is selected for this session, so there are no filing rules to apply.",

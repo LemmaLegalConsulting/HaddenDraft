@@ -1,5 +1,32 @@
 # Argument Gym reasoning benchmark
 
+## Production correctness mode
+
+The default Gym is a bounded legal-correctness test harness. It runs
+`rule_elements`, `record_support`, and `authority_support`; the open-ended
+adversarial and persuasion suites are an optional Stress test. The courtroom
+roles remain the interaction architecture, but the named test defines what may
+be contested:
+
+1. **Opponent** may bring one issue-specific challenge against a predefined
+   target, or decline to challenge it.
+2. **Judge** decides only whether that challenge is established by the supplied
+   evidence. `sustained`, `reserved`, and `overruled` map to `must_fix`, `review`,
+   and `pass`. Judge does not find new issues or rank them.
+3. **Coach** runs after adjudication and proposes the smallest safe correction,
+   without inventing facts, citations, authority, or arguments.
+
+Correctness findings use `checkId + targetId` as rerun identity. A correctness
+run has no minimum result count and no cap on `must_fix`; zero visible findings
+is valid and means only that the selected tests did not establish a defect.
+Incomplete record retrieval, unresolved authority, and uncertain rule
+applicability fail closed to `review`, `pass`, or no visible finding rather than
+becoming a defect. Stable per-target results are stored in `GymRun.check_results`,
+while the existing `GymChallenge` rows carry actionable `must_fix` and `review`
+cards. Until a dedicated finding model is introduced, `checkId`, `issueCode`,
+`targetId`, and test disposition are also stored in each card's
+`research_coverage` JSON.
+
 `minimal-pairs.yaml` is a maintained, synthetic, closed-world evaluation corpus.
 It is not legal authority, a retrieval library, or a source of production legal
 rules. The district hierarchy, city coverage, transition dates, and holdings are

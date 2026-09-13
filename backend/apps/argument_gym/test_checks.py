@@ -29,6 +29,8 @@ class CatalogTests(TestCase):
         self.assertIn("draft_validation", ids)
         self.assertIn("passive_voice", ids)
         self.assertIn("rule_elements", ids)
+        self.assertIn("record_support", ids)
+        self.assertIn("authority_support", ids)
         for check in catalog:
             self.assertIn(check["kind"], {"deterministic", "model"})
             self.assertTrue(check["description"])
@@ -82,6 +84,7 @@ class SelectionTests(TestCase):
         payload = self.client.get(reverse("api_gym_checks")).json()
         self.assertTrue(payload["checks"])
         self.assertEqual(payload["defaults"], checks.DEFAULT_CHECK_IDS)
+        self.assertEqual(payload["modes"][0]["checkIds"], checks.CORRECTNESS_CHECK_IDS)
 
     def test_an_author_can_choose_the_checks_and_the_choice_sticks(self):
         response = self._patch({"enabledChecks": ["grammar", "pleading_form"]})
@@ -138,13 +141,14 @@ class SelectionTests(TestCase):
         ]
         self.assertFalse(any("was defective" in phrase for phrase in phrases))
 
-    def test_the_adversarial_check_can_be_turned_off_and_the_cards_still_rank(self):
+    def test_the_adversarial_check_can_be_turned_off_while_the_judge_verifies_named_tests(self):
         self._patch({"enabledChecks": ["rule_elements"]})
         self.workspace.refresh_from_db()
         run = run_with(self.workspace, self.brief)
         stages = {stage["stage"]: stage["method"] for stage in run.stage_trace}
         self.assertEqual(stages["opponent"], "off")
         self.assertEqual(stages["judge"], "off")
+        self.assertIn("judge:rule_elements", stages)
         self.assertTrue(run.rule_audit)
 
 
