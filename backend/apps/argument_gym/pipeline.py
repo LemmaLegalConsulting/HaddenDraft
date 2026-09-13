@@ -658,6 +658,24 @@ def run_authority_research(
     sources = []
     trace = []
     seen = {}
+
+    def link_compatible_sources():
+        """Reuse one resolved opinion for every citation to that authority.
+
+        Briefs commonly cite the same case once by its lead reporter and later
+        with a pinpoint or parallel reporter. Resolving those as independent
+        remote requests wastes the rate limit and can leave the materially
+        attributed quotation unverified even though the opinion is already in
+        hand. Identity matching remains deterministic and uses title/citation,
+        never search rank or snippet similarity.
+        """
+        for target in targets:
+            for source in sources:
+                if target["targetId"] in source.get("targets", []):
+                    continue
+                if correctness.authority_source_matches(target["citation"], source):
+                    source["targets"].append(target["targetId"])
+
     for target in targets:
         query = f'"{target["citation"]}"'
         selection = automatic_source_selection(query, matter=matter)
@@ -711,6 +729,7 @@ def run_authority_research(
                 },
             }
         )
+    link_compatible_sources()
     locally_resolved = {target_id for source in sources for target_id in source.get("targets") or []}
     unresolved = [
         target
@@ -746,10 +765,14 @@ def run_authority_research(
         }
         sources.append(source)
         accepted_external.add(target_id)
+    link_compatible_sources()
+    resolved_after_fallback = {
+        target_id for source in sources for target_id in source.get("targets") or []
+    }
     for item in trace:
         target_id = (item.get("targets") or [None])[0]
-        if target_id in accepted_external:
-            item["resultCount"] += 1
+        if target_id in resolved_after_fallback and not item["resultCount"]:
+            item["resultCount"] = 1
             item["augmentation"]["finalEvaluation"] = {"adequate": True, "reasons": []}
         if target_id in {target["targetId"] for target in unresolved}:
             item["externalFallback"] = external_trace
