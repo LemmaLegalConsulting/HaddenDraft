@@ -18,6 +18,7 @@ PASS = "pass"
 DISPOSITIONS = {MUST_FIX, REVIEW, PASS}
 RECORD_STATES = {"supported", "contradicted", "not_found", "not_verifiable"}
 AUTHORITY_STATES = {"supported", "overstated", "inapplicable", "contradicted", "unverifiable"}
+OPINION_STATUS_STATES = {"supported", "missing_material_qualifier", "contradicted", "unverifiable", "not_applicable"}
 RECORD_TARGET_VERSION = "record-targets-v2"
 MAX_JUDGE_BATCH = 8
 MAX_AUTHORITY_BATCH = 4
@@ -306,6 +307,7 @@ def authority_targets_from_units(units):
                     "citation": citation,
                     "claimedCaseName": _claimed_case_name(parent_text, citation),
                     "attributionType": _authority_attribution_type(proposition),
+                    "claimedOpinionStatus": _claimed_opinion_status(proposition),
                     # Pinpoints are retained for retrieval, but a source without
                     # stable page boundaries cannot prove that a pinpoint is
                     # right or wrong.  That capability is reported as
@@ -332,6 +334,13 @@ def _citation_context(text, citation):
         start = max(starts) + (2 if max(starts) >= 0 and value[max(starts):max(starts) + 2] != ";" else 1)
         ends = [position for mark in (". ", "? ", "! ", ";") if (position := value.find(mark, location + len(citation))) >= 0]
         end = min(ends) + 1 if ends else len(value)
+        # Citation extractors ordinarily exclude explanatory parentheticals.
+        # Keep an immediately following parenthetical whole even when an
+        # abbreviation such as "J." would otherwise look like sentence end.
+        tail = value[location + len(citation) : location + len(citation) + 240]
+        parenthetical = re.match(r"\s*(\([^)]{1,220}\))", tail)
+        if parenthetical:
+            end = max(end, location + len(citation) + parenthetical.end())
         return clean(value[start:end].strip(), limit=700)
     return clean(value, limit=700)
 
@@ -360,6 +369,19 @@ def _authority_attribution_type(proposition):
     if re.search(r"\b(facts?|tenant|landlord|plaintiff|defendant)\b", value):
         return "case_fact"
     return "general_support"
+
+
+def _claimed_opinion_status(proposition):
+    value = str(proposition or "").casefold()
+    for pattern, label in (
+        (r"\bdissent(?:ing)?\b", "dissent"),
+        (r"\bconcurr(?:ing|ence)?\b", "concurrence"),
+        (r"\bplurality\b", "plurality"),
+        (r"\bper curiam\b", "per_curiam"),
+    ):
+        if re.search(pattern, value):
+            return label
+    return ""
 
 
 def _citation_pinpoint(citation):
@@ -543,6 +565,48 @@ def authority_opponent_stage(targets, legal_sources, *, jurisdiction, llm_client
                         "userVisible": state != "unverifiable",
                     }
                 )
+                qualifier_state = choice(
+                    item.get("opinionStatusState"), OPINION_STATUS_STATES, "not_applicable"
+                )
+                if qualifier_state != "not_applicable":
+                    qualifier_refs = [
+                        str(value) for value in item.get("opinionStatusEvidenceRefs") or []
+                        if str(value) in batch_source_ids
+                    ]
+                    qualifier_quote = clean(item.get("opinionStatusPassage"), limit=900)
+                    qualifier_disposition = (
+                        PASS if qualifier_state == "supported"
+                        else REVIEW if qualifier_state == "unverifiable"
+                        else MUST_FIX
+                    )
+                    if qualifier_disposition == MUST_FIX and (not qualifier_refs or not qualifier_quote):
+                        qualifier_disposition = REVIEW
+                    qualifier_target_id = f"{target['targetId']}:opinion_status"
+                    candidates.append(
+                        {
+                            "candidateId": candidate_id("authority_support", qualifier_target_id),
+                            "checkId": "authority_support",
+                            "issueCode": {
+                                "supported": "opinion_status_supported",
+                                "missing_material_qualifier": "opinion_status_omitted",
+                                "contradicted": "opinion_status_misstated",
+                                "unverifiable": "opinion_status_unverifiable",
+                            }[qualifier_state],
+                            "targetId": qualifier_target_id,
+                            "unitId": target["unitId"],
+                            "claim": target["proposition"],
+                            "problem": clean(item.get("opinionStatusChallenge"), limit=1200),
+                            "reason": clean(item.get("opinionStatusReason"), limit=800),
+                            "briefEvidence": [target["unitId"]],
+                            "externalEvidence": qualifier_refs,
+                            "evidenceQuote": qualifier_quote,
+                            "evidenceState": qualifier_state,
+                            "proposedDisposition": qualifier_disposition,
+                            "citation": target["citation"],
+                            "attributionType": "opinion_status",
+                            "userVisible": qualifier_state != "unverifiable",
+                        }
+                    )
             return candidates
 
         return Stage("opponent:authority_support", llm_client=llm_client).run(

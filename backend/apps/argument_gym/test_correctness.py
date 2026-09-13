@@ -91,6 +91,15 @@ class CorrectnessContractTests(TestCase):
         self.assertEqual(target["pinpoint"], "347")
         self.assertEqual(target["pinpointVerification"], "unmeasured")
 
+    def test_authority_target_keeps_complete_opinion_status_parenthetical(self):
+        units = [
+            {"id": "u4", "type": ingestion.ARGUMENT, "text": "See Sherman v. Pearson (1996), 110 Ohio App.3d 70, 77 (J. Painter, dissenting)."},
+            {"id": "u5", "type": ingestion.CITATION, "parentId": "u4", "text": "Sherman v. Pearson (1996), 110 Ohio App.3d 70, 77"},
+        ]
+        target = correctness.authority_targets_from_units(units)[0]
+        self.assertIn("Painter, dissenting", target["proposition"])
+        self.assertEqual(target["claimedOpinionStatus"], "dissent")
+
     def test_date_like_ocr_fragment_is_not_an_authority(self):
         self.assertFalse(correctness.specific_authority("1 AUGUST 7"))
 
@@ -349,6 +358,35 @@ class CorrectnessContractTests(TestCase):
             jurisdiction="Ohio", llm_client=AuthorityClient(),
         )
         self.assertEqual(candidates[0]["issueCode"], "quotation_mismatch")
+
+    @override_settings(AI_DRAFTING_ENABLED=True)
+    def test_omitted_dissent_label_is_a_separate_authority_candidate(self):
+        class AuthorityClient:
+            def complete(self, **_kwargs):
+                return json.dumps({"challenges": [{
+                    "targetId": "u1:authority1", "evidenceState": "supported",
+                    "challenge": "", "reason": "The words appear in the opinion.",
+                    "evidenceRefs": ["s1"], "sourcePassage": "Quoted words.",
+                    "opinionStatusState": "missing_material_qualifier",
+                    "opinionStatusChallenge": "The passage is from the dissent.",
+                    "opinionStatusReason": "It is not the court's holding.",
+                    "opinionStatusEvidenceRefs": ["s1"],
+                    "opinionStatusPassage": "PAINTER, J., dissenting.",
+                }]})
+
+        candidates, _trace = correctness.authority_opponent_stage(
+            [{
+                "targetId": "u1:authority1", "unitId": "u1",
+                "citation": "Sherman v. Pearson, 110 Ohio App.3d 70",
+                "proposition": "Sherman held that the claim was permissive.",
+                "attributionType": "holding_or_rule", "claimedOpinionStatus": "",
+            }],
+            [{"id": "s1", "targets": ["u1:authority1"], "title": "Sherman v. Pearson", "text": "PAINTER, J., dissenting."}],
+            jurisdiction="Ohio", llm_client=AuthorityClient(),
+        )
+        status = next(item for item in candidates if item["targetId"].endswith(":opinion_status"))
+        self.assertEqual(status["issueCode"], "opinion_status_omitted")
+        self.assertEqual(status["proposedDisposition"], correctness.MUST_FIX)
 
     def test_judge_cannot_make_an_opponent_candidate_more_adverse(self):
         candidate = {"checkId": "rule_elements", "proposedDisposition": correctness.PASS}
