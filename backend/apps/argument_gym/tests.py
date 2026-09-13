@@ -175,19 +175,16 @@ class StandalonePipelineTests(TestCase):
     def test_opponent_judge_and_coach_are_separate_recorded_stages(self):
         run = gym_run(self.workspace, self.brief)
         stages = [stage["stage"] for stage in run.stage_trace]
-        # No court matched this brief, so the filing-format stage reports itself
-        # unavailable in the check plan rather than running.
         self.assertIn("opponent:authority_support", stages)
-        self.assertIn("judge:authority_support", stages)
         self.assertIn("coach", stages)
-        self.assertLess(stages.index("opponent:authority_support"), stages.index("judge:authority_support"))
-        self.assertLess(stages.index("judge:authority_support"), stages.index("coach"))
+        authority = next(entry for entry in run.checks_run if entry["id"] == "authority_support")
+        self.assertEqual(authority["status"], "unavailable")
+        self.assertNotIn("judge:authority_support", stages)
 
     def test_research_coverage_records_the_adversarial_queries(self):
         run = gym_run(self.workspace, self.brief)
-        coverage = run.challenges.first().research_coverage
-        self.assertTrue(coverage["queries"])
-        self.assertGreater(coverage["resultCount"], 0)
+        self.assertTrue(run.research_trace)
+        self.assertGreater(sum(item["resultCount"] for item in run.research_trace), 0)
 
     def test_a_brief_with_no_readable_text_fails_the_run_rather_than_the_request(self):
         empty = GymDocument.objects.create(
@@ -201,6 +198,8 @@ class StandalonePipelineTests(TestCase):
         self.assertIn("no readable text", run.error)
 
     def test_a_rerun_carries_a_dismissal_forward_and_reports_what_recurred(self):
+        self.workspace.enabled_checks = ["adversarial"]
+        self.workspace.save(update_fields=["enabled_checks"])
         first = gym_run(self.workspace, self.brief)
         dismissed = first.challenges.first()
         dismissed.disposition = GymChallenge.DISMISSED
@@ -279,7 +278,9 @@ class RecordAuditTests(TestCase):
 class ArtifactTests(TestCase):
     def setUp(self):
         self.user = User.objects.create_user("advocate", password="secret")
-        self.workspace = GymWorkspace.objects.create(owner=self.user, title="Answer", jurisdiction="Ohio")
+        self.workspace = GymWorkspace.objects.create(
+            owner=self.user, title="Answer", jurisdiction="Ohio", enabled_checks=["adversarial"]
+        )
         ingested = ingestion.ingest_upload(BRIEF.encode("utf-8"), filename="answer.txt", content_type="text/plain")
         self.brief = GymDocument.objects.create(
             workspace=self.workspace,
@@ -497,6 +498,8 @@ class UploadApiTests(TestCase):
         self.assertEqual(response.status_code, 400)
 
     def test_a_disposition_must_be_one_of_the_known_values(self):
+        self.workspace.enabled_checks = ["adversarial"]
+        self.workspace.save(update_fields=["enabled_checks"])
         ingested = ingestion.ingest_upload(BRIEF.encode("utf-8"), filename="answer.txt", content_type="text/plain")
         brief = GymDocument.objects.create(
             workspace=self.workspace,
@@ -583,13 +586,16 @@ class PromptRenderTests(TestCase):
         rendered = " ".join(prompt["system"] + prompt["user"] for prompt in client.prompts)
         unfilled = re.search(r"\{[a-z_]+\}", rendered)
         self.assertIsNone(unfilled, f"unfilled placeholder {unfilled.group(0) if unfilled else ''}")
-        self.assertGreaterEqual(len(client.prompts), 6)
+        self.assertGreaterEqual(len(client.prompts), 3)
         # The stages still finished on their deterministic results.
         for stage in run.stage_trace:
-            if stage["stage"] in {"materials", "research"} or stage["method"] in {"off", "source_specific"}:
+            if stage["stage"] in {"materials", "research"} or stage["method"] in {"off", "skipped", "source_specific"}:
                 continue
             self.assertEqual(stage["method"], "deterministic", stage)
-        self.assertTrue(run.challenges.exists())
+        # Correctness mode is permitted to complete with zero findings; a
+        # deterministic fallback must never manufacture a challenge merely to
+        # prove the pipeline ran.
+        self.assertTrue(run.check_results)
 
 
 @override_settings(ARGUMENT_GYM_BACKGROUND_RUNS=False, AI_DRAFTING_ENABLED=False, ENABLE_DEMO_MATTERS=True)
@@ -662,7 +668,7 @@ class SessionManagementTests(TestCase):
         row = next(item for item in self.client.get(reverse("api_gym_workspaces")).json()["workspaces"] if item["id"] == self.on_case.id)
         self.assertEqual(row["matterName"], "Jane Tenant")
         self.assertEqual(row["runCount"], 1)
-        self.assertGreater(row["openChallengeCount"], 0)
+        self.assertEqual(row["openChallengeCount"], self.on_case.runs.first().challenges.count())
         self.assertTrue(row["lastRunAt"])
 
     def test_reopening_a_session_returns_its_last_run_with_the_challenges(self):

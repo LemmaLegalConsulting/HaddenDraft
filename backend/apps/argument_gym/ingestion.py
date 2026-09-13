@@ -19,6 +19,8 @@ import zipfile
 from pathlib import Path
 from xml.etree import ElementTree
 
+from eyecite import get_citations
+
 from apps.sources.document_text import DocumentExtractionError, extract_text
 
 
@@ -64,7 +66,17 @@ _END_OF_BRIEF = re.compile(r"certificate of service", re.IGNORECASE)
 _EXHIBIT_INDEX = re.compile(r"\b(index (of|to) exhibits|table of exhibits|exhibit list)\b", re.IGNORECASE)
 
 _CITATION_PATTERNS = [
-    re.compile(r"\b\d+\s+[A-Z][A-Za-z.]{1,12}(?:\s+[A-Za-z.]{1,8})?\s+\d+(?:\s*\([^)]{2,40}\))?"),
+    # Reporter abbreviations can themselves contain digits (F.3d) or span
+    # several tokens (F. Supp. 2d). Include an optional pinpoint page so a
+    # citation replacement remains one parser anchor rather than a fragment.
+    re.compile(
+        r"\b\d+\s+(?:Ohio(?:\s+(?:St|App)\.?\s*\d*d?)?|App\.?\s+LEXIS|"
+        r"F\.?\s*(?:Supp\.?\s*)?\d*d?|U\.?S\.?|S\.?\s*Ct\.?|"
+        r"N\.?E\.?\s*\d*d?|N\.?W\.?\s*\d*d?|S\.?E\.?\s*\d*d?|"
+        r"S\.?W\.?\s*\d*d?|P\.?\s*\d*d?)\s+\d+"
+        r"(?:,\s*\d+(?:-\d+)?)?(?:\s*\([^)]{2,40}\))?",
+        re.IGNORECASE,
+    ),
     re.compile(r"\b(?:R\.C\.|O\.R\.C\.|U\.S\.C\.|C\.F\.R\.|O\.A\.C\.)\s*§*\s*[\d.]+[A-Za-z\d.()]*"),
     re.compile(r"§+\s*[\d.]+[A-Za-z\d.()\-]*"),
     re.compile(r"\b[A-Z][A-Za-z'.\-]+\s+v\.\s+[A-Z][A-Za-z'.\-]+"),
@@ -376,17 +388,33 @@ def _section_label(stack):
 
 
 def _citations(text):
-    found = []
-    seen = set()
+    # Eyecite supplies the maintained reporter grammar and expands full case
+    # spans to include case names. Local patterns add Ohio code sections and
+    # imperfect OCR forms that its general grammar does not recognize.
+    candidates = []
+    for citation in get_citations(text):
+        if not type(citation).__name__.startswith("Full"):
+            continue
+        start, end = citation.full_span()
+        value = _collapse(text[start:end]).strip(" ,;")
+        if len(value) >= 4:
+            candidates.append((start, end, value, "eyecite"))
     for pattern in _CITATION_PATTERNS:
         for match in pattern.finditer(text):
             value = _collapse(match.group(0)).strip(" ,;")
-            key = value.casefold()
-            if len(value) < 4 or key in seen:
-                continue
-            seen.add(key)
-            found.append(value)
-    return found
+            if len(value) >= 4:
+                candidates.append((match.start(), match.end(), value, "local"))
+
+    # Prefer Eyecite's richer span when recognizers overlap, then the longest
+    # local match (O.R.C. § 1923.04 rather than its nested § 1923.04). Text
+    # position fixes target ordering across reruns.
+    chosen = []
+    ordered = sorted(candidates, key=lambda item: (item[3] != "eyecite", -(item[1] - item[0]), item[0]))
+    for start, end, value, _source in ordered:
+        if any(start < prior_end and prior_start < end for prior_start, prior_end, _value in chosen):
+            continue
+        chosen.append((start, end, value))
+    return [value for _start, _end, value in sorted(chosen)]
 
 
 def _sentences(text):

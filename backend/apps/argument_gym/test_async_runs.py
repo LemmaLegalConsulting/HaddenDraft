@@ -146,10 +146,11 @@ class BackgroundRunTests(TransactionTestCase):
         ).json()["run"]["id"]
         run = self._wait_for(run_id)
         self.assertEqual(run.status, GymRun.COMPLETE, run.error)
-        self.assertTrue(run.challenges.exists())
+        self.assertTrue(run.check_results)
         payload = self.client.get(reverse("api_gym_run_detail", args=[run_id])).json()
         self.assertEqual(payload["run"]["status"], GymRun.COMPLETE)
-        self.assertTrue(payload["run"]["challenges"])
+        self.assertIn("challenges", payload["run"])
+        self.assertTrue(payload["run"]["checkResults"])
 
     def test_progress_is_visible_while_the_run_is_still_going(self):
         run = GymRun.objects.create(workspace=self.workspace, brief=self.workspace.documents.first())

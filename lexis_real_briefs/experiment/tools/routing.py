@@ -30,7 +30,10 @@ from apps.ai.openai_client import OpenAICompatibleClient
 # held constant across all four cells so the 2x2 varies two factors and not ten.
 ROLE_BY_PROMPT = {
     "argument_gym.opponent": "attack",
+    "argument_gym.record_opponent": "attack",
+    "argument_gym.authority_opponent": "attack",
     "argument_gym.judge": "judge",
+    "argument_gym.correctness_judge": "judge",
 }
 
 _local = threading.local()
@@ -104,6 +107,20 @@ class RoutedCapture:
                 except (TypeError, ValueError):
                     return None
         return None
+
+    def payloads_for(self, role):
+        """Every parsed response for a role, preserving call order."""
+        payloads = []
+        for row in self.calls:
+            if row["role"] != role or row["status"] != "complete":
+                continue
+            try:
+                payload = json.loads(row["response"]) if isinstance(row["response"], str) else row["response"]
+            except (TypeError, ValueError):
+                continue
+            if isinstance(payload, dict):
+                payloads.append({"prompt_key": row["prompt_key"], "payload": payload})
+        return payloads
 
     def failures(self, role):
         """Failed calls in a role, with why."""

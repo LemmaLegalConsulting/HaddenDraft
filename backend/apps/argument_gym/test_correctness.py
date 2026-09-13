@@ -1,11 +1,33 @@
+from unittest.mock import patch
+
 from django.test import TestCase
 from django.test.utils import override_settings
 
-from apps.argument_gym import correctness
+from apps.argument_gym import correctness, ingestion
+from apps.argument_gym.pipeline import run_authority_research
+from apps.sources.connectors.base import SourceResult
 
 
 @override_settings(AI_DRAFTING_ENABLED=False)
 class CorrectnessContractTests(TestCase):
+    def test_a_batch_cannot_silently_drop_or_duplicate_a_target(self):
+        expected = {"a", "b"}
+        self.assertTrue(correctness.complete_unique([{"id": "a"}, {"id": "b"}], "id", expected))
+        self.assertFalse(correctness.complete_unique([{"id": "a"}], "id", expected))
+        self.assertFalse(correctness.complete_unique([{"id": "a"}, {"id": "a"}], "id", expected))
+
+    @override_settings(AI_DRAFTING_ENABLED=True)
+    def test_empty_record_target_list_is_a_successful_test_inventory(self):
+        class EmptyTargetClient:
+            def complete(self, **_kwargs):
+                return '{"targets": []}'
+
+        targets, trace = correctness.record_target_stage(
+            [], jurisdiction="Ohio", llm_client=EmptyTargetClient()
+        )
+        self.assertEqual(targets, [])
+        self.assertEqual(trace["method"], "llm")
+
     def test_stable_identity_does_not_depend_on_generated_prose(self):
         first = correctness.stable_fingerprint("authority_support", "u4:authority:smith")
         second = correctness.stable_fingerprint("authority_support", "u4:authority:smith")
@@ -13,9 +35,140 @@ class CorrectnessContractTests(TestCase):
         self.assertEqual(first, second)
         self.assertNotEqual(first, other)
 
+    def test_authority_target_identity_survives_a_citation_mutation(self):
+        clean = correctness.authority_targets(
+            [{"unitId": "u4", "proposition": "The rule is mandatory.", "citedAuthority": ["Smith v. Jones"]}]
+        )
+        mutant = correctness.authority_targets(
+            [{"unitId": "u4", "proposition": "The rule is mandatory.", "citedAuthority": ["Other v. Case"]}]
+        )
+        self.assertEqual(clean[0]["targetId"], mutant[0]["targetId"])
+        self.assertNotEqual(clean[0]["citation"], mutant[0]["citation"])
+
+    def test_ingested_authority_slot_survives_reporter_citation_mutation(self):
+        def units(citation):
+            return [
+                {"id": "u4", "type": ingestion.ARGUMENT, "text": f"The rule is broad. Smith v. Jones, {citation}."},
+                {"id": "u5", "type": ingestion.CITATION, "parentId": "u4", "text": citation},
+            ]
+
+        clean = correctness.authority_targets_from_units(units("18 F.3d 337, 347 (6th Cir. 1994)"))
+        mutant = correctness.authority_targets_from_units(units("795 F. Supp. 2d 402 (E.D. Va. 2011)"))
+        self.assertEqual(clean[0]["targetId"], mutant[0]["targetId"])
+        self.assertNotEqual(clean[0]["citation"], mutant[0]["citation"])
+
+    def test_date_like_ocr_fragment_is_not_an_authority(self):
+        self.assertFalse(correctness.specific_authority("1 AUGUST 7"))
+
+    def test_hybrid_extraction_prefers_full_eyecite_case_and_keeps_ohio_code(self):
+        citations = ingestion._citations(
+            "Smith v. Jones, 18 F.3d 337, 347 (6th Cir. 1994), applies R.C. § 1923.04."
+        )
+        self.assertEqual(len([value for value in citations if "18 F.3d" in value]), 1)
+        self.assertTrue(any(value.startswith("Smith v. Jones") for value in citations))
+        self.assertEqual(len([value for value in citations if "1923.04" in value]), 1)
+
+    def test_authority_matcher_does_not_assume_v_has_text_on_both_sides(self):
+        source = SourceResult(
+            id="smith",
+            title="Smith v. Jones",
+            snippet="Holding",
+            source_kind="local_cases",
+            source_label="Cases",
+            citation="18 F.3d 337",
+        )
+        self.assertIsInstance(
+            correctness.authority_source_matches("v. Jones, 18 F.3d 337", source),
+            bool,
+        )
+
+    def test_record_candidates_include_explicit_exhibit_fact_but_not_generic_argument(self):
+        units = [
+            {"id": "u1", "type": ingestion.ARGUMENT, "text": "Service was made by certified mail. See Exhibit 3."},
+            {"id": "u2", "type": ingestion.ARGUMENT, "text": "The statute therefore requires judgment."},
+        ]
+        self.assertEqual(
+            [unit["id"] for unit in correctness.record_candidate_units(units)],
+            ["u1"],
+        )
+
+    def test_record_candidates_include_explicit_exhibit_claims_but_not_generic_argument(self):
+        units = [
+            {"id": "u1", "type": ingestion.ASSERTED_FACT, "text": "Notice was served."},
+            {"id": "u2", "type": ingestion.ARGUMENT, "text": "Service was by certified mail. See Exhibit 3."},
+            {"id": "u3", "type": ingestion.ARGUMENT, "text": "The statute therefore requires dismissal."},
+        ]
+        self.assertEqual(
+            [unit["id"] for unit in correctness.record_candidate_units(units)],
+            ["u1", "u2"],
+        )
+
+    def test_authority_resolution_is_direct_and_keeps_target_provenance(self):
+        class Registry:
+            def __init__(self):
+                self.calls = []
+
+            def search(self, query, **kwargs):
+                self.calls.append((query, kwargs))
+                return [
+                    SourceResult(
+                        id="smith",
+                        title="Smith v. Jones",
+                        snippet="The relevant holding.",
+                        source_kind="local_cases",
+                        source_label="Cases",
+                        citation="Smith v. Jones",
+                    )
+                ]
+
+        registry = Registry()
+        sources, trace = run_authority_research(
+            [{"targetId": "u4:authority1", "citation": "Smith v. Jones"}],
+            matter=None,
+            jurisdiction="Ohio",
+            user=None,
+            request=None,
+            registry=registry,
+            source_ids=["ohio-cases"],
+        )
+        self.assertFalse(registry.calls[0][1]["rerank"])
+        self.assertEqual(sources[0]["targets"], ["u4:authority1"])
+        self.assertEqual(trace[0]["targets"], ["u4:authority1"])
+
+    @override_settings(COURTLISTENER_API_TOKEN="configured")
+    def test_local_authority_match_never_calls_courtlistener_fallback(self):
+        class Registry:
+            def search(self, _query, **_kwargs):
+                return [
+                    SourceResult(
+                        id="smith",
+                        title="Smith v. Jones",
+                        snippet="The relevant holding.",
+                        source_kind="local_cases",
+                        source_label="Cases",
+                        citation="18 F.3d 337",
+                    )
+                ]
+
+        with patch("apps.sources.courtlistener.CourtListenerCitationFallback.resolve") as external:
+            run_authority_research(
+                [{"targetId": "u4:authority1", "citation": "Smith v. Jones, 18 F.3d 337"}],
+                matter=None,
+                jurisdiction="Ohio",
+                user=None,
+                request=None,
+                registry=Registry(),
+                source_ids=["ohio-cases"],
+            )
+        external.assert_not_called()
+
     def test_not_found_is_review_with_partial_record_and_may_fail_only_when_exhaustive(self):
         self.assertEqual(correctness._record_disposition("not_found", {"exhaustive": False}), correctness.REVIEW)
-        self.assertEqual(correctness._record_disposition("not_found", {"exhaustive": True}), correctness.MUST_FIX)
+        self.assertEqual(correctness._record_disposition("not_found", {"exhaustive": True}), correctness.REVIEW)
+        self.assertEqual(
+            correctness._record_disposition("not_found", {"completeForNegativeFindings": True}),
+            correctness.MUST_FIX,
+        )
 
     def test_must_fix_without_evidence_fails_closed_to_review(self):
         candidate = {
@@ -24,6 +177,13 @@ class CorrectnessContractTests(TestCase):
             "evidenceState": "overstated",
         }
         self.assertEqual(correctness._guard_disposition(candidate, correctness.MUST_FIX, []), correctness.REVIEW)
+
+    def test_judge_cannot_make_an_opponent_candidate_more_adverse(self):
+        candidate = {"checkId": "rule_elements", "proposedDisposition": correctness.PASS}
+        self.assertEqual(
+            correctness._guard_disposition(candidate, correctness.REVIEW, ["u1"]),
+            correctness.PASS,
+        )
 
     def test_judge_preserves_pass_and_allows_zero_visible_findings(self):
         candidate = {
@@ -74,6 +234,22 @@ class CorrectnessContractTests(TestCase):
         self.assertIn("0 must-fix findings", report["assessment"])
         self.assertNotIn("persuasive", report["assessment"].casefold())
 
+    def test_hidden_unverifiable_authority_does_not_become_attorney_review_noise(self):
+        ruling = {
+            "checkId": "authority_support",
+            "issueCode": "authority_unverifiable",
+            "targetId": "u4:authority1",
+            "unitId": "u4",
+            "disposition": correctness.REVIEW,
+            "userVisible": False,
+        }
+        results = correctness.check_results([ruling])
+        self.assertEqual(results["authority_support"]["findings"], [])
+        self.assertIn("1 could not be verified", results["authority_support"]["summary"])
+        assessment = correctness.summary([ruling], ["authority_support"])["assessment"]
+        self.assertIn("0 items need attorney review", assessment)
+        self.assertIn("1 could not be verified", assessment)
+
     def test_evaluation_scores_stable_targets_instead_of_generated_comments(self):
         expected = {"checkId": "authority_support", "targetId": "u2:authority:smith"}
         samples = [
@@ -93,3 +269,31 @@ class CorrectnessContractTests(TestCase):
         self.assertEqual(report["matchedSpecificity"]["rate"], 1.0)
         self.assertEqual(report["stability"]["rate"], 1.0)
         self.assertEqual(report["noise"]["additionalMustFix"], 0)
+
+    def test_evaluation_counts_a_disappearing_target_as_instability(self):
+        expected = {"checkId": "record_support", "targetId": "u2:fact1"}
+        samples = [
+            {
+                "caseId": "record-mutation",
+                "variant": "mutant",
+                **expected,
+                "tests": [{**expected, "disposition": "review"}],
+            },
+            {
+                "caseId": "record-mutation",
+                "variant": "mutant",
+                **expected,
+                "tests": [],
+            },
+        ]
+        report = correctness.evaluate_test_runs(samples)
+        self.assertEqual(report["stability"]["total"], 1)
+        self.assertEqual(report["stability"]["rate"], 0.0)
+
+    def test_record_target_cache_is_versioned_and_checksum_bound(self):
+        targets = [{"targetId": "u2:fact1", "claim": "Notice was served."}]
+        metadata = correctness.with_record_target_cache({"extractor": "docx"}, "abc", targets)
+        self.assertEqual(correctness.cached_record_targets(metadata, "abc"), targets)
+        self.assertIsNone(correctness.cached_record_targets(metadata, "changed"))
+        metadata["argumentGymRecordTargets"]["version"] = "old-contract"
+        self.assertIsNone(correctness.cached_record_targets(metadata, "abc"))

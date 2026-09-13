@@ -12,7 +12,7 @@ user prompt: |
   Return one result per target:
   {{"challenges": [{{"targetId": "u9:authority:case-a", "evidenceState": "supported | overstated | inapplicable | contradicted | unverifiable", "challenge": "The exact mismatch, or empty when supported", "reason": "Why the cited source does or does not support the proposition", "evidenceRefs": ["3"], "sourcePassage": "The relevant source passage, or empty"}}]}}
 
-  OVERSTATED, INAPPLICABLE, and CONTRADICTED require both a resolved source id and a relevant source passage. Use only target ids and source ids supplied above.
+  OVERSTATED, INAPPLICABLE, and CONTRADICTED require both a resolved source id and a relevant source passage. For each target, use only sources whose `targets` list contains that targetId. A source retrieved for another citation is not evidence for this target. Use only target ids and source ids supplied above.
 settings:
   default model: gpt-5.5
   default reasoning level: medium
