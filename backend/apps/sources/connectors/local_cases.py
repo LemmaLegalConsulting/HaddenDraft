@@ -216,8 +216,12 @@ def authority_passage(decision_id, proposition, *, max_chars=12000):
     )
     if not documents:
         return ""
+    # A trailing "See Case, reporter" is identity metadata, not the attributed
+    # language. Leaving it in caused the caption-heavy opening chunk to outrank
+    # the later dissent that actually contained the quotation.
+    attributed_text = re.split(r"\bsee\s*,?\s+[A-Z]", str(proposition or ""), maxsplit=1, flags=re.I)[0]
     terms = {
-        term for term in re.findall(r"[a-z0-9]{4,}", str(proposition or "").casefold())
+        term for term in re.findall(r"[a-z0-9]{4,}", attributed_text.casefold())
         if term not in {"court", "case", "that", "this", "with", "from", "where", "which", "see"}
     }
     scored = []
