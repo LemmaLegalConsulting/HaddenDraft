@@ -243,6 +243,33 @@ class CorrectnessContractTests(TestCase):
             )
         external.assert_not_called()
 
+    @override_settings(COURTLISTENER_API_TOKEN="configured")
+    def test_free_reported_sources_run_before_courtlistener(self):
+        class EmptyRegistry:
+            def search(self, _query, **_kwargs):
+                return []
+
+        free_result = SourceResult(
+            id="cap:1", title="Smith v. Jones", snippet="The relevant holding.",
+            source_kind="cap", source_label="Caselaw Access Project",
+            citation="18 F.3d 337", metadata={"targetId": "u4:authority1"},
+        )
+        with patch(
+            "apps.sources.reported_decisions.FreeReportedDecisionFallback.resolve",
+            return_value=([free_result], {"method": "ohio_rod_then_cap", "resolved": 1}),
+        ) as free, patch(
+            "apps.sources.courtlistener.CourtListenerCitationFallback.resolve"
+        ) as courtlistener:
+            sources, trace = run_authority_research(
+                [{"targetId": "u4:authority1", "citation": "Smith v. Jones, 18 F.3d 337", "proposition": "The relevant holding."}],
+                matter=None, jurisdiction="Ohio", user=None, request=None,
+                registry=EmptyRegistry(), source_ids=["ohio-cases"],
+            )
+        free.assert_called_once()
+        courtlistener.assert_not_called()
+        self.assertEqual(sources[0]["sourceKind"], "cap")
+        self.assertTrue(trace[0]["augmentation"]["finalEvaluation"]["adequate"])
+
     @override_settings(AI_DRAFTING_ENABLED=True)
     def test_authority_opponent_uses_small_complete_batches(self):
         class BatchClient:
