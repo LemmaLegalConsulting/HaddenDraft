@@ -170,6 +170,44 @@ class CorrectnessContractTests(TestCase):
         self.assertEqual(trace[0]["targets"], ["u4:authority1"])
 
     @override_settings(COURTLISTENER_API_TOKEN="configured")
+    def test_one_resolved_opinion_is_reused_for_later_pinpoint_to_same_case(self):
+        class Registry:
+            def __init__(self):
+                self.calls = 0
+
+            def search(self, _query, **_kwargs):
+                self.calls += 1
+                if self.calls == 1:
+                    return [SourceResult(
+                        id="sherman", title="Sherman v. Pearson",
+                        snippet="Opinion text.", source_kind="local_cases",
+                        source_label="Cases", citation="110 Ohio App.3d 70, 673 N.E.2d 643",
+                    )]
+                return []
+
+        targets = [
+            {"targetId": "u1:authority1", "citation": "Sherman v. Pearson, 110 Ohio App.3d 70"},
+            {"targetId": "u2:authority1", "citation": "Sherman v. Pearson, 110 Ohio App. 3d 70, 77, 673 N.E. 2d 643, 648"},
+        ]
+        with patch("apps.sources.courtlistener.CourtListenerCitationFallback.resolve") as external:
+            sources, trace = run_authority_research(
+                targets, matter=None, jurisdiction="Ohio", user=None, request=None,
+                registry=Registry(), source_ids=["ohio-cases"],
+            )
+        external.assert_not_called()
+        self.assertEqual(set(sources[0]["targets"]), {"u1:authority1", "u2:authority1"})
+        self.assertTrue(all(item["augmentation"]["finalEvaluation"]["adequate"] for item in trace))
+
+    def test_authority_identity_rejects_unrelated_search_hit(self):
+        result = SourceResult(
+            id="anderson", title="Anderson v. Champer", snippet="Mentions Sherman.",
+            source_kind="local_cases", source_label="Cases", citation="No. 99 CVG 00424",
+        )
+        self.assertFalse(correctness.authority_source_matches(
+            "Sherman v. Pearson, 110 Ohio App.3d 70", result
+        ))
+
+    @override_settings(COURTLISTENER_API_TOKEN="configured")
     def test_local_authority_match_never_calls_courtlistener_fallback(self):
         class Registry:
             def search(self, _query, **_kwargs):

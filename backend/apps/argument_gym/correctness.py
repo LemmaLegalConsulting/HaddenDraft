@@ -406,11 +406,13 @@ def case_reporter_authority(citation):
 
 def authority_source_matches(citation, source):
     """Reject search hits that are not the authority the brief cited."""
+    def source_value(name):
+        return source.get(name, "") if isinstance(source, dict) else getattr(source, name, "")
+
     target = re.sub(r"[^a-z0-9]+", " ", str(citation or "").casefold()).strip()
     source_text = re.sub(
         r"[^a-z0-9]+",
-        " ",
-        f"{getattr(source, 'title', '')} {getattr(source, 'citation', '')}".casefold(),
+        " ", f"{source_value('title')} {source_value('citation')}".casefold(),
     ).strip()
     if len(target) >= 8 and target in source_text:
         return True
