@@ -1,6 +1,7 @@
 """Rate-bounded CourtListener fallback for unresolved case citations."""
 
 from dataclasses import replace
+from datetime import timedelta
 import hashlib
 from html import unescape
 import re
@@ -8,7 +9,10 @@ from urllib.parse import urljoin, urlsplit
 
 from django.conf import settings
 from django.core.cache import cache
+from django.db import DatabaseError
+from django.utils import timezone
 from django.utils.html import strip_tags
+from eyecite import get_citations
 import requests
 
 from apps.sources.connectors.base import SourceResult
@@ -22,6 +26,20 @@ TEXT_FIELDS = (
     "html_columbia",
     "xml_harvard",
 )
+
+
+def _canonical_citations(value):
+    citations = []
+    for citation in get_citations(str(value or "")):
+        corrected = getattr(citation, "corrected_citation", lambda: "")()
+        if corrected:
+            citations.append(corrected)
+    return list(dict.fromkeys(citations))
+
+
+def _citation_key(value):
+    normalized = re.sub(r"[^a-z0-9]+", " ", str(value).casefold()).strip()
+    return hashlib.sha256(normalized.encode("utf-8")).hexdigest()
 
 
 def _case_priority(target):
@@ -93,7 +111,17 @@ class CourtListenerCitationFallback:
         selected_groups = list(grouped.values())[: self.limit]
         ranked = [target for group in selected_groups for target in group]
         results, pending_by_key = [], {}
+        persistent_hits = 0
+        negative_cache_hits = 0
         for target in ranked:
+            persistent, complete = self._persistent_result(target)
+            if persistent:
+                results.append(persistent)
+                persistent_hits += 1
+                continue
+            if complete:
+                negative_cache_hits += 1
+                continue
             digest = hashlib.sha256(target["citation"].casefold().encode("utf-8")).hexdigest()
             key = f"argument-gym:courtlistener:{digest}"
             cached = cache.get(key)
@@ -104,8 +132,11 @@ class CourtListenerCitationFallback:
         pending = [(group[0], key, group) for key, group in pending_by_key.items()]
         trace = {
             "method": "courtlistener_v4",
-            "requested": len(selected_groups),
+            "considered": len(selected_groups),
+            "requested": len(pending),
             "resolved": len(results),
+            "persistentHits": persistent_hits,
+            "negativeCacheHits": negative_cache_hits,
             "rateLimited": False,
         }
         if not pending:
@@ -140,6 +171,7 @@ class CourtListenerCitationFallback:
             }
             source = self._resolved_source(combined_target, target_lookups)
             if source is None:
+                self._remember_unresolved(combined_target, target_lookups)
                 continue
             cached = {**source.__dict__, "metadata": {**source.metadata, "targetId": ""}}
             cache.set(key, cached, 604800)
@@ -149,6 +181,86 @@ class CourtListenerCitationFallback:
             )
         trace["resolved"] = len(results)
         return results, trace
+
+    def _persistent_result(self, target):
+        aliases = _canonical_citations(target.get("citation"))
+        if not aliases:
+            return None, False
+        try:
+            from apps.sources.models import CourtListenerCitationCache
+
+            rows = list(
+                CourtListenerCitationCache.objects.select_related("decision").filter(
+                    citation_key__in=[_citation_key(alias) for alias in aliases]
+                )
+            )
+        except DatabaseError:
+            return None, False
+        now = timezone.now()
+        for row in rows:
+            if row.status != "resolved" or not row.decision_id:
+                continue
+            text = "\n".join(row.decision.pages.values_list("text", flat=True))
+            if not text:
+                text = "\n".join(row.decision.chunks.values_list("text", flat=True))
+            if not text:
+                continue
+            return SourceResult(
+                id=f"local-case:{row.decision_id}",
+                title=row.decision.title,
+                citation=row.decision.citation_string or row.citation,
+                snippet=_relevant_excerpt(text, target.get("proposition")),
+                source_kind="local_cases",
+                source_label="Local case law (originally CourtListener)",
+                url=f"/api/caselaw/decisions/{row.decision_id}/",
+                metadata={
+                    "provider": "Free Law Project",
+                    "decisionId": row.decision_id,
+                    "targetId": target["targetId"],
+                    "persistentCache": True,
+                },
+            ), True
+        current = {
+            row.citation_key
+            for row in rows
+            if row.status in {"not_found", "ambiguous"} and row.expires_at and row.expires_at > now
+        }
+        return None, all(_citation_key(alias) in current for alias in aliases)
+
+    def _remember_unresolved(self, target, lookups):
+        aliases = _canonical_citations(target.get("citation"))
+        by_citation = {
+            canonical: lookup
+            for lookup in lookups
+            for canonical in _canonical_citations(lookup.get("citation") or "")
+        }
+        try:
+            from apps.sources.models import CourtListenerCitationCache
+
+            for alias in aliases:
+                lookup = by_citation.get(alias, {})
+                status = "ambiguous" if lookup.get("status") == 300 else "not_found"
+                days = (
+                    settings.COURTLISTENER_AMBIGUOUS_CACHE_DAYS
+                    if status == "ambiguous"
+                    else settings.COURTLISTENER_NOT_FOUND_CACHE_DAYS
+                )
+                CourtListenerCitationCache.objects.update_or_create(
+                    citation_key=_citation_key(alias),
+                    defaults={
+                        "citation": alias,
+                        "status": status,
+                        "decision": None,
+                        "provider_payload": {
+                            "status": lookup.get("status"),
+                            "error_message": lookup.get("error_message", ""),
+                            "cluster_ids": [item.get("id") for item in lookup.get("clusters") or []],
+                        },
+                        "expires_at": timezone.now() + timedelta(days=days),
+                    },
+                )
+        except DatabaseError:
+            return
 
     @staticmethod
     def _associate_lookups(pending, lookups):
@@ -212,19 +324,56 @@ class CourtListenerCitationFallback:
         if not text:
             return None
         cluster_id = str(cluster.get("id") or "")
+        normalized = list(dict.fromkeys([
+            *(lookup.get("normalized_citations") or []),
+            *_canonical_citations(target.get("citation")),
+        ]))
+        source_url = urljoin("https://www.courtlistener.com/", str(cluster.get("absolute_url") or ""))
+        decision = None
+        try:
+            from apps.caselaw.remote_importing import import_courtlistener_opinion
+            from apps.sources.models import CourtListenerCitationCache
+
+            decision = import_courtlistener_opinion(
+                cluster=cluster,
+                opinion=opinion,
+                text=text,
+                citations=normalized or [target["citation"]],
+                source_url=source_url,
+            )
+            payload = {
+                "status": lookup.get("status"),
+                "clusterId": cluster_id,
+                "opinionId": opinion.get("id"),
+            }
+            for alias in normalized:
+                CourtListenerCitationCache.objects.update_or_create(
+                    citation_key=_citation_key(alias),
+                    defaults={
+                        "citation": alias,
+                        "status": "resolved",
+                        "decision": decision,
+                        "source_url": source_url,
+                        "provider_payload": payload,
+                        "expires_at": None,
+                    },
+                )
+        except (DatabaseError, OSError):
+            decision = None
         return SourceResult(
             id=f"courtlistener:{cluster_id}:{opinion.get('id', '')}",
             title=cluster.get("case_name") or cluster.get("case_name_full") or target["citation"],
-            citation=(lookup.get("normalized_citations") or [target["citation"]])[0],
+            citation=(normalized or [target["citation"]])[0],
             snippet=_relevant_excerpt(text, target.get("proposition")),
             source_kind="courtlistener",
             source_label="CourtListener (Free Law Project)",
-            url=urljoin("https://www.courtlistener.com/", str(cluster.get("absolute_url") or "")),
+            url=source_url,
             metadata={
                 "provider": "Free Law Project",
                 "clusterId": cluster_id,
                 "opinionId": opinion.get("id"),
                 "targetId": target["targetId"],
                 "cacheHit": False,
+                "promotedDecisionId": decision.id if decision else None,
             },
         )

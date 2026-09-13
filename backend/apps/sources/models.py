@@ -200,6 +200,38 @@ class RetrievedDocument(models.Model):
         return self.title
 
 
+class CourtListenerCitationCache(models.Model):
+    """Durable result of resolving one canonical reporter citation."""
+
+    STATUS_CHOICES = [
+        ("resolved", "Resolved"),
+        ("not_found", "Not found in CourtListener"),
+        ("ambiguous", "Ambiguous in CourtListener"),
+    ]
+
+    citation_key = models.CharField(max_length=64, unique=True)
+    citation = models.CharField(max_length=500)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES)
+    decision = models.ForeignKey(
+        "caselaw.CaseLawDecision",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="courtlistener_citation_cache",
+    )
+    source_url = models.URLField(max_length=1000, blank=True)
+    provider_payload = models.JSONField(default=dict, blank=True)
+    checked_at = models.DateTimeField(auto_now=True)
+    expires_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        ordering = ["citation"]
+        indexes = [models.Index(fields=["status", "expires_at"], name="sources_cou_status_4278d7_idx")]
+
+    def __str__(self):
+        return f"{self.citation}: {self.status}"
+
+
 class OrdinanceDocument(models.Model):
     """A document standing behind one local-law authority, managed by a person.
 

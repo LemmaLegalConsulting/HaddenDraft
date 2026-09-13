@@ -271,6 +271,8 @@ COURTLISTENER_API_TIMEOUT_SECONDS = int(os.environ.get("COURTLISTENER_API_TIMEOU
 ARGUMENT_GYM_COURTLISTENER_MAX_CITATIONS = int(
     os.environ.get("ARGUMENT_GYM_COURTLISTENER_MAX_CITATIONS", "3")
 )
+COURTLISTENER_NOT_FOUND_CACHE_DAYS = int(os.environ.get("COURTLISTENER_NOT_FOUND_CACHE_DAYS", "30"))
+COURTLISTENER_AMBIGUOUS_CACHE_DAYS = int(os.environ.get("COURTLISTENER_AMBIGUOUS_CACHE_DAYS", "7"))
 # How much of the brief a single model stage is given. The defaults are set so
 # that every brief in the local corpus -- the largest is 694 units and 71,450
 # characters -- is read whole rather than sampled, which a large-context model

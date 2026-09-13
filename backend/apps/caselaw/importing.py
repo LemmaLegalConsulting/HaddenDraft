@@ -418,7 +418,20 @@ def rebuild_search_documents(decision, ocr_text):
     decision.search_documents.all().delete()
     decision.chunks.all().delete()
     title = decision.title
-    add_search_doc(decision, "overview", title, [decision.title, decision.court, decision.decision_date, decision.posture, decision.outcome])
+    add_search_doc(
+        decision,
+        "overview",
+        title,
+        [
+            decision.title,
+            decision.citation_string,
+            decision.parallel_citations,
+            decision.court,
+            decision.decision_date,
+            decision.posture,
+            decision.outcome,
+        ],
+    )
     add_search_doc(decision, "keywords", title, decision.search_keywords)
     add_search_doc(decision, "issues", title, decision.issues)
     add_search_doc(decision, "holdings", title, decision.holdings)
