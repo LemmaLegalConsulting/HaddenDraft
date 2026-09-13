@@ -462,3 +462,74 @@ Post-integration automated verification:
 
 398 tests passed in 63.989 seconds
 ```
+
+## 10. Rule-floor qualification fixtures and fresh validation
+
+Four development qualification pairs (Q001-Q004) were created from Azure
+`llama-4-maverick` prose, then normalized before execution into exact one-
+paragraph deletions. They cover R.C. 5321.11 termination date, R.C. 5321.15
+self-help damages, post-notice future-rent waiver, and VAWA direct-result nexus.
+Using GPT-5.6 Terra as Opponent and Mistral Large 3 as the cross-family Judge,
+three repetitions produced the expected target result in all 24 arms: every
+control target passed, every mutant target was MUST_FIX, no run degraded, and
+there were no additional visible MUST_FIX findings. Three targeted VAWA reruns
+after clarifying that HCV is a covered program were also identical.
+
+A separate fresh set, Q005-Q014, was then authored without exposing the checker
+implementation or outcomes to the author model. It spans ten other verified
+rule contracts. Pre-run checks established exact target-paragraph deletion,
+byte-identical records, matching hashes, and stable expected target IDs.
+Researcher normalization before the first run removed target-specific duplicate
+prose left by the model and is recorded verbatim in each `authorship.json`.
+
+Two frozen runs used Terra Opponent plus Mistral Judge:
+
+| Metric | Run 1 | Run 2 |
+|---|---:|---:|
+| Expected mutant target was MUST_FIX | 9/10 | 9/10 |
+| Control PASS and mutant MUST_FIX | 7/10 | 7/10 |
+| Complete, non-degraded pairs | 10/10 | 10/10 |
+| Same control/mutant target dispositions across runs | \- | 9/10 |
+
+Seven targets were stably PASS/MUST_FIX in both repetitions: late-rent notice,
+timely tender refusal, HCV notice copy, HCV HAP shortfall, project-based federal
+notice judicial-defense language, public-housing grievance completion, and
+security-deposit forwarding address. Three pairs exposed authoring/data defects:
+
+- Q007 was stably MUST_FIX/MUST_FIX because its purported control asserted a
+  rent judgment and net calculation that its record did not establish.
+- Q011 was stably REVIEW/MUST_FIX because the control asserted that a meeting
+  was not honored but the record did not establish that negative fact.
+- Q013 changed from REVIEW/PASS to PASS/REVIEW because the accommodation nexus
+  remained inferable from prose in both arms and record evidence of disability-
+  related necessity was incomplete.
+
+These defects were preserved after outcomes were observed. Therefore the
+headline fresh-set result remains 7/10 on the strict paired gate, not a
+post-hoc-corrected score. The results support generalization beyond the four
+development scenarios, but also show that AI-authored fixtures require legal
+and evidentiary adjudication before they become gold benchmark cases. Incidental
+MUST_FIX counts varied more than named target results, reinforcing the decision
+to evaluate `checkId + targetId` rather than aggregate findings.
+
+Evidence:
+
+- fixtures: `lexis_real_briefs/experiment/fixtures-rule-floor-validation/`;
+- first run: `lexis_real_briefs/experiment/results/qualification-rule-floor-fresh10-20260913/`;
+- repetition: `lexis_real_briefs/experiment/results/qualification-rule-floor-fresh10-rep2-20260913/`;
+- scorer: `lexis_real_briefs/experiment/tools/score_rule_floor_validation.py`.
+
+Focused post-change tests passed: 91 tests in 4.299 seconds.
+
+## 11. Final F005 authority-status inventory check
+
+The final F005 diagnostic after adding an explicit PASS target for applicable
+opinion-status checks completed both arms without degradation and returned
+every Judge ruling. The same stable target,
+`u50:authority1:opinion_status`, was PASS in the control and MUST_FIX in the
+mutant that omitted the dissent attribution. The run also consistently found
+pre-existing quotation defects in the source filing, so it demonstrates target
+identity and mutation detection rather than clean whole-brief specificity.
+
+Evidence directory:
+`lexis_real_briefs/experiment/results/qualification-authority-f005-stable-inventory-20260913/`.

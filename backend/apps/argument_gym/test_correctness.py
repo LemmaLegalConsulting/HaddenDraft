@@ -100,6 +100,81 @@ class CorrectnessContractTests(TestCase):
         self.assertIn("Painter, dissenting", target["proposition"])
         self.assertEqual(target["claimedOpinionStatus"], "dissent")
 
+    def test_citation_nested_inside_another_sources_quote_is_not_a_quotation_target(self):
+        units = [
+            {
+                "id": "u4", "type": ingestion.ARGUMENT,
+                "text": 'Haney concluded: "Pursuant to R.C. 1923.081, the tenant may reserve claims."',
+            },
+            {
+                "id": "u5", "type": ingestion.CITATION, "parentId": "u4",
+                "text": "R.C. 1923.081",
+            },
+        ]
+
+        target = correctness.authority_targets_from_units(units)[0]
+
+        self.assertTrue(target["citationInsideQuotation"])
+        self.assertEqual(target["attributionType"], "general_support")
+
+    @override_settings(AI_DRAFTING_ENABLED=True)
+    def test_nested_citation_is_hidden_without_model_adjudication(self):
+        class ShouldNotRun:
+            def complete(self, **_kwargs):
+                raise AssertionError("Nested citation should not reach Opponent")
+
+        targets = [{
+            "targetId": "u4:authority1", "unitId": "u4",
+            "proposition": '"Pursuant to R.C. 1923.081 ..."',
+            "citation": "R.C. 1923.081", "citationInsideQuotation": True,
+        }]
+        sources = [{
+            "id": "s1", "targets": ["u4:authority1"], "title": "R.C. 1923.081",
+            "snippet": "Statutory text.",
+        }]
+
+        candidates, trace = correctness.authority_opponent_stage(
+            targets, sources, jurisdiction="Ohio", llm_client=ShouldNotRun()
+        )
+
+        self.assertEqual(candidates[0]["issueCode"], "nested_authority_attribution_unmeasured")
+        self.assertFalse(candidates[0]["userVisible"])
+        self.assertFalse(candidates[0]["requiresJudge"])
+        self.assertFalse(trace["unavailable"])
+
+    @override_settings(AI_DRAFTING_ENABLED=True)
+    def test_case_citation_always_has_a_stable_opinion_status_test(self):
+        class SupportedCaseClient:
+            def complete(self, **_kwargs):
+                return json.dumps({"challenges": [{
+                    "targetId": "u1:authority1", "attributionType": "holding_or_rule",
+                    "evidenceState": "supported", "challenge": "", "reason": "Supported.",
+                    "evidenceRefs": ["s1"], "sourcePassage": "The court held the rule applies.",
+                    "opinionStatusState": "not_applicable",
+                    "opinionStatusChallenge": "", "opinionStatusReason": "No qualifier is implicated.",
+                    "opinionStatusEvidenceRefs": [], "opinionStatusPassage": "",
+                }]})
+
+        targets = [{
+            "targetId": "u1:authority1", "unitId": "u1", "proposition": "The rule applies.",
+            "citation": "Smith v. Jones, 18 F.3d 337", "claimedCaseName": "Smith v. Jones",
+            "attributionType": "holding_or_rule",
+        }]
+        sources = [{
+            "id": "s1", "targets": ["u1:authority1"], "title": "Smith v. Jones",
+            "snippet": "The court held the rule applies.",
+        }]
+
+        candidates, _trace = correctness.authority_opponent_stage(
+            targets, sources, jurisdiction="Ohio", llm_client=SupportedCaseClient()
+        )
+
+        by_target = {candidate["targetId"]: candidate for candidate in candidates}
+        status = by_target["u1:authority1:opinion_status"]
+        self.assertEqual(status["proposedDisposition"], correctness.PASS)
+        self.assertEqual(status["issueCode"], "opinion_status_not_applicable")
+        self.assertFalse(status["userVisible"])
+
     def test_date_like_ocr_fragment_is_not_an_authority(self):
         self.assertFalse(correctness.specific_authority("1 AUGUST 7"))
 
@@ -342,6 +417,65 @@ class CorrectnessContractTests(TestCase):
         self.assertEqual(candidate["proposedDisposition"], correctness.REVIEW)
         self.assertFalse(candidate["userVisible"])
 
+    def test_clear_missing_rule_element_gives_judge_bounded_brief_evidence(self):
+        audit = {
+            "slug": "rc-5321-11-notice-to-cure", "verification": "verified",
+            "source": "R.C. 5321.11", "sourceUrl": "https://codes.ohio.gov/",
+            "excerpt": "The landlord invokes R.C. 5321.11 but states no termination date.",
+            "briefCoverage": {"reviewedChars": 200, "totalChars": 200, "truncated": False},
+            "requiresApplicabilityReview": False, "verdict": "One element is absent.",
+            "elements": [{
+                "id": "termination_date", "label": "Termination date",
+                "requirement": "State a termination date at least thirty days after receipt.",
+                "pled": "no", "supported": "nothing_supplied", "unmet": True,
+                "quote": "", "materialIds": [],
+                "explanation": "The brief gives no termination date.",
+            }],
+        }
+        candidate = correctness.rule_candidates(
+            [audit], [{"id": "u1", "type": ingestion.ARGUMENT, "text": "Argument"}]
+        )[0]
+        self.assertEqual(candidate["proposedDisposition"], correctness.MUST_FIX)
+        self.assertEqual(candidate["briefEvidence"], ["u1"])
+        self.assertIn("states no termination date", candidate["evidenceQuote"])
+        self.assertFalse(candidate["briefCoverage"]["truncated"])
+
+    def test_phrase_only_rule_match_is_not_attorney_facing(self):
+        audit = {
+            "slug": "rc-1923-04-notice", "verification": "verified",
+            "source": "R.C. 1923.04", "sourceUrl": "https://codes.ohio.gov/",
+            "matched": "three-day notice", "verdict": "The rule was not invoked.",
+            "requiresApplicabilityReview": True, "elements": [],
+        }
+
+        candidate = correctness.rule_candidates(
+            [audit], [{"id": "u1", "type": ingestion.ARGUMENT, "text": "Argument"}]
+        )[0]
+
+        self.assertEqual(candidate["proposedDisposition"], correctness.REVIEW)
+        self.assertFalse(candidate["userVisible"])
+
+    def test_missing_element_in_truncated_brief_fails_closed(self):
+        audit = {
+            "slug": "rc-5321-11-notice-to-cure", "verification": "verified",
+            "source": "R.C. 5321.11", "sourceUrl": "https://codes.ohio.gov/",
+            "excerpt": "The landlord invokes R.C. 5321.11.",
+            "briefCoverage": {"reviewedChars": 100, "totalChars": 200, "truncated": True},
+            "requiresApplicabilityReview": False, "verdict": "One element was not found.",
+            "elements": [{
+                "id": "termination_date", "label": "Termination date",
+                "requirement": "State a termination date at least thirty days after receipt.",
+                "pled": "no", "supported": "yes", "unmet": True,
+                "quote": "", "materialIds": ["record:1"],
+                "explanation": "No date appeared in the reviewed portion.",
+            }],
+        }
+        candidate = correctness.rule_candidates(
+            [audit], [{"id": "u1", "type": ingestion.ARGUMENT, "text": "Argument"}]
+        )[0]
+        self.assertEqual(candidate["proposedDisposition"], correctness.REVIEW)
+        self.assertFalse(candidate["userVisible"])
+
     @override_settings(AI_DRAFTING_ENABLED=True)
     def test_record_claim_that_cannot_be_verified_is_hidden_review(self):
         class NotVerifiableClient:
@@ -374,6 +508,9 @@ class CorrectnessContractTests(TestCase):
                     "attributionType": "holding_or_rule", "challenge": "Words differ.",
                     "reason": "The source does not contain the quoted language.",
                     "evidenceRefs": ["s1"], "sourcePassage": "Actual source text.",
+                    "opinionStatusState": "not_applicable",
+                    "opinionStatusChallenge": "", "opinionStatusReason": "No qualifier is implicated.",
+                    "opinionStatusEvidenceRefs": [], "opinionStatusPassage": "",
                 }]})
 
         candidates, _trace = correctness.authority_opponent_stage(
@@ -495,7 +632,11 @@ class CorrectnessContractTests(TestCase):
     @override_settings(AI_DRAFTING_ENABLED=True)
     def test_incomplete_or_unjustified_judge_batch_invalidates_the_check(self):
         class SilentJudge:
+            def __init__(self):
+                self.calls = 0
+
             def complete(self, **_kwargs):
+                self.calls += 1
                 return json.dumps(
                     {
                         "rulings": [
@@ -524,12 +665,78 @@ class CorrectnessContractTests(TestCase):
             "evidenceQuote": "",
             "proposedDisposition": correctness.REVIEW,
         }
-        rulings, traces = correctness.judge_stage(
-            [candidate], jurisdiction="Ohio", llm_client=SilentJudge()
-        )
+        client = SilentJudge()
+        rulings, traces = correctness.judge_stage([candidate], jurisdiction="Ohio", llm_client=client)
         self.assertEqual(rulings, [])
+        self.assertEqual(client.calls, 2)
         self.assertTrue(traces[0]["unavailable"])
         self.assertTrue(traces[0]["checkUnavailable"])
+
+    @override_settings(AI_DRAFTING_ENABLED=True)
+    def test_incomplete_judge_batch_is_retried_as_a_whole(self):
+        class FlakyJudge:
+            def __init__(self):
+                self.calls = 0
+
+            def complete(self, *, user, **_kwargs):
+                self.calls += 1
+                if self.calls == 1:
+                    return '{"rulings": []}'
+                serialized = user.split(
+                    "Candidate challenges and the only evidence you may use:\n", 1
+                )[1].split("\n\nReturn exactly one ruling", 1)[0]
+                candidate = json.loads(serialized)[0]
+                return json.dumps({"rulings": [{
+                    "candidateId": candidate["candidateId"],
+                    "disposition": "review",
+                    "reason": "The supplied evidence leaves a concrete concern.",
+                    "evidenceRefs": ["u1"],
+                    "confidence": "medium",
+                }]})
+
+        candidate = {
+            "candidateId": "record_support:u1:fact1", "checkId": "cited_record_support",
+            "issueCode": "record_support_not_found", "targetId": "u1:fact1", "unitId": "u1",
+            "claim": "Notice was served.", "problem": "Support was not found.",
+            "reason": "The record excerpt was incomplete.", "briefEvidence": ["u1"],
+            "externalEvidence": [], "evidenceQuote": "", "proposedDisposition": correctness.REVIEW,
+        }
+        client = FlakyJudge()
+
+        rulings, traces = correctness.judge_stage([candidate], jurisdiction="Ohio", llm_client=client)
+
+        self.assertEqual(client.calls, 2)
+        self.assertEqual(rulings[0]["disposition"], correctness.REVIEW)
+        self.assertFalse(traces[0]["unavailable"])
+        self.assertEqual(len(traces[0]["trace"]), 2)
+
+    @override_settings(AI_DRAFTING_ENABLED=True)
+    def test_judge_accepts_documented_courtroom_disposition_labels(self):
+        class CourtroomJudge:
+            def complete(self, **_kwargs):
+                return json.dumps({"rulings": [{
+                    "candidateId": "rule_elements:test:element",
+                    "disposition": "sustained",
+                    "reason": "The complete brief clearly omits the required element.",
+                    "evidenceRefs": ["u1", "rule-source"],
+                    "confidence": "high",
+                }]})
+
+        candidate = {
+            "candidateId": "rule_elements:test:element", "checkId": "rule_elements",
+            "issueCode": "missing_required_element", "targetId": "test:element", "unitId": "u1",
+            "claim": "Plead the element.", "problem": "The element is absent.",
+            "reason": "The complete brief was reviewed.", "briefEvidence": ["u1"],
+            "externalEvidence": ["rule-source"], "evidenceQuote": "Relevant argument.",
+            "proposedDisposition": correctness.MUST_FIX,
+        }
+
+        rulings, traces = correctness.judge_stage(
+            [candidate], jurisdiction="Ohio", llm_client=CourtroomJudge()
+        )
+
+        self.assertEqual(rulings[0]["disposition"], correctness.MUST_FIX)
+        self.assertFalse(traces[0]["unavailable"])
 
     def test_summary_is_limited_to_test_results_not_persuasiveness(self):
         report = correctness.summary([])

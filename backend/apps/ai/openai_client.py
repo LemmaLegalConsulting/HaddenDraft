@@ -45,19 +45,21 @@ class OpenAICompatibleClient:
             request["temperature"] = temperature
         if reasoning_level:
             request["reasoning_effort"] = reasoning_level
-        try:
-            response = self.client.chat.completions.create(**request)
-        except Exception as exc:
-            # OpenAI-compatible providers do not expose a model-capabilities
-            # endpoint consistently. Retry once when an otherwise unknown model
-            # explicitly rejects temperature, then keep the compatible request.
-            if "temperature" in request and self._temperature_is_unsupported(exc):
-                request.pop("temperature")
-                try:
-                    response = self.client.chat.completions.create(**request)
-                except Exception as retry_exc:
-                    raise OpenAIBackendError(str(retry_exc)) from retry_exc
-            else:
+        # Azure's OpenAI-compatible catalog mixes deployments with different
+        # request schemas and does not expose one dependable capabilities
+        # endpoint. Remove only an option the provider explicitly rejects, then
+        # retry the same request. A substantive model failure still propagates.
+        while True:
+            try:
+                response = self.client.chat.completions.create(**request)
+                break
+            except Exception as exc:
+                if "temperature" in request and self._temperature_is_unsupported(exc):
+                    request.pop("temperature")
+                    continue
+                if "reasoning_effort" in request and self._reasoning_is_unsupported(exc):
+                    request.pop("reasoning_effort")
+                    continue
                 raise OpenAIBackendError(str(exc)) from exc
 
         message = response.choices[0].message
@@ -74,4 +76,14 @@ class OpenAICompatibleClient:
         message = str(exc).lower()
         return "temperature" in message and (
             "unsupported" in message or "only the default" in message
+        )
+
+    @staticmethod
+    def _reasoning_is_unsupported(exc):
+        message = str(exc).lower()
+        return "reasoning_effort" in message and (
+            "unsupported" in message
+            or "not supported" in message
+            or "invalid input" in message
+            or 'type":"enum"' in message
         )

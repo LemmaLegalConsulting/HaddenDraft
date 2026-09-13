@@ -264,7 +264,13 @@ def detect_invoked_rules(text, *, profiles=None, jurisdiction=""):
             profiles = [
                 profile
                 for profile in profiles
-                if not profile.jurisdiction or normalize(profile.jurisdiction) in normalize(jurisdiction)
+                if not profile.jurisdiction
+                or normalize(profile.jurisdiction) in normalize(jurisdiction)
+                # Composite scopes such as "Federal / Ohio" apply when the
+                # filing names either contained jurisdiction. The old one-way
+                # comparison silently excluded every such federal housing rule
+                # from an ordinary Ohio workspace.
+                or normalize(jurisdiction) in normalize(profile.jurisdiction)
             ]
     invoked = []
     for profile in profiles:

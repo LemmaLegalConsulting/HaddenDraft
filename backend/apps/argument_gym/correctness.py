@@ -299,6 +299,7 @@ def authority_targets_from_units(units):
         for position, citation in enumerate(selected, start=1):
             parent_text = str(parent.get("text") or "")
             proposition = _citation_context(parent_text, citation)
+            nested_citation = _citation_inside_quotation(parent_text, citation)
             targets.append(
                 {
                     "targetId": f"{parent_id}:authority{position}",
@@ -306,7 +307,10 @@ def authority_targets_from_units(units):
                     "proposition": proposition,
                     "citation": citation,
                     "claimedCaseName": _claimed_case_name(parent_text, citation),
-                    "attributionType": _authority_attribution_type(proposition),
+                    "attributionType": (
+                        "general_support" if nested_citation else _authority_attribution_type(proposition)
+                    ),
+                    "citationInsideQuotation": nested_citation,
                     "claimedOpinionStatus": _claimed_opinion_status(proposition),
                     # Pinpoints are retained for retrieval, but a source without
                     # stable page boundaries cannot prove that a pinpoint is
@@ -317,6 +321,24 @@ def authority_targets_from_units(units):
                 }
             )
     return targets
+
+
+def _citation_inside_quotation(text, citation):
+    """Whether this source reference is text inside someone else's quotation.
+
+    In ``Haney concluded: \"Pursuant to R.C. 1923.081 ...\"`` the quoted
+    proposition is attributed to Haney, not verbatim to the embedded statute.
+    Treating every quote mark in the sentence as an attribution to every
+    citation generated confident false quotation-mismatch findings.
+    """
+    value = str(text or "")
+    location = value.casefold().find(str(citation or "").casefold())
+    if location < 0:
+        return False
+    prefix = value[:location]
+    straight_open = prefix.count('"') % 2 == 1
+    curly_open = prefix.rfind("“") > prefix.rfind("”")
+    return straight_open or curly_open
 
 
 def _citation_context(text, citation):
@@ -477,7 +499,12 @@ def authority_opponent_stage(targets, legal_sources, *, jurisdiction, llm_client
         for target_id in source.get("targets") or []
         if target_id in target_ids
     }
-    model_targets = [target for target in targets if target["targetId"] in resolved_ids]
+    nested_targets = [target for target in targets if target.get("citationInsideQuotation")]
+    nested_ids = {target["targetId"] for target in nested_targets}
+    model_targets = [
+        target for target in targets
+        if target["targetId"] in resolved_ids and target["targetId"] not in nested_ids
+    ]
 
     def unverifiable(target):
         return {
@@ -499,12 +526,39 @@ def authority_opponent_stage(targets, legal_sources, *, jurisdiction, llm_client
             "requiresJudge": False,
         }
 
-    unresolved = [unverifiable(target) for target in targets if target["targetId"] not in resolved_ids]
+    def nested_unmeasured(target):
+        return {
+            "candidateId": candidate_id("authority_support", target["targetId"]),
+            "checkId": "authority_support",
+            "issueCode": "nested_authority_attribution_unmeasured",
+            "targetId": target["targetId"],
+            "unitId": target["unitId"],
+            "claim": target["proposition"],
+            "problem": (
+                "The citation appears inside language attributed to another source, so the "
+                "surrounding quotation was not treated as a verbatim attribution to this citation."
+            ),
+            "reason": "Nested attribution requires a separate source-chain analysis.",
+            "briefEvidence": [target["unitId"]],
+            "externalEvidence": [],
+            "evidenceQuote": "",
+            "evidenceState": "unverifiable",
+            "proposedDisposition": REVIEW,
+            "citation": target["citation"],
+            "userVisible": False,
+            "requiresJudge": False,
+        }
+
+    nested = [nested_unmeasured(target) for target in nested_targets]
+    unresolved = [
+        unverifiable(target) for target in targets
+        if target["targetId"] not in resolved_ids and target["targetId"] not in nested_ids
+    ]
     if not model_targets:
-        return unresolved, {
+        return [*nested, *unresolved], {
             "stage": "opponent:authority_support",
             "method": "skipped",
-            "count": len(unresolved),
+            "count": len(nested) + len(unresolved),
             "trace": ["No cited authority resolved to source text; no semantic comparison was attempted."],
             "unavailable": False,
         }
@@ -587,10 +641,19 @@ def authority_opponent_stage(targets, legal_sources, *, jurisdiction, llm_client
                         "userVisible": state != "unverifiable",
                     }
                 )
-                qualifier_state = choice(
-                    item.get("opinionStatusState"), OPINION_STATUS_STATES, "not_applicable"
+                case_target = bool(target.get("claimedCaseName")) or case_reporter_authority(
+                    target.get("citation")
                 )
-                if qualifier_state != "not_applicable":
+                raw_qualifier_state = str(item.get("opinionStatusState") or "").strip().casefold()
+                if case_target and raw_qualifier_state not in OPINION_STATUS_STATES:
+                    # Opinion status is a named test for every case citation.
+                    # Omitting a PASS row cannot be allowed to change the test
+                    # inventory across reruns.
+                    return []
+                qualifier_state = choice(
+                    raw_qualifier_state, OPINION_STATUS_STATES, "not_applicable"
+                )
+                if case_target:
                     qualifier_refs = [
                         str(value) for value in item.get("opinionStatusEvidenceRefs") or []
                         if str(value) in batch_source_ids
@@ -599,7 +662,7 @@ def authority_opponent_stage(targets, legal_sources, *, jurisdiction, llm_client
                     if qualifier_quote and not passage_is_supplied(qualifier_quote, qualifier_refs):
                         qualifier_quote = ""
                     qualifier_disposition = (
-                        PASS if qualifier_state == "supported"
+                        PASS if qualifier_state in {"supported", "not_applicable"}
                         else REVIEW if qualifier_state == "unverifiable"
                         else MUST_FIX
                     )
@@ -612,6 +675,7 @@ def authority_opponent_stage(targets, legal_sources, *, jurisdiction, llm_client
                             "checkId": "authority_support",
                             "issueCode": {
                                 "supported": "opinion_status_supported",
+                                "not_applicable": "opinion_status_not_applicable",
                                 "missing_material_qualifier": "opinion_status_omitted",
                                 "contradicted": "opinion_status_misstated",
                                 "unverifiable": "opinion_status_unverifiable",
@@ -628,7 +692,7 @@ def authority_opponent_stage(targets, legal_sources, *, jurisdiction, llm_client
                             "proposedDisposition": qualifier_disposition,
                             "citation": target["citation"],
                             "attributionType": "opinion_status",
-                            "userVisible": qualifier_state != "unverifiable",
+                            "userVisible": qualifier_state not in {"unverifiable", "not_applicable"},
                         }
                     )
             return candidates
@@ -660,13 +724,13 @@ def authority_opponent_stage(targets, legal_sources, *, jurisdiction, llm_client
             if all(item.get("method") == "deterministic" for item in traces)
             else "partial"
         ),
-        "count": len(candidates),
+        "count": len(candidates) + len(nested) + len(unresolved),
         "batches": len(traces),
         "batchSize": MAX_AUTHORITY_BATCH,
         "traces": traces,
         "unavailable": any(item.get("method") != "llm" for item in traces),
     }
-    return [*candidates, *unresolved], trace
+    return [*candidates, *nested, *unresolved], trace
 
 
 def rule_candidates(audits, units):
@@ -691,12 +755,29 @@ def rule_candidates(audits, units):
                     "externalEvidence": [],
                     "evidenceQuote": "",
                     "proposedDisposition": REVIEW,
+                    # A phrase-only match is useful provenance for developers,
+                    # but it is not a concrete defect or even a confirmed rule
+                    # invocation. Keep it out of the attorney-facing findings.
+                    "userVisible": False,
                 }
             )
             continue
         for element in audit.get("elements") or []:
             target_id = f"{audit['slug']}:{element['id']}"
-            uncertain = element.get("pled") == "partial" or element.get("supported") in {"partial", "nothing_supplied"}
+            coverage = audit.get("briefCoverage") or {}
+            missing_from_truncated_brief = bool(element.get("unmet") and coverage.get("truncated"))
+            uncertain = (
+                element.get("pled") == "partial"
+                # Once the complete brief clearly omits a required allegation,
+                # missing record support cannot make that pleading omission less
+                # certain. Support uncertainty matters when the brief did plead
+                # the element and the question is whether it carried evidence.
+                or (
+                    element.get("pled") == "yes"
+                    and element.get("supported") in {"partial", "nothing_supplied"}
+                )
+                or missing_from_truncated_brief
+            )
             if not element.get("unmet"):
                 disposition = PASS
                 issue_code = "required_element_carried"
@@ -707,12 +788,13 @@ def rule_candidates(audits, units):
                 # the check passed.  Judge may clear it but may not promote it.
                 disposition = REVIEW
                 issue_code = "required_element_not_established"
-            elif audit.get("verification") != "verified":
+            elif audit.get("verification") != "verified" or missing_from_truncated_brief:
                 disposition = REVIEW
                 issue_code = "required_element_uncertain"
             else:
                 disposition = MUST_FIX
                 issue_code = "missing_required_element"
+            brief_context = element.get("quote") or audit.get("excerpt", "")
             candidates.append(
                 {
                     "candidateId": candidate_id("rule_elements", target_id),
@@ -723,11 +805,16 @@ def rule_candidates(audits, units):
                     "claim": element.get("requirement") or element.get("label", ""),
                     "problem": element.get("explanation", ""),
                     "reason": audit.get("verdict", ""),
-                    "briefEvidence": [fallback_unit["id"]] if element.get("quote") else [],
+                    # A missing element has no affirmative quote. Give Judge the
+                    # bounded passage around the rule invocation instead of an
+                    # empty evidentiary record, and disclose whether Opponent saw
+                    # the complete brief before alleging absence.
+                    "briefEvidence": [fallback_unit["id"]] if brief_context else [],
                     "externalEvidence": [audit.get("sourceUrl") or audit.get("source")]
                     if audit.get("verification") == "verified"
                     else [],
-                    "evidenceQuote": element.get("quote", ""),
+                    "evidenceQuote": brief_context,
+                    "briefCoverage": coverage,
                     "recordMaterialIds": element.get("materialIds", []),
                     "proposedDisposition": disposition,
                     "userVisible": not uncertain,
@@ -804,6 +891,14 @@ def judge_stage(candidates, *, jurisdiction, llm_client=None):
                         return []
                     reason = clean(item.get("reason"), limit=1000)
                     raw_disposition = str(item.get("disposition") or "").strip().casefold()
+                    raw_disposition = {
+                        "sustain": MUST_FIX,
+                        "sustained": MUST_FIX,
+                        "reserve": REVIEW,
+                        "reserved": REVIEW,
+                        "overrule": PASS,
+                        "overruled": PASS,
+                    }.get(raw_disposition, raw_disposition)
                     candidate = by_id[item["candidateId"]]
                     allowed_refs = candidate["briefEvidence"] + candidate["externalEvidence"]
                     refs = [ref for ref in item.get("evidenceRefs") or [] if ref in allowed_refs]
@@ -830,6 +925,10 @@ def judge_stage(candidates, *, jurisdiction, llm_client=None):
                 parse=parse,
                 fallback=lambda: [],
                 temperature=0.0,
+                # Cross-family Azure models occasionally omit one item from an
+                # otherwise valid batch. Retry the complete contract once; do
+                # not merge partial answers or silently accept missing rulings.
+                llm_attempts=2,
             )
             trace.update(
                 {

@@ -4,16 +4,16 @@ name: VAWA eviction protection
 citation: 34 U.S.C. § 12491; 24 C.F.R. § 5.2005
 rule_type: statute
 jurisdiction: Federal / Ohio
-summary: In a covered housing program, victim status or an incident directly resulting from domestic violence, dating violence, sexual assault, or stalking cannot itself be a basis for covered adverse action, subject to statutory exceptions.
+summary: In a covered housing program, including Section 8 tenant-based assistance such as the Housing Choice Voucher program, victim status or an incident directly resulting from domestic violence, dating violence, sexual assault, or stalking cannot itself be a basis for covered adverse action, subject to statutory exceptions.
 citation_patterns: ["34\\s*U\\.?S\\.?C\\.?\\s*(§\\s*)?12491", "24\\s*C\\.?F\\.?R\\.?\\s*(§\\s*)?5\\.2005", "Violence Against Women Act"]
 aliases: [VAWA defense, domestic violence defense]
 verification: verified
-source: "34 U.S.C. § 12491; 24 C.F.R. §§ 5.2005, 5.2007; Iskin (6th ed. 2022), § III (VAWA)"
+source: "34 U.S.C. § 12491; 24 C.F.R. §§ 5.2003, 5.2005, 5.2007; Iskin (6th ed. 2022), § III (VAWA)"
 source_url: https://www.ecfr.gov/current/title-24/section-5.2005
 verified_on: 2026-09-13
 notes: HUD-5382 is not a universal element. Documentation is conditional on a permissible provider request, and the tenant may generally choose among statutory forms of documentation.
 elements:
-  - {id: covered_housing, label: Housing program is covered by VAWA, requirement: Identify the covered program., severity: error, needs_record_support: true, patterns: ["covered housing", "public housing", "Section 8", "LIHTC"]}
+  - {id: covered_housing, label: Housing program is covered by VAWA, requirement: Identify the covered program; 24 C.F.R. § 5.2003 includes Section 8 tenant-based assistance such as the Housing Choice Voucher program., severity: error, needs_record_support: true, patterns: ["covered housing", "public housing", "Section 8", "Housing Choice Voucher", "LIHTC"]}
   - {id: protected_status, label: Tenant or affiliated individual has protected victim status, requirement: Allege the applicable domestic violence dating violence sexual assault or stalking status., severity: error, needs_record_support: true, patterns: ["victim.{0,30}(domestic violence|dating violence|sexual assault|stalking)"]}
   - {id: direct_result, label: Challenged ground directly results from protected violence, requirement: Plead the causal connection between the adverse ground and protected violence., severity: error, needs_record_support: true, patterns: ["direct result", "because of.{0,30}(violence|stalking|assault)"]}
   - {id: requested_documentation, label: Tenant timely supplied permissible documentation or adequately explained nonproduction, requirement: Address request date deadline extensions and a permitted form of documentation., severity: error, needs_record_support: true, required_when: Only if the housing provider made a permissible written request for documentation under 24 C.F.R. § 5.2007., patterns: ["HUD[- ]5382", "certif", "documentation"]}

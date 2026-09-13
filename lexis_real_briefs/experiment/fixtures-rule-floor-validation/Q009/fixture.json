@@ -1,0 +1,76 @@
+{
+  "fixture_id": "Q009",
+  "case_family_id": "synthetic-rule-floor-validation-q009",
+  "stratum": "synthetic_rule_floor_fresh_validation",
+  "document": {
+    "title": "Memorandum of Tenant-Appellee Kizzy Owens",
+    "court": "Fictional Ohio trial court",
+    "jurisdiction": "Ohio",
+    "pleading_type": "trial_brief",
+    "side": "",
+    "filed": "2026-09-13"
+  },
+  "files": {
+    "source": null,
+    "source_scan": null,
+    "control": "normalized/brief.txt",
+    "mutant": "mutant/brief.txt",
+    "attachments": [
+      "attachments/record-01.txt"
+    ],
+    "attachment_notes": [
+      "Identical fictional record supplied to both arms."
+    ]
+  },
+  "mutation": {
+    "type": "rule_element_omission",
+    "subtype": "pha_shortfall_basis",
+    "operation": "delete",
+    "section": "Argument",
+    "description": "Deleted the only argument paragraph applying pha_shortfall_basis.",
+    "gold_vulnerability": "The mutant invokes 24 C.F.R. \u00a7 982.310(b) but omits application of pha_shortfall_basis; the identical record supports it.",
+    "expected_direction": "mutant_worse",
+    "materiality": "high",
+    "target_location": {
+      "section": "Argument",
+      "control_excerpt": "The termination notice rested on the $800 shortfall in PHA assistance for March 2022, which was paid late on April 15, 2022, after the termination notice was issued on March 10, 2022.",
+      "mutant_excerpt": ""
+    },
+    "characters_changed": 185,
+    "control_chars": 1122,
+    "mutant_chars": 937,
+    "fraction_of_brief_changed": 0.164884,
+    "expected_check_id": "rule_elements",
+    "expected_target_id": "hcv-hap-nonpayment:pha_shortfall_basis",
+    "expected_disposition": "must_fix"
+  },
+  "gold": {
+    "control_has_target_defect": false,
+    "mutant_has_target_defect": true,
+    "expected_direction": "mutant_worse",
+    "materiality": "high",
+    "verified_by": [],
+    "verification_status": "synthetic_unadjudicated",
+    "verification_note": "Fresh qualification fixture authored by Azure llama-4-maverick and mechanically paired; it was not used to tune the checker and has not been attorney-adjudicated."
+  },
+  "provenance": {
+    "source_sha256": null,
+    "source_scan_sha256": null,
+    "control_sha256": "636b4cb407dca7270a09bdcbea83457fb7f6c624fc66597877128afe95d55cc5",
+    "mutant_sha256": "bd6d27b47c926317220b51aa8f2f11197c9e2ac8552a4368880654d36e26fe5a",
+    "attachment_sha256": {
+      "record-01.txt": "f13e232c06414db6fa1961f5296ea0f0300a257262913e843b77034190aeebf7"
+    },
+    "normalization_version": "synthetic-rule-floor-validation-1.0",
+    "mutation_version": "exact-paragraph-deletion-1.0",
+    "generator": {
+      "model_provider": "Azure AI Services",
+      "model_deployment": "llama-4-maverick",
+      "model_family": "Meta Llama",
+      "authored_on": "2026-09-13",
+      "attempts": 2,
+      "researcher_edits": "Reproducible pre-run removal of target-specific duplicate prose; see authorship.json."
+    },
+    "built_on": "2026-09-13"
+  }
+}

@@ -5,7 +5,11 @@ system prompt: |
   decide that condition; uncertainty is not a missing element. Then decide
   separately whether the brief pleads each applicable element and whether the
   supplied brief citations or record excerpts support it. An assertion is not
-  support. A party asserting that it complied with a statutory prerequisite
+  support. For `pled`, use `no` whenever any required part of an element is
+  clearly absent from the complete supplied brief; use `partial` only when the
+  brief's wording creates genuine uncertainty about whether the element is
+  carried. Do not use `partial` merely because the record supplies a required
+  allegation that the brief itself omitted. A party asserting that it complied with a statutory prerequisite
   must carry every applicable requirement. A party alleging one particular
   defect in the opponent's compliance does not thereby undertake to plead every
   other route by which the opponent might have complied: mark untouched

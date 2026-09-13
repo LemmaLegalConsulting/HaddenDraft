@@ -29,6 +29,11 @@ def candidate_payload(messages):
 
 
 def response_payload(value):
+    if isinstance(value, str):
+        value = value.strip()
+        if value.startswith("```"):
+            value = value.split("\n", 1)[1] if "\n" in value else ""
+            value = value.rsplit("```", 1)[0].strip()
     try:
         payload = json.loads(value) if isinstance(value, str) else value
     except (TypeError, ValueError):
@@ -48,7 +53,9 @@ def judge_audits(result_path):
         returned = {item.get("candidateId") for item in rulings if isinstance(item, dict)}
         blank_reasons = sum(not short(item.get("reason")) for item in rulings if isinstance(item, dict))
         adverse_without_evidence = sum(
-            item.get("disposition") in {"must_fix", "review"} and not item.get("evidenceRefs")
+            str(item.get("disposition") or "").casefold()
+            in {"must_fix", "review", "sustain", "sustained", "reserve", "reserved"}
+            and not item.get("evidenceRefs")
             for item in rulings
             if isinstance(item, dict)
         )

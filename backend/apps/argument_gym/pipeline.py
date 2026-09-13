@@ -121,7 +121,10 @@ class Stage:
         self.name = name
         self.llm_client = llm_client
 
-    def run(self, *, prompt_key, context, parse, fallback, temperature=0.2, allow_empty=False):
+    def run(
+        self, *, prompt_key, context, parse, fallback, temperature=0.2,
+        allow_empty=False, llm_attempts=1,
+    ):
         method = "llm" if ai_enabled() else "deterministic"
 
         def execute(plan):
@@ -149,14 +152,21 @@ class Stage:
         def repair(plan, _result, evaluation):
             if plan["method"] == "deterministic" or evaluation.code != f"{self.name}_empty":
                 return None
+            attempt = plan.get("llmAttempt", 1)
+            if attempt < llm_attempts:
+                return {
+                    "method": "llm",
+                    "llmAttempt": attempt + 1,
+                    "repair": f"retry_{self.name}_complete_contract",
+                }
             return {"method": "deterministic", "repair": f"fallback_{self.name}"}
 
         loop = run_tool_with_repair(
-            {"method": method},
+            {"method": method, "llmAttempt": 1},
             execute=execute,
             evaluate=evaluate,
             repair=repair,
-            max_attempts=2,
+            max_attempts=llm_attempts + 1,
         )
         return loop.result["items"], {
             "stage": self.name,

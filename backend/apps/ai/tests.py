@@ -95,6 +95,28 @@ class OpenAICompatibleClientTests(TestCase):
         self.assertIn("temperature", completions.requests[0])
         self.assertNotIn("temperature", completions.requests[1])
 
+    def test_complete_retries_without_reasoning_when_provider_rejects_it(self):
+        class ReasoningRejectingCompletions:
+            def __init__(self):
+                self.requests = []
+
+            def create(self, **kwargs):
+                self.requests.append(kwargs)
+                if "reasoning_effort" in kwargs:
+                    raise RuntimeError("reasoning_effort is not supported for this model")
+                message = SimpleNamespace(content="Generated section")
+                return SimpleNamespace(choices=[SimpleNamespace(message=message)])
+
+        completions = ReasoningRejectingCompletions()
+        fake_client = SimpleNamespace(chat=SimpleNamespace(completions=completions))
+        client = OpenAICompatibleClient(client=fake_client, model="provider-specific-model")
+
+        result = client.complete(system="System", user="User", reasoning_level="medium")
+
+        self.assertEqual(result, "Generated section")
+        self.assertIn("reasoning_effort", completions.requests[0])
+        self.assertNotIn("reasoning_effort", completions.requests[1])
+
     @override_settings(OPENAI_MODEL="env-model", OPENAI_API_KEY="env-key", OPENAI_BASE_URL="https://env.example/v1")
     def test_admin_source_configuration_overrides_openai_env_defaults(self):
         fake_client = FakeOpenAIClient()
