@@ -116,7 +116,7 @@ class RecordingRegistry:
         return results
 
 
-def run_one(fixture, condition, user, *, directory, live, models, reasoning):
+def run_one(fixture, condition, user, *, directory, live, models, reasoning, enabled_checks):
     """One condition of one fixture. Blind: no label reaches the workspace."""
     home = FIXTURES / fixture["fixture_id"]
     side = CONDITIONS[condition]
@@ -128,7 +128,7 @@ def run_one(fixture, condition, user, *, directory, live, models, reasoning):
     workspace = GymWorkspace.objects.create(
         owner=user, title=fixture["document"]["title"],
         jurisdiction=fixture["document"]["jurisdiction"],
-        enabled_checks=checks.CORRECTNESS_CHECK_IDS,
+        enabled_checks=enabled_checks,
     )
     brief = GymDocument.objects.create(
         workspace=workspace, role=GymDocument.BRIEF_UNDER_TEST,
@@ -269,6 +269,7 @@ def record_state(directory, fixtures, args, models):
         "unit_text_chars": settings.ARGUMENT_GYM_UNIT_TEXT_CHARS,
         "brief_text_chars": settings.ARGUMENT_GYM_BRIEF_TEXT_CHARS,
         "source_ids": SOURCE_IDS,
+        "enabled_checks": args.check or list(checks.CORRECTNESS_CHECK_IDS),
         "blinding": "The Gym receives brief text and record text only. No fixture id, "
                     "condition label, mutation class or gold vulnerability reaches any prompt.",
         "scoring": "The Gym writes stable per-target dispositions. Whether a result matches "
@@ -298,6 +299,10 @@ def main():
                         help="fixture tree to run; defaults to the subtle tier")
     parser.add_argument("--reasoning", default="medium")
     parser.add_argument("--fixture", action="append", help="limit to these fixture ids")
+    parser.add_argument(
+        "--check", action="append", choices=checks.CORRECTNESS_CHECK_IDS,
+        help="run only this correctness check; repeat for more than one",
+    )
     args = parser.parse_args()
 
     directory = Path(args.output_dir).resolve()
@@ -314,6 +319,7 @@ def main():
         "judge": args.judge_model or args.model,
         "base": args.base_model or args.model,
     }
+    enabled_checks = args.check or list(checks.CORRECTNESS_CHECK_IDS)
 
     fixtures = [json.loads((home / "fixture.json").read_text())
                 for home in sorted(FIXTURES.iterdir()) if home.is_dir()]
@@ -363,7 +369,8 @@ def main():
                 print(f"[{index}/{total}] {fixture['fixture_id']} {condition}", flush=True)
                 try:
                     result = run_one(fixture, condition, user, directory=item,
-                                     live=args.live, models=models, reasoning=args.reasoning)
+                                     live=args.live, models=models, reasoning=args.reasoning,
+                                     enabled_checks=enabled_checks)
                 except Exception as exc:  # noqa: BLE001 - record and continue
                     result = {"fixture_id": fixture["fixture_id"], "condition": condition,
                               "status": "failed", "error_type": type(exc).__name__,
