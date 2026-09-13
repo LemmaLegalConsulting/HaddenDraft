@@ -310,23 +310,25 @@ const CATALOG = [
     label: "Opponent, judge, and coach",
     category: "completeness",
     categoryLabel: "Argumentative completeness",
-    defaultEnabled: true,
+    defaultEnabled: false,
   },
   {
     id: "persuasion_issue_framing",
     label: "Issue framing",
     category: "persuasion",
     categoryLabel: "Persuasive communication",
-    defaultEnabled: true,
+    defaultEnabled: false,
   },
   {
     id: "persuasion_emphasis",
     label: "Emphasis",
     category: "persuasion",
     categoryLabel: "Persuasive communication",
-    defaultEnabled: true,
+    defaultEnabled: false,
   },
-  { id: "pleading_form", label: "Form of the pleading", category: "form", defaultEnabled: true },
+  { id: "record_support", label: "Record support", category: "correctness", categoryLabel: "Correctness", defaultEnabled: true },
+  { id: "authority_support", label: "Authority support", category: "correctness", categoryLabel: "Correctness", defaultEnabled: true },
+  { id: "pleading_form", label: "Form of the pleading", category: "form", defaultEnabled: false },
   { id: "passive_voice", label: "Passive voice", category: "language", defaultEnabled: false },
 ];
 
@@ -358,10 +360,8 @@ test("a whole suite goes on or off in one decision", () => {
 test("a session that has chosen nothing starts from the defaults, not from nothing", () => {
   assert.deepEqual(effectiveSelection(null, CATALOG), [
     "rule_elements",
-    "adversarial",
-    "persuasion_issue_framing",
-    "persuasion_emphasis",
-    "pleading_form",
+    "record_support",
+    "authority_support",
   ]);
   assert.deepEqual(effectiveSelection(null, CATALOG, ["grammar"]), ["grammar"]);
   // An explicit empty choice is respected as an empty choice.
@@ -563,7 +563,7 @@ test("the default filter lands where the challenges actually are", () => {
 });
 
 test("an empty list explains itself instead of blaming a filter", () => {
-  assert.match(emptyStateMessage([], "all"), /not a finding that the brief is sound/);
+  assert.match(emptyStateMessage([], "all"), /did not establish a defect/);
   assert.equal(emptyStateMessage([{ disposition: "addressed" }], "open"), "Every challenge from this run has been handled.");
   assert.equal(emptyStateMessage([{ disposition: "open" }], "resolved"), "Nothing has been handled yet.");
 });

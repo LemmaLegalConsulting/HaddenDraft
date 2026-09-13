@@ -1,14 +1,14 @@
-"""The one adversarial pipeline both gym modes run.
+"""The Argument Gym correctness harness and optional adversarial stress test.
 
     brief ingestion
         -> argument map
         -> the persuasive communication suite (how the brief reads)
-        -> brief-to-record support check (when case materials exist)
-        -> adversarial research queries
+        -> atomic material record targets (when case materials exist)
+        -> source-specific cited-authority retrieval
         -> existing research / augmented_search
-        -> opponent generates the strongest attacks
-        -> an independent judge filters and ranks them
-        -> a coach proposes responses
+        -> Opponent raises only named-test challenges
+        -> Judge verifies each challenge without ranking or inventing issues
+        -> Coach proposes the smallest safe correction after the ruling
         -> stored GymChallenge records
 
 Opponent, judge, and coach are separate model calls on purpose. One call asked
@@ -16,9 +16,10 @@ to attack, weigh, and answer produces an attack it has already decided is
 answerable, which is the failure mode this whole feature exists to avoid: a
 brief that reads as fine because the thing reading it wanted it to be fine.
 
-Every stage falls back to a deterministic result when the model is unavailable
-or returns something unusable, so a run always produces reviewable output and
-the pipeline is testable without live AI.
+The older open-ended opponent and persuasion suites remain available as an
+explicit Stress test. Their ranking limits never apply to correctness results.
+Every stage fails closed when evidence is unavailable and has a deterministic
+fallback, so uncertainty cannot silently become a filing defect.
 """
 
 import hashlib
@@ -1434,23 +1435,56 @@ def execute_run(run, *, user=None, request=None, llm_client=None, connector_regi
             trace = {"stage": "persuasion", "method": "off", "count": 0, "trace": []}
         note_stage(trace)
 
-        if check_catalog.will_run(plan, "record_audit"):
+        from apps.argument_gym import correctness
+
+        correctness_on = any(check_catalog.will_run(plan, check_id) for check_id in check_catalog.CORRECTNESS_CHECK_IDS)
+        record_coverage = {
+            "availableCount": len(available_materials),
+            "selectedCount": len(selected_materials),
+            "truncated": shortened,
+            "exhaustive": bool(available_materials)
+            and len(selected_materials) == len(available_materials)
+            and not shortened,
+        }
+        correctness_candidates = []
+        record_findings = []  # retained for the optional legacy stress test and coach contract
+        if check_catalog.will_run(plan, "record_support"):
+            record_targets, trace = correctness.record_target_stage(
+                units, argument_map, jurisdiction=jurisdiction, llm_client=llm_client
+            )
+            note_stage(trace)
+            record_candidates, trace = correctness.record_opponent_stage(
+                record_targets,
+                excerpts,
+                record_coverage,
+                jurisdiction=jurisdiction,
+                llm_client=llm_client,
+            )
+            correctness_candidates.extend(record_candidates)
+            note_stage(trace)
+        else:
+            note_stage({"stage": "record_targets", "method": "off", "count": 0, "trace": []})
+            note_stage({"stage": "opponent:record_support", "method": "off", "count": 0, "trace": []})
+
+        authority_targets = (
+            correctness.authority_targets(argument_map)
+            if check_catalog.will_run(plan, "authority_support")
+            else []
+        )
+        queries = correctness.authority_queries(authority_targets, jurisdiction)
+        adversarial = check_catalog.will_run(plan, "adversarial")
+        if adversarial:
             record_findings, trace = record_audit_stage(
                 units, excerpts, argument_map, jurisdiction=jurisdiction, llm_client=llm_client
             )
+            note_stage(trace)
+            adversarial_queries, trace = research_queries_stage(
+                argument_map, record_findings, jurisdiction=jurisdiction, llm_client=llm_client
+            )
+            queries.extend(adversarial_queries)
+            note_stage(trace)
         else:
-            record_findings, trace = [], {
-                "stage": "record_audit",
-                "method": "off",
-                "count": 0,
-                "trace": [],
-            }
-        note_stage(trace)
-
-        queries, trace = research_queries_stage(
-            argument_map, record_findings, jurisdiction=jurisdiction, llm_client=llm_client
-        )
-        note_stage(trace)
+            note_stage({"stage": "research_queries", "method": "source_specific", "count": len(queries), "trace": []})
 
         legal_sources, research_trace = run_research(
             queries,
@@ -1463,9 +1497,8 @@ def execute_run(run, *, user=None, request=None, llm_client=None, connector_regi
         )
         note_stage({"stage": "research", "method": "retrieval", "count": len(legal_sources), "trace": []})
 
-        adversarial = check_catalog.will_run(plan, "adversarial")
         if adversarial:
-            attacks, trace = opponent_stage(
+            legacy_attacks, trace = opponent_stage(
                 units,
                 argument_map,
                 record_findings,
@@ -1475,13 +1508,19 @@ def execute_run(run, *, user=None, request=None, llm_client=None, connector_regi
                 llm_client=llm_client,
             )
         else:
-            attacks, trace = [], {"stage": "opponent", "method": "off", "count": 0, "trace": []}
+            legacy_attacks, trace = [], {"stage": "opponent", "method": "off", "count": 0, "trace": []}
         opponent_method = trace["method"]
         note_stage(trace)
 
-        # A rule the brief invoked without carrying its elements, and a failed
-        # item from the author's own checklist, are challenges like any other:
-        # they go into the same ranked cards, prep sheet, and revision plan.
+        if authority_targets:
+            authority_candidates, trace = correctness.authority_opponent_stage(
+                authority_targets, legal_sources, jurisdiction=jurisdiction, llm_client=llm_client
+            )
+            correctness_candidates.extend(authority_candidates)
+            note_stage(trace)
+        else:
+            note_stage({"stage": "opponent:authority_support", "method": "off", "count": 0, "trace": []})
+
         if check_catalog.will_run(plan, "rule_elements"):
             from apps.argument_gym.rule_audit import run_rule_audit
 
@@ -1497,7 +1536,7 @@ def execute_run(run, *, user=None, request=None, llm_client=None, connector_regi
                     "trace": audit_traces,
                 }
             )
-            attacks.extend(attacks_from_rule_audit(audits, units, len(attacks) + 1))
+            correctness_candidates.extend(correctness.rule_candidates(audits, units))
 
         if check_catalog.will_run(plan, "custom_checklist"):
             from apps.argument_gym.checklist import apply_checklist
@@ -1524,44 +1563,99 @@ def execute_run(run, *, user=None, request=None, llm_client=None, connector_regi
                     "trace": [{"item": item["item"], "outcome": item["outcome"]} for item in applied["results"]],
                 }
             )
-            attacks.extend(attacks_from_checklist(applied, units, len(attacks) + 1))
+            legacy_attacks.extend(attacks_from_checklist(applied, units, len(legacy_attacks) + 1))
 
+        # The optional stress test retains ranking. Correctness findings never
+        # enter that pool, acquire a minimum, or get cut off by its UI maximum.
         if adversarial:
-            assessments, trace = judge_stage(
-                units, argument_map, attacks, legal_sources, jurisdiction=jurisdiction, llm_client=llm_client
+            legacy_assessments, trace = judge_stage(
+                units, argument_map, legacy_attacks, legal_sources, jurisdiction=jurisdiction, llm_client=llm_client
             )
         else:
-            # Without the judge the cards still have to be ranked and shown, so
-            # the deterministic assessment stands in and the trace says so.
-            assessments = _fallback_assessments(attacks)
-            trace = {"stage": "judge", "method": "off", "count": len(assessments), "trace": []}
+            legacy_assessments = _fallback_assessments(legacy_attacks)
+            trace = {"stage": "judge", "method": "off", "count": len(legacy_assessments), "trace": []}
         note_stage(trace)
 
-        assessment_by_attack = {assessment["attackId"]: assessment for assessment in assessments}
-        kept = [
+        legacy_by_attack = {assessment["attackId"]: assessment for assessment in legacy_assessments}
+        legacy_kept = [
             attack
-            for attack in attacks
-            if assessment_by_attack.get(attack["id"], {}).get("keep", False)
+            for attack in legacy_attacks
+            if legacy_by_attack.get(attack["id"], {}).get("keep", False)
         ]
-        # The judge is allowed to throw everything out, but a run that reports
-        # nothing is indistinguishable from a run that failed. Fall back to the
-        # highest-importance attacks so the advocate sees what was considered.
-        if len(kept) < MIN_CHALLENGES:
+        if adversarial and len(legacy_kept) < MIN_CHALLENGES:
             ranked = sorted(
-                attacks,
-                key=lambda attack: assessment_by_attack.get(attack["id"], {}).get("importance", 0),
+                legacy_attacks,
+                key=lambda attack: legacy_by_attack.get(attack["id"], {}).get("importance", 0),
                 reverse=True,
             )
             for attack in ranked:
-                if attack not in kept:
-                    kept.append(attack)
-                if len(kept) >= min(MIN_CHALLENGES, len(attacks)):
+                if attack not in legacy_kept:
+                    legacy_kept.append(attack)
+                if len(legacy_kept) >= min(MIN_CHALLENGES, len(legacy_attacks)):
                     break
-        kept = sorted(
-            kept[:MAX_CHALLENGES],
-            key=lambda attack: assessment_by_attack.get(attack["id"], {}).get("importance", 0),
+        legacy_kept = sorted(
+            legacy_kept[:MAX_CHALLENGES],
+            key=lambda attack: legacy_by_attack.get(attack["id"], {}).get("importance", 0),
             reverse=True,
         )
+
+        correctness_rulings, judge_traces = correctness.judge_stage(
+            correctness_candidates, jurisdiction=jurisdiction, llm_client=llm_client
+        )
+        for judge_trace in judge_traces:
+            note_stage(judge_trace)
+        correctness_results = correctness.check_results(correctness_rulings)
+        selected_correctness_checks = [
+            check_id
+            for check_id in check_catalog.CORRECTNESS_CHECK_IDS
+            if check_catalog.will_run(plan, check_id)
+        ]
+        for check_id in selected_correctness_checks:
+            correctness_results.setdefault(
+                check_id,
+                {"findings": [], "tests": [], "summary": "No eligible targets."},
+            )
+        check_results.update(correctness_results)
+        run.check_results = check_results
+
+        correctness_attacks = []
+        correctness_assessments = []
+        for ruling in (item for item in correctness_rulings if item["disposition"] != correctness.PASS):
+            category = {
+                "rule_elements": GymChallenge.MISSING_ELEMENT,
+                "authority_support": GymChallenge.LEGAL_AUTHORITY,
+                "cited_record_support": GymChallenge.RECORD_CONFLICT,
+                "uncited_material_fact": GymChallenge.FACTUAL_SUPPORT,
+            }.get(ruling["checkId"], GymChallenge.PROCEDURAL)
+            attack = {
+                "id": ruling["candidateId"],
+                "unitId": ruling["unitId"],
+                "category": category,
+                "argument": ruling.get("problem") or ruling.get("claim") or ruling.get("judgeReason"),
+                "whyItMatters": ruling.get("judgeReason", ""),
+                "legalSourceIds": [str(ref) for ref in ruling.get("externalEvidence", [])],
+                "recordMaterialIds": ruling.get("recordMaterialIds", [])
+                or ([str(ref) for ref in ruling.get("externalEvidence", [])] if "record" in ruling["checkId"] else []),
+                "correctness": ruling,
+            }
+            correctness_attacks.append(attack)
+            correctness_assessments.append(
+                {
+                    "attackId": attack["id"],
+                    "keep": True,
+                    "verdict": "sustained" if ruling["disposition"] == correctness.MUST_FIX else "reserved",
+                    "assessment": ruling.get("judgeReason", ""),
+                    "briefCurrentlySays": ruling.get("claim", ""),
+                    "severity": "high" if ruling["disposition"] == correctness.MUST_FIX else "medium",
+                    "importance": 100 if ruling["disposition"] == correctness.MUST_FIX else 50,
+                    "confidence": ruling.get("confidence", "low"),
+                    "coverageNote": ruling.get("reason", ""),
+                }
+            )
+
+        kept = [*correctness_attacks, *legacy_kept]
+        assessments = [*correctness_assessments, *legacy_assessments]
+        assessment_by_attack = {assessment["attackId"]: assessment for assessment in assessments}
 
         sources_by_id = {source["id"]: source for source in legal_sources}
         findings_by_unit = {finding["unitId"]: finding for finding in record_findings}
@@ -1580,16 +1674,24 @@ def execute_run(run, *, user=None, request=None, llm_client=None, connector_regi
                     "briefCurrentlySays": assessment.get("briefCurrentlySays", "") or unit["text"][:600],
                     "target": _target_for(unit, units_by_id),
                     "legalSources": [sources_by_id[source_id] for source_id in attack["legalSourceIds"] if source_id in sources_by_id],
+                    "recordEvidence": (
+                        {
+                            "materialIds": attack["recordMaterialIds"],
+                            "quote": (attack.get("correctness") or {}).get("evidenceQuote", ""),
+                        }
+                        if attack["recordMaterialIds"]
+                        else None
+                    ),
                 }
             )
 
-        if adversarial:
+        if coach_input:
             responses, trace = coach_stage(
                 units, coach_input, legal_sources, record_findings, jurisdiction=jurisdiction, llm_client=llm_client
             )
         else:
-            responses = _fallback_responses(coach_input)
-            trace = {"stage": "coach", "method": "off", "count": len(responses), "trace": []}
+            responses = []
+            trace = {"stage": "coach", "method": "skipped", "count": 0, "trace": []}
         note_stage(trace)
         response_by_attack = {response["attackId"]: response for response in responses}
 
@@ -1600,13 +1702,14 @@ def execute_run(run, *, user=None, request=None, llm_client=None, connector_regi
             assessment = assessment_by_attack.get(attack["id"], {})
             response = response_by_attack.get(attack["id"], {})
             finding = findings_by_unit.get(attack["unitId"])
+            ruling = attack.get("correctness") or {}
             target = _target_for(unit, units_by_id)
             record_sources = [
                 {
                     "materialId": material_id,
                     "title": next((material["title"] for material in selected_materials if material["id"] == material_id), material_id),
                     "status": finding["status"] if finding else "",
-                    "quote": finding["quote"] if finding else "",
+                    "quote": ruling.get("evidenceQuote", "") or (finding["quote"] if finding else ""),
                 }
                 for material_id in dict.fromkeys([*attack["recordMaterialIds"], *(finding["materialIds"] if finding else [])])
             ]
@@ -1615,7 +1718,11 @@ def execute_run(run, *, user=None, request=None, llm_client=None, connector_regi
                     run=run,
                     ordinal=ordinal,
                     category=attack["category"],
-                    fingerprint=challenge_fingerprint(attack["category"], target, attack["argument"]),
+                    fingerprint=(
+                        correctness.stable_fingerprint(ruling["checkId"], ruling["targetId"])
+                        if ruling
+                        else challenge_fingerprint(attack["category"], target, attack["argument"])
+                    ),
                     target=target,
                     opponent_argument=attack["argument"],
                     why_it_matters=attack["whyItMatters"],
@@ -1631,6 +1738,11 @@ def execute_run(run, *, user=None, request=None, llm_client=None, connector_regi
                     confidence=assessment.get("confidence", "medium"),
                     research_coverage={
                         **coverage,
+                        "checkId": ruling.get("checkId", "adversarial"),
+                        "issueCode": ruling.get("issueCode", ""),
+                        "targetId": ruling.get("targetId", ""),
+                        "disposition": ruling.get("disposition", ""),
+                        "recordCoverage": ruling.get("coverage", {}),
                         "note": assessment.get("coverageNote", ""),
                         "blockInstruction": response.get("blockInstruction", ""),
                         "remainingVulnerability": response.get("remainingVulnerability", ""),
@@ -1638,26 +1750,31 @@ def execute_run(run, *, user=None, request=None, llm_client=None, connector_regi
                 )
             )
 
-        assessment, trace = assessment_stage(
-            [
-                {
-                    "categoryLabel": challenge.get_category_display(),
-                    "severity": challenge.severity,
-                    "importance": challenge.importance,
-                    "target": challenge.target,
-                    "argument": challenge.opponent_argument,
-                    "judge": challenge.judge_assessment,
-                    "response": challenge.suggested_response or challenge.coaching_recommendation,
-                }
-                for challenge in challenges
-            ],
-            coverage,
-            brief_title=run.brief.title,
-            jurisdiction=jurisdiction,
-            matter_summary=matter_summary,
-            opponent_method=opponent_method,
-            llm_client=llm_client,
-        )
+        if correctness_on and not adversarial:
+            correctness_summary = correctness.summary(correctness_rulings, selected_correctness_checks)
+            assessment = [correctness_summary]
+            trace = {"stage": "assessment", "method": "deterministic", "count": 1, "trace": []}
+        else:
+            assessment, trace = assessment_stage(
+                [
+                    {
+                        "categoryLabel": challenge.get_category_display(),
+                        "severity": challenge.severity,
+                        "importance": challenge.importance,
+                        "target": challenge.target,
+                        "argument": challenge.opponent_argument,
+                        "judge": challenge.judge_assessment,
+                        "response": challenge.suggested_response or challenge.coaching_recommendation,
+                    }
+                    for challenge in challenges
+                ],
+                coverage,
+                brief_title=run.brief.title,
+                jurisdiction=jurisdiction,
+                matter_summary=matter_summary,
+                opponent_method=opponent_method,
+                llm_client=llm_client,
+            )
         note_stage(trace)
         if assessment:
             run.assessment = assessment[0]["assessment"]

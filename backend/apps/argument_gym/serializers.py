@@ -94,6 +94,7 @@ def document_to_dict(document):
 
 
 def challenge_to_dict(challenge):
+    test_metadata = challenge.research_coverage or {}
     return {
         "id": challenge.id,
         "runId": challenge.run_id,
@@ -114,6 +115,10 @@ def challenge_to_dict(challenge):
         "importance": challenge.importance,
         "confidence": challenge.confidence,
         "researchCoverage": challenge.research_coverage,
+        "checkId": test_metadata.get("checkId", ""),
+        "issueCode": test_metadata.get("issueCode", ""),
+        "targetId": test_metadata.get("targetId", ""),
+        "testDisposition": test_metadata.get("disposition", ""),
         "disposition": challenge.disposition,
         "dispositionNote": challenge.disposition_note,
         "operationId": challenge.resulting_operation_id,

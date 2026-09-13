@@ -719,6 +719,7 @@ def check_catalog_view(request):
             "checks": check_catalog.catalog(),
             "categories": check_catalog.category_catalog(),
             "defaults": check_catalog.DEFAULT_CHECK_IDS,
+            "modes": check_catalog.CHECK_MODES,
         }
     )
 

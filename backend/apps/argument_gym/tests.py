@@ -158,15 +158,13 @@ class StandalonePipelineTests(TestCase):
             extraction_metadata=ingested["metadata"],
         )
 
-    def test_a_run_produces_ranked_sourced_challenges(self):
+    def test_a_clean_correctness_run_is_allowed_to_produce_fewer_than_three_findings(self):
         run = gym_run(self.workspace, self.brief)
         self.assertEqual(run.status, GymRun.COMPLETE, run.error)
         challenges = list(run.challenges.all())
-        self.assertGreaterEqual(len(challenges), 3)
-        self.assertLessEqual(len(challenges), 7)
         self.assertEqual([challenge.ordinal for challenge in challenges], list(range(1, len(challenges) + 1)))
-        importances = [challenge.importance for challenge in challenges]
-        self.assertEqual(importances, sorted(importances, reverse=True))
+        self.assertLess(len(challenges), 3)
+        self.assertTrue(all(challenge.research_coverage.get("checkId") for challenge in challenges))
 
     def test_every_challenge_points_at_a_passage_of_the_brief(self):
         run = gym_run(self.workspace, self.brief)
@@ -179,23 +177,11 @@ class StandalonePipelineTests(TestCase):
         stages = [stage["stage"] for stage in run.stage_trace]
         # No court matched this brief, so the filing-format stage reports itself
         # unavailable in the check plan rather than running.
-        self.assertEqual(
-            stages,
-            [
-                "document_checks",
-                "materials",
-                "argument_map",
-                "persuasion",
-                "record_audit",
-                "research_queries",
-                "research",
-                "opponent",
-                "rule_elements",
-                "judge",
-                "coach",
-                "assessment",
-            ],
-        )
+        self.assertIn("opponent:authority_support", stages)
+        self.assertIn("judge:authority_support", stages)
+        self.assertIn("coach", stages)
+        self.assertLess(stages.index("opponent:authority_support"), stages.index("judge:authority_support"))
+        self.assertLess(stages.index("judge:authority_support"), stages.index("coach"))
 
     def test_research_coverage_records_the_adversarial_queries(self):
         run = gym_run(self.workspace, self.brief)
@@ -268,7 +254,7 @@ class RecordAuditTests(TestCase):
         run = gym_run(self.workspace, self.brief)
         titles = [material["title"] for material in run.materials]
         self.assertIn("Lease", titles)
-        audit = next(stage for stage in run.stage_trace if stage["stage"] == "record_audit")
+        audit = next(stage for stage in run.stage_trace if stage["stage"] == "opponent:record_support")
         self.assertNotEqual(audit["method"], "skipped")
 
     def test_an_excluded_material_is_still_listed_but_not_read(self):
@@ -280,13 +266,13 @@ class RecordAuditTests(TestCase):
         excluded = [material for material in available if material["excluded"]]
         self.assertEqual([material["title"] for material in excluded], ["Lease"])
 
-    def test_an_unsupported_assertion_becomes_a_factual_challenge(self):
+    def test_partial_record_coverage_does_not_become_a_must_fix_accusation(self):
         run = gym_run(self.workspace, self.brief)
-        categories = {challenge.category for challenge in run.challenges.all()}
-        self.assertTrue(
-            categories & {GymChallenge.FACTUAL_SUPPORT, GymChallenge.RECORD_CONFLICT},
-            f"expected a record-based challenge, got {categories}",
-        )
+        record_challenges = [
+            challenge for challenge in run.challenges.all()
+            if challenge.research_coverage.get("checkId") in {"cited_record_support", "uncited_material_fact"}
+        ]
+        self.assertFalse(any(challenge.research_coverage.get("disposition") == "must_fix" for challenge in record_challenges))
 
 
 @override_settings(ARGUMENT_GYM_BACKGROUND_RUNS=False, AI_DRAFTING_ENABLED=False)
@@ -600,7 +586,7 @@ class PromptRenderTests(TestCase):
         self.assertGreaterEqual(len(client.prompts), 6)
         # The stages still finished on their deterministic results.
         for stage in run.stage_trace:
-            if stage["stage"] in {"materials", "record_audit", "research"}:
+            if stage["stage"] in {"materials", "research"} or stage["method"] in {"off", "source_specific"}:
                 continue
             self.assertEqual(stage["method"], "deterministic", stage)
         self.assertTrue(run.challenges.exists())
@@ -783,7 +769,9 @@ class RunComplianceTests(TestCase):
 
     def setUp(self):
         self.user = User.objects.create_user("advocate", password="secret")
-        self.workspace = GymWorkspace.objects.create(owner=self.user, title="Motion")
+        self.workspace = GymWorkspace.objects.create(
+            owner=self.user, title="Motion", enabled_checks=["court_formatting"]
+        )
         self.court = CourtProfile.objects.create(
             slug="test-court",
             name="Test Municipal Court",
@@ -882,7 +870,8 @@ class AssessmentTests(TestCase):
         self.assertLessEqual(len(self.run.assessment.split()), 200)
 
     def test_the_assessment_names_what_most_needs_addressing(self):
-        self.assertIn("most important to address", self.run.assessment)
+        self.assertIn("Correctness review completed", self.run.assessment)
+        self.assertNotIn("persuasive", self.run.assessment.casefold())
 
     def test_the_report_leads_with_the_assessment_and_still_carries_no_score(self):
         report = artifacts.stress_test_report(self.run)
