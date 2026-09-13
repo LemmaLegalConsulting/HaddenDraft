@@ -338,7 +338,7 @@ deployment's model rather than of the gym:
 | `ARGUMENT_GYM_UNIT_BUDGET_CHARS` | 260,000 | the serialized units one stage is given |
 | `ARGUMENT_GYM_UNIT_TEXT_CHARS` | 2,400 | any single unit, so one block quote cannot crowd out the brief |
 | `ARGUMENT_GYM_BRIEF_TEXT_CHARS` | 120,000 | the raw text the rule audit and the checklist read |
-| `ARGUMENT_GYM_COURTLISTENER_MAX_CITATIONS` | 6 | unique, prioritized local citation misses sent to CourtListener per run |
+| `ARGUMENT_GYM_COURTLISTENER_MAX_CITATIONS` | 3 | unique, prioritized local citation misses sent to CourtListener per run; one lookup plus at most three opinion fetches |
 | `COURTLISTENER_API_TIMEOUT_SECONDS` | 15 | each CourtListener lookup or opinion request |
 
 `COURTLISTENER_API_TOKEN` enables the local-miss fallback. It uses the

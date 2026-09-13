@@ -263,13 +263,13 @@ ARGUMENT_GYM_RUN_TIMEOUT_SECONDS = int(os.environ.get("ARGUMENT_GYM_RUN_TIMEOUT_
 # CourtListener is a local-miss fallback for source-specific citation checks.
 # One batch is sent per run and only this many prioritized citations can cause
 # an opinion fetch, which protects low-rate API accounts.
-COURTLISTENER_API_TOKEN = os.environ.get("COURTLISTENER_API_TOKEN", "")
+COURTLISTENER_API_TOKEN = os.environ.get("COURTLISTENER_API_TOKEN") or os.environ.get("COURTLISTENER_API_KEY", "")
 COURTLISTENER_API_BASE_URL = os.environ.get(
     "COURTLISTENER_API_BASE_URL", "https://www.courtlistener.com/api/rest/v4/"
 )
 COURTLISTENER_API_TIMEOUT_SECONDS = int(os.environ.get("COURTLISTENER_API_TIMEOUT_SECONDS", "15"))
 ARGUMENT_GYM_COURTLISTENER_MAX_CITATIONS = int(
-    os.environ.get("ARGUMENT_GYM_COURTLISTENER_MAX_CITATIONS", "6")
+    os.environ.get("ARGUMENT_GYM_COURTLISTENER_MAX_CITATIONS", "3")
 )
 # How much of the brief a single model stage is given. The defaults are set so
 # that every brief in the local corpus -- the largest is 694 units and 71,450
