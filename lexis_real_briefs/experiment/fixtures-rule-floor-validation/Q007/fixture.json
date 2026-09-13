@@ -1,0 +1,76 @@
+{
+  "fixture_id": "Q007",
+  "case_family_id": "synthetic-rule-floor-validation-q007",
+  "stratum": "synthetic_rule_floor_fresh_validation",
+  "document": {
+    "title": "Defendant's Memorandum in Support of Judgment",
+    "court": "Fictional Ohio trial court",
+    "jurisdiction": "Ohio",
+    "pleading_type": "trial_brief",
+    "side": "",
+    "filed": "2026-09-13"
+  },
+  "files": {
+    "source": null,
+    "source_scan": null,
+    "control": "normalized/brief.txt",
+    "mutant": "mutant/brief.txt",
+    "attachments": [
+      "attachments/record-01.txt"
+    ],
+    "attachment_notes": [
+      "Identical fictional record supplied to both arms."
+    ]
+  },
+  "mutation": {
+    "type": "rule_element_omission",
+    "subtype": "no_rent_remains",
+    "operation": "delete",
+    "section": "Argument",
+    "description": "Deleted the only argument paragraph applying no_rent_remains.",
+    "gold_vulnerability": "The mutant invokes R.C. 1923.061(B) but omits application of no_rent_remains; the identical record supports it.",
+    "expected_direction": "mutant_worse",
+    "materiality": "high",
+    "target_location": {
+      "section": "Argument",
+      "control_excerpt": "Calculations show that after applying the $2,500.00 counterclaim judgment and the $1,200.00 initial deposit, plus $1,200.00 deposited on April 1, 2023, totaling $4,900.00, against the alleged $3,600.00 rent due, no rent remains due after counterclaim judgment and credited deposits.",
+      "mutant_excerpt": ""
+    },
+    "characters_changed": 284,
+    "control_chars": 1496,
+    "mutant_chars": 1212,
+    "fraction_of_brief_changed": 0.18984,
+    "expected_check_id": "rule_elements",
+    "expected_target_id": "rc-1923-061-b-counterclaim-offset:no_rent_remains",
+    "expected_disposition": "must_fix"
+  },
+  "gold": {
+    "control_has_target_defect": false,
+    "mutant_has_target_defect": true,
+    "expected_direction": "mutant_worse",
+    "materiality": "high",
+    "verified_by": [],
+    "verification_status": "synthetic_unadjudicated",
+    "verification_note": "Fresh qualification fixture authored by Azure llama-4-maverick and mechanically paired; it was not used to tune the checker and has not been attorney-adjudicated."
+  },
+  "provenance": {
+    "source_sha256": null,
+    "source_scan_sha256": null,
+    "control_sha256": "2b40ece1d11a488b9d00a1df4a2b003a836984b0bf137d3928e4e0bc495dd8ad",
+    "mutant_sha256": "53307692ba4418ac9ccd3d7e4cd7e95cb5aec98359937419f08cfca8dc984526",
+    "attachment_sha256": {
+      "record-01.txt": "23138cd9265b5deb5ec7b60459091cf6d54f95693d3796c6906d3d16cbf9bfca"
+    },
+    "normalization_version": "synthetic-rule-floor-validation-1.0",
+    "mutation_version": "exact-paragraph-deletion-1.0",
+    "generator": {
+      "model_provider": "Azure AI Services",
+      "model_deployment": "llama-4-maverick",
+      "model_family": "Meta Llama",
+      "authored_on": "2026-09-13",
+      "attempts": 1,
+      "researcher_edits": "Reproducible pre-run removal of target-specific duplicate prose; see authorship.json."
+    },
+    "built_on": "2026-09-13"
+  }
+}

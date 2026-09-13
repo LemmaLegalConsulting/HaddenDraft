@@ -1,0 +1,76 @@
+{
+  "fixture_id": "Q005",
+  "case_family_id": "synthetic-rule-floor-validation-q005",
+  "stratum": "synthetic_rule_floor_fresh_validation",
+  "document": {
+    "title": "Memorandum in Opposition to Eviction - Harrison v. Willow Creek",
+    "court": "Fictional Ohio trial court",
+    "jurisdiction": "Ohio",
+    "pleading_type": "trial_brief",
+    "side": "",
+    "filed": "2026-09-13"
+  },
+  "files": {
+    "source": null,
+    "source_scan": null,
+    "control": "normalized/brief.txt",
+    "mutant": "mutant/brief.txt",
+    "attachments": [
+      "attachments/record-01.txt"
+    ],
+    "attachment_notes": [
+      "Identical fictional record supplied to both arms."
+    ]
+  },
+  "mutation": {
+    "type": "rule_element_omission",
+    "subtype": "no_advance_change_notice",
+    "operation": "delete",
+    "section": "Argument",
+    "description": "Deleted the only argument paragraph applying no_advance_change_notice.",
+    "gold_vulnerability": "The mutant invokes Finkbeiner v. Lutz, 44 Ohio App.2d 223 (1st Dist. 1975) but omits application of no_advance_change_notice; the identical record supports it.",
+    "expected_direction": "mutant_worse",
+    "materiality": "high",
+    "target_location": {
+      "section": "Argument",
+      "control_excerpt": "Evergreen Properties gave no effective advance notice requiring strict future compliance, as it never communicated a change in its acceptance policy to Harrison before filing the eviction action on March 15, 2023.",
+      "mutant_excerpt": ""
+    },
+    "characters_changed": 215,
+    "control_chars": 1763,
+    "mutant_chars": 1548,
+    "fraction_of_brief_changed": 0.121951,
+    "expected_check_id": "rule_elements",
+    "expected_target_id": "common-law-late-rent-course-of-dealing:no_advance_change_notice",
+    "expected_disposition": "must_fix"
+  },
+  "gold": {
+    "control_has_target_defect": false,
+    "mutant_has_target_defect": true,
+    "expected_direction": "mutant_worse",
+    "materiality": "high",
+    "verified_by": [],
+    "verification_status": "synthetic_unadjudicated",
+    "verification_note": "Fresh qualification fixture authored by Azure llama-4-maverick and mechanically paired; it was not used to tune the checker and has not been attorney-adjudicated."
+  },
+  "provenance": {
+    "source_sha256": null,
+    "source_scan_sha256": null,
+    "control_sha256": "b18484519d390eaa6c079b8957697e81fa325fc71df3cb606bdfdc9509d7e0fd",
+    "mutant_sha256": "b453d3a32506b949921a00c8e837f1439f99d0684927b52db847810383580856",
+    "attachment_sha256": {
+      "record-01.txt": "da4e5dd55d0cc209bfa28c540e35e251d8fa1b9965bee841cf131c79c6db4141"
+    },
+    "normalization_version": "synthetic-rule-floor-validation-1.0",
+    "mutation_version": "exact-paragraph-deletion-1.0",
+    "generator": {
+      "model_provider": "Azure AI Services",
+      "model_deployment": "llama-4-maverick",
+      "model_family": "Meta Llama",
+      "authored_on": "2026-09-13",
+      "attempts": 1,
+      "researcher_edits": "Reproducible pre-run removal of target-specific duplicate prose; see authorship.json."
+    },
+    "built_on": "2026-09-13"
+  }
+}

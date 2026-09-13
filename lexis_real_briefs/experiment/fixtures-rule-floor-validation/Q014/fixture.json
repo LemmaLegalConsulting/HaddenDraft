@@ -1,0 +1,76 @@
+{
+  "fixture_id": "Q014",
+  "case_family_id": "synthetic-rule-floor-validation-q014",
+  "stratum": "synthetic_rule_floor_fresh_validation",
+  "document": {
+    "title": "Memorandum in Support of Plaintiff's Claim for Security Deposit Damages",
+    "court": "Fictional Ohio trial court",
+    "jurisdiction": "Ohio",
+    "pleading_type": "trial_brief",
+    "side": "",
+    "filed": "2026-09-13"
+  },
+  "files": {
+    "source": null,
+    "source_scan": null,
+    "control": "normalized/brief.txt",
+    "mutant": "mutant/brief.txt",
+    "attachments": [
+      "attachments/record-01.txt"
+    ],
+    "attachment_notes": [
+      "Identical fictional record supplied to both arms."
+    ]
+  },
+  "mutation": {
+    "type": "rule_element_omission",
+    "subtype": "forwarding_address",
+    "operation": "delete",
+    "section": "Argument",
+    "description": "Deleted the only argument paragraph applying forwarding_address.",
+    "gold_vulnerability": "The mutant invokes R.C. 5321.16 but omits application of forwarding_address; the identical record supports it.",
+    "expected_direction": "mutant_worse",
+    "materiality": "high",
+    "target_location": {
+      "section": "Argument",
+      "control_excerpt": "On August 10, 2022, Brynn Kiley provided Harrison Properties with her written forwarding address via certified mail, return receipt requested, which was received on August 12, 2022.",
+      "mutant_excerpt": ""
+    },
+    "characters_changed": 183,
+    "control_chars": 1548,
+    "mutant_chars": 1365,
+    "fraction_of_brief_changed": 0.118217,
+    "expected_check_id": "rule_elements",
+    "expected_target_id": "rc-5321-16-security-deposit:forwarding_address",
+    "expected_disposition": "must_fix"
+  },
+  "gold": {
+    "control_has_target_defect": false,
+    "mutant_has_target_defect": true,
+    "expected_direction": "mutant_worse",
+    "materiality": "high",
+    "verified_by": [],
+    "verification_status": "synthetic_unadjudicated",
+    "verification_note": "Fresh qualification fixture authored by Azure llama-4-maverick and mechanically paired; it was not used to tune the checker and has not been attorney-adjudicated."
+  },
+  "provenance": {
+    "source_sha256": null,
+    "source_scan_sha256": null,
+    "control_sha256": "ec68932b80f89a6adcb279272d03ea327916924cb1168ef1ebe49b31e7991a41",
+    "mutant_sha256": "b4ade5ea42790ea0d874e5f3e50cab950053b2ea7428c30dd15db65241908e2d",
+    "attachment_sha256": {
+      "record-01.txt": "b200a637b1d8fb7f3b4c8cc3378d3a9e5f05495ee618215a617b42c55eff9d05"
+    },
+    "normalization_version": "synthetic-rule-floor-validation-1.0",
+    "mutation_version": "exact-paragraph-deletion-1.0",
+    "generator": {
+      "model_provider": "Azure AI Services",
+      "model_deployment": "llama-4-maverick",
+      "model_family": "Meta Llama",
+      "authored_on": "2026-09-13",
+      "attempts": 2,
+      "researcher_edits": "None to filing prose; script performed whitespace normalization and exact deletion only."
+    },
+    "built_on": "2026-09-13"
+  }
+}

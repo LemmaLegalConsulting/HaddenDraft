@@ -218,6 +218,11 @@ def run_rule_audit(brief_text, excerpts, *, jurisdiction="", llm_client=None, pr
             {
                 **_identity(rule, profile),
                 "audited": True,
+                "briefCoverage": {
+                    "reviewedChars": min(len(brief_text), brief_text_limit()),
+                    "totalChars": len(brief_text),
+                    "truncated": len(brief_text) > brief_text_limit(),
+                },
                 "requiresApplicabilityReview": False,
                 "elements": audited,
                 "unmetCount": unmet_count,
@@ -252,6 +257,7 @@ def _unaudited(rule, profile, elements):
     return {
         **_identity(rule, profile),
         "audited": False,
+        "briefCoverage": {},
         "requiresApplicabilityReview": True,
         # The elements are worth seeing -- they are what the rule would require --
         # but nothing was decided about any of them, so none carries a state.

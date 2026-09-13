@@ -173,6 +173,17 @@ class DetectionTests(TestCase):
         invoked = detect_invoked_rules("The three-day notice was defective.", jurisdiction="Cleveland, Ohio")
         self.assertEqual([item["profile"].slug for item in invoked], ["rc-1923-04-notice"])
 
+    def test_composite_federal_ohio_rule_is_available_in_ohio(self):
+        vawa = LegalRuleProfile.objects.create(
+            slug="vawa", name="VAWA", citation="34 U.S.C. 12491",
+            jurisdiction="Federal / Ohio", citation_patterns=[r"34 U\.S\.C\. 12491"],
+            elements=[{"id": "covered", "label": "Covered housing"}],
+        )
+
+        invoked = detect_invoked_rules("See 34 U.S.C. 12491.", jurisdiction="Ohio")
+
+        self.assertIn(vawa, [item["profile"] for item in invoked])
+
     def test_the_excerpt_shows_where_in_the_brief_the_rule_was_invoked(self):
         invoked = detect_invoked_rules(
             "Some earlier text. The notice failed R.C. 1923.04 and must be dismissed.", profiles=[self.notice]

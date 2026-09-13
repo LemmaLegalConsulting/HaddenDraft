@@ -1,0 +1,76 @@
+{
+  "fixture_id": "Q012",
+  "case_family_id": "synthetic-rule-floor-validation-q012",
+  "stratum": "synthetic_rule_floor_fresh_validation",
+  "document": {
+    "title": "Memorandum in Support of Tenant's Motion for Preliminary Injunction - Harrison v. Cleveland Metropolitan Housing Authority",
+    "court": "Fictional Ohio trial court",
+    "jurisdiction": "Ohio",
+    "pleading_type": "trial_brief",
+    "side": "",
+    "filed": "2026-09-13"
+  },
+  "files": {
+    "source": null,
+    "source_scan": null,
+    "control": "normalized/brief.txt",
+    "mutant": "mutant/brief.txt",
+    "attachments": [
+      "attachments/record-01.txt"
+    ],
+    "attachment_notes": [
+      "Identical fictional record supplied to both arms."
+    ]
+  },
+  "mutation": {
+    "type": "rule_element_omission",
+    "subtype": "process_completed",
+    "operation": "delete",
+    "section": "Argument",
+    "description": "Deleted the only argument paragraph applying process_completed.",
+    "gold_vulnerability": "The mutant invokes 24 C.F.R. \u00a7\u00a7 966.4(l)(3), 966.51-.57 but omits application of process_completed; the identical record supports it.",
+    "expected_direction": "mutant_worse",
+    "materiality": "high",
+    "target_location": {
+      "section": "Argument",
+      "control_excerpt": "The grievance hearing was scheduled for May 5, 2023, after the April 11, 2023 termination date, showing that a timely requested, available grievance process was not completed before termination.",
+      "mutant_excerpt": ""
+    },
+    "characters_changed": 196,
+    "control_chars": 1728,
+    "mutant_chars": 1532,
+    "fraction_of_brief_changed": 0.113426,
+    "expected_check_id": "rule_elements",
+    "expected_target_id": "hud-public-housing-termination-grievance:process_completed",
+    "expected_disposition": "must_fix"
+  },
+  "gold": {
+    "control_has_target_defect": false,
+    "mutant_has_target_defect": true,
+    "expected_direction": "mutant_worse",
+    "materiality": "high",
+    "verified_by": [],
+    "verification_status": "synthetic_unadjudicated",
+    "verification_note": "Fresh qualification fixture authored by Azure llama-4-maverick and mechanically paired; it was not used to tune the checker and has not been attorney-adjudicated."
+  },
+  "provenance": {
+    "source_sha256": null,
+    "source_scan_sha256": null,
+    "control_sha256": "57937bfc90e98ba1a10ede08a1db2e291759be26acb8e53debcfe9e70d5f3285",
+    "mutant_sha256": "bb46e1dd81ddd2815a2450b05b0263645cff3887c1965d0e5b136404cbe8bda2",
+    "attachment_sha256": {
+      "record-01.txt": "f51a2168f9e3202349f3dffc8b73673b810047ce060143b127cfd4932607b11a"
+    },
+    "normalization_version": "synthetic-rule-floor-validation-1.0",
+    "mutation_version": "exact-paragraph-deletion-1.0",
+    "generator": {
+      "model_provider": "Azure AI Services",
+      "model_deployment": "llama-4-maverick",
+      "model_family": "Meta Llama",
+      "authored_on": "2026-09-13",
+      "attempts": 1,
+      "researcher_edits": "Reproducible pre-run removal of target-specific duplicate prose; see authorship.json."
+    },
+    "built_on": "2026-09-13"
+  }
+}

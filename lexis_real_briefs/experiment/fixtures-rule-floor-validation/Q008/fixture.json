@@ -1,0 +1,76 @@
+{
+  "fixture_id": "Q008",
+  "case_family_id": "synthetic-rule-floor-validation-q008",
+  "stratum": "synthetic_rule_floor_fresh_validation",
+  "document": {
+    "title": "Defendant Jasmine Patel's Motion to Dismiss Eviction Action",
+    "court": "Fictional Ohio trial court",
+    "jurisdiction": "Ohio",
+    "pleading_type": "trial_brief",
+    "side": "",
+    "filed": "2026-09-13"
+  },
+  "files": {
+    "source": null,
+    "source_scan": null,
+    "control": "normalized/brief.txt",
+    "mutant": "mutant/brief.txt",
+    "attachments": [
+      "attachments/record-01.txt"
+    ],
+    "attachment_notes": [
+      "Identical fictional record supplied to both arms."
+    ]
+  },
+  "mutation": {
+    "type": "rule_element_omission",
+    "subtype": "simultaneous_pha_copy",
+    "operation": "delete",
+    "section": "Argument",
+    "description": "Deleted the only argument paragraph applying simultaneous_pha_copy.",
+    "gold_vulnerability": "The mutant invokes 24 C.F.R. \u00a7 982.310(e)(2)(ii) but omits application of simultaneous_pha_copy; the identical record supports it.",
+    "expected_direction": "mutant_worse",
+    "materiality": "high",
+    "target_location": {
+      "section": "Argument",
+      "control_excerpt": "The evidence shows that the owner served Patel with the notice on February 10, 2023, but did not send the same notice to CMHA until four days later, on February 14, 2023.",
+      "mutant_excerpt": ""
+    },
+    "characters_changed": 172,
+    "control_chars": 887,
+    "mutant_chars": 715,
+    "fraction_of_brief_changed": 0.193912,
+    "expected_check_id": "rule_elements",
+    "expected_target_id": "hcv-notice-copy-to-pha:simultaneous_pha_copy",
+    "expected_disposition": "must_fix"
+  },
+  "gold": {
+    "control_has_target_defect": false,
+    "mutant_has_target_defect": true,
+    "expected_direction": "mutant_worse",
+    "materiality": "high",
+    "verified_by": [],
+    "verification_status": "synthetic_unadjudicated",
+    "verification_note": "Fresh qualification fixture authored by Azure llama-4-maverick and mechanically paired; it was not used to tune the checker and has not been attorney-adjudicated."
+  },
+  "provenance": {
+    "source_sha256": null,
+    "source_scan_sha256": null,
+    "control_sha256": "ad81d0c70635997e00f938ce1c991050b0afcdffaedb8122e36ee7fba41b7693",
+    "mutant_sha256": "51f5076ac43bbc1d138483dc269bd9275d94c535d8fcebeb3871a722fc0f87a0",
+    "attachment_sha256": {
+      "record-01.txt": "9fd7afb6464dcbf3cc099f3e29aa9781ee6f67452631207e31e32a1aa90a6fb3"
+    },
+    "normalization_version": "synthetic-rule-floor-validation-1.0",
+    "mutation_version": "exact-paragraph-deletion-1.0",
+    "generator": {
+      "model_provider": "Azure AI Services",
+      "model_deployment": "llama-4-maverick",
+      "model_family": "Meta Llama",
+      "authored_on": "2026-09-13",
+      "attempts": 1,
+      "researcher_edits": "Reproducible pre-run removal of target-specific duplicate prose; see authorship.json."
+    },
+    "built_on": "2026-09-13"
+  }
+}

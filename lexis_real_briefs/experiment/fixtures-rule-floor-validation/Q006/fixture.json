@@ -1,0 +1,76 @@
+{
+  "fixture_id": "Q006",
+  "case_family_id": "synthetic-rule-floor-validation-q006",
+  "stratum": "synthetic_rule_floor_fresh_validation",
+  "document": {
+    "title": "Defendant's Memorandum in Support of Dismissal - Burton v. Havens",
+    "court": "Fictional Ohio trial court",
+    "jurisdiction": "Ohio",
+    "pleading_type": "trial_brief",
+    "side": "",
+    "filed": "2026-09-13"
+  },
+  "files": {
+    "source": null,
+    "source_scan": null,
+    "control": "normalized/brief.txt",
+    "mutant": "mutant/brief.txt",
+    "attachments": [
+      "attachments/record-01.txt"
+    ],
+    "attachment_notes": [
+      "Identical fictional record supplied to both arms."
+    ]
+  },
+  "mutation": {
+    "type": "rule_element_omission",
+    "subtype": "refusal",
+    "operation": "delete",
+    "section": "Argument",
+    "description": "Deleted the only argument paragraph applying refusal.",
+    "gold_vulnerability": "The mutant invokes Pinewood Gardens Apts. v. Whiteside, 2014-Ohio-2305 but omits application of refusal; the identical record supports it.",
+    "expected_direction": "mutant_worse",
+    "materiality": "high",
+    "target_location": {
+      "section": "Argument",
+      "control_excerpt": "Burton Properties refused to accept Havens' tender, as evidenced by their return of the uncashed $850 cashier's check on July 3, 2022.",
+      "mutant_excerpt": ""
+    },
+    "characters_changed": 136,
+    "control_chars": 1348,
+    "mutant_chars": 1212,
+    "fraction_of_brief_changed": 0.10089,
+    "expected_check_id": "rule_elements",
+    "expected_target_id": "common-law-timely-rent-tender:refusal",
+    "expected_disposition": "must_fix"
+  },
+  "gold": {
+    "control_has_target_defect": false,
+    "mutant_has_target_defect": true,
+    "expected_direction": "mutant_worse",
+    "materiality": "high",
+    "verified_by": [],
+    "verification_status": "synthetic_unadjudicated",
+    "verification_note": "Fresh qualification fixture authored by Azure llama-4-maverick and mechanically paired; it was not used to tune the checker and has not been attorney-adjudicated."
+  },
+  "provenance": {
+    "source_sha256": null,
+    "source_scan_sha256": null,
+    "control_sha256": "3131bc10ec484568d80d77100f9ead878da0eb9d1b46a24526abcd6e7f18fc89",
+    "mutant_sha256": "d3e94a5c424c2303996033e6070604f52c7f328cba4e9ad9c8c140a3866bcbaa",
+    "attachment_sha256": {
+      "record-01.txt": "5845244737867b3527181d1aac27c0eda73b06c97e720e00e49e0f0e353aeabf"
+    },
+    "normalization_version": "synthetic-rule-floor-validation-1.0",
+    "mutation_version": "exact-paragraph-deletion-1.0",
+    "generator": {
+      "model_provider": "Azure AI Services",
+      "model_deployment": "llama-4-maverick",
+      "model_family": "Meta Llama",
+      "authored_on": "2026-09-13",
+      "attempts": 6,
+      "researcher_edits": "Reproducible pre-run removal of target-specific duplicate prose; see authorship.json."
+    },
+    "built_on": "2026-09-13"
+  }
+}
