@@ -250,7 +250,10 @@ class ContentLibraryTreatiseConnector(SourceConnector):
             ))
         return results
 
-    def search(self, query, *, matter=None, jurisdiction="", limit=5, user=None, request=None, source_ids=None):
+    def search(
+        self, query, *, matter=None, jurisdiction="", limit=5, user=None,
+        request=None, source_ids=None, rerank=True,
+    ):
         original_terms, expanded_terms = _expanded_terms(query)
         if not original_terms:
             return []
@@ -274,7 +277,8 @@ class ContentLibraryTreatiseConnector(SourceConnector):
             if score:
                 ranked.append((score, chunk))
         ranked.sort(key=lambda item: (-item[0], item[1]["document_title"], item[1]["id"] or ""))
-        ranked = self._ai_rerank(query, ranked)
+        if rerank:
+            ranked = self._ai_rerank(query, ranked)
         # A gap in local-law coverage outranks a different city's ordinance:
         # the reader asked about their own city, and a confident answer drawn
         # from somewhere else is the wrong one.

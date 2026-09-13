@@ -631,6 +631,11 @@ def draft_stress_test(request, draft_id):
             title=f"Stress test: {draft.title}",
         )
     )
+    # This endpoint is the explicit opt-in from Draft mode to the branded,
+    # open-ended Stress test. Do not silently run the correctness default under
+    # a button that promised adversarial simulation.
+    workspace.enabled_checks = check_catalog.CHECK_MODES[1]["checkIds"]
+    workspace.save(update_fields=["enabled_checks", "updated_at"])
     brief, _created = GymDocument.objects.get_or_create(
         workspace=workspace,
         role=GymDocument.BRIEF_UNDER_TEST,

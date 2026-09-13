@@ -20,5 +20,5 @@ user prompt: |
 
   Assess every attack. Keep at most {max_kept}. Importance is 0-100 and orders the kept attacks by how much the outcome turns on them.
 settings:
-  default model: deepseek-v4-pro
+  default model: gpt-5.5
   default reasoning level: medium

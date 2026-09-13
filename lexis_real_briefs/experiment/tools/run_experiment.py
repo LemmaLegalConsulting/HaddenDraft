@@ -44,7 +44,7 @@ from django.utils.timezone import now  # noqa: E402
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from routing import RoutedCapture, note_prompt, role_for  # noqa: E402
 from apps.ai.prompt_catalog import render_prompt  # noqa: E402
-from apps.argument_gym import ingestion  # noqa: E402
+from apps.argument_gym import checks, ingestion  # noqa: E402
 from apps.argument_gym.models import GymDocument, GymRun, GymWorkspace  # noqa: E402
 from apps.argument_gym.pipeline import execute_run  # noqa: E402
 from apps.rules.court_profiles import sync_court_profile_seeds  # noqa: E402
@@ -128,6 +128,7 @@ def run_one(fixture, condition, user, *, directory, live, models, reasoning):
     workspace = GymWorkspace.objects.create(
         owner=user, title=fixture["document"]["title"],
         jurisdiction=fixture["document"]["jurisdiction"],
+        enabled_checks=checks.CORRECTNESS_CHECK_IDS,
     )
     brief = GymDocument.objects.create(
         workspace=workspace, role=GymDocument.BRIEF_UNDER_TEST,
@@ -160,10 +161,8 @@ def run_one(fixture, condition, user, *, directory, live, models, reasoning):
     # becomes a challenge row. "What fell out" is therefore only recoverable
     # from the raw stage payloads, which is why they are pulled back here.
     degraded = capture.degraded()
-    proposed = capture.payload_for("attack") or {}
-    judged = capture.payload_for("judge") or {}
-    attacks = proposed.get("attacks") if isinstance(proposed, dict) else None
-    assessments = judged.get("assessments") if isinstance(judged, dict) else None
+    opponent_calls = capture.payloads_for("attack")
+    judge_calls = capture.payloads_for("judge")
 
     findings = run.check_results or {}
     challenges = list(run.challenges.order_by("ordinal", "id").values(
@@ -195,17 +194,19 @@ def run_one(fixture, condition, user, *, directory, live, models, reasoning):
         "court": run.court_detection,
         "deterministic_findings": {key: len(value.get("findings", []))
                                    for key, value in findings.items()},
+        "checks_run": run.checks_run,
         "check_results": run.check_results,
+        "correctness_tests": [
+            test
+            for result in (run.check_results or {}).values()
+            for test in result.get("tests", [])
+        ],
         "rule_audit": run.rule_audit,
         "compliance": run.compliance,
         "challenges": challenges,
         "challenge_count": len(challenges),
-        "attacks_proposed": attacks,
-        "attacks_proposed_count": len(attacks) if isinstance(attacks, list) else None,
-        "judge_assessments": assessments,
-        "attacks_kept_by_judge": (
-            sum(1 for a in assessments if a.get("keep")) if isinstance(assessments, list) else None
-        ),
+        "opponent_calls": opponent_calls,
+        "judge_calls": judge_calls,
         "verdict": run.assessment_verdict,
         "assessment": run.assessment,
         "stage_trace": run.stage_trace,
@@ -256,8 +257,8 @@ def record_state(directory, fixtures, args, models):
         "attack_family": family(models["attack"]),
         "judge_family": family(models["judge"]),
         "same_family_judge": same_family(models["attack"], models["judge"]),
-        "role_routing": "prompt key -> role: argument_gym.opponent=attack, "
-                        "argument_gym.judge=judge, everything else=base",
+        "role_routing": "named Opponent prompts -> attack; legacy and correctness Judge "
+                        "prompts -> judge; everything else -> base",
         "reasoning": args.reasoning,
         "temperature": 0,
         "provider_host": urlsplit(config.get("base_url") or "https://api.openai.com").hostname,
@@ -271,8 +272,8 @@ def record_state(directory, fixtures, args, models):
         "source_ids": SOURCE_IDS,
         "blinding": "The Gym receives brief text and record text only. No fixture id, "
                     "condition label, mutation class or gold vulnerability reaches any prompt.",
-        "scoring": "Not done here. Challenges are written raw; adjudication is a "
-                   "separate step so the run cannot grade itself.",
+        "scoring": "The Gym writes stable per-target dispositions. Whether a result matches "
+                   "the registered mutation remains a separate, human-checkable step.",
         "fixtures": [{
             "fixture_id": f["fixture_id"],
             "control_sha256": f["provenance"]["control_sha256"],
@@ -376,13 +377,12 @@ def main():
                     print(f"      DEGRADED: {', '.join(result['degraded']['roles'])} stage "
                           f"call failed -- {result['degraded']['failures'][result['degraded']['roles'][0]][0]['error_type']}",
                           flush=True)
-                proposed = result.get("attacks_proposed_count")
-                kept = result.get("attacks_kept_by_judge")
-                print(f"      {result['status']}, "
-                      f"{proposed if proposed is not None else '?'} attacks -> "
-                      f"{kept if kept is not None else '?'} kept by judge -> "
-                      f"{result.get('challenge_count', 0)} challenges, "
-                      f"{len(result.get('model_calls', []))} calls", flush=True)
+                tests = result.get("correctness_tests", [])
+                counts = {value: sum(test.get("disposition") == value for test in tests)
+                          for value in ("must_fix", "review", "pass")}
+                print(f"      {result['status']}, {len(tests)} tests: "
+                      f"{counts['must_fix']} must fix / {counts['review']} review / "
+                      f"{counts['pass']} pass, {len(result.get('model_calls', []))} calls", flush=True)
 
     print(f"\nSaved {len(results)} runs to {directory}", flush=True)
     failed = [r for r in results if r["status"] not in ("complete",)]

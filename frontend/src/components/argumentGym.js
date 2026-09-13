@@ -524,6 +524,7 @@ const STAGE_LABELS = {
   "judge:uncited_material_fact": "Judge is ruling on uncited material facts",
   "judge:authority_support": "Judge is ruling on authority support",
   research_queries: "Writing adversarial research queries",
+  authority_research: "Resolving the brief's cited authorities",
   research: "Researching",
   opponent: "Opposing counsel is building its attacks",
   rule_elements: "Auditing the elements of the rules invoked",

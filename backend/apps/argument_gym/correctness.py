@@ -18,10 +18,26 @@ PASS = "pass"
 DISPOSITIONS = {MUST_FIX, REVIEW, PASS}
 RECORD_STATES = {"supported", "contradicted", "not_found", "not_verifiable"}
 AUTHORITY_STATES = {"supported", "overstated", "inapplicable", "contradicted", "unverifiable"}
+RECORD_TARGET_VERSION = "record-targets-v2"
+AUTHORITY_STOPWORDS = {
+    "v", "in", "re", "the", "of", "and", "et", "al", "inc", "llc",
+    "ohio", "court", "appeals", "app", "dist", "state", "federal",
+}
+RECORD_ANCHOR = re.compile(
+    r"\b(?:exhibits?|affidavits?|declarations?|depositions?|transcripts?|"
+    r"docket|record|return receipt|attached notice|attached lease)\b|¶|\bECF\s+No\.",
+    re.I,
+)
 
 
 def candidate_id(check_id, target_id):
     return f"{check_id}:{target_id}"
+
+
+def complete_unique(items, key, expected_ids):
+    """A batch is valid only when every requested test appears exactly once."""
+    ids = [item.get(key) for item in items if isinstance(item, dict)]
+    return len(ids) == len(expected_ids) and len(ids) == len(set(ids)) and set(ids) == set(expected_ids)
 
 
 def stable_fingerprint(check_id, target_id):
@@ -58,14 +74,27 @@ def _fallback_record_targets(units):
     return targets
 
 
-def record_target_stage(units, argument_map, *, jurisdiction, llm_client=None):
-    facts = [unit for unit in units if unit.get("type") == ingestion.ASSERTED_FACT]
-    unit_ids = {unit["id"] for unit in facts}
+def record_candidate_units(units):
+    """High-precision passages eligible for atomic fact extraction."""
+    return [
+        unit
+        for unit in units
+        if unit.get("type") == ingestion.ASSERTED_FACT
+        or (
+            unit.get("type") in {ingestion.ARGUMENT, ingestion.PARAGRAPH}
+            and RECORD_ANCHOR.search(str(unit.get("text") or ""))
+        )
+    ]
+
+
+def record_target_stage(units, *, jurisdiction, llm_client=None):
+    passages = record_candidate_units(units)
+    unit_ids = {unit["id"] for unit in passages}
 
     def parse(payload):
         reported = payload.get("targets")
         if not isinstance(reported, list):
-            return []
+            return None
         targets = []
         seen = set()
         for item in reported:
@@ -98,13 +127,35 @@ def record_target_stage(units, argument_map, *, jurisdiction, llm_client=None):
         prompt_key="argument_gym.record_targets",
         context={
             "jurisdiction": jurisdiction,
-            "argument_map": dumps(argument_map),
-            "fact_units": dumps(_unit_payload(facts)),
+            "fact_units": dumps(_unit_payload(passages)),
         },
         parse=parse,
-        fallback=lambda: _fallback_record_targets(facts),
+        fallback=lambda: _fallback_record_targets(passages),
         temperature=0.1,
+        allow_empty=True,
     )
+
+
+def cached_record_targets(metadata, checksum):
+    """Return a versioned target inventory for this exact brief, if present."""
+    cache = (metadata or {}).get("argumentGymRecordTargets")
+    if not isinstance(cache, dict):
+        return None
+    if cache.get("version") != RECORD_TARGET_VERSION or cache.get("checksum") != checksum:
+        return None
+    targets = cache.get("targets")
+    return targets if isinstance(targets, list) else None
+
+
+def with_record_target_cache(metadata, checksum, targets):
+    """Copy metadata with a reusable, source-versioned target inventory."""
+    updated = dict(metadata or {})
+    updated["argumentGymRecordTargets"] = {
+        "version": RECORD_TARGET_VERSION,
+        "checksum": checksum,
+        "targets": targets,
+    }
+    return updated
 
 
 def _record_disposition(state, coverage):
@@ -113,7 +164,10 @@ def _record_disposition(state, coverage):
     if state == "contradicted":
         return MUST_FIX
     if state == "not_found":
-        return MUST_FIX if coverage.get("exhaustive") else REVIEW
+        # Reading every uploaded byte is not proof that the upload is the
+        # complete record. Negative findings require an explicit completeness
+        # declaration in addition to full technical coverage.
+        return MUST_FIX if coverage.get("completeForNegativeFindings") else REVIEW
     return REVIEW
 
 
@@ -123,7 +177,7 @@ def record_opponent_stage(targets, excerpts, coverage, *, jurisdiction, llm_clie
 
     def parse(payload):
         reported = payload.get("challenges")
-        if not isinstance(reported, list):
+        if not isinstance(reported, list) or not complete_unique(reported, "targetId", target_ids):
             return []
         candidates = []
         for item in reported:
@@ -182,9 +236,13 @@ def authority_targets(argument_map):
     targets = []
     for claim in argument_map:
         proposition = clean(claim.get("proposition"), limit=600)
-        for citation in claim.get("citedAuthority") or []:
-            normalized = re.sub(r"[^a-z0-9]+", "-", citation.casefold()).strip("-")[:60]
-            target_id = f"{claim['unitId']}:authority:{normalized or 'citation'}"
+        for index, citation in enumerate(claim.get("citedAuthority") or [], start=1):
+            if not specific_authority(citation):
+                continue
+            # Identity belongs to the proposition's citation slot, not its
+            # contents. Replacing a sound citation with a bad one is precisely
+            # the mutation a paired test must compare under one target id.
+            target_id = f"{claim['unitId']}:authority{index}"
             targets.append(
                 {
                     "targetId": target_id,
@@ -196,11 +254,122 @@ def authority_targets(argument_map):
     return targets
 
 
+def authority_targets_from_units(units):
+    """Build citation tests from deterministic ingestion anchors.
+
+    Correctness target identity must not depend on a model deciding how many
+    propositions or citations a paragraph contains.  The parser already emits
+    one CITATION unit per textual citation and links it to its paragraph, so a
+    citation replacement retains the same parent/slot identity.
+    """
+    by_id = {unit["id"]: unit for unit in units}
+    targets = []
+    citations_by_parent = {}
+    for unit in units:
+        if unit.get("type") == ingestion.CITATION and specific_authority(unit.get("text")):
+            citations_by_parent.setdefault(unit.get("parentId"), []).append(clean(unit.get("text"), limit=250))
+    for parent_id, citations in citations_by_parent.items():
+        parent = by_id.get(parent_id)
+        if not parent:
+            continue
+        # Ingestion intentionally emits both the reporter cite and case-name
+        # anchor. They refer to one authority, so prefer the more resolvable
+        # reporter cite. Likewise prefer a code-qualified section over the
+        # duplicate bare section emitted from the same paragraph.
+        if any(_authority_kind(citation) == "reporter" for citation in citations):
+            citations = [citation for citation in citations if _authority_kind(citation) != "case_name"]
+        selected = []
+        selected_keys = set()
+        for citation in citations:
+            citation_key = re.sub(r"[^a-z0-9]+", " ", citation.casefold()).strip()
+            if citation_key in selected_keys:
+                continue
+            numbers = tuple(re.findall(r"\d+", citation))
+            if _authority_kind(citation) == "bare_section" and any(
+                tuple(re.findall(r"\d+", prior)) == numbers and _authority_kind(prior) == "code_section"
+                for prior in selected
+            ):
+                continue
+            selected.append(citation)
+            selected_keys.add(citation_key)
+        for position, citation in enumerate(selected, start=1):
+            targets.append(
+                {
+                    "targetId": f"{parent_id}:authority{position}",
+                    "unitId": parent_id,
+                    "proposition": clean(parent.get("text"), limit=1200),
+                    "citation": citation,
+                }
+            )
+    return targets
+
+
+def _authority_kind(citation):
+    value = str(citation or "")
+    if re.search(r"\b\w[\w.'&-]*\s+v\.\s+\w", value, re.I):
+        return "case_name"
+    if re.search(r"\b(?:R\.?C\.?|O\.?R\.?C\.?|U\.?S\.?C\.?|C\.?F\.?R\.?|O\.?A\.?C\.?)\s*§?\s*\d", value, re.I):
+        return "code_section"
+    if re.search(r"§+\s*\d", value):
+        return "bare_section"
+    if re.search(
+        r"\b\d{1,4}\s+(?:Ohio|App\.?\s+LEXIS|F\.?\s*(?:Supp\.?\s*)?\d*d?|U\.?S\.?|S\.?\s*Ct\.?|N\.?E\.?|N\.?W\.?|S\.?E\.?|S\.?W\.?|P\.?)\s*\d+",
+        value,
+        re.I,
+    ):
+        return "reporter"
+    return "unknown"
+
+
+def specific_authority(citation):
+    """Whether text identifies a source precisely enough to resolve it."""
+    value = str(citation or "").strip()
+    return _authority_kind(value) != "unknown" or bool(re.search(r"\b(constitution|rule)\b.*\d", value, re.I))
+
+
+def case_reporter_authority(citation):
+    """CourtListener's lookup floor requires a volume, reporter, and page."""
+    return bool(
+        re.search(
+            r"\b\d+\s+(?:Ohio(?:\s+(?:St|App)\.?\s*\d*d?)?|App\.?\s+LEXIS|"
+            r"F\.?\s*(?:Supp\.?\s*)?\d*d?|U\.?S\.?|S\.?\s*Ct\.?|"
+            r"N\.?E\.?\s*\d*d?|N\.?W\.?\s*\d*d?|S\.?E\.?\s*\d*d?|"
+            r"S\.?W\.?\s*\d*d?|P\.?\s*\d*d?)\s+\d+",
+            str(citation or ""),
+            re.I,
+        )
+    )
+
+
+def authority_source_matches(citation, source):
+    """Reject search hits that are not the authority the brief cited."""
+    target = re.sub(r"[^a-z0-9]+", " ", str(citation or "").casefold()).strip()
+    source_text = re.sub(
+        r"[^a-z0-9]+",
+        " ",
+        f"{getattr(source, 'title', '')} {getattr(source, 'citation', '')}".casefold(),
+    ).strip()
+    if len(target) >= 8 and target in source_text:
+        return True
+    target_numbers = re.findall(r"\d+", target)
+    if target_numbers and re.search(r"\b(r\s*c|u\s*s\s*c|section|constitution|rule)\b", target):
+        return all(number in re.findall(r"\d+", source_text) for number in target_numbers)
+    case_match = re.search(r"(.+?)\s+v\s+(.+)", target)
+    if case_match:
+        left, right = case_match.groups()
+        left_terms = {term for term in left.split() if len(term) > 2 and term not in AUTHORITY_STOPWORDS}
+        right_terms = {term for term in right.split() if len(term) > 2 and term not in AUTHORITY_STOPWORDS}
+        source_terms = set(source_text.split())
+        return bool(left_terms & source_terms) and bool(right_terms & source_terms)
+    terms = {term for term in target.split() if len(term) > 3 and term not in AUTHORITY_STOPWORDS}
+    return len(terms & set(source_text.split())) >= min(2, len(terms)) if terms else False
+
+
 def authority_queries(targets, jurisdiction):
     return [
         {
             "query": f'"{target["citation"]}" {jurisdiction}'.strip(),
-            "targets": [target["unitId"]],
+            "targets": [target["targetId"]],
             "purpose": f'Resolve the cited authority {target["citation"]} and retrieve its relevant source text.',
         }
         for target in targets
@@ -210,16 +379,54 @@ def authority_queries(targets, jurisdiction):
 def authority_opponent_stage(targets, legal_sources, *, jurisdiction, llm_client=None):
     target_ids = {target["targetId"] for target in targets}
     source_ids = {source["id"] for source in legal_sources}
+    resolved_ids = {
+        target_id
+        for source in legal_sources
+        for target_id in source.get("targets") or []
+        if target_id in target_ids
+    }
+    model_targets = [target for target in targets if target["targetId"] in resolved_ids]
+    model_target_ids = {target["targetId"] for target in model_targets}
+
+    def unverifiable(target):
+        return {
+            "candidateId": candidate_id("authority_support", target["targetId"]),
+            "checkId": "authority_support",
+            "issueCode": "authority_unverifiable",
+            "targetId": target["targetId"],
+            "unitId": target["unitId"],
+            "claim": target["proposition"],
+            "problem": f"The cited authority {target['citation']} could not be verified from retrieved source text.",
+            "reason": "Unretrieved authority cannot establish a citation defect.",
+            "briefEvidence": [target["unitId"]],
+            "externalEvidence": [],
+            "evidenceQuote": "",
+            "evidenceState": "unverifiable",
+            "proposedDisposition": REVIEW,
+            "citation": target["citation"],
+            "userVisible": False,
+            "requiresJudge": False,
+        }
+
+    unresolved = [unverifiable(target) for target in targets if target["targetId"] not in resolved_ids]
+    if not model_targets:
+        return unresolved, {
+            "stage": "opponent:authority_support",
+            "method": "skipped",
+            "count": len(unresolved),
+            "trace": ["No cited authority resolved to source text; no semantic comparison was attempted."],
+            "unavailable": False,
+        }
 
     def parse(payload):
         reported = payload.get("challenges")
-        if not isinstance(reported, list):
+        if not isinstance(reported, list) or not complete_unique(reported, "targetId", model_target_ids):
             return []
         candidates = []
         for item in reported:
-            if not isinstance(item, dict) or not known(item.get("targetId"), target_ids):
+            if not isinstance(item, dict) or not known(item.get("targetId"), model_target_ids):
                 continue
-            target = next(target for target in targets if target["targetId"] == item["targetId"])
+            target = next(target for target in model_targets if target["targetId"] == item["targetId"])
             state = choice(item.get("evidenceState"), AUTHORITY_STATES, "unverifiable")
             refs = [str(value) for value in item.get("evidenceRefs") or [] if str(value) in source_ids]
             disposition = PASS if state == "supported" else REVIEW if state == "unverifiable" else MUST_FIX
@@ -242,39 +449,24 @@ def authority_opponent_stage(targets, legal_sources, *, jurisdiction, llm_client
                     "evidenceState": state,
                     "proposedDisposition": disposition,
                     "citation": target["citation"],
+                    "userVisible": state != "unverifiable",
                 }
             )
         return candidates
 
-    return Stage("opponent:authority_support", llm_client=llm_client).run(
+    candidates, trace = Stage("opponent:authority_support", llm_client=llm_client).run(
         prompt_key="argument_gym.authority_opponent",
         context={
             "jurisdiction": jurisdiction,
-            "targets": dumps(targets),
+            "targets": dumps(model_targets),
             "legal_sources": dumps(legal_sources),
         },
         parse=parse,
-        fallback=lambda: [
-            {
-                "candidateId": candidate_id("authority_support", target["targetId"]),
-                "checkId": "authority_support",
-                "issueCode": "authority_unverifiable",
-                "targetId": target["targetId"],
-                "unitId": target["unitId"],
-                "claim": target["proposition"],
-                "problem": f"The cited authority {target['citation']} could not be verified from retrieved source text.",
-                "reason": "Unretrieved authority cannot establish a citation defect.",
-                "briefEvidence": [target["unitId"]],
-                "externalEvidence": [],
-                "evidenceQuote": "",
-                "evidenceState": "unverifiable",
-                "proposedDisposition": REVIEW,
-                "citation": target["citation"],
-            }
-            for target in targets
-        ],
+        fallback=lambda: [unverifiable(target) for target in model_targets],
         temperature=0.1,
     )
+    trace["unavailable"] = trace["method"] != "llm"
+    return [*candidates, *unresolved], trace
 
 
 def rule_candidates(audits, units):
@@ -342,12 +534,19 @@ def rule_candidates(audits, units):
 
 
 def _guard_disposition(candidate, disposition, evidence_refs):
+    proposed = candidate.get("proposedDisposition", REVIEW)
+    # Verification may clear or downgrade a challenge, never make the
+    # Opponent's candidate more adverse. Otherwise the Judge has created a new
+    # issue instead of ruling on the one presented.
+    order = {PASS: 0, REVIEW: 1, MUST_FIX: 2}
+    if order.get(disposition, 1) > order.get(proposed, 1):
+        disposition = proposed
     if disposition != MUST_FIX:
         return disposition
     # Judge verifies the challenge brought; it cannot promote a supported or
     # explicitly uncertain Opponent result into a new defect of its own.
-    if candidate.get("proposedDisposition") != MUST_FIX:
-        return candidate.get("proposedDisposition", REVIEW)
+    if proposed != MUST_FIX:
+        return proposed
     if not evidence_refs:
         return REVIEW
     if candidate["checkId"] == "authority_support" and not candidate.get("evidenceQuote"):
@@ -359,17 +558,29 @@ def _guard_disposition(candidate, disposition, evidence_refs):
 
 def judge_stage(candidates, *, jurisdiction, llm_client=None):
     """Adjudicate homogeneous batches; Judge cannot create or rank issues."""
-    rulings = []
+    rulings = [
+        {
+            **candidate,
+            "disposition": candidate["proposedDisposition"],
+            "judgeReason": candidate.get("reason", ""),
+            "evidenceRefs": candidate["briefEvidence"] + candidate["externalEvidence"],
+            "confidence": "low",
+        }
+        for candidate in candidates
+        if not candidate.get("requiresJudge", True)
+    ]
     traces = []
     by_check = {}
     for candidate in candidates:
+        if not candidate.get("requiresJudge", True):
+            continue
         by_check.setdefault(candidate["checkId"], []).append(candidate)
     for check_id, batch in by_check.items():
         candidate_ids = {candidate["candidateId"] for candidate in batch}
 
         def parse(payload, *, _batch=batch, _ids=candidate_ids):
             reported = payload.get("rulings")
-            if not isinstance(reported, list):
+            if not isinstance(reported, list) or not complete_unique(reported, "candidateId", _ids):
                 return []
             parsed = []
             by_id = {candidate["candidateId"]: candidate for candidate in _batch}
@@ -387,6 +598,7 @@ def judge_stage(candidates, *, jurisdiction, llm_client=None):
                         "judgeReason": clean(item.get("reason"), limit=1000),
                         "evidenceRefs": refs,
                         "confidence": choice(item.get("confidence"), {"high", "medium", "low"}, "low"),
+                        "userVisible": candidate.get("userVisible", True),
                     }
                 )
             return parsed
@@ -406,6 +618,7 @@ def judge_stage(candidates, *, jurisdiction, llm_client=None):
                     "judgeReason": candidate.get("reason", ""),
                     "evidenceRefs": candidate["briefEvidence"] + candidate["externalEvidence"],
                     "confidence": "high" if candidate["proposedDisposition"] == PASS else "low",
+                    "userVisible": candidate.get("userVisible", True),
                 }
                 for candidate in batch
             ],
@@ -434,9 +647,10 @@ def check_results(rulings):
             "externalEvidence": ruling.get("externalEvidence", []),
             "reason": ruling.get("judgeReason", ""),
             "confidence": ruling.get("confidence", "low"),
+            "userVisible": ruling.get("userVisible", True),
         }
         bucket["tests"].append(test)
-        if ruling["disposition"] != PASS:
+        if ruling["disposition"] != PASS and ruling.get("userVisible", True):
             bucket["findings"].append(
                 {
                     "ruleCode": f"{check_id}.{ruling['issueCode']}",
@@ -448,23 +662,32 @@ def check_results(rulings):
             )
     for result in results.values():
         counts = {MUST_FIX: 0, REVIEW: 0, PASS: 0}
+        hidden = 0
         for test in result["tests"]:
-            counts[test["disposition"]] += 1
+            if test["disposition"] == REVIEW and not test.get("userVisible", True):
+                hidden += 1
+            else:
+                counts[test["disposition"]] += 1
         result["summary"] = f"{counts[MUST_FIX]} must fix, {counts[REVIEW]} review, {counts[PASS]} passed"
+        if hidden:
+            result["summary"] += f", {hidden} could not be verified"
     return results
 
 
 def summary(rulings, selected_checks=()):
-    must_fix = sum(ruling["disposition"] == MUST_FIX for ruling in rulings)
-    review = sum(ruling["disposition"] == REVIEW for ruling in rulings)
+    must_fix = sum(ruling["disposition"] == MUST_FIX and ruling.get("userVisible", True) for ruling in rulings)
+    review = sum(ruling["disposition"] == REVIEW and ruling.get("userVisible", True) for ruling in rulings)
     by_check = {
-        check_id: {MUST_FIX: 0, REVIEW: 0, PASS: 0}
+        check_id: {MUST_FIX: 0, REVIEW: 0, PASS: 0, "unverified": 0}
         for check_id in selected_checks
     }
     for ruling in rulings:
         check_id = "record_support" if ruling["checkId"] in {"cited_record_support", "uncited_material_fact"} else ruling["checkId"]
-        counts = by_check.setdefault(check_id, {MUST_FIX: 0, REVIEW: 0, PASS: 0})
-        counts[ruling["disposition"]] += 1
+        counts = by_check.setdefault(check_id, {MUST_FIX: 0, REVIEW: 0, PASS: 0, "unverified": 0})
+        if ruling["disposition"] == REVIEW and not ruling.get("userVisible", True):
+            counts["unverified"] += 1
+        else:
+            counts[ruling["disposition"]] += 1
     labels = {
         "rule_elements": "Rule elements",
         "record_support": "Record support",
@@ -474,6 +697,11 @@ def summary(rulings, selected_checks=()):
     for check_id, counts in by_check.items():
         if counts[MUST_FIX] or counts[REVIEW]:
             lines.append(f"{labels.get(check_id, check_id)}: {counts[MUST_FIX]} failure, {counts[REVIEW]} review")
+        elif counts["unverified"]:
+            lines.append(
+                f"{labels.get(check_id, check_id)}: {counts[PASS]} passed, "
+                f"{counts['unverified']} could not be verified"
+            )
         elif not counts[PASS]:
             lines.append(f"{labels.get(check_id, check_id)}: no eligible targets")
         else:
@@ -496,7 +724,7 @@ def evaluate_test_runs(samples):
     mutation = []
     specificity = []
     noise = []
-    repeated = {}
+    repeated_runs = {}
     for sample in samples:
         expected = (sample.get("checkId"), sample.get("targetId"))
         tests = sample.get("tests") or []
@@ -511,10 +739,13 @@ def evaluate_test_runs(samples):
             for key, disposition in by_target.items()
         )
         noise.append(extra)
-        for key, disposition in by_target.items():
-            group = (sample.get("caseId"), sample.get("variant"), *key)
-            repeated.setdefault(group, []).append(disposition)
-    stability_groups = [values for values in repeated.values() if len(values) > 1]
+        repeated_runs.setdefault((sample.get("caseId"), sample.get("variant")), []).append(by_target)
+    stability_groups = []
+    for runs in repeated_runs.values():
+        if len(runs) < 2:
+            continue
+        keys = set().union(*(run.keys() for run in runs))
+        stability_groups.extend([run.get(key, "__missing__") for run in runs] for key in keys)
     stable = [len(set(values)) == 1 for values in stability_groups]
 
     def rate(values):

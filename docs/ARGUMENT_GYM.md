@@ -1,8 +1,10 @@
 # Argument Gym
 
-The Argument Gym reads a brief the way an opponent would, weighs what it finds
-the way a judge would, and answers it the way a colleague would. It produces a
-ranked list of **challenges** — never a score, and never an edit.
+The Argument Gym is a legal-correctness test harness expressed through three
+roles: an Opponent brings a challenge permitted by a named test, a Judge rules
+only on whether its evidence establishes that challenge, and a Coach proposes
+the smallest safe correction. A correctness run may produce zero findings. It
+never assigns a numeric score and never edits the document.
 
 It runs in two places, over one pipeline:
 
@@ -66,6 +68,7 @@ kind of problem they are ready to work on rather than one undifferentiated list.
 | --- | --- | --- | --- |
 | Brief against the case record | correctness | AI | case materials |
 | Elements of the rules the brief invoked | correctness | AI | — |
+| Cited authority supports the proposition | correctness | AI + retrieval | — |
 | Opponent, judge, and coach | completeness | AI | — |
 | The twelve persuasion dimensions | persuasion | AI | — |
 | Your own checklist | custom | AI | a checklist |
@@ -137,33 +140,45 @@ court for nothing because the patterns only recognized a trial-court prayer.
 ## The pipeline
 
 ```text
-brief ingestion
-  -> filing-format compliance           (deterministic, no model call)
-  -> the author's deterministic checks  (form, language, draft validation)
-  -> argument map
-  -> the persuasive communication suite (one call, every selected dimension)
-  -> brief-to-record support check      (only when case materials exist)
-  -> adversarial research queries
-  -> augmented_search over the existing sources
-  -> opponent generates the strongest attacks
-  -> elements of the rules the brief invoked
-  -> the author's own checklist, with the lookups its items need
-  -> an independent judge filters and ranks them
-  -> a coach proposes responses
-  -> stored GymChallenge records
-  -> the run's opening assessment
+brief ingestion and deterministic citation anchors
+  -> the author's selected deterministic checks
+  -> record target gate: fact passages + explicit record anchors
+  -> Opponent tests each atomic material record claim
+  -> local cited-authority resolution
+  -> bounded CourtListener fallback for prioritized local misses (if configured)
+  -> Opponent tests each resolved proposition/citation/source triple
+  -> rule-elements test
+  -> Judge sustains, reserves, or overrules each candidate independently
+  -> Coach proposes fixes only for sustained/reserved visible findings
+  -> stable per-test results and CI-style summary
+
+The optional adversarial stress test retains the broader argument-map,
+research, attack, and ranking flow. It is not part of the correctness verdict.
+
+Citation extraction is hybrid: Eyecite supplies its maintained U.S. reporter
+grammar and full-case spans, while local patterns retain Ohio Revised Code and
+OCR-tolerant forms. Overlapping recognizers collapse to one document-ordered
+target. The source-specific authority check first resolves against the local
+knowledge base; CourtListener is eligible only for unresolved case citations
+with a volume, reporter, and page.
 ```
 
 Compliance runs first and without a model, so an advocate gets that answer even
 if every model call after it fails.
 
-Opponent, judge, and coach are **separate model calls**. One call asked to
+Opponent, Judge, and Coach are **separate model calls**. One call asked to
 attack, weigh, and answer produces attacks it has already decided are
 answerable, which is the failure this feature exists to prevent.
 
-Every stage has a deterministic fallback and a single bounded repair back to it
-(`apps.ai.tool_loop.run_tool_with_repair`), so a run always produces reviewable
-output and the whole pipeline is testable with `AI_DRAFTING_ENABLED=False`.
+Malformed or incomplete model batches fail closed. A selected check whose model
+stage cannot run is reported as unavailable; a deterministic fallback does not
+manufacture findings to make the report look populated.
+
+An empty target list is a valid completed test inventory. For product reruns,
+record targets are cached with the brief checksum and target-contract version;
+editing the brief or changing that version invalidates the cache. Held-out
+evaluation still treats a target that appears in one repeated run and disappears
+in another as instability rather than silently dropping it from the metric.
 
 **What the offline stand-in may claim.** Without a model the only question the
 opponent can answer about a passage is whether it cites anything, and "cites
@@ -323,6 +338,15 @@ deployment's model rather than of the gym:
 | `ARGUMENT_GYM_UNIT_BUDGET_CHARS` | 260,000 | the serialized units one stage is given |
 | `ARGUMENT_GYM_UNIT_TEXT_CHARS` | 2,400 | any single unit, so one block quote cannot crowd out the brief |
 | `ARGUMENT_GYM_BRIEF_TEXT_CHARS` | 120,000 | the raw text the rule audit and the checklist read |
+| `ARGUMENT_GYM_COURTLISTENER_MAX_CITATIONS` | 6 | unique, prioritized local citation misses sent to CourtListener per run |
+| `COURTLISTENER_API_TIMEOUT_SECONDS` | 15 | each CourtListener lookup or opinion request |
+
+`COURTLISTENER_API_TOKEN` enables the local-miss fallback. It uses the
+CourtListener v4 citation-lookup endpoint in one batch, fetches at most one
+opinion per resolved citation, caches successful sources for seven days, and
+does not retry a 429 within the run. `COURTLISTENER_API_BASE_URL` defaults to
+the public v4 endpoint. The token stays in the environment and is never stored
+in a run trace.
 
 The defaults are set so that **every brief in the local corpus is read whole** —
 the largest is 694 units and 71,450 characters, serializing to 206,143 characters

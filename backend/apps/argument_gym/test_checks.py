@@ -126,6 +126,15 @@ class SelectionTests(TestCase):
         self.assertNotIn("passive_voice", run.check_results)
         self.assertNotIn("pleading_form", run.check_results)
 
+    def test_a_model_check_that_cannot_execute_is_not_reported_as_review_findings(self):
+        self._patch({"enabledChecks": ["authority_support"]})
+        self.workspace.refresh_from_db()
+        run = run_with(self.workspace, self.brief)
+        authority = next(entry for entry in run.checks_run if entry["id"] == "authority_support")
+        self.assertEqual(authority["status"], "unavailable")
+        self.assertNotIn("authority_support", run.check_results)
+        self.assertFalse(run.challenges.exists())
+
     def test_passive_voice_accepts_phrases_this_court_expects(self):
         self._patch(
             {

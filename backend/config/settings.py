@@ -260,6 +260,17 @@ AI_DRAFTING_ENABLED = env_bool("AI_DRAFTING_ENABLED", bool(OPENAI_API_KEY))
 ARGUMENT_GYM_BACKGROUND_RUNS = env_bool("ARGUMENT_GYM_BACKGROUND_RUNS", True)
 # A run whose worker died leaves a row claiming to be running forever.
 ARGUMENT_GYM_RUN_TIMEOUT_SECONDS = int(os.environ.get("ARGUMENT_GYM_RUN_TIMEOUT_SECONDS", "1800"))
+# CourtListener is a local-miss fallback for source-specific citation checks.
+# One batch is sent per run and only this many prioritized citations can cause
+# an opinion fetch, which protects low-rate API accounts.
+COURTLISTENER_API_TOKEN = os.environ.get("COURTLISTENER_API_TOKEN", "")
+COURTLISTENER_API_BASE_URL = os.environ.get(
+    "COURTLISTENER_API_BASE_URL", "https://www.courtlistener.com/api/rest/v4/"
+)
+COURTLISTENER_API_TIMEOUT_SECONDS = int(os.environ.get("COURTLISTENER_API_TIMEOUT_SECONDS", "15"))
+ARGUMENT_GYM_COURTLISTENER_MAX_CITATIONS = int(
+    os.environ.get("ARGUMENT_GYM_COURTLISTENER_MAX_CITATIONS", "6")
+)
 # How much of the brief a single model stage is given. The defaults are set so
 # that every brief in the local corpus -- the largest is 694 units and 71,450
 # characters -- is read whole rather than sampled, which a large-context model

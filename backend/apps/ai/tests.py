@@ -227,7 +227,7 @@ class PromptCatalogTests(TestCase):
         opponent = get_prompt("argument_gym.opponent", allow_database_override=False)
         judge = get_prompt("argument_gym.judge", allow_database_override=False)
         self.assertEqual(opponent.default_model, "gpt-5.6-sol")
-        self.assertEqual(judge.default_model, "deepseek-v4-pro")
+        self.assertEqual(judge.default_model, "gpt-5.5")
 
 
 class ToolLoopTests(TestCase):

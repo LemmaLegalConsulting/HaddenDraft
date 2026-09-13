@@ -121,7 +121,7 @@ class Stage:
         self.name = name
         self.llm_client = llm_client
 
-    def run(self, *, prompt_key, context, parse, fallback, temperature=0.2):
+    def run(self, *, prompt_key, context, parse, fallback, temperature=0.2, allow_empty=False):
         method = "llm" if ai_enabled() else "deterministic"
 
         def execute(plan):
@@ -142,7 +142,7 @@ class Stage:
             return {"method": "llm", "items": parse(json_object(response))}
 
         def evaluate(_plan, result):
-            if not result["items"]:
+            if result["items"] is None or (not result["items"] and not allow_empty):
                 return ToolEvaluation(False, f"{self.name}_empty", f"The {self.name} stage produced nothing usable.")
             return ToolEvaluation(True, f"{self.name}_complete", f"{self.name} produced {len(result['items'])} item(s).")
 
@@ -180,13 +180,18 @@ def brief_units(brief):
         units = ingestion.units_from_sections(draft.sections)
         text = draft.plain_text or ""
         brief.extracted_text = text
+        previous_metadata = brief.extraction_metadata or {}
+        checksum = ingestion.text_checksum(text)
         brief.extraction_metadata = {
             "extractor": "draft_components",
             "pageCount": 0,
             "paragraphCount": len(draft.sections or []),
             "units": units,
-            "checksum": ingestion.text_checksum(text),
+            "checksum": checksum,
         }
+        cached_targets = previous_metadata.get("argumentGymRecordTargets")
+        if isinstance(cached_targets, dict) and cached_targets.get("checksum") == checksum:
+            brief.extraction_metadata["argumentGymRecordTargets"] = cached_targets
         brief.save(update_fields=["extracted_text", "extraction_metadata", "updated_at"])
         return units
     return brief.structure_units
@@ -587,7 +592,7 @@ def run_research(queries, *, matter, jurisdiction, user, request, registry, sour
     registry = registry or default_connector_registry
     sources = []
     trace = []
-    seen = set()
+    seen = {}
     for query in queries:
         selection = automatic_source_selection(query["query"], matter=matter)
         selected_ids = source_ids or selection["source_ids"]
@@ -607,10 +612,11 @@ def run_research(queries, *, matter, jurisdiction, user, request, registry, sour
         for result in payload["results"]:
             key = (result.source_kind, str(result.id))
             if key in seen:
+                existing = seen[key]
+                existing["queries"] = list(dict.fromkeys([*existing["queries"], query["query"]]))
+                existing["targets"] = list(dict.fromkeys([*existing["targets"], *(query.get("targets") or [])]))
                 continue
-            seen.add(key)
-            sources.append(
-                {
+            source = {
                     "id": str(len(sources) + 1),
                     "title": result.title,
                     "citation": result.citation,
@@ -620,8 +626,10 @@ def run_research(queries, *, matter, jurisdiction, user, request, registry, sour
                     "url": result.url,
                     "externalId": str(result.id),
                     "queries": [query["query"]],
+                    "targets": list(query.get("targets") or []),
                 }
-            )
+            sources.append(source)
+            seen[key] = source
         trace.append(
             {
                 "query": query["query"],
@@ -632,6 +640,119 @@ def run_research(queries, *, matter, jurisdiction, user, request, registry, sour
                 "augmentation": payload["augmentation"],
             }
         )
+    return sources, trace
+
+
+def run_authority_research(
+    targets, *, matter, jurisdiction, user, request, registry, source_ids=None
+):
+    """Resolve citations directly without open-ended augmentation or AI reranking.
+
+    Authority support is a source-resolution test, not a research brainstorm.
+    Direct lexical/metadata lookup keeps one citation from recursively spawning
+    more model calls and records exactly which target caused each result.
+    """
+    from apps.argument_gym import correctness
+
+    registry = registry or default_connector_registry
+    sources = []
+    trace = []
+    seen = {}
+    for target in targets:
+        query = f'"{target["citation"]}"'
+        selection = automatic_source_selection(query, matter=matter)
+        selected_ids = source_ids or selection["source_ids"]
+        raw_results = registry.search(
+            query,
+            kinds=source_kinds(selected_ids),
+            source_ids=selected_ids,
+            matter=matter,
+            jurisdiction=jurisdiction,
+            limit_per_source=4,
+            user=user,
+            request=request,
+            rerank=False,
+        )
+        results = [result for result in raw_results if correctness.authority_source_matches(target["citation"], result)]
+        for result in results:
+            key = (result.source_kind, str(result.id))
+            if key in seen:
+                source = seen[key]
+                source["targets"] = list(dict.fromkeys([*source["targets"], target["targetId"]]))
+                source["queries"] = list(dict.fromkeys([*source["queries"], query]))
+                continue
+            source = {
+                "id": str(len(sources) + 1),
+                "title": result.title,
+                "citation": result.citation,
+                "snippet": result.snippet,
+                "sourceKind": result.source_kind,
+                "sourceLabel": result.source_label,
+                "url": result.url,
+                "externalId": str(result.id),
+                "queries": [query],
+                "targets": [target["targetId"]],
+            }
+            sources.append(source)
+            seen[key] = source
+        trace.append(
+            {
+                "query": query,
+                "purpose": f'Resolve cited authority {target["citation"]}.',
+                "targets": [target["targetId"]],
+                "sourceIds": selected_ids,
+                "resultCount": len(results),
+                "rejectedResultCount": len(raw_results) - len(results),
+                "augmentation": {
+                    "finalEvaluation": {
+                        "adequate": bool(results),
+                        "reasons": [] if results else ["The cited authority was not resolved."],
+                    }
+                },
+            }
+        )
+    locally_resolved = {target_id for source in sources for target_id in source.get("targets") or []}
+    unresolved = [
+        target
+        for target in targets
+        if target["targetId"] not in locally_resolved
+        and correctness.case_reporter_authority(target["citation"])
+    ]
+    from apps.sources.courtlistener import CourtListenerCitationFallback
+
+    if unresolved:
+        external_sources, external_trace = CourtListenerCitationFallback().resolve(unresolved)
+    else:
+        external_sources, external_trace = [], {"method": "not_needed", "requested": 0, "resolved": 0}
+    targets_by_id = {target["targetId"]: target for target in targets}
+    accepted_external = set()
+    for result in external_sources:
+        target_id = result.metadata.get("targetId")
+        target = targets_by_id.get(target_id)
+        if not target or not correctness.authority_source_matches(target["citation"], result):
+            continue
+        source = {
+            "id": str(len(sources) + 1),
+            "title": result.title,
+            "citation": result.citation,
+            "snippet": result.snippet,
+            "sourceKind": result.source_kind,
+            "sourceLabel": result.source_label,
+            "url": result.url,
+            "externalId": str(result.id),
+            "queries": [f'"{target["citation"]}"'],
+            "targets": [target_id],
+            "metadata": result.metadata,
+        }
+        sources.append(source)
+        accepted_external.add(target_id)
+    for item in trace:
+        target_id = (item.get("targets") or [None])[0]
+        if target_id in accepted_external:
+            item["resultCount"] += 1
+            item["augmentation"]["finalEvaluation"] = {"adequate": True, "reasons": []}
+        if target_id in {target["targetId"] for target in unresolved}:
+            item["externalFallback"] = external_trace
     return sources, trace
 
 
@@ -1372,24 +1493,26 @@ def execute_run(run, *, user=None, request=None, llm_client=None, connector_regi
             reasons = {item["id"]: item.get("reason", "") for item in ranking_trace.get("selected", [])}
             material["reason"] = reasons.get(material["id"], "")
         material_share = record.share_of_budget(len(selected_materials))
-        excerpts = [
-            {
-                "id": material["id"],
-                "title": material["title"],
-                "text": record.material_text(material, workspace=workspace, max_chars=material_share),
-            }
-            for material in selected_materials
-        ]
-        excerpts = [excerpt for excerpt in excerpts if excerpt["text"].strip()]
+        excerpts = []
+        shortened = []
+        for material in selected_materials:
+            full_text = record.material_text(material, workspace=workspace)
+            excerpt_text = full_text[:material_share]
+            if not excerpt_text.strip():
+                continue
+            excerpts.append({"id": material["id"], "title": material["title"], "text": excerpt_text})
+            if len(excerpt_text) < len(full_text):
+                shortened.append(
+                    {
+                        "id": material["id"],
+                        "title": material["title"],
+                        "read": len(excerpt_text),
+                        "of": len(full_text),
+                    }
+                )
         # A record read only in part is the kind of thing a run must say out
         # loud: a challenge about what the record does not contain means one
         # thing when the record was read whole and another when it was not.
-        shortened = [
-            {"id": material["id"], "title": material["title"],
-             "read": len(excerpt["text"]), "of": len(record.material_text(material, workspace=workspace))}
-            for material, excerpt in zip(selected_materials, excerpts)
-            if len(excerpt["text"]) >= material_share
-        ]
         note_stage({
             "stage": "materials",
             "method": ranking_trace.get("method", "none"),
@@ -1400,22 +1523,36 @@ def execute_run(run, *, user=None, request=None, llm_client=None, connector_regi
             "trace": ranking_trace.get("trace", []),
         })
 
-        argument_map, trace = argument_map_stage(
-            units,
-            brief_title=run.brief.title,
-            jurisdiction=jurisdiction,
-            matter_summary=matter_summary,
-            llm_client=llm_client,
-        )
+        persuasion_selection = [
+            check_id for check_id in check_catalog.PERSUASION_CHECK_IDS if check_catalog.will_run(plan, check_id)
+        ]
+        adversarial = check_catalog.will_run(plan, "adversarial")
+        record_selected = check_catalog.will_run(plan, "record_support")
+        # The open-ended argument map belongs to persuasion and the optional
+        # stress test. Correctness checks use deterministic passage/citation
+        # anchors and their own bounded targeters.
+        needs_argument_map = bool(persuasion_selection or adversarial)
+        if needs_argument_map:
+            argument_map, trace = argument_map_stage(
+                units,
+                brief_title=run.brief.title,
+                jurisdiction=jurisdiction,
+                matter_summary=matter_summary,
+                llm_client=llm_client,
+            )
+        else:
+            argument_map, trace = [], {
+                "stage": "argument_map",
+                "method": "skipped",
+                "count": 0,
+                "trace": ["No selected check requires a generative argument map."],
+            }
         note_stage(trace)
 
         # How the brief reads is a separate question from whether it is right,
         # and it is asked here rather than of the opponent: an opponent looking
         # for a weakness will call bad organization a legal problem, which sends
         # the advocate to rewrite an argument that only needed moving.
-        persuasion_selection = [
-            check_id for check_id in check_catalog.PERSUASION_CHECK_IDS if check_catalog.will_run(plan, check_id)
-        ]
         if persuasion_selection:
             from apps.argument_gym.persuasion import run_persuasion_review
 
@@ -1446,12 +1583,34 @@ def execute_run(run, *, user=None, request=None, llm_client=None, connector_regi
             and len(selected_materials) == len(available_materials)
             and not shortened,
         }
+        record_coverage["completeForNegativeFindings"] = bool(
+            record_coverage["exhaustive"]
+            and (run.configuration or {}).get("recordCoverage") == "complete"
+        )
         correctness_candidates = []
+        runtime_unavailable = {}
         record_findings = []  # retained for the optional legacy stress test and coach contract
-        if check_catalog.will_run(plan, "record_support"):
-            record_targets, trace = correctness.record_target_stage(
-                units, argument_map, jurisdiction=jurisdiction, llm_client=llm_client
+        if record_selected and available_materials:
+            brief_checksum = (run.brief.extraction_metadata or {}).get("checksum") or ingestion.text_checksum(
+                run.brief.extracted_text
             )
+            record_targets = correctness.cached_record_targets(run.brief.extraction_metadata, brief_checksum)
+            if record_targets is None:
+                record_targets, trace = correctness.record_target_stage(
+                    units, jurisdiction=jurisdiction, llm_client=llm_client
+                )
+                if trace["method"] == "llm":
+                    run.brief.extraction_metadata = correctness.with_record_target_cache(
+                        run.brief.extraction_metadata, brief_checksum, record_targets
+                    )
+                    run.brief.save(update_fields=["extraction_metadata", "updated_at"])
+            else:
+                trace = {
+                    "stage": "record_targets",
+                    "method": "cached",
+                    "count": len(record_targets),
+                    "trace": [f"Reused {correctness.RECORD_TARGET_VERSION} for this brief checksum."],
+                }
             note_stage(trace)
             record_candidates, trace = correctness.record_opponent_stage(
                 record_targets,
@@ -1462,17 +1621,43 @@ def execute_run(run, *, user=None, request=None, llm_client=None, connector_regi
             )
             correctness_candidates.extend(record_candidates)
             note_stage(trace)
+            if trace["method"] != "llm" and record_targets:
+                runtime_unavailable["record_support"] = (
+                    "The evidence-bound Opponent could not run; no record-support verdict was produced."
+                )
+        elif record_selected:
+            runtime_unavailable["record_support"] = (
+                "No case-record material was supplied, so record support could not run."
+            )
+            note_stage({"stage": "record_targets", "method": "skipped", "count": 0, "trace": []})
+            note_stage({"stage": "opponent:record_support", "method": "skipped", "count": 0, "trace": []})
         else:
             note_stage({"stage": "record_targets", "method": "off", "count": 0, "trace": []})
             note_stage({"stage": "opponent:record_support", "method": "off", "count": 0, "trace": []})
 
         authority_targets = (
-            correctness.authority_targets(argument_map)
+            correctness.authority_targets_from_units(units)
             if check_catalog.will_run(plan, "authority_support")
             else []
         )
-        queries = correctness.authority_queries(authority_targets, jurisdiction)
-        adversarial = check_catalog.will_run(plan, "adversarial")
+        source_ids = (run.configuration or {}).get("sourceIds") or None
+        legal_sources, research_trace = run_authority_research(
+            authority_targets,
+            matter=matter,
+            jurisdiction=jurisdiction,
+            user=user,
+            request=request,
+            registry=connector_registry,
+            source_ids=source_ids,
+        )
+        note_stage(
+            {
+                "stage": "authority_research",
+                "method": "source_specific",
+                "count": len(legal_sources),
+                "trace": research_trace,
+            }
+        )
         if adversarial:
             record_findings, trace = record_audit_stage(
                 units, excerpts, argument_map, jurisdiction=jurisdiction, llm_client=llm_client
@@ -1481,20 +1666,22 @@ def execute_run(run, *, user=None, request=None, llm_client=None, connector_regi
             adversarial_queries, trace = research_queries_stage(
                 argument_map, record_findings, jurisdiction=jurisdiction, llm_client=llm_client
             )
-            queries.extend(adversarial_queries)
             note_stage(trace)
+            adversarial_sources, adversarial_trace = run_research(
+                adversarial_queries,
+                matter=matter,
+                jurisdiction=jurisdiction,
+                user=user,
+                request=request,
+                registry=connector_registry,
+                source_ids=source_ids,
+            )
+            for source in adversarial_sources:
+                source["id"] = str(len(legal_sources) + 1)
+                legal_sources.append(source)
+            research_trace.extend(adversarial_trace)
         else:
-            note_stage({"stage": "research_queries", "method": "source_specific", "count": len(queries), "trace": []})
-
-        legal_sources, research_trace = run_research(
-            queries,
-            matter=matter,
-            jurisdiction=jurisdiction,
-            user=user,
-            request=request,
-            registry=connector_registry,
-            source_ids=(run.configuration or {}).get("sourceIds") or None,
-        )
+            note_stage({"stage": "research_queries", "method": "off", "count": 0, "trace": []})
         note_stage({"stage": "research", "method": "retrieval", "count": len(legal_sources), "trace": []})
 
         if adversarial:
@@ -1518,6 +1705,18 @@ def execute_run(run, *, user=None, request=None, llm_client=None, connector_regi
             )
             correctness_candidates.extend(authority_candidates)
             note_stage(trace)
+            if trace.get("unavailable"):
+                # Deterministic code cannot read and compare a legal holding.
+                # Treat this as a check that could not run, not one REVIEW card
+                # for every citation in the brief.
+                correctness_candidates = [
+                    candidate
+                    for candidate in correctness_candidates
+                    if candidate["checkId"] != "authority_support"
+                ]
+                runtime_unavailable["authority_support"] = (
+                    "Cited-authority comparison could not run; no authority-support verdict was produced."
+                )
         else:
             note_stage({"stage": "opponent:authority_support", "method": "off", "count": 0, "trace": []})
 
@@ -1605,6 +1804,11 @@ def execute_run(run, *, user=None, request=None, llm_client=None, connector_regi
         for judge_trace in judge_traces:
             note_stage(judge_trace)
         correctness_results = correctness.check_results(correctness_rulings)
+        for entry in plan:
+            if entry["id"] in runtime_unavailable:
+                entry["status"] = "unavailable"
+                entry["reason"] = runtime_unavailable[entry["id"]]
+        run.checks_run = plan
         selected_correctness_checks = [
             check_id
             for check_id in check_catalog.CORRECTNESS_CHECK_IDS
@@ -1620,7 +1824,11 @@ def execute_run(run, *, user=None, request=None, llm_client=None, connector_regi
 
         correctness_attacks = []
         correctness_assessments = []
-        for ruling in (item for item in correctness_rulings if item["disposition"] != correctness.PASS):
+        for ruling in (
+            item
+            for item in correctness_rulings
+            if item["disposition"] != correctness.PASS and item.get("userVisible", True)
+        ):
             category = {
                 "rule_elements": GymChallenge.MISSING_ELEMENT,
                 "authority_support": GymChallenge.LEGAL_AUTHORITY,
