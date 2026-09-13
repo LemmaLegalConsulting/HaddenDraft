@@ -282,9 +282,12 @@ The image tag reported at kickoff was
 `agentichousingacr.azurecr.io/agentic-housing-drafting:20260913T165228Z`.
 After the 6.9 GB experiment tree was excluded, Azure reported a 289.133 MiB
 build context and queued ACR build `cj17`; the source download completed at
-16:55:22 UTC. The bootstrap migration, live revision, health check, and live
-ingestion of *Dresher* and *Gordon* were not yet observed. They must not be
-reported as successful until separately verified.
+16:55:22 UTC. The deployment subsequently completed and its URL health check
+passed. A live production-app execution imported *Dresher v. Burt* as production
+decision 18231 and *Gordon v. Bartlett* as production decision 18230. The first
+lookup requested two authorities and resolved both without a rate-limit
+response. A second lookup requested zero remote authorities and reported two
+persistent hits, evidence that production reused the promoted local decisions.
 
 ## 8. Interpretation and remaining work
 
@@ -302,4 +305,160 @@ The evidence is promising for the intended linting/unit-test floor:
 The next defensible experiment must use fresh, attorney-verified fixtures and
 measure named target outcomes. The micro-runs above were used to develop and
 qualify the implementation and cannot serve as held-out evidence. Production
-deployment and production ingestion also remain explicit verification steps.
+deployment and production ingestion were subsequently verified as described in
+section 7.
+
+## 9. Citation and Ohio-rule expansion
+
+Commit `911474b` adds a narrower semantic citation contract and fifteen common
+Ohio housing-defense/counterclaim profiles. The private Iskin source was found
+at the configured private content-provider boundary and was read alongside the
+official authorities; no private treatise text or generated private Markdown
+was added to git.
+
+Citation targets now use the sentence or semicolon clause containing the
+citation (maximum 700 characters), retain case name and pinpoint metadata, and
+classify the asserted use as a holding/rule, quotation, case fact, procedural
+posture/outcome, or general support. Pinpoint correctness is explicitly
+`unmeasured` when retrieved text lacks stable page boundaries. Semantic review
+runs in batches of at most four targets with only their linked sources. Issue
+identity comes from the deterministic target classification, so a quotation
+mismatch no longer changes issue code when a model alternates between words
+like “overstated” and “contradicted.”
+
+The rule library now covers post-notice acceptance of future rent, late-rent
+course of dealing, timely tender/refusal, R.C. 5321.11 notice and remedy, local
+pay-to-stay, R.C. 1923.061(B) offsets, R.C. 5321.15 self-help, project-based
+federal notice and meeting requirements, public-housing termination/grievance,
+HCV notice-copy and HAP defenses, VAWA, reasonable accommodation, and the CARES
+Act thirty-day notice issue.
+
+Local pay-to-stay and the post-moratorium CARES Act profile intentionally remain
+unverified and therefore cannot produce an error. Thirteen new profiles are
+verified. Existing R.C. 1923.04, 5321.02, 5321.04, and 5321.16 profiles were
+also corrected and source-verified. Conditional elements now carry
+`required_when`; uncertain applicability cannot become a missing-element
+failure. The prompt distinguishes a party asserting full compliance from one
+challenging a particular prerequisite, avoiding the false premise that the
+challenger must plead every possible compliance route.
+
+Uncertainty-only record results (`NOT_VERIFIABLE`) and partial/nothing-supplied
+rule support remain recorded as internal `REVIEW` tests and coverage counts but
+are not attorney-facing findings. This preserves the distinction between “ran
+and found no established defect” and “could not verify.”
+
+Focused post-change tests:
+
+```text
+.venv/bin/python backend/manage.py test \
+  apps.argument_gym.test_correctness \
+  apps.argument_gym.test_rule_audit \
+  apps.rules.test_legal_rules
+
+70 tests passed in 3.784 seconds
+```
+
+A deterministic inventory over all main briefs in `normalized_preview` found
+47 briefs, 1,306 authority targets, and 18 briefs invoking at least one
+maintained housing rule. The maximum was 89 authority targets in one brief.
+Detected profile frequency was R.C. 1923.04 (7), self-help (5), landlord duties
+(4), retaliation (3), security deposits (3), late-rent course of dealing (2),
+and reasonable accommodation (1). This demonstrates useful rule coverage of
+the real sample but also shows that a complete semantic citation sweep is a
+background workload, not a synchronous request.
+
+The first eight-pair live diagnostic run is preserved at
+`lexis_real_briefs/experiment/results/micro-correctness-rules-citations-terra-final-20260913/`.
+Fifteen of sixteen arms completed the strict Judge contract; one F006 mutant
+arm was degraded because a Judge batch was incomplete. The run found the same
+concrete Anderson quotation defect at the same F001 target in both arms, but it
+did not reliably separate the planted F004 authority swap, F005 dissent-label
+deletion, or F007 service-method contradiction. Because these fixtures were
+used during development and their gold labels remain unverified, this is
+diagnostic—not efficacy evidence. More importantly, the misses mean the current
+evidence supports fail-closed behavior and real-defect discovery, but not yet a
+claim of consistent mutation detection.
+
+### 9.1 Iteration evidence: F005 dissent-as-holding
+
+The first hardened F005 rerun failed in a useful way: the mutant passed while
+the control received an unrelated finding. Inspection showed three separate
+causes, each subsequently hardened:
+
+1. a resolved Sherman opinion was not reused for a later pinpoint/parallel
+   citation to Sherman;
+2. citation checking allowed one finding to mask a distinct opinion-status
+   defect; and
+3. the local search snippet contained only the majority discussion, while the
+   passage under test was in a separate dissent. The model also supplied text
+   not traceable to the retrieved snippet.
+
+Commits `00bf316`, `e303fe9`, `3f5e185`, `3f7f051`, and `654fb3f` address those
+failures by reusing opinions across citation variants, preserving complete
+explanatory parentheticals, giving opinion status its own stable test target,
+retrieving the stored chunks nearest the attributed language with neighboring
+headings, requiring model-supplied source passages to occur in the supplied
+source, and caching all (bounded to four) opinions in a CourtListener cluster
+rather than only the first majority opinion.
+
+The final development rerun is preserved at
+`lexis_real_briefs/experiment/results/micro-correctness-f005-complete-opinions-20260913/`.
+At the planted `u50:authority1` target, the control was `REVIEW` for an apparent
+pre-existing transcription problem and the mutant was `MUST_FIX`; the mutant
+finding expressly identified both the inaccurate quotation and its origin in
+Judge Painter's dissent. The control produced zero `MUST_FIX` findings overall;
+the mutant produced three. Two additional mutant-only failures elsewhere in the
+brief show that whole-run noise/stability still needs measurement. This is one
+successful diagnostic mutation detection, not an estimate of sensitivity.
+
+### 9.2 Rule-only sweep
+
+Commit `286dcde` added a source-recorded `--check` option to the experiment
+runner. This allowed every existing subtle fixture, both control and mutant, to
+run through only `rule_elements`, without paying for unrelated authority calls:
+
+```bash
+.venv/bin/python lexis_real_briefs/experiment/tools/run_experiment.py \
+  --output-dir lexis_real_briefs/experiment/results/micro-rules-all-fixtures-20260913 \
+  --live --model gpt-5.6-terra --check rule_elements
+```
+
+All 16 arms completed without a degraded model call. Across 127 element tests,
+there were zero `MUST_FIX` results and seven visible `REVIEW` results. Thirty-nine
+additional uncertainty-only reviews were retained internally but hidden. On the
+61 stable target IDs shared within pairs, 46 had the same disposition (75.4%).
+The absence of error-level control noise is encouraging, but 75.4% internal
+disposition agreement is not sufficient to claim unit-test-like repeatability.
+These fixtures also contain no attorney-verified planted missing-element
+mutations, so this sweep tests specificity and usability, not rule sensitivity.
+
+### 9.3 Ohio ROD and CAP before CourtListener
+
+Commit `6db9ce7` changes remote resolution order to local caselaw, then the
+Supreme Court of Ohio Reporter of Decisions for identifiable Ohio web-cites,
+then CAP static reporter volumes, and only then CourtListener. Successful free
+retrievals are promoted into the local caselaw database. Exact citation matches
+now bypass the generic local-search candidate cutoff; before that fix, an
+already imported opinion could sit behind unrelated keyword hits and cause an
+unnecessary remote request.
+
+Direct probes, without calling CourtListener, resolved and promoted:
+
+- `2014-Ohio-2305` from Ohio ROD in one PDF request (10,988 extracted chars;
+  local development decision 1215); and
+- *Sherman v. Pearson*, 110 Ohio App.3d 70, from CAP (19,788 chars; existing
+  local development decision 686).
+
+The subsequent exact local queries returned those decisions first. The IDs are
+development-database identifiers and are not portable evidence. The official
+Ohio URL shape was checked against the Reporter of Decisions portal and current
+published examples. CAP uses the repository's existing static-volume client.
+
+Post-integration automated verification:
+
+```text
+.venv/bin/python backend/manage.py test \
+  apps.argument_gym apps.rules apps.sources apps.caselaw
+
+398 tests passed in 63.989 seconds
+```
