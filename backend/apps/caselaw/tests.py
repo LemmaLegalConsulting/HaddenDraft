@@ -10,12 +10,36 @@ from django.core.management import call_command
 from django.test import TestCase, override_settings
 
 from apps.caselaw.importing import discover_case_groups, ingest_caselaw_directory
-from apps.caselaw.models import CaseLawArtifact, CaseLawDateProvenance, CaseLawDecision, CaseLawPage, CaseLawSearchDocument
+from apps.caselaw.models import CaseLawArtifact, CaseLawChunk, CaseLawDateProvenance, CaseLawDecision, CaseLawPage, CaseLawSearchDocument
 from apps.caselaw.values import text_values
-from apps.sources.connectors.local_cases import LocalCaseIndexConnector
+from apps.sources.connectors.local_cases import LocalCaseIndexConnector, authority_passage
 
 
 FIXTURE_ROOT = Path(__file__).parent / "tests" / "fixtures" / "sample_corpus"
+
+
+class AuthorityPassageTests(TestCase):
+    def test_selects_relevant_opinion_chunk_and_neighboring_status_heading(self):
+        decision = CaseLawDecision.objects.create(
+            title="Example v. Example", source_sha256="a" * 64,
+        )
+        texts = [
+            "The majority discusses an unrelated procedural question.",
+            "PAINTER, J., dissenting.",
+            "Claims are related when they involve the same factual and legal issues or are offshoots of the same basic controversy.",
+        ]
+        for ordinal, value in enumerate(texts, start=1):
+            chunk = CaseLawChunk.objects.create(decision=decision, ordinal=ordinal, text=value)
+            CaseLawSearchDocument.objects.create(
+                decision=decision, chunk=chunk, document_type="ocr_chunk",
+                search_text=value, metadata={"ordinal": ordinal},
+            )
+        passage = authority_passage(
+            decision.id,
+            "Claims involve the same factual and legal issues or are offshoots of one controversy.",
+        )
+        self.assertIn("PAINTER, J., dissenting", passage)
+        self.assertIn("factual and legal issues", passage)
 
 
 class CaseLawImportTests(TestCase):
