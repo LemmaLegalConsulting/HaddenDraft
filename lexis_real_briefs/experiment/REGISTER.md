@@ -338,6 +338,317 @@ The four reviewer questions, unanswered for all six fixtures:
 
 Only yes/yes/yes/yes admits a fixture to a held-out benchmark.
 
+---
+
+## 8a. Amendment, 2026-09-11 — before any detection scoring
+
+Recorded as an amendment rather than an edit, because §8 was registered in
+advance and this changes it. **No challenge has been scored and no four-cell
+outcome computed at the time of writing**, so nothing here is a rule chosen to
+suit a result. What has been seen is the two fixture reviews below.
+
+### The second review was not independent, and the protocol said it would be
+
+Step 5 as registered has a second attorney see "only the control, mutant,
+relevant law, and attachments." What happened instead: the second attorney
+looked **after, and informed by, the first reviewer's answers.**
+
+That is a legitimate process — adjudication by consensus is standard — but it is
+a different one, and it must not be described as dual independent rating:
+
+* **No inter-rater reliability can be computed.** The 75% raw agreement between
+  the two returns is not a reliability statistic and must not be reported as
+  one. Cohen's kappa is undefined here in any case: the second reviewer answered
+  `yes` to all sixteen judgments, so one rater has zero variance and agreement
+  cannot be distinguished from acquiescence.
+* **The first review is the only independent rating in the study.**
+* The second review is an adjudication of the three fixtures the first left
+  unresolved or rejected.
+
+### What the two reviews say
+
+Both answered `mutant_has` and `material` on all eight fixtures. Neither
+answered `identical` or `control_clean` broadly (see below; they no longer
+need to).
+
+| | R1 (independent) | R2 (informed) |
+|---|---|---|
+| Cleared both questions | F001, F002, F003, F007, F008 | all eight |
+| Unresolved | F004 (material), F006 (both) | — |
+| Rejected | F005 (material) | — |
+
+The disputed one is F005, where a four-word deletion removes
+"(J. Painter, dissenting)" and so presents a dissent as the court's holding in
+the very case the opponent relies on. R1 judged that opposing counsel would not
+realistically raise it; R2, looking at that specific concern, judged that it
+would, because the brief now implies the majority supports a proposition the
+majority rejected. Both may be right about different things: the registered
+question asks about litigation practice ("would counsel raise it"), not about
+whether the citation is sound, and a reviewer can hold that a defect is real and
+that nobody would brief it.
+
+### Revised admission rule
+
+Two of the four questions change, for reasons unrelated to how they were
+answered:
+
+* **`identical` is retired and replaced by a mechanical check.**
+  `tools/check_pair_integrity.py` reports the changed spans directly: **all
+  eight pairs differ in exactly one contiguous region.** A diff answers this
+  question better than a reader does, and asking a lawyer spent the study's
+  scarcest resource on arithmetic. (An earlier version of that tool also tried
+  to infer orphaned section labels and dangling cross-references; it produced
+  three false positives and a false negative on eight fixtures, and those
+  heuristics were removed rather than shipped. The one structural consequence
+  they were meant to catch — F008's headings running A, C once its section B is
+  deleted — is recorded by hand here and in the fixture's own `note_on_size`.)
+* **`control_clean` is demoted to optional.** The four-cell design already
+  absorbs it: a defect the Gym flags in the unmodified brief produces a
+  `non_discriminating` pair whether or not an attorney pre-declared the control
+  clean. The answer, where given, is used to interpret such a pair — to
+  separate "the Gym over-flagged" from "the control really had it" — and not to
+  admit or exclude.
+
+Admission therefore rests on `mutant_has` and `material`, and is reported on two
+sets, **both pre-specified here, before scoring**:
+
+| Set | Rule | Fixtures | n |
+|---|---|---|---|
+| **Primary** | cleared on the independent first review | F001, F002, F003, F007, F008 | 5 |
+| **Sensitivity** | admitted after adjudication | all eight | 8 |
+
+Both are reported. If the conclusion is the same on each, the disagreement is
+immaterial and one sentence says so; if it differs, that difference is the most
+important result in the section. Choosing between them after seeing which is
+more favourable is the researcher-degrees-of-freedom problem, and specifying
+both in advance forecloses it.
+
+**A power note, stated now rather than discovered later.** The only inferential
+test this design supports is an exact binomial on discordant pairs, where the
+null is that a mutation-caused finding is equally likely to fall either way. Five
+discordant pairs all favouring the mutant gives p = 0.031; four gives p = 0.063.
+The primary set of five therefore requires a perfect result to reach
+significance and has no margin. That is a property of the corpus, not of the
+outcome, and it is why the sensitivity set exists.
+
+---
+
+## 8b. Amendment, 2026-09-11 — challenge matching is automated
+
+Registered **before any challenge has been matched or any four-cell outcome
+computed.**
+
+§6 specified that matching a challenge to the registered vulnerability is a
+human judgment, on the grounds that a scorer deciding it by rule would be
+marking its own homework. That is being changed: the 367 pooled challenges will
+be matched by model, not by a person.
+
+**What this costs, stated plainly — and precisely.** The design is not the
+model's: the five mutation classes, the golden rule of one legally meaningful
+change, the four-cell paired outcome, the blinding, the one-lawsuit-one-unit
+rule and the gold-label structure were all specified by the researcher, and the
+model implemented them. What the model authored is the *instantiation* — which
+brief, which sentence in it, the replacement text, and the prose of each
+`gold_vulnerability`.
+
+Two of those three now have an outside check. The instances were validated by
+two attorneys on `mutant_has` and `material` (§8a). The design was never the
+model's to begin with.
+
+What has no outside check is **the matching step**: a model comparing a
+challenge against a `gold_vulnerability` whose wording the model wrote. The
+specific risk is narrow and worth naming — that the label's phrasing was shaped,
+even unintentionally, towards what the Gym tends to say, so that matching
+rewards resemblance to the label rather than detection of the defect. The
+detection figure should be read as resting on model matching against
+model-written labels, under a design and a rule set that are not the model's.
+
+**What is done to limit the damage.**
+
+* **Three frontier matchers, from three families, none of them under test.**
+  `glm-5-3` (Zhipu, via Fireworks), `grok-4-6` (xAI) and `kimi-k3` (Moonshot),
+  deployed for this purpose. `gpt-5.4` was rejected despite being capable and
+  fast: it shares a family with `gpt-5.6-sol`, which wrote half the challenges,
+  and a matcher should not be able to prefer its own relatives' prose. Anthropic
+  models were excluded for the same reason — the gold labels were written by
+  one — and are in any case not deployable here.
+
+  A first pass used `kimi-k2.6`, `grok-4.1-fast-reasoning` and
+  `llama-4-maverick`. Those are not frontier-tier, and disagreement among them
+  could not be told apart from incapacity, so they were replaced. That pass is
+  retained only as a capability comparison: whether weaker matchers disagree
+  more than stronger ones is worth knowing and costs nothing to report.
+* **The matcher is blind to everything the human worksheet blinded.** It sees
+  the fixture's registered `gold_vulnerability` and one challenge's text. Not
+  the condition, not the cell, not which model wrote or judged it, not the
+  brief.
+* **Majority of three decides.** Agreement among the three is reported as a
+  first-class result, not a footnote.
+* **Every decision is written out with its one-line reason**, so any of them can
+  be checked against the challenge text by anyone who doubts it.
+
+**Matching is not mechanical, and the evidence is now from frontier models.**
+The same probe was put to all six candidates: a challenge saying "the brief
+never identifies any rental agreement or basis for tenant status", against a
+vulnerability about a deleted tenant-at-sufferance step.
+
+| Matcher | Tier | Verdict |
+|---|---|---|
+| `glm-5-3` | frontier | match |
+| `kimi-k3` | frontier | match |
+| **`grok-4-6`** | frontier | **no match** — "cites missing agreement not omitted sufferance" |
+| `llama-4-maverick` | not frontier | match |
+| `grok-4.1-fast-reasoning` | not frontier | match |
+| `kimi-k2.6` | not frontier | no match |
+
+The frontier set splits 2–1, and the dissent is reasoned rather than careless:
+the gold label concerns a deleted step establishing status at sufferance, and
+the challenge concerns an absent rental agreement. Those are adjacent
+propositions, and whether one names the other is a judgment.
+
+This bears directly on the premise for automating at all — that the rules are
+already set and applying them is not a useful human task. On this evidence the
+rules are set but their application to particular prose is not determined by
+them. If the three frontier matchers split materially across the real set, the
+detection result is soft, and the correct conclusion is that this corpus cannot
+settle the question without the human pass that was skipped.
+
+**Pre-specified reporting.** Agreement among matchers is reported before any
+detection figure. Where the three split, the majority is used and the split is
+shown. The four-cell outcome is computed on both the primary set (n=5) and the
+sensitivity set (n=8) from §8a.
+
+**A spot-check remains available and is not required.** Twenty challenges drawn
+at random, checked by a person against the matcher's decision, would give a
+human-anchored estimate of matcher validity for a few minutes' work. If it is
+not done, the paper says the detection result rests on model matching alone.
+
+---
+
+## 8c. Amendment, 2026-09-12 — a mechanical tier, as a positive control
+
+Registered **before any of these fixtures has been edited or run.**
+
+### Why
+
+The eight fixtures in §11 carry deliberately subtle defects, and deliberately so:
+the registered design rejects "cartoonish defects" on the ground that they test
+whether a model notices conspicuous corruption rather than whether the Gym
+catches realistic vulnerabilities. That judgment stands.
+
+But it leaves the study unable to distinguish three explanations for a weak
+detection result:
+
+1. the Gym is poor at finding legal defects;
+2. the Gym is adequate and these particular defects are genuinely hard;
+3. the harness is broken and nothing would have been detected.
+
+A tier of defects that are unambiguously present, and that need no housing-law
+knowledge to recognise, separates them. It is a positive control, and its
+absence was a gap in the design.
+
+The subtle tier is not replaced. Two tiers, reported separately: the mechanical
+one answers "does this work at all", the subtle one answers "does it work on
+things that matter."
+
+### Who makes them, and why it is not the model
+
+A person edits these. The model assigns briefs to defect types by structure,
+writes the scaffolding, and points at where the relevant material sits; it does
+not choose the sentence or write the replacement.
+
+This is the one part of the study with no model involvement in instantiation.
+For the subtle tier the model chose each passage and wrote each mutant, and that
+is precisely what the matching step then scores against (§8b). Here that loop is
+broken.
+
+### What may be planted, fixed in advance
+
+A defect qualifies only if a careful reader with no legal training can confirm
+it from the brief alone. Three classes are **excluded because the Gym already
+catches them deterministically, before any model runs** — planting one would
+test a regular expression:
+
+| Excluded | Already handled by |
+|---|---|
+| unresolved placeholder (`[NAME]`, `TBD`, `XXX`, `____`) | `unfilled_placeholder` |
+| reference to an exhibit that is not attached | `exhibit_references_resolve` |
+| paragraph numbering that skips | `paragraph_numbering_gaps` |
+
+The classes in play, and what a miss on each would mean:
+
+| Class | Covered by a Gym category? | What a miss means |
+|---|---|---|
+| **relief_scope** — relief asked for exceeds what was argued | **yes**, `remedy_scope` is one of the seven challenge categories | failure on the system's own terms |
+| **party_role** — the brief asks for the relief its own side does not want | no | a gap, not a broken promise |
+| **enumeration** — promises *n* reasons, gives fewer | no | a gap |
+| **date_contradiction** — a date in the facts contradicts the same date in the argument | no; `record_audit` compares brief to record, not brief to itself | a gap |
+| **arithmetic** — itemised figures do not sum to the stated total | no | a gap |
+
+That distinction is load-bearing and is reported per fixture. A `relief_scope`
+miss is evidence against a capability the Gym claims; a `date_contradiction`
+miss is evidence about a capability nobody claimed. Adding them together would
+misstate both.
+
+### Corpus
+
+Drawn from the filings the subtle tier did not use. Eviction centrality is
+irrelevant here — a date that contradicts itself does so in an insurance brief
+as readily as in an eviction one — so the pool is every readable filing not
+already a fixture, and the two tiers share no documents. Assignments:
+
+| | Class | Brief | Court / posture | Length |
+|---|---|---|---|---|
+| M01 | relief_scope | *WWSD v. Woods* | Ohio App. 10th Dist. | 50,292 |
+| M02 | relief_scope | *Sheridan v. Sheridan* | Ohio App. 8th Dist. | 58,868 |
+| M07 | relief_scope | *Carano v. Schottenstein* | Ohio App. 10th Dist., appellant | 19,079 |
+| M08 | relief_scope | *Williams v. Deutsche Bank* | Ohio App. 8th Dist., appellee | 19,633 |
+| M09 | relief_scope | *Presser v. RCP Mayfield* | Ohio App. 8th Dist., appellee | 44,034 |
+| M03 | party_role | *Anderson v. Mitchell* | Ohio App. 8th Dist. | 20,295 |
+| M04 | enumeration | *Salone v. Stovall* | Ohio Supreme Court | 12,390 |
+| M05 | date_contradiction | *Press v. Westport Ins.* | Ohio App. | 27,904 |
+| M06 | arithmetic | *Solomon v. Harwood* | Ohio App. 8th Dist. | 74,007 |
+
+Nine fixtures, nine distinct briefs, none shared with the subtle tier.
+
+**Why five of one class and one each of four others.** `relief_scope` is the
+only class where a miss is a failure on the Gym's own terms, so it is the one
+claim worth powering. The exact binomial that governs the paired outcome caps
+what two fixtures can show at p = 0.25 and four at p = 0.062; five all caught
+reaches p = 0.031. Setting the sharpest claim at a bar it could never clear
+would have been a design error, and the first version of this plan made it.
+
+The other four classes are **single probes and are reported as such**. One
+observation cannot separate "the Gym misses this class" from "that particular
+edit was subtle", and no claim of the first kind will be made from them. They
+are cheap, they vary the kind of defect, and they are worth having as
+description.
+
+Postures vary within `relief_scope` on purpose: one appellant seeking reversal,
+four appellees seeking affirmance, so the defect is not always the same shape.
+
+### Scoring
+
+The same paired four-cell outcome, run on the same five configurations. Two
+additions:
+
+* **Which stage caught it is recorded** — deterministic check, rule audit,
+  record audit, or the opponent. A defect surfaced by the check suite is not
+  evidence about the adversarial stages, and the two are never summed.
+* **Matching should need no adjudication.** These defects have no adjacent
+  proposition to be confused with, which is what made the subtle tier's matching
+  disputable (§8b). If the frontier matchers disagree materially *here*, that is
+  a finding about the matchers rather than about the briefs, and it retrospectively
+  weakens the subtle tier's automated matching.
+
+### Standing
+
+The mechanical tier is a positive control and is reported as one. It does not
+enter the subtle tier's primary or sensitivity sets, and no figure from it is
+combined with them.
+
+---
+
 **The freeze rule.** Do not modify the Gym after viewing results for a fixture.
 If a fixture exposes a bug worth fixing, fix it — and move that fixture to the
 development set permanently, replacing it with a fresh one. With n=6 and no

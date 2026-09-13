@@ -1,0 +1,109 @@
+{
+  "registry_id": "lexis-mutation-2026-09",
+  "created_at": "2026-09-13T01:11:14.988039+00:00",
+  "mode": "live",
+  "git_commit": "cc3874142b3a59e2dd6605f250132dcfeb3b73aa",
+  "git_status": " M lexis_real_briefs/experiment/REGISTER.md\n M lexis_real_briefs/experiment/conditions.json\n M lexis_real_briefs/experiment/tools/run_experiment.py\n?? lexis_real_briefs/experiment/pair_integrity.json\n?? lexis_real_briefs/experiment/results/2026-09-12-mech-rep1-baseline/\n?? lexis_real_briefs/experiment/results/2026-09-12-mech-rep1-ds-ds/\n?? lexis_real_briefs/experiment/results/2026-09-12-mech-rep1-ds-gpt/\n?? lexis_real_briefs/experiment/results/2026-09-12-mech-rep1-gpt-ds/\n?? lexis_real_briefs/experiment/results/2026-09-12-mech-rep1-gpt-gpt/\n?? lexis_real_briefs/experiment/results/2026-09-12-mech-rep2-baseline/\n?? lexis_real_briefs/experiment/results/2026-09-12-mech-rep2-ds-ds/\n?? lexis_real_briefs/experiment/results/2026-09-12-mech-rep2-ds-gpt/\n?? lexis_real_briefs/experiment/results/2026-09-12-mech-rep2-gpt-ds/\n?? lexis_real_briefs/experiment/results/2026-09-12-mech-rep3-ds-ds/\n?? lexis_real_briefs/experiment/results/2026-09-12-mech-rep3-ds-gpt/\n?? lexis_real_briefs/experiment/results/2026-09-12-mech-rep3-gpt-gpt/\n?? lexis_real_briefs/experiment/results/2026-09-12-mech-rep4-ds-gpt/\n?? lexis_real_briefs/experiment/results/2026-09-12-mech-rep4-gpt-ds/\n?? lexis_real_briefs/experiment/results/matching-nonfrontier.json\n?? lexis_real_briefs/experiment/results/matching.json\n?? lexis_real_briefs/experiment/tools/build_mechanical_fixtures.py\n?? lexis_real_briefs/experiment/tools/check_pair_integrity.py\n?? lexis_real_briefs/experiment/tools/match_challenges.py\n?? lexis_real_briefs/experiment/tools/prepare_mechanical.py\n",
+  "command": [
+    "/home/quinten/agentic_housing_drafting/.venv/bin/python",
+    "lexis_real_briefs/experiment/tools/run_experiment.py",
+    "--output-dir",
+    "lexis_real_briefs/experiment/results/2026-09-12-mech-rep2-gpt-ds",
+    "--live",
+    "--cell",
+    "gpt-ds",
+    "--fixtures-dir",
+    "lexis_real_briefs/experiment/fixtures-mechanical",
+    "--base-model",
+    "gpt-5.4-mini",
+    "--attack-model",
+    "gpt-5.6-sol",
+    "--judge-model",
+    "deepseek-v4-pro"
+  ],
+  "python": "3.12.3 (main, Aug 31 2026, 10:18:26) [GCC 13.3.0]",
+  "cell": "gpt-ds",
+  "models": {
+    "attack": "gpt-5.6-sol",
+    "judge": "deepseek-v4-pro",
+    "base": "gpt-5.4-mini"
+  },
+  "model": "gpt-5.4-mini",
+  "attack_family": "openai",
+  "judge_family": "deepseek",
+  "same_family_judge": false,
+  "role_routing": "prompt key -> role: argument_gym.opponent=attack, argument_gym.judge=judge, everything else=base",
+  "reasoning": "medium",
+  "temperature": 0,
+  "provider_host": "quint-mln02sj6-eastus2.cognitiveservices.azure.com",
+  "model_version_note": "Requested deployment alias; the provider's snapshot identity is not exposed to the application client.",
+  "code_sha256": "c8fa3ff290af9dce2e7aa939599396ca19e6e30fe7c519bd309c3426def80d43",
+  "dependencies_sha256": "f5f5236ee56cf7f75c2f0f59f570b7386388e27164eb9ec999572462072c4366",
+  "unit_budget_chars": 260000,
+  "unit_text_chars": 2400,
+  "brief_text_chars": 120000,
+  "source_ids": [
+    "ohio-cases",
+    "ohio-statutes",
+    "ohio-ordinances",
+    "treatise"
+  ],
+  "blinding": "The Gym receives brief text and record text only. No fixture id, condition label, mutation class or gold vulnerability reaches any prompt.",
+  "scoring": "Not done here. Challenges are written raw; adjudication is a separate step so the run cannot grade itself.",
+  "fixtures": [
+    {
+      "fixture_id": "M01",
+      "control_sha256": "00a4ddba017ebac5e6094ec79b10050f8d456cf8420fa1787b74ec4d7e6bef7a",
+      "mutant_sha256": "20c25701b5de71e91f1100c3acf24b65d30b7cbe893e9607f7728271efb2a57a",
+      "attachment_sha256": {}
+    },
+    {
+      "fixture_id": "M02",
+      "control_sha256": "204d3491304ddc2cc807b8b7ba3b5048508d431ae7c7d49be80873093f06f0de",
+      "mutant_sha256": "b6eea7c99c8d3ed926f7a5f9ce7f690a37f129877ff759255bb56d6ca3bde582",
+      "attachment_sha256": {}
+    },
+    {
+      "fixture_id": "M03",
+      "control_sha256": "fef5a04709a173780aef7c04928dde085a0e036b1407a4d1f77696ffea1e32d7",
+      "mutant_sha256": "366490760916d8904775d4122aa646cc0a9785dfb8bf249e4a6163636d030710",
+      "attachment_sha256": {}
+    },
+    {
+      "fixture_id": "M04",
+      "control_sha256": "09365e890731d916dd676048da238e4c194000f74c86feceac4d3425aa767936",
+      "mutant_sha256": "e7e5893d8da1beb0d34f738696f4e91441721bfe4f2695b08b03f07162d54509",
+      "attachment_sha256": {}
+    },
+    {
+      "fixture_id": "M05",
+      "control_sha256": "0c034491153a7b4221f869466b5ec7cccbfa269e7c10665594f2bd65754ac5b2",
+      "mutant_sha256": "36a6ac2eef98b76da4da665eab340eba229d7a4ed34b5b881e18fda01cf429bc",
+      "attachment_sha256": {}
+    },
+    {
+      "fixture_id": "M06",
+      "control_sha256": "4958f85bdb4147f400b01818e644743c9b6a7ff8d3665c79d7d50cf1e38aeb05",
+      "mutant_sha256": "9f307c11d281956fd459913d4afc73fb923b49f60e00f3a981f2e7c2dd836974",
+      "attachment_sha256": {}
+    },
+    {
+      "fixture_id": "M07",
+      "control_sha256": "e4a002808a8fd38ccd79468879cc5d783a2685b44d7a8b0dc87db1082bea5f48",
+      "mutant_sha256": "c8839d45be31b5ae4499e46bc98e96d884d2f4bae8bce49137cb4991628c1adf",
+      "attachment_sha256": {}
+    },
+    {
+      "fixture_id": "M08",
+      "control_sha256": "a0821ffb6a0c3d36b8c56eb7cc6fcdd659d31490e4e8871dabc47c8b71fbaea3",
+      "mutant_sha256": "7308afec48e960d3eb31ac3aa504fb77ec214c22d2b9d6a9ee7c12bc811bbb36",
+      "attachment_sha256": {}
+    },
+    {
+      "fixture_id": "M09",
+      "control_sha256": "29c4aaa9bce8b7d8c0a518fb1a7d3d1621feb933c4b813b3acd9c61de0137484",
+      "mutant_sha256": "1bddc86c96f0c9e5c712cebae097702d826a33099d71b73b4824cc0c23b08e00",
+      "attachment_sha256": {}
+    }
+  ]
+}
