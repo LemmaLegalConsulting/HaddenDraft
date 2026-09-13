@@ -381,12 +381,31 @@ class CorrectnessContractTests(TestCase):
                 "proposition": "Sherman held that the claim was permissive.",
                 "attributionType": "holding_or_rule", "claimedOpinionStatus": "",
             }],
-            [{"id": "s1", "targets": ["u1:authority1"], "title": "Sherman v. Pearson", "text": "PAINTER, J., dissenting."}],
+            [{"id": "s1", "targets": ["u1:authority1"], "title": "Sherman v. Pearson", "snippet": "PAINTER, J., dissenting."}],
             jurisdiction="Ohio", llm_client=AuthorityClient(),
         )
         status = next(item for item in candidates if item["targetId"].endswith(":opinion_status"))
         self.assertEqual(status["issueCode"], "opinion_status_omitted")
         self.assertEqual(status["proposedDisposition"], correctness.MUST_FIX)
+
+    @override_settings(AI_DRAFTING_ENABLED=True)
+    def test_adverse_authority_passage_must_exist_in_supplied_source(self):
+        class HallucinatingClient:
+            def complete(self, **_kwargs):
+                return json.dumps({"challenges": [{
+                    "targetId": "u1:authority1", "evidenceState": "contradicted",
+                    "challenge": "The source says the opposite.", "reason": "Mismatch.",
+                    "evidenceRefs": ["s1"],
+                    "sourcePassage": "This invented passage is nowhere in the source.",
+                }]})
+
+        candidates, _trace = correctness.authority_opponent_stage(
+            [{"targetId": "u1:authority1", "unitId": "u1", "citation": "Case, 1 Ohio St. 1", "proposition": "Rule.", "attributionType": "holding_or_rule"}],
+            [{"id": "s1", "targets": ["u1:authority1"], "title": "Case", "snippet": "The actual opinion discusses a different subject."}],
+            jurisdiction="Ohio", llm_client=HallucinatingClient(),
+        )
+        self.assertEqual(candidates[0]["proposedDisposition"], correctness.REVIEW)
+        self.assertEqual(candidates[0]["evidenceQuote"], "")
 
     def test_judge_cannot_make_an_opponent_candidate_more_adverse(self):
         candidate = {"checkId": "rule_elements", "proposedDisposition": correctness.PASS}

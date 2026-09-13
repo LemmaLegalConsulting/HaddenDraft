@@ -593,6 +593,7 @@ def run_research(queries, *, matter, jurisdiction, user, request, registry, sour
     sources = []
     trace = []
     seen = {}
+
     for query in queries:
         selection = automatic_source_selection(query["query"], matter=matter)
         selected_ids = source_ids or selection["source_ids"]
@@ -659,6 +660,25 @@ def run_authority_research(
     trace = []
     seen = {}
 
+    def targeted_snippet(result_or_source, target):
+        metadata = (
+            result_or_source.get("metadata", {})
+            if isinstance(result_or_source, dict)
+            else getattr(result_or_source, "metadata", {}) or {}
+        )
+        decision_id = metadata.get("decisionId")
+        if decision_id:
+            from apps.sources.connectors.local_cases import authority_passage
+
+            passage = authority_passage(decision_id, target.get("proposition", ""))
+            if passage:
+                return passage
+        return (
+            result_or_source.get("snippet", "")
+            if isinstance(result_or_source, dict)
+            else getattr(result_or_source, "snippet", "")
+        )
+
     def link_compatible_sources():
         """Reuse one resolved opinion for every citation to that authority.
 
@@ -675,6 +695,9 @@ def run_authority_research(
                     continue
                 if correctness.authority_source_matches(target["citation"], source):
                     source["targets"].append(target["targetId"])
+                    passage = targeted_snippet(source, target)
+                    if passage and passage not in source.get("snippet", ""):
+                        source["snippet"] = f"{source.get('snippet', '')}\n\n{passage}"[-24000:]
 
     for target in targets:
         query = f'"{target["citation"]}"'
@@ -698,16 +721,20 @@ def run_authority_research(
                 source = seen[key]
                 source["targets"] = list(dict.fromkeys([*source["targets"], target["targetId"]]))
                 source["queries"] = list(dict.fromkeys([*source["queries"], query]))
+                passage = targeted_snippet(result, target)
+                if passage and passage not in source.get("snippet", ""):
+                    source["snippet"] = f"{source.get('snippet', '')}\n\n{passage}"[-24000:]
                 continue
             source = {
                 "id": str(len(sources) + 1),
                 "title": result.title,
                 "citation": result.citation,
-                "snippet": result.snippet,
+                "snippet": targeted_snippet(result, target),
                 "sourceKind": result.source_kind,
                 "sourceLabel": result.source_label,
                 "url": result.url,
                 "externalId": str(result.id),
+                "metadata": result.metadata,
                 "queries": [query],
                 "targets": [target["targetId"]],
             }
@@ -754,7 +781,7 @@ def run_authority_research(
             "id": str(len(sources) + 1),
             "title": result.title,
             "citation": result.citation,
-            "snippet": result.snippet,
+            "snippet": targeted_snippet(result, target),
             "sourceKind": result.source_kind,
             "sourceLabel": result.source_label,
             "url": result.url,

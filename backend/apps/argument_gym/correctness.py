@@ -510,6 +510,20 @@ def authority_opponent_stage(targets, legal_sources, *, jurisdiction, llm_client
         ]
         batch_source_ids = {source["id"] for source in batch_sources}
 
+        def passage_is_supplied(passage, refs):
+            words = re.findall(r"[a-z0-9]+", str(passage or "").casefold())
+            if len(words) < 3:
+                return False
+            supplied = " ".join(
+                str(source.get("snippet") or "").casefold()
+                for source in batch_sources if source["id"] in refs
+            )
+            normalized = re.sub(r"[^a-z0-9]+", " ", supplied)
+            # Six consecutive words is strong provenance while tolerating
+            # punctuation/OCR differences around the passage boundary.
+            width = min(6, len(words))
+            return any(" ".join(words[start : start + width]) in normalized for start in range(len(words) - width + 1))
+
         def parse(payload):
             reported = payload.get("challenges")
             if not isinstance(reported, list) or not complete_unique(reported, "targetId", batch_ids):
@@ -523,6 +537,8 @@ def authority_opponent_stage(targets, legal_sources, *, jurisdiction, llm_client
                 refs = [str(value) for value in item.get("evidenceRefs") or [] if str(value) in batch_source_ids]
                 disposition = PASS if state == "supported" else REVIEW if state == "unverifiable" else MUST_FIX
                 quote = clean(item.get("sourcePassage"), limit=900)
+                if quote and not passage_is_supplied(quote, refs):
+                    quote = ""
                 if disposition == MUST_FIX and (not refs or not quote):
                     disposition = REVIEW
                 # Attribution type is part of the deterministic target contract.
@@ -574,6 +590,8 @@ def authority_opponent_stage(targets, legal_sources, *, jurisdiction, llm_client
                         if str(value) in batch_source_ids
                     ]
                     qualifier_quote = clean(item.get("opinionStatusPassage"), limit=900)
+                    if qualifier_quote and not passage_is_supplied(qualifier_quote, qualifier_refs):
+                        qualifier_quote = ""
                     qualifier_disposition = (
                         PASS if qualifier_state == "supported"
                         else REVIEW if qualifier_state == "unverifiable"

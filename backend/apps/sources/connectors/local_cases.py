@@ -198,3 +198,33 @@ class LocalCaseIndexConnector(SourceConnector):
             if len(results) >= limit:
                 break
         return results
+
+
+def authority_passage(decision_id, proposition, *, max_chars=12000):
+    """Return the opinion chunks nearest the proposition being attributed.
+
+    Citation lookup often lands on the overview or opening majority passage.
+    That is inadequate for quotations from a later concurrence or dissent. This
+    deterministic selector scores the stored OCR chunks using the bounded brief
+    proposition and includes the neighboring chunks so headings and opinion
+    status are not separated from the quoted language.
+    """
+    documents = list(
+        CaseLawSearchDocument.objects.filter(
+            decision_id=decision_id, document_type="ocr_chunk", chunk__isnull=False
+        ).select_related("chunk").order_by("chunk__ordinal")
+    )
+    if not documents:
+        return ""
+    terms = {
+        term for term in re.findall(r"[a-z0-9]{4,}", str(proposition or "").casefold())
+        if term not in {"court", "case", "that", "this", "with", "from", "where", "which", "see"}
+    }
+    scored = []
+    for index, document in enumerate(documents):
+        text = document.search_text.casefold()
+        score = sum(min(text.count(term), 3) for term in terms)
+        scored.append((score, -index, index))
+    best = max(scored)[2]
+    selected = documents[max(0, best - 1) : min(len(documents), best + 2)]
+    return "\n\n".join(document.search_text for document in selected)[:max_chars]
