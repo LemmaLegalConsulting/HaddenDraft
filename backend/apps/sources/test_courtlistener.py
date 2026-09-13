@@ -75,6 +75,41 @@ class CourtListenerFallbackTests(TestCase):
         self.assertIn("statute reaches interference", sources[0].snippet)
         self.assertEqual(trace["resolved"], 1)
 
+    def test_fetches_and_caches_majority_and_dissent_from_one_cluster(self):
+        class MultiOpinionSession:
+            def __init__(self):
+                self.posts = []
+                self.gets = []
+
+            def post(self, url, **kwargs):
+                self.posts.append((url, kwargs))
+                return Response(200, [{
+                    "status": 200, "normalized_citations": ["110 Ohio App.3d 70"],
+                    "clusters": [{
+                        "id": 7, "case_name": "Sherman v. Pearson",
+                        "absolute_url": "/opinion/7/sherman/", "sub_opinions": [9, 10],
+                    }],
+                }])
+
+            def get(self, url, **kwargs):
+                self.gets.append((url, kwargs))
+                if url.endswith("/9/"):
+                    return Response(200, {"id": 9, "plain_text": "The majority affirms."})
+                return Response(200, {"id": 10, "plain_text": "PAINTER, J., dissenting. The claim was permissive."})
+
+        session = MultiOpinionSession()
+        sources, trace = CourtListenerCitationFallback(session=session).resolve([{
+            "targetId": "u1:authority1", "citation": "110 Ohio App.3d 70",
+            "proposition": "Painter's dissent says the claim was permissive.",
+        }])
+        self.assertEqual(len(session.posts), 1)
+        self.assertEqual(len(session.gets), 2)
+        self.assertIn("PAINTER, J., dissenting", sources[0].snippet)
+        self.assertEqual(sources[0].metadata["opinionIds"], [9, 10])
+        decision = CaseLawDecision.objects.get()
+        self.assertIn("dissenting", " ".join(decision.chunks.values_list("text", flat=True)))
+        self.assertEqual(trace["resolved"], 1)
+
     def test_resolved_opinion_is_promoted_and_reused_without_external_request(self):
         lookup = Response(
             200,

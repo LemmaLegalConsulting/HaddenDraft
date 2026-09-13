@@ -26,6 +26,7 @@ TEXT_FIELDS = (
     "html_columbia",
     "xml_harvard",
 )
+MAX_CLUSTER_OPINIONS = 4
 
 
 def _canonical_citations(value):
@@ -200,6 +201,11 @@ class CourtListenerCitationFallback:
         for row in rows:
             if row.status != "resolved" or not row.decision_id:
                 continue
+            # Early cache entries stored only the first sub-opinion and cannot
+            # support majority/dissent attribution. Refresh them once; current
+            # entries record the complete bounded opinion-id list.
+            if "opinionIds" not in (row.provider_payload or {}):
+                continue
             text = "\n".join(row.decision.pages.values_list("text", flat=True))
             if not text:
                 text = "\n".join(row.decision.chunks.values_list("text", flat=True))
@@ -301,28 +307,38 @@ class CourtListenerCitationFallback:
             return None
         clusters = lookup.get("clusters") or []
         cluster = clusters[0]
-        opinions = cluster.get("sub_opinions") or cluster.get("opinions") or []
-        opinion_url = _opinion_url(opinions[0] if opinions else "", self.base_url)
-        if not opinion_url:
+        opinions = (cluster.get("sub_opinions") or cluster.get("opinions") or [])[:MAX_CLUSTER_OPINIONS]
+        opinion_payloads = []
+        opinion_texts = []
+        for opinion_ref in opinions:
+            opinion_url = _opinion_url(opinion_ref, self.base_url)
+            if not opinion_url:
+                continue
+            try:
+                response = self.session.get(
+                    opinion_url, headers=self._headers(), timeout=self.timeout,
+                )
+            except requests.RequestException:
+                continue
+            # Do not retry or spend more of the low request budget after a rate
+            # limit. Any already fetched opinion remains cacheable.
+            if response.status_code == 429:
+                break
+            if response.status_code != 200:
+                continue
+            try:
+                opinion = response.json()
+            except ValueError:
+                continue
+            raw = next((opinion.get(field) for field in TEXT_FIELDS if opinion.get(field)), "")
+            text = re.sub(r"\s+", " ", unescape(strip_tags(str(raw)))).strip()
+            if text:
+                opinion_payloads.append(opinion)
+                opinion_texts.append(text)
+        if not opinion_texts:
             return None
-        try:
-            response = self.session.get(
-                opinion_url,
-                headers=self._headers(),
-                timeout=self.timeout,
-            )
-        except requests.RequestException:
-            return None
-        if response.status_code != 200:
-            return None
-        try:
-            opinion = response.json()
-        except ValueError:
-            return None
-        raw = next((opinion.get(field) for field in TEXT_FIELDS if opinion.get(field)), "")
-        text = re.sub(r"\s+", " ", unescape(strip_tags(str(raw)))).strip()
-        if not text:
-            return None
+        opinion = opinion_payloads[0]
+        text = "\n\n".join(opinion_texts)
         cluster_id = str(cluster.get("id") or "")
         normalized = list(dict.fromkeys([
             *(lookup.get("normalized_citations") or []),
@@ -345,6 +361,7 @@ class CourtListenerCitationFallback:
                 "status": lookup.get("status"),
                 "clusterId": cluster_id,
                 "opinionId": opinion.get("id"),
+                "opinionIds": [item.get("id") for item in opinion_payloads],
             }
             for alias in normalized:
                 CourtListenerCitationCache.objects.update_or_create(
@@ -372,6 +389,7 @@ class CourtListenerCitationFallback:
                 "provider": "Free Law Project",
                 "clusterId": cluster_id,
                 "opinionId": opinion.get("id"),
+                "opinionIds": [item.get("id") for item in opinion_payloads],
                 "targetId": target["targetId"],
                 "cacheHit": False,
                 "promotedDecisionId": decision.id if decision else None,
