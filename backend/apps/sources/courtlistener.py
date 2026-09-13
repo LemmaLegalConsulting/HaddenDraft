@@ -110,11 +110,12 @@ class CourtListenerCitationFallback:
         }
         if not pending:
             return results, trace
+        lookup_text = "\n".join(target["citation"] for target, _key, _group in pending)
         try:
             response = self.session.post(
                 urljoin(self.base_url, "citation-lookup/"),
                 headers=self._headers(),
-                data={"text": "\n".join(target["citation"] for target, _key, _group in pending)},
+                data={"text": lookup_text},
                 timeout=self.timeout,
             )
         except requests.RequestException as exc:
@@ -131,12 +132,13 @@ class CourtListenerCitationFallback:
         except ValueError:
             trace["error"] = "invalid_json"
             return results, trace
-        for (target, key, group), lookup in zip(pending, lookups):
+        lookups_by_target = self._associate_lookups(pending, lookups)
+        for (target, key, group), target_lookups in zip(pending, lookups_by_target):
             combined_target = {
                 **target,
                 "proposition": "\n".join(item.get("proposition", "") for item in group),
             }
-            source = self._resolved_source(combined_target, lookup)
+            source = self._resolved_source(combined_target, target_lookups)
             if source is None:
                 continue
             cached = {**source.__dict__, "metadata": {**source.metadata, "targetId": ""}}
@@ -148,10 +150,44 @@ class CourtListenerCitationFallback:
         trace["resolved"] = len(results)
         return results, trace
 
-    def _resolved_source(self, target, lookup):
-        clusters = lookup.get("clusters") or []
-        if lookup.get("status") != 200 or len(clusters) != 1:
+    @staticmethod
+    def _associate_lookups(pending, lookups):
+        """Map parsed citations back to their input line, including parallels."""
+        spans = []
+        cursor = 0
+        for target, _key, _group in pending:
+            end = cursor + len(target["citation"])
+            spans.append((cursor, end))
+            cursor = end + 1
+        associated = [[] for _item in pending]
+        positioned = all(isinstance(item, dict) and isinstance(item.get("start_index"), int) for item in lookups)
+        if positioned:
+            for lookup in lookups:
+                position = lookup["start_index"]
+                for index, (start, end) in enumerate(spans):
+                    if start <= position <= end:
+                        associated[index].append(lookup)
+                        break
+            return associated
+        # Compatibility for older/fake API responses that omitted offsets.
+        for index, lookup in enumerate(lookups[: len(associated)]):
+            associated[index].append(lookup)
+        return associated
+
+    def _resolved_source(self, target, lookups):
+        # A full citation can yield an ambiguous official reporter row followed
+        # by a uniquely resolved parallel reporter row. Prefer the latter.
+        lookup = next(
+            (
+                item
+                for item in lookups
+                if item.get("status") == 200 and len(item.get("clusters") or []) == 1
+            ),
+            None,
+        )
+        if lookup is None:
             return None
+        clusters = lookup.get("clusters") or []
         cluster = clusters[0]
         opinions = cluster.get("sub_opinions") or cluster.get("opinions") or []
         opinion_url = _opinion_url(opinions[0] if opinions else "", self.base_url)
