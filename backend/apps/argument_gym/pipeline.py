@@ -768,11 +768,12 @@ def run_authority_research(
         )
     link_compatible_sources()
     locally_resolved = {target_id for source in sources for target_id in source.get("targets") or []}
+    # Give the free resolver every unresolved target. It recognizes modern Ohio
+    # web cites (which often have no volume/reporter/page) before trying CAP's
+    # reporter grammar. Restrict only the later CourtListener fallback to
+    # reporter citations, whose lookup contract it can satisfy safely.
     unresolved = [
-        target
-        for target in targets
-        if target["targetId"] not in locally_resolved
-        and correctness.case_reporter_authority(target["citation"])
+        target for target in targets if target["targetId"] not in locally_resolved
     ]
     targets_by_id = {target["targetId"]: target for target in targets}
     accepted_external = set()
@@ -800,7 +801,12 @@ def run_authority_research(
 
     free_sources, free_trace = FreeReportedDecisionFallback().resolve(unresolved)
     accepted_external |= accept_external(free_sources)
-    remaining = [target for target in unresolved if target["targetId"] not in accepted_external]
+    remaining = [
+        target
+        for target in unresolved
+        if target["targetId"] not in accepted_external
+        and correctness.case_reporter_authority(target["citation"])
+    ]
 
     from apps.sources.courtlistener import CourtListenerCitationFallback
 

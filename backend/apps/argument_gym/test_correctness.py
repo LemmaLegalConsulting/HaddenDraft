@@ -345,6 +345,42 @@ class CorrectnessContractTests(TestCase):
         self.assertEqual(sources[0]["sourceKind"], "cap")
         self.assertTrue(trace[0]["augmentation"]["finalEvaluation"]["adequate"])
 
+    @override_settings(COURTLISTENER_API_TOKEN="configured")
+    def test_ohio_web_cite_without_reporter_reaches_free_fallback_only(self):
+        class EmptyRegistry:
+            def search(self, _query, **_kwargs):
+                return []
+
+        target = {
+            "targetId": "u4:authority1",
+            "citation": "Boone Coleman Constr., Inc. v. Village of Piketon, 2016-Ohio-628",
+            "proposition": "The Ohio Supreme Court reviews contract interpretation de novo.",
+        }
+        free_result = SourceResult(
+            id="ohio-rod:2016-Ohio-628",
+            title="Boone Coleman Constr., Inc. v. Village of Piketon",
+            snippet="We review the interpretation of a contract, a question of law, de novo.",
+            source_kind="ohio_reported_decisions",
+            source_label="Supreme Court of Ohio Reporter of Decisions",
+            citation="2016-Ohio-628",
+            metadata={"targetId": target["targetId"]},
+        )
+        with patch(
+            "apps.sources.reported_decisions.FreeReportedDecisionFallback.resolve",
+            return_value=([free_result], {"method": "ohio_rod_then_cap", "resolved": 1}),
+        ) as free, patch(
+            "apps.sources.courtlistener.CourtListenerCitationFallback.resolve"
+        ) as courtlistener:
+            sources, trace = run_authority_research(
+                [target], matter=None, jurisdiction="Ohio", user=None, request=None,
+                registry=EmptyRegistry(), source_ids=["ohio-cases"],
+            )
+
+        free.assert_called_once_with([target])
+        courtlistener.assert_not_called()
+        self.assertEqual(sources[0]["sourceKind"], "ohio_reported_decisions")
+        self.assertTrue(trace[0]["augmentation"]["finalEvaluation"]["adequate"])
+
     @override_settings(AI_DRAFTING_ENABLED=True)
     def test_authority_opponent_uses_small_complete_batches(self):
         class BatchClient:
