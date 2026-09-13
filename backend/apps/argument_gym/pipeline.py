@@ -1803,22 +1803,49 @@ def execute_run(run, *, user=None, request=None, llm_client=None, connector_regi
         )
         for judge_trace in judge_traces:
             note_stage(judge_trace)
+            if judge_trace.get("checkUnavailable"):
+                catalog_id = (
+                    "record_support"
+                    if judge_trace.get("checkId") in {"cited_record_support", "uncited_material_fact"}
+                    else judge_trace.get("checkId")
+                )
+                runtime_unavailable[catalog_id] = (
+                    "Judge did not return a complete, justified ruling for every candidate; "
+                    "no verdict from this check was retained."
+                )
+        correctness_rulings = [
+            ruling
+            for ruling in correctness_rulings
+            if (
+                "record_support"
+                if ruling["checkId"] in {"cited_record_support", "uncited_material_fact"}
+                else ruling["checkId"]
+            )
+            not in runtime_unavailable
+        ]
         correctness_results = correctness.check_results(correctness_rulings)
-        for entry in plan:
-            if entry["id"] in runtime_unavailable:
-                entry["status"] = "unavailable"
-                entry["reason"] = runtime_unavailable[entry["id"]]
-        run.checks_run = plan
         selected_correctness_checks = [
             check_id
             for check_id in check_catalog.CORRECTNESS_CHECK_IDS
             if check_catalog.will_run(plan, check_id)
         ]
+        for entry in plan:
+            if entry["id"] in runtime_unavailable:
+                entry["status"] = "unavailable"
+                entry["reason"] = runtime_unavailable[entry["id"]]
+        run.checks_run = plan
         for check_id in selected_correctness_checks:
-            correctness_results.setdefault(
-                check_id,
-                {"findings": [], "tests": [], "summary": "No eligible targets."},
-            )
+            if check_id in runtime_unavailable:
+                correctness_results[check_id] = {
+                    "findings": [],
+                    "tests": [],
+                    "summary": runtime_unavailable[check_id],
+                }
+            else:
+                correctness_results.setdefault(
+                    check_id,
+                    {"findings": [], "tests": [], "summary": "No eligible targets."},
+                )
         check_results.update(correctness_results)
         run.check_results = check_results
 

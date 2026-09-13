@@ -7,7 +7,9 @@ user prompt: |
   Candidate challenges and the only evidence you may use:
   {candidates}
 
-  Return one ruling per candidate:
+  Return exactly one ruling per candidate, preserving every candidateId. Every
+  ruling must contain a specific, nonempty reason. REVIEW and MUST_FIX must cite
+  at least one supplied evidence reference:
   {{"rulings": [{{"candidateId": "record_support:u42:fact1", "disposition": "must_fix | review | pass", "reason": "Why Opponent did or did not carry its burden", "evidenceRefs": ["u42", "matter:doc-1"], "confidence": "high | medium | low"}}]}}
 
   MUST_FIX without evidence references is forbidden. For a record contradiction, cite the brief claim and contradictory record passage. For authority mismatch, cite the proposition and source passage. Unavailable evidence, incomplete retrieval, and uncertain applicability are REVIEW or PASS, never MUST_FIX.

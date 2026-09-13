@@ -19,6 +19,7 @@ DISPOSITIONS = {MUST_FIX, REVIEW, PASS}
 RECORD_STATES = {"supported", "contradicted", "not_found", "not_verifiable"}
 AUTHORITY_STATES = {"supported", "overstated", "inapplicable", "contradicted", "unverifiable"}
 RECORD_TARGET_VERSION = "record-targets-v2"
+MAX_JUDGE_BATCH = 8
 AUTHORITY_STOPWORDS = {
     "v", "in", "re", "the", "of", "and", "et", "al", "inc", "llc",
     "ohio", "court", "appeals", "app", "dist", "state", "federal",
@@ -557,75 +558,97 @@ def _guard_disposition(candidate, disposition, evidence_refs):
 
 
 def judge_stage(candidates, *, jurisdiction, llm_client=None):
-    """Adjudicate homogeneous batches; Judge cannot create or rank issues."""
-    rulings = [
-        {
-            **candidate,
-            "disposition": candidate["proposedDisposition"],
-            "judgeReason": candidate.get("reason", ""),
-            "evidenceRefs": candidate["briefEvidence"] + candidate["externalEvidence"],
-            "confidence": "low",
-        }
-        for candidate in candidates
-        if not candidate.get("requiresJudge", True)
-    ]
+    """Adjudicate small homogeneous batches without substituting a failed Judge.
+
+    One invalid batch invalidates the named check. Returning the other batches
+    would make a partial run look clean precisely where the Judge omitted work.
+    """
+    rulings = []
     traces = []
     by_check = {}
+    settled_by_check = {}
     for candidate in candidates:
         if not candidate.get("requiresJudge", True):
-            continue
-        by_check.setdefault(candidate["checkId"], []).append(candidate)
-    for check_id, batch in by_check.items():
-        candidate_ids = {candidate["candidateId"] for candidate in batch}
-
-        def parse(payload, *, _batch=batch, _ids=candidate_ids):
-            reported = payload.get("rulings")
-            if not isinstance(reported, list) or not complete_unique(reported, "candidateId", _ids):
-                return []
-            parsed = []
-            by_id = {candidate["candidateId"]: candidate for candidate in _batch}
-            for item in reported:
-                if not isinstance(item, dict) or not known(item.get("candidateId"), _ids):
-                    continue
-                candidate = by_id[item["candidateId"]]
-                refs = [ref for ref in item.get("evidenceRefs") or [] if ref in candidate["briefEvidence"] + candidate["externalEvidence"]]
-                disposition = choice(item.get("disposition"), DISPOSITIONS, REVIEW)
-                disposition = _guard_disposition(candidate, disposition, refs)
-                parsed.append(
-                    {
-                        **candidate,
-                        "disposition": disposition,
-                        "judgeReason": clean(item.get("reason"), limit=1000),
-                        "evidenceRefs": refs,
-                        "confidence": choice(item.get("confidence"), {"high", "medium", "low"}, "low"),
-                        "userVisible": candidate.get("userVisible", True),
-                    }
-                )
-            return parsed
-
-        batch_rulings, trace = Stage(f"judge:{check_id}", llm_client=llm_client).run(
-            prompt_key="argument_gym.correctness_judge",
-            context={"jurisdiction": jurisdiction, "check_id": check_id, "candidates": dumps(batch)},
-            parse=parse,
-            fallback=lambda batch=batch: [
+            settled_by_check.setdefault(candidate["checkId"], []).append(
                 {
                     **candidate,
-                    "disposition": _guard_disposition(
-                        candidate,
-                        candidate["proposedDisposition"],
-                        candidate["briefEvidence"] + candidate["externalEvidence"],
-                    ),
+                    "disposition": candidate["proposedDisposition"],
                     "judgeReason": candidate.get("reason", ""),
                     "evidenceRefs": candidate["briefEvidence"] + candidate["externalEvidence"],
-                    "confidence": "high" if candidate["proposedDisposition"] == PASS else "low",
-                    "userVisible": candidate.get("userVisible", True),
+                    "confidence": "low",
                 }
-                for candidate in batch
-            ],
-            temperature=0.0,
-        )
-        rulings.extend(batch_rulings)
-        traces.append(trace)
+            )
+        else:
+            by_check.setdefault(candidate["checkId"], []).append(candidate)
+    for check_id in dict.fromkeys([*settled_by_check, *by_check]):
+        check_rulings = list(settled_by_check.get(check_id, []))
+        check_available = True
+        candidates_for_check = by_check.get(check_id, [])
+        batches = [
+            candidates_for_check[start : start + MAX_JUDGE_BATCH]
+            for start in range(0, len(candidates_for_check), MAX_JUDGE_BATCH)
+        ]
+        for batch_number, batch in enumerate(batches, start=1):
+            candidate_ids = {candidate["candidateId"] for candidate in batch}
+
+            def parse(payload, *, _batch=batch, _ids=candidate_ids):
+                reported = payload.get("rulings")
+                if not isinstance(reported, list) or not complete_unique(reported, "candidateId", _ids):
+                    return []
+                parsed = []
+                by_id = {candidate["candidateId"]: candidate for candidate in _batch}
+                for item in reported:
+                    if not isinstance(item, dict) or not known(item.get("candidateId"), _ids):
+                        return []
+                    reason = clean(item.get("reason"), limit=1000)
+                    raw_disposition = str(item.get("disposition") or "").strip().casefold()
+                    candidate = by_id[item["candidateId"]]
+                    allowed_refs = candidate["briefEvidence"] + candidate["externalEvidence"]
+                    refs = [ref for ref in item.get("evidenceRefs") or [] if ref in allowed_refs]
+                    if not reason or raw_disposition not in DISPOSITIONS:
+                        return []
+                    if raw_disposition in {MUST_FIX, REVIEW} and not refs:
+                        return []
+                    disposition = _guard_disposition(candidate, raw_disposition, refs)
+                    parsed.append(
+                        {
+                            **candidate,
+                            "disposition": disposition,
+                            "judgeReason": reason,
+                            "evidenceRefs": refs,
+                            "confidence": choice(item.get("confidence"), {"high", "medium", "low"}, "low"),
+                            "userVisible": candidate.get("userVisible", True),
+                        }
+                    )
+                return parsed
+
+            batch_rulings, trace = Stage(f"judge:{check_id}", llm_client=llm_client).run(
+                prompt_key="argument_gym.correctness_judge",
+                context={"jurisdiction": jurisdiction, "check_id": check_id, "candidates": dumps(batch)},
+                parse=parse,
+                fallback=lambda: [],
+                temperature=0.0,
+            )
+            trace.update(
+                {
+                    "checkId": check_id,
+                    "batch": batch_number,
+                    "batches": len(batches),
+                    "candidateIds": sorted(candidate_ids),
+                    "unavailable": trace["method"] != "llm",
+                }
+            )
+            traces.append(trace)
+            if trace["unavailable"]:
+                check_available = False
+            else:
+                check_rulings.extend(batch_rulings)
+        if check_available:
+            rulings.extend(check_rulings)
+        else:
+            for trace in traces:
+                if trace.get("checkId") == check_id:
+                    trace["checkUnavailable"] = True
     return rulings, traces
 
 

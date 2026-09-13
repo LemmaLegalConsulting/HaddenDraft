@@ -1,3 +1,4 @@
+import json
 from unittest.mock import patch
 
 from django.test import TestCase
@@ -6,6 +7,27 @@ from django.test.utils import override_settings
 from apps.argument_gym import correctness, ingestion
 from apps.argument_gym.pipeline import run_authority_research
 from apps.sources.connectors.base import SourceResult
+
+
+class CompleteJudgeClient:
+    def complete(self, *, user, **_kwargs):
+        serialized = user.split("Candidate challenges and the only evidence you may use:\n", 1)[1]
+        serialized = serialized.split("\n\nReturn exactly one ruling", 1)[0]
+        candidates = json.loads(serialized)
+        return json.dumps(
+            {
+                "rulings": [
+                    {
+                        "candidateId": candidate["candidateId"],
+                        "disposition": candidate["proposedDisposition"],
+                        "reason": "The supplied evidence establishes this ruling.",
+                        "evidenceRefs": candidate["briefEvidence"] + candidate["externalEvidence"],
+                        "confidence": "high",
+                    }
+                    for candidate in candidates
+                ]
+            }
+        )
 
 
 @override_settings(AI_DRAFTING_ENABLED=False)
@@ -185,6 +207,7 @@ class CorrectnessContractTests(TestCase):
             correctness.PASS,
         )
 
+    @override_settings(AI_DRAFTING_ENABLED=True)
     def test_judge_preserves_pass_and_allows_zero_visible_findings(self):
         candidate = {
             "candidateId": "record_support:u1:fact1",
@@ -200,12 +223,15 @@ class CorrectnessContractTests(TestCase):
             "evidenceQuote": "Notice served",
             "proposedDisposition": correctness.PASS,
         }
-        rulings, _traces = correctness.judge_stage([candidate], jurisdiction="Ohio")
+        rulings, _traces = correctness.judge_stage(
+            [candidate], jurisdiction="Ohio", llm_client=CompleteJudgeClient()
+        )
         self.assertEqual(rulings[0]["disposition"], correctness.PASS)
         results = correctness.check_results(rulings)
         self.assertEqual(results["record_support"]["findings"], [])
         self.assertEqual(results["record_support"]["tests"][0]["targetId"], "u1:fact1")
 
+    @override_settings(AI_DRAFTING_ENABLED=True)
     def test_judge_does_not_cap_verified_must_fix_results(self):
         candidates = [
             {
@@ -224,9 +250,52 @@ class CorrectnessContractTests(TestCase):
             }
             for i in range(11)
         ]
-        rulings, _traces = correctness.judge_stage(candidates, jurisdiction="Ohio")
+        rulings, traces = correctness.judge_stage(
+            candidates, jurisdiction="Ohio", llm_client=CompleteJudgeClient()
+        )
         self.assertEqual(len(rulings), 11)
         self.assertTrue(all(ruling["disposition"] == correctness.MUST_FIX for ruling in rulings))
+        self.assertEqual([trace["count"] for trace in traces], [8, 3])
+        self.assertTrue(all(not trace["unavailable"] for trace in traces))
+
+    @override_settings(AI_DRAFTING_ENABLED=True)
+    def test_incomplete_or_unjustified_judge_batch_invalidates_the_check(self):
+        class SilentJudge:
+            def complete(self, **_kwargs):
+                return json.dumps(
+                    {
+                        "rulings": [
+                            {
+                                "candidateId": "record_support:u1:fact1",
+                                "disposition": "review",
+                                "reason": "",
+                                "evidenceRefs": ["u1"],
+                                "confidence": "low",
+                            }
+                        ]
+                    }
+                )
+
+        candidate = {
+            "candidateId": "record_support:u1:fact1",
+            "checkId": "cited_record_support",
+            "issueCode": "record_support_not_found",
+            "targetId": "u1:fact1",
+            "unitId": "u1",
+            "claim": "Notice was served.",
+            "problem": "Support was not found.",
+            "reason": "The record excerpt was incomplete.",
+            "briefEvidence": ["u1"],
+            "externalEvidence": [],
+            "evidenceQuote": "",
+            "proposedDisposition": correctness.REVIEW,
+        }
+        rulings, traces = correctness.judge_stage(
+            [candidate], jurisdiction="Ohio", llm_client=SilentJudge()
+        )
+        self.assertEqual(rulings, [])
+        self.assertTrue(traces[0]["unavailable"])
+        self.assertTrue(traces[0]["checkUnavailable"])
 
     def test_summary_is_limited_to_test_results_not_persuasiveness(self):
         report = correctness.summary([])

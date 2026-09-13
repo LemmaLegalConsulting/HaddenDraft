@@ -129,8 +129,8 @@ class RoutedCapture:
                 for row in self.calls
                 if row["role"] == role and row["status"] == "failed"]
 
-    def degraded(self):
-        """Whether a stage under test silently fell back to the deterministic path.
+    def degraded(self, stage_trace=()):
+        """Whether a stage under test failed or rejected an incomplete batch.
 
         When a model call fails, `Stage.run` returns the deterministic fallback
         and the run still reports "complete" with challenges in it. Those
@@ -139,14 +139,30 @@ class RoutedCapture:
         clothes. It gets recorded and excluded rather than averaged in.
         """
         problems = {role: self.failures(role) for role in ("attack", "judge")}
+        rejected_judge_batches = [
+            {
+                "prompt_key": "argument_gym.correctness_judge",
+                "model": self.models["judge"],
+                "error_type": "IncompleteJudgeBatch",
+                "error": (
+                    f"{stage.get('checkId')} batch {stage.get('batch')}/{stage.get('batches')} "
+                    "did not return one justified, evidence-backed ruling per candidate"
+                ),
+                "candidate_ids": stage.get("candidateIds", []),
+            }
+            for stage in stage_trace or []
+            if str(stage.get("stage", "")).startswith("judge:") and stage.get("unavailable")
+        ]
+        if rejected_judge_batches:
+            problems["judge"].extend(rejected_judge_batches)
         problems = {role: items for role, items in problems.items() if items}
         if not problems:
             return None
         return {
             "degraded": True,
             "roles": sorted(problems),
-            "reason": "a model call for a stage under test failed; the Gym fell back to "
-                      "its deterministic path, so these challenges are not this cell's output",
+            "reason": "a model call failed or a Judge batch violated the completeness contract; "
+                      "the affected named check produced no countable verdict",
             "failures": problems,
         }
 
