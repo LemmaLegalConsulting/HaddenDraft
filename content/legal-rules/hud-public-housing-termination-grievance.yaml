@@ -1,0 +1,21 @@
+schema_version: 1
+slug: hud-public-housing-termination-grievance
+name: Public housing termination notice and grievance prerequisite
+citation: 24 C.F.R. §§ 966.4(l)(3), 966.51-.57
+rule_type: regulation
+jurisdiction: Federal / Ohio
+summary: A PHA termination notice must meet program-specific content and timing requirements, and when a grievance hearing is available the tenancy cannot terminate before the request period and any timely requested grievance are complete.
+citation_patterns: ["24\\s*C\\.?F\\.?R\\.?\\s*(§{1,2}\\s*)?966\\.(4|51|52|53|54|55|56|57)", "Part 966.{0,20}Subpart B"]
+aliases: [public housing grievance, PHA grievance procedure, informal settlement]
+verification: verified
+source: "24 C.F.R. §§ 966.4(l)(3), 966.51-.57; Cuyahoga Metro. Hous. Auth. v. Younger, 93 Ohio App.3d 819 (8th Dist. 1994); Iskin (6th ed. 2022), § III.F"
+source_url: https://www.ecfr.gov/current/title-24/part-966
+verified_on: 2026-09-13
+notes: The current regulation generally gives 30 days for nonpayment, not 14. Grievance exclusion requires the regulation's exact conditions and an applicable HUD due-process determination; criminal allegations alone do not establish exclusion.
+elements:
+  - {id: public_housing, label: Tenancy is operated by a PHA under public housing rules, requirement: Identify the PHA and program., severity: error, needs_record_support: true, patterns: ["public housing", "PHA", "housing authority"]}
+  - {id: timely_written_notice, label: Written notice met the applicable ground-specific period, requirement: Provide service termination dates and ground; apply 30 days for current nonpayment and the regulation's other branches., severity: error, needs_record_support: true, patterns: ["written notice", "30 days", "reasonable period"]}
+  - {id: notice_content, label: Notice states specific grounds reply right and document-inspection right, requirement: Quote each required advisement and the specific factual grounds., severity: error, needs_record_support: true, patterns: ["right to (reply|examine)", "specific grounds"]}
+  - {id: grievance_advisement, label: Notice accurately advises of grievance rights, requirement: Quote the advisement or the compliant exclusion statements., severity: error, needs_record_support: true, patterns: ["grievance", "right to request.{0,30}hearing"]}
+  - {id: process_completed, label: Available grievance process was completed before termination, requirement: Show request deadline and completion of any timely requested informal settlement and hearing., severity: error, needs_record_support: true, required_when: Only when the dispute is grievable and a grievance was timely requested., patterns: ["grievance.{0,50}(complete|decision|hearing)"]}
+  - {id: valid_exclusion, label: Any claimed grievance exclusion satisfies the federal rule, requirement: Establish the qualifying activity and applicable HUD due-process determination and required notice statements., severity: error, needs_record_support: true, required_when: Only when the PHA asserts that no grievance hearing was required., patterns: ["not entitled.{0,40}grievance", "due process determination"]}

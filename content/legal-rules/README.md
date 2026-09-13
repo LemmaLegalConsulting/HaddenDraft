@@ -24,9 +24,9 @@ chasing an element the rule does not have.
 - `verification: unverified` — a starting point for someone who will check it.
   Findings are warnings and are labelled as coming from an unverified list.
 
-**Every profile shipped in this repository is unverified.** They exist so the
-audit runs and so the shape is clear, not so an office relies on them. Read the
-statute, correct the elements, cite what you read, and mark it verified.
+The library contains both verified profiles and fail-closed starters. Read each
+profile's `verification`, `source`, `verified_on`, and notes; never infer that
+the directory as a whole has one verification status.
 
 ## Reusing the decision tables
 
@@ -56,7 +56,7 @@ schema_version: 1
 slug: rc-1923-04-notice
 name: Notice to leave the premises
 citation: R.C. 1923.04
-rule_type: statute            # statute | civil_rule | local_rule | doctrine
+rule_type: statute            # statute | civil_rule | local_rule | doctrine | regulation
 jurisdiction: Ohio
 summary: One or two sentences on what the rule requires.
 
@@ -76,6 +76,7 @@ elements:
     requirement: What has to be shown for this element to be met.
     severity: error
     needs_record_support: true   # an assertion alone does not satisfy it
+    required_when: "Only when the action is based on nonpayment." # optional; uncertainty cannot fail
     patterns:                    # suggest the brief pleads this element
       - "served .{0,40}notice"
     note: Anything a reader should know about how this element is usually met.

@@ -991,8 +991,28 @@ def _fallback_responses(challenges):
     return responses
 
 
-def coach_stage(units, challenges, legal_sources, record_findings, *, jurisdiction, llm_client=None):
+def coach_stage(
+    units, challenges, legal_sources, record_findings, *, jurisdiction, llm_client=None, bounded=False
+):
     attack_ids = {challenge["attackId"] for challenge in challenges}
+
+    if bounded:
+        unit_ids = {challenge.get("unitId") for challenge in challenges}
+        prompt_units = [unit for unit in units if unit.get("id") in unit_ids]
+        prompt_sources = []
+        seen_source_ids = set()
+        for challenge in challenges:
+            for source in challenge.get("legalSources") or []:
+                if source.get("id") not in seen_source_ids:
+                    prompt_sources.append(source)
+                    seen_source_ids.add(source.get("id"))
+        prompt_record = [
+            challenge["recordEvidence"]
+            for challenge in challenges
+            if challenge.get("recordEvidence")
+        ]
+    else:
+        prompt_units, prompt_sources, prompt_record = units, legal_sources, record_findings
 
     def parse(payload):
         responses = payload.get("responses")
@@ -1017,10 +1037,10 @@ def coach_stage(units, challenges, legal_sources, record_findings, *, jurisdicti
         prompt_key="argument_gym.coach",
         context={
             "jurisdiction": jurisdiction,
-            "brief_coverage": unit_coverage(units),
-            "brief_units": dumps(_unit_payload(units)),
-            "legal_sources": dumps(legal_sources),
-            "record_findings": dumps(record_findings),
+            "brief_coverage": unit_coverage(prompt_units),
+            "brief_units": dumps(_unit_payload(prompt_units)),
+            "legal_sources": dumps(prompt_sources),
+            "record_findings": dumps(prompt_record),
             "challenges": dumps(challenges),
         },
         parse=parse,
@@ -1877,6 +1897,7 @@ def execute_run(run, *, user=None, request=None, llm_client=None, connector_regi
             correctness_assessments.append(
                 {
                     "attackId": attack["id"],
+                    "unitId": attack["unitId"],
                     "keep": True,
                     "verdict": "sustained" if ruling["disposition"] == correctness.MUST_FIX else "reserved",
                     "assessment": ruling.get("judgeReason", ""),
@@ -1902,6 +1923,7 @@ def execute_run(run, *, user=None, request=None, llm_client=None, connector_regi
             coach_input.append(
                 {
                     "attackId": attack["id"],
+                    "unitId": attack["unitId"],
                     "category": attack["category"],
                     "argument": attack["argument"],
                     "whyItMatters": attack["whyItMatters"],
@@ -1922,7 +1944,13 @@ def execute_run(run, *, user=None, request=None, llm_client=None, connector_regi
 
         if coach_input:
             responses, trace = coach_stage(
-                units, coach_input, legal_sources, record_findings, jurisdiction=jurisdiction, llm_client=llm_client
+                units,
+                coach_input,
+                legal_sources,
+                record_findings,
+                jurisdiction=jurisdiction,
+                llm_client=llm_client,
+                bounded=correctness_on and not adversarial,
             )
         else:
             responses = []

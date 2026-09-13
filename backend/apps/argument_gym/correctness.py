@@ -20,6 +20,7 @@ RECORD_STATES = {"supported", "contradicted", "not_found", "not_verifiable"}
 AUTHORITY_STATES = {"supported", "overstated", "inapplicable", "contradicted", "unverifiable"}
 RECORD_TARGET_VERSION = "record-targets-v2"
 MAX_JUDGE_BATCH = 8
+MAX_AUTHORITY_BATCH = 4
 AUTHORITY_STOPWORDS = {
     "v", "in", "re", "the", "of", "and", "et", "al", "inc", "llc",
     "ohio", "court", "appeals", "app", "dist", "state", "federal",
@@ -215,6 +216,7 @@ def record_opponent_stage(targets, excerpts, coverage, *, jurisdiction, llm_clie
                     "evidenceState": state,
                     "proposedDisposition": disposition,
                     "coverage": coverage,
+                    "userVisible": state != "not_verifiable",
                 }
             )
         return candidates
@@ -294,15 +296,75 @@ def authority_targets_from_units(units):
             selected.append(citation)
             selected_keys.add(citation_key)
         for position, citation in enumerate(selected, start=1):
+            parent_text = str(parent.get("text") or "")
+            proposition = _citation_context(parent_text, citation)
             targets.append(
                 {
                     "targetId": f"{parent_id}:authority{position}",
                     "unitId": parent_id,
-                    "proposition": clean(parent.get("text"), limit=1200),
+                    "proposition": proposition,
                     "citation": citation,
+                    "claimedCaseName": _claimed_case_name(parent_text, citation),
+                    "attributionType": _authority_attribution_type(proposition),
+                    # Pinpoints are retained for retrieval, but a source without
+                    # stable page boundaries cannot prove that a pinpoint is
+                    # right or wrong.  That capability is reported as
+                    # unmeasured rather than silently passed.
+                    "pinpoint": _citation_pinpoint(citation),
+                    "pinpointVerification": "unmeasured",
                 }
             )
     return targets
+
+
+def _citation_context(text, citation):
+    """Return the bounded sentence/semicolon clause that attributes the source.
+
+    A whole paragraph commonly contains several propositions. Asking whether a
+    case supports all of them makes the test both noisy and mutation-insensitive.
+    Numeric reporter/code anchors are sufficient to select the containing
+    sentence deterministically, with the paragraph only as a last resort.
+    """
+    value = str(text or "")
+    location = value.casefold().find(str(citation or "").casefold())
+    if location >= 0:
+        starts = [value.rfind(mark, 0, location) for mark in (". ", "? ", "! ", ";")]
+        start = max(starts) + (2 if max(starts) >= 0 and value[max(starts):max(starts) + 2] != ";" else 1)
+        ends = [position for mark in (". ", "? ", "! ", ";") if (position := value.find(mark, location + len(citation))) >= 0]
+        end = min(ends) + 1 if ends else len(value)
+        return clean(value[start:end].strip(), limit=700)
+    return clean(value, limit=700)
+
+
+def _claimed_case_name(text, citation):
+    if _authority_kind(citation) != "reporter":
+        return ""
+    reporter = re.search(r"\b\d{1,4}\s+(?:Ohio|App\.?\s+LEXIS|F\.?|U\.?S\.?|S\.?\s*Ct\.?|N\.?E\.?)", citation, re.I)
+    prefix = str(text or "")
+    if reporter:
+        location = re.search(re.escape(reporter.group(0)), prefix, re.I)
+        if location:
+            prefix = prefix[max(0, location.start() - 180) : location.start()]
+    matches = list(re.finditer(r"([A-Z][\w.'&-]*(?:\s+[A-Z][\w.'&-]*){0,5}\s+v\.\s+[A-Z][\w.'&-]*(?:\s+[A-Z][\w.'&-]*){0,5})", prefix))
+    return clean(matches[-1].group(1), limit=180) if matches else ""
+
+
+def _authority_attribution_type(proposition):
+    value = str(proposition or "").casefold()
+    if re.search(r"[\"“”]|\bquot(?:e|ed|ing)\b", value):
+        return "quotation"
+    if re.search(r"\b(held|holds?|holding|requires?|prohibits?|rule|standard|must|may not)\b", value):
+        return "holding_or_rule"
+    if re.search(r"\b(affirmed|reversed|vacated|dismissed|remanded|procedural posture|judgment)\b", value):
+        return "procedural_posture_or_outcome"
+    if re.search(r"\b(facts?|tenant|landlord|plaintiff|defendant)\b", value):
+        return "case_fact"
+    return "general_support"
+
+
+def _citation_pinpoint(citation):
+    match = re.search(r"\b\d+\s+[A-Za-z][A-Za-z.\s\d]*\s+\d+\s*,\s*(\d+)\b", str(citation or ""))
+    return match.group(1) if match else ""
 
 
 def _authority_kind(citation):
@@ -379,7 +441,6 @@ def authority_queries(targets, jurisdiction):
 
 def authority_opponent_stage(targets, legal_sources, *, jurisdiction, llm_client=None):
     target_ids = {target["targetId"] for target in targets}
-    source_ids = {source["id"] for source in legal_sources}
     resolved_ids = {
         target_id
         for source in legal_sources
@@ -387,7 +448,6 @@ def authority_opponent_stage(targets, legal_sources, *, jurisdiction, llm_client
         if target_id in target_ids
     }
     model_targets = [target for target in targets if target["targetId"] in resolved_ids]
-    model_target_ids = {target["targetId"] for target in model_targets}
 
     def unverifiable(target):
         return {
@@ -419,54 +479,103 @@ def authority_opponent_stage(targets, legal_sources, *, jurisdiction, llm_client
             "unavailable": False,
         }
 
-    def parse(payload):
-        reported = payload.get("challenges")
-        if not isinstance(reported, list) or not complete_unique(reported, "targetId", model_target_ids):
-            return []
-        candidates = []
-        for item in reported:
-            if not isinstance(item, dict) or not known(item.get("targetId"), model_target_ids):
-                continue
-            target = next(target for target in model_targets if target["targetId"] == item["targetId"])
-            state = choice(item.get("evidenceState"), AUTHORITY_STATES, "unverifiable")
-            refs = [str(value) for value in item.get("evidenceRefs") or [] if str(value) in source_ids]
-            disposition = PASS if state == "supported" else REVIEW if state == "unverifiable" else MUST_FIX
-            quote = clean(item.get("sourcePassage"), limit=900)
-            if disposition == MUST_FIX and (not refs or not quote):
-                disposition = REVIEW
-            candidates.append(
-                {
-                    "candidateId": candidate_id("authority_support", target["targetId"]),
-                    "checkId": "authority_support",
-                    "issueCode": f"authority_{state}",
-                    "targetId": target["targetId"],
-                    "unitId": target["unitId"],
-                    "claim": target["proposition"],
-                    "problem": clean(item.get("challenge"), limit=1200),
-                    "reason": clean(item.get("reason"), limit=800),
-                    "briefEvidence": [target["unitId"]],
-                    "externalEvidence": refs,
-                    "evidenceQuote": quote,
-                    "evidenceState": state,
-                    "proposedDisposition": disposition,
-                    "citation": target["citation"],
-                    "userVisible": state != "unverifiable",
-                }
-            )
-        return candidates
+    def run_batch(batch_targets):
+        batch_ids = {target["targetId"] for target in batch_targets}
+        batch_sources = [
+            source for source in legal_sources if batch_ids & set(source.get("targets") or [])
+        ]
+        batch_source_ids = {source["id"] for source in batch_sources}
 
-    candidates, trace = Stage("opponent:authority_support", llm_client=llm_client).run(
-        prompt_key="argument_gym.authority_opponent",
-        context={
-            "jurisdiction": jurisdiction,
-            "targets": dumps(model_targets),
-            "legal_sources": dumps(legal_sources),
-        },
-        parse=parse,
-        fallback=lambda: [unverifiable(target) for target in model_targets],
-        temperature=0.1,
-    )
-    trace["unavailable"] = trace["method"] != "llm"
+        def parse(payload):
+            reported = payload.get("challenges")
+            if not isinstance(reported, list) or not complete_unique(reported, "targetId", batch_ids):
+                return []
+            candidates = []
+            for item in reported:
+                if not isinstance(item, dict) or not known(item.get("targetId"), batch_ids):
+                    continue
+                target = next(target for target in batch_targets if target["targetId"] == item["targetId"])
+                state = choice(item.get("evidenceState"), AUTHORITY_STATES, "unverifiable")
+                refs = [str(value) for value in item.get("evidenceRefs") or [] if str(value) in batch_source_ids]
+                disposition = PASS if state == "supported" else REVIEW if state == "unverifiable" else MUST_FIX
+                quote = clean(item.get("sourcePassage"), limit=900)
+                if disposition == MUST_FIX and (not refs or not quote):
+                    disposition = REVIEW
+                # Attribution type is part of the deterministic target contract.
+                # Letting the model reclassify it made the same quotation alternate
+                # between quotation_misstated and quotation_contradicted on reruns.
+                attribution_type = target.get("attributionType") or "general_support"
+                defect_issue_codes = {
+                    "citation_identity": "citation_identity_mismatch",
+                    "holding_or_rule": "holding_overstated",
+                    "case_fact": "case_fact_misstated",
+                    "procedural_posture_or_outcome": "procedural_posture_misstated",
+                    "quotation": "quotation_mismatch",
+                    "general_support": "authority_support_mismatch",
+                }
+                issue_codes = {
+                    "supported": "authority_supported",
+                    "unverifiable": "authority_unverifiable",
+                    "overstated": defect_issue_codes[attribution_type],
+                    "inapplicable": "authority_inapplicable",
+                    "contradicted": defect_issue_codes[attribution_type],
+                }
+                candidates.append(
+                    {
+                        "candidateId": candidate_id("authority_support", target["targetId"]),
+                        "checkId": "authority_support",
+                        "issueCode": issue_codes[state],
+                        "targetId": target["targetId"],
+                        "unitId": target["unitId"],
+                        "claim": target["proposition"],
+                        "problem": clean(item.get("challenge"), limit=1200),
+                        "reason": clean(item.get("reason"), limit=800),
+                        "briefEvidence": [target["unitId"]],
+                        "externalEvidence": refs,
+                        "evidenceQuote": quote,
+                        "evidenceState": state,
+                        "proposedDisposition": disposition,
+                        "citation": target["citation"],
+                        "attributionType": attribution_type,
+                        "pinpointVerification": "unmeasured",
+                        "userVisible": state != "unverifiable",
+                    }
+                )
+            return candidates
+
+        return Stage("opponent:authority_support", llm_client=llm_client).run(
+            prompt_key="argument_gym.authority_opponent",
+            context={
+                "jurisdiction": jurisdiction,
+                "targets": dumps(batch_targets),
+                "legal_sources": dumps(batch_sources),
+            },
+            parse=parse,
+            fallback=lambda: [unverifiable(target) for target in batch_targets],
+            temperature=0.1,
+        )
+
+    candidates = []
+    traces = []
+    for start in range(0, len(model_targets), MAX_AUTHORITY_BATCH):
+        batch_candidates, batch_trace = run_batch(model_targets[start : start + MAX_AUTHORITY_BATCH])
+        candidates.extend(batch_candidates)
+        traces.append(batch_trace)
+    trace = {
+        "stage": "opponent:authority_support",
+        "method": (
+            "llm"
+            if all(item.get("method") == "llm" for item in traces)
+            else "deterministic"
+            if all(item.get("method") == "deterministic" for item in traces)
+            else "partial"
+        ),
+        "count": len(candidates),
+        "batches": len(traces),
+        "batchSize": MAX_AUTHORITY_BATCH,
+        "traces": traces,
+        "unavailable": any(item.get("method") != "llm" for item in traces),
+    }
     return [*candidates, *unresolved], trace
 
 
@@ -503,8 +612,10 @@ def rule_candidates(audits, units):
                 issue_code = "required_element_carried"
             elif uncertain:
                 # Unknown wording or absent evidence did not establish a defect.
-                # The detailed audit still reports what could not be decided.
-                disposition = PASS
+                # It is nevertheless a concrete gap in an invoked, verified
+                # rule audit, so report attorney review rather than claiming
+                # the check passed.  Judge may clear it but may not promote it.
+                disposition = REVIEW
                 issue_code = "required_element_not_established"
             elif audit.get("verification") != "verified":
                 disposition = REVIEW
@@ -529,6 +640,7 @@ def rule_candidates(audits, units):
                     "evidenceQuote": element.get("quote", ""),
                     "recordMaterialIds": element.get("materialIds", []),
                     "proposedDisposition": disposition,
+                    "userVisible": not uncertain,
                 }
             )
     return candidates

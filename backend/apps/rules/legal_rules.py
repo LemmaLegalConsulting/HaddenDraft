@@ -68,6 +68,7 @@ def _clean_elements(payload, path):
                 "requirement": str(element.get("requirement", "")).strip(),
                 "severity": severity if severity in ELEMENT_SEVERITIES else "error",
                 "needsRecordSupport": bool(element.get("needs_record_support", False)),
+                "requiredWhen": str(element.get("required_when", "")).strip(),
                 "patterns": _string_list(element.get("patterns")),
                 "note": str(element.get("note", "")).strip(),
                 "origin": "profile",

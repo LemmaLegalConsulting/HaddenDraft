@@ -19,14 +19,14 @@ aliases:
   - wrongfully withheld deposit
   - double damages
 
-verification: unverified
-source: ""
-source_url: ""
-verified_on: ""
+verification: verified
+source: "R.C. 5321.16; Iskin (6th ed. 2022), § XVI"
+source_url: https://codes.ohio.gov/ohio-revised-code/section-5321.16
+verified_on: 2026-09-13
 notes: >-
-  Unverified. The statutory period, what the itemization must contain, and what
-  the tenant must do to trigger the landlord's obligation are the points to check
-  first.
+  A written forwarding address conditions division C damages and attorney fees,
+  not the landlord's underlying division B accounting obligation. Interest under
+  division A is conditional and is not silently treated as part of every claim.
 
 elements:
   - id: deposit_paid
@@ -51,6 +51,7 @@ elements:
     requirement: The brief says how and when the address was provided.
     severity: error
     needs_record_support: true
+    required_when: Only if the tenant seeks division C damages or attorney fees for wrongful withholding.
     patterns:
       - "forwarding address"
       - "address .{0,30}(in writing|provided to the landlord)"
@@ -72,3 +73,12 @@ elements:
       - "attorney'?s? fees"
       - "damages of \\$"
       - "twice the amount"
+  - id: statutory_interest
+    label: Any claimed statutory interest satisfies the threshold and possession period
+    requirement: Show the deposit exceeded fifty dollars or one month's rent and tenant remained in possession at least six months, then compute five-percent annual interest only on the excess.
+    severity: error
+    needs_record_support: true
+    required_when: Only if the tenant claims interest under R.C. 5321.16(A).
+    patterns:
+      - "five percent"
+      - "interest.{0,30}deposit"

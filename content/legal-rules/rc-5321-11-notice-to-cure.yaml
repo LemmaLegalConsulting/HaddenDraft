@@ -1,0 +1,20 @@
+schema_version: 1
+slug: rc-5321-11-notice-to-cure
+name: Notice for tenant breach materially affecting health and safety
+citation: R.C. 5321.11
+rule_type: statute
+jurisdiction: Ohio
+summary: For covered R.C. 5321.05 breaches materially affecting health and safety, the written notice must specify the noncompliant act or omission and a termination date at least thirty days after receipt; timely remedy prevents termination.
+citation_patterns: ["R\\.?\\s*C\\.?\\s*(§\\s*)?5321\\.11", "section 5321\\.11"]
+aliases: [thirty-day notice to cure, 30-day notice to cure, notice of breach of obligation]
+verification: verified
+source: "R.C. 5321.11; Iskin (6th ed. 2022), §§ I.D.2, II.A.2, II.F"
+source_url: https://codes.ohio.gov/ohio-revised-code/section-5321.11
+verified_on: 2026-09-13
+notes: The statute does not require the notice itself to recite a right-to-cure advisement; it provides that failure to remedy causes termination.
+elements:
+  - {id: covered_breach, label: Alleged R.C. 5321.05 breach materially affects health and safety, requirement: Identify the covered obligation and material health-or-safety effect., severity: error, needs_record_support: true, patterns: ["5321\\.05", "materially affect.{0,30}health.{0,10}safety"]}
+  - {id: written_notice, label: Landlord delivered written notice, requirement: Identify delivery and receipt of a written notice., severity: error, needs_record_support: true, patterns: ["written notice", "receiv.{0,40}notice"]}
+  - {id: specific_act, label: Notice specified the noncompliant act or omission, requirement: Quote or attach the notice's factual specification., severity: error, needs_record_support: true, patterns: ["act or omission", "specif.{0,50}(violation|breach|noncompliance)"]}
+  - {id: termination_date, label: Notice set a termination date at least thirty days after receipt, requirement: Provide receipt and termination dates., severity: error, needs_record_support: true, patterns: ["thirty days", "30 days", "termination date"]}
+  - {id: condition_not_remedied, label: Condition remained unremedied, requirement: Address remedy within the statutory period., severity: error, needs_record_support: true, patterns: ["fail.{0,30}remed", "not remed"]}

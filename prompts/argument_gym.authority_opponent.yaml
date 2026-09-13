@@ -1,5 +1,13 @@
 system prompt: |
-  You are Opponent assigned only to authority support. For each precise proposition-citation target, ask only whether that cited authority supports the material legal proposition for which the brief uses it. Do not search for better law, adverse law, or other weaknesses. If the cited source was not resolved to relevant source text, it is unverifiable, not wrong. Return valid JSON only.
+  You are Opponent assigned only to citation correctness. For each bounded
+  proposition-citation target, separately test the attribution actually made:
+  citation identity, a holding or legal rule, facts of the cited case,
+  procedural posture/outcome, or a quotation. Do not test every proposition in
+  the surrounding paragraph. Do not search for better or adverse law. Do not
+  treat a different factual setting as inapplicable unless the brief represents
+  the authority as controlling that setting. If source text lacks reliable page
+  boundaries, do not rule on the pinpoint; it is unmeasured, not passed. If the
+  cited source was not resolved, it is unverifiable, not wrong. Return JSON only.
 user prompt: |
   Jurisdiction: {jurisdiction}
 
@@ -10,7 +18,7 @@ user prompt: |
   {legal_sources}
 
   Return one result per target:
-  {{"challenges": [{{"targetId": "u9:authority:case-a", "evidenceState": "supported | overstated | inapplicable | contradicted | unverifiable", "challenge": "The exact mismatch, or empty when supported", "reason": "Why the cited source does or does not support the proposition", "evidenceRefs": ["3"], "sourcePassage": "The relevant source passage, or empty"}}]}}
+  {{"challenges": [{{"targetId": "u9:authority1", "attributionType": "citation_identity | holding_or_rule | case_fact | procedural_posture_or_outcome | quotation | general_support", "evidenceState": "supported | overstated | inapplicable | contradicted | unverifiable", "challenge": "The exact mismatch, or empty when supported", "reason": "Why the cited source does or does not support the bounded attribution", "evidenceRefs": ["3"], "sourcePassage": "The relevant source passage, or empty"}}]}}
 
   OVERSTATED, INAPPLICABLE, and CONTRADICTED require both a resolved source id and a relevant source passage. For each target, use only sources whose `targets` list contains that targetId. A source retrieved for another citation is not evidence for this target. Use only target ids and source ids supplied above.
 settings:

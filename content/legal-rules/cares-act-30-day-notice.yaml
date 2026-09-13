@@ -1,0 +1,19 @@
+schema_version: 1
+slug: cares-act-30-day-notice
+name: CARES Act covered-dwelling notice to vacate
+citation: 15 U.S.C. § 9058(c)
+rule_type: statute
+jurisdiction: Federal / Ohio
+summary: Section 9058(c) states that a lessor of a covered dwelling unit may not require a tenant to vacate before thirty days after providing notice to vacate.
+citation_patterns: ["15\\s*U\\.?S\\.?C\\.?\\s*(§\\s*)?9058", "CARES Act.{0,30}(30|thirty)[- ]day"]
+aliases: [CARES Act notice, federally backed mortgage eviction, covered dwelling 30-day notice]
+verification: unverified
+source: "15 U.S.C. § 9058(c); Iskin (6th ed. 2022), notes 183 and 187 (then-described post-moratorium status); current controlling Ohio/federal precedent must be checked"
+source_url: https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title15-section9058
+verified_on: ""
+notes: Kept non-error-producing because post-moratorium scope, enforceability, and interaction with program-specific notices require current controlling-law review. Do not infer federal coverage from the brief's silence.
+elements:
+  - {id: covered_dwelling, label: Unit is a statutory covered dwelling, requirement: Identify covered federal program or federally backed mortgage/loan facts under the statutory definition., severity: error, needs_record_support: true, patterns: ["covered dwelling", "federally backed", "Fannie Mae", "Freddie Mac", "FHA", "VA loan"]}
+  - {id: notice_to_vacate, label: Lessor provided notice to vacate, requirement: Identify and quote the operative notice., severity: error, needs_record_support: true, patterns: ["notice to vacate"]}
+  - {id: thirty_days, label: Notice afforded at least thirty days before requiring vacancy, requirement: Compare service date and required-vacate date., severity: error, needs_record_support: true, patterns: ["30 days", "thirty days"]}
+  - {id: current_legal_basis, label: Brief establishes the provision's current application, requirement: Cite current controlling or persuasive authority supporting the asserted post-moratorium application., severity: error, needs_record_support: false, patterns: ["9058\\(c\\)", "CARES Act"]}

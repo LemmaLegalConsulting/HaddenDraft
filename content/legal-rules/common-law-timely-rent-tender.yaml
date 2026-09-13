@@ -1,0 +1,18 @@
+schema_version: 1
+slug: common-law-timely-rent-tender
+name: Timely full tender of rent refused
+citation: Pinewood Gardens Apts. v. Whiteside, 2014-Ohio-2305
+rule_type: doctrine
+jurisdiction: Ohio
+summary: A landlord may not refuse timely full rent, including during an applicable grace period, and then evict for nonpayment of that rent.
+citation_patterns: ["Pinewood Gardens.{0,30}Whiteside", "2014-Ohio-2305", "Professional Invs?.{0,30}Ross"]
+aliases: [timely tender of rent, refused rent payment, vain act]
+verification: verified
+source: "Iskin (6th ed. 2022), § II.J-K; Pinewood Gardens Apts. v. Whiteside, 2014-Ohio-2305; Professional Investments of America, Inc. v. Ross, No. 44540, 1982 WL 2579"
+source_url: ""
+verified_on: 2026-09-13
+notes: Timely full tender is the verified rule. Excused tender as a vain act is fact-dependent and is not encoded as an alternative required element here.
+elements:
+  - {id: nonpayment_ground, label: Eviction is for nonpayment of the tendered rent, requirement: Connect the tender to the rent period underlying possession., severity: error, needs_record_support: true, patterns: ["evict.{0,60}nonpayment", "nonpayment of rent"]}
+  - {id: timely_full_tender, label: Tenant timely tendered the full amount due, requirement: State amount date method due date and any grace period., severity: error, needs_record_support: true, patterns: ["timely.{0,30}(full|rent|tender)", "full .{0,30}tender"]}
+  - {id: refusal, label: Landlord refused the tender, requirement: Identify the refusal or nonacceptance., severity: error, needs_record_support: true, patterns: ["refus.{0,40}(rent|payment|tender)"]}

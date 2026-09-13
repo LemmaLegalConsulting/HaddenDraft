@@ -50,6 +50,14 @@ class LoadingTests(TestCase):
         self.assertEqual(seed["elements"][0]["id"], "notice_served")
         self.assertTrue(seed["elements"][0]["needsRecordSupport"])
 
+    def test_a_conditional_element_preserves_its_applicability_rule(self):
+        body = VALID.replace(
+            "needs_record_support: true",
+            "needs_record_support: true\n    required_when: Only for nonpayment cases.",
+        )
+        seed = load_legal_rule_file(write(self.directory, "rule.yaml", body))
+        self.assertEqual(seed["elements"][0]["requiredWhen"], "Only for nonpayment cases.")
+
     def test_an_element_without_an_id_is_refused(self):
         body = "slug: x\nname: X\ncitation: R.C. 1\nelements:\n  - label: A notice was served\n"
         with self.assertRaisesMessage(ValueError, "every element needs an id and a label"):
@@ -72,10 +80,15 @@ class LoadingTests(TestCase):
 
 
 class SeedingTests(TestCase):
-    def test_the_shipped_rules_load_and_are_all_marked_unverified(self):
+    def test_shipped_rules_include_verified_and_fail_closed_starters(self):
         seeds = legal_rule_seeds()
         self.assertTrue(seeds)
-        self.assertTrue(all(seed["verification"] == "unverified" for seed in seeds))
+        statuses = {seed["verification"] for seed in seeds}
+        self.assertEqual(statuses, {"verified", "unverified"})
+        for seed in seeds:
+            if seed["verification"] == "verified":
+                self.assertTrue(seed["source"])
+                self.assertIsNotNone(seed["verified_on"])
 
     def test_seeding_never_reverts_a_profile_edited_here(self):
         sync_legal_rule_seeds()

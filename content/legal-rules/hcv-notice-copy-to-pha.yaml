@@ -1,0 +1,17 @@
+schema_version: 1
+slug: hcv-notice-copy-to-pha
+name: Housing Choice Voucher eviction notice copied to PHA
+citation: 24 C.F.R. § 982.310(e)(2)(ii)
+rule_type: regulation
+jurisdiction: Federal / Ohio
+summary: A Housing Choice Voucher owner must give the PHA a copy of any owner eviction notice at the same time the owner notifies the tenant.
+citation_patterns: ["24\\s*C\\.?F\\.?R\\.?\\s*(§\\s*)?982\\.310\\s*\\(?e\\)?", "982\\.310\\(e\\)\\(2\\)\\(ii\\)"]
+aliases: [copy to the PHA, notice to housing authority, notice to Section 8 office]
+verification: verified
+source: "24 C.F.R. § 982.310(e)(2)(ii); HUD-52641-A ¶ 11(b); Iskin (6th ed. 2022), § III.H.1"
+source_url: https://www.ecfr.gov/current/title-24/section-982.310
+verified_on: 2026-09-13
+elements:
+  - {id: voucher_tenancy, label: Tenant participates in the Housing Choice Voucher program, requirement: Identify the HCV tenancy and PHA., severity: error, needs_record_support: true, patterns: ["Housing Choice Voucher", "HCVP", "Section 8 voucher"]}
+  - {id: owner_eviction_notice, label: Owner gave tenant an eviction notice, requirement: Identify the notice and tenant service date., severity: error, needs_record_support: true, patterns: ["eviction notice", "notice to vacate"]}
+  - {id: simultaneous_pha_copy, label: Owner gave the PHA a copy at the same time, requirement: Identify evidence and date of delivery of the same notice to PHA., severity: error, needs_record_support: true, patterns: ["PHA.{0,50}(copy|notice)", "housing authority.{0,50}(copy|notice)"]}

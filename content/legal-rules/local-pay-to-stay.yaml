@@ -1,0 +1,19 @@
+schema_version: 1
+slug: local-pay-to-stay
+name: Municipal pay-to-stay defense
+citation: Applicable municipal pay-to-stay ordinance
+rule_type: local_rule
+jurisdiction: Ohio
+summary: Ohio municipal pay-to-stay ordinances vary materially by city, tender timing, recoverable charges, discretion, and frequency limits.
+citation_patterns: ["pay[- ]to[- ]stay", "Municipal Code.{0,50}(150\\.5|871-9|93\\.7|1488|727|1415|1770|868)"]
+aliases: [pay to stay, municipal ordinance defense]
+verification: unverified
+source: "Iskin (6th ed. 2022), § XXII.J.2; the currently effective ordinance for the property's municipality must be verified"
+source_url: ""
+verified_on: ""
+notes: Intentionally unverified at the statewide level. Each municipality needs its own verified ordinance profile; expired Cleveland Heights, Euclid, and Lakewood pandemic ordinances must not be treated as active.
+elements:
+  - {id: active_local_rule, label: A currently effective ordinance covers the property, requirement: Identify municipality current code section and effective status., severity: error, needs_record_support: true, patterns: ["pay[- ]to[- ]stay", "ordinance"]}
+  - {id: covered_nonpayment, label: The action falls within the ordinance's covered nonpayment cases, requirement: Apply the exact local coverage and exclusions., severity: error, needs_record_support: true, patterns: ["nonpayment"]}
+  - {id: qualifying_tender, label: Tender satisfied the local amount and timing requirements, requirement: Apply local rules for rent fees costs vouchers timing and refusal., severity: error, needs_record_support: true, patterns: ["tender", "rental assistance"]}
+  - {id: local_limitations, label: City-specific discretion and frequency limits are addressed, requirement: Address any one-use limit discretionary standard or post-judgment procedure., severity: error, needs_record_support: true, patterns: ["calendar year", "discretion", "court costs"]}

@@ -1,0 +1,19 @@
+schema_version: 1
+slug: rc-1923-061-b-counterclaim-offset
+name: Residential nonpayment counterclaim and net-rent defense
+citation: R.C. 1923.061(B)
+rule_type: statute
+jurisdiction: Ohio
+summary: A residential tenant in a nonpayment possession or rent action may counterclaim for recovery under the rental agreement or Chapters 4781 or 5321; if no rent remains due after application, judgment is entered for tenant on possession.
+citation_patterns: ["R\\.?\\s*C\\.?\\s*(§\\s*)?1923\\.061\\s*\\(?B\\)?", "section 1923\\.061\\s*\\(?B\\)?"]
+aliases: [rent abatement defense, counterclaim exceeds rent due, net rent defense]
+verification: verified
+source: "R.C. 1923.061(B); Iskin (6th ed. 2022), § II.O"
+source_url: https://codes.ohio.gov/ohio-revised-code/section-1923.061
+verified_on: 2026-09-13
+notes: Court deposit is conditional because the statute says the court may order it. The profile does not require a habitability claim specifically; the counterclaim may arise under the rental agreement or Chapters 4781 or 5321.
+elements:
+  - {id: covered_action, label: Covered residential possession or rent action, requirement: Action is based on nonpayment while tenant or resident remains in possession., severity: error, needs_record_support: true, patterns: ["nonpayment", "action for rent"]}
+  - {id: qualifying_counterclaim, label: Tenant asserts a qualifying monetary counterclaim, requirement: Identify recovery under the rental agreement or Chapter 4781 or 5321., severity: error, needs_record_support: true, patterns: ["counterclaim", "abatement", "damages"]}
+  - {id: deposit_compliance, label: Tenant complied with any rent-deposit order, requirement: Identify the order and payments required by the court., severity: error, needs_record_support: true, required_when: Only if the court exercised its discretion to order a deposit under R.C. 1923.061(B)., patterns: ["deposit.{0,30}(rent|court)"]}
+  - {id: no_rent_remains, label: No rent remains due after net application, requirement: Show the rent judgment counterclaim judgment and credited deposits., severity: error, needs_record_support: true, patterns: ["no rent remains", "net judgment", "equal.{0,20}exceed"]}

@@ -79,6 +79,18 @@ class CorrectnessContractTests(TestCase):
         self.assertEqual(clean[0]["targetId"], mutant[0]["targetId"])
         self.assertNotEqual(clean[0]["citation"], mutant[0]["citation"])
 
+    def test_authority_target_uses_citation_sentence_not_whole_paragraph(self):
+        units = [
+            {"id": "u4", "type": ingestion.ARGUMENT, "text": "Background is disputed. Smith v. Jones, 18 F.3d 337, 347 (6th Cir. 1994), holds that notice is mandatory. A different rule controls damages."},
+            {"id": "u5", "type": ingestion.CITATION, "parentId": "u4", "text": "18 F.3d 337, 347 (6th Cir. 1994)"},
+        ]
+        target = correctness.authority_targets_from_units(units)[0]
+        self.assertNotIn("different rule", target["proposition"])
+        self.assertEqual(target["claimedCaseName"], "Smith v. Jones")
+        self.assertEqual(target["attributionType"], "holding_or_rule")
+        self.assertEqual(target["pinpoint"], "347")
+        self.assertEqual(target["pinpointVerification"], "unmeasured")
+
     def test_date_like_ocr_fragment_is_not_an_authority(self):
         self.assertFalse(correctness.specific_authority("1 AUGUST 7"))
 
@@ -184,6 +196,43 @@ class CorrectnessContractTests(TestCase):
             )
         external.assert_not_called()
 
+    @override_settings(AI_DRAFTING_ENABLED=True)
+    def test_authority_opponent_uses_small_complete_batches(self):
+        class BatchClient:
+            def __init__(self):
+                self.batch_sizes = []
+
+            def complete(self, *, user, **_kwargs):
+                targets_text = user.split("Proposition and cited-authority targets:\n", 1)[1]
+                targets = json.loads(targets_text.split("\n\nSource-specific", 1)[0])
+                self.batch_sizes.append(len(targets))
+                return json.dumps({"challenges": [{
+                    "targetId": target["targetId"],
+                    "attributionType": "holding_or_rule",
+                    "evidenceState": "supported",
+                    "challenge": "",
+                    "reason": "The bounded source passage supports the proposition.",
+                    "evidenceRefs": [target["targetId"].replace("t", "s")],
+                    "sourcePassage": "The court held the rule applies.",
+                } for target in targets]})
+
+        targets = [{
+            "targetId": f"t{i}", "unitId": f"u{i}", "proposition": "The rule applies.",
+            "citation": f"Case {i}", "attributionType": "holding_or_rule",
+        } for i in range(9)]
+        sources = [{
+            "id": f"s{i}", "targets": [f"t{i}"], "title": f"Case {i}",
+            "citation": f"Case {i}", "snippet": "The court held the rule applies.",
+        } for i in range(9)]
+        client = BatchClient()
+        candidates, trace = correctness.authority_opponent_stage(
+            targets, sources, jurisdiction="Ohio", llm_client=client
+        )
+        self.assertEqual(client.batch_sizes, [4, 4, 1])
+        self.assertEqual(len(candidates), 9)
+        self.assertEqual(trace["batches"], 3)
+        self.assertFalse(trace["unavailable"])
+
     def test_not_found_is_review_with_partial_record_and_may_fail_only_when_exhaustive(self):
         self.assertEqual(correctness._record_disposition("not_found", {"exhaustive": False}), correctness.REVIEW)
         self.assertEqual(correctness._record_disposition("not_found", {"exhaustive": True}), correctness.REVIEW)
@@ -199,6 +248,69 @@ class CorrectnessContractTests(TestCase):
             "evidenceState": "overstated",
         }
         self.assertEqual(correctness._guard_disposition(candidate, correctness.MUST_FIX, []), correctness.REVIEW)
+
+    def test_verified_rule_with_incomplete_record_is_review_not_pass(self):
+        audit = {
+            "slug": "rc-5321-15-self-help", "verification": "verified",
+            "source": "R.C. 5321.15", "sourceUrl": "https://codes.ohio.gov/",
+            "requiresApplicabilityReview": False, "verdict": "Evidence is incomplete.",
+            "elements": [{
+                "id": "resulting_damage", "label": "Resulting damage",
+                "requirement": "Identify damage caused by the violation.",
+                "pled": "yes", "supported": "partial", "unmet": True,
+                "quote": "Tenant lost access to belongings.", "materialIds": [],
+                "explanation": "The supporting affidavit was not supplied.",
+            }],
+        }
+        candidate = correctness.rule_candidates(
+            [audit], [{"id": "u1", "type": ingestion.ARGUMENT, "text": "Argument"}]
+        )[0]
+        self.assertEqual(candidate["proposedDisposition"], correctness.REVIEW)
+        self.assertFalse(candidate["userVisible"])
+
+    @override_settings(AI_DRAFTING_ENABLED=True)
+    def test_record_claim_that_cannot_be_verified_is_hidden_review(self):
+        class NotVerifiableClient:
+            def complete(self, **_kwargs):
+                return json.dumps({"challenges": [{
+                    "targetId": "u1:fact1", "evidenceState": "not_verifiable",
+                    "challenge": "The supplied record does not address the call.",
+                    "reason": "No relevant evidence was supplied.", "evidenceRefs": [],
+                    "evidenceQuote": "",
+                }]})
+
+        candidate = correctness.record_opponent_stage(
+            [{
+                "targetId": "u1:fact1", "unitId": "u1", "claim": "The tenant called.",
+                "citation": "", "material": True, "recordVerifiable": True,
+            }],
+            [],
+            {"completeForNegativeFindings": False},
+            jurisdiction="Ohio", llm_client=NotVerifiableClient(),
+        )[0][0]
+        self.assertEqual(candidate["proposedDisposition"], correctness.REVIEW)
+        self.assertFalse(candidate["userVisible"])
+
+    @override_settings(AI_DRAFTING_ENABLED=True)
+    def test_authority_issue_identity_comes_from_target_not_model_wording(self):
+        class AuthorityClient:
+            def complete(self, **_kwargs):
+                return json.dumps({"challenges": [{
+                    "targetId": "u1:authority1", "evidenceState": "contradicted",
+                    "attributionType": "holding_or_rule", "challenge": "Words differ.",
+                    "reason": "The source does not contain the quoted language.",
+                    "evidenceRefs": ["s1"], "sourcePassage": "Actual source text.",
+                }]})
+
+        candidates, _trace = correctness.authority_opponent_stage(
+            [{
+                "targetId": "u1:authority1", "unitId": "u1", "citation": "Case, 1 Ohio St. 1",
+                "proposition": "\"Quoted language.\"", "attributionType": "quotation",
+            }],
+            [{"id": "s1", "targets": ["u1:authority1"], "title": "Case", "text": "Actual source text."}],
+            jurisdiction="Ohio", llm_client=AuthorityClient(),
+        )
+        self.assertEqual(candidates[0]["issueCode"], "quotation_mismatch")
 
     def test_judge_cannot_make_an_opponent_candidate_more_adverse(self):
         candidate = {"checkId": "rule_elements", "proposedDisposition": correctness.PASS}
