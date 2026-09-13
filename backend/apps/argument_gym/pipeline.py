@@ -764,34 +764,41 @@ def run_authority_research(
         if target["targetId"] not in locally_resolved
         and correctness.case_reporter_authority(target["citation"])
     ]
-    from apps.sources.courtlistener import CourtListenerCitationFallback
-
-    if unresolved:
-        external_sources, external_trace = CourtListenerCitationFallback().resolve(unresolved)
-    else:
-        external_sources, external_trace = [], {"method": "not_needed", "requested": 0, "resolved": 0}
     targets_by_id = {target["targetId"]: target for target in targets}
     accepted_external = set()
-    for result in external_sources:
-        target_id = result.metadata.get("targetId")
-        target = targets_by_id.get(target_id)
-        if not target or not correctness.authority_source_matches(target["citation"], result):
-            continue
-        source = {
-            "id": str(len(sources) + 1),
-            "title": result.title,
-            "citation": result.citation,
-            "snippet": targeted_snippet(result, target),
-            "sourceKind": result.source_kind,
-            "sourceLabel": result.source_label,
-            "url": result.url,
-            "externalId": str(result.id),
-            "queries": [f'"{target["citation"]}"'],
-            "targets": [target_id],
-            "metadata": result.metadata,
-        }
-        sources.append(source)
-        accepted_external.add(target_id)
+
+    def accept_external(results):
+        accepted = set()
+        for result in results:
+            target_id = result.metadata.get("targetId")
+            target = targets_by_id.get(target_id)
+            if not target or not correctness.authority_source_matches(target["citation"], result):
+                continue
+            source = {
+                "id": str(len(sources) + 1), "title": result.title,
+                "citation": result.citation, "snippet": targeted_snippet(result, target),
+                "sourceKind": result.source_kind, "sourceLabel": result.source_label,
+                "url": result.url, "externalId": str(result.id),
+                "queries": [f'"{target["citation"]}"'], "targets": [target_id],
+                "metadata": result.metadata,
+            }
+            sources.append(source)
+            accepted.add(target_id)
+        return accepted
+
+    from apps.sources.reported_decisions import FreeReportedDecisionFallback
+
+    free_sources, free_trace = FreeReportedDecisionFallback().resolve(unresolved)
+    accepted_external |= accept_external(free_sources)
+    remaining = [target for target in unresolved if target["targetId"] not in accepted_external]
+
+    from apps.sources.courtlistener import CourtListenerCitationFallback
+
+    if remaining:
+        external_sources, external_trace = CourtListenerCitationFallback().resolve(remaining)
+    else:
+        external_sources, external_trace = [], {"method": "not_needed", "requested": 0, "resolved": 0}
+    accepted_external |= accept_external(external_sources)
     link_compatible_sources()
     resolved_after_fallback = {
         target_id for source in sources for target_id in source.get("targets") or []
@@ -802,6 +809,7 @@ def run_authority_research(
             item["resultCount"] = 1
             item["augmentation"]["finalEvaluation"] = {"adequate": True, "reasons": []}
         if target_id in {target["targetId"] for target in unresolved}:
+            item["freeReportedFallback"] = free_trace
             item["externalFallback"] = external_trace
     return sources, trace
 

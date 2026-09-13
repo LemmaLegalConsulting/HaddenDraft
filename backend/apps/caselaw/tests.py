@@ -19,6 +19,17 @@ FIXTURE_ROOT = Path(__file__).parent / "tests" / "fixtures" / "sample_corpus"
 
 
 class AuthorityPassageTests(TestCase):
+    def test_exact_citation_bypasses_generic_candidate_cutoff(self):
+        decision = CaseLawDecision.objects.create(
+            title="Pinewood Gardens v. Whiteside", citation_string="2014-Ohio-2305",
+            source_sha256="b" * 64, approved_for_search=True,
+        )
+        CaseLawSearchDocument.objects.create(
+            decision=decision, document_type="overview", search_text="Pinewood Gardens 2014-Ohio-2305",
+        )
+        result = LocalCaseIndexConnector().search("2014-Ohio-2305", jurisdiction="Ohio", limit=1)
+        self.assertEqual(result[0].metadata["decisionId"], decision.id)
+
     def test_selects_relevant_opinion_chunk_and_neighboring_status_heading(self):
         decision = CaseLawDecision.objects.create(
             title="Example v. Example", source_sha256="a" * 64,

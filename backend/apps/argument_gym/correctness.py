@@ -346,6 +346,12 @@ def _citation_context(text, citation):
 
 
 def _claimed_case_name(text, citation):
+    if _authority_kind(citation) == "case_name":
+        match = re.search(
+            r"([A-Z][\w.'&-]*(?:\s+[A-Z][\w.'&-]*){0,5}\s+v\.\s+[A-Z][\w.'&-]*(?:\s+[A-Z][\w.'&-]*){0,5})",
+            str(citation or ""),
+        )
+        return clean(match.group(1), limit=180) if match else ""
     if _authority_kind(citation) != "reporter":
         return ""
     reporter = re.search(r"\b\d{1,4}\s+(?:Ohio|App\.?\s+LEXIS|F\.?|U\.?S\.?|S\.?\s*Ct\.?|N\.?E\.?)", citation, re.I)

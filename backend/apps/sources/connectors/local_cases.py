@@ -2,7 +2,7 @@ import re
 
 from django.db.models import Q
 
-from apps.caselaw.models import CaseLawSearchDocument
+from apps.caselaw.models import CaseLawDecision, CaseLawSearchDocument
 from apps.caselaw.values import text_values
 from apps.sources import jurisdiction as jurisdiction_matching
 from apps.sources.connectors.base import SourceConnector, SourceResult
@@ -156,6 +156,22 @@ class LocalCaseIndexConnector(SourceConnector):
         terms, expansions = _expanded_terms(query)
         if not terms:
             return []
+        citation_needles = [
+            match.group(0).strip()
+            for pattern in (
+                r"\b(?:19|20)\d{2}-Ohio-\d{1,5}\b",
+                r"\b\d+\s+Ohio\s+(?:St\.?|App\.?)\s*\d*d?\s+\d+\b",
+                r"\b\d+\s+(?:N\. ?E\.|F\.? ?(?:Supp\.?)?)\s*\d*d?\s+\d+\b",
+            )
+            for match in re.finditer(pattern, str(query or ""), re.I)
+        ]
+        exact_ids = set()
+        for needle in citation_needles:
+            exact_ids.update(
+                CaseLawDecision.objects.filter(
+                    Q(citation_string__icontains=needle) | Q(parallel_citations__icontains=needle)
+                ).values_list("id", flat=True)
+            )
         filters = Q()
         for term in terms:
             filters |= Q(search_text__icontains=term) | Q(title__icontains=term) | Q(decision__title__icontains=term) | Q(decision__docket_number__icontains=term)
@@ -169,7 +185,15 @@ class LocalCaseIndexConnector(SourceConnector):
             .filter(filters, decision__approved_for_search=True)
         )
         ranked = []
+        for search_doc in (
+            CaseLawSearchDocument.objects.select_related("decision")
+            .filter(decision_id__in=exact_ids, decision__approved_for_search=True)
+            .order_by("decision_id", "document_type", "id")
+        ):
+            ranked.append((10000 + _score(search_doc, terms, expansions, jurisdiction), search_doc))
         for search_doc in queryset[:CANDIDATE_LIMIT]:
+            if search_doc.decision_id in exact_ids:
+                continue
             score = _score(search_doc, terms, expansions, jurisdiction)
             if score <= 0:
                 continue
