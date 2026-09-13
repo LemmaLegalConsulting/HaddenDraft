@@ -1,0 +1,18 @@
+schema_version: 1
+slug: common-law-late-rent-course-of-dealing
+name: Course of conduct accepting late rent
+citation: Finkbeiner v. Lutz, 44 Ohio App.2d 223 (1st Dist. 1975)
+rule_type: doctrine
+jurisdiction: Ohio
+summary: Repeated acceptance of late rent may alter the operative due date until the landlord gives advance notice ending the course of conduct.
+citation_patterns: ["Finkbeiner.{0,30}Lutz", "44 Ohio App\\.?2d 223", "Bates.{0,30}Springer.{0,30}Nay"]
+aliases: [course of conduct, course of dealing, customary late rent, habitual acceptance of late payments]
+verification: verified
+source: "Iskin (6th ed. 2022), § II.H; Finkbeiner v. Lutz, 44 Ohio App.2d 223, 337 N.E.2d 655 (1st Dist. 1975)"
+source_url: ""
+verified_on: 2026-09-13
+notes: No fixed number of late payments establishes the course. Lease language and whether the tender complied with the actual course matter.
+elements:
+  - {id: established_pattern, label: A sufficiently established pattern of accepted late payments, requirement: Plead the timing and frequency of prior late payments accepted by landlord., severity: error, needs_record_support: true, patterns: ["repeated.{0,50}late", "course of (conduct|dealing)", "accepted.{0,50}late rent"]}
+  - {id: no_advance_change_notice, label: No effective advance notice ended the course, requirement: Address whether landlord gave advance notice requiring strict future compliance., severity: error, needs_record_support: true, patterns: ["no .{0,30}(advance|written) notice", "without .{0,30}notice"]}
+  - {id: conforming_tender, label: The disputed tender complied with the established course, requirement: Compare tender date and amount to the actual established practice., severity: error, needs_record_support: true, patterns: ["tender.{0,70}(course|practice|custom)"]}

@@ -245,11 +245,13 @@ class LegalRuleProfile(models.Model):
     CIVIL_RULE = "civil_rule"
     LOCAL_RULE = "local_rule"
     DOCTRINE = "doctrine"
+    REGULATION = "regulation"
     RULE_TYPE_CHOICES = [
         (STATUTE, "Statute"),
         (CIVIL_RULE, "Rule of procedure"),
         (LOCAL_RULE, "Local rule"),
         (DOCTRINE, "Common-law doctrine"),
+        (REGULATION, "Regulation"),
     ]
 
     slug = models.SlugField(max_length=140, unique=True)

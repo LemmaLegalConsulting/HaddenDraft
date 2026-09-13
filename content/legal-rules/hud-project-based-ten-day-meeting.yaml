@@ -1,0 +1,18 @@
+schema_version: 1
+slug: hud-project-based-ten-day-meeting
+name: Project-based ten-day discussion opportunity
+citation: HUD Handbook 4350.3 REV-1 ¶ 8-13.B
+rule_type: regulation
+jurisdiction: Federal / Ohio
+summary: The covered project-based notice must advise the tenant of the opportunity to discuss the proposed termination with the owner within ten days; the owner must honor a timely request.
+citation_patterns: ["HUD Handbook 4350\\.3.{0,30}8-13", "24\\s*C\\.?F\\.?R\\.?\\s*(§\\s*)?247\\.4\\s*\\(?a\\)?\\s*\\(?2\\)?"]
+aliases: [ten-day meeting, 10-day meeting, ten days to discuss termination]
+verification: verified
+source: "HUD Handbook 4350.3 REV-1 ¶ 8-13.B; required HUD model lease ¶ 23(e); Iskin (6th ed. 2022), § III.C.1(5)"
+source_url: ""
+verified_on: 2026-09-13
+notes: The regulation requires the notice to advise of the ten-day opportunity; a requested discussion may occur after ten days at the owner's discretion. This is not encoded as an inflexible meeting-before-filing deadline.
+elements:
+  - {id: covered_program, label: Covered project-based tenancy, requirement: Identify the program and applicable lease or handbook provision., severity: error, needs_record_support: true, patterns: ["project[- ]based", "subsidized housing"]}
+  - {id: written_advisement, label: Notice contains the ten-day discussion advisement, requirement: Quote the actual advisement in the notice., severity: error, needs_record_support: true, patterns: ["(ten|10) days.{0,60}discuss"]}
+  - {id: timely_request_honored, label: Owner honored a timely discussion request, requirement: Identify request and owner's response., severity: error, needs_record_support: true, required_when: Only if the tenant requested discussion within the stated ten-day period., patterns: ["request.{0,40}(meeting|discuss)", "met with"]}

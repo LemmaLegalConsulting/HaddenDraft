@@ -1,0 +1,21 @@
+schema_version: 1
+slug: fha-reasonable-accommodation-eviction
+name: Reasonable accommodation as an eviction defense
+citation: 42 U.S.C. § 3604(f)(3)(B)
+rule_type: statute
+jurisdiction: Federal / Ohio
+summary: A housing provider must make a reasonable accommodation in rules policies practices or services when necessary to afford a person with a disability equal use and enjoyment of a dwelling.
+citation_patterns: ["42\\s*U\\.?S\\.?C\\.?\\s*(§\\s*)?3604\\s*\\(?f\\)?", "29\\s*U\\.?S\\.?C\\.?\\s*(§\\s*)?794", "R\\.?C\\.?\\s*4112\\.02\\s*\\(?H\\)?"]
+aliases: [reasonable accommodation, Fair Housing Act disability, assistance animal, Section 504 accommodation]
+verification: verified
+source: "42 U.S.C. § 3604(f)(3)(B); Norwich Apts. II v. Sanders, 2020-Ohio-4540; Iskin (6th ed. 2022), § II.U.2"
+source_url: https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title42-section3604
+verified_on: 2026-09-13
+notes: Failure to engage in an interactive process is not encoded as a freestanding element. A request need not use magic words and may arise during an eviction action. Direct-threat and undue-burden/fundamental-alteration defenses are conditional.
+elements:
+  - {id: disability, label: Tenant or household member has a qualifying disability, requirement: Allege an impairment meeting the governing definition without demanding unnecessary diagnosis details., severity: error, needs_record_support: true, patterns: ["disab", "impairment"]}
+  - {id: provider_notice_request, label: Provider knew of disability and accommodation need, requirement: Identify the request or facts making disability and need known., severity: error, needs_record_support: true, patterns: ["request.{0,40}accommodation", "knew.{0,40}disab"]}
+  - {id: necessity_nexus, label: Accommodation is necessary and connected to disability, requirement: Connect disability accommodation and equal use or the eviction-producing conduct., severity: error, needs_record_support: true, patterns: ["nexus", "necessary.{0,40}accommodation", "related to.{0,30}disab"]}
+  - {id: reasonable_accommodation, label: Requested accommodation is facially reasonable, requirement: State the concrete accommodation and how it would permit compliance or equal enjoyment., severity: error, needs_record_support: true, patterns: ["accommodation.{0,80}(time|waiv|animal|plan|assist)"]}
+  - {id: denial, label: Provider denied or failed to provide the accommodation, requirement: Identify provider response or failure to act., severity: error, needs_record_support: true, patterns: ["deni.{0,40}accommodation", "refus.{0,40}accommodation"]}
+  - {id: provider_defense, label: Asserted provider defense is answered, requirement: Address direct threat undue burden or fundamental alteration under the correct burden., severity: error, needs_record_support: true, required_when: Only if the provider asserts a direct-threat undue-burden or fundamental-alteration defense., patterns: ["direct threat", "undue burden", "fundamental alteration"]}

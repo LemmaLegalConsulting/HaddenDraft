@@ -1,0 +1,22 @@
+schema_version: 1
+slug: hud-project-based-24-cfr-247-notice
+name: Project-based HUD termination notice
+citation: 24 C.F.R. § 247.4
+rule_type: regulation
+jurisdiction: Federal / Ohio
+summary: A covered project-based tenancy termination notice must state the termination date, sufficiently specific reasons, the ten-day discussion right, and the right to defend in a judicial eviction; nonpayment notices have added accounting content.
+citation_patterns: ["24\\s*C\\.?F\\.?R\\.?\\s*(§\\s*)?247\\.4", "HUD Handbook 4350\\.3.{0,20}8-13"]
+aliases: [federal notice of termination, HUD termination notice, ten-day termination notice]
+verification: verified
+source: "24 C.F.R. § 247.4; HUD Handbook 4350.3 REV-1 ¶ 8-13.B; Iskin (6th ed. 2022), §§ III.C-D"
+source_url: https://www.ecfr.gov/current/title-24/part-247/section-247.4
+verified_on: 2026-09-13
+notes: Timing is ground- and program-dependent. This profile does not encode one universal 30-day period and does not require the Ohio three-day notice to follow rather than run concurrently without a source-specific rule.
+elements:
+  - {id: covered_program, label: Tenancy is covered by the cited project-based rule, requirement: Identify the federal program and regulation governing termination., severity: error, needs_record_support: true, patterns: ["project[- ]based", "Section 8", "subsidized housing"]}
+  - {id: termination_date, label: Notice states the termination date, requirement: Quote the date stated in the notice., severity: error, needs_record_support: true, patterns: ["terminat.{0,30}(date|effective)"]}
+  - {id: specific_reasons, label: Notice states sufficiently specific factual reasons, requirement: Identify concrete conduct dates persons or a nonpayment accounting rather than only lease language., severity: error, needs_record_support: true, patterns: ["specific.{0,30}(reason|ground|incident)"]}
+  - {id: ten_day_discussion_advisement, label: Notice advises of ten-day opportunity to discuss termination, requirement: Quote the discussion-right advisement., severity: error, needs_record_support: true, patterns: ["ten days.{0,60}discuss", "10 days.{0,60}discuss"]}
+  - {id: judicial_defense_advisement, label: Notice advises that enforcement is judicial and tenant may defend, requirement: Quote the judicial-action and defense advisement., severity: error, needs_record_support: true, patterns: ["judicial.{0,60}defen", "court.{0,60}defen"]}
+  - {id: nonpayment_accounting, label: Nonpayment notice states amount due and computation date, requirement: Identify the arrearage amount covered period and effective computation date., severity: error, needs_record_support: true, required_when: Only when termination is for nonpayment of rent., patterns: ["amount.{0,30}due", "past due rent"]}
+  - {id: applicable_timing, label: Applicable federal notice period elapsed, requirement: Apply the period for the identified program and ground using service and termination dates., severity: error, needs_record_support: true, patterns: ["(ten|10|thirty|30) days", "notice period"]}

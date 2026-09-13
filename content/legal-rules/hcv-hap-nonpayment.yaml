@@ -1,0 +1,17 @@
+schema_version: 1
+slug: hcv-hap-nonpayment
+name: HCV owner may not terminate for PHA nonpayment
+citation: 24 C.F.R. § 982.310(b)
+rule_type: regulation
+jurisdiction: Federal / Ohio
+summary: During the HAP-contract term, PHA failure to pay housing assistance is not a lease violation and the owner may not terminate tenancy for that nonpayment.
+citation_patterns: ["24\\s*C\\.?F\\.?R\\.?\\s*(§\\s*)?982\\.310\\s*\\(?b\\)?"]
+aliases: [HAP subsidy nonpayment, housing authority share of rent, PHA portion of rent]
+verification: verified
+source: "24 C.F.R. § 982.310(b); Iskin (6th ed. 2022), §§ II.O.2, III.H.2"
+source_url: https://www.ecfr.gov/current/title-24/section-982.310
+verified_on: 2026-09-13
+elements:
+  - {id: hap_contract_term, label: HAP contract governs the relevant period, requirement: Identify the HCV lease and HAP-contract period., severity: error, needs_record_support: true, patterns: ["HAP contract", "housing assistance payment"]}
+  - {id: tenant_share_status, label: Tenant-share payment status is separated from the PHA share, requirement: State the tenant share due and payments or tenders without assigning the PHA share to tenant., severity: error, needs_record_support: true, patterns: ["tenant.{0,20}(share|portion)"]}
+  - {id: pha_shortfall_basis, label: Challenged termination rests on PHA assistance nonpayment, requirement: Identify the amount and source of the alleged HAP shortfall., severity: error, needs_record_support: true, patterns: ["PHA.{0,40}(fail|delay|nonpayment)", "HAP.{0,30}(shortfall|nonpayment)"]}

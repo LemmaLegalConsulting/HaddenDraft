@@ -20,6 +20,7 @@ from apps.rules.models import CourtProfile
 
 PLED_VALUES = {"yes", "partial", "no"}
 SUPPORT_VALUES = {"yes", "partial", "no", "nothing_supplied"}
+APPLICABILITY_VALUES = {"applicable", "not_applicable", "uncertain"}
 UNMET_PLED = {"no", "partial"}
 UNMET_SUPPORT = {"no", "partial", "nothing_supplied"}
 
@@ -75,6 +76,7 @@ def _fallback_audit(elements, brief_text, excerpts):
         results.append(
             {
                 "id": element["id"],
+                "applicability": "uncertain" if element.get("requiredWhen") else "applicable",
                 "pled": "yes" if pled == "yes" else ("no" if pled == "no" else "partial"),
                 "supported": supported,
                 "explanation": (
@@ -101,9 +103,15 @@ def audit_rule(rule, elements, brief_text, excerpts, *, jurisdiction, llm_client
         for item in reported:
             if not isinstance(item, dict) or item.get("id") not in element_ids:
                 continue
+            element = next(element for element in elements if element["id"] == item["id"])
             cleaned.append(
                 {
                     "id": item["id"],
+                    "applicability": choice(
+                        item.get("applicability"),
+                        APPLICABILITY_VALUES,
+                        "uncertain" if element.get("requiredWhen") else "applicable",
+                    ),
                     "pled": choice(item.get("pled"), PLED_VALUES, "partial"),
                     "supported": choice(item.get("supported"), SUPPORT_VALUES, "nothing_supplied"),
                     "explanation": clean(item.get("explanation"), limit=800),
@@ -135,6 +143,7 @@ def audit_rule(rule, elements, brief_text, excerpts, *, jurisdiction, llm_client
                         "label": element["label"],
                         "requirement": element.get("requirement", ""),
                         "needsRecordSupport": element.get("needsRecordSupport", False),
+                        "requiredWhen": element.get("requiredWhen", ""),
                     }
                     for element in elements
                 ]
@@ -183,13 +192,19 @@ def run_rule_audit(brief_text, excerpts, *, jurisdiction="", llm_client=None, pr
         audited = []
         for element in elements:
             result = by_id.get(element["id"], {})
+            applicability = result.get(
+                "applicability", "uncertain" if element.get("requiredWhen") else "applicable"
+            )
             pled = result.get("pled", "partial")
             supported = result.get("supported", "nothing_supplied")
-            unmet = pled in UNMET_PLED or (element.get("needsRecordSupport") and supported in UNMET_SUPPORT)
+            unmet = applicability == "applicable" and (
+                pled in UNMET_PLED or (element.get("needsRecordSupport") and supported in UNMET_SUPPORT)
+            )
             audited.append(
                 {
                     **element,
                     "pled": pled,
+                    "applicability": applicability,
                     "supported": supported,
                     "explanation": result.get("explanation", ""),
                     "quote": result.get("quote", ""),

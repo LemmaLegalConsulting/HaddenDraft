@@ -1,0 +1,18 @@
+schema_version: 1
+slug: rc-5321-15-self-help
+name: Prohibited self-help recovery of possession or rent
+citation: R.C. 5321.15
+rule_type: statute
+jurisdiction: Ohio
+summary: A residential landlord may not recover possession through utility termination, exclusion, or other unlawful acts, and may not seize tenant property for rent without a court order.
+citation_patterns: ["R\\.?\\s*C\\.?\\s*(§\\s*)?5321\\.15", "section 5321\\.15"]
+aliases: [self-help eviction, unlawful lockout, shut off utilities, seized personal property]
+verification: verified
+source: "R.C. 5321.15; Iskin (6th ed. 2022), §§ XII-XIII"
+source_url: https://codes.ohio.gov/ohio-revised-code/section-5321.15
+verified_on: 2026-09-13
+notes: Division C supplies damages caused and reasonable attorney fees. Injunctive relief may be requested but is not an element of statutory liability.
+elements:
+  - {id: residential_landlord_tenant, label: Residential landlord-tenant relationship, requirement: Identify residential premises landlord and tenant or former tenant in possession., severity: error, needs_record_support: true, patterns: ["residential premises", "landlord", "tenant"]}
+  - {id: prohibited_recovery_act, label: Prohibited act was used to recover possession or rent, requirement: Identify exclusion utility or service termination unlawful threat or seizure without required judicial process., severity: error, needs_record_support: true, patterns: ["lock(ed|out)", "shut.{0,20}off", "terminat.{0,20}utilit", "seiz.{0,30}(property|possessions)"]}
+  - {id: resulting_damage, label: Tenant identifies damage caused by the violation, requirement: Plead actual harm causally resulting from the prohibited act., severity: error, needs_record_support: true, patterns: ["damages", "harm", "loss"]}

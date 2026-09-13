@@ -19,18 +19,17 @@ aliases:
   - notice to leave the premises
   - notice to vacate
 
-verification: unverified
-source: ""
-source_url: ""
-verified_on: ""
+verification: verified
+source: "R.C. 1923.04; Iskin, Ohio Eviction and Landlord-Tenant Law (6th ed. 2022), § I.C"
+source_url: https://codes.ohio.gov/ohio-revised-code/section-1923.04
+verified_on: 2026-09-13
 notes: >-
-  Unverified. Read R.C. 1923.04 and the cases construing it, correct these
-  elements, and record what you read before relying on a clean audit. The
-  statutory language, the service methods, and how the waiting period is counted
-  are exactly the points this list is most likely to get wrong.
+  The ordinary-mail addition applies only to a deceased manufactured-home-park
+  resident under division (C). This profile audits the general division (A)
+  route and treats statutory exceptions as conditional.
 
-# The notice-defect row of the issue-selection table already encodes what a
-# notice defense turns on; its facts are read as elements rather than restated.
+# The issue-selection row contributes maintained intake facts alongside the
+# source-specific statutory requirements below.
 decision_table_key: eviction_answer_issue_selection
 decision_table_row: notice_defect
 
@@ -40,6 +39,7 @@ elements:
     requirement: The brief identifies a notice and says it was served on the tenant.
     severity: error
     needs_record_support: true
+    required_when: The brief asserts compliance with R.C. 1923.04 or specifically claims notice was not served.
     patterns:
       - "serv(ed|ice) .{0,60}notice"
       - "notice .{0,40}(was|were) serv"
@@ -50,6 +50,7 @@ elements:
       language, and quotes or attaches it rather than characterizing it.
     severity: error
     needs_record_support: true
+    required_when: The brief asserts compliance with R.C. 1923.04 or specifically challenges the notice's statutory language.
     patterns:
       - "statutory language"
       - "required language"
@@ -59,10 +60,21 @@ elements:
     requirement: The brief names how the notice was delivered.
     severity: warning
     needs_record_support: true
+    required_when: The brief asserts compliance with R.C. 1923.04 or specifically challenges the manner of service.
     patterns:
-      - "(personal|residential|certified|ordinary) (service|mail)"
+      - "(personal|residential|certified) (service|mail)"
       - "posted (on|at) the"
       - "hand[- ]deliver"
+  - id: special_route
+    label: Any claimed statutory alternative or deceased-resident route is satisfied
+    requirement: Apply division B or C exactly, including added posting and ordinary-mail recipients for a deceased manufactured-home-park resident.
+    severity: error
+    needs_record_support: true
+    required_when: Only if the brief relies on an alternative in division B or the adverse party is a deceased manufactured-home-park resident under division C.
+    patterns:
+      - "5313\\.06"
+      - "5321\\.17\\(C\\)"
+      - "deceased.{0,40}(resident|tenant)"
   - id: waiting_period
     label: The statutory period ran before the complaint was filed
     requirement: >-
@@ -70,6 +82,7 @@ elements:
       between them can be counted rather than assumed.
     severity: error
     needs_record_support: true
+    required_when: The brief asserts compliance with R.C. 1923.04 or specifically challenges the interval between service and filing.
     patterns:
       - "filed .{0,60}(after|before) .{0,40}notice"
       - "three days"

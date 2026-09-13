@@ -1,0 +1,18 @@
+schema_version: 1
+slug: rc-1923-04-waiver-rent
+name: Waiver of notice to vacate by acceptance of future rent
+citation: Associated Estates Corp. v. Bartell, 24 Ohio App.3d 6 (8th Dist. 1985)
+rule_type: doctrine
+jurisdiction: Ohio
+summary: Acceptance after an R.C. 1923.04 notice of rent attributable to a future occupancy period waives that notice; acceptance of only past-due rent does not.
+citation_patterns: ["Associated Estates.{0,30}Bartell", "24 Ohio App\\.?3d 6", "Presidential Park.{0,30}Colston"]
+aliases: [waiver of notice, accepted rent after notice, acceptance of future rent]
+verification: verified
+source: "Iskin, Ohio Eviction and Landlord-Tenant Law (6th ed. 2022), § II.C.1; Associated Estates Corp. v. Bartell, 24 Ohio App.3d 6, 492 N.E.2d 841 (8th Dist. 1985)"
+source_url: ""
+verified_on: 2026-09-13
+notes: Future-rent attribution is essential. The profile does not treat acceptance of only past-due rent as waiver.
+elements:
+  - {id: notice_served, label: R.C. 1923.04 notice was served, requirement: Identify the notice and its service date., severity: error, needs_record_support: true, patterns: ["notice .{0,50}serv"]}
+  - {id: post_notice_acceptance, label: Landlord accepted rent after notice, requirement: Identify payment and acceptance after service., severity: error, needs_record_support: true, patterns: ["accept.{0,50}rent", "rent .{0,50}accept"]}
+  - {id: future_rent, label: Accepted payment covered a future occupancy period, requirement: Show that some accepted rent was attributable to a period after notice rather than only past-due rent., severity: error, needs_record_support: true, patterns: ["future rent", "rent for .{0,40}(month|period)"]}

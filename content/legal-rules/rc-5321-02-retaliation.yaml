@@ -18,13 +18,15 @@ aliases:
   - retaliatory eviction
   - retaliation defense
 
-verification: unverified
-source: ""
-source_url: ""
-verified_on: ""
+verification: verified
+source: "R.C. 5321.02-.03; Iskin (6th ed. 2022), § XI"
+source_url: https://codes.ohio.gov/ohio-revised-code/section-5321.02
+verified_on: 2026-09-13
 notes: >-
-  Unverified. Which activities are protected, and what a landlord may show in
-  response, are the points to check first.
+  Protected activity and prohibited act follow division A. R.C. 5321.03 may
+  permit specified possession actions despite protected activity and must be
+  addressed when invoked; ordinary operating-cost rent increases are also
+  outside the prohibition under division C.
 
 elements:
   - id: protected_activity
@@ -66,3 +68,13 @@ elements:
       - "in response to"
       - "because (the tenant|she|he|they) (complained|reported)"
       - "shortly (after|thereafter)"
+  - id: statutory_exception
+    label: Any asserted R.C. 5321.03 or operating-cost exception is addressed
+    requirement: Apply the exact possession ground or legitimate improvement/operating-cost basis asserted by landlord.
+    severity: error
+    needs_record_support: true
+    required_when: Only when the landlord asserts an exception under R.C. 5321.03 or division 5321.02(C).
+    patterns:
+      - "5321\\.03"
+      - "cost of improvements"
+      - "costs of operation"
