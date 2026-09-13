@@ -3,7 +3,7 @@ from django import forms
 from django.utils import timezone
 from apps.sources.ordinance_storage import store_upload
 
-from apps.sources.models import OrdinanceDocument, OrdinanceOverride, RetrievedDocument, SourceConfiguration, UserOAuthConnection, UserResource, UserSourceIdentity
+from apps.sources.models import CourtListenerCitationCache, OrdinanceDocument, OrdinanceOverride, RetrievedDocument, SourceConfiguration, UserOAuthConnection, UserResource, UserSourceIdentity
 
 
 @admin.register(SourceConfiguration)
@@ -110,6 +110,14 @@ class RetrievedDocumentAdmin(admin.ModelAdmin):
     list_display = ("title", "source_kind", "source_label", "citation", "created_at")
     list_filter = ("source_kind",)
     search_fields = ("title", "snippet", "citation")
+
+
+@admin.register(CourtListenerCitationCache)
+class CourtListenerCitationCacheAdmin(admin.ModelAdmin):
+    list_display = ("citation", "status", "decision", "checked_at", "expires_at")
+    list_filter = ("status",)
+    search_fields = ("citation", "decision__title", "source_url")
+    readonly_fields = ("citation_key", "checked_at", "provider_payload")
 
 
 @admin.register(UserResource)

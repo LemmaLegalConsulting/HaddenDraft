@@ -340,13 +340,20 @@ deployment's model rather than of the gym:
 | `ARGUMENT_GYM_BRIEF_TEXT_CHARS` | 120,000 | the raw text the rule audit and the checklist read |
 | `ARGUMENT_GYM_COURTLISTENER_MAX_CITATIONS` | 3 | unique, prioritized local citation misses sent to CourtListener per run; one lookup plus at most three opinion fetches |
 | `COURTLISTENER_API_TIMEOUT_SECONDS` | 15 | each CourtListener lookup or opinion request |
+| `COURTLISTENER_NOT_FOUND_CACHE_DAYS` | 30 | how long a definitive CourtListener miss suppresses another external lookup |
+| `COURTLISTENER_AMBIGUOUS_CACHE_DAYS` | 7 | how long a multiple-match response suppresses another external lookup |
 
 `COURTLISTENER_API_TOKEN` enables the local-miss fallback. It uses the
 CourtListener v4 citation-lookup endpoint in one batch, fetches at most one
-opinion per resolved citation, caches successful sources for seven days, and
-does not retry a 429 within the run. `COURTLISTENER_API_BASE_URL` defaults to
-the public v4 endpoint. The token stays in the environment and is never stored
-in a run trace.
+opinion per resolved citation, and does not retry a 429 within the run. Each
+resolved opinion is stored as an unverified, search-approved local case-law
+decision with full text and CourtListener provenance. Reporter aliases point to
+that decision, so subsequent case handlers use the local source without another
+external request. Definitive misses and ambiguous matches are durable cache
+entries, not case-law records; they expire and are never treated as proof that
+an authority does not exist. `COURTLISTENER_API_BASE_URL` defaults to the public
+v4 endpoint. The token stays in the environment and is never stored in a run
+trace.
 
 ## Reviewing an experiment by hand
 
