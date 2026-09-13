@@ -28,7 +28,8 @@ def challenges_from_worksheet(path):
     for block in re.split(r"\n(?=## |### )", text):
         heading = block.split("\n", 1)[0]
         if heading.startswith("## "):
-            match = re.match(r"## (F\d{3})", heading)
+            # Both tiers: F### for the subtle fixtures, M## for the mechanical ones.
+            match = re.match(r"## ([FM]\d{2,3})", heading)
             fixture = match.group(1) if match else None
         elif heading.startswith("### ") and fixture:
             match = re.match(r"### `(C[0-9a-f]+)`\s+\((\w*)\)", heading)

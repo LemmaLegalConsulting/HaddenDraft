@@ -31,6 +31,7 @@ import argparse
 import hashlib
 import json
 import random
+import re
 import sys
 from pathlib import Path
 
@@ -59,6 +60,84 @@ def opaque_id(run_key, ordinal, seed):
     return f"C{digest[:10]}"
 
 
+def replicate_of(directory):
+    """A replicate tag from the directory name, so deliberate repeats are kept.
+
+    Deduplication exists for one reason: a run re-executed after a technical
+    failure should replace the failed one. It must not collapse the four
+    deliberate replicates of every cell into one, which is what happened the
+    first time this pooled -- 422 challenges instead of 1,711, putting the whole
+    detection measure on a single run after the stability work showed a single
+    run can sit at the extreme of its range.
+    """
+    match = re.search(r"-(rep\d+)-", Path(directory).name)
+    return match.group(1) if match else ""
+
+
+def collect_dropped(run_dirs, seed):
+    """Attacks the opponent raised and the judge threw out.
+
+    A challenge row exists only for an attack the judge kept, so scoring on
+    challenges alone conflates two different failures: the opponent never saw
+    the defect, and the opponent saw it but the judge killed it. Those are a
+    generation failure and a judgment failure, and the pipeline's own numbers
+    say they are not rare -- across the mechanical tier the judge discarded
+    1,064 attacks that carried usable text.
+
+    Pooled and blinded exactly as the kept challenges are, so the two can be
+    matched under the same conditions and combined into a three-level outcome:
+    not identified, identified and discarded, identified and upheld.
+    """
+    latest = {}
+    for directory in run_dirs:
+        report_path = report_for(directory)
+        if report_path is None:
+            continue
+        report = json.loads(report_path.read_text())
+        cell = report["manifest"].get("cell", "single-model")
+        created = report["manifest"].get("created_at", "")
+        for result in report["results"]:
+            if result.get("status") != "complete":
+                continue
+            rep = replicate_of(directory)
+            key = (rep, cell, result["fixture_id"], result["condition"])
+            if key not in latest or created >= latest[key][0]:
+                latest[key] = (created, cell, result, rep)
+
+    pool, key = {}, {}
+    for _, cell, result, rep in latest.values():
+        attacks = result.get("attacks_proposed") or []
+        assessments = result.get("judge_assessments") or []
+        upheld = {a.get("attackId") for a in assessments
+                  if isinstance(a, dict) and a.get("keep")}
+        run_key = f"{rep}|{cell}|{result['fixture_id']}|{result['condition']}"
+        for attack in attacks:
+            if not isinstance(attack, dict) or attack.get("id") in upheld:
+                continue
+            argument = (attack.get("argument") or "").strip()
+            if not argument:
+                continue
+            cid = opaque_id(run_key + "|dropped", attack["id"], seed)
+            pool.setdefault(result["fixture_id"], []).append({
+                "id": cid,
+                "category": attack.get("category", ""),
+                "argument": argument,
+                "why_it_matters": (attack.get("whyItMatters") or "").strip(),
+                "anchored_at": "",
+            })
+            key[cid] = {
+                "fixture_id": result["fixture_id"], "condition": result["condition"],
+                "cell": cell, "replicate": rep, "attack_model": result.get("attack_model"),
+                "judge_model": result.get("judge_model"),
+                "ordinal": attack["id"], "run_id": result.get("run_id"),
+                "stage": "proposed_then_discarded",
+            }
+    rng = random.Random(seed)
+    for fixture_id in pool:
+        rng.shuffle(pool[fixture_id])
+    return pool, key
+
+
 def collect(run_dirs, seed):
     """Every challenge from every run, grouped by fixture, shuffled, anonymised."""
     # Deduplicated the same way the analysis is: a re-run after a technical
@@ -74,14 +153,15 @@ def collect(run_dirs, seed):
         for result in report["results"]:
             if result.get("status") != "complete":
                 continue
-            entry_key = (cell, result["fixture_id"], result["condition"])
+            rep = replicate_of(directory)
+            entry_key = (rep, cell, result["fixture_id"], result["condition"])
             if entry_key not in latest or created >= latest[entry_key][0]:
-                latest[entry_key] = (created, cell, result)
+                latest[entry_key] = (created, cell, result, rep)
 
     pool, key = {}, {}
-    for _, cell, result in latest.values():
+    for _, cell, result, rep in latest.values():
         if True:
-            run_key = f"{cell}|{result['fixture_id']}|{result['condition']}"
+            run_key = f"{rep}|{cell}|{result['fixture_id']}|{result['condition']}"
             for challenge in result.get("challenges", []):
                 cid = opaque_id(run_key, challenge["ordinal"], seed)
                 target = challenge.get("target") or {}
@@ -95,7 +175,7 @@ def collect(run_dirs, seed):
                 key[cid] = {
                     "fixture_id": result["fixture_id"],
                     "condition": result["condition"],
-                    "cell": cell,
+                    "cell": cell, "replicate": rep,
                     "attack_model": result.get("attack_model"),
                     "judge_model": result.get("judge_model"),
                     "ordinal": challenge["ordinal"],
@@ -109,8 +189,8 @@ def collect(run_dirs, seed):
     return pool, key
 
 
-def emit(run_dirs, out_dir, seed):
-    pool, key = collect(run_dirs, seed)
+def emit(run_dirs, out_dir, seed, dropped=False):
+    pool, key = (collect_dropped if dropped else collect)(run_dirs, seed)
     out_dir.mkdir(parents=True, exist_ok=True)
     manifests = {home.name: json.loads((home / "fixture.json").read_text())
                  for home in sorted(FIXTURES.iterdir()) if home.is_dir()}
@@ -270,11 +350,17 @@ def main():
     group.add_argument("--score", action="store_true")
     parser.add_argument("--out-dir", default=str(EXPERIMENT / "adjudication-2x2"))
     parser.add_argument("--seed", type=int, default=20260909)
+    parser.add_argument("--fixtures-dir", help="fixture tree; defaults to the subtle tier")
+    parser.add_argument("--dropped", action="store_true",
+                        help="pool the attacks the judge discarded, not the kept challenges")
     args = parser.parse_args()
 
+    global FIXTURES
+    if args.fixtures_dir:
+        FIXTURES = Path(args.fixtures_dir).resolve()
     out_dir = Path(args.out_dir)
     if args.emit:
-        emit(args.run_dir, out_dir, args.seed)
+        emit(args.run_dir, out_dir, args.seed, dropped=args.dropped)
     else:
         score(out_dir / "worksheet.yaml", out_dir / "KEY.json", out_dir / "detection.json")
     return 0

@@ -1,0 +1,74 @@
+[
+  {
+    "fixture_id": "F001",
+    "edit_regions": 1,
+    "span_chars": 249,
+    "brief_chars": 15760,
+    "one_edit_and_nothing_else": true,
+    "removed_text_opened_with_section_label": null,
+    "author_caveat": null
+  },
+  {
+    "fixture_id": "F002",
+    "edit_regions": 1,
+    "span_chars": 316,
+    "brief_chars": 47302,
+    "one_edit_and_nothing_else": true,
+    "removed_text_opened_with_section_label": null,
+    "author_caveat": null
+  },
+  {
+    "fixture_id": "F003",
+    "edit_regions": 1,
+    "span_chars": 212,
+    "brief_chars": 14558,
+    "one_edit_and_nothing_else": true,
+    "removed_text_opened_with_section_label": null,
+    "author_caveat": null
+  },
+  {
+    "fixture_id": "F004",
+    "edit_regions": 1,
+    "span_chars": 268,
+    "brief_chars": 41806,
+    "one_edit_and_nothing_else": true,
+    "removed_text_opened_with_section_label": null,
+    "author_caveat": null
+  },
+  {
+    "fixture_id": "F005",
+    "edit_regions": 1,
+    "span_chars": 25,
+    "brief_chars": 24795,
+    "one_edit_and_nothing_else": true,
+    "removed_text_opened_with_section_label": null,
+    "author_caveat": null
+  },
+  {
+    "fixture_id": "F006",
+    "edit_regions": 1,
+    "span_chars": 210,
+    "brief_chars": 32140,
+    "one_edit_and_nothing_else": true,
+    "removed_text_opened_with_section_label": null,
+    "author_caveat": null
+  },
+  {
+    "fixture_id": "F007",
+    "edit_regions": 1,
+    "span_chars": 0,
+    "brief_chars": 14224,
+    "one_edit_and_nothing_else": true,
+    "removed_text_opened_with_section_label": null,
+    "author_caveat": null
+  },
+  {
+    "fixture_id": "F008",
+    "edit_regions": 1,
+    "span_chars": 1343,
+    "brief_chars": 15345,
+    "one_edit_and_nothing_else": true,
+    "removed_text_opened_with_section_label": "B.",
+    "author_caveat": "At 1,344 characters this is the largest deletion in the study, 8.8% of the motion, because the rebuttal is a titled section rather than a sentence. It is still one legally meaningful change -- the removal of one answer to one adverse theory -- but a reviewer should confirm that nothing else of substance left with it."
+  }
+]

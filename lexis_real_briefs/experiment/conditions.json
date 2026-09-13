@@ -96,17 +96,17 @@
     "vendor": "Anthropic",
     "authored_on": "2026-09-08",
     "did": [
-      "selected focal filings",
-      "wrote the normalizer",
-      "chose mutation targets",
-      "drafted mutant text",
-      "drafted gold-vulnerability descriptions",
-      "wrote the register"
+      "implemented the researcher's mutation taxonomy and scoring design",
+      "selected focal filings against the researcher's inclusion rule",
+      "chose which passage in each brief to mutate",
+      "wrote the mutant text and the gold-vulnerability prose",
+      "built the tooling: normalizer, OCR, splitter, runner, analysis"
     ],
     "did_not": [
+      "design the experiment: the mutation classes, the one-change rule, the four-cell outcome, the blinding and the gold-label structure were specified by the researcher",
       "verify Ohio statutory or case-law history",
       "confirm what a mutated authority holds",
-      "adjudicate materiality"
+      "adjudicate materiality (two attorneys did, see verification)"
     ],
     "human_review": "none",
     "known_correlation_risk": "the mutations were authored by a language model and the system under test is a language model; treat cross-model correlation as an open confound"
@@ -162,25 +162,38 @@
     "log": "normalization_log.json"
   },
   "verification": {
-    "status": "unverified",
-    "protocol_steps_completed": [
-      1,
-      2,
-      3,
-      4,
-      7
-    ],
-    "protocol_steps_outstanding": [
-      5,
-      6
-    ],
-    "reviewer_questions": [
-      "Are the pair identical except for the intended change?",
-      "Is the control free of the targeted defect?",
-      "Does the mutant contain the targeted defect?",
-      "Is the defect material enough that competent opposing counsel could reasonably raise it?"
-    ],
-    "admission_rule": "only yes/yes/yes/yes admits a fixture to a held-out benchmark",
+    "status": "fixture review complete; challenge scoring not started",
+    "amendment": "REGISTER.md section 8a, 2026-09-11, before any detection scoring",
+    "reviews_received": 2,
+    "independent_reviews": 1,
+    "second_review_note": "informed by the first reviewer's answers; an adjudication, not a second independent rating. No inter-rater reliability can be computed, and the 75% raw agreement is not one.",
+    "questions": {
+      "identical": "retired; replaced by tools/check_pair_integrity.py, which finds exactly one contiguous changed region in all eight pairs",
+      "control_clean": "optional; used to interpret a non_discriminating pair, not to admit",
+      "mutant_has": "required",
+      "material": "required"
+    },
+    "primary_set": {
+      "rule": "cleared on the independent first review",
+      "fixtures": [
+        "F001",
+        "F002",
+        "F003",
+        "F007",
+        "F008"
+      ],
+      "n": 5
+    },
+    "sensitivity_set": {
+      "rule": "admitted after adjudication",
+      "n": 8
+    },
+    "disputed": {
+      "F004": "material: unsure -> yes",
+      "F005": "material: no -> yes",
+      "F006": "mutant_has and material: unsure -> yes"
+    },
+    "power": "exact binomial on discordant pairs; 5 all one way gives p=0.031, 4 gives p=0.063, so the primary set requires a perfect result",
     "held_out_set": false
   },
   "declared_limits": [

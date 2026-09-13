@@ -53,7 +53,7 @@ from apps.sources.models import SourceConfiguration  # noqa: E402
 from apps.sources.registry import connector_registry  # noqa: E402
 
 EXPERIMENT = ROOT / "lexis_real_briefs" / "experiment"
-FIXTURES = EXPERIMENT / "fixtures"
+FIXTURES = EXPERIMENT / "fixtures"   # overridden by --fixtures-dir
 CONDITIONS = {"control": "normalized", "mutant": "mutant"}
 SOURCE_IDS = ["ohio-cases", "ohio-statutes", "ohio-ordinances", "treatise"]
 
@@ -294,6 +294,8 @@ def main():
                         help="model for every other stage; held constant across a 2x2 "
                              "so the design varies two factors, not ten")
     parser.add_argument("--cell", help="label for this cell of a factorial design")
+    parser.add_argument("--fixtures-dir",
+                        help="fixture tree to run; defaults to the subtle tier")
     parser.add_argument("--reasoning", default="medium")
     parser.add_argument("--fixture", action="append", help="limit to these fixture ids")
     args = parser.parse_args()
@@ -302,6 +304,10 @@ def main():
     if EXPERIMENT / "results" not in directory.parents:
         parser.error("Output directory must be inside lexis_real_briefs/experiment/results")
     directory.mkdir(mode=0o700, parents=True, exist_ok=False)
+
+    global FIXTURES
+    if args.fixtures_dir:
+        FIXTURES = Path(args.fixtures_dir).resolve()
 
     models = {
         "attack": args.attack_model or args.model,
