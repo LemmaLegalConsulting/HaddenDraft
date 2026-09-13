@@ -348,6 +348,42 @@ does not retry a 429 within the run. `COURTLISTENER_API_BASE_URL` defaults to
 the public v4 endpoint. The token stays in the environment and is never stored
 in a run trace.
 
+## Reviewing an experiment by hand
+
+Saved experiment runs include the complete prompt and response for every model
+call. Generate a compact Markdown review without changing the run:
+
+```bash
+.venv/bin/python lexis_real_briefs/experiment/tools/inspect_correctness_run.py \
+  lexis_real_briefs/experiment/results/<run-directory> > /tmp/gym-review.md
+```
+
+Start with the check status and visible-findings tables. Then inspect every row
+in the Judge contract audit: expected and returned counts must match, and
+missing IDs, extra IDs, blank reasons, and adverse rulings without evidence must
+all be zero. The transcript column names the corresponding `call-*.json`; open
+it to compare the exact candidate evidence in `messages` with the Judge's raw
+`response`. Finally compare the same `checkId / targetId` between control and
+mutant rather than matching generated prose. The final context-window table uses
+a conservative three-characters-per-token estimate and reserves 16,000 tokens
+for output; override either assumption with `--context-window` or
+`--output-reserve` when qualifying another deployment.
+
+To qualify a new Judge without rerunning ingestion, retrieval, Opponent, and
+Coach, replay up to sixteen candidates from an existing Judge transcript. The
+hard eight-candidate batch size still applies:
+
+```bash
+.venv/bin/python lexis_real_briefs/experiment/tools/replay_correctness_judge.py \
+  lexis_real_briefs/experiment/results/<old-run>/<fixture>/call-005.json \
+  --model <deployment-name> \
+  --output lexis_real_briefs/experiment/results/<qualification>.json
+```
+
+For Gemini's OpenAI-compatible endpoint, also pass
+`--base-url https://generativelanguage.googleapis.com/v1beta/openai/`,
+`--api-key-env GEMINI_API_KEY`, and `--reasoning ''`.
+
 The defaults are set so that **every brief in the local corpus is read whole** —
 the largest is 694 units and 71,450 characters, serializing to 206,143 characters
 (~52k tokens), which a large-context model such as gpt-5.5 has room for. A

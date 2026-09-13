@@ -132,7 +132,10 @@ class SelectionTests(TestCase):
         run = run_with(self.workspace, self.brief)
         authority = next(entry for entry in run.checks_run if entry["id"] == "authority_support")
         self.assertEqual(authority["status"], "unavailable")
-        self.assertNotIn("authority_support", run.check_results)
+        result = run.check_results["authority_support"]
+        self.assertEqual(result["findings"], [])
+        self.assertEqual(result["tests"], [])
+        self.assertIn("could not run", result["summary"])
         self.assertFalse(run.challenges.exists())
 
     def test_passive_voice_accepts_phrases_this_court_expects(self):

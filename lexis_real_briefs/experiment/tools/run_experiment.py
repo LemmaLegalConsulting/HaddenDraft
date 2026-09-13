@@ -63,7 +63,7 @@ def family(model):
     name = model.lower()
     for token, label in (("deepseek", "deepseek"), ("gpt", "openai"), ("mistral", "mistral"),
                          ("llama", "meta"), ("grok", "xai"), ("kimi", "moonshot"),
-                         ("phi", "microsoft")):
+                         ("phi", "microsoft"), ("gemini", "google"), ("cohere", "cohere")):
         if token in name:
             return label
     return name
@@ -157,10 +157,9 @@ def run_one(fixture, condition, user, *, directory, live, models, reasoning):
     with RoutedCapture(directory, live=live, models=models, reasoning=reasoning) as capture:
         run = execute_run(run, connector_registry=registry)
 
-    # The judge drops attacks it does not keep, and a dropped attack never
-    # becomes a challenge row. "What fell out" is therefore only recoverable
-    # from the raw stage payloads, which is why they are pulled back here.
-    degraded = capture.degraded()
+    # Preserve complete role outputs and exclude any run where a model call or
+    # the Judge's one-ruling-per-candidate contract failed.
+    degraded = capture.degraded(run.stage_trace)
     opponent_calls = capture.payloads_for("attack")
     judge_calls = capture.payloads_for("judge")
 
@@ -385,7 +384,7 @@ def main():
                       f"{counts['pass']} pass, {len(result.get('model_calls', []))} calls", flush=True)
 
     print(f"\nSaved {len(results)} runs to {directory}", flush=True)
-    failed = [r for r in results if r["status"] not in ("complete",)]
+    failed = [r for r in results if r["status"] not in ("complete",) or r.get("degraded")]
     if failed:
         degraded = [r for r in failed if r.get("degraded")]
         broken = [r for r in failed if not r.get("degraded")]
