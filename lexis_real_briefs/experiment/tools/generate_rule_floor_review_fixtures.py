@@ -40,6 +40,7 @@ SPECS = [
         "slug": "rc-1923-04-waiver-rent",
         "target": "future_rent",
         "scenario": "Tenant moves to dismiss after the landlord accepted a payment after serving a three-day notice; the payment covered the next occupancy month, not old arrears.",
+        "extra_constraints": "Write for the tenant in support of dismissal. The Statement of Facts may allege service and a later accepted payment, but must not say which rental period the payment covered. Only target_paragraph and record_text may identify March, a future occupancy period, or that the payment was not for arrears. The Conclusion must request dismissal or denial of possession.",
     },
     {
         "id": "R002",
@@ -128,6 +129,7 @@ Elements:
 
 Scenario: {spec['scenario']}
 Target for the exact-deletion mutant: {target['id']}: {target['requirement']}
+Additional scenario constraint: {spec.get('extra_constraints', 'None.')}
 
 Return exactly one JSON object with four string fields: title, brief_template,
 target_paragraph, and record_text.
@@ -144,7 +146,7 @@ Rules:
 5. Put target-specific facts only in target_paragraph and record_text, not elsewhere in the memorandum.
 6. Include a caption, Statement of Facts, Argument, and Conclusion. Use natural filing prose and never mention this test, an element, a requirement, an internal identifier, a marker, a control, a mutant, or an omission. Do not print identifiers such as `{target['id']}` in the filing.
 7. Use no legal authority beyond the supplied citation/profile and do not quote or embellish a holding.
-8. brief_template must be 1,300–3,200 characters and record_text 250–1,600 characters. A concise exhibit is acceptable if it directly supplies every relied-on fact.
+8. brief_template must be 1,300–3,200 characters and record_text 100–1,600 characters. A concise exhibit is acceptable if it directly supplies every relied-on fact.
 9. The filing must remain coherent after target_paragraph is deleted, but must then lack only the target's application.
 10. Keep party labels, requested relief, and reasoning internally consistent. A tenant asserting a successful defense asks for dismissal or denial of possession; an owner who establishes its claim asks for possession.
 11. Do not state which court issued a cited opinion. Do not call an appellate opinion an Ohio Supreme Court holding.
@@ -174,7 +176,7 @@ def validate_authored(spec: dict, rule: dict, authored: dict) -> tuple[str, str,
         raise ValueError("target must be one nonempty paragraph")
     if not 650 <= len(template) <= 3800:
         raise ValueError(f"brief length {len(template)} outside tolerance")
-    if not 200 <= len(record) <= 1900:
+    if not 100 <= len(record) <= 1900:
         raise ValueError(f"record length {len(record)} outside tolerance")
     for heading in ("statement of facts", "argument", "conclusion"):
         if heading not in template.lower():
@@ -206,6 +208,23 @@ def validate_authored(spec: dict, rule: dict, authored: dict) -> tuple[str, str,
     )
     if not invokes_citation:
         raise ValueError("filing does not invoke the supplied citation")
+    if spec["id"] == "R001":
+        facts = re.split(r"\bArgument\b", template, maxsplit=1, flags=re.I)[0]
+        if re.search(
+            r"\b(?:march|future occupancy|upcoming month|not (?:old )?arrears)\b",
+            facts,
+            re.I,
+        ):
+            raise ValueError("R001 leaks the future-rent application into Statement of Facts")
+        conclusion = re.split(r"\bConclusion\b", template, maxsplit=1, flags=re.I)[-1]
+        if not re.search(r"\b(?:dismiss|deny possession)\b", conclusion, re.I):
+            raise ValueError("R001 requested relief conflicts with the tenant's waiver defense")
+        if not re.search(
+            r"\b(?:march|future occupancy|period after|not (?:old )?arrears)\b",
+            target,
+            re.I,
+        ):
+            raise ValueError("R001 target does not uniquely apply future-rent attribution")
     mutant = re.sub(rf"\n\s*{re.escape(MARKER)}\s*\n", "\n\n", template, count=1)
     return control.strip() + "\n", mutant.strip() + "\n", record + "\n"
 
