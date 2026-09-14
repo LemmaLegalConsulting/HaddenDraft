@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import subprocess
 import sys
 from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -69,11 +70,19 @@ def run_child(args, fixture_id: str, shards: Path) -> dict:
     output = shards / fixture_id
     log_path = shards / f"{fixture_id}.log"
     command = child_command(args, fixture_id, output)
+    child_environment = os.environ.copy()
+    # CourtListener's quota is account-wide, while its application cap is per
+    # run. Independent workers cannot safely coordinate the documented low
+    # quota, so parallel studies use the local/Ohio/CAP tiers only. Populate the
+    # persistent local cache serially before the frozen run if a gold authority
+    # is otherwise unavailable.
+    child_environment["ARGUMENT_GYM_COURTLISTENER_MAX_CITATIONS"] = "0"
     started = datetime.now(timezone.utc)
     with log_path.open("w", encoding="utf-8") as log:
         completed = subprocess.run(
             command,
             cwd=ROOT,
+            env=child_environment,
             stdout=log,
             stderr=subprocess.STDOUT,
             text=True,
@@ -89,6 +98,7 @@ def run_child(args, fixture_id: str, shards: Path) -> dict:
         "output_dir": str(output),
         "log": str(log_path),
         "command": command,
+        "courtlistener_max_citations": 0,
     }
 
 
@@ -147,6 +157,7 @@ def main() -> int:
     aggregate = {
         "created_at": datetime.now(timezone.utc).isoformat(),
         "workers": workers,
+        "courtlistener": "disabled_in_parallel_children",
         "fixtures": fixtures,
         "shards": rows,
     }
