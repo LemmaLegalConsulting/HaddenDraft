@@ -173,7 +173,9 @@ def main():
     elif (path / "result.json").is_file():
         results = [path / "result.json"]
     else:
-        results = sorted(path.glob("*/result.json"))
+        # Sequential runs place results one level below the run directory;
+        # parallel runs add an isolated fixture-shard level.
+        results = sorted(path.rglob("result.json"))
     if not results:
         parser.error("No result.json files found")
     print("# Argument Gym manual review\n")
