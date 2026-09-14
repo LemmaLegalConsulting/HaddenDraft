@@ -120,16 +120,19 @@ Confirm that the frozen index hashes still match the files before every
 replicate. If code has changed since this handoff commit, record the exact commit
 and treat it as a new frozen system version.
 
-## Step 3 — run three independent replicates
+## Step 3 — run within the 45-minute wall-time budget
 
-Run each replicate into a new directory. The runner processes all eight controls
-and mutants, keeps condition labels out of model inputs, stores each model
-transcript, and refuses to overwrite output.
+Use the parallel wrapper for the time-constrained run. It starts one isolated
+process and private SQLite copy per fixture pair. Eight pairs therefore run
+concurrently, while the control and mutant inside each pair remain back-to-back.
+This is the maximum useful pair-level parallelism for an eight-pair corpus and
+does not introduce shared-Django or shared-SQLite state.
 
 ```bash
-.venv/bin/python lexis_real_briefs/experiment/tools/run_experiment.py \
+.venv/bin/python lexis_real_briefs/experiment/tools/run_parallel_experiment.py \
   --output-dir lexis_real_briefs/experiment/results/heldout-authority-terra-mistral-rep1-20260914 \
   --fixtures-dir lexis_real_briefs/experiment/fixtures-heldout-authority-20260913 \
+  --jobs 8 \
   --live \
   --attack-model gpt-5.6-terra \
   --judge-model mistral-large-3 \
@@ -139,19 +142,20 @@ transcript, and refuses to overwrite output.
   --cell terra-mistral
 ```
 
-Repeat unchanged with `rep2` and `rep3` in the output directory name. Do not
-reuse a directory. Do not interpret replicate 1 and then tune before replicates
-2 and 3. If a provider call fails, retain that run, classify it as technical or
-degraded, and rerun the exact fixed condition under a separately named directory;
-never silently replace it.
+The wrapper writes a `parallel-report.json`, one log per fixture, and a normal
+runner artifact under `shards/H00x/`. Do not reuse a directory. Eight simultaneous
+pairs may encounter Azure quota throttling; a failed shard remains visible and
+can be rerun unchanged under a separately named output directory. Never silently
+replace it.
 
 Prior qualification pairs took about 1.9–2.6 minutes of model-call time each.
-These briefs contain more citation targets, so allow roughly 25–45 minutes for
-one sequential eight-pair replicate and up to 60 minutes for cold retrieval or
-provider variance. Three replicates should usually take 75–135 minutes; reserve
-about three hours. The first pass may populate lawful local caches and be slower.
-CourtListener is a last resort and its 5/minute, 50/hour limit must remain in
-effect.
+At eight-way pair-level concurrency, expect roughly 5–15 minutes of wall time,
+governed by the slowest brief and provider throttling; use 30 minutes as the
+operational budget and a hard stop at 45 minutes. The first pass may populate
+lawful local caches and be slower. CourtListener is a last resort and its
+5/minute, 50/hour limit must remain in effect. Run one replicate now. Additional
+replicates improve stability evidence but are not required to obtain the first
+held-out discrimination result within this time budget.
 
 ## Step 4 — technical and hand review
 
@@ -159,7 +163,7 @@ For each replicate, render the review report:
 
 ```bash
 .venv/bin/python lexis_real_briefs/experiment/tools/inspect_correctness_run.py \
-  lexis_real_briefs/experiment/results/heldout-authority-terra-mistral-rep1-20260914 \
+  lexis_real_briefs/experiment/results/heldout-authority-terra-mistral-rep1-20260914/shards \
   --context-window 128000 \
   --output-reserve 16000
 ```
@@ -193,19 +197,23 @@ For each replicate report these integer counts out of eight:
 - paired discrimination: mutant is `MUST_FIX` and matched control is not;
 - reversed pair: control is `MUST_FIX` and mutant is not;
 - unresolved pair: the source/target could not be evaluated; and
-- stability: identical gold-target disposition across all three replicates.
+- stability: when repeats are run, identical gold-target disposition across
+  replicates. One replicate measures paired discrimination, not repeatability.
 
 Also report additional `MUST_FIX` findings per document, source-resolution rate,
 Judge-contract failures, degraded calls, and maximum conservative context use.
 
 Predeclared interpretation bands for this small exploratory set:
 
-- **Strong floor signal:** 8/8 mutation detection, 8/8 matched specificity,
-  8/8 paired discrimination, zero reversals, median zero additional false
-  `MUST_FIX` findings, and all eight pairs stable across three replicates.
-- **Promising / proceed cautiously:** at least 7/8 mutation detection, at least
-  7/8 matched specificity, at least 7/8 paired discrimination, zero reversals,
-  no Judge-contract failures, and at least 7/8 pairs stable across replicates.
+- **Strong first-run discrimination:** 8/8 mutation detection, 8/8 matched
+  specificity, 8/8 paired discrimination, zero reversals, and median zero
+  additional false `MUST_FIX` findings. Repeatability remains unmeasured until
+  the identical run is repeated.
+- **Promising first-run result / proceed to repetition:** at least 7/8 mutation
+  detection, at least 7/8 matched specificity, at least 7/8 paired
+  discrimination, zero reversals, and no Judge-contract failures. A later
+  repeatability claim additionally requires at least 7/8 pairs to be stable
+  across replicates.
 - **Not ready for a consistency claim:** 5/8 or fewer paired discriminations,
   any systematic source-resolution or context failure, repeated Judge-contract
   failure, more than one reversal, or material false-positive noise.
@@ -229,7 +237,7 @@ out element omissions exist.
 > The models received neither condition labels nor gold annotations. A
 > GPT-5.6-Terra Opponent generated evidence-bounded authority challenges and a
 > different-family Mistral Large 3 Judge adjudicated each candidate. We ran the
-> authority-support check alone for three replicates. The primary unit was the
+> authority-support check alone. The primary unit was the
 > disposition of the registered check-and-target identity, rather than textual
 > similarity among generated comments.
 
@@ -237,10 +245,11 @@ out element omissions exist.
 
 > The Gym returned MUST_FIX for [x/8] planted authority misstatements and avoided
 > MUST_FIX on [y/8] matched authentic propositions, yielding [z/8] correctly
-> discriminated pairs and [r] reversals. Gold-target dispositions were identical
-> across all three runs for [s/8] pairs. [n] runs were degraded, [c] Judge
+> discriminated pairs and [r] reversals. [n] runs were degraded, [c] Judge
 > contract violations occurred, and the median number of additional false
-> MUST_FIX findings was [m]. All prompts remained within the predeclared context
+> MUST_FIX findings was [m]. [If repeated: Gold-target dispositions were
+> identical across runs for s/8 pairs.] All prompts remained within the
+> predeclared context
 > budget. These results provide [strong/promising/insufficient] evidence that the
 > constrained Opponent–Judge architecture can serve as a repeatable floor for
 > detecting clear citation-support defects in this sample; they do not establish
