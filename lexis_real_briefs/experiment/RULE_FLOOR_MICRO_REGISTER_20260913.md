@@ -126,3 +126,15 @@ See `RULE_FLOOR_MICRO_SOL_REVIEW_20260914.md`.
 
 All ten remain proposals pending user/attorney review and have not been run
 through Argument Gym.
+
+## Execution addendum — 2026-09-13
+
+The user expressly approved all ten scenarios and planted flaws. Review forms
+were completed and the corpus was frozen before execution. Replicate 1 then ran
+with the registered Terra/Mistral routing and only `rule_elements` enabled.
+Target-level mutation detection, matched specificity, and paired discrimination
+were each 10/10, with zero reversals and no degraded or Judge-contract failures.
+Four controls also produced seven MUST_FIX findings outside the registered
+targets, so global-cleanliness/noise is not established. Full evidence and
+limitations are recorded in
+`lab_notebook/2026-09-13_rule_floor_attorney_reviewed_rep1.md`.
