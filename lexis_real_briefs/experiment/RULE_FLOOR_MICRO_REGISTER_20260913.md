@@ -1,6 +1,7 @@
 # Registered rule-elements micro experiment — 2026-09-13
 
-Status: **registered before execution; proposed fixtures await attorney review**
+Status: **registered before execution; 10/10 passed independent GPT-5.6-sol
+review and await user/attorney review**
 
 ## Question
 
@@ -113,3 +114,15 @@ An additional stricter regeneration pass rejected draft replacements that did
 not meet its schema or filing-language gates. Rejected output is not a gold
 fixture; the original proposed response remains available for attorney
 acceptance or rejection. This underscores why the attorney gate is mandatory.
+
+## Independent pre-attorney review update — 2026-09-14
+
+An independent `gpt-5.6-sol` agent rejected and regenerated proposals until all
+ten passed substantive review. The review checked target uniqueness throughout
+the brief, record support, party posture, relief, remedy authority, current
+notice requirements, and the defensibility of `MUST_FIX`. Llama remained the
+sole author of brief and record prose, and all rejected attempts were retained.
+See `RULE_FLOOR_MICRO_SOL_REVIEW_20260914.md`.
+
+All ten remain proposals pending user/attorney review and have not been run
+through Argument Gym.
