@@ -146,7 +146,12 @@ The wrapper writes a `parallel-report.json`, one log per fixture, and a normal
 runner artifact under `shards/H00x/`. Do not reuse a directory. Eight simultaneous
 pairs may encounter Azure quota throttling; a failed shard remains visible and
 can be rerun unchanged under a separately named output directory. Never silently
-replace it.
+replace it. The wrapper forces `ARGUMENT_GYM_COURTLISTENER_MAX_CITATIONS=0` in
+children because the CourtListener account quota is global but the application's
+ordinary cap is per process. Gold authorities must already be local or resolve
+through Ohio's official reported-decision service or CAP. If one does not, stop
+and populate the local cache serially before freezing/running; do not make eight
+workers race the low-rate API.
 
 Prior qualification pairs took about 1.9–2.6 minutes of model-call time each.
 At eight-way pair-level concurrency, expect roughly 5–15 minutes of wall time,
