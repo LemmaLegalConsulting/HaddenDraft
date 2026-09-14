@@ -132,6 +132,10 @@ Target for the exact-deletion mutant: {target['id']}: {target['requirement']}
 Return exactly one JSON object with four string fields: title, brief_template,
 target_paragraph, and record_text.
 
+The response must begin with that one object and end with it. Do not append a
+second version, commentary, or another JSON object. Put the caption only inside
+brief_template; never add a separate caption field or any fifth field.
+
 Rules:
 1. brief_template contains the literal marker {MARKER} exactly once, alone between blank lines, in Argument.
 2. target_paragraph is one short standalone application paragraph devoted only to the target. The target is applied nowhere else.
@@ -176,14 +180,23 @@ def validate_authored(spec: dict, rule: dict, authored: dict) -> tuple[str, str,
         if heading not in template.lower():
             raise ValueError(f"missing {heading}")
     control = template.replace(MARKER, target)
+    # Machine-like IDs containing underscores are genuine prompt leakage.
+    # Single ordinary words such as "refusal" may be unavoidable legal prose
+    # and are not evidence that the model exposed an internal identifier.
     leaked_ids = [
         element["id"]
         for element in rule["elements"]
+        if "_" in element["id"]
         if re.search(rf"\b{re.escape(element['id'])}\b", control, re.I)
     ]
     if leaked_ids:
         raise ValueError(f"filing leaks internal identifiers: {leaked_ids}")
-    if re.search(r"\b(elements?|requirements?)\b", control, re.I):
+    if re.search(
+        r"\b(?:unit[ -]?test|test fixture|target element|omitted element|"
+        r"internal identifier|control arm|mutant arm)\b",
+        control,
+        re.I,
+    ):
         raise ValueError("filing uses unit-test vocabulary")
     if "ohio supreme court" in control.lower():
         raise ValueError("filing characterizes the cited court")

@@ -98,9 +98,9 @@ Azure OpenAI-compatible endpoint using deployment `llama-4-maverick`. All ten
 have an exact request prompt, raw successful response, parsed response, model
 name, and content hashes in the private `authorship.json`/`fixture.json` files.
 No credential is recorded. The hardened audit revalidates the saved model
-response as well as pair shape. It currently admits seven proposals to attorney
-review and rejects R006, R009, and R010 for leaked unit-test vocabulary; those
-three require fresh Llama generations. Every retained pair remains
+response as well as pair shape. R006, R009, and R010 were regenerated after the
+first drafts failed the pre-review language/schema gate; all rejected attempts
+remain archived. All ten replacements now pass that gate and remain
 `PENDING_ATTORNEY_REVIEW`.
 
 Generation command:
