@@ -1,0 +1,19 @@
+JOHN SMITH,
+Plaintiff,
+vs.
+JANE DOE,
+Defendant.
+
+MEMORANDUM IN OPPOSITION TO EVICTION
+
+Statement of Facts
+The landlord seeks eviction for nonpayment after the tenant attempted payment and the landlord refused it.
+
+Argument
+The landlord may not prevail on this claim. As established in Pinewood Gardens Apts. v. Whiteside, 2014-Ohio-2305, a landlord may not refuse timely full rent, including during an applicable grace period, and then evict for nonpayment of that rent. The court is asked to rule on this doctrine.
+
+Here, the tenant tendered the full monthly rent of $800 on March 3, 2023, via cashier's check, which was within the five-day grace period following the March 1, 2023 due date, as specified in the lease.
+The nonpayment ground is connected to the rent period underlying possession, as the landlord's claim is based on nonpayment for the same period. The landlord's refusal or nonacceptance of the tendered payment is established by the landlord's response to the tenant's attempt to pay.
+
+Conclusion
+The landlord's refusal of the tenant's attempt to pay precludes eviction for nonpayment. The court is respectfully requested to deny possession.

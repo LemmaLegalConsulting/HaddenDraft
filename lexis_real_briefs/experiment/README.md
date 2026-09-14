@@ -23,6 +23,14 @@ before any Gym output was seen. It is the document to write findings against.
 | `normalized_preview/` | normalized text for every readable filing, including those not used — scratch, for picking future fixtures |
 | `tools/` | the pipeline; see below |
 
+The later correctness-floor experiments add two frozen, shareable fixture
+suites: `fixtures-heldout-authority-20260913/` contains extracted text from
+publicly filed Lexis-located briefs, and
+`fixtures-rule-floor-attorney-reviewed-20260913/` contains wholly fictional
+AI-authored rule-element pairs. Their compact results are the nested
+`report.public.json` files under the correspondingly named `results/heldout-*`
+directories. No Cleveland Legal Aid work product or source PDF is included.
+
 ## Pipeline
 
 ```bash

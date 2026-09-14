@@ -1,0 +1,14 @@
+{
+  "fixtureId": "R003",
+  "ruleSlug": "rc-5321-11-notice-to-cure",
+  "targetElement": "condition_not_remedied",
+  "reviewer": "User attorney (explicit approval in session)",
+  "reviewedAt": "2026-09-13",
+  "controlCorrectlyAppliesEveryApplicableElement": true,
+  "recordSupportsEveryAppliedElement": true,
+  "deletionRemovesOnlyTargetApplication": true,
+  "mutantClearlyOmitsTargetApplication": true,
+  "ruleAndExpectedDispositionAreCorrect": true,
+  "approved": true,
+  "notes": ""
+}

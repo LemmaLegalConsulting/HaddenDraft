@@ -1,0 +1,54 @@
+{
+  "fixture_id": "H003",
+  "case_family_id": "texlo-v-gator-hillcrest--c-240090",
+  "stratum": "heldout_housing_property_authority",
+  "document": {
+    "title": "Texlo v. Gator Hillcrest",
+    "court": "",
+    "jurisdiction": "Ohio",
+    "pleading_type": "brief",
+    "side": "",
+    "filed": ""
+  },
+  "files": {
+    "source": "normalized/brief.txt",
+    "source_scan": null,
+    "control": "normalized/brief.txt",
+    "mutant": "mutant/brief.txt",
+    "attachments": [],
+    "attachment_notes": []
+  },
+  "mutation": {
+    "type": "quotation_mismatch",
+    "subtype": "attorney_verified_authority_support",
+    "operation": "replace",
+    "target_location": {
+      "control_excerpt": "We review the interpretation of a contract, a question of law, de novo.",
+      "mutant_excerpt": "We review the interpretation of a contract, a question of law, for abuse of discretion."
+    },
+    "gold_vulnerability": "authority_support should reject the altered proposition attributed to Boone Coleman Constr., Inc. v. Village of Piketon, 2016-Ohio-628, paragraph 10.",
+    "expected_direction": "mutant_worse",
+    "materiality": "high",
+    "edit_regions": 1
+  },
+  "gold": {
+    "check_id": "authority_support",
+    "preview_target_id": "u51:authority2",
+    "control_has_target_defect": false,
+    "mutant_has_target_defect": true,
+    "expected_control_disposition": "pass",
+    "expected_mutant_disposition": "must_fix",
+    "verification_status": "attorney_verified",
+    "verified_by": [
+      "researcher (manual source review)"
+    ]
+  },
+  "provenance": {
+    "source_sha256": "60bd1d1fb94f003599e81bcaf854af03789b80c0a378862347d0ee70af297fe9",
+    "control_sha256": "f6876b9dae661946ae1acfe98c8f72d8abdb6a2b2637537ba8b9c1ad5a2c3ded",
+    "mutant_sha256": "143e1a7e6089d578b079c75c03bb14bb6ff0141544af77bd658c30a67cda19ae",
+    "attachment_sha256": {},
+    "normalization_version": "1.0",
+    "mutation_version": "heldout-authority-1.0"
+  }
+}

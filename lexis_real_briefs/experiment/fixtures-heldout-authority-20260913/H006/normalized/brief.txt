@@ -1,0 +1,253 @@
+STATEMENT OF APPELLANTS ASSIGNMENTS OF ERROR
+
+I. THE TRIAL COURT ERRED IN GRANTING DEFENDANT-APPELLEE'S MOTION FOR SUMMARY JUDGMENT
+
+A. THE COURT IMPROPERLY APPLIED THE DOCTRINE OF RES JUDICATA WHERE IT WAS NOT APPLICABLE.
+
+B. [THE] COURT IMPROPERLY BASED ITS RULING ON A DRAFTED UNSIGNED SETTLEMENT AGREEMENT PURSUANT TO RULE 11
+
+STATEMENT OF ISSUES PRESENTED
+
+1. WHETHER SUMMARY JUDGMENT ON THE GROUNDS OF RES JUDICATA IS APPROPRIATE IN A LAWSUIT FILED BY A FORMER TENANT, AGAINST HER FORMER LANDLORD'S AGENT, WHERE THAT SAME TENANT PREVIOSLY ASSERTED CLAIMS AGAINST THE LANDLORD IN AN EVICTION ACTION, AND THEN DISMISSED THOSE CLAIMS WITH PREJUDICE AFTER SETTLEING, AND BOTH THE PREVIOUSLY-ASSERTED (AND DISMISSED WITH PREJUDICE) CLAIMS, AND THE NEW CLAIMS, RELATE TO THE SAME LANDLORD-TENANT RELATIONSHIP.
+
+2. WHETHER A PARTY MAY ASSERT "FRIVOLOUS CONDUCT" AS A CAUSE OF ACTION IN A SECOND LAWSUIT, ALLEGING DAMAGES FOR "FRIVOLOUS CONDUCT" IN A PREVIOUS LAWSUIT.
+
+3. WHETHER A COMPLAINT STATES A CAUSE OF ACTION FOR FRAUD BY ASSERTING THAT A PARTY TO A PRIOR LAWSUIT, WHICH WAS EVENTUALLY SETTLED AND DISMISSED, MADE A FALSE STATEMENT TO THE JUDGE IN THE FIRST LAWSUIT.
+
+4. WHETHER A TRIAL COURT MAY RELY UPON A CERTIFIED COPY OF ANOTHER COURT'S ORDER IN RULING ON, AND GRANTING, SUMMARY JUDGMENT.
+
+SUMMARY OF ARGUMENT
+
+This case primarily involves two lawsuits; one in Cleveland Municipal Court and one in Cuyahoga County Common Pleas Court. 1 The Cleveland Municipal Court case was an eviction action, initiated by the landlord, Shaker North, Ltd., against Appellant Mariah Crenshaw. Crenshaw counterclaimed for breach of lease, among other claims, and the case was eventually settled and dismissed, with prejudice. Crenshaw then filed a new lawsuit in Common Pleas Court (the one which gives rise to this appeal) against the landlord and the property manager hired by the landlord, asserting additional claims for breach of lease, as well as (a) a claim seeking to hold the property manager liable for alleged "frivolous conduct" which occurred in the Cleveland Municipal Court case and (b) a claim for fraud based upon what transpired in the Cleveland Municipal Court lawsuit. 2
+
+At the heart of this appeal lies a straightforward question: does res judicata prohibit the filing of successive lawsuits against a landlord first, and the property manager second, where the claims in the second lawsuit relate to, and are dependent upon, the same facts as were present in the first lawsuit, and the first lawsuit was settled and dismissed with prejudice. Ohio law is settled on this subject; the answer is yes.
+
+Appellant Mariah Crenshaw makes two arguments to overcome longstanding authority contrary to her position. Neither has merit.
+
+Arguments Against Application of Res Judicata
+
+Crenshaw argues that there is an issue in fact as to whether the party in the first lawsuit (Shaker North, Ltd.) is the same party as is present in this lawsuit (again, identified in the Complaint by Crenshaw as "Integrity Realty, LLC dba Shaker North, Ltd."). If not, she erroneously argues, then res judicata does not apply and summary judgment should be reversed. Her argument is deeply flawed, both legally and factually.
+
+As an initial matter, res judicata applies to a second lawsuit not only when the defendant in the second lawsuit is the same party as was present in the first lawsuit, but also if the defendant in the second lawsuit is different from, but in privity with, the party to the first lawsuit, such as when the first lawsuit involves a principal, and the second lawsuit involves that principal's agent. 3 Here, the record amply establishes a relationship between Shaker North, Ltd. and Integrity Realty as property owner and property manager, respectively, such that this (second) lawsuit is barred by the defense of res judicata. Among the evidence before the Court which supports the application of res judicata is the following:
+
+(a) The Lease. The lease contains the name "Integrity Realty Group" on the first page, and identifies the building owner as "Shaker North, Ltd." See Amended Complaint (R 12), at Exhibit A thereto.
+
+(b) Crenshaw's Admissions. In her brief, Crenshaw admits that Integrity Realty was the "property management" for the property and identifies Integrity as the "property management company" (Brief of Appellant, at 4). 4 In addition, Crenshaw correctly described the relationship between Integrity and Shaker North in her own motion for summary judgment (which was denied):
+
+Upon signing the lease the Plaintiff entered into an agreement with Integrity Realty Group, LLC, as indicated by the lease. [citation omitted] The agents for Integrity Realty Group, LLC negotiated and executed the terms as a real estate agent for Shaker North, Ltd. Integrity Realty Group, LLC., acted as an independent agent on behalf of Shaker North, LLC . . . .
+
+See, Plaintiff's Motion for Summary Judgment on Grounds of Breach of Contract (R 50).
+
+(c) The Caption and Causes of Action. Crenshaw understood the relationship between Integrity and Shaker North was a close one. Not only did she identify the Defendant in this case as "Integrity Realty, LLC dba Shaker North, Ltd.," but in this case she seeks an award against Integrity Realty, LLC for allegedly frivolous conduct committed by Shaker North, Ltd. in the first lawsuit (see Amended Complaint (R 12), at "frivolous conduct" count). 5
+
+In addition to arguing that the parties in this suit and the Cleveland Municipal Court suit are not the same, Crenshaw makes strained arguments that the claims in this case do not relate to the same set of common facts involved in the prior Cleveland Municipal Court case. Crenshaw's argument is a non-starter. In the Cleveland Municipal Court case Crenshaw asserted a breach of the same contract that Crenshaw claims was breached in this case. Under the definition of res judicata, this fact ends the analysis. Just because Crenshaw can come up with different theories of breach, or tweaks her theories to make them apply to an agent, rather than a principal, does not entitle her under Ohio law to keep filing new lawsuits until, presumably, she runs out of theories or tweaks. Instead, Crenshaw was obligated to bring all of breach theories at once against all parties whom she believed responsible. She did not, and her failure to do so bars all future attempts by her to litigate different, or new, theories of breach of contract.
+
+Further, as mentioned above, Crenshaw's res judicata arguments on her frivolous conduct and fraud claims are perplexing. Although she adamantly insists that Shaker North, Ltd. and Integrity Realty, LLC are not the same party for purposes of res judicata, she seeks to hold Integrity Realty responsible in this lawsuit for what Shaker North, Ltd. allegedly did in the Cleveland Municipal Court suit. Indeed, she has asserted both a frivolous conduct claim and a fraud claim in this lawsuit based directly upon what happened in the first lawsuit. Crenshaw cannot have it both ways. If Integrity and Shaker North are so closely related that one is responsible for the other's conduct, as Crenshaw believes, then res judicata applies to bar those claims.
+
+Alternatively, if Shaker North and Integrity are so distant that res judicata does not apply, then how could Integrity be responsible for Shaker North's alleged fraud and alleged frivolous conduct in a lawsuit to which it was not a party (thus making summary judgment on those claims in this case entirely appropriate)? Not surprisingly, Crenshaw has no answer for this question.
+
+Claims Relating to the Court's Reliance Upon an "Unsigned" Settlement Agreement
+
+For her second argument, Crenshaw claims that the trial court erred in allowing an unsigned "drafted settlement agreement to be entered into the record and relied upon for granting summary judgment to the Defendant-Appellee." This claim is simply false. The trial court did not rely upon an unsigned agreement. It relied upon a certified copy of an "Order Granting Motion to Enforce Settlement Agreement," which was provided to the Court and which attached and incorporated the terms of a settlement agreement which Appellant originally agreed to, but then refused to sign. The Court's order enforcing the settlement agreement states: "The Court finds that the Mutual Settlement Agreement and Release prepared by counsel for Plaintiff, and attached to Plaintiff's Motion to Enforce Settlement Agreement, fully reflects the terms of the settlement reached by the parties on June 1." See Supplement to Defendant's Renewed Motion for Summary Judgment (R 22), at Exhibit A thereto. To suggest that the trial court was relying on an unsigned copy of an agreement, when it was in fact relying upon a certified copy of an order enforcing a settlement agreement, is frivolous.
+
+STATEMENT OF THE CASE
+
+This action originated upon a complaint filed by appellant Mariah Crenshaw against Appellee Integrity Realty, LLC dba Shaker North, Ltd. on February 22, 2011 (R 1). Before service was perfected, Appellant moved for default judgment (R 4); the motion was denied (R15).
+
+On April 18, 2011, Appellee moved for summary judgment upon the grounds of res judicata. See Motion for Summary Judgment on Grounds of Res Judicata (R 6). The motion was rendered moot when, on April 22, 2011, Appellant filed an Amended Complaint (R 12). Thereafter, on May 3, 2011, Appellee renewed its motion for summary judgment on grounds of res judicata and failure to state a claim. (R 16) On May 9, 2011, Appellee filed a "Motion to Dismiss Defendant's Renewed Request for Summary Judgment on Grounds of Res Judicta and Failure to State a Claim," and then moved to strike Appellee's reply brief in support of motion for summary judgment. (R 17, 18).
+
+On August 12, 2011, Appellee filed a "Supplement to Renewed Motion for Summary Judgment on Grounds of Res Judicata and Failure to State a Claim." (R 22). This supplement included a certified copy of the order enforcing settlement agreement, which had been issued by Judge Shirley Strickland Saffold in a separate lawsuit between Crenshaw and Integrity employee Mildred Allen. Crenshaw objected on August 22nd. (R 23).
+
+On October 27, 2011, Appellee filed a motion to stay discovery pending a ruling on the renewed motion for summary judgment. (R 26). Appellant responded with a memorandum in opposition, and then a motion for sanctions. (R 27, 28).
+
+Appellant filed another motion for sanctions (her second) on November 30, 2011 (R 33), and a motion for default judgment (her second), also on November 30, 2011. (R 34). On December 14, 2011, Appellee filed a motion for protective order, asking the court to stay discovery until the motion for summary judgment, filed in May, was ruled on. (R 37). In response, Appellant filed another motion to compel (her second). (R 38).
+
+On December 22, 2011, Appellant filed her third motion for default judgment. (R 42). Thereafter, Appellee renewed its motion for a protective order. (R 44). On February 6, 2012, Appellant moved for leave to file summary judgment on her claims for breach of contract, fraud, and frivolous conduct, and thereafter requested leave to supplement her motion. (R 51, 50, 55).
+
+On February 15, 2012, the Court indicated on the record that it was granting Appellee's Renewed Motion for Summary Judgment on Grounds of Res Judicata and Failure to State a Claim for Relief, and issued a formal opinion and order the following day. (R 57).
+
+This appeal timely followed.
+
+STATEMENT OF FACTS
+
+Because the trial court granted summary judgment on the purely procedural grounds of res judicata, and notwithstanding Appellant's lengthy recitation of facts in her brief, there are relatively few facts which are material to this appeal. Where necessary, the facts will be incorporated into the argument below, but for purposes of this appeal, the following are the substantive facts:
+
+The Eviction Lawsuit & Counterclaim
+
+(a) In early 2010, Shaker North, LTD. filed an eviction action against Mariah Crenshaw in the Cleveland Municipal Court. In response, on March 26, 2010, Mariah Crenshaw filed an Answer and Counterclaim, a copy of which is attached as Exhibit B to Defendant's Renewed Motion for Summary Judgment on Grounds of Res Judicata and Failure to State a Claim. (R 16). The counterclaim alleged a host of claims, including breach of quiet enjoyment, retaliatory eviction, religious discrimination and/or retaliation, unlawful charging of fees, breach of lease, and various claims relating to the physical condition of her unit. See Defendant's Renewed Motion for Summary Judgment on Grounds of Res Judicata and Failure to State a Claim, (R 16) at Exhibit B thereto.
+
+(b) On January 10, 2011, Shaker North, Ltd. and Mariah Crenshaw settled their case in Cleveland Municipal Court, and all claims were dismissed with prejudice. See Defendant's Renewed Motion for Summary Judgment on Grounds of Res Judicata and Failure to State a Claim, (R 16) at Exhibit A thereto.
+
+The Defamation Lawsuit & Settlement
+
+(a) On July 6, 2010, Integrity employee Mildred Allen filed suit against Mariah Crenshaw in Cuyahoga County Common Pleas Court, alleging defamation against Mariah Crenshaw. The case alleged that Crenshaw had falsely published, in writing, that Allen, a married woman, was having an "illicit" relationship with Crenshaw's estranged son.
+
+(b) Nearly a year later, on June 1, 2011, Crenshaw and Allen settled the defamation case. The settlement, reached in the presence of the Court, called for the defamation suit to be ' dismissed, for this case to be dismissed, and for there to be a global release as to all claims, between all of the following parties: Shaker North, Ltd; Integrity Realty, LLC; Mariah Crenshaw; and Integrity employee Mildred Allen. (R 22). After the settlement was reduced to writing, Crenshaw refused to sign it. Id. Allen then filed a motion to enforce settlement agreement. After a hearing the motion was granted and Crenshaw was ordered to perform as agreed - which meant dismissing the present lawsuit. Id. No appeal was taken from that order enforcing settlement agreement. Appellant simply refused to comply with the Court's order.
+
+The Present Lawsuit
+
+(a) Just 43 days after signing the Dismissal Entry in Cleveland Municipal Court dismissing the eviction action and Crenshaw's counterclaim, and while the defamation action was still pending, Crenshaw filed the present suit, suing "Integrity Realty, LLC, dba Shaker North Ltd." As noted earlier, the Complaint (as eventually amended (R 12)) alleged (a) breach of the same lease that was the subject of the dismissed Cleveland Municipal Court case; (b) frivolous lawsuit, claiming that the first lawsuit in Cleveland Municipal Court was frivolous; and (c) fraud, because an allegedly false ledger was shown to the Court during the Cleveland Municipal Court case and because Crenshaw was never told that the company from whom she received bills for electricity was not an independent "light" company. See Amended Complaint, (R 12).
+
+It is upon these facts that the trial court based its decision to grant summary judgment in Defendant Appellee's favor.
+
+LAW AND ARGUMENT
+
+I. Standard of Review
+
+Appellate review of summary judgment motions is de novo. Andersen v. Highland House Co., 93 Ohio St.3d 547, 548, 757 N.E.2d 329 (2001). "When reviewing a trial court's ruling on summary judgment, the court of appeals conducts an independent review of the record and stands in the shoes of the trial court." Abrams v. Worthington, 169 Ohio App.3d 94, 2006-O hio-5516, 861 N.E.2d 920 (2006), P 11 (quoting Mergenthal v. Star Banc Corp., 122 Ohio App.3d 100, 103, 701 N.E.2d 383 (1997)).
+
+The appositeness of rendering summary judgment hinges upon the tripartite demonstration: (1) that there is not a genuine issue as to any material fact; (2) that the moving party is entitled to judgment as a matter of law; and (3) that reasonable minds can come to but one conclusion, and that conclusion is adverse to the party against whom the motion for summary judgment is made and in whose favor the evidence should be construed most strongly. O'Brien v. Port Lawrence Title & Trust, 87 Ohio Misc.2d 10, 13, 688 N.E.2d 1136, 1138 (Lucas Cty. 1997)(citing Harliss v. Willis Day Warehousing Co., 54 Ohio St.2d 64, 66, 375 N.E.2d 46, 47(1978)).
+
+Where, as here, a party claims to be entitled to summary judgment on the grounds that a non-moving party cannot prove her case, that party "bears the initial burden of (i) specifically identifying the basis for its motion, and (2) identifying those portions of the record that demonstrate the absence of genuine issue of material fact regarding an essential element of the non-movant's claim." Id. at 13, 688 N.E.2d at 1138 (citing Dresher, 75 Ohio St.3d at 293, 662 N.E.2d at 273-74). The movant satisfies this burden by "calling attention to some competent Summary Judgment evidence of the type listed in Civ.R. 56(C), affirmatively demonstrating that the non-movant has no evidence to support his or her claims." Id. Once the movant "has satisfied this initial burden, the burden shifts to the non-movant to set forth specific facts, in the manner prescribed by Civ. R. 56(C), indicating that a genuine issue of material fact remains for trial." Id. (citations omitted).
+
+Applying this standard to present case, the trial court was entirely correct in granting summary judgment in Appellee's favor and that ruling should be affirmed.
+
+II. The Trial Court Did No Err in Granting Defendant-Appellee's Motion for Summary Judgment on Res Judicata Grounds
+
+The trial court's thorough and well-reasoned written opinion and order granting summary judgment in Appellee's favor is correct, consistent with Ohio law, and should not be reversed.
+
+A. Appellant has used the incorrect definition of res judicata in urging reversal.
+
+The thrust of Appellant's argument on appeal is that the trial court incorrectly assumed (at Appellee's urging, according to Appellant) that Shaker North, Ltd and Integrity Realty Group, LLC are the same entity, when in fact they are not, and that since they are not the same entity, res judicata does not apply. Appellant is mistaken.
+
+The doctrine of res judicata provides that "[a] valid, final judgment rendered upon the merits bars all subsequent actions based upon any claim arising out of the transaction or occurrence that was the subject matter of the previous action." Grava v. Parkman Twp., 73 Ohio St.3d 379, 1995-Ohio-331 (1995), syllabus; see also Natl. Amusements, Inc. v. Springdale, 53 Ohio St.3d 60, 62 (1990)(holding that res judicata operates to bar litigation of" 'all claims which were or might have been litigated in a first lawsuit.") For the defense to apply, "the parties to the subsequent suit must either be the same or in privity with the parties to the original suit." ONesti v. DeBartolo Realty Corp., 113 Ohio.St.3d 59, 2007-Ohio-1102 (2007) at P9 (emphasis added). It is this definition, and not the one proposed by Appellant (which omits the privity requirement), which controls.
+
+B. Appellee Has Met its Burden in Proving the Defense of Res Judicata, and the Trial Court Correctly Granted it Judgment on that Ground.
+
+As noted by the trial court below, and as further demonstrated below, Appellee met its burden in establishing the defense of res judicata, and the record supports the trial court's decision finding as much.
+
+(i) The Cleveland Municipal Court Case ended in a Final Decision Upon the Merits.
+
+The first element of a claim for res judicata is that there must have been a prior proceeding which was adjudicated on the merits. A dismissal with prejudice serves as an adjudication on the merits and, accordingly, when a party consents to a judgment of dismissal with prejudice, the judgment is final as to all claims asserted or which should have been asserted therein. Horne v. Woolever, 170 Ohio St. 178, 182 (1959). See also Tower City Properties v. Cuyahoga County Board of Revision, 49 Ohio St.3d 67, 69 (1990)(where a dismissal is with prejudice, the effect is an adjudication upon the merits, and the action is vulnerable to a defense of res judicata).
+
+Here, the Cleveland Municipal Court case ended with a dismissal, by Appellant, of all of her claims, with prejudice. See Renewed Motion for Summary Judgment (R 16), at Exhibit A thereto. Notably, Shaker North, Ltd. - the target of Appellant's claims before Cleveland Municipal Court - dismissed its claims against Appellant, also with prejudice. Id. Appellee therefore has easily met the first element of the res judicata defense.
+
+(ii) The Claims in This Suit Arise from the Same Transaction and Occurrence as the Cleveland Municipal Court Case.
+
+The Supreme Court has held that in considering the defense of res judicata, the first and second lawsuits arise from the same transaction or occurrence if they share a common "nucleus of operate facts."
+
+In Norwood v. McDonald, 142 Ohio St. 299 (1943), overruled, in part, on other grounds, the Supreme Court provided guidance for determining whether two cases are tied together by a "common nucleus of operative facts" such that the second is barred by res judicata. The Norwood court found that to determine whether a second action is barred by a first cause of action, a court should consider the facts essential to the maintenance of each cause of action. Id. at 306. If the same facts or evidence would sustain both cases, then the second case is barred by res judicata. Id. If, however, the two cases rely upon different facts, then a judgment in the first case will not serve as a bar to the maintenance of the second. Id. The distinction is not without limit, as noted by the Supreme Court in Grava, supra., "different facts" do not include "different shadings of the facts" or an emphasis "of different elements of the facts." See Grava, 73 Ohio St.3d at 383. See, also, Miami Valley Hospital v. Purvis, 2nd Dist. No. CA 21740, 2007-Ohio-4721 (2007).
+
+Appellant's Counterclaim in the Cleveland Municipal Court case alleged breach of lease agreement between Appellant, as tenant, and Shaker North, as landlord. See Defendant's Renewed Motion for Summary Judgment on Grounds of Res Judicata and Failure to State a Claim (R 16), at Exhibit B thereto. Count One of the counterclaim asserted a claim for breach of the covenant of quiet enjoyment that occasions every landlord-tenant relationship, and count two of the counterclaim alleged that the property manager, Mildred Allen, engaged in religious discrimination. Id. Further, counts three and four of the Cleveland Municipal Court counterclaim alleged specific violations of a rental agreement between Crenshaw and Shaker North, Ltd. For example:
+
+17. Defendant states that Plaintiff's [sic] are in violation of the Lease agreement by charging the Defendant a monthly parking fee of Fifty Dollars ($ 50.00) per month when the Lease agreement states that the parking fees are $ 0.00.
+
+* * *
+
+21. The Plaintiff is in violation of the Lease agreement by attempting to evict the Defendant.
+
+* * *
+
+28. The Plaintiff has failed to properly maintain the premises as agreed upon as [sic] the terms of the lease agreement. [citation omitted].
+
+Id. Lastly, count five claims that there were bugs in the apartment, that the trash compactor had not been timely repaired, and that the smoke detectors did not work. Id.. Quite clearly, therefore, given the wide range of allegations in her counterclaim, Appellant was seeking to litigate all of the grievances which had arisen out of the landlord-tenant relationship between her and her landlord when she filed her counterclaim in Cleveland Municipal Court.
+
+Turning to this case, one cannot seriously argue that Appellant's claims in this case do not arise from the same set of facts as Appellant's claims in Cleveland Municipal Court. Indeed, the Amended Complaint in this case actually pleads, and therefore ties itself to, the same facts as were present in the Cleveland Municipal Court case. For example:
+
+. the amended complaint asserts Crenshaw was a tenant of Shaker North (Amended Complaint, R 12, at P3)
+
+. the amended complaint attaches a copy of the same lease which was attached to the Cleveland Municipal Court counterclaim litigated by Appellant (Amended Complaint, R 12, a P4);
+
+. the amended complaint pleads the existence of the Cleveland Municipal Court case, and attaches it as an exhibit (Amended Complaint, R 12, at P7); and
+
+. although it is unclear exactly what she is claiming as breach of contract in this case (see Count One of the Amended Complaint (R 12)), a generous reading of the claim suggests she is claiming retaliatory eviction - which she already pled in her counterclaim in Cleveland Municipal Court (Compare Amended Complaint, R 12, at PP 8 - 12 with Cleveland Municipal Court Counterclaim, R 16 at Exhibit B thereto, P8 (alleging retaliatory conduct)).
+
+Considering the nature of the claims alleged by Appellant in this case, and comparing them to the Cleveland Municipal Court case, the Court below was entirely correct in concluding that a common nucleus of facts exists between the claims previously asserted, and dismissed, by Crenshaw in Cleveland Municipal Court, and the claims asserted in this case.
+
+(iii) The Parties in this Suit are the Same, or are in Privity With, the Parties in the Prior Cleveland Municipal Court Case.
+
+Appellant takes great pains in her brief to demonstrate that Shaker North and Integrity Realty are not the same. Her argument is a red herring.
+
+As noted earlier, Appellant has staked her claim in this case to the close relationship between Integrity Realty and Shaker North. From her caption (where she uses a "dba" to describe the two companies) to her motion for summary judgment (which argues that Integrity was the agent for Shaker North), to her claim for "frivolous lawsuit" (where she seeks in this lawsuit to recover damages allegedly incurred in the Cleveland Municipal Court lawsuit), Appellant has consistently linked Integrity Realty and Shaker North. The fact of the matter is that, as is noted in the lease which Appellant signed (R 12, at attachment 3 to Exhibit B thereto), Integrity Realty is the property manager (and thus agent) for Shaker North. To claim now that they are not in privity, or that they have no relationship for purposes of res judicata, would contradict the evidence before the Court, and contravene common sense.
+
+The trial court had ample evidence to find that the doctrine of res judicata barred Appellant's claims, and it was completely proper to have granted summary judgment on that ground. The trial court did not err in doing so and its judgment should be affirmed.
+
+III. The Trial Court Properly Granted Summary Judgment Upon Appellant's Claim for "Fraud."
+
+The trial court dismissed Appellant's claim for fraud based upon grounds of res judicata, finding that it should have been filed in the Cleveland Municipal Court case. To the extent this Court disagrees with that conclusion, Appellee's motion for summary judgment independently supports dismissal of Appellant's fraud claim upon the grounds that it fails to state a claim upon which relief can be granted.
+
+In order to state a claim for fraud, a party must plead (1) a representation or, where there is a duty to disclose, concealment of a fact; (2) which is material to the transaction at hand; (3) made falsely, with knowledge of its falsity, or with such utter disregard and recklessness as to whether it is true or false that knowledge may be inferred; (4) with intent of misleading another into relying upon it; (5) justifiable reliance upon the representation or concealment; and (6) resulting injury proximately caused by the reliance. Burr v. Stark Cty. Bd. of Commrs., 23 Ohio St. 3d 69, 491 N.E.2d 1101 (1986), paragraph two of the syllabus (emphasis added); Cohen v. Lamko, 10 Ohio St.3d 167, 462 N.E.2d 407 (1984). The elements of fraud must be pled with particularity, as stated in Civil Rule 9(B):
+
+In all averments of fraud or mistake, the circumstances constituting fraud or mistake must be pled with particularity. Malice, intent, knowledge, and other condition of mind of a person may be averred generally.
+
+Ohio R. Civ. Pro. 9(B). See Dolan v. City of Glouster, 173 Ohio App.3d 617, 2007-O hio-6275 (2007). The failure to plead with sufficient particularity the elements of fraud results in a defective claim which cannot withstand a motion to dismiss under Civ. R. 12(B)(6). Universal Coach, Inc. v. New York City Transit Auth., Inc., 90 Ohio App.3d 284, 292 (1993).
+
+Here, Appellant's claim for fraud relates to events which allegedly happened during a conference between Appellant and the Cleveland Municipal Court. Appellant claims that Shaker North, Ltd., during that conference, showed the Court a ledger sheet which was not correct and that there was a different ledger sheet. See Amended Complaint, R 12, at Count 3. Appellee does not understate Appellant's fraud claim by saying that this is the entirety of her claim. There are no allegations that Appellant relied upon this ledger (indeed, she seems to have vehemently disagreed with it), nor are there any allegations that, beyond presentation to the Court, it had any negative effect upon her at all. Indeed, given that the case was dismissed by all parties, with prejudice, nothing whatsoever appears to have come from the claim that a false ledger was shown to the Cleveland Municipal Court. A close review of the dismissal entry from Cleveland Municipal Court reveals that Crenshaw not only never had to pay the claimed sum on this "ledger." Renewed Motion for Summary Judgment, R 12, at Exhibit A thereto.
+
+The present case is akin to that presented in Morrow v. Reminger & Reminger Co., L.P.A., 183 Ohio App.3d 40, 2009-Ohio-2665 (2009). In Morrow, the Plaintiff filed an amended complaint alleging, as Plaintiff does here, a claim for fraud. Also as here, the Plaintiff failed to plead reasonable reliance upon the claimed fraudulent statement. The Court of Appeals upheld the trial court's decision to dismiss the fraud claim for failure to state a claim upon which relief could be granted because the element of reliance was not pled with particularity. In so doing, the Court rejected the argument that the element of reliance could be "inferred" from the Amended Complaint:
+
+Moreover, even were appellants permitted to establish justifiable reliance based on inference, the amended complaint contains no allegations of fact that, accepted as true, would give rise to an inference of justifiable reliance. To the contrary, as stated above, the allegations of the amended complaint preclude an inference of justifiable reliance. For these reasons, we discern no error in the trial court's dismissal of appellant's fraud claim and we overrule appellants' third assignment of error.
+
+Id. at 54, P 23.
+
+Here, as in Morrow, the counterclaim contains absolutely no facts which could arguably be construed as establishing "reliance" upon the allegedly false ledger, nor is there any boilerplate allegation of reliance. There are not even facts upon which Crenshaw could argue for an inference of reliance, were such an inference permitted. It is as if, quite frankly, Appellant Crenshaw knew she could not in good faith make the allegation of reliance, so she omitted it. While that may be honorable, it is fatal to a claim for fraud.
+
+Based upon this pleading defect, in addition to being barred by the defense of res judicata, Appellant's claim for fraud should be dismissed because it fails to state a claim upon which relief can be granted.
+
+IV. The Trial Court Correctly Relied Upon a Certified Copy of a Judgment Entry Enforcing Settlement Agreement from Another Court.
+
+Lastly, Appellant claims that the trial court improperly relied upon an unsigned draft of a settlement agreement in granting summary judgment. Even a cursory review of the record demonstrates that this claim is utterly false.
+
+The record reflects that Appellees submitted a Supplement to Motion for Summary Judgment (R 22), and that attached to it was a certified copy of an order enforcing a settlement agreement. R 22, at Exhibit A thereto. Attached to, and made a part of, the certified order, was the terms of the settlement agreement. R 22, at Exhibit A thereto, at Numbered Paragraph 2. Although it was unsigned, the order enforcing settlement agreement found that Crenshaw had agreed to the terms of the settlement agreement, but had refused to sign it. The Court then expressly adopted and incorporated the terms of the unsigned settlement agreement as the settlement reached by the parties, and ordered Crenshaw to follow those terms.
+
+Crenshaw never appealed that order. Rather, she just chose to ignore it.
+
+Given that the document of which she complains is part of a certified order of the Court, Crenshaw's decision to assign as error the trial court's reliance upon it is a mystery. The trial court did not err in relying upon a certified copy of a judgment entry issued by another judge in the Cuyahoga County Common Pleas Court, and Appellant's arguments to the contrary are without merit.
+
+V. The Trial Court Properly Granted Defendant's Motion for Summary Judgment Upon Plaintiff's Claim for Frivolous Conduct
+
+Appellant's Second Cause of Action purports to assert a claim for "frivolous lawsuit." See Amended Complaint (R 12), at P13. Because this claim should have been made, if at all, in the Cleveland Municipal Court case, the trial court properly dismissed it.
+
+The Eighth Appellate District has held - in a case involving a procedural history strikingly similar to that present in this case - that claims for "frivolous conduct" are compulsory counterclaims where (as here) the allegation is that the filing of the Complaint in the first lawsuit was, in and of itself, frivolous. See Stuber v. Parker, Case No. 77495, 00-LW-4968 (Cuyahoga County, November 2, 2000). In the Stuber case, Oakwood Title filed suit in Garfield Heights Municipal Court against Stuber alleging misrepresentation in the refinancing of a property. Id. at 1. The case resulted in a stipulated judgment entry in favor of Oakwood Title and against Stuber. Id. Prior to the journalization of the final judgment entry in the municipal court case, however, Stuber filed a Complaint in Cuyahoga County Common Pleas Court, including an allegation that the Oakwood Title had engaged in frivolous conduct by bringing its claim against him in Garfield Heights Municipal Court. In response to the claim filed in common pleas court, Oakwood Title moved for summary judgment, arguing that the claim was a compulsory counterclaim that should have been brought in the Garfield Heights Municipal Court. The motion for summary judgment was granted in Oakwood Title's favor. Stuber appealed.
+
+Affirming the award of summary judgment, the Eighth District Court of Appeals set forth the definition of "compulsory counterclaim" and then found that the claim for frivolous conduct was a compulsory counterclaim to the breach of contract action previously filed in municipal court, and thus barred under principles of res judicata from being litigated a second time. The Court wrote:
+
+Stuber's claim that Oakwood Title breached its contract with him existed at the time Oakwood Title filed its action in municipal court. Certainly Stuber's claim that the municipal court action was frivolous likewise was in existence. Moreover, both claims against Oakwood Title arise out of events surrounding Stuber's attempt to refinance his mortgage loan. Thus, Stuber's claims against Oakwood Title are logically related and, therefore, compulsory counterclaims.
+
+Id. at 2. Because the claim for "frivolous conduct" was found to have been a compulsory counterclaim to the first, municipal court, case, it could not be litigated in a second round of litigation in the Court of Common Pleas, and summary judgment dismissing the claim was properly granted.
+
+The exact same procedural history involved in Stuber is present here. There was a municipal court case that resulted in an agreed judgment entry. Then, the defendant in the municipal court case became the plaintiff in a new case, asserting that the first case was frivolous. Here, Mariah Crenshaw signed an agreed judgment entry dismissing a municipal court case. She then filed a common pleas case asserting that the first case was frivolous. Given their similarities, there is absolutely no reason why the holding in Stuber should not apply to bar Appellant's claim for "frivolous conduct" in this case. The trial court's finding that the frivolous conduct claim was barred by res judicata is consistent with Stuber, and should not be disturbed on appeal.
+
+CONCLUSION
+
+For the foregoing reasons, the trial court did not err in granting Appellee's Motion for Summary Judgment, and its decision to do so should be affirmed.
+
+Respectfully submitted,
+
+/s/ [Signature]
+
+David M. Gareau (0066687)
+
+Michael R. Gareau (0012391)
+
+Michael R. Gareau, Jr. (0066688)
+
+Michael R. Gareau & Associates Co., L.P.A.
+
+23823 Lorain Road, Suite 200
+
+North Olmsted, Ohio 44070
+
+(440)777-1500
+
+(440) 777-0107 Fax
+
+Attorneys for Appellee
+
+CERTIFICATE OF SERVICE
+
+A true and accurate copy of the foregoing Brief of Appellee was mailed to the undersigned via Regular U.S. Mail on this 8th day of June, 2012.
+
+Mariah S. Crenshaw
+
+3472 East 114th Street
+
+Cleveland, OH 44104
+
+/s/ David M. Gareau
+
+David M. Gareau (0066687)
+
+[SEE APPENDIX A IN ORIGINAL]
+
+[SEE APPENDIX B IN ORIGINAL]

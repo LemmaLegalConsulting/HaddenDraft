@@ -1,0 +1,3 @@
+(1) Police Report: 'The perpetrator kicked in the door during the assault on Jessica Wilson, causing significant damage.'
+(2) Voucher Record: 'Tenant: Jessica Wilson; Landlord: Jennings Property Management'
+(3) Docket Certification: 'The record contains no documentation request from Jennings Property Management, and no VAWA exception was asserted.'

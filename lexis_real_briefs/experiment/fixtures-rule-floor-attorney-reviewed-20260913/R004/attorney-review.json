@@ -1,0 +1,14 @@
+{
+  "fixtureId": "R004",
+  "ruleSlug": "rc-5321-15-self-help",
+  "targetElement": "resulting_damage",
+  "reviewer": "User attorney (explicit approval in session)",
+  "reviewedAt": "2026-09-13",
+  "controlCorrectlyAppliesEveryApplicableElement": true,
+  "recordSupportsEveryAppliedElement": true,
+  "deletionRemovesOnlyTargetApplication": true,
+  "mutantClearlyOmitsTargetApplication": true,
+  "ruleAndExpectedDispositionAreCorrect": true,
+  "approved": true,
+  "notes": ""
+}

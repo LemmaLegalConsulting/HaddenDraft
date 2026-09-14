@@ -1,0 +1,72 @@
+{
+  "fixture_id": "R009",
+  "case_family_id": "synthetic-rule-review-r009",
+  "stratum": "synthetic_rule_elements_attorney_review",
+  "document": {
+    "title": "CMHA v. Smith",
+    "court": "Fictional Ohio trial court",
+    "jurisdiction": "Ohio",
+    "pleading_type": "trial_brief",
+    "side": "",
+    "filed": "2026-09-13"
+  },
+  "files": {
+    "source": null,
+    "source_scan": null,
+    "control": "normalized/brief.txt",
+    "mutant": "mutant/brief.txt",
+    "attachments": [
+      "attachments/record-01.txt"
+    ],
+    "attachment_notes": [
+      "Identical fictional record supplied to both arms."
+    ]
+  },
+  "mutation": {
+    "type": "rule_element_omission",
+    "subtype": "notice_content",
+    "operation": "delete",
+    "section": "Argument",
+    "description": "Deleted the only proposed paragraph applying notice_content.",
+    "gold_vulnerability": "PROPOSED: the mutant invokes 24 C.F.R. \u00a7\u00a7 966.4(l)(3), 966.51-.57 but omits application of notice_content.",
+    "expected_direction": "mutant_worse",
+    "materiality": "proposed_high_unverified",
+    "target_location": {
+      "section": "Argument",
+      "control_excerpt": "The termination notice failed to comply with federal regulations because it omitted several required advisements and factual statements. Specifically, it did not state the specific grounds for termination, inform Mr. Smith of his right to reply, or advise him of his right to inspect relevant documents. Additionally, it lacked instructions for a 30-day cure, an itemization of rent and other allowed arrearages by month, a payment deadline before filing, information about income recertification, details on hardship exemption, and an explanation of switching from flat rent to income-based rent.",
+      "mutant_excerpt": ""
+    },
+    "characters_changed": 598,
+    "control_chars": 1757,
+    "mutant_chars": 1159,
+    "fraction_of_brief_changed": 0.340353,
+    "expected_check_id": "rule_elements",
+    "expected_target_id": "hud-public-housing-termination-grievance:notice_content",
+    "expected_disposition": "must_fix"
+  },
+  "gold": {
+    "control_has_target_defect": false,
+    "mutant_has_target_defect": true,
+    "expected_direction": "mutant_worse",
+    "materiality": "proposed_high_unverified",
+    "verified_by": [],
+    "verification_status": "proposed_unverified",
+    "verification_note": "Llama-authored proposal; do not run or score until attorney review is complete."
+  },
+  "provenance": {
+    "control_sha256": "9dc818d371522eeb6c7eba8909254cc68b0c8dcf3577ccbfa831f21fa3d35c6f",
+    "mutant_sha256": "96c3b5fb101eb5ee45467ae01fcb2a9c4e58e1a3d275b36faa767a4d3b7494ce",
+    "attachment_sha256": {
+      "record-01.txt": "13dbb6edb8f4aca0028b7d922c89ddd0649f82205b3ced6f84d6b99ce5db94b5"
+    },
+    "mutation_version": "exact-paragraph-deletion-1.0",
+    "generator": {
+      "provider": "Azure AI Services",
+      "deployment": "llama-4-maverick",
+      "family": "Meta Llama",
+      "generated_at": "2026-09-14T02:04:09.443952+00:00",
+      "attempts": 1,
+      "researcher_edits": "None; whitespace normalization and deletion only."
+    }
+  }
+}

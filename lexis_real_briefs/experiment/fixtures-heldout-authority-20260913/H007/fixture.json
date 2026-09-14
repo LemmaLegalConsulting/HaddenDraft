@@ -1,0 +1,54 @@
+{
+  "fixture_id": "H007",
+  "case_family_id": "estate-of-anthony-notarian-et-al-vs-nota",
+  "stratum": "heldout_housing_property_authority",
+  "document": {
+    "title": "Estate of Notarian",
+    "court": "",
+    "jurisdiction": "Ohio",
+    "pleading_type": "brief",
+    "side": "",
+    "filed": ""
+  },
+  "files": {
+    "source": "normalized/brief.txt",
+    "source_scan": null,
+    "control": "normalized/brief.txt",
+    "mutant": "mutant/brief.txt",
+    "attachments": [],
+    "attachment_notes": []
+  },
+  "mutation": {
+    "type": "quotation_mismatch",
+    "subtype": "attorney_verified_authority_support",
+    "operation": "replace",
+    "target_location": {
+      "control_excerpt": "The power to manage real property as described in R.C. 2113.311 ... includes, among other things, the power to make repairs, insure the premises and to prosecute actions for forcible entry and detainer.",
+      "mutant_excerpt": "The power to manage real property as described in R.C. 2113.311 ... includes, among other things, the power to make repairs, insure the premises but not to prosecute actions for forcible entry and detainer."
+    },
+    "gold_vulnerability": "authority_support should reject the altered proposition attributed to In re Estate of Jacob, 8th Dist. Cuyahoga No. 85640, 2005-Ohio-4998, paragraph 22.",
+    "expected_direction": "mutant_worse",
+    "materiality": "high",
+    "edit_regions": 1
+  },
+  "gold": {
+    "check_id": "authority_support",
+    "preview_target_id": "u5:authority2",
+    "control_has_target_defect": false,
+    "mutant_has_target_defect": true,
+    "expected_control_disposition": "pass",
+    "expected_mutant_disposition": "must_fix",
+    "verification_status": "attorney_verified",
+    "verified_by": [
+      "researcher (manual source review)"
+    ]
+  },
+  "provenance": {
+    "source_sha256": "a4c2023105bdb2177bcb282a124127b9a53d15f6eb50e12ad15480c0904b64e2",
+    "control_sha256": "bf0c794798d80f6e53341fb3884b158f957e9140cb687cb9924f6abbe2647462",
+    "mutant_sha256": "e98a1893da0bf894967fb88f6666911058981aaea392a94bb28a844c2fe5fc9c",
+    "attachment_sha256": {},
+    "normalization_version": "1.0",
+    "mutation_version": "heldout-authority-1.0"
+  }
+}

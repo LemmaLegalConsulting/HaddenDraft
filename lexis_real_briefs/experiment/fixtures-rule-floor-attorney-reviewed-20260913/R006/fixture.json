@@ -1,0 +1,72 @@
+{
+  "fixture_id": "R006",
+  "case_family_id": "synthetic-rule-review-r006",
+  "stratum": "synthetic_rule_elements_attorney_review",
+  "document": {
+    "title": "Tenant's Memorandum in Support of Rent Escrow",
+    "court": "Fictional Ohio trial court",
+    "jurisdiction": "Ohio",
+    "pleading_type": "trial_brief",
+    "side": "",
+    "filed": "2026-09-13"
+  },
+  "files": {
+    "source": null,
+    "source_scan": null,
+    "control": "normalized/brief.txt",
+    "mutant": "mutant/brief.txt",
+    "attachments": [
+      "attachments/record-01.txt"
+    ],
+    "attachment_notes": [
+      "Identical fictional record supplied to both arms."
+    ]
+  },
+  "mutation": {
+    "type": "rule_element_omission",
+    "subtype": "condition_described",
+    "operation": "delete",
+    "section": "Argument",
+    "description": "Deleted the only proposed paragraph applying condition_described.",
+    "gold_vulnerability": "PROPOSED: the mutant invokes R.C. 5321.04 but omits application of condition_described.",
+    "expected_direction": "mutant_worse",
+    "materiality": "proposed_high_unverified",
+    "target_location": {
+      "section": "Argument",
+      "control_excerpt": "The defective condition was a broken furnace in the basement, which rendered the living room uninhabitable due to lack of heat, and this condition persisted from January 1, 2023, through February 15, 2023.",
+      "mutant_excerpt": ""
+    },
+    "characters_changed": 207,
+    "control_chars": 1675,
+    "mutant_chars": 1468,
+    "fraction_of_brief_changed": 0.123582,
+    "expected_check_id": "rule_elements",
+    "expected_target_id": "rc-5321-04-landlord-duties:condition_described",
+    "expected_disposition": "must_fix"
+  },
+  "gold": {
+    "control_has_target_defect": false,
+    "mutant_has_target_defect": true,
+    "expected_direction": "mutant_worse",
+    "materiality": "proposed_high_unverified",
+    "verified_by": [],
+    "verification_status": "proposed_unverified",
+    "verification_note": "Llama-authored proposal; do not run or score until attorney review is complete."
+  },
+  "provenance": {
+    "control_sha256": "bf893cca253ce42b8c8dc1ce3836bd77ccb3ef26a9fb796b26010d70b46898f4",
+    "mutant_sha256": "784bf0e9cd6ceae4f2bd105832c82108d83e3a4b7ecb1301f27469f351158f12",
+    "attachment_sha256": {
+      "record-01.txt": "d864b7c8d20bd10cbaa673e27ef73d7be69db78278b3d230861fb01bb938a4bf"
+    },
+    "mutation_version": "exact-paragraph-deletion-1.0",
+    "generator": {
+      "provider": "Azure AI Services",
+      "deployment": "llama-4-maverick",
+      "family": "Meta Llama",
+      "generated_at": "2026-09-14T01:52:12.052048+00:00",
+      "attempts": 1,
+      "researcher_edits": "None; whitespace normalization and deletion only."
+    }
+  }
+}

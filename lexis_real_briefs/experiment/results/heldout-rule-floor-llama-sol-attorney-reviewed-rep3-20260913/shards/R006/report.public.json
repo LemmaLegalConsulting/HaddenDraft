@@ -1,0 +1,1952 @@
+{
+  "manifest": {
+    "registry_id": "lexis-mutation-2026-09",
+    "created_at": "2026-09-14T02:24:33.495691+00:00",
+    "mode": "live",
+    "git_commit": "351fb785e9bc1bfc7b9954de0f94d16861aa0d9f",
+    "git_status": " M backend/apps/caselaw/management/commands/enrich_caselaw_metadata.py\n m private-content\n?? downloaded_opinions/\n?? lab_notebook/2026-09-13_heldout_authority_replicates_1_to_4.md\n?? lexis_real_briefs/experiment/results/heldout-authority-terra-mistral-rep1-20260913/\n?? lexis_real_briefs/experiment/results/heldout-authority-terra-mistral-rep2-20260913/\n?? lexis_real_briefs/experiment/results/heldout-authority-terra-mistral-rep3-20260913/\n?? lexis_real_briefs/experiment/results/heldout-authority-terra-mistral-rep4-20260913/\n?? lexis_real_briefs/experiment/results/heldout-rule-floor-llama-sol-attorney-reviewed-rep1-20260913/\n?? lexis_real_briefs/experiment/results/heldout-rule-floor-llama-sol-attorney-reviewed-rep2-20260913/\n?? lexis_real_briefs/experiment/results/heldout-rule-floor-llama-sol-attorney-reviewed-rep2-r002-technical-retry-20260913/\n?? lexis_real_briefs/experiment/results/heldout-rule-floor-llama-sol-attorney-reviewed-rep3-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-f005-attribution-grounded-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-f005-complete-opinions-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-f005-frozen-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-f005-grounded-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-f005-opinion-status-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-f005-reuse-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-live-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-live-bounded-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-live-final-f007-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-live-final-f007b-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-live-hybrid-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-live-hybrid-fixed-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-live-targeted-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-offline-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-offline-after-unavailable-fix-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-priority-frozen-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-priority-rerun-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-rules-citations-terra-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-rules-citations-terra-batched-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-rules-citations-terra-final-20260913/\n?? lexis_real_briefs/experiment/results/micro-judge-hardening-deepseek-20260913.json\n?? lexis_real_briefs/experiment/results/micro-judge-hardening-deepseek-offset8-20260913.json\n?? lexis_real_briefs/experiment/results/micro-judge-hardening-gpt55-20260913.json\n?? lexis_real_briefs/experiment/results/micro-judge-hardening-gpt56terra-20260913.json\n?? lexis_real_briefs/experiment/results/micro-judge-hardening-gpt56terra-deployed-20260913.json\n?? lexis_real_briefs/experiment/results/micro-judge-hardening-grok46-20260913.json\n?? lexis_real_briefs/experiment/results/micro-judge-rule-floor-llama-4-maverick-20260913.json\n?? lexis_real_briefs/experiment/results/micro-judge-rule-floor-mistral-large-3-20260913.json\n?? lexis_real_briefs/experiment/results/micro-judge-rules-gpt55-20260913.json\n?? lexis_real_briefs/experiment/results/micro-judge-rules-gpt56terra-20260913.json\n?? lexis_real_briefs/experiment/results/micro-rules-all-fixtures-20260913/\n?? lexis_real_briefs/experiment/results/qualification-authority-f005-nested-fixed-rep1-20260913/\n?? lexis_real_briefs/experiment/results/qualification-authority-f005-nested-fixed-rep2-20260913/\n?? lexis_real_briefs/experiment/results/qualification-authority-f005-nested-fixed-rep3-20260913/\n?? lexis_real_briefs/experiment/results/qualification-authority-f005-rep1-20260913/\n?? lexis_real_briefs/experiment/results/qualification-authority-f005-stable-inventory-20260913/\n?? lexis_real_briefs/experiment/results/qualification-rule-floor-contract-rep1-20260913/\n?? lexis_real_briefs/experiment/results/qualification-rule-floor-final-rep1-20260913/\n?? lexis_real_briefs/experiment/results/qualification-rule-floor-fresh10-20260913/\n?? lexis_real_briefs/experiment/results/qualification-rule-floor-fresh10-rep2-20260913/\n?? lexis_real_briefs/experiment/results/qualification-rule-floor-gate-rep1-20260913/\n?? lexis_real_briefs/experiment/results/qualification-rule-floor-gate-rep2-20260913/\n?? lexis_real_briefs/experiment/results/qualification-rule-floor-gate-rep3-20260913/\n?? lexis_real_briefs/experiment/results/qualification-rule-floor-mistral-high-rep1-20260913/\n?? lexis_real_briefs/experiment/results/qualification-rule-floor-mistral-rep1-20260913/\n?? lexis_real_briefs/experiment/results/qualification-rule-floor-ready-rep1-20260913/\n?? lexis_real_briefs/experiment/results/qualification-rule-floor-rep1-20260913/\n?? lexis_real_briefs/experiment/results/qualification-rule-floor-repaired-rep1-20260913/\n?? lexis_real_briefs/experiment/results/qualification-rule-floor-terra-mistral-fixed-rep1-20260913/\n?? lexis_real_briefs/experiment/results/qualification-rule-floor-terra-mistral-rep1-20260913/\n?? lexis_real_briefs/experiment/results/qualification-vawa-coverage-rep1-20260913/\n?? lexis_real_briefs/experiment/results/qualification-vawa-coverage-rep2-20260913/\n?? lexis_real_briefs/experiment/results/qualification-vawa-coverage-rep3-20260913/\n",
+    "command": [
+      "/home/quinten/agentic_housing_drafting/.venv/bin/python",
+      "/home/quinten/agentic_housing_drafting/lexis_real_briefs/experiment/tools/run_experiment.py",
+      "--output-dir",
+      "/home/quinten/agentic_housing_drafting/lexis_real_briefs/experiment/results/heldout-rule-floor-llama-sol-attorney-reviewed-rep3-20260913/shards/R006",
+      "--fixtures-dir",
+      "/home/quinten/agentic_housing_drafting/lexis_real_briefs/experiment/fixtures-rule-floor-attorney-reviewed-20260913",
+      "--fixture",
+      "R006",
+      "--model",
+      "gpt-5.4-mini",
+      "--reasoning",
+      "medium",
+      "--live",
+      "--attack-model",
+      "gpt-5.6-terra",
+      "--judge-model",
+      "mistral-large-3",
+      "--base-model",
+      "gpt-5.6-terra",
+      "--cell",
+      "terra-mistral",
+      "--check",
+      "rule_elements"
+    ],
+    "python": "3.12.3 (main, Aug 31 2026, 10:18:26) [GCC 13.3.0]",
+    "cell": "terra-mistral",
+    "models": {
+      "attack": "gpt-5.6-terra",
+      "judge": "mistral-large-3",
+      "base": "gpt-5.6-terra"
+    },
+    "model": "gpt-5.6-terra",
+    "attack_family": "openai",
+    "judge_family": "mistral",
+    "same_family_judge": false,
+    "role_routing": "named Opponent prompts -> attack; legacy and correctness Judge prompts -> judge; everything else -> base",
+    "reasoning": "medium",
+    "temperature": 0,
+    "provider_host": "quint-mln02sj6-eastus2.cognitiveservices.azure.com",
+    "model_version_note": "Requested deployment alias; the provider's snapshot identity is not exposed to the application client.",
+    "code_sha256": "ee19e50720fcf3296b77bca657634a8ec471f42669525f0f6b0b0686882cd494",
+    "dependencies_sha256": "f5f5236ee56cf7f75c2f0f59f570b7386388e27164eb9ec999572462072c4366",
+    "unit_budget_chars": 260000,
+    "unit_text_chars": 2400,
+    "brief_text_chars": 120000,
+    "source_ids": [
+      "ohio-cases",
+      "ohio-statutes",
+      "ohio-ordinances",
+      "treatise"
+    ],
+    "enabled_checks": [
+      "rule_elements"
+    ],
+    "blinding": "The Gym receives brief text and record text only. No fixture id, condition label, mutation class or gold vulnerability reaches any prompt.",
+    "scoring": "The Gym writes stable per-target dispositions. Whether a result matches the registered mutation remains a separate, human-checkable step.",
+    "fixtures": [
+      {
+        "fixture_id": "R006",
+        "control_sha256": "bf893cca253ce42b8c8dc1ce3836bd77ccb3ef26a9fb796b26010d70b46898f4",
+        "mutant_sha256": "784bf0e9cd6ceae4f2bd105832c82108d83e3a4b7ecb1301f27469f351158f12",
+        "attachment_sha256": {
+          "record-01.txt": "d864b7c8d20bd10cbaa673e27ef73d7be69db78278b3d230861fb01bb938a4bf"
+        }
+      }
+    ]
+  },
+  "results": [
+    {
+      "fixture_id": "R006",
+      "condition": "control",
+      "case_family_id": "synthetic-rule-review-r006",
+      "stratum": "synthetic_rule_elements_attorney_review",
+      "run_id": 34,
+      "run_at": "2026-09-14T02:24:53.620891+00:00",
+      "status": "complete",
+      "pipeline_status": "complete",
+      "degraded": null,
+      "error": "",
+      "brief_sha256": "bf893cca253ce42b8c8dc1ce3836bd77ccb3ef26a9fb796b26010d70b46898f4",
+      "brief_chars": 1675,
+      "record_documents": 1,
+      "attack_model": "gpt-5.6-terra",
+      "judge_model": "mistral-large-3",
+      "base_model": "gpt-5.6-terra",
+      "same_family": false,
+      "reasoning": "medium",
+      "unit_budget_chars": 260000,
+      "units": 13,
+      "court": {
+        "mode": "auto",
+        "reason": "No maintained court profile matched this document's caption or the case record.",
+        "matched": "",
+        "where": "",
+        "courtSlug": ""
+      },
+      "deterministic_findings": {
+        "rule_elements": 0
+      },
+      "checks_run": [
+        {
+          "id": "record_support",
+          "label": "Test material facts against the record",
+          "description": "Opponent tests only atomic, record-verifiable, material claims; Judge sustains a defect only when the supplied evidence and record coverage establish it.",
+          "kind": "model",
+          "category": "correctness",
+          "categoryLabel": "Correctness",
+          "categoryDescription": "Is the law right? Is the authority controlling? Are the required elements present, and does the record establish what the brief says it does?",
+          "defaultEnabled": true,
+          "requires": [
+            "case_record"
+          ],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "rule_elements",
+          "label": "Audit the elements of the rules invoked",
+          "description": "Detects the rules the brief cites or invokes by name, then audits each element of those rules: is it pleaded, and is it supported.",
+          "kind": "model",
+          "category": "correctness",
+          "categoryLabel": "Correctness",
+          "categoryDescription": "Is the law right? Is the authority controlling? Are the required elements present, and does the record establish what the brief says it does?",
+          "defaultEnabled": true,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "on",
+          "reason": ""
+        },
+        {
+          "id": "authority_support",
+          "label": "Test cited authority support",
+          "description": "Whether each cited authority supports the material legal proposition for which the brief uses it.",
+          "kind": "model",
+          "category": "correctness",
+          "categoryLabel": "Correctness",
+          "categoryDescription": "Is the law right? Is the authority controlling? Are the required elements present, and does the record establish what the brief says it does?",
+          "defaultEnabled": true,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "adversarial",
+          "label": "Opposing counsel, a judge, and a coach",
+          "description": "The core of the gym: opposing counsel makes the strongest arguments available against the brief, a judge weighs them, and a coach proposes answers.",
+          "kind": "model",
+          "category": "completeness",
+          "categoryLabel": "Argumentative completeness",
+          "categoryDescription": "Does the brief connect its rules to its facts? Does it work the difficult element instead of restating the rule? Does it confront adverse authority and answer the counterargument a court will think of on its own?",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_issue_framing",
+          "label": "Issue framing",
+          "description": "Does the brief identify the real dispute early and frame it around the favorable legal question?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_macro_organization",
+          "label": "Macro-organization",
+          "description": "Are arguments ordered logically and by importance? Can the reader see the roadmap?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_paragraph_organization",
+          "label": "Paragraph-level organization",
+          "description": "Do paragraphs have discernible propositions or topic sentences, and develop one point at a time?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_rule_synthesis",
+          "label": "Rule synthesis",
+          "description": "Does the writer synthesize authorities into a rule rather than serially summarize cases?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_rule_application",
+          "label": "Rule-to-fact application",
+          "description": "Is the reasoning explicit -- \"because X fact satisfies Y element\" -- rather than leaving the inferential step to the court?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_fact_selection",
+          "label": "Fact selection and narrative coherence",
+          "description": "Are legally significant facts foregrounded and organized in a comprehensible chronology or theory?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_use_of_authority",
+          "label": "Use of authority",
+          "description": "Are important propositions backed by strong authorities placed where they actually matter, rather than citation dumping?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_counterarguments",
+          "label": "Handling counterarguments",
+          "description": "Does the brief acknowledge and answer the strongest objection rather than arguing past it?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_concision",
+          "label": "Concision and reader burden",
+          "description": "Does it say the same thing once, in the right place, without unnecessary throat-clearing?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_calibration",
+          "label": "Calibrated confidence and credibility",
+          "description": "Does it distinguish strong propositions from uncertain ones and avoid overclaiming?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_relief_alignment",
+          "label": "Requested-relief alignment",
+          "description": "Does the argument actually lead to the precise thing the brief asks the court to do?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_emphasis",
+          "label": "Emphasis",
+          "description": "Does the document devote its space to the issues that matter rather than treating every point as equally important?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "custom_checklist",
+          "label": "Custom checklist",
+          "description": "Applies review questions you wrote. An item can look things up -- authority, the case record, passages of the brief -- rather than answering from the brief alone. Attach a checklist for this to run.",
+          "kind": "model",
+          "category": "custom",
+          "categoryLabel": "Your own checks",
+          "categoryDescription": "Review questions you wrote, in your words, applied to this brief.",
+          "defaultEnabled": false,
+          "requires": [
+            "checklist"
+          ],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "court_formatting",
+          "label": "This court's filing rules",
+          "description": "Required elements, type size, spacing, margins, and page limits for the selected court.",
+          "kind": "deterministic",
+          "category": "form",
+          "categoryLabel": "Form of the filing",
+          "categoryDescription": "Whether the paper meets this court's rules and the conventions of practice.",
+          "defaultEnabled": false,
+          "requires": [
+            "court_profile"
+          ],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "pleading_form",
+          "label": "Form of the pleading",
+          "description": "Conventions of practice rather than any one court's rules: numbered paragraphs running in order, a prayer for relief, a signature block, exhibit references that resolve, no placeholder left in the text.",
+          "kind": "deterministic",
+          "category": "form",
+          "categoryLabel": "Form of the filing",
+          "categoryDescription": "Whether the paper meets this court's rules and the conventions of practice.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "draft_validation",
+          "label": "Draft-mode validation",
+          "description": "The same checks Draft mode runs: unresolved template data and placeholders, draft structure, rendered Word consistency, citation linting, source support, and filing-package consistency.",
+          "kind": "deterministic",
+          "category": "form",
+          "categoryLabel": "Form of the filing",
+          "categoryDescription": "Whether the paper meets this court's rules and the conventions of practice.",
+          "defaultEnabled": false,
+          "requires": [
+            "native_draft"
+          ],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "grammar",
+          "label": "Grammar and mechanics",
+          "description": "Doubled words, missing sentence spacing, unbalanced quotes and parentheses.",
+          "kind": "deterministic",
+          "category": "language",
+          "categoryLabel": "Language",
+          "categoryDescription": "Sentence-level mechanics, reported as nudges rather than as defects in the argument.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "confused_words",
+          "label": "Misspelled and easily confused words",
+          "description": "Not a dictionary spell check, on purpose: a general dictionary flags half of every case name. This looks for the words legal writing actually gets wrong, and for real words used in place of other real words.",
+          "kind": "deterministic",
+          "category": "language",
+          "categoryLabel": "Language",
+          "categoryDescription": "Sentence-level mechanics, reported as nudges rather than as defects in the argument.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "passive_voice",
+          "label": "Passive voice",
+          "description": "Reported as a nudge, never an error. Phrases a court expects to read are on an accepted list you can add to for this session.",
+          "kind": "deterministic",
+          "category": "language",
+          "categoryLabel": "Language",
+          "categoryDescription": "Sentence-level mechanics, reported as nudges rather than as defects in the argument.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "acceptedPassivePhrases: phrases this court expects, which the check stays quiet about.",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "readability",
+          "label": "Readability",
+          "description": "Sentence length and reading-level measures, reported as several formulas rather than one score.",
+          "kind": "deterministic",
+          "category": "language",
+          "categoryLabel": "Language",
+          "categoryDescription": "Sentence-level mechanics, reported as nudges rather than as defects in the argument.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        }
+      ],
+      "check_results": {
+        "rule_elements": {
+          "findings": [],
+          "tests": [
+            {
+              "checkId": "rule_elements",
+              "issueCode": "required_element_carried",
+              "targetId": "rc-5321-04-landlord-duties:duty_identified",
+              "unitId": "u2",
+              "disposition": "pass",
+              "claim": "The brief names which obligation was breached, not just that conditions were bad.",
+              "problem": "The brief expressly identifies the fit-and-habitable-premises obligation as the particular R.C. 5321.04 duty allegedly breached. This is a legal-duty identification and does not require record support.",
+              "briefEvidence": [
+                "u2"
+              ],
+              "externalEvidence": [
+                "https://codes.ohio.gov/ohio-revised-code/section-5321.04"
+              ],
+              "reason": "The brief expressly identifies the specific duty breached (fit and habitable premises under R.C. 5321.04) as required. This is a legal-duty identification and does not require record support.",
+              "confidence": "high",
+              "userVisible": true
+            },
+            {
+              "checkId": "rule_elements",
+              "issueCode": "required_element_carried",
+              "targetId": "rc-5321-04-landlord-duties:condition_described",
+              "unitId": "u2",
+              "disposition": "pass",
+              "claim": "The brief describes the defect, where it is, and how long it lasted.",
+              "problem": "The brief identifies the defect, its basement location and effect on the living room, and the period it persisted. Jane Doe's affidavit corroborates those factual allegations.",
+              "briefEvidence": [
+                "u2"
+              ],
+              "externalEvidence": [
+                "https://codes.ohio.gov/ohio-revised-code/section-5321.04"
+              ],
+              "reason": "The brief describes the defect (broken furnace), its location (basement affecting the living room), and the duration (January 1, 2023, through February 15, 2023), with corroboration from Jane Doe's affidavit (recordMaterialIds: upload:35).",
+              "confidence": "high",
+              "userVisible": true
+            },
+            {
+              "checkId": "rule_elements",
+              "issueCode": "required_element_carried",
+              "targetId": "rc-5321-04-landlord-duties:entry_without_reasonable_notice",
+              "unitId": "u2",
+              "disposition": "pass",
+              "claim": "Identify the entry demand notice timing and circumstances; twenty-four hours is presumptively reasonable absent contrary evidence.",
+              "problem": "The brief expressly disclaims an entry claim under R.C. 5321.04(A)(8) or (B). It therefore need not allege an entry, notice timing, or unreasonable entry circumstances.",
+              "briefEvidence": [
+                "u2"
+              ],
+              "externalEvidence": [
+                "https://codes.ohio.gov/ohio-revised-code/section-5321.04"
+              ],
+              "reason": "The brief expressly disclaims an entry claim under R.C. 5321.04(A)(8) or (B), so allegations regarding entry or notice timing are not required.",
+              "confidence": "high",
+              "userVisible": true
+            },
+            {
+              "checkId": "rule_elements",
+              "issueCode": "required_element_carried",
+              "targetId": "rc-5321-04-landlord-duties:entry_harm_or_relief",
+              "unitId": "u2",
+              "disposition": "pass",
+              "claim": "Connect the improper entry or repeated harassing demands to actual damages injunctive relief fees or termination.",
+              "problem": "The tenant does not seek Division B relief for improper entry or harassment; she seeks rent reduction under R.C. 5321.07(B)(2). Thus, Division B harm or relief allegations are not required.",
+              "briefEvidence": [
+                "u2"
+              ],
+              "externalEvidence": [
+                "https://codes.ohio.gov/ohio-revised-code/section-5321.04"
+              ],
+              "reason": "The tenant does not seek relief for improper entry or harassment under Division B, so allegations connecting entry to harm or relief are not required.",
+              "confidence": "high",
+              "userVisible": true
+            },
+            {
+              "checkId": "rule_elements",
+              "issueCode": "required_element_carried",
+              "targetId": "rc-5321-04-landlord-duties:consequence_claimed",
+              "unitId": "u2",
+              "disposition": "pass",
+              "claim": "Identify the particular claim or defense and its remedy-specific legal basis rather than assuming every R.C. 5321.04 breach automatically defeats possession.",
+              "problem": "The brief connects the alleged habitability breach to a specific remedy, rent reduction, and identifies its remedy-specific basis as R.C. 5321.07(B)(2). This legal connection does not require factual record support for this element.",
+              "briefEvidence": [
+                "u2"
+              ],
+              "externalEvidence": [
+                "https://codes.ohio.gov/ohio-revised-code/section-5321.04"
+              ],
+              "reason": "The brief connects the alleged habitability breach to a specific remedy (rent reduction) and cites the remedy-specific legal basis (R.C. 5321.07(B)(2)). This legal connection does not require factual record support.",
+              "confidence": "high",
+              "userVisible": true
+            }
+          ],
+          "summary": "0 must fix, 0 review, 5 passed"
+        }
+      },
+      "correctness_tests": [
+        {
+          "checkId": "rule_elements",
+          "issueCode": "required_element_carried",
+          "targetId": "rc-5321-04-landlord-duties:duty_identified",
+          "unitId": "u2",
+          "disposition": "pass",
+          "claim": "The brief names which obligation was breached, not just that conditions were bad.",
+          "problem": "The brief expressly identifies the fit-and-habitable-premises obligation as the particular R.C. 5321.04 duty allegedly breached. This is a legal-duty identification and does not require record support.",
+          "briefEvidence": [
+            "u2"
+          ],
+          "externalEvidence": [
+            "https://codes.ohio.gov/ohio-revised-code/section-5321.04"
+          ],
+          "reason": "The brief expressly identifies the specific duty breached (fit and habitable premises under R.C. 5321.04) as required. This is a legal-duty identification and does not require record support.",
+          "confidence": "high",
+          "userVisible": true
+        },
+        {
+          "checkId": "rule_elements",
+          "issueCode": "required_element_carried",
+          "targetId": "rc-5321-04-landlord-duties:condition_described",
+          "unitId": "u2",
+          "disposition": "pass",
+          "claim": "The brief describes the defect, where it is, and how long it lasted.",
+          "problem": "The brief identifies the defect, its basement location and effect on the living room, and the period it persisted. Jane Doe's affidavit corroborates those factual allegations.",
+          "briefEvidence": [
+            "u2"
+          ],
+          "externalEvidence": [
+            "https://codes.ohio.gov/ohio-revised-code/section-5321.04"
+          ],
+          "reason": "The brief describes the defect (broken furnace), its location (basement affecting the living room), and the duration (January 1, 2023, through February 15, 2023), with corroboration from Jane Doe's affidavit (recordMaterialIds: upload:35).",
+          "confidence": "high",
+          "userVisible": true
+        },
+        {
+          "checkId": "rule_elements",
+          "issueCode": "required_element_carried",
+          "targetId": "rc-5321-04-landlord-duties:entry_without_reasonable_notice",
+          "unitId": "u2",
+          "disposition": "pass",
+          "claim": "Identify the entry demand notice timing and circumstances; twenty-four hours is presumptively reasonable absent contrary evidence.",
+          "problem": "The brief expressly disclaims an entry claim under R.C. 5321.04(A)(8) or (B). It therefore need not allege an entry, notice timing, or unreasonable entry circumstances.",
+          "briefEvidence": [
+            "u2"
+          ],
+          "externalEvidence": [
+            "https://codes.ohio.gov/ohio-revised-code/section-5321.04"
+          ],
+          "reason": "The brief expressly disclaims an entry claim under R.C. 5321.04(A)(8) or (B), so allegations regarding entry or notice timing are not required.",
+          "confidence": "high",
+          "userVisible": true
+        },
+        {
+          "checkId": "rule_elements",
+          "issueCode": "required_element_carried",
+          "targetId": "rc-5321-04-landlord-duties:entry_harm_or_relief",
+          "unitId": "u2",
+          "disposition": "pass",
+          "claim": "Connect the improper entry or repeated harassing demands to actual damages injunctive relief fees or termination.",
+          "problem": "The tenant does not seek Division B relief for improper entry or harassment; she seeks rent reduction under R.C. 5321.07(B)(2). Thus, Division B harm or relief allegations are not required.",
+          "briefEvidence": [
+            "u2"
+          ],
+          "externalEvidence": [
+            "https://codes.ohio.gov/ohio-revised-code/section-5321.04"
+          ],
+          "reason": "The tenant does not seek relief for improper entry or harassment under Division B, so allegations connecting entry to harm or relief are not required.",
+          "confidence": "high",
+          "userVisible": true
+        },
+        {
+          "checkId": "rule_elements",
+          "issueCode": "required_element_carried",
+          "targetId": "rc-5321-04-landlord-duties:consequence_claimed",
+          "unitId": "u2",
+          "disposition": "pass",
+          "claim": "Identify the particular claim or defense and its remedy-specific legal basis rather than assuming every R.C. 5321.04 breach automatically defeats possession.",
+          "problem": "The brief connects the alleged habitability breach to a specific remedy, rent reduction, and identifies its remedy-specific basis as R.C. 5321.07(B)(2). This legal connection does not require factual record support for this element.",
+          "briefEvidence": [
+            "u2"
+          ],
+          "externalEvidence": [
+            "https://codes.ohio.gov/ohio-revised-code/section-5321.04"
+          ],
+          "reason": "The brief connects the alleged habitability breach to a specific remedy (rent reduction) and cites the remedy-specific legal basis (R.C. 5321.07(B)(2)). This legal connection does not require factual record support.",
+          "confidence": "high",
+          "userVisible": true
+        }
+      ],
+      "rule_audit": [
+        {
+          "slug": "rc-5321-04-landlord-duties",
+          "name": "Landlord obligations",
+          "citation": "R.C. 5321.04",
+          "label": "Landlord obligations (R.C. 5321.04)",
+          "summary": "A residential landlord owes statutory duties including compliance with building, housing, health, and safety codes and keeping the premises in a fit and habitable condition. A tenant relying on a breach must identify the applicable statutory duty and the concrete conduct or condition breaching it; the elements of a particular remedy are audited under that remedy's rule.",
+          "verification": "verified",
+          "source": "R.C. 5321.04; Iskin (6th ed. 2022), \u00a7\u00a7 VII, IX-X",
+          "sourceUrl": "https://codes.ohio.gov/ohio-revised-code/section-5321.04",
+          "invokedBy": "citation",
+          "matched": "R.C. 5321.04",
+          "excerpt": "2023. The dwelling is not student housing, and the landlord owns more than three rental units. Argument The landlord breached the duty to maintain the premises in a fit and habitable condition under R.C. 5321.04. The specific obligation breached was the duty to keep the premises in a fit and habitable condition. The defective condition was a broken furnace in the basement, which rendered the living room uninhabitable due to lack of heat, and this condition persisted from January 1, 2023, throu",
+          "audited": true,
+          "briefCoverage": {
+            "reviewedChars": 1675,
+            "totalChars": 1675,
+            "truncated": false
+          },
+          "requiresApplicabilityReview": false,
+          "elements": [
+            {
+              "id": "duty_identified",
+              "label": "The specific statutory duty is identified",
+              "requirement": "The brief names which obligation was breached, not just that conditions were bad.",
+              "severity": "error",
+              "needsRecordSupport": false,
+              "requiredWhen": "",
+              "patterns": [
+                "5321\\.04\\s*\\(A\\)\\s*\\(\\d",
+                "(building|housing|health|safety) code",
+                "fit and habitable"
+              ],
+              "note": "",
+              "origin": "profile",
+              "pled": "yes",
+              "applicability": "applicable",
+              "supported": "yes",
+              "explanation": "The brief expressly identifies the fit-and-habitable-premises obligation as the particular R.C. 5321.04 duty allegedly breached. This is a legal-duty identification and does not require record support.",
+              "quote": "The landlord breached the duty to maintain the premises in a fit and habitable condition under R.C. 5321.04. The specific obligation breached was the duty to keep the premises in a fit and habitable condition.",
+              "materialIds": [],
+              "unmet": false
+            },
+            {
+              "id": "condition_described",
+              "label": "The condition is described specifically",
+              "requirement": "The brief describes the defect, where it is, and how long it lasted.",
+              "severity": "error",
+              "needsRecordSupport": true,
+              "requiredWhen": "",
+              "patterns": [
+                "(leak|mold|heat|furnace|water|infestation|roach|rodent|electrical|plumbing|roof)"
+              ],
+              "note": "",
+              "origin": "profile",
+              "pled": "yes",
+              "applicability": "applicable",
+              "supported": "yes",
+              "explanation": "The brief identifies the defect, its basement location and effect on the living room, and the period it persisted. Jane Doe's affidavit corroborates those factual allegations.",
+              "quote": "The defective condition was a broken furnace in the basement, which rendered the living room uninhabitable due to lack of heat, and this condition persisted from January 1, 2023, through February 15, 2023.",
+              "materialIds": [
+                "upload:35"
+              ],
+              "unmet": false
+            },
+            {
+              "id": "entry_without_reasonable_notice",
+              "label": "Nonemergency entry lacked reasonable notice or occurred at an unreasonable time",
+              "requirement": "Identify the entry demand notice timing and circumstances; twenty-four hours is presumptively reasonable absent contrary evidence.",
+              "severity": "error",
+              "needsRecordSupport": true,
+              "requiredWhen": "Only if the brief asserts an entry claim under R.C. 5321.04(A)(8) or (B).",
+              "patterns": [
+                "(entry|enter).{0,50}(notice|reasonable time)",
+                "twenty-four hours"
+              ],
+              "note": "",
+              "origin": "profile",
+              "pled": "no",
+              "applicability": "not_applicable",
+              "supported": "nothing_supplied",
+              "explanation": "The brief expressly disclaims an entry claim under R.C. 5321.04(A)(8) or (B). It therefore need not allege an entry, notice timing, or unreasonable entry circumstances.",
+              "quote": "The entry claim is inapplicable as no entry claim is asserted under R.C. 5321.04(A)(8) or (B), so elements related to entry are not applicable.",
+              "materialIds": [],
+              "unmet": false
+            },
+            {
+              "id": "entry_harm_or_relief",
+              "label": "Division B harm or authorized relief is pleaded",
+              "requirement": "Connect the improper entry or repeated harassing demands to actual damages injunctive relief fees or termination.",
+              "severity": "error",
+              "needsRecordSupport": true,
+              "requiredWhen": "Only if the brief seeks relief under R.C. 5321.04(B).",
+              "patterns": [
+                "actual damages",
+                "injunctive relief",
+                "harass.{0,30}(entry|tenant)"
+              ],
+              "note": "",
+              "origin": "profile",
+              "pled": "no",
+              "applicability": "not_applicable",
+              "supported": "nothing_supplied",
+              "explanation": "The tenant does not seek Division B relief for improper entry or harassment; she seeks rent reduction under R.C. 5321.07(B)(2). Thus, Division B harm or relief allegations are not required.",
+              "quote": "The entry claim is inapplicable as no entry claim is asserted under R.C. 5321.04(A)(8) or (B), so elements related to entry are not applicable.",
+              "materialIds": [],
+              "unmet": false
+            },
+            {
+              "id": "consequence_claimed",
+              "label": "The statutory breach is connected to an available remedy or defense",
+              "requirement": "Identify the particular claim or defense and its remedy-specific legal basis rather than assuming every R.C. 5321.04 breach automatically defeats possession.",
+              "severity": "warning",
+              "needsRecordSupport": false,
+              "requiredWhen": "Only if the brief seeks relief or asserts an eviction defense based on the R.C. 5321.04 breach.",
+              "patterns": [
+                "\\b(rent abatement|abatement of (the )?rent)\\b",
+                "damages",
+                "defense to (possession|eviction)",
+                "rent escrow"
+              ],
+              "note": "",
+              "origin": "profile",
+              "pled": "yes",
+              "applicability": "applicable",
+              "supported": "yes",
+              "explanation": "The brief connects the alleged habitability breach to a specific remedy, rent reduction, and identifies its remedy-specific basis as R.C. 5321.07(B)(2). This legal connection does not require factual record support for this element.",
+              "quote": "As the landlord failed to remedy the defect, the tenant is entitled to an order reducing rent under R.C. 5321.07(B)(2).",
+              "materialIds": [],
+              "unmet": false
+            }
+          ],
+          "unmetCount": 0,
+          "verdict": "Every element on file is pleaded and supported."
+        }
+      ],
+      "compliance": {
+        "checked": false,
+        "reason": "You turned this check off for this session.",
+        "findings": [],
+        "detection": {
+          "mode": "auto",
+          "reason": "No maintained court profile matched this document's caption or the case record.",
+          "matched": "",
+          "where": "",
+          "courtSlug": ""
+        }
+      },
+      "challenges": [],
+      "challenge_count": 0,
+      "opponent_calls": [],
+      "judge_calls": [],
+      "verdict": "correctness review completed",
+      "assessment": "Correctness review completed. 0 must-fix findings; 0 items need attorney review. Rule elements: passed",
+      "stage_trace": [
+        {
+          "stage": "document_checks",
+          "method": "deterministic",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "materials",
+          "method": "all",
+          "count": 1,
+          "budgetChars": 150000,
+          "perMaterialChars": 150000,
+          "truncated": [],
+          "trace": []
+        },
+        {
+          "stage": "argument_map",
+          "method": "skipped",
+          "count": 0,
+          "trace": [
+            "No selected check requires a generative argument map."
+          ]
+        },
+        {
+          "stage": "persuasion",
+          "method": "off",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "record_targets",
+          "method": "off",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "opponent:record_support",
+          "method": "off",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "authority_research",
+          "method": "source_specific",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "research_queries",
+          "method": "off",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "research",
+          "method": "retrieval",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "opponent",
+          "method": "off",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "opponent:authority_support",
+          "method": "off",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "rule_elements",
+          "method": "llm",
+          "count": 1,
+          "trace": [
+            {
+              "stage": "rule_elements:rc-5321-04-landlord-duties",
+              "method": "llm",
+              "count": 5,
+              "trace": [
+                {
+                  "attempt": 1,
+                  "plan": {
+                    "method": "llm",
+                    "llmAttempt": 1
+                  },
+                  "success": true,
+                  "code": "rule_elements:rc-5321-04-landlord-duties_complete",
+                  "message": "rule_elements:rc-5321-04-landlord-duties produced 5 item(s)."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "stage": "judge",
+          "method": "off",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "judge:rule_elements",
+          "method": "llm",
+          "count": 5,
+          "trace": [
+            {
+              "attempt": 1,
+              "plan": {
+                "method": "llm",
+                "llmAttempt": 1
+              },
+              "success": true,
+              "code": "judge:rule_elements_complete",
+              "message": "judge:rule_elements produced 5 item(s)."
+            }
+          ],
+          "checkId": "rule_elements",
+          "batch": 1,
+          "batches": 1,
+          "candidateIds": [
+            "rule_elements:rc-5321-04-landlord-duties:condition_described",
+            "rule_elements:rc-5321-04-landlord-duties:consequence_claimed",
+            "rule_elements:rc-5321-04-landlord-duties:duty_identified",
+            "rule_elements:rc-5321-04-landlord-duties:entry_harm_or_relief",
+            "rule_elements:rc-5321-04-landlord-duties:entry_without_reasonable_notice"
+          ],
+          "unavailable": false
+        },
+        {
+          "stage": "coach",
+          "method": "skipped",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "assessment",
+          "method": "deterministic",
+          "count": 1,
+          "trace": []
+        }
+      ],
+      "research_trace": [],
+      "model_calls": [
+        {
+          "prompt_key": "argument_gym.rule_elements",
+          "role": "base",
+          "model": "gpt-5.6-terra",
+          "settings": {
+            "temperature": 0,
+            "model": "gpt-5.6-terra",
+            "reasoning_level": "medium"
+          },
+          "status": "complete",
+          "elapsed_seconds": 9.137
+        },
+        {
+          "prompt_key": "argument_gym.correctness_judge",
+          "role": "judge",
+          "model": "mistral-large-3",
+          "settings": {
+            "temperature": 0,
+            "model": "mistral-large-3",
+            "reasoning_level": "medium"
+          },
+          "status": "complete",
+          "elapsed_seconds": 7.157
+        }
+      ],
+      "attacks_given_to_judge": 0
+    },
+    {
+      "fixture_id": "R006",
+      "condition": "mutant",
+      "case_family_id": "synthetic-rule-review-r006",
+      "stratum": "synthetic_rule_elements_attorney_review",
+      "run_id": 35,
+      "run_at": "2026-09-14T02:25:13.581375+00:00",
+      "status": "complete",
+      "pipeline_status": "complete",
+      "degraded": null,
+      "error": "",
+      "brief_sha256": "784bf0e9cd6ceae4f2bd105832c82108d83e3a4b7ecb1301f27469f351158f12",
+      "brief_chars": 1468,
+      "record_documents": 1,
+      "attack_model": "gpt-5.6-terra",
+      "judge_model": "mistral-large-3",
+      "base_model": "gpt-5.6-terra",
+      "same_family": false,
+      "reasoning": "medium",
+      "unit_budget_chars": 260000,
+      "units": 12,
+      "court": {
+        "mode": "auto",
+        "reason": "No maintained court profile matched this document's caption or the case record.",
+        "matched": "",
+        "where": "",
+        "courtSlug": ""
+      },
+      "deterministic_findings": {
+        "rule_elements": 1
+      },
+      "checks_run": [
+        {
+          "id": "record_support",
+          "label": "Test material facts against the record",
+          "description": "Opponent tests only atomic, record-verifiable, material claims; Judge sustains a defect only when the supplied evidence and record coverage establish it.",
+          "kind": "model",
+          "category": "correctness",
+          "categoryLabel": "Correctness",
+          "categoryDescription": "Is the law right? Is the authority controlling? Are the required elements present, and does the record establish what the brief says it does?",
+          "defaultEnabled": true,
+          "requires": [
+            "case_record"
+          ],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "rule_elements",
+          "label": "Audit the elements of the rules invoked",
+          "description": "Detects the rules the brief cites or invokes by name, then audits each element of those rules: is it pleaded, and is it supported.",
+          "kind": "model",
+          "category": "correctness",
+          "categoryLabel": "Correctness",
+          "categoryDescription": "Is the law right? Is the authority controlling? Are the required elements present, and does the record establish what the brief says it does?",
+          "defaultEnabled": true,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "on",
+          "reason": ""
+        },
+        {
+          "id": "authority_support",
+          "label": "Test cited authority support",
+          "description": "Whether each cited authority supports the material legal proposition for which the brief uses it.",
+          "kind": "model",
+          "category": "correctness",
+          "categoryLabel": "Correctness",
+          "categoryDescription": "Is the law right? Is the authority controlling? Are the required elements present, and does the record establish what the brief says it does?",
+          "defaultEnabled": true,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "adversarial",
+          "label": "Opposing counsel, a judge, and a coach",
+          "description": "The core of the gym: opposing counsel makes the strongest arguments available against the brief, a judge weighs them, and a coach proposes answers.",
+          "kind": "model",
+          "category": "completeness",
+          "categoryLabel": "Argumentative completeness",
+          "categoryDescription": "Does the brief connect its rules to its facts? Does it work the difficult element instead of restating the rule? Does it confront adverse authority and answer the counterargument a court will think of on its own?",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_issue_framing",
+          "label": "Issue framing",
+          "description": "Does the brief identify the real dispute early and frame it around the favorable legal question?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_macro_organization",
+          "label": "Macro-organization",
+          "description": "Are arguments ordered logically and by importance? Can the reader see the roadmap?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_paragraph_organization",
+          "label": "Paragraph-level organization",
+          "description": "Do paragraphs have discernible propositions or topic sentences, and develop one point at a time?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_rule_synthesis",
+          "label": "Rule synthesis",
+          "description": "Does the writer synthesize authorities into a rule rather than serially summarize cases?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_rule_application",
+          "label": "Rule-to-fact application",
+          "description": "Is the reasoning explicit -- \"because X fact satisfies Y element\" -- rather than leaving the inferential step to the court?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_fact_selection",
+          "label": "Fact selection and narrative coherence",
+          "description": "Are legally significant facts foregrounded and organized in a comprehensible chronology or theory?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_use_of_authority",
+          "label": "Use of authority",
+          "description": "Are important propositions backed by strong authorities placed where they actually matter, rather than citation dumping?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_counterarguments",
+          "label": "Handling counterarguments",
+          "description": "Does the brief acknowledge and answer the strongest objection rather than arguing past it?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_concision",
+          "label": "Concision and reader burden",
+          "description": "Does it say the same thing once, in the right place, without unnecessary throat-clearing?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_calibration",
+          "label": "Calibrated confidence and credibility",
+          "description": "Does it distinguish strong propositions from uncertain ones and avoid overclaiming?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_relief_alignment",
+          "label": "Requested-relief alignment",
+          "description": "Does the argument actually lead to the precise thing the brief asks the court to do?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_emphasis",
+          "label": "Emphasis",
+          "description": "Does the document devote its space to the issues that matter rather than treating every point as equally important?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "custom_checklist",
+          "label": "Custom checklist",
+          "description": "Applies review questions you wrote. An item can look things up -- authority, the case record, passages of the brief -- rather than answering from the brief alone. Attach a checklist for this to run.",
+          "kind": "model",
+          "category": "custom",
+          "categoryLabel": "Your own checks",
+          "categoryDescription": "Review questions you wrote, in your words, applied to this brief.",
+          "defaultEnabled": false,
+          "requires": [
+            "checklist"
+          ],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "court_formatting",
+          "label": "This court's filing rules",
+          "description": "Required elements, type size, spacing, margins, and page limits for the selected court.",
+          "kind": "deterministic",
+          "category": "form",
+          "categoryLabel": "Form of the filing",
+          "categoryDescription": "Whether the paper meets this court's rules and the conventions of practice.",
+          "defaultEnabled": false,
+          "requires": [
+            "court_profile"
+          ],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "pleading_form",
+          "label": "Form of the pleading",
+          "description": "Conventions of practice rather than any one court's rules: numbered paragraphs running in order, a prayer for relief, a signature block, exhibit references that resolve, no placeholder left in the text.",
+          "kind": "deterministic",
+          "category": "form",
+          "categoryLabel": "Form of the filing",
+          "categoryDescription": "Whether the paper meets this court's rules and the conventions of practice.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "draft_validation",
+          "label": "Draft-mode validation",
+          "description": "The same checks Draft mode runs: unresolved template data and placeholders, draft structure, rendered Word consistency, citation linting, source support, and filing-package consistency.",
+          "kind": "deterministic",
+          "category": "form",
+          "categoryLabel": "Form of the filing",
+          "categoryDescription": "Whether the paper meets this court's rules and the conventions of practice.",
+          "defaultEnabled": false,
+          "requires": [
+            "native_draft"
+          ],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "grammar",
+          "label": "Grammar and mechanics",
+          "description": "Doubled words, missing sentence spacing, unbalanced quotes and parentheses.",
+          "kind": "deterministic",
+          "category": "language",
+          "categoryLabel": "Language",
+          "categoryDescription": "Sentence-level mechanics, reported as nudges rather than as defects in the argument.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "confused_words",
+          "label": "Misspelled and easily confused words",
+          "description": "Not a dictionary spell check, on purpose: a general dictionary flags half of every case name. This looks for the words legal writing actually gets wrong, and for real words used in place of other real words.",
+          "kind": "deterministic",
+          "category": "language",
+          "categoryLabel": "Language",
+          "categoryDescription": "Sentence-level mechanics, reported as nudges rather than as defects in the argument.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "passive_voice",
+          "label": "Passive voice",
+          "description": "Reported as a nudge, never an error. Phrases a court expects to read are on an accepted list you can add to for this session.",
+          "kind": "deterministic",
+          "category": "language",
+          "categoryLabel": "Language",
+          "categoryDescription": "Sentence-level mechanics, reported as nudges rather than as defects in the argument.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "acceptedPassivePhrases: phrases this court expects, which the check stays quiet about.",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "readability",
+          "label": "Readability",
+          "description": "Sentence length and reading-level measures, reported as several formulas rather than one score.",
+          "kind": "deterministic",
+          "category": "language",
+          "categoryLabel": "Language",
+          "categoryDescription": "Sentence-level mechanics, reported as nudges rather than as defects in the argument.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        }
+      ],
+      "check_results": {
+        "rule_elements": {
+          "findings": [
+            {
+              "ruleCode": "rule_elements.missing_required_element",
+              "severity": "error",
+              "message": "The complete brief never describes the alleged defect, its location, or its duration; its generic reference to a \"defective condition\" does not carry this element. The affidavit supplies those facts, identifying a nonfunctioning basement furnace, lack of heat in the living room, and a January 1 through February 15 duration.",
+              "target": {
+                "unitId": "u2"
+              },
+              "details": {
+                "checkId": "rule_elements",
+                "issueCode": "missing_required_element",
+                "targetId": "rc-5321-04-landlord-duties:condition_described",
+                "unitId": "u2",
+                "disposition": "must_fix",
+                "claim": "The brief describes the defect, where it is, and how long it lasted.",
+                "problem": "The complete brief never describes the alleged defect, its location, or its duration; its generic reference to a \"defective condition\" does not carry this element. The affidavit supplies those facts, identifying a nonfunctioning basement furnace, lack of heat in the living room, and a January 1 through February 15 duration.",
+                "briefEvidence": [
+                  "u2"
+                ],
+                "externalEvidence": [
+                  "https://codes.ohio.gov/ohio-revised-code/section-5321.04"
+                ],
+                "reason": "The brief fails to describe the alleged defect, its location, or its duration within the text. The generic reference to a 'defective condition' does not satisfy the requirement to carry this element. The affidavit (record material) supplies these facts, but they must be included in the brief itself.",
+                "confidence": "high",
+                "userVisible": true
+              }
+            }
+          ],
+          "tests": [
+            {
+              "checkId": "rule_elements",
+              "issueCode": "required_element_carried",
+              "targetId": "rc-5321-04-landlord-duties:duty_identified",
+              "unitId": "u2",
+              "disposition": "pass",
+              "claim": "The brief names which obligation was breached, not just that conditions were bad.",
+              "problem": "The brief expressly identifies the fit-and-habitable-premises obligation as the specific duty allegedly breached under R.C. 5321.04.",
+              "briefEvidence": [
+                "u2"
+              ],
+              "externalEvidence": [
+                "https://codes.ohio.gov/ohio-revised-code/section-5321.04"
+              ],
+              "reason": "The brief expressly identifies the 'fit and habitable condition' obligation under R.C. 5321.04 as the specific duty breached, satisfying the requirement to name the obligation allegedly breached.",
+              "confidence": "high",
+              "userVisible": true
+            },
+            {
+              "checkId": "rule_elements",
+              "issueCode": "missing_required_element",
+              "targetId": "rc-5321-04-landlord-duties:condition_described",
+              "unitId": "u2",
+              "disposition": "must_fix",
+              "claim": "The brief describes the defect, where it is, and how long it lasted.",
+              "problem": "The complete brief never describes the alleged defect, its location, or its duration; its generic reference to a \"defective condition\" does not carry this element. The affidavit supplies those facts, identifying a nonfunctioning basement furnace, lack of heat in the living room, and a January 1 through February 15 duration.",
+              "briefEvidence": [
+                "u2"
+              ],
+              "externalEvidence": [
+                "https://codes.ohio.gov/ohio-revised-code/section-5321.04"
+              ],
+              "reason": "The brief fails to describe the alleged defect, its location, or its duration within the text. The generic reference to a 'defective condition' does not satisfy the requirement to carry this element. The affidavit (record material) supplies these facts, but they must be included in the brief itself.",
+              "confidence": "high",
+              "userVisible": true
+            },
+            {
+              "checkId": "rule_elements",
+              "issueCode": "required_element_carried",
+              "targetId": "rc-5321-04-landlord-duties:entry_without_reasonable_notice",
+              "unitId": "u2",
+              "disposition": "pass",
+              "claim": "Identify the entry demand notice timing and circumstances; twenty-four hours is presumptively reasonable absent contrary evidence.",
+              "problem": "The brief expressly disclaims an entry claim under R.C. 5321.04(A)(8) or (B), so entry-notice circumstances are not part of the defect relied upon.",
+              "briefEvidence": [
+                "u2"
+              ],
+              "externalEvidence": [
+                "https://codes.ohio.gov/ohio-revised-code/section-5321.04"
+              ],
+              "reason": "The brief expressly disclaims an entry claim under R.C. 5321.04(A)(8) or (B), so the element related to entry notice is inapplicable and need not be addressed.",
+              "confidence": "high",
+              "userVisible": true
+            },
+            {
+              "checkId": "rule_elements",
+              "issueCode": "required_element_carried",
+              "targetId": "rc-5321-04-landlord-duties:entry_harm_or_relief",
+              "unitId": "u2",
+              "disposition": "pass",
+              "claim": "Connect the improper entry or repeated harassing demands to actual damages injunctive relief fees or termination.",
+              "problem": "The brief does not seek relief under R.C. 5321.04(B) and expressly states that no entry claim is asserted.",
+              "briefEvidence": [
+                "u2"
+              ],
+              "externalEvidence": [
+                "https://codes.ohio.gov/ohio-revised-code/section-5321.04"
+              ],
+              "reason": "The brief does not seek relief under R.C. 5321.04(B) and expressly states no entry claim is asserted, so the element connecting improper entry to harm or relief is inapplicable.",
+              "confidence": "high",
+              "userVisible": true
+            },
+            {
+              "checkId": "rule_elements",
+              "issueCode": "required_element_carried",
+              "targetId": "rc-5321-04-landlord-duties:consequence_claimed",
+              "unitId": "u2",
+              "disposition": "pass",
+              "claim": "Identify the particular claim or defense and its remedy-specific legal basis rather than assuming every R.C. 5321.04 breach automatically defeats possession.",
+              "problem": "The brief connects the asserted habitability breach to a particular remedy\u2014rent reduction\u2014and identifies R.C. 5321.07(B)(2) as the remedy-specific basis.",
+              "briefEvidence": [
+                "u2"
+              ],
+              "externalEvidence": [
+                "https://codes.ohio.gov/ohio-revised-code/section-5321.04"
+              ],
+              "reason": "The brief connects the asserted habitability breach to a specific remedy (rent reduction) and identifies R.C. 5321.07(B)(2) as the remedy-specific basis, satisfying the requirement to identify the claim and its legal basis.",
+              "confidence": "high",
+              "userVisible": true
+            }
+          ],
+          "summary": "1 must fix, 0 review, 4 passed"
+        }
+      },
+      "correctness_tests": [
+        {
+          "checkId": "rule_elements",
+          "issueCode": "required_element_carried",
+          "targetId": "rc-5321-04-landlord-duties:duty_identified",
+          "unitId": "u2",
+          "disposition": "pass",
+          "claim": "The brief names which obligation was breached, not just that conditions were bad.",
+          "problem": "The brief expressly identifies the fit-and-habitable-premises obligation as the specific duty allegedly breached under R.C. 5321.04.",
+          "briefEvidence": [
+            "u2"
+          ],
+          "externalEvidence": [
+            "https://codes.ohio.gov/ohio-revised-code/section-5321.04"
+          ],
+          "reason": "The brief expressly identifies the 'fit and habitable condition' obligation under R.C. 5321.04 as the specific duty breached, satisfying the requirement to name the obligation allegedly breached.",
+          "confidence": "high",
+          "userVisible": true
+        },
+        {
+          "checkId": "rule_elements",
+          "issueCode": "missing_required_element",
+          "targetId": "rc-5321-04-landlord-duties:condition_described",
+          "unitId": "u2",
+          "disposition": "must_fix",
+          "claim": "The brief describes the defect, where it is, and how long it lasted.",
+          "problem": "The complete brief never describes the alleged defect, its location, or its duration; its generic reference to a \"defective condition\" does not carry this element. The affidavit supplies those facts, identifying a nonfunctioning basement furnace, lack of heat in the living room, and a January 1 through February 15 duration.",
+          "briefEvidence": [
+            "u2"
+          ],
+          "externalEvidence": [
+            "https://codes.ohio.gov/ohio-revised-code/section-5321.04"
+          ],
+          "reason": "The brief fails to describe the alleged defect, its location, or its duration within the text. The generic reference to a 'defective condition' does not satisfy the requirement to carry this element. The affidavit (record material) supplies these facts, but they must be included in the brief itself.",
+          "confidence": "high",
+          "userVisible": true
+        },
+        {
+          "checkId": "rule_elements",
+          "issueCode": "required_element_carried",
+          "targetId": "rc-5321-04-landlord-duties:entry_without_reasonable_notice",
+          "unitId": "u2",
+          "disposition": "pass",
+          "claim": "Identify the entry demand notice timing and circumstances; twenty-four hours is presumptively reasonable absent contrary evidence.",
+          "problem": "The brief expressly disclaims an entry claim under R.C. 5321.04(A)(8) or (B), so entry-notice circumstances are not part of the defect relied upon.",
+          "briefEvidence": [
+            "u2"
+          ],
+          "externalEvidence": [
+            "https://codes.ohio.gov/ohio-revised-code/section-5321.04"
+          ],
+          "reason": "The brief expressly disclaims an entry claim under R.C. 5321.04(A)(8) or (B), so the element related to entry notice is inapplicable and need not be addressed.",
+          "confidence": "high",
+          "userVisible": true
+        },
+        {
+          "checkId": "rule_elements",
+          "issueCode": "required_element_carried",
+          "targetId": "rc-5321-04-landlord-duties:entry_harm_or_relief",
+          "unitId": "u2",
+          "disposition": "pass",
+          "claim": "Connect the improper entry or repeated harassing demands to actual damages injunctive relief fees or termination.",
+          "problem": "The brief does not seek relief under R.C. 5321.04(B) and expressly states that no entry claim is asserted.",
+          "briefEvidence": [
+            "u2"
+          ],
+          "externalEvidence": [
+            "https://codes.ohio.gov/ohio-revised-code/section-5321.04"
+          ],
+          "reason": "The brief does not seek relief under R.C. 5321.04(B) and expressly states no entry claim is asserted, so the element connecting improper entry to harm or relief is inapplicable.",
+          "confidence": "high",
+          "userVisible": true
+        },
+        {
+          "checkId": "rule_elements",
+          "issueCode": "required_element_carried",
+          "targetId": "rc-5321-04-landlord-duties:consequence_claimed",
+          "unitId": "u2",
+          "disposition": "pass",
+          "claim": "Identify the particular claim or defense and its remedy-specific legal basis rather than assuming every R.C. 5321.04 breach automatically defeats possession.",
+          "problem": "The brief connects the asserted habitability breach to a particular remedy\u2014rent reduction\u2014and identifies R.C. 5321.07(B)(2) as the remedy-specific basis.",
+          "briefEvidence": [
+            "u2"
+          ],
+          "externalEvidence": [
+            "https://codes.ohio.gov/ohio-revised-code/section-5321.04"
+          ],
+          "reason": "The brief connects the asserted habitability breach to a specific remedy (rent reduction) and identifies R.C. 5321.07(B)(2) as the remedy-specific basis, satisfying the requirement to identify the claim and its legal basis.",
+          "confidence": "high",
+          "userVisible": true
+        }
+      ],
+      "rule_audit": [
+        {
+          "slug": "rc-5321-04-landlord-duties",
+          "name": "Landlord obligations",
+          "citation": "R.C. 5321.04",
+          "label": "Landlord obligations (R.C. 5321.04)",
+          "summary": "A residential landlord owes statutory duties including compliance with building, housing, health, and safety codes and keeping the premises in a fit and habitable condition. A tenant relying on a breach must identify the applicable statutory duty and the concrete conduct or condition breaching it; the elements of a particular remedy are audited under that remedy's rule.",
+          "verification": "verified",
+          "source": "R.C. 5321.04; Iskin (6th ed. 2022), \u00a7\u00a7 VII, IX-X",
+          "sourceUrl": "https://codes.ohio.gov/ohio-revised-code/section-5321.04",
+          "invokedBy": "citation",
+          "matched": "R.C. 5321.04",
+          "excerpt": "2023. The dwelling is not student housing, and the landlord owns more than three rental units. Argument The landlord breached the duty to maintain the premises in a fit and habitable condition under R.C. 5321.04. The specific obligation breached was the duty to keep the premises in a fit and habitable condition. The tenant has complied with R.C. 5321.07(A) by providing written notice to the landlord at the usual rent-payment location. As the landlord failed to remedy the defect, the tenant is",
+          "audited": true,
+          "briefCoverage": {
+            "reviewedChars": 1468,
+            "totalChars": 1468,
+            "truncated": false
+          },
+          "requiresApplicabilityReview": false,
+          "elements": [
+            {
+              "id": "duty_identified",
+              "label": "The specific statutory duty is identified",
+              "requirement": "The brief names which obligation was breached, not just that conditions were bad.",
+              "severity": "error",
+              "needsRecordSupport": false,
+              "requiredWhen": "",
+              "patterns": [
+                "5321\\.04\\s*\\(A\\)\\s*\\(\\d",
+                "(building|housing|health|safety) code",
+                "fit and habitable"
+              ],
+              "note": "",
+              "origin": "profile",
+              "pled": "yes",
+              "applicability": "applicable",
+              "supported": "yes",
+              "explanation": "The brief expressly identifies the fit-and-habitable-premises obligation as the specific duty allegedly breached under R.C. 5321.04.",
+              "quote": "The landlord breached the duty to maintain the premises in a fit and habitable condition under R.C. 5321.04. The specific obligation breached was the duty to keep the premises in a fit and habitable condition.",
+              "materialIds": [],
+              "unmet": false
+            },
+            {
+              "id": "condition_described",
+              "label": "The condition is described specifically",
+              "requirement": "The brief describes the defect, where it is, and how long it lasted.",
+              "severity": "error",
+              "needsRecordSupport": true,
+              "requiredWhen": "",
+              "patterns": [
+                "(leak|mold|heat|furnace|water|infestation|roach|rodent|electrical|plumbing|roof)"
+              ],
+              "note": "",
+              "origin": "profile",
+              "pled": "no",
+              "applicability": "applicable",
+              "supported": "yes",
+              "explanation": "The complete brief never describes the alleged defect, its location, or its duration; its generic reference to a \"defective condition\" does not carry this element. The affidavit supplies those facts, identifying a nonfunctioning basement furnace, lack of heat in the living room, and a January 1 through February 15 duration.",
+              "quote": "",
+              "materialIds": [
+                "upload:37"
+              ],
+              "unmet": true
+            },
+            {
+              "id": "entry_without_reasonable_notice",
+              "label": "Nonemergency entry lacked reasonable notice or occurred at an unreasonable time",
+              "requirement": "Identify the entry demand notice timing and circumstances; twenty-four hours is presumptively reasonable absent contrary evidence.",
+              "severity": "error",
+              "needsRecordSupport": true,
+              "requiredWhen": "Only if the brief asserts an entry claim under R.C. 5321.04(A)(8) or (B).",
+              "patterns": [
+                "(entry|enter).{0,50}(notice|reasonable time)",
+                "twenty-four hours"
+              ],
+              "note": "",
+              "origin": "profile",
+              "pled": "no",
+              "applicability": "not_applicable",
+              "supported": "nothing_supplied",
+              "explanation": "The brief expressly disclaims an entry claim under R.C. 5321.04(A)(8) or (B), so entry-notice circumstances are not part of the defect relied upon.",
+              "quote": "The entry claim is inapplicable as no entry claim is asserted under R.C. 5321.04(A)(8) or (B), so elements related to entry are not applicable.",
+              "materialIds": [],
+              "unmet": false
+            },
+            {
+              "id": "entry_harm_or_relief",
+              "label": "Division B harm or authorized relief is pleaded",
+              "requirement": "Connect the improper entry or repeated harassing demands to actual damages injunctive relief fees or termination.",
+              "severity": "error",
+              "needsRecordSupport": true,
+              "requiredWhen": "Only if the brief seeks relief under R.C. 5321.04(B).",
+              "patterns": [
+                "actual damages",
+                "injunctive relief",
+                "harass.{0,30}(entry|tenant)"
+              ],
+              "note": "",
+              "origin": "profile",
+              "pled": "no",
+              "applicability": "not_applicable",
+              "supported": "nothing_supplied",
+              "explanation": "The brief does not seek relief under R.C. 5321.04(B) and expressly states that no entry claim is asserted.",
+              "quote": "The entry claim is inapplicable as no entry claim is asserted under R.C. 5321.04(A)(8) or (B), so elements related to entry are not applicable.",
+              "materialIds": [],
+              "unmet": false
+            },
+            {
+              "id": "consequence_claimed",
+              "label": "The statutory breach is connected to an available remedy or defense",
+              "requirement": "Identify the particular claim or defense and its remedy-specific legal basis rather than assuming every R.C. 5321.04 breach automatically defeats possession.",
+              "severity": "warning",
+              "needsRecordSupport": false,
+              "requiredWhen": "Only if the brief seeks relief or asserts an eviction defense based on the R.C. 5321.04 breach.",
+              "patterns": [
+                "\\b(rent abatement|abatement of (the )?rent)\\b",
+                "damages",
+                "defense to (possession|eviction)",
+                "rent escrow"
+              ],
+              "note": "",
+              "origin": "profile",
+              "pled": "yes",
+              "applicability": "applicable",
+              "supported": "yes",
+              "explanation": "The brief connects the asserted habitability breach to a particular remedy\u2014rent reduction\u2014and identifies R.C. 5321.07(B)(2) as the remedy-specific basis.",
+              "quote": "As the landlord failed to remedy the defect, the tenant is entitled to an order reducing rent under R.C. 5321.07(B)(2).",
+              "materialIds": [],
+              "unmet": false
+            }
+          ],
+          "unmetCount": 1,
+          "verdict": "1 of 5 elements need review; unavailable evidence or unrecognized wording does not establish a defect."
+        }
+      ],
+      "compliance": {
+        "checked": false,
+        "reason": "You turned this check off for this session.",
+        "findings": [],
+        "detection": {
+          "mode": "auto",
+          "reason": "No maintained court profile matched this document's caption or the case record.",
+          "matched": "",
+          "where": "",
+          "courtSlug": ""
+        }
+      },
+      "challenges": [
+        {
+          "ordinal": 1,
+          "category": "missing_element",
+          "severity": "high",
+          "confidence": "high",
+          "opponent_argument": "The complete brief never describes the alleged defect, its location, or its duration; its generic reference to a \"defective condition\" does not carry this element. The affidavit supplies those facts, identifying a nonfunctioning basement furnace, lack of heat in the living room, and a January 1 through February 15 duration.",
+          "why_it_matters": "The brief fails to describe the alleged defect, its location, or its duration within the text. The generic reference to a 'defective condition' does not satisfy the requirement to carry this element. The affidavit (record material) supplies these facts, but they must be included in the brief itself.",
+          "target": {
+            "unitId": "u2",
+            "section": "",
+            "paragraph": 2,
+            "page": null,
+            "excerpt": "Argument\nThe landlord breached the duty to maintain the premises in a fit and habitable condition under R.C. 5321.04. The specific obligation breached was the duty to keep the premises in a fit and habitable condition.",
+            "blockKey": ""
+          },
+          "legal_sources": [],
+          "record_sources": [
+            {
+              "materialId": "upload:37",
+              "title": "record-01",
+              "status": "",
+              "quote": "2023. The dwelling is not student housing, and the landlord owns more than three rental units. Argument The landlord breached the duty to maintain the premises in a fit and habitable condition under R.C. 5321.04. The specific obligation breached was the duty to keep the premises in a fit and habitable condition. The tenant has complied with R.C. 5321.07(A) by providing written notice to the landlord at the usual rent-payment location. As the landlord failed to remedy the defect, the tenant is"
+            }
+          ],
+          "judge_assessment": "The brief fails to describe the alleged defect, its location, or its duration within the text. The generic reference to a 'defective condition' does not satisfy the requirement to carry this element. The affidavit (record material) supplies these facts, but they must be included in the brief itself.",
+          "judge_verdict": "sustained",
+          "suggested_response": "The landlord breached its duty under R.C. 5321.04 to maintain the premises in a fit and habitable condition. The basement furnace was nonfunctioning, leaving the living room without heat from January 1 through February 15. This condition rendered the premises unfit and uninhabitable during that period.",
+          "coaching_recommendation": "Replace the conclusory description of the breach with the specific condition, location, and period identified in the tenant's affidavit. The supplied record excerpt does not provide an affidavit pinpoint citation or the year for the January 1 through February 15 period.",
+          "disposition": "open"
+        }
+      ],
+      "challenge_count": 1,
+      "opponent_calls": [],
+      "judge_calls": [],
+      "verdict": "correctness review completed",
+      "assessment": "Correctness review completed. 1 must-fix finding; 0 items need attorney review. Rule elements: 1 failure, 0 review",
+      "stage_trace": [
+        {
+          "stage": "document_checks",
+          "method": "deterministic",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "materials",
+          "method": "all",
+          "count": 1,
+          "budgetChars": 150000,
+          "perMaterialChars": 150000,
+          "truncated": [],
+          "trace": []
+        },
+        {
+          "stage": "argument_map",
+          "method": "skipped",
+          "count": 0,
+          "trace": [
+            "No selected check requires a generative argument map."
+          ]
+        },
+        {
+          "stage": "persuasion",
+          "method": "off",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "record_targets",
+          "method": "off",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "opponent:record_support",
+          "method": "off",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "authority_research",
+          "method": "source_specific",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "research_queries",
+          "method": "off",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "research",
+          "method": "retrieval",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "opponent",
+          "method": "off",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "opponent:authority_support",
+          "method": "off",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "rule_elements",
+          "method": "llm",
+          "count": 1,
+          "trace": [
+            {
+              "stage": "rule_elements:rc-5321-04-landlord-duties",
+              "method": "llm",
+              "count": 5,
+              "trace": [
+                {
+                  "attempt": 1,
+                  "plan": {
+                    "method": "llm",
+                    "llmAttempt": 1
+                  },
+                  "success": true,
+                  "code": "rule_elements:rc-5321-04-landlord-duties_complete",
+                  "message": "rule_elements:rc-5321-04-landlord-duties produced 5 item(s)."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "stage": "judge",
+          "method": "off",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "judge:rule_elements",
+          "method": "llm",
+          "count": 5,
+          "trace": [
+            {
+              "attempt": 1,
+              "plan": {
+                "method": "llm",
+                "llmAttempt": 1
+              },
+              "success": true,
+              "code": "judge:rule_elements_complete",
+              "message": "judge:rule_elements produced 5 item(s)."
+            }
+          ],
+          "checkId": "rule_elements",
+          "batch": 1,
+          "batches": 1,
+          "candidateIds": [
+            "rule_elements:rc-5321-04-landlord-duties:condition_described",
+            "rule_elements:rc-5321-04-landlord-duties:consequence_claimed",
+            "rule_elements:rc-5321-04-landlord-duties:duty_identified",
+            "rule_elements:rc-5321-04-landlord-duties:entry_harm_or_relief",
+            "rule_elements:rc-5321-04-landlord-duties:entry_without_reasonable_notice"
+          ],
+          "unavailable": false
+        },
+        {
+          "stage": "coach",
+          "method": "llm",
+          "count": 1,
+          "trace": [
+            {
+              "attempt": 1,
+              "plan": {
+                "method": "llm",
+                "llmAttempt": 1
+              },
+              "success": true,
+              "code": "coach_complete",
+              "message": "coach produced 1 item(s)."
+            }
+          ]
+        },
+        {
+          "stage": "assessment",
+          "method": "deterministic",
+          "count": 1,
+          "trace": []
+        }
+      ],
+      "research_trace": [],
+      "model_calls": [
+        {
+          "prompt_key": "argument_gym.rule_elements",
+          "role": "base",
+          "model": "gpt-5.6-terra",
+          "settings": {
+            "temperature": 0,
+            "model": "gpt-5.6-terra",
+            "reasoning_level": "medium"
+          },
+          "status": "complete",
+          "elapsed_seconds": 8.546
+        },
+        {
+          "prompt_key": "argument_gym.correctness_judge",
+          "role": "judge",
+          "model": "mistral-large-3",
+          "settings": {
+            "temperature": 0,
+            "model": "mistral-large-3",
+            "reasoning_level": "medium"
+          },
+          "status": "complete",
+          "elapsed_seconds": 5.789
+        },
+        {
+          "prompt_key": "argument_gym.coach",
+          "role": "base",
+          "model": "gpt-5.6-terra",
+          "settings": {
+            "temperature": 0,
+            "model": "gpt-5.6-terra",
+            "reasoning_level": "medium"
+          },
+          "status": "complete",
+          "elapsed_seconds": 5.349
+        }
+      ],
+      "attacks_given_to_judge": 0
+    }
+  ],
+  "public_export": {
+    "removed_fields": [
+      "retrieval"
+    ],
+    "why": "verbatim excerpts of third-party legal corpora retrieved by the research stage; not ours to redistribute and not evidence for any reported figure",
+    "full_record": "report.json, kept locally alongside this file"
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "fixtureId": "R007",
+  "ruleSlug": "vawa-eviction-protection",
+  "targetElement": "direct_result",
+  "reviewer": "User attorney (explicit approval in session)",
+  "reviewedAt": "2026-09-13",
+  "controlCorrectlyAppliesEveryApplicableElement": true,
+  "recordSupportsEveryAppliedElement": true,
+  "deletionRemovesOnlyTargetApplication": true,
+  "mutantClearlyOmitsTargetApplication": true,
+  "ruleAndExpectedDispositionAreCorrect": true,
+  "approved": true,
+  "notes": ""
+}

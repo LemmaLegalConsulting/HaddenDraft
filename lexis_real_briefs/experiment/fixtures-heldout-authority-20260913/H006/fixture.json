@@ -1,0 +1,54 @@
+{
+  "fixture_id": "H006",
+  "case_family_id": "crenshaw-v-integrity-realty",
+  "stratum": "heldout_housing_property_authority",
+  "document": {
+    "title": "Crenshaw v. Integrity Realty",
+    "court": "",
+    "jurisdiction": "Ohio",
+    "pleading_type": "brief",
+    "side": "",
+    "filed": ""
+  },
+  "files": {
+    "source": "normalized/brief.txt",
+    "source_scan": null,
+    "control": "normalized/brief.txt",
+    "mutant": "mutant/brief.txt",
+    "attachments": [],
+    "attachment_notes": []
+  },
+  "mutation": {
+    "type": "quotation_mismatch",
+    "subtype": "attorney_verified_authority_support",
+    "operation": "replace",
+    "target_location": {
+      "control_excerpt": "[a] valid, final judgment rendered upon the merits bars all subsequent actions",
+      "mutant_excerpt": "[a] valid, final judgment, whether or not rendered upon the merits, bars all subsequent actions"
+    },
+    "gold_vulnerability": "authority_support should reject the altered proposition attributed to Grava v. Parkman Twp., 73 Ohio St.3d 379, 1995-Ohio-331.",
+    "expected_direction": "mutant_worse",
+    "materiality": "high",
+    "edit_regions": 1
+  },
+  "gold": {
+    "check_id": "authority_support",
+    "preview_target_id": "u76:authority1",
+    "control_has_target_defect": false,
+    "mutant_has_target_defect": true,
+    "expected_control_disposition": "pass",
+    "expected_mutant_disposition": "must_fix",
+    "verification_status": "attorney_verified",
+    "verified_by": [
+      "researcher (manual source review)"
+    ]
+  },
+  "provenance": {
+    "source_sha256": "59b3a70ee930bfc150daba89e36a37a3c7b9116dd149221c86c20fd0b688ecc7",
+    "control_sha256": "4abbb18184a3333aa284d58816b90f61a669dd3555242bb2ded4c8fe0da941cb",
+    "mutant_sha256": "6889de3d563da4fcf4d8389a06cab895d2a046fabde3baf85fb80e584867edfb",
+    "attachment_sha256": {},
+    "normalization_version": "1.0",
+    "mutation_version": "heldout-authority-1.0"
+  }
+}

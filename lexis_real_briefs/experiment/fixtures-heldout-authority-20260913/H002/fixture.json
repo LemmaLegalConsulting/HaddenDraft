@@ -1,0 +1,54 @@
+{
+  "fixture_id": "H002",
+  "case_family_id": "debartolo-v-dussault-moving-inc",
+  "stratum": "heldout_housing_property_authority",
+  "document": {
+    "title": "DeBartolo v. Dussault Moving, Inc.",
+    "court": "",
+    "jurisdiction": "Ohio",
+    "pleading_type": "brief",
+    "side": "",
+    "filed": ""
+  },
+  "files": {
+    "source": "normalized/brief.txt",
+    "source_scan": null,
+    "control": "normalized/brief.txt",
+    "mutant": "mutant/brief.txt",
+    "attachments": [],
+    "attachment_notes": []
+  },
+  "mutation": {
+    "type": "holding_overstatement",
+    "subtype": "attorney_verified_authority_support",
+    "operation": "replace",
+    "target_location": {
+      "control_excerpt": "the court described who pays for the execution of a writ of possession of writ of restitution as follows:",
+      "mutant_excerpt": "the court held that the landlord must permanently bear all removal and storage costs:"
+    },
+    "gold_vulnerability": "authority_support should reject the altered proposition attributed to State ex rel. Marsol Apt. Co. v. Vannuci, 68 Ohio App.2d 181, 428 N.E.2d 468.",
+    "expected_direction": "mutant_worse",
+    "materiality": "high",
+    "edit_regions": 1
+  },
+  "gold": {
+    "check_id": "authority_support",
+    "preview_target_id": "u86:authority1",
+    "control_has_target_defect": false,
+    "mutant_has_target_defect": true,
+    "expected_control_disposition": "pass",
+    "expected_mutant_disposition": "must_fix",
+    "verification_status": "attorney_verified",
+    "verified_by": [
+      "researcher (manual source review)"
+    ]
+  },
+  "provenance": {
+    "source_sha256": "a77cada0084f78e8723da47cf1109f386630014084c09cb725c2732663affbb7",
+    "control_sha256": "5da0488d6939aca4d0689c550a531647e24eea6c0ff95588856c3d53c0b287b2",
+    "mutant_sha256": "09a6dcbe332968801e125831c12b51692a72e08e16d9851ba8f478facdbb53e5",
+    "attachment_sha256": {},
+    "normalization_version": "1.0",
+    "mutation_version": "heldout-authority-1.0"
+  }
+}

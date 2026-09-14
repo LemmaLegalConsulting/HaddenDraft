@@ -1,0 +1,2026 @@
+{
+  "manifest": {
+    "registry_id": "lexis-mutation-2026-09",
+    "created_at": "2026-09-14T02:21:16.934153+00:00",
+    "mode": "live",
+    "git_commit": "351fb785e9bc1bfc7b9954de0f94d16861aa0d9f",
+    "git_status": " M backend/apps/caselaw/management/commands/enrich_caselaw_metadata.py\n m private-content\n?? downloaded_opinions/\n?? lexis_real_briefs/experiment/results/heldout-authority-terra-mistral-rep1-20260913/\n?? lexis_real_briefs/experiment/results/heldout-authority-terra-mistral-rep2-20260913/\n?? lexis_real_briefs/experiment/results/heldout-authority-terra-mistral-rep3-20260913/\n?? lexis_real_briefs/experiment/results/heldout-authority-terra-mistral-rep4-20260913/\n?? lexis_real_briefs/experiment/results/heldout-rule-floor-llama-sol-attorney-reviewed-rep1-20260913/\n?? lexis_real_briefs/experiment/results/heldout-rule-floor-llama-sol-attorney-reviewed-rep2-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-f005-attribution-grounded-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-f005-complete-opinions-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-f005-frozen-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-f005-grounded-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-f005-opinion-status-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-f005-reuse-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-live-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-live-bounded-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-live-final-f007-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-live-final-f007b-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-live-hybrid-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-live-hybrid-fixed-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-live-targeted-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-offline-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-offline-after-unavailable-fix-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-priority-frozen-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-priority-rerun-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-rules-citations-terra-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-rules-citations-terra-batched-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-rules-citations-terra-final-20260913/\n?? lexis_real_briefs/experiment/results/micro-judge-hardening-deepseek-20260913.json\n?? lexis_real_briefs/experiment/results/micro-judge-hardening-deepseek-offset8-20260913.json\n?? lexis_real_briefs/experiment/results/micro-judge-hardening-gpt55-20260913.json\n?? lexis_real_briefs/experiment/results/micro-judge-hardening-gpt56terra-20260913.json\n?? lexis_real_briefs/experiment/results/micro-judge-hardening-gpt56terra-deployed-20260913.json\n?? lexis_real_briefs/experiment/results/micro-judge-hardening-grok46-20260913.json\n?? lexis_real_briefs/experiment/results/micro-judge-rule-floor-llama-4-maverick-20260913.json\n?? lexis_real_briefs/experiment/results/micro-judge-rule-floor-mistral-large-3-20260913.json\n?? lexis_real_briefs/experiment/results/micro-judge-rules-gpt55-20260913.json\n?? lexis_real_briefs/experiment/results/micro-judge-rules-gpt56terra-20260913.json\n?? lexis_real_briefs/experiment/results/micro-rules-all-fixtures-20260913/\n?? lexis_real_briefs/experiment/results/qualification-authority-f005-nested-fixed-rep1-20260913/\n?? lexis_real_briefs/experiment/results/qualification-authority-f005-nested-fixed-rep2-20260913/\n?? lexis_real_briefs/experiment/results/qualification-authority-f005-nested-fixed-rep3-20260913/\n?? lexis_real_briefs/experiment/results/qualification-authority-f005-rep1-20260913/\n?? lexis_real_briefs/experiment/results/qualification-authority-f005-stable-inventory-20260913/\n?? lexis_real_briefs/experiment/results/qualification-rule-floor-contract-rep1-20260913/\n?? lexis_real_briefs/experiment/results/qualification-rule-floor-final-rep1-20260913/\n?? lexis_real_briefs/experiment/results/qualification-rule-floor-fresh10-20260913/\n?? lexis_real_briefs/experiment/results/qualification-rule-floor-fresh10-rep2-20260913/\n?? lexis_real_briefs/experiment/results/qualification-rule-floor-gate-rep1-20260913/\n?? lexis_real_briefs/experiment/results/qualification-rule-floor-gate-rep2-20260913/\n?? lexis_real_briefs/experiment/results/qualification-rule-floor-gate-rep3-20260913/\n?? lexis_real_briefs/experiment/results/qualification-rule-floor-mistral-high-rep1-20260913/\n?? lexis_real_briefs/experiment/results/qualification-rule-floor-mistral-rep1-20260913/\n?? lexis_real_briefs/experiment/results/qualification-rule-floor-ready-rep1-20260913/\n?? lexis_real_briefs/experiment/results/qualification-rule-floor-rep1-20260913/\n?? lexis_real_briefs/experiment/results/qualification-rule-floor-repaired-rep1-20260913/\n?? lexis_real_briefs/experiment/results/qualification-rule-floor-terra-mistral-fixed-rep1-20260913/\n?? lexis_real_briefs/experiment/results/qualification-rule-floor-terra-mistral-rep1-20260913/\n?? lexis_real_briefs/experiment/results/qualification-vawa-coverage-rep1-20260913/\n?? lexis_real_briefs/experiment/results/qualification-vawa-coverage-rep2-20260913/\n?? lexis_real_briefs/experiment/results/qualification-vawa-coverage-rep3-20260913/\n",
+    "command": [
+      "/home/quinten/agentic_housing_drafting/.venv/bin/python",
+      "/home/quinten/agentic_housing_drafting/lexis_real_briefs/experiment/tools/run_experiment.py",
+      "--output-dir",
+      "/home/quinten/agentic_housing_drafting/lexis_real_briefs/experiment/results/heldout-rule-floor-llama-sol-attorney-reviewed-rep2-20260913/shards/R005",
+      "--fixtures-dir",
+      "/home/quinten/agentic_housing_drafting/lexis_real_briefs/experiment/fixtures-rule-floor-attorney-reviewed-20260913",
+      "--fixture",
+      "R005",
+      "--model",
+      "gpt-5.4-mini",
+      "--reasoning",
+      "medium",
+      "--live",
+      "--attack-model",
+      "gpt-5.6-terra",
+      "--judge-model",
+      "mistral-large-3",
+      "--base-model",
+      "gpt-5.6-terra",
+      "--cell",
+      "terra-mistral",
+      "--check",
+      "rule_elements"
+    ],
+    "python": "3.12.3 (main, Aug 31 2026, 10:18:26) [GCC 13.3.0]",
+    "cell": "terra-mistral",
+    "models": {
+      "attack": "gpt-5.6-terra",
+      "judge": "mistral-large-3",
+      "base": "gpt-5.6-terra"
+    },
+    "model": "gpt-5.6-terra",
+    "attack_family": "openai",
+    "judge_family": "mistral",
+    "same_family_judge": false,
+    "role_routing": "named Opponent prompts -> attack; legacy and correctness Judge prompts -> judge; everything else -> base",
+    "reasoning": "medium",
+    "temperature": 0,
+    "provider_host": "quint-mln02sj6-eastus2.cognitiveservices.azure.com",
+    "model_version_note": "Requested deployment alias; the provider's snapshot identity is not exposed to the application client.",
+    "code_sha256": "cb878b0f0d1116b568f85046fb43fd7c4bbf33f640bcadd5855a47ef13925d0c",
+    "dependencies_sha256": "f5f5236ee56cf7f75c2f0f59f570b7386388e27164eb9ec999572462072c4366",
+    "unit_budget_chars": 260000,
+    "unit_text_chars": 2400,
+    "brief_text_chars": 120000,
+    "source_ids": [
+      "ohio-cases",
+      "ohio-statutes",
+      "ohio-ordinances",
+      "treatise"
+    ],
+    "enabled_checks": [
+      "rule_elements"
+    ],
+    "blinding": "The Gym receives brief text and record text only. No fixture id, condition label, mutation class or gold vulnerability reaches any prompt.",
+    "scoring": "The Gym writes stable per-target dispositions. Whether a result matches the registered mutation remains a separate, human-checkable step.",
+    "fixtures": [
+      {
+        "fixture_id": "R005",
+        "control_sha256": "0ba062c7eb06f4fa7d6196085f1d4e8f0e12ebd7b4fae528a1133ad9c01a3ae5",
+        "mutant_sha256": "2d274ecdde5dc41259a279f497dd29a34f0af9fb6c6ac04a78b51b04253bad9d",
+        "attachment_sha256": {
+          "record-01.txt": "83e421ddddddcbb525eec3312ec9034ecebb81931e6d3de08979eb22c286cddb"
+        }
+      }
+    ]
+  },
+  "results": [
+    {
+      "fixture_id": "R005",
+      "condition": "control",
+      "case_family_id": "synthetic-rule-review-r005",
+      "stratum": "synthetic_rule_elements_attorney_review",
+      "run_id": 34,
+      "run_at": "2026-09-14T02:21:36.101392+00:00",
+      "status": "complete",
+      "pipeline_status": "complete",
+      "degraded": null,
+      "error": "",
+      "brief_sha256": "0ba062c7eb06f4fa7d6196085f1d4e8f0e12ebd7b4fae528a1133ad9c01a3ae5",
+      "brief_chars": 1440,
+      "record_documents": 1,
+      "attack_model": "gpt-5.6-terra",
+      "judge_model": "mistral-large-3",
+      "base_model": "gpt-5.6-terra",
+      "same_family": false,
+      "reasoning": "medium",
+      "unit_budget_chars": 260000,
+      "units": 10,
+      "court": {
+        "mode": "auto",
+        "reason": "No maintained court profile matched this document's caption or the case record.",
+        "matched": "",
+        "where": "",
+        "courtSlug": ""
+      },
+      "deterministic_findings": {
+        "rule_elements": 0
+      },
+      "checks_run": [
+        {
+          "id": "record_support",
+          "label": "Test material facts against the record",
+          "description": "Opponent tests only atomic, record-verifiable, material claims; Judge sustains a defect only when the supplied evidence and record coverage establish it.",
+          "kind": "model",
+          "category": "correctness",
+          "categoryLabel": "Correctness",
+          "categoryDescription": "Is the law right? Is the authority controlling? Are the required elements present, and does the record establish what the brief says it does?",
+          "defaultEnabled": true,
+          "requires": [
+            "case_record"
+          ],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "rule_elements",
+          "label": "Audit the elements of the rules invoked",
+          "description": "Detects the rules the brief cites or invokes by name, then audits each element of those rules: is it pleaded, and is it supported.",
+          "kind": "model",
+          "category": "correctness",
+          "categoryLabel": "Correctness",
+          "categoryDescription": "Is the law right? Is the authority controlling? Are the required elements present, and does the record establish what the brief says it does?",
+          "defaultEnabled": true,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "on",
+          "reason": ""
+        },
+        {
+          "id": "authority_support",
+          "label": "Test cited authority support",
+          "description": "Whether each cited authority supports the material legal proposition for which the brief uses it.",
+          "kind": "model",
+          "category": "correctness",
+          "categoryLabel": "Correctness",
+          "categoryDescription": "Is the law right? Is the authority controlling? Are the required elements present, and does the record establish what the brief says it does?",
+          "defaultEnabled": true,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "adversarial",
+          "label": "Opposing counsel, a judge, and a coach",
+          "description": "The core of the gym: opposing counsel makes the strongest arguments available against the brief, a judge weighs them, and a coach proposes answers.",
+          "kind": "model",
+          "category": "completeness",
+          "categoryLabel": "Argumentative completeness",
+          "categoryDescription": "Does the brief connect its rules to its facts? Does it work the difficult element instead of restating the rule? Does it confront adverse authority and answer the counterargument a court will think of on its own?",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_issue_framing",
+          "label": "Issue framing",
+          "description": "Does the brief identify the real dispute early and frame it around the favorable legal question?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_macro_organization",
+          "label": "Macro-organization",
+          "description": "Are arguments ordered logically and by importance? Can the reader see the roadmap?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_paragraph_organization",
+          "label": "Paragraph-level organization",
+          "description": "Do paragraphs have discernible propositions or topic sentences, and develop one point at a time?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_rule_synthesis",
+          "label": "Rule synthesis",
+          "description": "Does the writer synthesize authorities into a rule rather than serially summarize cases?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_rule_application",
+          "label": "Rule-to-fact application",
+          "description": "Is the reasoning explicit -- \"because X fact satisfies Y element\" -- rather than leaving the inferential step to the court?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_fact_selection",
+          "label": "Fact selection and narrative coherence",
+          "description": "Are legally significant facts foregrounded and organized in a comprehensible chronology or theory?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_use_of_authority",
+          "label": "Use of authority",
+          "description": "Are important propositions backed by strong authorities placed where they actually matter, rather than citation dumping?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_counterarguments",
+          "label": "Handling counterarguments",
+          "description": "Does the brief acknowledge and answer the strongest objection rather than arguing past it?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_concision",
+          "label": "Concision and reader burden",
+          "description": "Does it say the same thing once, in the right place, without unnecessary throat-clearing?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_calibration",
+          "label": "Calibrated confidence and credibility",
+          "description": "Does it distinguish strong propositions from uncertain ones and avoid overclaiming?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_relief_alignment",
+          "label": "Requested-relief alignment",
+          "description": "Does the argument actually lead to the precise thing the brief asks the court to do?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_emphasis",
+          "label": "Emphasis",
+          "description": "Does the document devote its space to the issues that matter rather than treating every point as equally important?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "custom_checklist",
+          "label": "Custom checklist",
+          "description": "Applies review questions you wrote. An item can look things up -- authority, the case record, passages of the brief -- rather than answering from the brief alone. Attach a checklist for this to run.",
+          "kind": "model",
+          "category": "custom",
+          "categoryLabel": "Your own checks",
+          "categoryDescription": "Review questions you wrote, in your words, applied to this brief.",
+          "defaultEnabled": false,
+          "requires": [
+            "checklist"
+          ],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "court_formatting",
+          "label": "This court's filing rules",
+          "description": "Required elements, type size, spacing, margins, and page limits for the selected court.",
+          "kind": "deterministic",
+          "category": "form",
+          "categoryLabel": "Form of the filing",
+          "categoryDescription": "Whether the paper meets this court's rules and the conventions of practice.",
+          "defaultEnabled": false,
+          "requires": [
+            "court_profile"
+          ],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "pleading_form",
+          "label": "Form of the pleading",
+          "description": "Conventions of practice rather than any one court's rules: numbered paragraphs running in order, a prayer for relief, a signature block, exhibit references that resolve, no placeholder left in the text.",
+          "kind": "deterministic",
+          "category": "form",
+          "categoryLabel": "Form of the filing",
+          "categoryDescription": "Whether the paper meets this court's rules and the conventions of practice.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "draft_validation",
+          "label": "Draft-mode validation",
+          "description": "The same checks Draft mode runs: unresolved template data and placeholders, draft structure, rendered Word consistency, citation linting, source support, and filing-package consistency.",
+          "kind": "deterministic",
+          "category": "form",
+          "categoryLabel": "Form of the filing",
+          "categoryDescription": "Whether the paper meets this court's rules and the conventions of practice.",
+          "defaultEnabled": false,
+          "requires": [
+            "native_draft"
+          ],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "grammar",
+          "label": "Grammar and mechanics",
+          "description": "Doubled words, missing sentence spacing, unbalanced quotes and parentheses.",
+          "kind": "deterministic",
+          "category": "language",
+          "categoryLabel": "Language",
+          "categoryDescription": "Sentence-level mechanics, reported as nudges rather than as defects in the argument.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "confused_words",
+          "label": "Misspelled and easily confused words",
+          "description": "Not a dictionary spell check, on purpose: a general dictionary flags half of every case name. This looks for the words legal writing actually gets wrong, and for real words used in place of other real words.",
+          "kind": "deterministic",
+          "category": "language",
+          "categoryLabel": "Language",
+          "categoryDescription": "Sentence-level mechanics, reported as nudges rather than as defects in the argument.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "passive_voice",
+          "label": "Passive voice",
+          "description": "Reported as a nudge, never an error. Phrases a court expects to read are on an accepted list you can add to for this session.",
+          "kind": "deterministic",
+          "category": "language",
+          "categoryLabel": "Language",
+          "categoryDescription": "Sentence-level mechanics, reported as nudges rather than as defects in the argument.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "acceptedPassivePhrases: phrases this court expects, which the check stays quiet about.",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "readability",
+          "label": "Readability",
+          "description": "Sentence length and reading-level measures, reported as several formulas rather than one score.",
+          "kind": "deterministic",
+          "category": "language",
+          "categoryLabel": "Language",
+          "categoryDescription": "Sentence-level mechanics, reported as nudges rather than as defects in the argument.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        }
+      ],
+      "check_results": {
+        "rule_elements": {
+          "findings": [],
+          "tests": [
+            {
+              "checkId": "rule_elements",
+              "issueCode": "required_element_carried",
+              "targetId": "rc-5321-02-retaliation:protected_activity",
+              "unitId": "u3",
+              "disposition": "pass",
+              "claim": "The brief names the act the statute protects and when it happened.",
+              "problem": "The brief identifies filing a code-enforcement complaint as protected activity and states it occurred on January 10, 2023. The record excerpt corroborates the filing and date.",
+              "briefEvidence": [
+                "u3"
+              ],
+              "externalEvidence": [
+                "https://codes.ohio.gov/ohio-revised-code/section-5321.02"
+              ],
+              "reason": "The brief adequately identifies the protected activity (filing a code-enforcement complaint) and its date (January 10, 2023), which is corroborated by the record excerpt (upload:35). Opponent has carried its burden.",
+              "confidence": "high",
+              "userVisible": true
+            },
+            {
+              "checkId": "rule_elements",
+              "issueCode": "required_element_carried",
+              "targetId": "rc-5321-02-retaliation:landlord_knowledge",
+              "unitId": "u3",
+              "disposition": "pass",
+              "claim": "The brief says how the landlord came to know of it.",
+              "problem": "The brief states that the landlord acknowledged receipt of the code-enforcement complaint, explaining how she knew of the protected activity. The record excerpt corroborates the January 15 acknowledgement.",
+              "briefEvidence": [
+                "u3"
+              ],
+              "externalEvidence": [
+                "https://codes.ohio.gov/ohio-revised-code/section-5321.02"
+              ],
+              "reason": "The brief states the landlord acknowledged receipt of the complaint, establishing knowledge, and the record excerpt (upload:35) corroborates the January 15 acknowledgement. Opponent has carried its burden.",
+              "confidence": "high",
+              "userVisible": true
+            },
+            {
+              "checkId": "rule_elements",
+              "issueCode": "required_element_carried",
+              "targetId": "rc-5321-02-retaliation:retaliatory_act",
+              "unitId": "u3",
+              "disposition": "pass",
+              "claim": "The brief names the act -- the eviction, the rent increase, the reduced service.",
+              "problem": "The brief identifies the eviction filing as the prohibited retaliatory act. The record excerpt corroborates that the landlord filed the eviction on February 20, 2023.",
+              "briefEvidence": [
+                "u3"
+              ],
+              "externalEvidence": [
+                "https://codes.ohio.gov/ohio-revised-code/section-5321.02"
+              ],
+              "reason": "The brief identifies the eviction filing as the retaliatory act, and the record excerpt (upload:35) corroborates the February 20, 2023 filing date. Opponent has carried its burden.",
+              "confidence": "high",
+              "userVisible": true
+            },
+            {
+              "checkId": "rule_elements",
+              "issueCode": "required_element_carried",
+              "targetId": "rc-5321-02-retaliation:causal_connection",
+              "unitId": "u3",
+              "disposition": "pass",
+              "claim": "The brief says why the act followed the protected activity -- normally the timing, and anything the landlord said.",
+              "problem": "The brief pleads a causal connection through the sequence of the complaint, landlord acknowledgement, threatening message, and later eviction filing. The record excerpt supports each stated event and date.",
+              "briefEvidence": [
+                "u3"
+              ],
+              "externalEvidence": [
+                "https://codes.ohio.gov/ohio-revised-code/section-5321.02"
+              ],
+              "reason": "The brief pleads a causal connection through the sequence of events (complaint, acknowledgement, threatening message, and eviction filing), all supported by the record excerpt (upload:35). Opponent has carried its burden.",
+              "confidence": "high",
+              "userVisible": true
+            },
+            {
+              "checkId": "rule_elements",
+              "issueCode": "required_element_carried",
+              "targetId": "rc-5321-02-retaliation:statutory_exception",
+              "unitId": "u3",
+              "disposition": "pass",
+              "claim": "Apply the exact possession ground or legitimate improvement/operating-cost basis asserted by landlord.",
+              "problem": "This conditional element applies only if the landlord asserted an identified statutory exception. The brief states that no such exception was asserted, so there is no exception basis to address; the supplied record excerpt does not independently establish that no exception was asserted.",
+              "briefEvidence": [
+                "u3"
+              ],
+              "externalEvidence": [
+                "https://codes.ohio.gov/ohio-revised-code/section-5321.02"
+              ],
+              "reason": "The brief asserts no statutory exception was raised, but the record excerpt (upload:35) does not independently establish this fact. While the brief's assertion is plausible, the absence of contradictory evidence in the provided record material does not definitively confirm it. A concrete concern exists, but the defect is not established.",
+              "confidence": "medium",
+              "userVisible": false
+            }
+          ],
+          "summary": "0 must fix, 0 review, 5 passed"
+        }
+      },
+      "correctness_tests": [
+        {
+          "checkId": "rule_elements",
+          "issueCode": "required_element_carried",
+          "targetId": "rc-5321-02-retaliation:protected_activity",
+          "unitId": "u3",
+          "disposition": "pass",
+          "claim": "The brief names the act the statute protects and when it happened.",
+          "problem": "The brief identifies filing a code-enforcement complaint as protected activity and states it occurred on January 10, 2023. The record excerpt corroborates the filing and date.",
+          "briefEvidence": [
+            "u3"
+          ],
+          "externalEvidence": [
+            "https://codes.ohio.gov/ohio-revised-code/section-5321.02"
+          ],
+          "reason": "The brief adequately identifies the protected activity (filing a code-enforcement complaint) and its date (January 10, 2023), which is corroborated by the record excerpt (upload:35). Opponent has carried its burden.",
+          "confidence": "high",
+          "userVisible": true
+        },
+        {
+          "checkId": "rule_elements",
+          "issueCode": "required_element_carried",
+          "targetId": "rc-5321-02-retaliation:landlord_knowledge",
+          "unitId": "u3",
+          "disposition": "pass",
+          "claim": "The brief says how the landlord came to know of it.",
+          "problem": "The brief states that the landlord acknowledged receipt of the code-enforcement complaint, explaining how she knew of the protected activity. The record excerpt corroborates the January 15 acknowledgement.",
+          "briefEvidence": [
+            "u3"
+          ],
+          "externalEvidence": [
+            "https://codes.ohio.gov/ohio-revised-code/section-5321.02"
+          ],
+          "reason": "The brief states the landlord acknowledged receipt of the complaint, establishing knowledge, and the record excerpt (upload:35) corroborates the January 15 acknowledgement. Opponent has carried its burden.",
+          "confidence": "high",
+          "userVisible": true
+        },
+        {
+          "checkId": "rule_elements",
+          "issueCode": "required_element_carried",
+          "targetId": "rc-5321-02-retaliation:retaliatory_act",
+          "unitId": "u3",
+          "disposition": "pass",
+          "claim": "The brief names the act -- the eviction, the rent increase, the reduced service.",
+          "problem": "The brief identifies the eviction filing as the prohibited retaliatory act. The record excerpt corroborates that the landlord filed the eviction on February 20, 2023.",
+          "briefEvidence": [
+            "u3"
+          ],
+          "externalEvidence": [
+            "https://codes.ohio.gov/ohio-revised-code/section-5321.02"
+          ],
+          "reason": "The brief identifies the eviction filing as the retaliatory act, and the record excerpt (upload:35) corroborates the February 20, 2023 filing date. Opponent has carried its burden.",
+          "confidence": "high",
+          "userVisible": true
+        },
+        {
+          "checkId": "rule_elements",
+          "issueCode": "required_element_carried",
+          "targetId": "rc-5321-02-retaliation:causal_connection",
+          "unitId": "u3",
+          "disposition": "pass",
+          "claim": "The brief says why the act followed the protected activity -- normally the timing, and anything the landlord said.",
+          "problem": "The brief pleads a causal connection through the sequence of the complaint, landlord acknowledgement, threatening message, and later eviction filing. The record excerpt supports each stated event and date.",
+          "briefEvidence": [
+            "u3"
+          ],
+          "externalEvidence": [
+            "https://codes.ohio.gov/ohio-revised-code/section-5321.02"
+          ],
+          "reason": "The brief pleads a causal connection through the sequence of events (complaint, acknowledgement, threatening message, and eviction filing), all supported by the record excerpt (upload:35). Opponent has carried its burden.",
+          "confidence": "high",
+          "userVisible": true
+        },
+        {
+          "checkId": "rule_elements",
+          "issueCode": "required_element_carried",
+          "targetId": "rc-5321-02-retaliation:statutory_exception",
+          "unitId": "u3",
+          "disposition": "pass",
+          "claim": "Apply the exact possession ground or legitimate improvement/operating-cost basis asserted by landlord.",
+          "problem": "This conditional element applies only if the landlord asserted an identified statutory exception. The brief states that no such exception was asserted, so there is no exception basis to address; the supplied record excerpt does not independently establish that no exception was asserted.",
+          "briefEvidence": [
+            "u3"
+          ],
+          "externalEvidence": [
+            "https://codes.ohio.gov/ohio-revised-code/section-5321.02"
+          ],
+          "reason": "The brief asserts no statutory exception was raised, but the record excerpt (upload:35) does not independently establish this fact. While the brief's assertion is plausible, the absence of contradictory evidence in the provided record material does not definitively confirm it. A concrete concern exists, but the defect is not established.",
+          "confidence": "medium",
+          "userVisible": false
+        }
+      ],
+      "rule_audit": [
+        {
+          "slug": "rc-5321-02-retaliation",
+          "name": "Retaliatory action by a landlord",
+          "citation": "R.C. 5321.02",
+          "label": "Retaliatory action by a landlord (R.C. 5321.02)",
+          "summary": "A landlord may not retaliate against a tenant for protected activity such as complaining to a code-enforcement agency, complaining to the landlord, or joining a tenants' organization. A tenant raising it has to identify the protected act, the retaliatory act, and the connection between them.",
+          "verification": "verified",
+          "source": "R.C. 5321.02-.03; Iskin (6th ed. 2022), \u00a7 XI",
+          "sourceUrl": "https://codes.ohio.gov/ohio-revised-code/section-5321.02",
+          "invokedBy": "citation",
+          "matched": "R.C. 5321.02",
+          "excerpt": "had previously filed a complaint with a code-enforcement agency regarding the rental property. The landlord acknowledged receipt of the complaint and subsequently filed the eviction action. Argument R.C. 5321.02 prohibits a landlord from taking retaliatory action against a tenant who has engaged in protected activity. To establish this defense, the tenant must show protected activity, landlord knowledge, a prohibited act, and a causal connection between the protected activity and the prohibited",
+          "audited": true,
+          "briefCoverage": {
+            "reviewedChars": 1440,
+            "totalChars": 1440,
+            "truncated": false
+          },
+          "requiresApplicabilityReview": false,
+          "elements": [
+            {
+              "id": "protected_activity",
+              "label": "The tenant engaged in protected activity",
+              "requirement": "The brief names the act the statute protects and when it happened.",
+              "severity": "error",
+              "needsRecordSupport": true,
+              "requiredWhen": "",
+              "patterns": [
+                "complain(ed|t) to .{0,40}(code|health|building|inspector|agency)",
+                "complained to the landlord",
+                "tenants?'? (union|organization|association)"
+              ],
+              "note": "",
+              "origin": "profile",
+              "pled": "yes",
+              "applicability": "applicable",
+              "supported": "yes",
+              "explanation": "The brief identifies filing a code-enforcement complaint as protected activity and states it occurred on January 10, 2023. The record excerpt corroborates the filing and date.",
+              "quote": "The tenant engaged in protected activity by filing a complaint with a code-enforcement agency.",
+              "materialIds": [
+                "upload:35"
+              ],
+              "unmet": false
+            },
+            {
+              "id": "landlord_knowledge",
+              "label": "The landlord knew of the protected activity",
+              "requirement": "The brief says how the landlord came to know of it.",
+              "severity": "warning",
+              "needsRecordSupport": true,
+              "requiredWhen": "",
+              "patterns": [
+                "landlord (knew|learned|was notified|was aware)",
+                "after (the|being) (notified|informed)"
+              ],
+              "note": "",
+              "origin": "profile",
+              "pled": "yes",
+              "applicability": "applicable",
+              "supported": "yes",
+              "explanation": "The brief states that the landlord acknowledged receipt of the code-enforcement complaint, explaining how she knew of the protected activity. The record excerpt corroborates the January 15 acknowledgement.",
+              "quote": "The landlord gained knowledge of this complaint.",
+              "materialIds": [
+                "upload:35"
+              ],
+              "unmet": false
+            },
+            {
+              "id": "retaliatory_act",
+              "label": "The landlord took one of the acts the statute forbids",
+              "requirement": "The brief names the act -- the eviction, the rent increase, the reduced service.",
+              "severity": "error",
+              "needsRecordSupport": true,
+              "requiredWhen": "",
+              "patterns": [
+                "(increase[ds]?|raised) .{0,20}rent",
+                "decreas(ed|ing) services",
+                "brought .{0,30}(eviction|action for possession)",
+                "terminated the tenancy"
+              ],
+              "note": "",
+              "origin": "profile",
+              "pled": "yes",
+              "applicability": "applicable",
+              "supported": "yes",
+              "explanation": "The brief identifies the eviction filing as the prohibited retaliatory act. The record excerpt corroborates that the landlord filed the eviction on February 20, 2023.",
+              "quote": "The landlord committed a prohibited act by filing an eviction action.",
+              "materialIds": [
+                "upload:35"
+              ],
+              "unmet": false
+            },
+            {
+              "id": "causal_connection",
+              "label": "The connection between the two is pleaded",
+              "requirement": "The brief says why the act followed the protected activity -- normally the timing, and anything the landlord said.",
+              "severity": "error",
+              "needsRecordSupport": true,
+              "requiredWhen": "",
+              "patterns": [
+                "(days|weeks|months) after",
+                "in response to",
+                "because (the tenant|she|he|they) (complained|reported)",
+                "shortly (after|thereafter)"
+              ],
+              "note": "",
+              "origin": "profile",
+              "pled": "yes",
+              "applicability": "applicable",
+              "supported": "yes",
+              "explanation": "The brief pleads a causal connection through the sequence of the complaint, landlord acknowledgement, threatening message, and later eviction filing. The record excerpt supports each stated event and date.",
+              "quote": "The causal connection between the protected activity and the prohibited act is established because the tenant complained to a code-enforcement agency on January 10, 2023, the landlord acknowledged it on January 15, messaged 'You will regret involving the city' on January 18, and filed the eviction on February 20, 2023, showing a clear link because the tenant complained.",
+              "materialIds": [
+                "upload:35"
+              ],
+              "unmet": false
+            },
+            {
+              "id": "statutory_exception",
+              "label": "Any asserted R.C. 5321.03 or operating-cost exception is addressed",
+              "requirement": "Apply the exact possession ground or legitimate improvement/operating-cost basis asserted by landlord.",
+              "severity": "error",
+              "needsRecordSupport": true,
+              "requiredWhen": "Only when the landlord asserts an exception under R.C. 5321.03 or division 5321.02(C).",
+              "patterns": [
+                "5321\\.03",
+                "cost of improvements",
+                "costs of operation"
+              ],
+              "note": "",
+              "origin": "profile",
+              "pled": "yes",
+              "applicability": "not_applicable",
+              "supported": "nothing_supplied",
+              "explanation": "This conditional element applies only if the landlord asserted an identified statutory exception. The brief states that no such exception was asserted, so there is no exception basis to address; the supplied record excerpt does not independently establish that no exception was asserted.",
+              "quote": "The landlord did not assert a statutory exception under R.C. 5321.03 or division 5321.02(C).",
+              "materialIds": [],
+              "unmet": false
+            }
+          ],
+          "unmetCount": 0,
+          "verdict": "Every element on file is pleaded and supported."
+        }
+      ],
+      "compliance": {
+        "checked": false,
+        "reason": "You turned this check off for this session.",
+        "findings": [],
+        "detection": {
+          "mode": "auto",
+          "reason": "No maintained court profile matched this document's caption or the case record.",
+          "matched": "",
+          "where": "",
+          "courtSlug": ""
+        }
+      },
+      "challenges": [],
+      "challenge_count": 0,
+      "opponent_calls": [],
+      "judge_calls": [],
+      "verdict": "correctness review completed",
+      "assessment": "Correctness review completed. 0 must-fix findings; 0 items need attorney review. Rule elements: passed",
+      "stage_trace": [
+        {
+          "stage": "document_checks",
+          "method": "deterministic",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "materials",
+          "method": "all",
+          "count": 1,
+          "budgetChars": 150000,
+          "perMaterialChars": 150000,
+          "truncated": [],
+          "trace": []
+        },
+        {
+          "stage": "argument_map",
+          "method": "skipped",
+          "count": 0,
+          "trace": [
+            "No selected check requires a generative argument map."
+          ]
+        },
+        {
+          "stage": "persuasion",
+          "method": "off",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "record_targets",
+          "method": "off",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "opponent:record_support",
+          "method": "off",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "authority_research",
+          "method": "source_specific",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "research_queries",
+          "method": "off",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "research",
+          "method": "retrieval",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "opponent",
+          "method": "off",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "opponent:authority_support",
+          "method": "off",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "rule_elements",
+          "method": "llm",
+          "count": 1,
+          "trace": [
+            {
+              "stage": "rule_elements:rc-5321-02-retaliation",
+              "method": "llm",
+              "count": 5,
+              "trace": [
+                {
+                  "attempt": 1,
+                  "plan": {
+                    "method": "llm",
+                    "llmAttempt": 1
+                  },
+                  "success": true,
+                  "code": "rule_elements:rc-5321-02-retaliation_complete",
+                  "message": "rule_elements:rc-5321-02-retaliation produced 5 item(s)."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "stage": "judge",
+          "method": "off",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "judge:rule_elements",
+          "method": "llm",
+          "count": 5,
+          "trace": [
+            {
+              "attempt": 1,
+              "plan": {
+                "method": "llm",
+                "llmAttempt": 1
+              },
+              "success": true,
+              "code": "judge:rule_elements_complete",
+              "message": "judge:rule_elements produced 5 item(s)."
+            }
+          ],
+          "checkId": "rule_elements",
+          "batch": 1,
+          "batches": 1,
+          "candidateIds": [
+            "rule_elements:rc-5321-02-retaliation:causal_connection",
+            "rule_elements:rc-5321-02-retaliation:landlord_knowledge",
+            "rule_elements:rc-5321-02-retaliation:protected_activity",
+            "rule_elements:rc-5321-02-retaliation:retaliatory_act",
+            "rule_elements:rc-5321-02-retaliation:statutory_exception"
+          ],
+          "unavailable": false
+        },
+        {
+          "stage": "coach",
+          "method": "skipped",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "assessment",
+          "method": "deterministic",
+          "count": 1,
+          "trace": []
+        }
+      ],
+      "research_trace": [],
+      "model_calls": [
+        {
+          "prompt_key": "argument_gym.rule_elements",
+          "role": "base",
+          "model": "gpt-5.6-terra",
+          "settings": {
+            "temperature": 0,
+            "model": "gpt-5.6-terra",
+            "reasoning_level": "medium"
+          },
+          "status": "complete",
+          "elapsed_seconds": 8.87
+        },
+        {
+          "prompt_key": "argument_gym.correctness_judge",
+          "role": "judge",
+          "model": "mistral-large-3",
+          "settings": {
+            "temperature": 0,
+            "model": "mistral-large-3",
+            "reasoning_level": "medium"
+          },
+          "status": "complete",
+          "elapsed_seconds": 6.379
+        }
+      ],
+      "attacks_given_to_judge": 0
+    },
+    {
+      "fixture_id": "R005",
+      "condition": "mutant",
+      "case_family_id": "synthetic-rule-review-r005",
+      "stratum": "synthetic_rule_elements_attorney_review",
+      "run_id": 35,
+      "run_at": "2026-09-14T02:21:59.707491+00:00",
+      "status": "complete",
+      "pipeline_status": "complete",
+      "degraded": null,
+      "error": "",
+      "brief_sha256": "2d274ecdde5dc41259a279f497dd29a34f0af9fb6c6ac04a78b51b04253bad9d",
+      "brief_chars": 1066,
+      "record_documents": 1,
+      "attack_model": "gpt-5.6-terra",
+      "judge_model": "mistral-large-3",
+      "base_model": "gpt-5.6-terra",
+      "same_family": false,
+      "reasoning": "medium",
+      "unit_budget_chars": 260000,
+      "units": 9,
+      "court": {
+        "mode": "auto",
+        "reason": "No maintained court profile matched this document's caption or the case record.",
+        "matched": "",
+        "where": "",
+        "courtSlug": ""
+      },
+      "deterministic_findings": {
+        "rule_elements": 2
+      },
+      "checks_run": [
+        {
+          "id": "record_support",
+          "label": "Test material facts against the record",
+          "description": "Opponent tests only atomic, record-verifiable, material claims; Judge sustains a defect only when the supplied evidence and record coverage establish it.",
+          "kind": "model",
+          "category": "correctness",
+          "categoryLabel": "Correctness",
+          "categoryDescription": "Is the law right? Is the authority controlling? Are the required elements present, and does the record establish what the brief says it does?",
+          "defaultEnabled": true,
+          "requires": [
+            "case_record"
+          ],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "rule_elements",
+          "label": "Audit the elements of the rules invoked",
+          "description": "Detects the rules the brief cites or invokes by name, then audits each element of those rules: is it pleaded, and is it supported.",
+          "kind": "model",
+          "category": "correctness",
+          "categoryLabel": "Correctness",
+          "categoryDescription": "Is the law right? Is the authority controlling? Are the required elements present, and does the record establish what the brief says it does?",
+          "defaultEnabled": true,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "on",
+          "reason": ""
+        },
+        {
+          "id": "authority_support",
+          "label": "Test cited authority support",
+          "description": "Whether each cited authority supports the material legal proposition for which the brief uses it.",
+          "kind": "model",
+          "category": "correctness",
+          "categoryLabel": "Correctness",
+          "categoryDescription": "Is the law right? Is the authority controlling? Are the required elements present, and does the record establish what the brief says it does?",
+          "defaultEnabled": true,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "adversarial",
+          "label": "Opposing counsel, a judge, and a coach",
+          "description": "The core of the gym: opposing counsel makes the strongest arguments available against the brief, a judge weighs them, and a coach proposes answers.",
+          "kind": "model",
+          "category": "completeness",
+          "categoryLabel": "Argumentative completeness",
+          "categoryDescription": "Does the brief connect its rules to its facts? Does it work the difficult element instead of restating the rule? Does it confront adverse authority and answer the counterargument a court will think of on its own?",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_issue_framing",
+          "label": "Issue framing",
+          "description": "Does the brief identify the real dispute early and frame it around the favorable legal question?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_macro_organization",
+          "label": "Macro-organization",
+          "description": "Are arguments ordered logically and by importance? Can the reader see the roadmap?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_paragraph_organization",
+          "label": "Paragraph-level organization",
+          "description": "Do paragraphs have discernible propositions or topic sentences, and develop one point at a time?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_rule_synthesis",
+          "label": "Rule synthesis",
+          "description": "Does the writer synthesize authorities into a rule rather than serially summarize cases?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_rule_application",
+          "label": "Rule-to-fact application",
+          "description": "Is the reasoning explicit -- \"because X fact satisfies Y element\" -- rather than leaving the inferential step to the court?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_fact_selection",
+          "label": "Fact selection and narrative coherence",
+          "description": "Are legally significant facts foregrounded and organized in a comprehensible chronology or theory?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_use_of_authority",
+          "label": "Use of authority",
+          "description": "Are important propositions backed by strong authorities placed where they actually matter, rather than citation dumping?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_counterarguments",
+          "label": "Handling counterarguments",
+          "description": "Does the brief acknowledge and answer the strongest objection rather than arguing past it?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_concision",
+          "label": "Concision and reader burden",
+          "description": "Does it say the same thing once, in the right place, without unnecessary throat-clearing?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_calibration",
+          "label": "Calibrated confidence and credibility",
+          "description": "Does it distinguish strong propositions from uncertain ones and avoid overclaiming?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_relief_alignment",
+          "label": "Requested-relief alignment",
+          "description": "Does the argument actually lead to the precise thing the brief asks the court to do?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_emphasis",
+          "label": "Emphasis",
+          "description": "Does the document devote its space to the issues that matter rather than treating every point as equally important?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "custom_checklist",
+          "label": "Custom checklist",
+          "description": "Applies review questions you wrote. An item can look things up -- authority, the case record, passages of the brief -- rather than answering from the brief alone. Attach a checklist for this to run.",
+          "kind": "model",
+          "category": "custom",
+          "categoryLabel": "Your own checks",
+          "categoryDescription": "Review questions you wrote, in your words, applied to this brief.",
+          "defaultEnabled": false,
+          "requires": [
+            "checklist"
+          ],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "court_formatting",
+          "label": "This court's filing rules",
+          "description": "Required elements, type size, spacing, margins, and page limits for the selected court.",
+          "kind": "deterministic",
+          "category": "form",
+          "categoryLabel": "Form of the filing",
+          "categoryDescription": "Whether the paper meets this court's rules and the conventions of practice.",
+          "defaultEnabled": false,
+          "requires": [
+            "court_profile"
+          ],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "pleading_form",
+          "label": "Form of the pleading",
+          "description": "Conventions of practice rather than any one court's rules: numbered paragraphs running in order, a prayer for relief, a signature block, exhibit references that resolve, no placeholder left in the text.",
+          "kind": "deterministic",
+          "category": "form",
+          "categoryLabel": "Form of the filing",
+          "categoryDescription": "Whether the paper meets this court's rules and the conventions of practice.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "draft_validation",
+          "label": "Draft-mode validation",
+          "description": "The same checks Draft mode runs: unresolved template data and placeholders, draft structure, rendered Word consistency, citation linting, source support, and filing-package consistency.",
+          "kind": "deterministic",
+          "category": "form",
+          "categoryLabel": "Form of the filing",
+          "categoryDescription": "Whether the paper meets this court's rules and the conventions of practice.",
+          "defaultEnabled": false,
+          "requires": [
+            "native_draft"
+          ],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "grammar",
+          "label": "Grammar and mechanics",
+          "description": "Doubled words, missing sentence spacing, unbalanced quotes and parentheses.",
+          "kind": "deterministic",
+          "category": "language",
+          "categoryLabel": "Language",
+          "categoryDescription": "Sentence-level mechanics, reported as nudges rather than as defects in the argument.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "confused_words",
+          "label": "Misspelled and easily confused words",
+          "description": "Not a dictionary spell check, on purpose: a general dictionary flags half of every case name. This looks for the words legal writing actually gets wrong, and for real words used in place of other real words.",
+          "kind": "deterministic",
+          "category": "language",
+          "categoryLabel": "Language",
+          "categoryDescription": "Sentence-level mechanics, reported as nudges rather than as defects in the argument.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "passive_voice",
+          "label": "Passive voice",
+          "description": "Reported as a nudge, never an error. Phrases a court expects to read are on an accepted list you can add to for this session.",
+          "kind": "deterministic",
+          "category": "language",
+          "categoryLabel": "Language",
+          "categoryDescription": "Sentence-level mechanics, reported as nudges rather than as defects in the argument.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "acceptedPassivePhrases: phrases this court expects, which the check stays quiet about.",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "readability",
+          "label": "Readability",
+          "description": "Sentence length and reading-level measures, reported as several formulas rather than one score.",
+          "kind": "deterministic",
+          "category": "language",
+          "categoryLabel": "Language",
+          "categoryDescription": "Sentence-level mechanics, reported as nudges rather than as defects in the argument.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        }
+      ],
+      "check_results": {
+        "rule_elements": {
+          "findings": [
+            {
+              "ruleCode": "rule_elements.missing_required_element",
+              "severity": "error",
+              "message": "Protected activity is applicable because the brief relies on a code-enforcement complaint. The brief identifies the protected act but does not state when it occurred, as required; the record supplies the January 10, 2023 filing date.",
+              "target": {
+                "unitId": "u3"
+              },
+              "details": {
+                "checkId": "rule_elements",
+                "issueCode": "missing_required_element",
+                "targetId": "rc-5321-02-retaliation:protected_activity",
+                "unitId": "u3",
+                "disposition": "must_fix",
+                "claim": "The brief names the act the statute protects and when it happened.",
+                "problem": "Protected activity is applicable because the brief relies on a code-enforcement complaint. The brief identifies the protected act but does not state when it occurred, as required; the record supplies the January 10, 2023 filing date.",
+                "briefEvidence": [
+                  "u3"
+                ],
+                "externalEvidence": [
+                  "https://codes.ohio.gov/ohio-revised-code/section-5321.02"
+                ],
+                "reason": "The brief identifies the protected act (filing a code-enforcement complaint) but fails to state when it occurred, which is a required element. The record establishes the filing date as January 10, 2023, but this date is not included in the brief.",
+                "confidence": "high",
+                "userVisible": true
+              }
+            },
+            {
+              "ruleCode": "rule_elements.missing_required_element",
+              "severity": "error",
+              "message": "Although the brief recites that a causal connection is required, it does not allege why this eviction was connected to the complaint, such as timing or retaliatory statements. The record supports a connection through the sequence of events and the landlord's message, but those facts are not carried into the brief's argument.",
+              "target": {
+                "unitId": "u3"
+              },
+              "details": {
+                "checkId": "rule_elements",
+                "issueCode": "missing_required_element",
+                "targetId": "rc-5321-02-retaliation:causal_connection",
+                "unitId": "u3",
+                "disposition": "must_fix",
+                "claim": "The brief says why the act followed the protected activity -- normally the timing, and anything the landlord said.",
+                "problem": "Although the brief recites that a causal connection is required, it does not allege why this eviction was connected to the complaint, such as timing or retaliatory statements. The record supports a connection through the sequence of events and the landlord's message, but those facts are not carried into the brief's argument.",
+                "briefEvidence": [
+                  "u3"
+                ],
+                "externalEvidence": [
+                  "https://codes.ohio.gov/ohio-revised-code/section-5321.02"
+                ],
+                "reason": "The brief recites the requirement for a causal connection but fails to allege specific facts (e.g., timing or retaliatory statements) establishing why the eviction was connected to the protected activity. The record supports such a connection, but the brief does not carry these facts into its argument.",
+                "confidence": "high",
+                "userVisible": true
+              }
+            }
+          ],
+          "tests": [
+            {
+              "checkId": "rule_elements",
+              "issueCode": "missing_required_element",
+              "targetId": "rc-5321-02-retaliation:protected_activity",
+              "unitId": "u3",
+              "disposition": "must_fix",
+              "claim": "The brief names the act the statute protects and when it happened.",
+              "problem": "Protected activity is applicable because the brief relies on a code-enforcement complaint. The brief identifies the protected act but does not state when it occurred, as required; the record supplies the January 10, 2023 filing date.",
+              "briefEvidence": [
+                "u3"
+              ],
+              "externalEvidence": [
+                "https://codes.ohio.gov/ohio-revised-code/section-5321.02"
+              ],
+              "reason": "The brief identifies the protected act (filing a code-enforcement complaint) but fails to state when it occurred, which is a required element. The record establishes the filing date as January 10, 2023, but this date is not included in the brief.",
+              "confidence": "high",
+              "userVisible": true
+            },
+            {
+              "checkId": "rule_elements",
+              "issueCode": "required_element_carried",
+              "targetId": "rc-5321-02-retaliation:landlord_knowledge",
+              "unitId": "u3",
+              "disposition": "pass",
+              "claim": "The brief says how the landlord came to know of it.",
+              "problem": "The brief states that the landlord gained knowledge and, in the facts section, says she acknowledged receipt of the complaint. The record corroborates acknowledgment on January 15, 2023.",
+              "briefEvidence": [
+                "u3"
+              ],
+              "externalEvidence": [
+                "https://codes.ohio.gov/ohio-revised-code/section-5321.02"
+              ],
+              "reason": "The brief adequately alleges landlord knowledge by stating the landlord acknowledged receipt of the complaint, and the record corroborates this with a specific date (January 15, 2023).",
+              "confidence": "high",
+              "userVisible": true
+            },
+            {
+              "checkId": "rule_elements",
+              "issueCode": "required_element_carried",
+              "targetId": "rc-5321-02-retaliation:retaliatory_act",
+              "unitId": "u3",
+              "disposition": "pass",
+              "claim": "The brief names the act -- the eviction, the rent increase, the reduced service.",
+              "problem": "The brief identifies filing the eviction action as the prohibited retaliatory act. The record confirms that the landlord filed the eviction on February 20, 2023.",
+              "briefEvidence": [
+                "u3"
+              ],
+              "externalEvidence": [
+                "https://codes.ohio.gov/ohio-revised-code/section-5321.02"
+              ],
+              "reason": "The brief explicitly identifies the retaliatory act (filing an eviction action), and the record confirms this act occurred on February 20, 2023.",
+              "confidence": "high",
+              "userVisible": true
+            },
+            {
+              "checkId": "rule_elements",
+              "issueCode": "missing_required_element",
+              "targetId": "rc-5321-02-retaliation:causal_connection",
+              "unitId": "u3",
+              "disposition": "must_fix",
+              "claim": "The brief says why the act followed the protected activity -- normally the timing, and anything the landlord said.",
+              "problem": "Although the brief recites that a causal connection is required, it does not allege why this eviction was connected to the complaint, such as timing or retaliatory statements. The record supports a connection through the sequence of events and the landlord's message, but those facts are not carried into the brief's argument.",
+              "briefEvidence": [
+                "u3"
+              ],
+              "externalEvidence": [
+                "https://codes.ohio.gov/ohio-revised-code/section-5321.02"
+              ],
+              "reason": "The brief recites the requirement for a causal connection but fails to allege specific facts (e.g., timing or retaliatory statements) establishing why the eviction was connected to the protected activity. The record supports such a connection, but the brief does not carry these facts into its argument.",
+              "confidence": "high",
+              "userVisible": true
+            },
+            {
+              "checkId": "rule_elements",
+              "issueCode": "required_element_carried",
+              "targetId": "rc-5321-02-retaliation:statutory_exception",
+              "unitId": "u3",
+              "disposition": "pass",
+              "claim": "Apply the exact possession ground or legitimate improvement/operating-cost basis asserted by landlord.",
+              "problem": "This element is not applicable because the brief expressly states that the landlord did not assert an exception under R.C. 5321.03 or R.C. 5321.02(C). No record material regarding an asserted exception was supplied.",
+              "briefEvidence": [
+                "u3"
+              ],
+              "externalEvidence": [
+                "https://codes.ohio.gov/ohio-revised-code/section-5321.02"
+              ],
+              "reason": "The brief expressly states the landlord did not assert a statutory exception under R.C. 5321.03 or R.C. 5321.02(C), and no record material contradicts this.",
+              "confidence": "high",
+              "userVisible": false
+            }
+          ],
+          "summary": "2 must fix, 0 review, 3 passed"
+        }
+      },
+      "correctness_tests": [
+        {
+          "checkId": "rule_elements",
+          "issueCode": "missing_required_element",
+          "targetId": "rc-5321-02-retaliation:protected_activity",
+          "unitId": "u3",
+          "disposition": "must_fix",
+          "claim": "The brief names the act the statute protects and when it happened.",
+          "problem": "Protected activity is applicable because the brief relies on a code-enforcement complaint. The brief identifies the protected act but does not state when it occurred, as required; the record supplies the January 10, 2023 filing date.",
+          "briefEvidence": [
+            "u3"
+          ],
+          "externalEvidence": [
+            "https://codes.ohio.gov/ohio-revised-code/section-5321.02"
+          ],
+          "reason": "The brief identifies the protected act (filing a code-enforcement complaint) but fails to state when it occurred, which is a required element. The record establishes the filing date as January 10, 2023, but this date is not included in the brief.",
+          "confidence": "high",
+          "userVisible": true
+        },
+        {
+          "checkId": "rule_elements",
+          "issueCode": "required_element_carried",
+          "targetId": "rc-5321-02-retaliation:landlord_knowledge",
+          "unitId": "u3",
+          "disposition": "pass",
+          "claim": "The brief says how the landlord came to know of it.",
+          "problem": "The brief states that the landlord gained knowledge and, in the facts section, says she acknowledged receipt of the complaint. The record corroborates acknowledgment on January 15, 2023.",
+          "briefEvidence": [
+            "u3"
+          ],
+          "externalEvidence": [
+            "https://codes.ohio.gov/ohio-revised-code/section-5321.02"
+          ],
+          "reason": "The brief adequately alleges landlord knowledge by stating the landlord acknowledged receipt of the complaint, and the record corroborates this with a specific date (January 15, 2023).",
+          "confidence": "high",
+          "userVisible": true
+        },
+        {
+          "checkId": "rule_elements",
+          "issueCode": "required_element_carried",
+          "targetId": "rc-5321-02-retaliation:retaliatory_act",
+          "unitId": "u3",
+          "disposition": "pass",
+          "claim": "The brief names the act -- the eviction, the rent increase, the reduced service.",
+          "problem": "The brief identifies filing the eviction action as the prohibited retaliatory act. The record confirms that the landlord filed the eviction on February 20, 2023.",
+          "briefEvidence": [
+            "u3"
+          ],
+          "externalEvidence": [
+            "https://codes.ohio.gov/ohio-revised-code/section-5321.02"
+          ],
+          "reason": "The brief explicitly identifies the retaliatory act (filing an eviction action), and the record confirms this act occurred on February 20, 2023.",
+          "confidence": "high",
+          "userVisible": true
+        },
+        {
+          "checkId": "rule_elements",
+          "issueCode": "missing_required_element",
+          "targetId": "rc-5321-02-retaliation:causal_connection",
+          "unitId": "u3",
+          "disposition": "must_fix",
+          "claim": "The brief says why the act followed the protected activity -- normally the timing, and anything the landlord said.",
+          "problem": "Although the brief recites that a causal connection is required, it does not allege why this eviction was connected to the complaint, such as timing or retaliatory statements. The record supports a connection through the sequence of events and the landlord's message, but those facts are not carried into the brief's argument.",
+          "briefEvidence": [
+            "u3"
+          ],
+          "externalEvidence": [
+            "https://codes.ohio.gov/ohio-revised-code/section-5321.02"
+          ],
+          "reason": "The brief recites the requirement for a causal connection but fails to allege specific facts (e.g., timing or retaliatory statements) establishing why the eviction was connected to the protected activity. The record supports such a connection, but the brief does not carry these facts into its argument.",
+          "confidence": "high",
+          "userVisible": true
+        },
+        {
+          "checkId": "rule_elements",
+          "issueCode": "required_element_carried",
+          "targetId": "rc-5321-02-retaliation:statutory_exception",
+          "unitId": "u3",
+          "disposition": "pass",
+          "claim": "Apply the exact possession ground or legitimate improvement/operating-cost basis asserted by landlord.",
+          "problem": "This element is not applicable because the brief expressly states that the landlord did not assert an exception under R.C. 5321.03 or R.C. 5321.02(C). No record material regarding an asserted exception was supplied.",
+          "briefEvidence": [
+            "u3"
+          ],
+          "externalEvidence": [
+            "https://codes.ohio.gov/ohio-revised-code/section-5321.02"
+          ],
+          "reason": "The brief expressly states the landlord did not assert a statutory exception under R.C. 5321.03 or R.C. 5321.02(C), and no record material contradicts this.",
+          "confidence": "high",
+          "userVisible": false
+        }
+      ],
+      "rule_audit": [
+        {
+          "slug": "rc-5321-02-retaliation",
+          "name": "Retaliatory action by a landlord",
+          "citation": "R.C. 5321.02",
+          "label": "Retaliatory action by a landlord (R.C. 5321.02)",
+          "summary": "A landlord may not retaliate against a tenant for protected activity such as complaining to a code-enforcement agency, complaining to the landlord, or joining a tenants' organization. A tenant raising it has to identify the protected act, the retaliatory act, and the connection between them.",
+          "verification": "verified",
+          "source": "R.C. 5321.02-.03; Iskin (6th ed. 2022), \u00a7 XI",
+          "sourceUrl": "https://codes.ohio.gov/ohio-revised-code/section-5321.02",
+          "invokedBy": "citation",
+          "matched": "R.C. 5321.02",
+          "excerpt": "had previously filed a complaint with a code-enforcement agency regarding the rental property. The landlord acknowledged receipt of the complaint and subsequently filed the eviction action. Argument R.C. 5321.02 prohibits a landlord from taking retaliatory action against a tenant who has engaged in protected activity. To establish this defense, the tenant must show protected activity, landlord knowledge, a prohibited act, and a causal connection between the protected activity and the prohibited",
+          "audited": true,
+          "briefCoverage": {
+            "reviewedChars": 1066,
+            "totalChars": 1066,
+            "truncated": false
+          },
+          "requiresApplicabilityReview": false,
+          "elements": [
+            {
+              "id": "protected_activity",
+              "label": "The tenant engaged in protected activity",
+              "requirement": "The brief names the act the statute protects and when it happened.",
+              "severity": "error",
+              "needsRecordSupport": true,
+              "requiredWhen": "",
+              "patterns": [
+                "complain(ed|t) to .{0,40}(code|health|building|inspector|agency)",
+                "complained to the landlord",
+                "tenants?'? (union|organization|association)"
+              ],
+              "note": "",
+              "origin": "profile",
+              "pled": "no",
+              "applicability": "applicable",
+              "supported": "yes",
+              "explanation": "Protected activity is applicable because the brief relies on a code-enforcement complaint. The brief identifies the protected act but does not state when it occurred, as required; the record supplies the January 10, 2023 filing date.",
+              "quote": "The tenant engaged in protected activity by filing a complaint with a code-enforcement agency.",
+              "materialIds": [
+                "upload:37"
+              ],
+              "unmet": true
+            },
+            {
+              "id": "landlord_knowledge",
+              "label": "The landlord knew of the protected activity",
+              "requirement": "The brief says how the landlord came to know of it.",
+              "severity": "warning",
+              "needsRecordSupport": true,
+              "requiredWhen": "",
+              "patterns": [
+                "landlord (knew|learned|was notified|was aware)",
+                "after (the|being) (notified|informed)"
+              ],
+              "note": "",
+              "origin": "profile",
+              "pled": "yes",
+              "applicability": "applicable",
+              "supported": "yes",
+              "explanation": "The brief states that the landlord gained knowledge and, in the facts section, says she acknowledged receipt of the complaint. The record corroborates acknowledgment on January 15, 2023.",
+              "quote": "The landlord acknowledged receipt of the complaint and subsequently filed the eviction action.\nThe landlord gained knowledge of this complaint.",
+              "materialIds": [
+                "upload:37"
+              ],
+              "unmet": false
+            },
+            {
+              "id": "retaliatory_act",
+              "label": "The landlord took one of the acts the statute forbids",
+              "requirement": "The brief names the act -- the eviction, the rent increase, the reduced service.",
+              "severity": "error",
+              "needsRecordSupport": true,
+              "requiredWhen": "",
+              "patterns": [
+                "(increase[ds]?|raised) .{0,20}rent",
+                "decreas(ed|ing) services",
+                "brought .{0,30}(eviction|action for possession)",
+                "terminated the tenancy"
+              ],
+              "note": "",
+              "origin": "profile",
+              "pled": "yes",
+              "applicability": "applicable",
+              "supported": "yes",
+              "explanation": "The brief identifies filing the eviction action as the prohibited retaliatory act. The record confirms that the landlord filed the eviction on February 20, 2023.",
+              "quote": "The landlord committed a prohibited act by filing an eviction action.",
+              "materialIds": [
+                "upload:37"
+              ],
+              "unmet": false
+            },
+            {
+              "id": "causal_connection",
+              "label": "The connection between the two is pleaded",
+              "requirement": "The brief says why the act followed the protected activity -- normally the timing, and anything the landlord said.",
+              "severity": "error",
+              "needsRecordSupport": true,
+              "requiredWhen": "",
+              "patterns": [
+                "(days|weeks|months) after",
+                "in response to",
+                "because (the tenant|she|he|they) (complained|reported)",
+                "shortly (after|thereafter)"
+              ],
+              "note": "",
+              "origin": "profile",
+              "pled": "no",
+              "applicability": "applicable",
+              "supported": "yes",
+              "explanation": "Although the brief recites that a causal connection is required, it does not allege why this eviction was connected to the complaint, such as timing or retaliatory statements. The record supports a connection through the sequence of events and the landlord's message, but those facts are not carried into the brief's argument.",
+              "quote": "",
+              "materialIds": [
+                "upload:37"
+              ],
+              "unmet": true
+            },
+            {
+              "id": "statutory_exception",
+              "label": "Any asserted R.C. 5321.03 or operating-cost exception is addressed",
+              "requirement": "Apply the exact possession ground or legitimate improvement/operating-cost basis asserted by landlord.",
+              "severity": "error",
+              "needsRecordSupport": true,
+              "requiredWhen": "Only when the landlord asserts an exception under R.C. 5321.03 or division 5321.02(C).",
+              "patterns": [
+                "5321\\.03",
+                "cost of improvements",
+                "costs of operation"
+              ],
+              "note": "",
+              "origin": "profile",
+              "pled": "yes",
+              "applicability": "not_applicable",
+              "supported": "nothing_supplied",
+              "explanation": "This element is not applicable because the brief expressly states that the landlord did not assert an exception under R.C. 5321.03 or R.C. 5321.02(C). No record material regarding an asserted exception was supplied.",
+              "quote": "The landlord did not assert a statutory exception under R.C. 5321.03 or division 5321.02(C).",
+              "materialIds": [],
+              "unmet": false
+            }
+          ],
+          "unmetCount": 2,
+          "verdict": "2 of 5 elements need review; unavailable evidence or unrecognized wording does not establish a defect."
+        }
+      ],
+      "compliance": {
+        "checked": false,
+        "reason": "You turned this check off for this session.",
+        "findings": [],
+        "detection": {
+          "mode": "auto",
+          "reason": "No maintained court profile matched this document's caption or the case record.",
+          "matched": "",
+          "where": "",
+          "courtSlug": ""
+        }
+      },
+      "challenges": [
+        {
+          "ordinal": 1,
+          "category": "missing_element",
+          "severity": "high",
+          "confidence": "high",
+          "opponent_argument": "Protected activity is applicable because the brief relies on a code-enforcement complaint. The brief identifies the protected act but does not state when it occurred, as required; the record supplies the January 10, 2023 filing date.",
+          "why_it_matters": "The brief identifies the protected act (filing a code-enforcement complaint) but fails to state when it occurred, which is a required element. The record establishes the filing date as January 10, 2023, but this date is not included in the brief.",
+          "target": {
+            "unitId": "u3",
+            "section": "",
+            "paragraph": 3,
+            "page": null,
+            "excerpt": "Argument\nR.C. 5321.02 prohibits a landlord from taking retaliatory action against a tenant who has engaged in protected activity. To establish this defense, the tenant must show protected activity, landlord knowledge, a prohibited act, and a causal connection between the protected activity and the p",
+            "blockKey": ""
+          },
+          "legal_sources": [],
+          "record_sources": [
+            {
+              "materialId": "upload:37",
+              "title": "record-01",
+              "status": "",
+              "quote": "The tenant engaged in protected activity by filing a complaint with a code-enforcement agency."
+            }
+          ],
+          "judge_assessment": "The brief identifies the protected act (filing a code-enforcement complaint) but fails to state when it occurred, which is a required element. The record establishes the filing date as January 10, 2023, but this date is not included in the brief.",
+          "judge_verdict": "sustained",
+          "suggested_response": "The tenant engaged in protected activity by filing a complaint with a code-enforcement agency regarding the rental property before the landlord filed this eviction action.",
+          "coaching_recommendation": "The supplied record confirms that the tenant filed a code-enforcement complaint, but it does not supply the asserted January 10, 2023 date. Do not add that date without record support; identify the filing as occurring before the eviction and add the date only if it can be supported by the record.",
+          "disposition": "open"
+        },
+        {
+          "ordinal": 2,
+          "category": "missing_element",
+          "severity": "high",
+          "confidence": "high",
+          "opponent_argument": "Although the brief recites that a causal connection is required, it does not allege why this eviction was connected to the complaint, such as timing or retaliatory statements. The record supports a connection through the sequence of events and the landlord's message, but those facts are not carried into the brief's argument.",
+          "why_it_matters": "The brief recites the requirement for a causal connection but fails to allege specific facts (e.g., timing or retaliatory statements) establishing why the eviction was connected to the protected activity. The record supports such a connection, but the brief does not carry these facts into its argument.",
+          "target": {
+            "unitId": "u3",
+            "section": "",
+            "paragraph": 3,
+            "page": null,
+            "excerpt": "Argument\nR.C. 5321.02 prohibits a landlord from taking retaliatory action against a tenant who has engaged in protected activity. To establish this defense, the tenant must show protected activity, landlord knowledge, a prohibited act, and a causal connection between the protected activity and the p",
+            "blockKey": ""
+          },
+          "legal_sources": [],
+          "record_sources": [
+            {
+              "materialId": "upload:37",
+              "title": "record-01",
+              "status": "",
+              "quote": "had previously filed a complaint with a code-enforcement agency regarding the rental property. The landlord acknowledged receipt of the complaint and subsequently filed the eviction action. Argument R.C. 5321.02 prohibits a landlord from taking retaliatory action against a tenant who has engaged in protected activity. To establish this defense, the tenant must show protected activity, landlord knowledge, a prohibited act, and a causal connection between the protected activity and the prohibited"
+            }
+          ],
+          "judge_assessment": "The brief recites the requirement for a causal connection but fails to allege specific facts (e.g., timing or retaliatory statements) establishing why the eviction was connected to the protected activity. The record supports such a connection, but the brief does not carry these facts into its argument.",
+          "judge_verdict": "sustained",
+          "suggested_response": "The causal connection is supported by the sequence of events: the landlord acknowledged receipt of the tenant's code-enforcement complaint and subsequently filed this eviction action. The landlord's knowledge of the complaint and the ensuing eviction support the tenant's retaliation defense.",
+          "coaching_recommendation": "Add the available sequence of events as the factual basis for causation: the landlord acknowledged the complaint and then filed the eviction. The supplied record does not provide the alleged landlord message or specific dates, so neither should be asserted.",
+          "disposition": "open"
+        }
+      ],
+      "challenge_count": 2,
+      "opponent_calls": [],
+      "judge_calls": [],
+      "verdict": "correctness review completed",
+      "assessment": "Correctness review completed. 2 must-fix findings; 0 items need attorney review. Rule elements: 2 failure, 0 review",
+      "stage_trace": [
+        {
+          "stage": "document_checks",
+          "method": "deterministic",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "materials",
+          "method": "all",
+          "count": 1,
+          "budgetChars": 150000,
+          "perMaterialChars": 150000,
+          "truncated": [],
+          "trace": []
+        },
+        {
+          "stage": "argument_map",
+          "method": "skipped",
+          "count": 0,
+          "trace": [
+            "No selected check requires a generative argument map."
+          ]
+        },
+        {
+          "stage": "persuasion",
+          "method": "off",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "record_targets",
+          "method": "off",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "opponent:record_support",
+          "method": "off",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "authority_research",
+          "method": "source_specific",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "research_queries",
+          "method": "off",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "research",
+          "method": "retrieval",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "opponent",
+          "method": "off",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "opponent:authority_support",
+          "method": "off",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "rule_elements",
+          "method": "llm",
+          "count": 1,
+          "trace": [
+            {
+              "stage": "rule_elements:rc-5321-02-retaliation",
+              "method": "llm",
+              "count": 5,
+              "trace": [
+                {
+                  "attempt": 1,
+                  "plan": {
+                    "method": "llm",
+                    "llmAttempt": 1
+                  },
+                  "success": true,
+                  "code": "rule_elements:rc-5321-02-retaliation_complete",
+                  "message": "rule_elements:rc-5321-02-retaliation produced 5 item(s)."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "stage": "judge",
+          "method": "off",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "judge:rule_elements",
+          "method": "llm",
+          "count": 5,
+          "trace": [
+            {
+              "attempt": 1,
+              "plan": {
+                "method": "llm",
+                "llmAttempt": 1
+              },
+              "success": true,
+              "code": "judge:rule_elements_complete",
+              "message": "judge:rule_elements produced 5 item(s)."
+            }
+          ],
+          "checkId": "rule_elements",
+          "batch": 1,
+          "batches": 1,
+          "candidateIds": [
+            "rule_elements:rc-5321-02-retaliation:causal_connection",
+            "rule_elements:rc-5321-02-retaliation:landlord_knowledge",
+            "rule_elements:rc-5321-02-retaliation:protected_activity",
+            "rule_elements:rc-5321-02-retaliation:retaliatory_act",
+            "rule_elements:rc-5321-02-retaliation:statutory_exception"
+          ],
+          "unavailable": false
+        },
+        {
+          "stage": "coach",
+          "method": "llm",
+          "count": 2,
+          "trace": [
+            {
+              "attempt": 1,
+              "plan": {
+                "method": "llm",
+                "llmAttempt": 1
+              },
+              "success": true,
+              "code": "coach_complete",
+              "message": "coach produced 2 item(s)."
+            }
+          ]
+        },
+        {
+          "stage": "assessment",
+          "method": "deterministic",
+          "count": 1,
+          "trace": []
+        }
+      ],
+      "research_trace": [],
+      "model_calls": [
+        {
+          "prompt_key": "argument_gym.rule_elements",
+          "role": "base",
+          "model": "gpt-5.6-terra",
+          "settings": {
+            "temperature": 0,
+            "model": "gpt-5.6-terra",
+            "reasoning_level": "medium"
+          },
+          "status": "complete",
+          "elapsed_seconds": 7.546
+        },
+        {
+          "prompt_key": "argument_gym.correctness_judge",
+          "role": "judge",
+          "model": "mistral-large-3",
+          "settings": {
+            "temperature": 0,
+            "model": "mistral-large-3",
+            "reasoning_level": "medium"
+          },
+          "status": "complete",
+          "elapsed_seconds": 6.66
+        },
+        {
+          "prompt_key": "argument_gym.coach",
+          "role": "base",
+          "model": "gpt-5.6-terra",
+          "settings": {
+            "temperature": 0,
+            "model": "gpt-5.6-terra",
+            "reasoning_level": "medium"
+          },
+          "status": "complete",
+          "elapsed_seconds": 6.424
+        }
+      ],
+      "attacks_given_to_judge": 0
+    }
+  ],
+  "public_export": {
+    "removed_fields": [
+      "retrieval"
+    ],
+    "why": "verbatim excerpts of third-party legal corpora retrieved by the research stage; not ours to redistribute and not evidence for any reported figure",
+    "full_record": "report.json, kept locally alongside this file"
+  }
+}

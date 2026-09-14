@@ -1,0 +1,2325 @@
+{
+  "manifest": {
+    "registry_id": "lexis-mutation-2026-09",
+    "created_at": "2026-09-14T02:24:33.789358+00:00",
+    "mode": "live",
+    "git_commit": "351fb785e9bc1bfc7b9954de0f94d16861aa0d9f",
+    "git_status": " M backend/apps/caselaw/management/commands/enrich_caselaw_metadata.py\n m private-content\n?? downloaded_opinions/\n?? lab_notebook/2026-09-13_heldout_authority_replicates_1_to_4.md\n?? lexis_real_briefs/experiment/results/heldout-authority-terra-mistral-rep1-20260913/\n?? lexis_real_briefs/experiment/results/heldout-authority-terra-mistral-rep2-20260913/\n?? lexis_real_briefs/experiment/results/heldout-authority-terra-mistral-rep3-20260913/\n?? lexis_real_briefs/experiment/results/heldout-authority-terra-mistral-rep4-20260913/\n?? lexis_real_briefs/experiment/results/heldout-rule-floor-llama-sol-attorney-reviewed-rep1-20260913/\n?? lexis_real_briefs/experiment/results/heldout-rule-floor-llama-sol-attorney-reviewed-rep2-20260913/\n?? lexis_real_briefs/experiment/results/heldout-rule-floor-llama-sol-attorney-reviewed-rep2-r002-technical-retry-20260913/\n?? lexis_real_briefs/experiment/results/heldout-rule-floor-llama-sol-attorney-reviewed-rep3-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-f005-attribution-grounded-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-f005-complete-opinions-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-f005-frozen-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-f005-grounded-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-f005-opinion-status-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-f005-reuse-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-live-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-live-bounded-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-live-final-f007-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-live-final-f007b-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-live-hybrid-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-live-hybrid-fixed-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-live-targeted-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-offline-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-offline-after-unavailable-fix-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-priority-frozen-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-priority-rerun-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-rules-citations-terra-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-rules-citations-terra-batched-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-rules-citations-terra-final-20260913/\n?? lexis_real_briefs/experiment/results/micro-judge-hardening-deepseek-20260913.json\n?? lexis_real_briefs/experiment/results/micro-judge-hardening-deepseek-offset8-20260913.json\n?? lexis_real_briefs/experiment/results/micro-judge-hardening-gpt55-20260913.json\n?? lexis_real_briefs/experiment/results/micro-judge-hardening-gpt56terra-20260913.json\n?? lexis_real_briefs/experiment/results/micro-judge-hardening-gpt56terra-deployed-20260913.json\n?? lexis_real_briefs/experiment/results/micro-judge-hardening-grok46-20260913.json\n?? lexis_real_briefs/experiment/results/micro-judge-rule-floor-llama-4-maverick-20260913.json\n?? lexis_real_briefs/experiment/results/micro-judge-rule-floor-mistral-large-3-20260913.json\n?? lexis_real_briefs/experiment/results/micro-judge-rules-gpt55-20260913.json\n?? lexis_real_briefs/experiment/results/micro-judge-rules-gpt56terra-20260913.json\n?? lexis_real_briefs/experiment/results/micro-rules-all-fixtures-20260913/\n?? lexis_real_briefs/experiment/results/qualification-authority-f005-nested-fixed-rep1-20260913/\n?? lexis_real_briefs/experiment/results/qualification-authority-f005-nested-fixed-rep2-20260913/\n?? lexis_real_briefs/experiment/results/qualification-authority-f005-nested-fixed-rep3-20260913/\n?? lexis_real_briefs/experiment/results/qualification-authority-f005-rep1-20260913/\n?? lexis_real_briefs/experiment/results/qualification-authority-f005-stable-inventory-20260913/\n?? lexis_real_briefs/experiment/results/qualification-rule-floor-contract-rep1-20260913/\n?? lexis_real_briefs/experiment/results/qualification-rule-floor-final-rep1-20260913/\n?? lexis_real_briefs/experiment/results/qualification-rule-floor-fresh10-20260913/\n?? lexis_real_briefs/experiment/results/qualification-rule-floor-fresh10-rep2-20260913/\n?? lexis_real_briefs/experiment/results/qualification-rule-floor-gate-rep1-20260913/\n?? lexis_real_briefs/experiment/results/qualification-rule-floor-gate-rep2-20260913/\n?? lexis_real_briefs/experiment/results/qualification-rule-floor-gate-rep3-20260913/\n?? lexis_real_briefs/experiment/results/qualification-rule-floor-mistral-high-rep1-20260913/\n?? lexis_real_briefs/experiment/results/qualification-rule-floor-mistral-rep1-20260913/\n?? lexis_real_briefs/experiment/results/qualification-rule-floor-ready-rep1-20260913/\n?? lexis_real_briefs/experiment/results/qualification-rule-floor-rep1-20260913/\n?? lexis_real_briefs/experiment/results/qualification-rule-floor-repaired-rep1-20260913/\n?? lexis_real_briefs/experiment/results/qualification-rule-floor-terra-mistral-fixed-rep1-20260913/\n?? lexis_real_briefs/experiment/results/qualification-rule-floor-terra-mistral-rep1-20260913/\n?? lexis_real_briefs/experiment/results/qualification-vawa-coverage-rep1-20260913/\n?? lexis_real_briefs/experiment/results/qualification-vawa-coverage-rep2-20260913/\n?? lexis_real_briefs/experiment/results/qualification-vawa-coverage-rep3-20260913/\n",
+    "command": [
+      "/home/quinten/agentic_housing_drafting/.venv/bin/python",
+      "/home/quinten/agentic_housing_drafting/lexis_real_briefs/experiment/tools/run_experiment.py",
+      "--output-dir",
+      "/home/quinten/agentic_housing_drafting/lexis_real_briefs/experiment/results/heldout-rule-floor-llama-sol-attorney-reviewed-rep3-20260913/shards/R003",
+      "--fixtures-dir",
+      "/home/quinten/agentic_housing_drafting/lexis_real_briefs/experiment/fixtures-rule-floor-attorney-reviewed-20260913",
+      "--fixture",
+      "R003",
+      "--model",
+      "gpt-5.4-mini",
+      "--reasoning",
+      "medium",
+      "--live",
+      "--attack-model",
+      "gpt-5.6-terra",
+      "--judge-model",
+      "mistral-large-3",
+      "--base-model",
+      "gpt-5.6-terra",
+      "--cell",
+      "terra-mistral",
+      "--check",
+      "rule_elements"
+    ],
+    "python": "3.12.3 (main, Aug 31 2026, 10:18:26) [GCC 13.3.0]",
+    "cell": "terra-mistral",
+    "models": {
+      "attack": "gpt-5.6-terra",
+      "judge": "mistral-large-3",
+      "base": "gpt-5.6-terra"
+    },
+    "model": "gpt-5.6-terra",
+    "attack_family": "openai",
+    "judge_family": "mistral",
+    "same_family_judge": false,
+    "role_routing": "named Opponent prompts -> attack; legacy and correctness Judge prompts -> judge; everything else -> base",
+    "reasoning": "medium",
+    "temperature": 0,
+    "provider_host": "quint-mln02sj6-eastus2.cognitiveservices.azure.com",
+    "model_version_note": "Requested deployment alias; the provider's snapshot identity is not exposed to the application client.",
+    "code_sha256": "ee19e50720fcf3296b77bca657634a8ec471f42669525f0f6b0b0686882cd494",
+    "dependencies_sha256": "f5f5236ee56cf7f75c2f0f59f570b7386388e27164eb9ec999572462072c4366",
+    "unit_budget_chars": 260000,
+    "unit_text_chars": 2400,
+    "brief_text_chars": 120000,
+    "source_ids": [
+      "ohio-cases",
+      "ohio-statutes",
+      "ohio-ordinances",
+      "treatise"
+    ],
+    "enabled_checks": [
+      "rule_elements"
+    ],
+    "blinding": "The Gym receives brief text and record text only. No fixture id, condition label, mutation class or gold vulnerability reaches any prompt.",
+    "scoring": "The Gym writes stable per-target dispositions. Whether a result matches the registered mutation remains a separate, human-checkable step.",
+    "fixtures": [
+      {
+        "fixture_id": "R003",
+        "control_sha256": "2a8672e497d216fee5763595258d7b365133b98f7e16b987abded18a1ff8be5c",
+        "mutant_sha256": "e234dab00dfcfbfd8be877132148e342fd908a466a8db197835ff801993c393e",
+        "attachment_sha256": {
+          "record-01.txt": "30a73c0014f47d583eabfef24e159bce719922a980ca56e484d6d63f3e76b5ff"
+        }
+      }
+    ]
+  },
+  "results": [
+    {
+      "fixture_id": "R003",
+      "condition": "control",
+      "case_family_id": "synthetic-rule-review-r003",
+      "stratum": "synthetic_rule_elements_attorney_review",
+      "run_id": 34,
+      "run_at": "2026-09-14T02:25:03.767703+00:00",
+      "status": "complete",
+      "pipeline_status": "complete",
+      "degraded": null,
+      "error": "",
+      "brief_sha256": "2a8672e497d216fee5763595258d7b365133b98f7e16b987abded18a1ff8be5c",
+      "brief_chars": 858,
+      "record_documents": 1,
+      "attack_model": "gpt-5.6-terra",
+      "judge_model": "mistral-large-3",
+      "base_model": "gpt-5.6-terra",
+      "same_family": false,
+      "reasoning": "medium",
+      "unit_budget_chars": 260000,
+      "units": 13,
+      "court": {
+        "mode": "auto",
+        "reason": "No maintained court profile matched this document's caption or the case record.",
+        "matched": "",
+        "where": "",
+        "courtSlug": ""
+      },
+      "deterministic_findings": {
+        "rule_elements": 3
+      },
+      "checks_run": [
+        {
+          "id": "record_support",
+          "label": "Test material facts against the record",
+          "description": "Opponent tests only atomic, record-verifiable, material claims; Judge sustains a defect only when the supplied evidence and record coverage establish it.",
+          "kind": "model",
+          "category": "correctness",
+          "categoryLabel": "Correctness",
+          "categoryDescription": "Is the law right? Is the authority controlling? Are the required elements present, and does the record establish what the brief says it does?",
+          "defaultEnabled": true,
+          "requires": [
+            "case_record"
+          ],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "rule_elements",
+          "label": "Audit the elements of the rules invoked",
+          "description": "Detects the rules the brief cites or invokes by name, then audits each element of those rules: is it pleaded, and is it supported.",
+          "kind": "model",
+          "category": "correctness",
+          "categoryLabel": "Correctness",
+          "categoryDescription": "Is the law right? Is the authority controlling? Are the required elements present, and does the record establish what the brief says it does?",
+          "defaultEnabled": true,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "on",
+          "reason": ""
+        },
+        {
+          "id": "authority_support",
+          "label": "Test cited authority support",
+          "description": "Whether each cited authority supports the material legal proposition for which the brief uses it.",
+          "kind": "model",
+          "category": "correctness",
+          "categoryLabel": "Correctness",
+          "categoryDescription": "Is the law right? Is the authority controlling? Are the required elements present, and does the record establish what the brief says it does?",
+          "defaultEnabled": true,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "adversarial",
+          "label": "Opposing counsel, a judge, and a coach",
+          "description": "The core of the gym: opposing counsel makes the strongest arguments available against the brief, a judge weighs them, and a coach proposes answers.",
+          "kind": "model",
+          "category": "completeness",
+          "categoryLabel": "Argumentative completeness",
+          "categoryDescription": "Does the brief connect its rules to its facts? Does it work the difficult element instead of restating the rule? Does it confront adverse authority and answer the counterargument a court will think of on its own?",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_issue_framing",
+          "label": "Issue framing",
+          "description": "Does the brief identify the real dispute early and frame it around the favorable legal question?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_macro_organization",
+          "label": "Macro-organization",
+          "description": "Are arguments ordered logically and by importance? Can the reader see the roadmap?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_paragraph_organization",
+          "label": "Paragraph-level organization",
+          "description": "Do paragraphs have discernible propositions or topic sentences, and develop one point at a time?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_rule_synthesis",
+          "label": "Rule synthesis",
+          "description": "Does the writer synthesize authorities into a rule rather than serially summarize cases?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_rule_application",
+          "label": "Rule-to-fact application",
+          "description": "Is the reasoning explicit -- \"because X fact satisfies Y element\" -- rather than leaving the inferential step to the court?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_fact_selection",
+          "label": "Fact selection and narrative coherence",
+          "description": "Are legally significant facts foregrounded and organized in a comprehensible chronology or theory?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_use_of_authority",
+          "label": "Use of authority",
+          "description": "Are important propositions backed by strong authorities placed where they actually matter, rather than citation dumping?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_counterarguments",
+          "label": "Handling counterarguments",
+          "description": "Does the brief acknowledge and answer the strongest objection rather than arguing past it?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_concision",
+          "label": "Concision and reader burden",
+          "description": "Does it say the same thing once, in the right place, without unnecessary throat-clearing?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_calibration",
+          "label": "Calibrated confidence and credibility",
+          "description": "Does it distinguish strong propositions from uncertain ones and avoid overclaiming?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_relief_alignment",
+          "label": "Requested-relief alignment",
+          "description": "Does the argument actually lead to the precise thing the brief asks the court to do?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_emphasis",
+          "label": "Emphasis",
+          "description": "Does the document devote its space to the issues that matter rather than treating every point as equally important?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "custom_checklist",
+          "label": "Custom checklist",
+          "description": "Applies review questions you wrote. An item can look things up -- authority, the case record, passages of the brief -- rather than answering from the brief alone. Attach a checklist for this to run.",
+          "kind": "model",
+          "category": "custom",
+          "categoryLabel": "Your own checks",
+          "categoryDescription": "Review questions you wrote, in your words, applied to this brief.",
+          "defaultEnabled": false,
+          "requires": [
+            "checklist"
+          ],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "court_formatting",
+          "label": "This court's filing rules",
+          "description": "Required elements, type size, spacing, margins, and page limits for the selected court.",
+          "kind": "deterministic",
+          "category": "form",
+          "categoryLabel": "Form of the filing",
+          "categoryDescription": "Whether the paper meets this court's rules and the conventions of practice.",
+          "defaultEnabled": false,
+          "requires": [
+            "court_profile"
+          ],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "pleading_form",
+          "label": "Form of the pleading",
+          "description": "Conventions of practice rather than any one court's rules: numbered paragraphs running in order, a prayer for relief, a signature block, exhibit references that resolve, no placeholder left in the text.",
+          "kind": "deterministic",
+          "category": "form",
+          "categoryLabel": "Form of the filing",
+          "categoryDescription": "Whether the paper meets this court's rules and the conventions of practice.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "draft_validation",
+          "label": "Draft-mode validation",
+          "description": "The same checks Draft mode runs: unresolved template data and placeholders, draft structure, rendered Word consistency, citation linting, source support, and filing-package consistency.",
+          "kind": "deterministic",
+          "category": "form",
+          "categoryLabel": "Form of the filing",
+          "categoryDescription": "Whether the paper meets this court's rules and the conventions of practice.",
+          "defaultEnabled": false,
+          "requires": [
+            "native_draft"
+          ],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "grammar",
+          "label": "Grammar and mechanics",
+          "description": "Doubled words, missing sentence spacing, unbalanced quotes and parentheses.",
+          "kind": "deterministic",
+          "category": "language",
+          "categoryLabel": "Language",
+          "categoryDescription": "Sentence-level mechanics, reported as nudges rather than as defects in the argument.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "confused_words",
+          "label": "Misspelled and easily confused words",
+          "description": "Not a dictionary spell check, on purpose: a general dictionary flags half of every case name. This looks for the words legal writing actually gets wrong, and for real words used in place of other real words.",
+          "kind": "deterministic",
+          "category": "language",
+          "categoryLabel": "Language",
+          "categoryDescription": "Sentence-level mechanics, reported as nudges rather than as defects in the argument.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "passive_voice",
+          "label": "Passive voice",
+          "description": "Reported as a nudge, never an error. Phrases a court expects to read are on an accepted list you can add to for this session.",
+          "kind": "deterministic",
+          "category": "language",
+          "categoryLabel": "Language",
+          "categoryDescription": "Sentence-level mechanics, reported as nudges rather than as defects in the argument.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "acceptedPassivePhrases: phrases this court expects, which the check stays quiet about.",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "readability",
+          "label": "Readability",
+          "description": "Sentence length and reading-level measures, reported as several formulas rather than one score.",
+          "kind": "deterministic",
+          "category": "language",
+          "categoryLabel": "Language",
+          "categoryDescription": "Sentence-level mechanics, reported as nudges rather than as defects in the argument.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        }
+      ],
+      "check_results": {
+        "rule_elements": {
+          "findings": [
+            {
+              "ruleCode": "rule_elements.missing_required_element",
+              "severity": "error",
+              "message": "This is an unconditional element of the invoked rule. The brief identifies an obstruction and refers generally to R.C. 5321.05, but does not state that the breach materially affects health or safety; the record excerpt supplies both the common-area obligation and the material health-and-safety effect.",
+              "target": {
+                "unitId": "u6"
+              },
+              "details": {
+                "checkId": "rule_elements",
+                "issueCode": "missing_required_element",
+                "targetId": "rc-5321-11-notice-to-cure:covered_breach",
+                "unitId": "u6",
+                "disposition": "must_fix",
+                "claim": "Identify the covered obligation and material health-or-safety effect.",
+                "problem": "This is an unconditional element of the invoked rule. The brief identifies an obstruction and refers generally to R.C. 5321.05, but does not state that the breach materially affects health or safety; the record excerpt supplies both the common-area obligation and the material health-and-safety effect.",
+                "briefEvidence": [
+                  "u6"
+                ],
+                "externalEvidence": [
+                  "https://codes.ohio.gov/ohio-revised-code/section-5321.11"
+                ],
+                "reason": "The brief fails to explicitly state that the breach materially affects health or safety, which is an unconditional element of R.C. 5321.11. While the record (upload:35) supplies the material health-and-safety effect, the brief does not incorporate this required element. A competent supervising attorney would require this defect to be corrected before filing.",
+                "confidence": "high",
+                "userVisible": true
+              }
+            },
+            {
+              "ruleCode": "rule_elements.missing_required_element",
+              "severity": "error",
+              "message": "This is an unconditional notice-content requirement. Although the brief asserts that the notice specified a noncompliant act and refers to an obstruction, it neither quotes nor attaches the notice's factual specification; the record supplies the notice language identifying hallway obstruction.",
+              "target": {
+                "unitId": "u6"
+              },
+              "details": {
+                "checkId": "rule_elements",
+                "issueCode": "missing_required_element",
+                "targetId": "rc-5321-11-notice-to-cure:specific_act",
+                "unitId": "u6",
+                "disposition": "must_fix",
+                "claim": "Quote or attach the notice's factual specification.",
+                "problem": "This is an unconditional notice-content requirement. Although the brief asserts that the notice specified a noncompliant act and refers to an obstruction, it neither quotes nor attaches the notice's factual specification; the record supplies the notice language identifying hallway obstruction.",
+                "briefEvidence": [
+                  "u6"
+                ],
+                "externalEvidence": [
+                  "https://codes.ohio.gov/ohio-revised-code/section-5321.11"
+                ],
+                "reason": "The brief asserts that the notice specified a noncompliant act but neither quotes nor attaches the notice's factual specification. The record (upload:35) supplies the notice language identifying the hallway obstruction, but the brief does not incorporate this required element. A competent supervising attorney would require this defect to be corrected before filing.",
+                "confidence": "high",
+                "userVisible": true
+              }
+            },
+            {
+              "ruleCode": "rule_elements.missing_required_element",
+              "severity": "error",
+              "message": "This is an unconditional notice-content requirement. The brief asserts that the termination date was more than thirty days after receipt but does not provide the receipt and termination dates; the record supplies February 12, 2023 receipt and April 15, 2023 termination dates.",
+              "target": {
+                "unitId": "u6"
+              },
+              "details": {
+                "checkId": "rule_elements",
+                "issueCode": "missing_required_element",
+                "targetId": "rc-5321-11-notice-to-cure:termination_date",
+                "unitId": "u6",
+                "disposition": "must_fix",
+                "claim": "Provide receipt and termination dates.",
+                "problem": "This is an unconditional notice-content requirement. The brief asserts that the termination date was more than thirty days after receipt but does not provide the receipt and termination dates; the record supplies February 12, 2023 receipt and April 15, 2023 termination dates.",
+                "briefEvidence": [
+                  "u6"
+                ],
+                "externalEvidence": [
+                  "https://codes.ohio.gov/ohio-revised-code/section-5321.11"
+                ],
+                "reason": "The brief asserts that the termination date was more than thirty days after receipt but does not provide the specific receipt and termination dates. The record (upload:35) supplies these dates (February 12, 2023 receipt and April 15, 2023 termination), but the brief omits them. A competent supervising attorney would require this defect to be corrected before filing.",
+                "confidence": "high",
+                "userVisible": true
+              }
+            }
+          ],
+          "tests": [
+            {
+              "checkId": "rule_elements",
+              "issueCode": "missing_required_element",
+              "targetId": "rc-5321-11-notice-to-cure:covered_breach",
+              "unitId": "u6",
+              "disposition": "must_fix",
+              "claim": "Identify the covered obligation and material health-or-safety effect.",
+              "problem": "This is an unconditional element of the invoked rule. The brief identifies an obstruction and refers generally to R.C. 5321.05, but does not state that the breach materially affects health or safety; the record excerpt supplies both the common-area obligation and the material health-and-safety effect.",
+              "briefEvidence": [
+                "u6"
+              ],
+              "externalEvidence": [
+                "https://codes.ohio.gov/ohio-revised-code/section-5321.11"
+              ],
+              "reason": "The brief fails to explicitly state that the breach materially affects health or safety, which is an unconditional element of R.C. 5321.11. While the record (upload:35) supplies the material health-and-safety effect, the brief does not incorporate this required element. A competent supervising attorney would require this defect to be corrected before filing.",
+              "confidence": "high",
+              "userVisible": true
+            },
+            {
+              "checkId": "rule_elements",
+              "issueCode": "required_element_carried",
+              "targetId": "rc-5321-11-notice-to-cure:written_notice",
+              "unitId": "u6",
+              "disposition": "pass",
+              "claim": "Identify delivery and receipt of a written notice.",
+              "problem": "This is an unconditional notice requirement. The brief expressly alleges written delivery and receipt, and the record contains a signed delivery receipt and the notice text.",
+              "briefEvidence": [
+                "u6"
+              ],
+              "externalEvidence": [
+                "https://codes.ohio.gov/ohio-revised-code/section-5321.11"
+              ],
+              "reason": "The brief expressly alleges written delivery and receipt of the notice, and the record (upload:35) contains a signed delivery receipt and the notice text. The opponent has carried its burden for this element.",
+              "confidence": "high",
+              "userVisible": true
+            },
+            {
+              "checkId": "rule_elements",
+              "issueCode": "missing_required_element",
+              "targetId": "rc-5321-11-notice-to-cure:specific_act",
+              "unitId": "u6",
+              "disposition": "must_fix",
+              "claim": "Quote or attach the notice's factual specification.",
+              "problem": "This is an unconditional notice-content requirement. Although the brief asserts that the notice specified a noncompliant act and refers to an obstruction, it neither quotes nor attaches the notice's factual specification; the record supplies the notice language identifying hallway obstruction.",
+              "briefEvidence": [
+                "u6"
+              ],
+              "externalEvidence": [
+                "https://codes.ohio.gov/ohio-revised-code/section-5321.11"
+              ],
+              "reason": "The brief asserts that the notice specified a noncompliant act but neither quotes nor attaches the notice's factual specification. The record (upload:35) supplies the notice language identifying the hallway obstruction, but the brief does not incorporate this required element. A competent supervising attorney would require this defect to be corrected before filing.",
+              "confidence": "high",
+              "userVisible": true
+            },
+            {
+              "checkId": "rule_elements",
+              "issueCode": "missing_required_element",
+              "targetId": "rc-5321-11-notice-to-cure:termination_date",
+              "unitId": "u6",
+              "disposition": "must_fix",
+              "claim": "Provide receipt and termination dates.",
+              "problem": "This is an unconditional notice-content requirement. The brief asserts that the termination date was more than thirty days after receipt but does not provide the receipt and termination dates; the record supplies February 12, 2023 receipt and April 15, 2023 termination dates.",
+              "briefEvidence": [
+                "u6"
+              ],
+              "externalEvidence": [
+                "https://codes.ohio.gov/ohio-revised-code/section-5321.11"
+              ],
+              "reason": "The brief asserts that the termination date was more than thirty days after receipt but does not provide the specific receipt and termination dates. The record (upload:35) supplies these dates (February 12, 2023 receipt and April 15, 2023 termination), but the brief omits them. A competent supervising attorney would require this defect to be corrected before filing.",
+              "confidence": "high",
+              "userVisible": true
+            },
+            {
+              "checkId": "rule_elements",
+              "issueCode": "required_element_carried",
+              "targetId": "rc-5321-11-notice-to-cure:condition_not_remedied",
+              "unitId": "u6",
+              "disposition": "pass",
+              "claim": "Address remedy within the statutory period.",
+              "problem": "This element is applicable because the landlord seeks termination based on the asserted covered breach. The brief alleges that the obstruction remained after the statutory period and identifies a post-deadline inspection, which the record confirms.",
+              "briefEvidence": [
+                "u6"
+              ],
+              "externalEvidence": [
+                "https://codes.ohio.gov/ohio-revised-code/section-5321.11"
+              ],
+              "reason": "The brief alleges that the obstruction remained after the statutory period and identifies a post-deadline inspection, which the record (upload:35) confirms. The opponent has carried its burden for this element.",
+              "confidence": "high",
+              "userVisible": true
+            }
+          ],
+          "summary": "3 must fix, 0 review, 2 passed"
+        }
+      },
+      "correctness_tests": [
+        {
+          "checkId": "rule_elements",
+          "issueCode": "missing_required_element",
+          "targetId": "rc-5321-11-notice-to-cure:covered_breach",
+          "unitId": "u6",
+          "disposition": "must_fix",
+          "claim": "Identify the covered obligation and material health-or-safety effect.",
+          "problem": "This is an unconditional element of the invoked rule. The brief identifies an obstruction and refers generally to R.C. 5321.05, but does not state that the breach materially affects health or safety; the record excerpt supplies both the common-area obligation and the material health-and-safety effect.",
+          "briefEvidence": [
+            "u6"
+          ],
+          "externalEvidence": [
+            "https://codes.ohio.gov/ohio-revised-code/section-5321.11"
+          ],
+          "reason": "The brief fails to explicitly state that the breach materially affects health or safety, which is an unconditional element of R.C. 5321.11. While the record (upload:35) supplies the material health-and-safety effect, the brief does not incorporate this required element. A competent supervising attorney would require this defect to be corrected before filing.",
+          "confidence": "high",
+          "userVisible": true
+        },
+        {
+          "checkId": "rule_elements",
+          "issueCode": "required_element_carried",
+          "targetId": "rc-5321-11-notice-to-cure:written_notice",
+          "unitId": "u6",
+          "disposition": "pass",
+          "claim": "Identify delivery and receipt of a written notice.",
+          "problem": "This is an unconditional notice requirement. The brief expressly alleges written delivery and receipt, and the record contains a signed delivery receipt and the notice text.",
+          "briefEvidence": [
+            "u6"
+          ],
+          "externalEvidence": [
+            "https://codes.ohio.gov/ohio-revised-code/section-5321.11"
+          ],
+          "reason": "The brief expressly alleges written delivery and receipt of the notice, and the record (upload:35) contains a signed delivery receipt and the notice text. The opponent has carried its burden for this element.",
+          "confidence": "high",
+          "userVisible": true
+        },
+        {
+          "checkId": "rule_elements",
+          "issueCode": "missing_required_element",
+          "targetId": "rc-5321-11-notice-to-cure:specific_act",
+          "unitId": "u6",
+          "disposition": "must_fix",
+          "claim": "Quote or attach the notice's factual specification.",
+          "problem": "This is an unconditional notice-content requirement. Although the brief asserts that the notice specified a noncompliant act and refers to an obstruction, it neither quotes nor attaches the notice's factual specification; the record supplies the notice language identifying hallway obstruction.",
+          "briefEvidence": [
+            "u6"
+          ],
+          "externalEvidence": [
+            "https://codes.ohio.gov/ohio-revised-code/section-5321.11"
+          ],
+          "reason": "The brief asserts that the notice specified a noncompliant act but neither quotes nor attaches the notice's factual specification. The record (upload:35) supplies the notice language identifying the hallway obstruction, but the brief does not incorporate this required element. A competent supervising attorney would require this defect to be corrected before filing.",
+          "confidence": "high",
+          "userVisible": true
+        },
+        {
+          "checkId": "rule_elements",
+          "issueCode": "missing_required_element",
+          "targetId": "rc-5321-11-notice-to-cure:termination_date",
+          "unitId": "u6",
+          "disposition": "must_fix",
+          "claim": "Provide receipt and termination dates.",
+          "problem": "This is an unconditional notice-content requirement. The brief asserts that the termination date was more than thirty days after receipt but does not provide the receipt and termination dates; the record supplies February 12, 2023 receipt and April 15, 2023 termination dates.",
+          "briefEvidence": [
+            "u6"
+          ],
+          "externalEvidence": [
+            "https://codes.ohio.gov/ohio-revised-code/section-5321.11"
+          ],
+          "reason": "The brief asserts that the termination date was more than thirty days after receipt but does not provide the specific receipt and termination dates. The record (upload:35) supplies these dates (February 12, 2023 receipt and April 15, 2023 termination), but the brief omits them. A competent supervising attorney would require this defect to be corrected before filing.",
+          "confidence": "high",
+          "userVisible": true
+        },
+        {
+          "checkId": "rule_elements",
+          "issueCode": "required_element_carried",
+          "targetId": "rc-5321-11-notice-to-cure:condition_not_remedied",
+          "unitId": "u6",
+          "disposition": "pass",
+          "claim": "Address remedy within the statutory period.",
+          "problem": "This element is applicable because the landlord seeks termination based on the asserted covered breach. The brief alleges that the obstruction remained after the statutory period and identifies a post-deadline inspection, which the record confirms.",
+          "briefEvidence": [
+            "u6"
+          ],
+          "externalEvidence": [
+            "https://codes.ohio.gov/ohio-revised-code/section-5321.11"
+          ],
+          "reason": "The brief alleges that the obstruction remained after the statutory period and identifies a post-deadline inspection, which the record (upload:35) confirms. The opponent has carried its burden for this element.",
+          "confidence": "high",
+          "userVisible": true
+        }
+      ],
+      "rule_audit": [
+        {
+          "slug": "rc-5321-11-notice-to-cure",
+          "name": "Notice for tenant breach materially affecting health and safety",
+          "citation": "R.C. 5321.11",
+          "label": "Notice for tenant breach materially affecting health and safety (R.C. 5321.11)",
+          "summary": "For covered R.C. 5321.05 breaches materially affecting health and safety, the written notice must specify the noncompliant act or omission and a termination date at least thirty days after receipt; timely remedy prevents termination.",
+          "verification": "verified",
+          "source": "R.C. 5321.11; Iskin (6th ed. 2022), \u00a7\u00a7 I.D.2, II.A.2, II.F",
+          "sourceUrl": "https://codes.ohio.gov/ohio-revised-code/section-5321.11",
+          "invokedBy": "citation",
+          "matched": "R.C. 5321.11",
+          "excerpt": "Statement of Facts The plaintiff-landlord served the defendant-tenant with a written notice specifying a covered breach and a termination date. Argument The landlord is entitled to possession under R.C. 5321.11. The defendant failed to remedy the specified obstruction within the statutory period, as evidenced by the post-deadline inspection on March 15, 2023, which confirmed the continued presence of the obstruction. The written notice was properly delivered and received, specifying the nonc",
+          "audited": true,
+          "briefCoverage": {
+            "reviewedChars": 858,
+            "totalChars": 858,
+            "truncated": false
+          },
+          "requiresApplicabilityReview": false,
+          "elements": [
+            {
+              "id": "covered_breach",
+              "label": "Alleged R.C. 5321.05 breach materially affects health and safety",
+              "requirement": "Identify the covered obligation and material health-or-safety effect.",
+              "severity": "error",
+              "needsRecordSupport": true,
+              "requiredWhen": "",
+              "patterns": [
+                "5321\\.05",
+                "materially affect.{0,30}health.{0,10}safety"
+              ],
+              "note": "",
+              "origin": "profile",
+              "pled": "no",
+              "applicability": "applicable",
+              "supported": "yes",
+              "explanation": "This is an unconditional element of the invoked rule. The brief identifies an obstruction and refers generally to R.C. 5321.05, but does not state that the breach materially affects health or safety; the record excerpt supplies both the common-area obligation and the material health-and-safety effect.",
+              "quote": "The covered breach involves an obligation under R.C. 5321.05.",
+              "materialIds": [
+                "upload:35"
+              ],
+              "unmet": true
+            },
+            {
+              "id": "written_notice",
+              "label": "Landlord delivered written notice",
+              "requirement": "Identify delivery and receipt of a written notice.",
+              "severity": "error",
+              "needsRecordSupport": true,
+              "requiredWhen": "",
+              "patterns": [
+                "written notice",
+                "receiv.{0,40}notice"
+              ],
+              "note": "",
+              "origin": "profile",
+              "pled": "yes",
+              "applicability": "applicable",
+              "supported": "yes",
+              "explanation": "This is an unconditional notice requirement. The brief expressly alleges written delivery and receipt, and the record contains a signed delivery receipt and the notice text.",
+              "quote": "The written notice was properly delivered and received, specifying the noncompliant act and a termination date more than thirty days after receipt.",
+              "materialIds": [
+                "upload:35"
+              ],
+              "unmet": false
+            },
+            {
+              "id": "specific_act",
+              "label": "Notice specified the noncompliant act or omission",
+              "requirement": "Quote or attach the notice's factual specification.",
+              "severity": "error",
+              "needsRecordSupport": true,
+              "requiredWhen": "",
+              "patterns": [
+                "act or omission",
+                "specif.{0,50}(violation|breach|noncompliance)"
+              ],
+              "note": "",
+              "origin": "profile",
+              "pled": "no",
+              "applicability": "applicable",
+              "supported": "yes",
+              "explanation": "This is an unconditional notice-content requirement. Although the brief asserts that the notice specified a noncompliant act and refers to an obstruction, it neither quotes nor attaches the notice's factual specification; the record supplies the notice language identifying hallway obstruction.",
+              "quote": "The defendant failed to remedy the specified obstruction within the statutory period.",
+              "materialIds": [
+                "upload:35"
+              ],
+              "unmet": true
+            },
+            {
+              "id": "termination_date",
+              "label": "Notice set a termination date at least thirty days after receipt",
+              "requirement": "Provide receipt and termination dates.",
+              "severity": "error",
+              "needsRecordSupport": true,
+              "requiredWhen": "",
+              "patterns": [
+                "thirty days",
+                "30 days",
+                "termination date"
+              ],
+              "note": "",
+              "origin": "profile",
+              "pled": "no",
+              "applicability": "applicable",
+              "supported": "yes",
+              "explanation": "This is an unconditional notice-content requirement. The brief asserts that the termination date was more than thirty days after receipt but does not provide the receipt and termination dates; the record supplies February 12, 2023 receipt and April 15, 2023 termination dates.",
+              "quote": "The written notice was properly delivered and received, specifying the noncompliant act and a termination date more than thirty days after receipt.",
+              "materialIds": [
+                "upload:35"
+              ],
+              "unmet": true
+            },
+            {
+              "id": "condition_not_remedied",
+              "label": "Condition remained unremedied",
+              "requirement": "Address remedy within the statutory period.",
+              "severity": "error",
+              "needsRecordSupport": true,
+              "requiredWhen": "",
+              "patterns": [
+                "fail.{0,30}remed",
+                "not remed"
+              ],
+              "note": "",
+              "origin": "profile",
+              "pled": "yes",
+              "applicability": "applicable",
+              "supported": "yes",
+              "explanation": "This element is applicable because the landlord seeks termination based on the asserted covered breach. The brief alleges that the obstruction remained after the statutory period and identifies a post-deadline inspection, which the record confirms.",
+              "quote": "The defendant failed to remedy the specified obstruction within the statutory period, as evidenced by the post-deadline inspection on March 15, 2023, which confirmed the continued presence of the obstruction.",
+              "materialIds": [
+                "upload:35"
+              ],
+              "unmet": false
+            }
+          ],
+          "unmetCount": 3,
+          "verdict": "3 of 5 elements need review; unavailable evidence or unrecognized wording does not establish a defect."
+        }
+      ],
+      "compliance": {
+        "checked": false,
+        "reason": "You turned this check off for this session.",
+        "findings": [],
+        "detection": {
+          "mode": "auto",
+          "reason": "No maintained court profile matched this document's caption or the case record.",
+          "matched": "",
+          "where": "",
+          "courtSlug": ""
+        }
+      },
+      "challenges": [
+        {
+          "ordinal": 1,
+          "category": "missing_element",
+          "severity": "high",
+          "confidence": "high",
+          "opponent_argument": "This is an unconditional element of the invoked rule. The brief identifies an obstruction and refers generally to R.C. 5321.05, but does not state that the breach materially affects health or safety; the record excerpt supplies both the common-area obligation and the material health-and-safety effect.",
+          "why_it_matters": "The brief fails to explicitly state that the breach materially affects health or safety, which is an unconditional element of R.C. 5321.11. While the record (upload:35) supplies the material health-and-safety effect, the brief does not incorporate this required element. A competent supervising attorney would require this defect to be corrected before filing.",
+          "target": {
+            "unitId": "u6",
+            "section": "MEMORANDUM IN SUPPORT OF",
+            "paragraph": 4,
+            "page": null,
+            "excerpt": "Argument\nThe landlord is entitled to possession under R.C. 5321.11.",
+            "blockKey": ""
+          },
+          "legal_sources": [],
+          "record_sources": [
+            {
+              "materialId": "upload:35",
+              "title": "record-01",
+              "status": "",
+              "quote": "The covered breach involves an obligation under R.C. 5321.05."
+            }
+          ],
+          "judge_assessment": "The brief fails to explicitly state that the breach materially affects health or safety, which is an unconditional element of R.C. 5321.11. While the record (upload:35) supplies the material health-and-safety effect, the brief does not incorporate this required element. A competent supervising attorney would require this defect to be corrected before filing.",
+          "judge_verdict": "sustained",
+          "suggested_response": "The defendant breached an obligation under R.C. 5321.05. The breach materially affected health or safety because [insert the record-supported facts establishing the health-or-safety effect].",
+          "coaching_recommendation": "Add a sentence identifying the R.C. 5321.05 obligation and stating, with record-supported facts, how the breach materially affected health or safety. The supplied record excerpt establishes that the breach involved an R.C. 5321.05 obligation, but it does not supply the material health-or-safety facts needed to complete that sentence.",
+          "disposition": "open"
+        },
+        {
+          "ordinal": 2,
+          "category": "missing_element",
+          "severity": "high",
+          "confidence": "high",
+          "opponent_argument": "This is an unconditional notice-content requirement. Although the brief asserts that the notice specified a noncompliant act and refers to an obstruction, it neither quotes nor attaches the notice's factual specification; the record supplies the notice language identifying hallway obstruction.",
+          "why_it_matters": "The brief asserts that the notice specified a noncompliant act but neither quotes nor attaches the notice's factual specification. The record (upload:35) supplies the notice language identifying the hallway obstruction, but the brief does not incorporate this required element. A competent supervising attorney would require this defect to be corrected before filing.",
+          "target": {
+            "unitId": "u6",
+            "section": "MEMORANDUM IN SUPPORT OF",
+            "paragraph": 4,
+            "page": null,
+            "excerpt": "Argument\nThe landlord is entitled to possession under R.C. 5321.11.",
+            "blockKey": ""
+          },
+          "legal_sources": [],
+          "record_sources": [
+            {
+              "materialId": "upload:35",
+              "title": "record-01",
+              "status": "",
+              "quote": "The defendant failed to remedy the specified obstruction within the statutory period."
+            }
+          ],
+          "judge_assessment": "The brief asserts that the notice specified a noncompliant act but neither quotes nor attaches the notice's factual specification. The record (upload:35) supplies the notice language identifying the hallway obstruction, but the brief does not incorporate this required element. A competent supervising attorney would require this defect to be corrected before filing.",
+          "judge_verdict": "sustained",
+          "suggested_response": "The written notice identified the noncompliant act as follows: \"[insert the notice's exact description of the obstruction].\" The defendant did not remedy that specified obstruction within the statutory period.",
+          "coaching_recommendation": "Quote the notice's description of the noncompliant act or attach and expressly incorporate the written notice. The supplied record excerpt says that the notice specified a noncompliant act, but it does not provide the notice's actual language identifying that act.",
+          "disposition": "open"
+        },
+        {
+          "ordinal": 3,
+          "category": "missing_element",
+          "severity": "high",
+          "confidence": "high",
+          "opponent_argument": "This is an unconditional notice-content requirement. The brief asserts that the termination date was more than thirty days after receipt but does not provide the receipt and termination dates; the record supplies February 12, 2023 receipt and April 15, 2023 termination dates.",
+          "why_it_matters": "The brief asserts that the termination date was more than thirty days after receipt but does not provide the specific receipt and termination dates. The record (upload:35) supplies these dates (February 12, 2023 receipt and April 15, 2023 termination), but the brief omits them. A competent supervising attorney would require this defect to be corrected before filing.",
+          "target": {
+            "unitId": "u6",
+            "section": "MEMORANDUM IN SUPPORT OF",
+            "paragraph": 4,
+            "page": null,
+            "excerpt": "Argument\nThe landlord is entitled to possession under R.C. 5321.11.",
+            "blockKey": ""
+          },
+          "legal_sources": [],
+          "record_sources": [
+            {
+              "materialId": "upload:35",
+              "title": "record-01",
+              "status": "",
+              "quote": "The written notice was properly delivered and received, specifying the noncompliant act and a termination date more than thirty days after receipt."
+            }
+          ],
+          "judge_assessment": "The brief asserts that the termination date was more than thirty days after receipt but does not provide the specific receipt and termination dates. The record (upload:35) supplies these dates (February 12, 2023 receipt and April 15, 2023 termination), but the brief omits them. A competent supervising attorney would require this defect to be corrected before filing.",
+          "judge_verdict": "sustained",
+          "suggested_response": "The defendant received the written notice on [receipt date]. The notice specified [termination date] as the termination date, more than thirty days after receipt.",
+          "coaching_recommendation": "State the actual receipt date and termination date and show that the termination date was more than thirty days after receipt. The supplied record excerpt establishes only that the notice was received and set a termination date more than thirty days later; it does not provide the dates.",
+          "disposition": "open"
+        }
+      ],
+      "challenge_count": 3,
+      "opponent_calls": [],
+      "judge_calls": [],
+      "verdict": "correctness review completed",
+      "assessment": "Correctness review completed. 3 must-fix findings; 0 items need attorney review. Rule elements: 3 failure, 0 review",
+      "stage_trace": [
+        {
+          "stage": "document_checks",
+          "method": "deterministic",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "materials",
+          "method": "all",
+          "count": 1,
+          "budgetChars": 150000,
+          "perMaterialChars": 150000,
+          "truncated": [],
+          "trace": []
+        },
+        {
+          "stage": "argument_map",
+          "method": "skipped",
+          "count": 0,
+          "trace": [
+            "No selected check requires a generative argument map."
+          ]
+        },
+        {
+          "stage": "persuasion",
+          "method": "off",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "record_targets",
+          "method": "off",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "opponent:record_support",
+          "method": "off",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "authority_research",
+          "method": "source_specific",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "research_queries",
+          "method": "off",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "research",
+          "method": "retrieval",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "opponent",
+          "method": "off",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "opponent:authority_support",
+          "method": "off",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "rule_elements",
+          "method": "llm",
+          "count": 1,
+          "trace": [
+            {
+              "stage": "rule_elements:rc-5321-11-notice-to-cure",
+              "method": "llm",
+              "count": 5,
+              "trace": [
+                {
+                  "attempt": 1,
+                  "plan": {
+                    "method": "llm",
+                    "llmAttempt": 1
+                  },
+                  "success": true,
+                  "code": "rule_elements:rc-5321-11-notice-to-cure_complete",
+                  "message": "rule_elements:rc-5321-11-notice-to-cure produced 5 item(s)."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "stage": "judge",
+          "method": "off",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "judge:rule_elements",
+          "method": "llm",
+          "count": 5,
+          "trace": [
+            {
+              "attempt": 1,
+              "plan": {
+                "method": "llm",
+                "llmAttempt": 1
+              },
+              "success": true,
+              "code": "judge:rule_elements_complete",
+              "message": "judge:rule_elements produced 5 item(s)."
+            }
+          ],
+          "checkId": "rule_elements",
+          "batch": 1,
+          "batches": 1,
+          "candidateIds": [
+            "rule_elements:rc-5321-11-notice-to-cure:condition_not_remedied",
+            "rule_elements:rc-5321-11-notice-to-cure:covered_breach",
+            "rule_elements:rc-5321-11-notice-to-cure:specific_act",
+            "rule_elements:rc-5321-11-notice-to-cure:termination_date",
+            "rule_elements:rc-5321-11-notice-to-cure:written_notice"
+          ],
+          "unavailable": false
+        },
+        {
+          "stage": "coach",
+          "method": "llm",
+          "count": 3,
+          "trace": [
+            {
+              "attempt": 1,
+              "plan": {
+                "method": "llm",
+                "llmAttempt": 1
+              },
+              "success": true,
+              "code": "coach_complete",
+              "message": "coach produced 3 item(s)."
+            }
+          ]
+        },
+        {
+          "stage": "assessment",
+          "method": "deterministic",
+          "count": 1,
+          "trace": []
+        }
+      ],
+      "research_trace": [],
+      "model_calls": [
+        {
+          "prompt_key": "argument_gym.rule_elements",
+          "role": "base",
+          "model": "gpt-5.6-terra",
+          "settings": {
+            "temperature": 0,
+            "model": "gpt-5.6-terra",
+            "reasoning_level": "medium"
+          },
+          "status": "complete",
+          "elapsed_seconds": 9.58
+        },
+        {
+          "prompt_key": "argument_gym.correctness_judge",
+          "role": "judge",
+          "model": "mistral-large-3",
+          "settings": {
+            "temperature": 0,
+            "model": "mistral-large-3",
+            "reasoning_level": "medium"
+          },
+          "status": "complete",
+          "elapsed_seconds": 8.247
+        },
+        {
+          "prompt_key": "argument_gym.coach",
+          "role": "base",
+          "model": "gpt-5.6-terra",
+          "settings": {
+            "temperature": 0,
+            "model": "gpt-5.6-terra",
+            "reasoning_level": "medium"
+          },
+          "status": "complete",
+          "elapsed_seconds": 8.23
+        }
+      ],
+      "attacks_given_to_judge": 0
+    },
+    {
+      "fixture_id": "R003",
+      "condition": "mutant",
+      "case_family_id": "synthetic-rule-review-r003",
+      "stratum": "synthetic_rule_elements_attorney_review",
+      "run_id": 35,
+      "run_at": "2026-09-14T02:25:32.615934+00:00",
+      "status": "complete",
+      "pipeline_status": "complete",
+      "degraded": null,
+      "error": "",
+      "brief_sha256": "e234dab00dfcfbfd8be877132148e342fd908a466a8db197835ff801993c393e",
+      "brief_chars": 648,
+      "record_documents": 1,
+      "attack_model": "gpt-5.6-terra",
+      "judge_model": "mistral-large-3",
+      "base_model": "gpt-5.6-terra",
+      "same_family": false,
+      "reasoning": "medium",
+      "unit_budget_chars": 260000,
+      "units": 12,
+      "court": {
+        "mode": "auto",
+        "reason": "No maintained court profile matched this document's caption or the case record.",
+        "matched": "",
+        "where": "",
+        "courtSlug": ""
+      },
+      "deterministic_findings": {
+        "rule_elements": 4
+      },
+      "checks_run": [
+        {
+          "id": "record_support",
+          "label": "Test material facts against the record",
+          "description": "Opponent tests only atomic, record-verifiable, material claims; Judge sustains a defect only when the supplied evidence and record coverage establish it.",
+          "kind": "model",
+          "category": "correctness",
+          "categoryLabel": "Correctness",
+          "categoryDescription": "Is the law right? Is the authority controlling? Are the required elements present, and does the record establish what the brief says it does?",
+          "defaultEnabled": true,
+          "requires": [
+            "case_record"
+          ],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "rule_elements",
+          "label": "Audit the elements of the rules invoked",
+          "description": "Detects the rules the brief cites or invokes by name, then audits each element of those rules: is it pleaded, and is it supported.",
+          "kind": "model",
+          "category": "correctness",
+          "categoryLabel": "Correctness",
+          "categoryDescription": "Is the law right? Is the authority controlling? Are the required elements present, and does the record establish what the brief says it does?",
+          "defaultEnabled": true,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "on",
+          "reason": ""
+        },
+        {
+          "id": "authority_support",
+          "label": "Test cited authority support",
+          "description": "Whether each cited authority supports the material legal proposition for which the brief uses it.",
+          "kind": "model",
+          "category": "correctness",
+          "categoryLabel": "Correctness",
+          "categoryDescription": "Is the law right? Is the authority controlling? Are the required elements present, and does the record establish what the brief says it does?",
+          "defaultEnabled": true,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "adversarial",
+          "label": "Opposing counsel, a judge, and a coach",
+          "description": "The core of the gym: opposing counsel makes the strongest arguments available against the brief, a judge weighs them, and a coach proposes answers.",
+          "kind": "model",
+          "category": "completeness",
+          "categoryLabel": "Argumentative completeness",
+          "categoryDescription": "Does the brief connect its rules to its facts? Does it work the difficult element instead of restating the rule? Does it confront adverse authority and answer the counterargument a court will think of on its own?",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_issue_framing",
+          "label": "Issue framing",
+          "description": "Does the brief identify the real dispute early and frame it around the favorable legal question?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_macro_organization",
+          "label": "Macro-organization",
+          "description": "Are arguments ordered logically and by importance? Can the reader see the roadmap?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_paragraph_organization",
+          "label": "Paragraph-level organization",
+          "description": "Do paragraphs have discernible propositions or topic sentences, and develop one point at a time?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_rule_synthesis",
+          "label": "Rule synthesis",
+          "description": "Does the writer synthesize authorities into a rule rather than serially summarize cases?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_rule_application",
+          "label": "Rule-to-fact application",
+          "description": "Is the reasoning explicit -- \"because X fact satisfies Y element\" -- rather than leaving the inferential step to the court?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_fact_selection",
+          "label": "Fact selection and narrative coherence",
+          "description": "Are legally significant facts foregrounded and organized in a comprehensible chronology or theory?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_use_of_authority",
+          "label": "Use of authority",
+          "description": "Are important propositions backed by strong authorities placed where they actually matter, rather than citation dumping?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_counterarguments",
+          "label": "Handling counterarguments",
+          "description": "Does the brief acknowledge and answer the strongest objection rather than arguing past it?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_concision",
+          "label": "Concision and reader burden",
+          "description": "Does it say the same thing once, in the right place, without unnecessary throat-clearing?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_calibration",
+          "label": "Calibrated confidence and credibility",
+          "description": "Does it distinguish strong propositions from uncertain ones and avoid overclaiming?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_relief_alignment",
+          "label": "Requested-relief alignment",
+          "description": "Does the argument actually lead to the precise thing the brief asks the court to do?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_emphasis",
+          "label": "Emphasis",
+          "description": "Does the document devote its space to the issues that matter rather than treating every point as equally important?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "custom_checklist",
+          "label": "Custom checklist",
+          "description": "Applies review questions you wrote. An item can look things up -- authority, the case record, passages of the brief -- rather than answering from the brief alone. Attach a checklist for this to run.",
+          "kind": "model",
+          "category": "custom",
+          "categoryLabel": "Your own checks",
+          "categoryDescription": "Review questions you wrote, in your words, applied to this brief.",
+          "defaultEnabled": false,
+          "requires": [
+            "checklist"
+          ],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "court_formatting",
+          "label": "This court's filing rules",
+          "description": "Required elements, type size, spacing, margins, and page limits for the selected court.",
+          "kind": "deterministic",
+          "category": "form",
+          "categoryLabel": "Form of the filing",
+          "categoryDescription": "Whether the paper meets this court's rules and the conventions of practice.",
+          "defaultEnabled": false,
+          "requires": [
+            "court_profile"
+          ],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "pleading_form",
+          "label": "Form of the pleading",
+          "description": "Conventions of practice rather than any one court's rules: numbered paragraphs running in order, a prayer for relief, a signature block, exhibit references that resolve, no placeholder left in the text.",
+          "kind": "deterministic",
+          "category": "form",
+          "categoryLabel": "Form of the filing",
+          "categoryDescription": "Whether the paper meets this court's rules and the conventions of practice.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "draft_validation",
+          "label": "Draft-mode validation",
+          "description": "The same checks Draft mode runs: unresolved template data and placeholders, draft structure, rendered Word consistency, citation linting, source support, and filing-package consistency.",
+          "kind": "deterministic",
+          "category": "form",
+          "categoryLabel": "Form of the filing",
+          "categoryDescription": "Whether the paper meets this court's rules and the conventions of practice.",
+          "defaultEnabled": false,
+          "requires": [
+            "native_draft"
+          ],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "grammar",
+          "label": "Grammar and mechanics",
+          "description": "Doubled words, missing sentence spacing, unbalanced quotes and parentheses.",
+          "kind": "deterministic",
+          "category": "language",
+          "categoryLabel": "Language",
+          "categoryDescription": "Sentence-level mechanics, reported as nudges rather than as defects in the argument.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "confused_words",
+          "label": "Misspelled and easily confused words",
+          "description": "Not a dictionary spell check, on purpose: a general dictionary flags half of every case name. This looks for the words legal writing actually gets wrong, and for real words used in place of other real words.",
+          "kind": "deterministic",
+          "category": "language",
+          "categoryLabel": "Language",
+          "categoryDescription": "Sentence-level mechanics, reported as nudges rather than as defects in the argument.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "passive_voice",
+          "label": "Passive voice",
+          "description": "Reported as a nudge, never an error. Phrases a court expects to read are on an accepted list you can add to for this session.",
+          "kind": "deterministic",
+          "category": "language",
+          "categoryLabel": "Language",
+          "categoryDescription": "Sentence-level mechanics, reported as nudges rather than as defects in the argument.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "acceptedPassivePhrases: phrases this court expects, which the check stays quiet about.",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "readability",
+          "label": "Readability",
+          "description": "Sentence length and reading-level measures, reported as several formulas rather than one score.",
+          "kind": "deterministic",
+          "category": "language",
+          "categoryLabel": "Language",
+          "categoryDescription": "Sentence-level mechanics, reported as nudges rather than as defects in the argument.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        }
+      ],
+      "check_results": {
+        "rule_elements": {
+          "findings": [
+            {
+              "ruleCode": "rule_elements.missing_required_element",
+              "severity": "error",
+              "message": "The rule is invoked for a covered R.C. 5321.05 breach, but the brief does not identify the particular statutory obligation or state the material health-and-safety effect. The record identifies R.C. 5321.05(A)(4), hallway obstruction, and its material health-and-safety effect.",
+              "target": {
+                "unitId": "u6"
+              },
+              "details": {
+                "checkId": "rule_elements",
+                "issueCode": "missing_required_element",
+                "targetId": "rc-5321-11-notice-to-cure:covered_breach",
+                "unitId": "u6",
+                "disposition": "must_fix",
+                "claim": "Identify the covered obligation and material health-or-safety effect.",
+                "problem": "The rule is invoked for a covered R.C. 5321.05 breach, but the brief does not identify the particular statutory obligation or state the material health-and-safety effect. The record identifies R.C. 5321.05(A)(4), hallway obstruction, and its material health-and-safety effect.",
+                "briefEvidence": [
+                  "u6"
+                ],
+                "externalEvidence": [
+                  "https://codes.ohio.gov/ohio-revised-code/section-5321.11"
+                ],
+                "reason": "The brief fails to identify the specific statutory obligation (R.C. 5321.05(A)(4)) or state the material health-and-safety effect of the hallway obstruction, as required by R.C. 5321.11. The record (upload:37) establishes these details, but the brief omits them.",
+                "confidence": "high",
+                "userVisible": true
+              }
+            },
+            {
+              "ruleCode": "rule_elements.missing_required_element",
+              "severity": "error",
+              "message": "The brief asserts that the notice specified a noncompliant act, but it neither quotes nor attaches the notice's factual specification. The record supplies the notice language identifying hallway obstruction.",
+              "target": {
+                "unitId": "u6"
+              },
+              "details": {
+                "checkId": "rule_elements",
+                "issueCode": "missing_required_element",
+                "targetId": "rc-5321-11-notice-to-cure:specific_act",
+                "unitId": "u6",
+                "disposition": "must_fix",
+                "claim": "Quote or attach the notice's factual specification.",
+                "problem": "The brief asserts that the notice specified a noncompliant act, but it neither quotes nor attaches the notice's factual specification. The record supplies the notice language identifying hallway obstruction.",
+                "briefEvidence": [
+                  "u6"
+                ],
+                "externalEvidence": [
+                  "https://codes.ohio.gov/ohio-revised-code/section-5321.11"
+                ],
+                "reason": "The brief asserts that the notice specified a noncompliant act but does not quote or attach the notice's factual specification (e.g., hallway obstruction). The record (upload:37) supplies this detail, but the brief omits it.",
+                "confidence": "high",
+                "userVisible": true
+              }
+            },
+            {
+              "ruleCode": "rule_elements.missing_required_element",
+              "severity": "error",
+              "message": "The brief asserts that the termination date was more than thirty days after receipt but does not provide the receipt date and termination date required by the element. The record provides a February 12, 2023 receipt date and an April 15, 2023 termination date.",
+              "target": {
+                "unitId": "u6"
+              },
+              "details": {
+                "checkId": "rule_elements",
+                "issueCode": "missing_required_element",
+                "targetId": "rc-5321-11-notice-to-cure:termination_date",
+                "unitId": "u6",
+                "disposition": "must_fix",
+                "claim": "Provide receipt and termination dates.",
+                "problem": "The brief asserts that the termination date was more than thirty days after receipt but does not provide the receipt date and termination date required by the element. The record provides a February 12, 2023 receipt date and an April 15, 2023 termination date.",
+                "briefEvidence": [
+                  "u6"
+                ],
+                "externalEvidence": [
+                  "https://codes.ohio.gov/ohio-revised-code/section-5321.11"
+                ],
+                "reason": "The brief states the termination date was more than thirty days after receipt but does not provide the specific receipt date (February 12, 2023) or termination date (April 15, 2023), as required. The record (upload:37) supplies these dates, but the brief omits them.",
+                "confidence": "high",
+                "userVisible": true
+              }
+            },
+            {
+              "ruleCode": "rule_elements.missing_required_element",
+              "severity": "warning",
+              "message": "Because a timely remedy prevents termination, the landlord's entitlement to possession depends on the condition remaining unremedied. The brief does not address remedy; the record shows the hallway remained obstructed on March 15, 2023, but does not establish that it remained unremedied through the applicable termination period.",
+              "target": {
+                "unitId": "u6"
+              },
+              "details": {
+                "checkId": "rule_elements",
+                "issueCode": "missing_required_element",
+                "targetId": "rc-5321-11-notice-to-cure:condition_not_remedied",
+                "unitId": "u6",
+                "disposition": "review",
+                "claim": "Address remedy within the statutory period.",
+                "problem": "Because a timely remedy prevents termination, the landlord's entitlement to possession depends on the condition remaining unremedied. The brief does not address remedy; the record shows the hallway remained obstructed on March 15, 2023, but does not establish that it remained unremedied through the applicable termination period.",
+                "briefEvidence": [
+                  "u6"
+                ],
+                "externalEvidence": [
+                  "https://codes.ohio.gov/ohio-revised-code/section-5321.11"
+                ],
+                "reason": "The brief does not address whether the condition was remedied within the statutory period. While the record (upload:37) shows the hallway remained obstructed on March 15, 2023, it does not conclusively establish that the condition remained unremedied through the termination date (April 15, 2023). The defect is not fully established due to insufficient evidence.",
+                "confidence": "medium",
+                "userVisible": true
+              }
+            }
+          ],
+          "tests": [
+            {
+              "checkId": "rule_elements",
+              "issueCode": "missing_required_element",
+              "targetId": "rc-5321-11-notice-to-cure:covered_breach",
+              "unitId": "u6",
+              "disposition": "must_fix",
+              "claim": "Identify the covered obligation and material health-or-safety effect.",
+              "problem": "The rule is invoked for a covered R.C. 5321.05 breach, but the brief does not identify the particular statutory obligation or state the material health-and-safety effect. The record identifies R.C. 5321.05(A)(4), hallway obstruction, and its material health-and-safety effect.",
+              "briefEvidence": [
+                "u6"
+              ],
+              "externalEvidence": [
+                "https://codes.ohio.gov/ohio-revised-code/section-5321.11"
+              ],
+              "reason": "The brief fails to identify the specific statutory obligation (R.C. 5321.05(A)(4)) or state the material health-and-safety effect of the hallway obstruction, as required by R.C. 5321.11. The record (upload:37) establishes these details, but the brief omits them.",
+              "confidence": "high",
+              "userVisible": true
+            },
+            {
+              "checkId": "rule_elements",
+              "issueCode": "required_element_carried",
+              "targetId": "rc-5321-11-notice-to-cure:written_notice",
+              "unitId": "u6",
+              "disposition": "pass",
+              "claim": "Identify delivery and receipt of a written notice.",
+              "problem": "The brief alleges that the landlord served a written notice that was delivered and received. The delivery receipt and notice in the record support delivery, receipt, and the existence of a written notice.",
+              "briefEvidence": [
+                "u6"
+              ],
+              "externalEvidence": [
+                "https://codes.ohio.gov/ohio-revised-code/section-5321.11"
+              ],
+              "reason": "The brief explicitly alleges delivery and receipt of a written notice, and the record (upload:37) supports this claim. No defect is established.",
+              "confidence": "high",
+              "userVisible": true
+            },
+            {
+              "checkId": "rule_elements",
+              "issueCode": "missing_required_element",
+              "targetId": "rc-5321-11-notice-to-cure:specific_act",
+              "unitId": "u6",
+              "disposition": "must_fix",
+              "claim": "Quote or attach the notice's factual specification.",
+              "problem": "The brief asserts that the notice specified a noncompliant act, but it neither quotes nor attaches the notice's factual specification. The record supplies the notice language identifying hallway obstruction.",
+              "briefEvidence": [
+                "u6"
+              ],
+              "externalEvidence": [
+                "https://codes.ohio.gov/ohio-revised-code/section-5321.11"
+              ],
+              "reason": "The brief asserts that the notice specified a noncompliant act but does not quote or attach the notice's factual specification (e.g., hallway obstruction). The record (upload:37) supplies this detail, but the brief omits it.",
+              "confidence": "high",
+              "userVisible": true
+            },
+            {
+              "checkId": "rule_elements",
+              "issueCode": "missing_required_element",
+              "targetId": "rc-5321-11-notice-to-cure:termination_date",
+              "unitId": "u6",
+              "disposition": "must_fix",
+              "claim": "Provide receipt and termination dates.",
+              "problem": "The brief asserts that the termination date was more than thirty days after receipt but does not provide the receipt date and termination date required by the element. The record provides a February 12, 2023 receipt date and an April 15, 2023 termination date.",
+              "briefEvidence": [
+                "u6"
+              ],
+              "externalEvidence": [
+                "https://codes.ohio.gov/ohio-revised-code/section-5321.11"
+              ],
+              "reason": "The brief states the termination date was more than thirty days after receipt but does not provide the specific receipt date (February 12, 2023) or termination date (April 15, 2023), as required. The record (upload:37) supplies these dates, but the brief omits them.",
+              "confidence": "high",
+              "userVisible": true
+            },
+            {
+              "checkId": "rule_elements",
+              "issueCode": "missing_required_element",
+              "targetId": "rc-5321-11-notice-to-cure:condition_not_remedied",
+              "unitId": "u6",
+              "disposition": "review",
+              "claim": "Address remedy within the statutory period.",
+              "problem": "Because a timely remedy prevents termination, the landlord's entitlement to possession depends on the condition remaining unremedied. The brief does not address remedy; the record shows the hallway remained obstructed on March 15, 2023, but does not establish that it remained unremedied through the applicable termination period.",
+              "briefEvidence": [
+                "u6"
+              ],
+              "externalEvidence": [
+                "https://codes.ohio.gov/ohio-revised-code/section-5321.11"
+              ],
+              "reason": "The brief does not address whether the condition was remedied within the statutory period. While the record (upload:37) shows the hallway remained obstructed on March 15, 2023, it does not conclusively establish that the condition remained unremedied through the termination date (April 15, 2023). The defect is not fully established due to insufficient evidence.",
+              "confidence": "medium",
+              "userVisible": true
+            }
+          ],
+          "summary": "3 must fix, 1 review, 1 passed"
+        }
+      },
+      "correctness_tests": [
+        {
+          "checkId": "rule_elements",
+          "issueCode": "missing_required_element",
+          "targetId": "rc-5321-11-notice-to-cure:covered_breach",
+          "unitId": "u6",
+          "disposition": "must_fix",
+          "claim": "Identify the covered obligation and material health-or-safety effect.",
+          "problem": "The rule is invoked for a covered R.C. 5321.05 breach, but the brief does not identify the particular statutory obligation or state the material health-and-safety effect. The record identifies R.C. 5321.05(A)(4), hallway obstruction, and its material health-and-safety effect.",
+          "briefEvidence": [
+            "u6"
+          ],
+          "externalEvidence": [
+            "https://codes.ohio.gov/ohio-revised-code/section-5321.11"
+          ],
+          "reason": "The brief fails to identify the specific statutory obligation (R.C. 5321.05(A)(4)) or state the material health-and-safety effect of the hallway obstruction, as required by R.C. 5321.11. The record (upload:37) establishes these details, but the brief omits them.",
+          "confidence": "high",
+          "userVisible": true
+        },
+        {
+          "checkId": "rule_elements",
+          "issueCode": "required_element_carried",
+          "targetId": "rc-5321-11-notice-to-cure:written_notice",
+          "unitId": "u6",
+          "disposition": "pass",
+          "claim": "Identify delivery and receipt of a written notice.",
+          "problem": "The brief alleges that the landlord served a written notice that was delivered and received. The delivery receipt and notice in the record support delivery, receipt, and the existence of a written notice.",
+          "briefEvidence": [
+            "u6"
+          ],
+          "externalEvidence": [
+            "https://codes.ohio.gov/ohio-revised-code/section-5321.11"
+          ],
+          "reason": "The brief explicitly alleges delivery and receipt of a written notice, and the record (upload:37) supports this claim. No defect is established.",
+          "confidence": "high",
+          "userVisible": true
+        },
+        {
+          "checkId": "rule_elements",
+          "issueCode": "missing_required_element",
+          "targetId": "rc-5321-11-notice-to-cure:specific_act",
+          "unitId": "u6",
+          "disposition": "must_fix",
+          "claim": "Quote or attach the notice's factual specification.",
+          "problem": "The brief asserts that the notice specified a noncompliant act, but it neither quotes nor attaches the notice's factual specification. The record supplies the notice language identifying hallway obstruction.",
+          "briefEvidence": [
+            "u6"
+          ],
+          "externalEvidence": [
+            "https://codes.ohio.gov/ohio-revised-code/section-5321.11"
+          ],
+          "reason": "The brief asserts that the notice specified a noncompliant act but does not quote or attach the notice's factual specification (e.g., hallway obstruction). The record (upload:37) supplies this detail, but the brief omits it.",
+          "confidence": "high",
+          "userVisible": true
+        },
+        {
+          "checkId": "rule_elements",
+          "issueCode": "missing_required_element",
+          "targetId": "rc-5321-11-notice-to-cure:termination_date",
+          "unitId": "u6",
+          "disposition": "must_fix",
+          "claim": "Provide receipt and termination dates.",
+          "problem": "The brief asserts that the termination date was more than thirty days after receipt but does not provide the receipt date and termination date required by the element. The record provides a February 12, 2023 receipt date and an April 15, 2023 termination date.",
+          "briefEvidence": [
+            "u6"
+          ],
+          "externalEvidence": [
+            "https://codes.ohio.gov/ohio-revised-code/section-5321.11"
+          ],
+          "reason": "The brief states the termination date was more than thirty days after receipt but does not provide the specific receipt date (February 12, 2023) or termination date (April 15, 2023), as required. The record (upload:37) supplies these dates, but the brief omits them.",
+          "confidence": "high",
+          "userVisible": true
+        },
+        {
+          "checkId": "rule_elements",
+          "issueCode": "missing_required_element",
+          "targetId": "rc-5321-11-notice-to-cure:condition_not_remedied",
+          "unitId": "u6",
+          "disposition": "review",
+          "claim": "Address remedy within the statutory period.",
+          "problem": "Because a timely remedy prevents termination, the landlord's entitlement to possession depends on the condition remaining unremedied. The brief does not address remedy; the record shows the hallway remained obstructed on March 15, 2023, but does not establish that it remained unremedied through the applicable termination period.",
+          "briefEvidence": [
+            "u6"
+          ],
+          "externalEvidence": [
+            "https://codes.ohio.gov/ohio-revised-code/section-5321.11"
+          ],
+          "reason": "The brief does not address whether the condition was remedied within the statutory period. While the record (upload:37) shows the hallway remained obstructed on March 15, 2023, it does not conclusively establish that the condition remained unremedied through the termination date (April 15, 2023). The defect is not fully established due to insufficient evidence.",
+          "confidence": "medium",
+          "userVisible": true
+        }
+      ],
+      "rule_audit": [
+        {
+          "slug": "rc-5321-11-notice-to-cure",
+          "name": "Notice for tenant breach materially affecting health and safety",
+          "citation": "R.C. 5321.11",
+          "label": "Notice for tenant breach materially affecting health and safety (R.C. 5321.11)",
+          "summary": "For covered R.C. 5321.05 breaches materially affecting health and safety, the written notice must specify the noncompliant act or omission and a termination date at least thirty days after receipt; timely remedy prevents termination.",
+          "verification": "verified",
+          "source": "R.C. 5321.11; Iskin (6th ed. 2022), \u00a7\u00a7 I.D.2, II.A.2, II.F",
+          "sourceUrl": "https://codes.ohio.gov/ohio-revised-code/section-5321.11",
+          "invokedBy": "citation",
+          "matched": "R.C. 5321.11",
+          "excerpt": "Statement of Facts The plaintiff-landlord served the defendant-tenant with a written notice specifying a covered breach and a termination date. Argument The landlord is entitled to possession under R.C. 5321.11. The written notice was properly delivered and received, specifying the noncompliant act and a termination date more than thirty days after receipt. The covered breach involves an obligation under R.C. 5321.05. Conclusion The court should grant possession to the plaintiff.",
+          "audited": true,
+          "briefCoverage": {
+            "reviewedChars": 648,
+            "totalChars": 648,
+            "truncated": false
+          },
+          "requiresApplicabilityReview": false,
+          "elements": [
+            {
+              "id": "covered_breach",
+              "label": "Alleged R.C. 5321.05 breach materially affects health and safety",
+              "requirement": "Identify the covered obligation and material health-or-safety effect.",
+              "severity": "error",
+              "needsRecordSupport": true,
+              "requiredWhen": "",
+              "patterns": [
+                "5321\\.05",
+                "materially affect.{0,30}health.{0,10}safety"
+              ],
+              "note": "",
+              "origin": "profile",
+              "pled": "no",
+              "applicability": "applicable",
+              "supported": "yes",
+              "explanation": "The rule is invoked for a covered R.C. 5321.05 breach, but the brief does not identify the particular statutory obligation or state the material health-and-safety effect. The record identifies R.C. 5321.05(A)(4), hallway obstruction, and its material health-and-safety effect.",
+              "quote": "",
+              "materialIds": [
+                "upload:37"
+              ],
+              "unmet": true
+            },
+            {
+              "id": "written_notice",
+              "label": "Landlord delivered written notice",
+              "requirement": "Identify delivery and receipt of a written notice.",
+              "severity": "error",
+              "needsRecordSupport": true,
+              "requiredWhen": "",
+              "patterns": [
+                "written notice",
+                "receiv.{0,40}notice"
+              ],
+              "note": "",
+              "origin": "profile",
+              "pled": "yes",
+              "applicability": "applicable",
+              "supported": "yes",
+              "explanation": "The brief alleges that the landlord served a written notice that was delivered and received. The delivery receipt and notice in the record support delivery, receipt, and the existence of a written notice.",
+              "quote": "The plaintiff-landlord served the defendant-tenant with a written notice specifying a covered breach and a termination date.\n\nThe written notice was properly delivered and received, specifying the noncompliant act and a termination date more than thirty days after receipt.",
+              "materialIds": [
+                "upload:37"
+              ],
+              "unmet": false
+            },
+            {
+              "id": "specific_act",
+              "label": "Notice specified the noncompliant act or omission",
+              "requirement": "Quote or attach the notice's factual specification.",
+              "severity": "error",
+              "needsRecordSupport": true,
+              "requiredWhen": "",
+              "patterns": [
+                "act or omission",
+                "specif.{0,50}(violation|breach|noncompliance)"
+              ],
+              "note": "",
+              "origin": "profile",
+              "pled": "no",
+              "applicability": "applicable",
+              "supported": "yes",
+              "explanation": "The brief asserts that the notice specified a noncompliant act, but it neither quotes nor attaches the notice's factual specification. The record supplies the notice language identifying hallway obstruction.",
+              "quote": "",
+              "materialIds": [
+                "upload:37"
+              ],
+              "unmet": true
+            },
+            {
+              "id": "termination_date",
+              "label": "Notice set a termination date at least thirty days after receipt",
+              "requirement": "Provide receipt and termination dates.",
+              "severity": "error",
+              "needsRecordSupport": true,
+              "requiredWhen": "",
+              "patterns": [
+                "thirty days",
+                "30 days",
+                "termination date"
+              ],
+              "note": "",
+              "origin": "profile",
+              "pled": "no",
+              "applicability": "applicable",
+              "supported": "yes",
+              "explanation": "The brief asserts that the termination date was more than thirty days after receipt but does not provide the receipt date and termination date required by the element. The record provides a February 12, 2023 receipt date and an April 15, 2023 termination date.",
+              "quote": "",
+              "materialIds": [
+                "upload:37"
+              ],
+              "unmet": true
+            },
+            {
+              "id": "condition_not_remedied",
+              "label": "Condition remained unremedied",
+              "requirement": "Address remedy within the statutory period.",
+              "severity": "error",
+              "needsRecordSupport": true,
+              "requiredWhen": "",
+              "patterns": [
+                "fail.{0,30}remed",
+                "not remed"
+              ],
+              "note": "",
+              "origin": "profile",
+              "pled": "no",
+              "applicability": "applicable",
+              "supported": "partial",
+              "explanation": "Because a timely remedy prevents termination, the landlord's entitlement to possession depends on the condition remaining unremedied. The brief does not address remedy; the record shows the hallway remained obstructed on March 15, 2023, but does not establish that it remained unremedied through the applicable termination period.",
+              "quote": "",
+              "materialIds": [
+                "upload:37"
+              ],
+              "unmet": true
+            }
+          ],
+          "unmetCount": 4,
+          "verdict": "4 of 5 elements need review; unavailable evidence or unrecognized wording does not establish a defect."
+        }
+      ],
+      "compliance": {
+        "checked": false,
+        "reason": "You turned this check off for this session.",
+        "findings": [],
+        "detection": {
+          "mode": "auto",
+          "reason": "No maintained court profile matched this document's caption or the case record.",
+          "matched": "",
+          "where": "",
+          "courtSlug": ""
+        }
+      },
+      "challenges": [
+        {
+          "ordinal": 1,
+          "category": "missing_element",
+          "severity": "high",
+          "confidence": "high",
+          "opponent_argument": "The rule is invoked for a covered R.C. 5321.05 breach, but the brief does not identify the particular statutory obligation or state the material health-and-safety effect. The record identifies R.C. 5321.05(A)(4), hallway obstruction, and its material health-and-safety effect.",
+          "why_it_matters": "The brief fails to identify the specific statutory obligation (R.C. 5321.05(A)(4)) or state the material health-and-safety effect of the hallway obstruction, as required by R.C. 5321.11. The record (upload:37) establishes these details, but the brief omits them.",
+          "target": {
+            "unitId": "u6",
+            "section": "MEMORANDUM IN SUPPORT OF",
+            "paragraph": 4,
+            "page": null,
+            "excerpt": "Argument\nThe landlord is entitled to possession under R.C. 5321.11.",
+            "blockKey": ""
+          },
+          "legal_sources": [],
+          "record_sources": [
+            {
+              "materialId": "upload:37",
+              "title": "record-01",
+              "status": "",
+              "quote": "Statement of Facts The plaintiff-landlord served the defendant-tenant with a written notice specifying a covered breach and a termination date. Argument The landlord is entitled to possession under R.C. 5321.11. The written notice was properly delivered and received, specifying the noncompliant act and a termination date more than thirty days after receipt. The covered breach involves an obligation under R.C. 5321.05. Conclusion The court should grant possession to the plaintiff."
+            }
+          ],
+          "judge_assessment": "The brief fails to identify the specific statutory obligation (R.C. 5321.05(A)(4)) or state the material health-and-safety effect of the hallway obstruction, as required by R.C. 5321.11. The record (upload:37) establishes these details, but the brief omits them.",
+          "judge_verdict": "sustained",
+          "suggested_response": "The present record excerpt identifies a breach of an obligation under R.C. 5321.05, but it does not identify the particular statutory subsection or establish the asserted material health-or-safety effect. The landlord must support those facts with the notice or other record evidence before relying on R.C. 5321.11.",
+          "coaching_recommendation": "Do not identify R.C. 5321.05(A)(4) or assert a particular material health-or-safety effect without a record citation supporting those facts. The supplied record excerpt identifies only an unspecified obligation under R.C. 5321.05; obtain and cite the notice or other record evidence identifying the subsection, the hallway obstruction, and its material health-or-safety effect.",
+          "disposition": "open"
+        },
+        {
+          "ordinal": 2,
+          "category": "missing_element",
+          "severity": "high",
+          "confidence": "high",
+          "opponent_argument": "The brief asserts that the notice specified a noncompliant act, but it neither quotes nor attaches the notice's factual specification. The record supplies the notice language identifying hallway obstruction.",
+          "why_it_matters": "The brief asserts that the notice specified a noncompliant act but does not quote or attach the notice's factual specification (e.g., hallway obstruction). The record (upload:37) supplies this detail, but the brief omits it.",
+          "target": {
+            "unitId": "u6",
+            "section": "MEMORANDUM IN SUPPORT OF",
+            "paragraph": 4,
+            "page": null,
+            "excerpt": "Argument\nThe landlord is entitled to possession under R.C. 5321.11.",
+            "blockKey": ""
+          },
+          "legal_sources": [],
+          "record_sources": [
+            {
+              "materialId": "upload:37",
+              "title": "record-01",
+              "status": "",
+              "quote": "Statement of Facts The plaintiff-landlord served the defendant-tenant with a written notice specifying a covered breach and a termination date. Argument The landlord is entitled to possession under R.C. 5321.11. The written notice was properly delivered and received, specifying the noncompliant act and a termination date more than thirty days after receipt. The covered breach involves an obligation under R.C. 5321.05. Conclusion The court should grant possession to the plaintiff."
+            }
+          ],
+          "judge_assessment": "The brief asserts that the notice specified a noncompliant act but does not quote or attach the notice's factual specification (e.g., hallway obstruction). The record (upload:37) supplies this detail, but the brief omits it.",
+          "judge_verdict": "sustained",
+          "suggested_response": "The written notice must be included in, or cited to, the record to show the particular noncompliant act it specified. The present record excerpt does not reproduce that notice language.",
+          "coaching_recommendation": "Attach or quote the written notice and cite it for the factual act specified. The supplied record excerpt states only that the notice specified a covered breach; it does not provide the notice language or establish that the specified act was hallway obstruction.",
+          "disposition": "open"
+        },
+        {
+          "ordinal": 3,
+          "category": "missing_element",
+          "severity": "high",
+          "confidence": "high",
+          "opponent_argument": "The brief asserts that the termination date was more than thirty days after receipt but does not provide the receipt date and termination date required by the element. The record provides a February 12, 2023 receipt date and an April 15, 2023 termination date.",
+          "why_it_matters": "The brief states the termination date was more than thirty days after receipt but does not provide the specific receipt date (February 12, 2023) or termination date (April 15, 2023), as required. The record (upload:37) supplies these dates, but the brief omits them.",
+          "target": {
+            "unitId": "u6",
+            "section": "MEMORANDUM IN SUPPORT OF",
+            "paragraph": 4,
+            "page": null,
+            "excerpt": "Argument\nThe landlord is entitled to possession under R.C. 5321.11.",
+            "blockKey": ""
+          },
+          "legal_sources": [],
+          "record_sources": [
+            {
+              "materialId": "upload:37",
+              "title": "record-01",
+              "status": "",
+              "quote": "Statement of Facts The plaintiff-landlord served the defendant-tenant with a written notice specifying a covered breach and a termination date. Argument The landlord is entitled to possession under R.C. 5321.11. The written notice was properly delivered and received, specifying the noncompliant act and a termination date more than thirty days after receipt. The covered breach involves an obligation under R.C. 5321.05. Conclusion The court should grant possession to the plaintiff."
+            }
+          ],
+          "judge_assessment": "The brief states the termination date was more than thirty days after receipt but does not provide the specific receipt date (February 12, 2023) or termination date (April 15, 2023), as required. The record (upload:37) supplies these dates, but the brief omits them.",
+          "judge_verdict": "sustained",
+          "suggested_response": "The notice and proof of delivery should be cited to establish the date of receipt and the stated termination date. The present record excerpt does not provide those dates.",
+          "coaching_recommendation": "Provide record-supported receipt and termination dates from the notice and proof of delivery. The supplied record excerpt supports only the general assertion that the termination date was more than thirty days after receipt; it does not supply the asserted February 12, 2023, or April 15, 2023 dates.",
+          "disposition": "open"
+        },
+        {
+          "ordinal": 4,
+          "category": "missing_element",
+          "severity": "medium",
+          "confidence": "medium",
+          "opponent_argument": "Because a timely remedy prevents termination, the landlord's entitlement to possession depends on the condition remaining unremedied. The brief does not address remedy; the record shows the hallway remained obstructed on March 15, 2023, but does not establish that it remained unremedied through the applicable termination period.",
+          "why_it_matters": "The brief does not address whether the condition was remedied within the statutory period. While the record (upload:37) shows the hallway remained obstructed on March 15, 2023, it does not conclusively establish that the condition remained unremedied through the termination date (April 15, 2023). The defect is not fully established due to insufficient evidence.",
+          "target": {
+            "unitId": "u6",
+            "section": "MEMORANDUM IN SUPPORT OF",
+            "paragraph": 4,
+            "page": null,
+            "excerpt": "Argument\nThe landlord is entitled to possession under R.C. 5321.11.",
+            "blockKey": ""
+          },
+          "legal_sources": [],
+          "record_sources": [
+            {
+              "materialId": "upload:37",
+              "title": "record-01",
+              "status": "",
+              "quote": "Statement of Facts The plaintiff-landlord served the defendant-tenant with a written notice specifying a covered breach and a termination date. Argument The landlord is entitled to possession under R.C. 5321.11. The written notice was properly delivered and received, specifying the noncompliant act and a termination date more than thirty days after receipt. The covered breach involves an obligation under R.C. 5321.05. Conclusion The court should grant possession to the plaintiff."
+            }
+          ],
+          "judge_assessment": "The brief does not address whether the condition was remedied within the statutory period. While the record (upload:37) shows the hallway remained obstructed on March 15, 2023, it does not conclusively establish that the condition remained unremedied through the termination date (April 15, 2023). The defect is not fully established due to insufficient evidence.",
+          "judge_verdict": "reserved",
+          "suggested_response": "The landlord must establish that the identified condition was not remedied within the applicable period. The present record excerpt does not establish whether the condition was remedied before the stated termination date.",
+          "coaching_recommendation": "Do not assert entitlement to possession based on an unremedied condition unless the record establishes that the condition was not remedied within the applicable period. The supplied record excerpt contains no evidence concerning whether or when the condition was remedied.",
+          "disposition": "open"
+        }
+      ],
+      "challenge_count": 4,
+      "opponent_calls": [],
+      "judge_calls": [],
+      "verdict": "correctness review completed",
+      "assessment": "Correctness review completed. 3 must-fix findings; 1 item need attorney review. Rule elements: 3 failure, 1 review",
+      "stage_trace": [
+        {
+          "stage": "document_checks",
+          "method": "deterministic",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "materials",
+          "method": "all",
+          "count": 1,
+          "budgetChars": 150000,
+          "perMaterialChars": 150000,
+          "truncated": [],
+          "trace": []
+        },
+        {
+          "stage": "argument_map",
+          "method": "skipped",
+          "count": 0,
+          "trace": [
+            "No selected check requires a generative argument map."
+          ]
+        },
+        {
+          "stage": "persuasion",
+          "method": "off",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "record_targets",
+          "method": "off",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "opponent:record_support",
+          "method": "off",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "authority_research",
+          "method": "source_specific",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "research_queries",
+          "method": "off",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "research",
+          "method": "retrieval",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "opponent",
+          "method": "off",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "opponent:authority_support",
+          "method": "off",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "rule_elements",
+          "method": "llm",
+          "count": 1,
+          "trace": [
+            {
+              "stage": "rule_elements:rc-5321-11-notice-to-cure",
+              "method": "llm",
+              "count": 5,
+              "trace": [
+                {
+                  "attempt": 1,
+                  "plan": {
+                    "method": "llm",
+                    "llmAttempt": 1
+                  },
+                  "success": true,
+                  "code": "rule_elements:rc-5321-11-notice-to-cure_complete",
+                  "message": "rule_elements:rc-5321-11-notice-to-cure produced 5 item(s)."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "stage": "judge",
+          "method": "off",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "judge:rule_elements",
+          "method": "llm",
+          "count": 5,
+          "trace": [
+            {
+              "attempt": 1,
+              "plan": {
+                "method": "llm",
+                "llmAttempt": 1
+              },
+              "success": true,
+              "code": "judge:rule_elements_complete",
+              "message": "judge:rule_elements produced 5 item(s)."
+            }
+          ],
+          "checkId": "rule_elements",
+          "batch": 1,
+          "batches": 1,
+          "candidateIds": [
+            "rule_elements:rc-5321-11-notice-to-cure:condition_not_remedied",
+            "rule_elements:rc-5321-11-notice-to-cure:covered_breach",
+            "rule_elements:rc-5321-11-notice-to-cure:specific_act",
+            "rule_elements:rc-5321-11-notice-to-cure:termination_date",
+            "rule_elements:rc-5321-11-notice-to-cure:written_notice"
+          ],
+          "unavailable": false
+        },
+        {
+          "stage": "coach",
+          "method": "llm",
+          "count": 4,
+          "trace": [
+            {
+              "attempt": 1,
+              "plan": {
+                "method": "llm",
+                "llmAttempt": 1
+              },
+              "success": true,
+              "code": "coach_complete",
+              "message": "coach produced 4 item(s)."
+            }
+          ]
+        },
+        {
+          "stage": "assessment",
+          "method": "deterministic",
+          "count": 1,
+          "trace": []
+        }
+      ],
+      "research_trace": [],
+      "model_calls": [
+        {
+          "prompt_key": "argument_gym.rule_elements",
+          "role": "base",
+          "model": "gpt-5.6-terra",
+          "settings": {
+            "temperature": 0,
+            "model": "gpt-5.6-terra",
+            "reasoning_level": "medium"
+          },
+          "status": "complete",
+          "elapsed_seconds": 7.354
+        },
+        {
+          "prompt_key": "argument_gym.correctness_judge",
+          "role": "judge",
+          "model": "mistral-large-3",
+          "settings": {
+            "temperature": 0,
+            "model": "mistral-large-3",
+            "reasoning_level": "medium"
+          },
+          "status": "complete",
+          "elapsed_seconds": 6.926
+        },
+        {
+          "prompt_key": "argument_gym.coach",
+          "role": "base",
+          "model": "gpt-5.6-terra",
+          "settings": {
+            "temperature": 0,
+            "model": "gpt-5.6-terra",
+            "reasoning_level": "medium"
+          },
+          "status": "complete",
+          "elapsed_seconds": 11.514
+        }
+      ],
+      "attacks_given_to_judge": 0
+    }
+  ],
+  "public_export": {
+    "removed_fields": [
+      "retrieval"
+    ],
+    "why": "verbatim excerpts of third-party legal corpora retrieved by the research stage; not ours to redistribute and not evidence for any reported figure",
+    "full_record": "report.json, kept locally alongside this file"
+  }
+}

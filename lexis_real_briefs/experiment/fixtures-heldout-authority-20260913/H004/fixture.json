@@ -1,0 +1,54 @@
+{
+  "fixture_id": "H004",
+  "case_family_id": "lee-v-wallace",
+  "stratum": "heldout_housing_property_authority",
+  "document": {
+    "title": "Lee v. Wallace",
+    "court": "",
+    "jurisdiction": "Ohio",
+    "pleading_type": "brief",
+    "side": "",
+    "filed": ""
+  },
+  "files": {
+    "source": "normalized/brief.txt",
+    "source_scan": null,
+    "control": "normalized/brief.txt",
+    "mutant": "mutant/brief.txt",
+    "attachments": [],
+    "attachment_notes": []
+  },
+  "mutation": {
+    "type": "statutory_quotation_mismatch",
+    "subtype": "attorney_verified_authority_support",
+    "operation": "replace",
+    "target_location": {
+      "control_excerpt": "a person entitled under a rental agreement to the use and occupancy of residential premises to the exclusion of others.",
+      "mutant_excerpt": "a person who has occupancy of residential premises."
+    },
+    "gold_vulnerability": "authority_support should reject the altered proposition attributed to R.C. 5321.01(A).",
+    "expected_direction": "mutant_worse",
+    "materiality": "high",
+    "edit_regions": 1
+  },
+  "gold": {
+    "check_id": "authority_support",
+    "preview_target_id": "u24:authority1",
+    "control_has_target_defect": false,
+    "mutant_has_target_defect": true,
+    "expected_control_disposition": "pass",
+    "expected_mutant_disposition": "must_fix",
+    "verification_status": "attorney_verified",
+    "verified_by": [
+      "researcher (manual source review)"
+    ]
+  },
+  "provenance": {
+    "source_sha256": "3e95a1c68d8ba24f30c6fcbc8507d08579dcc6f853fdf15dab4bec26535c3c4b",
+    "control_sha256": "2e076e653a2e377992dc9e1f08fd0f6dc8666654971ff674edda55ab2b1b8fab",
+    "mutant_sha256": "49e51b4b7239a2d3e5399be6c6e893cd4cd4a99d5cab5f716cf28dac4fcb02ee",
+    "attachment_sha256": {},
+    "normalization_version": "1.0",
+    "mutation_version": "heldout-authority-1.0"
+  }
+}

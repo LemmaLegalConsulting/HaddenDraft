@@ -1,0 +1,652 @@
+{
+  "sourceCall": "/home/quinten/agentic_housing_drafting/lexis_real_briefs/experiment/results/micro-correctness-live-final-f007b-20260913/F007-control/call-005.json",
+  "model": "gpt-5.6-terra",
+  "expected": 16,
+  "returned": 16,
+  "missing": [],
+  "extra": [],
+  "blankReasons": 0,
+  "adverseWithoutEvidence": 0,
+  "traces": [
+    {
+      "stage": "judge:cited_record_support",
+      "method": "llm",
+      "count": 8,
+      "trace": [
+        {
+          "attempt": 1,
+          "plan": {
+            "method": "llm"
+          },
+          "success": true,
+          "code": "judge:cited_record_support_complete",
+          "message": "judge:cited_record_support produced 8 item(s)."
+        }
+      ],
+      "checkId": "cited_record_support",
+      "batch": 1,
+      "batches": 2,
+      "candidateIds": [
+        "cited_record_support:u2:fact1",
+        "cited_record_support:u2:fact2",
+        "cited_record_support:u5:fact1",
+        "cited_record_support:u5:fact2",
+        "cited_record_support:u5:fact3",
+        "cited_record_support:u5:fact4",
+        "cited_record_support:u5:fact5",
+        "cited_record_support:u5:fact6"
+      ],
+      "unavailable": false
+    },
+    {
+      "stage": "judge:cited_record_support",
+      "method": "llm",
+      "count": 8,
+      "trace": [
+        {
+          "attempt": 1,
+          "plan": {
+            "method": "llm"
+          },
+          "success": true,
+          "code": "judge:cited_record_support_complete",
+          "message": "judge:cited_record_support produced 8 item(s)."
+        }
+      ],
+      "checkId": "cited_record_support",
+      "batch": 2,
+      "batches": 2,
+      "candidateIds": [
+        "cited_record_support:u5:fact10",
+        "cited_record_support:u5:fact11",
+        "cited_record_support:u5:fact12",
+        "cited_record_support:u5:fact13",
+        "cited_record_support:u5:fact14",
+        "cited_record_support:u5:fact7",
+        "cited_record_support:u5:fact8",
+        "cited_record_support:u5:fact9"
+      ],
+      "unavailable": false
+    }
+  ],
+  "rulings": [
+    {
+      "candidateId": "cited_record_support:u2:fact1",
+      "checkId": "cited_record_support",
+      "issueCode": "record_support_confirmed",
+      "targetId": "u2:fact1",
+      "unitId": "u2",
+      "claim": "Anthony Notarian owned the premises located at 8127 Cedar Road, Chesterland, Ohio 44026, in Geauga County.",
+      "problem": "",
+      "reason": "Exhibit 1 shows a warranty deed granting the Geauga County premises to Anthony Notarian and identifies the Cedar Road tax mailing address.",
+      "briefEvidence": [
+        "u2"
+      ],
+      "externalEvidence": [
+        "upload:35"
+      ],
+      "evidenceQuote": "ANTHONY NOTARIAN the Grantee whose TAX MAILING ADDRESS will be 8127 Cedar Road, Chester Township, Ohio 44026 ... premises, situated in the Township of Chester, County of Geauga and State of Ohio",
+      "evidenceState": "supported",
+      "proposedDisposition": "pass",
+      "coverage": {
+        "availableCount": 1,
+        "selectedCount": 1,
+        "truncated": [],
+        "exhaustive": true,
+        "completeForNegativeFindings": false
+      },
+      "disposition": "pass",
+      "judgeReason": "Opponent has not established a record-support defect. The quoted deed identifies Anthony Notarian as grantee, gives 8127 Cedar Road as his tax mailing address, and locates the premises in Chester Township, Geauga County.",
+      "evidenceRefs": [
+        "u2",
+        "upload:35"
+      ],
+      "confidence": "high",
+      "userVisible": true
+    },
+    {
+      "candidateId": "cited_record_support:u2:fact2",
+      "checkId": "cited_record_support",
+      "issueCode": "record_support_confirmed",
+      "targetId": "u2:fact2",
+      "unitId": "u2",
+      "claim": "Anthony Notarian resided at 8127 Cedar Road, Chesterland, Ohio 44026.",
+      "problem": "",
+      "reason": "The record identifies Anthony Notarian as being of the Cedar Road address.",
+      "briefEvidence": [
+        "u2"
+      ],
+      "externalEvidence": [
+        "upload:35"
+      ],
+      "evidenceQuote": "ANTHONY NOTARIAN, a single man (\"Grantor\"), of 8127 Cedar Rd., Chesterland, OH 44026",
+      "evidenceState": "supported",
+      "proposedDisposition": "pass",
+      "coverage": {
+        "availableCount": 1,
+        "selectedCount": 1,
+        "truncated": [],
+        "exhaustive": true,
+        "completeForNegativeFindings": false
+      },
+      "disposition": "pass",
+      "judgeReason": "Opponent has not established a defect. The deed describes Anthony Notarian as being \"of 8127 Cedar Rd., Chesterland, OH 44026,\" which supports the stated residence address.",
+      "evidenceRefs": [
+        "u2",
+        "upload:35"
+      ],
+      "confidence": "high",
+      "userVisible": true
+    },
+    {
+      "candidateId": "cited_record_support:u5:fact1",
+      "checkId": "cited_record_support",
+      "issueCode": "record_support_confirmed",
+      "targetId": "u5:fact1",
+      "unitId": "u5",
+      "claim": "Gino Notarian transferred Anthony Notarian's property to himself.",
+      "problem": "",
+      "reason": "The record states that Gino, acting under the power of attorney, transferred Anthony's real properties to himself.",
+      "briefEvidence": [
+        "u5"
+      ],
+      "externalEvidence": [
+        "upload:35"
+      ],
+      "evidenceQuote": "On April 9, 2019, Gino Notarian-acting as an agent for Anthony Notorian under the 2005 General Durable Power of Attorney-transferred the real properties... 8127 Cedar Road... to himself.",
+      "evidenceState": "supported",
+      "proposedDisposition": "pass",
+      "coverage": {
+        "availableCount": 1,
+        "selectedCount": 1,
+        "truncated": [],
+        "exhaustive": true,
+        "completeForNegativeFindings": false
+      },
+      "disposition": "pass",
+      "judgeReason": "Opponent has not established a defect. The quoted record expressly states that Gino Notarian, acting as Anthony's agent under the durable power of attorney, transferred the identified real properties to himself.",
+      "evidenceRefs": [
+        "u5",
+        "upload:35"
+      ],
+      "confidence": "high",
+      "userVisible": true
+    },
+    {
+      "candidateId": "cited_record_support:u5:fact2",
+      "checkId": "cited_record_support",
+      "issueCode": "record_support_not_found",
+      "targetId": "u5:fact2",
+      "unitId": "u5",
+      "claim": "The property Gino Notarian transferred to himself was valued around $2 million.",
+      "problem": "The bounded excerpts do not support the asserted approximately $2 million value.",
+      "reason": "The available cited material discusses the Cedar Road property's $204,000 appraisal and the probate order references over $800,000 in real properties, but no excerpt states that the property transferred to Gino was valued around $2 million.",
+      "briefEvidence": [
+        "u5"
+      ],
+      "externalEvidence": [
+        "upload:35"
+      ],
+      "evidenceQuote": "",
+      "evidenceState": "not_found",
+      "proposedDisposition": "review",
+      "coverage": {
+        "availableCount": 1,
+        "selectedCount": 1,
+        "truncated": [],
+        "exhaustive": true,
+        "completeForNegativeFindings": false
+      },
+      "disposition": "review",
+      "judgeReason": "There is a concrete support concern because the supplied excerpts do not state that the transferred property was valued at approximately $2 million. But the negative finding is not complete for negative findings, so the supplied evidence does not establish a filing-stage defect requiring correction.",
+      "evidenceRefs": [
+        "u5",
+        "upload:35"
+      ],
+      "confidence": "high",
+      "userVisible": true
+    },
+    {
+      "candidateId": "cited_record_support:u5:fact3",
+      "checkId": "cited_record_support",
+      "issueCode": "record_support_confirmed",
+      "targetId": "u5:fact3",
+      "unitId": "u5",
+      "claim": "The property Gino Notarian transferred to himself included the Cedar Road Property.",
+      "problem": "",
+      "reason": "The probate court order expressly includes the Cedar Road property among the properties Gino transferred to himself.",
+      "briefEvidence": [
+        "u5"
+      ],
+      "externalEvidence": [
+        "upload:35"
+      ],
+      "evidenceQuote": "On April 9, 2019, Gino Notarian... transferred the real properties... 8127 Cedar Road, Chesterland, OH 44026 (PPN: 11-244950), to himself.",
+      "evidenceState": "supported",
+      "proposedDisposition": "pass",
+      "coverage": {
+        "availableCount": 1,
+        "selectedCount": 1,
+        "truncated": [],
+        "exhaustive": true,
+        "completeForNegativeFindings": false
+      },
+      "disposition": "pass",
+      "judgeReason": "Opponent has not established a defect. The quoted probate-court passage specifically lists 8127 Cedar Road among the real properties Gino transferred to himself.",
+      "evidenceRefs": [
+        "u5",
+        "upload:35"
+      ],
+      "confidence": "high",
+      "userVisible": true
+    },
+    {
+      "candidateId": "cited_record_support:u5:fact4",
+      "checkId": "cited_record_support",
+      "issueCode": "record_support_confirmed",
+      "targetId": "u5:fact4",
+      "unitId": "u5",
+      "claim": "Julia Notarian resided at the Cedar Road Property.",
+      "problem": "",
+      "reason": "The record states Julia Notarian resided at the house.",
+      "briefEvidence": [
+        "u5"
+      ],
+      "externalEvidence": [
+        "upload:35"
+      ],
+      "evidenceQuote": "It is complainant's understanding that Julia Notarian has resided at the house without paying rent since some time before the death of Anthony Notarian.",
+      "evidenceState": "supported",
+      "proposedDisposition": "pass",
+      "coverage": {
+        "availableCount": 1,
+        "selectedCount": 1,
+        "truncated": [],
+        "exhaustive": true,
+        "completeForNegativeFindings": false
+      },
+      "disposition": "pass",
+      "judgeReason": "Opponent has not established a defect. The quoted record states that, to complainant's understanding, Julia Notarian had resided at the house since before Anthony Notarian's death.",
+      "evidenceRefs": [
+        "u5",
+        "upload:35"
+      ],
+      "confidence": "high",
+      "userVisible": true
+    },
+    {
+      "candidateId": "cited_record_support:u5:fact5",
+      "checkId": "cited_record_support",
+      "issueCode": "record_support_confirmed",
+      "targetId": "u5:fact5",
+      "unitId": "u5",
+      "claim": "Charles Rossbach III resided at the Cedar Road Property.",
+      "problem": "",
+      "reason": "The deed identifies Charles Rossbach and Julia Notarian as being of the Cedar Road address.",
+      "briefEvidence": [
+        "u5"
+      ],
+      "externalEvidence": [
+        "upload:35"
+      ],
+      "evidenceQuote": "CHARLES R. ROSSBACH, a single man and JULIA M. NOTARIAN (\"Grantors\"), of 8127 Cedar Rd, Chesterland, OH 44026",
+      "evidenceState": "supported",
+      "proposedDisposition": "pass",
+      "coverage": {
+        "availableCount": 1,
+        "selectedCount": 1,
+        "truncated": [],
+        "exhaustive": true,
+        "completeForNegativeFindings": false
+      },
+      "disposition": "pass",
+      "judgeReason": "Opponent has not established a defect. The deed identifies Charles R. Rossbach and Julia M. Notarian as being \"of 8127 Cedar Rd, Chesterland, OH 44026,\" supporting the stated residence address.",
+      "evidenceRefs": [
+        "u5",
+        "upload:35"
+      ],
+      "confidence": "high",
+      "userVisible": true
+    },
+    {
+      "candidateId": "cited_record_support:u5:fact6",
+      "checkId": "cited_record_support",
+      "issueCode": "record_support_confirmed",
+      "targetId": "u5:fact6",
+      "unitId": "u5",
+      "claim": "Julia Notarian resided at the Cedar Road Property without paying rent.",
+      "problem": "",
+      "reason": "The record states Julia Notarian resided at the house without paying rent.",
+      "briefEvidence": [
+        "u5"
+      ],
+      "externalEvidence": [
+        "upload:35"
+      ],
+      "evidenceQuote": "Julia Notarian has resided at the house without paying rent since some time before the death of Anthony Notarian.",
+      "evidenceState": "supported",
+      "proposedDisposition": "pass",
+      "coverage": {
+        "availableCount": 1,
+        "selectedCount": 1,
+        "truncated": [],
+        "exhaustive": true,
+        "completeForNegativeFindings": false
+      },
+      "disposition": "pass",
+      "judgeReason": "Opponent has not established a defect. The quoted record states that Julia Notarian resided at the house without paying rent.",
+      "evidenceRefs": [
+        "u5",
+        "upload:35"
+      ],
+      "confidence": "high",
+      "userVisible": true
+    },
+    {
+      "candidateId": "cited_record_support:u5:fact7",
+      "checkId": "cited_record_support",
+      "issueCode": "record_support_confirmed",
+      "targetId": "u5:fact7",
+      "unitId": "u5",
+      "claim": "Charles Rossbach III resided at the Cedar Road Property without paying rent.",
+      "problem": "",
+      "reason": "The notice addressed to Julia Notarian and Charles Rossbach III states they had not paid rent.",
+      "briefEvidence": [
+        "u5"
+      ],
+      "externalEvidence": [
+        "upload:35"
+      ],
+      "evidenceQuote": "To: Julia Notarian and Charles Rossbach III... you have no rental agreement and are not a tenant; you have not paid any rent",
+      "evidenceState": "supported",
+      "proposedDisposition": "pass",
+      "coverage": {
+        "availableCount": 1,
+        "selectedCount": 1,
+        "truncated": [],
+        "exhaustive": true,
+        "completeForNegativeFindings": false
+      },
+      "disposition": "pass",
+      "judgeReason": "Opponent has not established a record-support defect. The supplied notice expressly states that Julia Notarian and Charles Rossbach III had not paid rent.",
+      "evidenceRefs": [
+        "u5",
+        "upload:35"
+      ],
+      "confidence": "high",
+      "userVisible": true
+    },
+    {
+      "candidateId": "cited_record_support:u5:fact8",
+      "checkId": "cited_record_support",
+      "issueCode": "contradicted_record_fact",
+      "targetId": "u5:fact8",
+      "unitId": "u5",
+      "claim": "Anthony Notarian died on February 22, 2020.",
+      "problem": "The cited probate record gives Anthony Notarian's date of death as February 21, 2020, not February 22, 2020.",
+      "reason": "Exhibit 4 expressly states the decedent died on 02/21/2020.",
+      "briefEvidence": [
+        "u5"
+      ],
+      "externalEvidence": [
+        "upload:35"
+      ],
+      "evidenceQuote": "Decedent died ... on 02/21/2020 domiciled in CHESTER TOWNSHIP.",
+      "evidenceState": "contradicted",
+      "proposedDisposition": "must_fix",
+      "coverage": {
+        "availableCount": 1,
+        "selectedCount": 1,
+        "truncated": [],
+        "exhaustive": true,
+        "completeForNegativeFindings": false
+      },
+      "disposition": "must_fix",
+      "judgeReason": "The brief claim states that Anthony Notarian died on February 22, 2020, but the cited probate record expressly states: \u201cDecedent died ... on 02/21/2020.\u201d This is a specific contradiction requiring correction before filing.",
+      "evidenceRefs": [
+        "u5",
+        "upload:35"
+      ],
+      "confidence": "high",
+      "userVisible": true
+    },
+    {
+      "candidateId": "cited_record_support:u5:fact9",
+      "checkId": "cited_record_support",
+      "issueCode": "record_support_confirmed",
+      "targetId": "u5:fact9",
+      "unitId": "u5",
+      "claim": "Maria Scalzo was appointed Fiduciary of the Estate of Anthony Notarian on July 7, 2020.",
+      "problem": "",
+      "reason": "Exhibit 4 shows Maria Scalzo was appointed fiduciary on July 7, 2020.",
+      "briefEvidence": [
+        "u5"
+      ],
+      "externalEvidence": [
+        "upload:35"
+      ],
+      "evidenceQuote": "The Court therefore appoints MARIA SCALZO aka MARISA SCALZO as such fiduciary... Date: July 7, 2020",
+      "evidenceState": "supported",
+      "proposedDisposition": "pass",
+      "coverage": {
+        "availableCount": 1,
+        "selectedCount": 1,
+        "truncated": [],
+        "exhaustive": true,
+        "completeForNegativeFindings": false
+      },
+      "disposition": "pass",
+      "judgeReason": "Opponent has not established a defect. The supplied appointment entry identifies Maria Scalzo as fiduciary and is dated July 7, 2020.",
+      "evidenceRefs": [
+        "u5",
+        "upload:35"
+      ],
+      "confidence": "high",
+      "userVisible": true
+    },
+    {
+      "candidateId": "cited_record_support:u5:fact10",
+      "checkId": "cited_record_support",
+      "issueCode": "record_support_confirmed",
+      "targetId": "u5:fact10",
+      "unitId": "u5",
+      "claim": "Letters of Authority were issued to Maria Scalzo for the Estate of Anthony Notarian.",
+      "problem": "",
+      "reason": "Exhibit 4 states the appointment entry constitutes letters of authority.",
+      "briefEvidence": [
+        "u5"
+      ],
+      "externalEvidence": [
+        "upload:35"
+      ],
+      "evidenceQuote": "This entry of appointment constitutes the fiduciary's letters of authority.",
+      "evidenceState": "supported",
+      "proposedDisposition": "pass",
+      "coverage": {
+        "availableCount": 1,
+        "selectedCount": 1,
+        "truncated": [],
+        "exhaustive": true,
+        "completeForNegativeFindings": false
+      },
+      "disposition": "pass",
+      "judgeReason": "Opponent has not established a defect. The supplied record expressly provides that the appointment entry constitutes the fiduciary\u2019s letters of authority.",
+      "evidenceRefs": [
+        "u5",
+        "upload:35"
+      ],
+      "confidence": "high",
+      "userVisible": true
+    },
+    {
+      "candidateId": "cited_record_support:u5:fact11",
+      "checkId": "cited_record_support",
+      "issueCode": "record_support_confirmed",
+      "targetId": "u5:fact11",
+      "unitId": "u5",
+      "claim": "The Estate of Anthony Notarian filed an action against Gino Notarian and other defendants for the return of estate assets.",
+      "problem": "",
+      "reason": "The probate order describes a complaint by Maria Scalzo alleging Gino conveyed away estate real property.",
+      "briefEvidence": [
+        "u5"
+      ],
+      "externalEvidence": [
+        "upload:35"
+      ],
+      "evidenceQuote": "Maria Scalzo alleges Gino Notarian concealed, embezzled, or conveyed away real property that belonged to Anthony Notarian to himself as Anthony's power of attorney.",
+      "evidenceState": "supported",
+      "proposedDisposition": "pass",
+      "coverage": {
+        "availableCount": 1,
+        "selectedCount": 1,
+        "truncated": [],
+        "exhaustive": true,
+        "completeForNegativeFindings": false
+      },
+      "disposition": "pass",
+      "judgeReason": "Opponent has not established a record-support defect. The supplied probate-order passage describes Maria Scalzo\u2019s allegations that Gino Notarian concealed, embezzled, or conveyed estate real property.",
+      "evidenceRefs": [
+        "u5",
+        "upload:35"
+      ],
+      "confidence": "medium",
+      "userVisible": true
+    },
+    {
+      "candidateId": "cited_record_support:u5:fact12",
+      "checkId": "cited_record_support",
+      "issueCode": "record_support_confirmed",
+      "targetId": "u5:fact12",
+      "unitId": "u5",
+      "claim": "The estate-asset action was filed as Case No. 20 PC 000280 in the Geauga County Court of Common Pleas, Probate Division.",
+      "problem": "",
+      "reason": "The probate action is identified as Case No. 20 PC 000280 in the Geauga County Probate Division.",
+      "briefEvidence": [
+        "u5"
+      ],
+      "externalEvidence": [
+        "upload:35"
+      ],
+      "evidenceQuote": "IN THE COURT OF COMMON PLEAS PROBATE DIVISION GEAUGA COUNTY, OHIO... CASE NO. 20 PC 000280",
+      "evidenceState": "supported",
+      "proposedDisposition": "pass",
+      "coverage": {
+        "availableCount": 1,
+        "selectedCount": 1,
+        "truncated": [],
+        "exhaustive": true,
+        "completeForNegativeFindings": false
+      },
+      "disposition": "pass",
+      "judgeReason": "Opponent has not established a defect. The supplied caption identifies the Geauga County Court of Common Pleas, Probate Division, and Case No. 20 PC 000280.",
+      "evidenceRefs": [
+        "u5",
+        "upload:35"
+      ],
+      "confidence": "high",
+      "userVisible": true
+    },
+    {
+      "candidateId": "cited_record_support:u5:fact13",
+      "checkId": "cited_record_support",
+      "issueCode": "record_support_confirmed",
+      "targetId": "u5:fact13",
+      "unitId": "u5",
+      "claim": "In August 2021, Gino Notarian transferred the Cedar Road premises to Julia Notarian.",
+      "problem": "",
+      "reason": "Exhibit 5 states Gino transferred the Cedar Road property to Julia Notarian and Charles Rossbach on August 27, 2021.",
+      "briefEvidence": [
+        "u5"
+      ],
+      "externalEvidence": [
+        "upload:35"
+      ],
+      "evidenceQuote": "the executrix learned Gino Notarian transferred real property located at 8127 Cedar Road to Julia M. Notarian and Charles Rossbach on August 27, 2021.",
+      "evidenceState": "supported",
+      "proposedDisposition": "pass",
+      "coverage": {
+        "availableCount": 1,
+        "selectedCount": 1,
+        "truncated": [],
+        "exhaustive": true,
+        "completeForNegativeFindings": false
+      },
+      "disposition": "pass",
+      "judgeReason": "Opponent has not established a defect. The supplied record states that Gino Notarian transferred the Cedar Road property to Julia M. Notarian and Charles Rossbach on August 27, 2021.",
+      "evidenceRefs": [
+        "u5",
+        "upload:35"
+      ],
+      "confidence": "high",
+      "userVisible": true
+    },
+    {
+      "candidateId": "cited_record_support:u5:fact14",
+      "checkId": "cited_record_support",
+      "issueCode": "record_support_confirmed",
+      "targetId": "u5:fact14",
+      "unitId": "u5",
+      "claim": "In August 2021, Gino Notarian transferred the Cedar Road premises to Charles Rossbach III.",
+      "problem": "",
+      "reason": "Exhibit 5 states Gino transferred the Cedar Road property to Julia Notarian and Charles Rossbach on August 27, 2021.",
+      "briefEvidence": [
+        "u5"
+      ],
+      "externalEvidence": [
+        "upload:35"
+      ],
+      "evidenceQuote": "Gino Notarian transferred real property located at 8127 Cedar Road to Julia M. Notarian and Charles Rossbach on August 27, 2021.",
+      "evidenceState": "supported",
+      "proposedDisposition": "pass",
+      "coverage": {
+        "availableCount": 1,
+        "selectedCount": 1,
+        "truncated": [],
+        "exhaustive": true,
+        "completeForNegativeFindings": false
+      },
+      "disposition": "pass",
+      "judgeReason": "Opponent has not established a defect. The supplied record states that Gino Notarian transferred the Cedar Road property to Julia M. Notarian and Charles Rossbach on August 27, 2021.",
+      "evidenceRefs": [
+        "u5",
+        "upload:35"
+      ],
+      "confidence": "high",
+      "userVisible": true
+    }
+  ],
+  "calls": [
+    {
+      "model": "gpt-5.6-terra",
+      "messages": [
+        {
+          "role": "system",
+          "content": "You are Judge in a legal correctness test harness. Opponent bears the burden. Rule only on each challenge presented. Do not review the brief generally, identify another problem, compare issues, rank importance, predict case outcome, or infer missing evidence. SUSTAIN only when the supplied evidence establishes a defect a competent supervising attorney would require corrected before filing. RESERVE when there is a concrete concern but the evidence does not establish a defect. OVERRULE when the challenge is not established. Return valid JSON only.\n"
+        },
+        {
+          "role": "user",
+          "content": "Jurisdiction: Ohio\nNamed test: cited_record_support\n\nCandidate challenges and the only evidence you may use:\n[\n  {\n    \"candidateId\": \"cited_record_support:u2:fact1\",\n    \"checkId\": \"cited_record_support\",\n    \"issueCode\": \"record_support_confirmed\",\n    \"targetId\": \"u2:fact1\",\n    \"unitId\": \"u2\",\n    \"claim\": \"Anthony Notarian owned the premises located at 8127 Cedar Road, Chesterland, Ohio 44026, in Geauga County.\",\n    \"problem\": \"\",\n    \"reason\": \"Exhibit 1 shows a warranty deed granting the Geauga County premises to Anthony Notarian and identifies the Cedar Road tax mailing address.\",\n    \"briefEvidence\": [\n      \"u2\"\n    ],\n    \"externalEvidence\": [\n      \"upload:35\"\n    ],\n    \"evidenceQuote\": \"ANTHONY NOTARIAN the Grantee whose TAX MAILING ADDRESS will be 8127 Cedar Road, Chester Township, Ohio 44026 ... premises, situated in the Township of Chester, County of Geauga and State of Ohio\",\n    \"evidenceState\": \"supported\",\n    \"proposedDisposition\": \"pass\",\n    \"coverage\": {\n      \"availableCount\": 1,\n      \"selectedCount\": 1,\n      \"truncated\": [],\n      \"exhaustive\": true,\n      \"completeForNegativeFindings\": false\n    }\n  },\n  {\n    \"candidateId\": \"cited_record_support:u2:fact2\",\n    \"checkId\": \"cited_record_support\",\n    \"issueCode\": \"record_support_confirmed\",\n    \"targetId\": \"u2:fact2\",\n    \"unitId\": \"u2\",\n    \"claim\": \"Anthony Notarian resided at 8127 Cedar Road, Chesterland, Ohio 44026.\",\n    \"problem\": \"\",\n    \"reason\": \"The record identifies Anthony Notarian as being of the Cedar Road address.\",\n    \"briefEvidence\": [\n      \"u2\"\n    ],\n    \"externalEvidence\": [\n      \"upload:35\"\n    ],\n    \"evidenceQuote\": \"ANTHONY NOTARIAN, a single man (\\\"Grantor\\\"), of 8127 Cedar Rd., Chesterland, OH 44026\",\n    \"evidenceState\": \"supported\",\n    \"proposedDisposition\": \"pass\",\n    \"coverage\": {\n      \"availableCount\": 1,\n      \"selectedCount\": 1,\n      \"truncated\": [],\n      \"exhaustive\": true,\n      \"completeForNegativeFindings\": false\n    }\n  },\n  {\n    \"candidateId\": \"cited_record_support:u5:fact1\",\n    \"checkId\": \"cited_record_support\",\n    \"issueCode\": \"record_support_confirmed\",\n    \"targetId\": \"u5:fact1\",\n    \"unitId\": \"u5\",\n    \"claim\": \"Gino Notarian transferred Anthony Notarian's property to himself.\",\n    \"problem\": \"\",\n    \"reason\": \"The record states that Gino, acting under the power of attorney, transferred Anthony's real properties to himself.\",\n    \"briefEvidence\": [\n      \"u5\"\n    ],\n    \"externalEvidence\": [\n      \"upload:35\"\n    ],\n    \"evidenceQuote\": \"On April 9, 2019, Gino Notarian-acting as an agent for Anthony Notorian under the 2005 General Durable Power of Attorney-transferred the real properties... 8127 Cedar Road... to himself.\",\n    \"evidenceState\": \"supported\",\n    \"proposedDisposition\": \"pass\",\n    \"coverage\": {\n      \"availableCount\": 1,\n      \"selectedCount\": 1,\n      \"truncated\": [],\n      \"exhaustive\": true,\n      \"completeForNegativeFindings\": false\n    }\n  },\n  {\n    \"candidateId\": \"cited_record_support:u5:fact2\",\n    \"checkId\": \"cited_record_support\",\n    \"issueCode\": \"record_support_not_found\",\n    \"targetId\": \"u5:fact2\",\n    \"unitId\": \"u5\",\n    \"claim\": \"The property Gino Notarian transferred to himself was valued around $2 million.\",\n    \"problem\": \"The bounded excerpts do not support the asserted approximately $2 million value.\",\n    \"reason\": \"The available cited material discusses the Cedar Road property's $204,000 appraisal and the probate order references over $800,000 in real properties, but no excerpt states that the property transferred to Gino was valued around $2 million.\",\n    \"briefEvidence\": [\n      \"u5\"\n    ],\n    \"externalEvidence\": [\n      \"upload:35\"\n    ],\n    \"evidenceQuote\": \"\",\n    \"evidenceState\": \"not_found\",\n    \"proposedDisposition\": \"review\",\n    \"coverage\": {\n      \"availableCount\": 1,\n      \"selectedCount\": 1,\n      \"truncated\": [],\n      \"exhaustive\": true,\n      \"completeForNegativeFindings\": false\n    }\n  },\n  {\n    \"candidateId\": \"cited_record_support:u5:fact3\",\n    \"checkId\": \"cited_record_support\",\n    \"issueCode\": \"record_support_confirmed\",\n    \"targetId\": \"u5:fact3\",\n    \"unitId\": \"u5\",\n    \"claim\": \"The property Gino Notarian transferred to himself included the Cedar Road Property.\",\n    \"problem\": \"\",\n    \"reason\": \"The probate court order expressly includes the Cedar Road property among the properties Gino transferred to himself.\",\n    \"briefEvidence\": [\n      \"u5\"\n    ],\n    \"externalEvidence\": [\n      \"upload:35\"\n    ],\n    \"evidenceQuote\": \"On April 9, 2019, Gino Notarian... transferred the real properties... 8127 Cedar Road, Chesterland, OH 44026 (PPN: 11-244950), to himself.\",\n    \"evidenceState\": \"supported\",\n    \"proposedDisposition\": \"pass\",\n    \"coverage\": {\n      \"availableCount\": 1,\n      \"selectedCount\": 1,\n      \"truncated\": [],\n      \"exhaustive\": true,\n      \"completeForNegativeFindings\": false\n    }\n  },\n  {\n    \"candidateId\": \"cited_record_support:u5:fact4\",\n    \"checkId\": \"cited_record_support\",\n    \"issueCode\": \"record_support_confirmed\",\n    \"targetId\": \"u5:fact4\",\n    \"unitId\": \"u5\",\n    \"claim\": \"Julia Notarian resided at the Cedar Road Property.\",\n    \"problem\": \"\",\n    \"reason\": \"The record states Julia Notarian resided at the house.\",\n    \"briefEvidence\": [\n      \"u5\"\n    ],\n    \"externalEvidence\": [\n      \"upload:35\"\n    ],\n    \"evidenceQuote\": \"It is complainant's understanding that Julia Notarian has resided at the house without paying rent since some time before the death of Anthony Notarian.\",\n    \"evidenceState\": \"supported\",\n    \"proposedDisposition\": \"pass\",\n    \"coverage\": {\n      \"availableCount\": 1,\n      \"selectedCount\": 1,\n      \"truncated\": [],\n      \"exhaustive\": true,\n      \"completeForNegativeFindings\": false\n    }\n  },\n  {\n    \"candidateId\": \"cited_record_support:u5:fact5\",\n    \"checkId\": \"cited_record_support\",\n    \"issueCode\": \"record_support_confirmed\",\n    \"targetId\": \"u5:fact5\",\n    \"unitId\": \"u5\",\n    \"claim\": \"Charles Rossbach III resided at the Cedar Road Property.\",\n    \"problem\": \"\",\n    \"reason\": \"The deed identifies Charles Rossbach and Julia Notarian as being of the Cedar Road address.\",\n    \"briefEvidence\": [\n      \"u5\"\n    ],\n    \"externalEvidence\": [\n      \"upload:35\"\n    ],\n    \"evidenceQuote\": \"CHARLES R. ROSSBACH, a single man and JULIA M. NOTARIAN (\\\"Grantors\\\"), of 8127 Cedar Rd, Chesterland, OH 44026\",\n    \"evidenceState\": \"supported\",\n    \"proposedDisposition\": \"pass\",\n    \"coverage\": {\n      \"availableCount\": 1,\n      \"selectedCount\": 1,\n      \"truncated\": [],\n      \"exhaustive\": true,\n      \"completeForNegativeFindings\": false\n    }\n  },\n  {\n    \"candidateId\": \"cited_record_support:u5:fact6\",\n    \"checkId\": \"cited_record_support\",\n    \"issueCode\": \"record_support_confirmed\",\n    \"targetId\": \"u5:fact6\",\n    \"unitId\": \"u5\",\n    \"claim\": \"Julia Notarian resided at the Cedar Road Property without paying rent.\",\n    \"problem\": \"\",\n    \"reason\": \"The record states Julia Notarian resided at the house without paying rent.\",\n    \"briefEvidence\": [\n      \"u5\"\n    ],\n    \"externalEvidence\": [\n      \"upload:35\"\n    ],\n    \"evidenceQuote\": \"Julia Notarian has resided at the house without paying rent since some time before the death of Anthony Notarian.\",\n    \"evidenceState\": \"supported\",\n    \"proposedDisposition\": \"pass\",\n    \"coverage\": {\n      \"availableCount\": 1,\n      \"selectedCount\": 1,\n      \"truncated\": [],\n      \"exhaustive\": true,\n      \"completeForNegativeFindings\": false\n    }\n  }\n]\n\nReturn exactly one ruling per candidate, preserving every candidateId. Every\nruling must contain a specific, nonempty reason. REVIEW and MUST_FIX must cite\nat least one supplied evidence reference:\n{\"rulings\": [{\"candidateId\": \"record_support:u42:fact1\", \"disposition\": \"must_fix | review | pass\", \"reason\": \"Why Opponent did or did not carry its burden\", \"evidenceRefs\": [\"u42\", \"matter:doc-1\"], \"confidence\": \"high | medium | low\"}]}\n\nMUST_FIX without evidence references is forbidden. For a record contradiction, cite the brief claim and contradictory record passage. For authority mismatch, cite the proposition and source passage. Unavailable evidence, incomplete retrieval, and uncertain applicability are REVIEW or PASS, never MUST_FIX.\n"
+        }
+      ],
+      "status": "complete",
+      "response": "{\"rulings\":[{\"candidateId\":\"cited_record_support:u2:fact1\",\"disposition\":\"pass\",\"reason\":\"Opponent has not established a record-support defect. The quoted deed identifies Anthony Notarian as grantee, gives 8127 Cedar Road as his tax mailing address, and locates the premises in Chester Township, Geauga County.\",\"evidenceRefs\":[\"u2\",\"upload:35\"],\"confidence\":\"high\"},{\"candidateId\":\"cited_record_support:u2:fact2\",\"disposition\":\"pass\",\"reason\":\"Opponent has not established a defect. The deed describes Anthony Notarian as being \\\"of 8127 Cedar Rd., Chesterland, OH 44026,\\\" which supports the stated residence address.\",\"evidenceRefs\":[\"u2\",\"upload:35\"],\"confidence\":\"high\"},{\"candidateId\":\"cited_record_support:u5:fact1\",\"disposition\":\"pass\",\"reason\":\"Opponent has not established a defect. The quoted record expressly states that Gino Notarian, acting as Anthony's agent under the durable power of attorney, transferred the identified real properties to himself.\",\"evidenceRefs\":[\"u5\",\"upload:35\"],\"confidence\":\"high\"},{\"candidateId\":\"cited_record_support:u5:fact2\",\"disposition\":\"review\",\"reason\":\"There is a concrete support concern because the supplied excerpts do not state that the transferred property was valued at approximately $2 million. But the negative finding is not complete for negative findings, so the supplied evidence does not establish a filing-stage defect requiring correction.\",\"evidenceRefs\":[\"u5\",\"upload:35\"],\"confidence\":\"high\"},{\"candidateId\":\"cited_record_support:u5:fact3\",\"disposition\":\"pass\",\"reason\":\"Opponent has not established a defect. The quoted probate-court passage specifically lists 8127 Cedar Road among the real properties Gino transferred to himself.\",\"evidenceRefs\":[\"u5\",\"upload:35\"],\"confidence\":\"high\"},{\"candidateId\":\"cited_record_support:u5:fact4\",\"disposition\":\"pass\",\"reason\":\"Opponent has not established a defect. The quoted record states that, to complainant's understanding, Julia Notarian had resided at the house since before Anthony Notarian's death.\",\"evidenceRefs\":[\"u5\",\"upload:35\"],\"confidence\":\"high\"},{\"candidateId\":\"cited_record_support:u5:fact5\",\"disposition\":\"pass\",\"reason\":\"Opponent has not established a defect. The deed identifies Charles R. Rossbach and Julia M. Notarian as being \\\"of 8127 Cedar Rd, Chesterland, OH 44026,\\\" supporting the stated residence address.\",\"evidenceRefs\":[\"u5\",\"upload:35\"],\"confidence\":\"high\"},{\"candidateId\":\"cited_record_support:u5:fact6\",\"disposition\":\"pass\",\"reason\":\"Opponent has not established a defect. The quoted record states that Julia Notarian resided at the house without paying rent.\",\"evidenceRefs\":[\"u5\",\"upload:35\"],\"confidence\":\"high\"}]}",
+      "elapsedSeconds": 7.214
+    },
+    {
+      "model": "gpt-5.6-terra",
+      "messages": [
+        {
+          "role": "system",
+          "content": "You are Judge in a legal correctness test harness. Opponent bears the burden. Rule only on each challenge presented. Do not review the brief generally, identify another problem, compare issues, rank importance, predict case outcome, or infer missing evidence. SUSTAIN only when the supplied evidence establishes a defect a competent supervising attorney would require corrected before filing. RESERVE when there is a concrete concern but the evidence does not establish a defect. OVERRULE when the challenge is not established. Return valid JSON only.\n"
+        },
+        {
+          "role": "user",
+          "content": "Jurisdiction: Ohio\nNamed test: cited_record_support\n\nCandidate challenges and the only evidence you may use:\n[\n  {\n    \"candidateId\": \"cited_record_support:u5:fact7\",\n    \"checkId\": \"cited_record_support\",\n    \"issueCode\": \"record_support_confirmed\",\n    \"targetId\": \"u5:fact7\",\n    \"unitId\": \"u5\",\n    \"claim\": \"Charles Rossbach III resided at the Cedar Road Property without paying rent.\",\n    \"problem\": \"\",\n    \"reason\": \"The notice addressed to Julia Notarian and Charles Rossbach III states they had not paid rent.\",\n    \"briefEvidence\": [\n      \"u5\"\n    ],\n    \"externalEvidence\": [\n      \"upload:35\"\n    ],\n    \"evidenceQuote\": \"To: Julia Notarian and Charles Rossbach III... you have no rental agreement and are not a tenant; you have not paid any rent\",\n    \"evidenceState\": \"supported\",\n    \"proposedDisposition\": \"pass\",\n    \"coverage\": {\n      \"availableCount\": 1,\n      \"selectedCount\": 1,\n      \"truncated\": [],\n      \"exhaustive\": true,\n      \"completeForNegativeFindings\": false\n    }\n  },\n  {\n    \"candidateId\": \"cited_record_support:u5:fact8\",\n    \"checkId\": \"cited_record_support\",\n    \"issueCode\": \"contradicted_record_fact\",\n    \"targetId\": \"u5:fact8\",\n    \"unitId\": \"u5\",\n    \"claim\": \"Anthony Notarian died on February 22, 2020.\",\n    \"problem\": \"The cited probate record gives Anthony Notarian's date of death as February 21, 2020, not February 22, 2020.\",\n    \"reason\": \"Exhibit 4 expressly states the decedent died on 02/21/2020.\",\n    \"briefEvidence\": [\n      \"u5\"\n    ],\n    \"externalEvidence\": [\n      \"upload:35\"\n    ],\n    \"evidenceQuote\": \"Decedent died ... on 02/21/2020 domiciled in CHESTER TOWNSHIP.\",\n    \"evidenceState\": \"contradicted\",\n    \"proposedDisposition\": \"must_fix\",\n    \"coverage\": {\n      \"availableCount\": 1,\n      \"selectedCount\": 1,\n      \"truncated\": [],\n      \"exhaustive\": true,\n      \"completeForNegativeFindings\": false\n    }\n  },\n  {\n    \"candidateId\": \"cited_record_support:u5:fact9\",\n    \"checkId\": \"cited_record_support\",\n    \"issueCode\": \"record_support_confirmed\",\n    \"targetId\": \"u5:fact9\",\n    \"unitId\": \"u5\",\n    \"claim\": \"Maria Scalzo was appointed Fiduciary of the Estate of Anthony Notarian on July 7, 2020.\",\n    \"problem\": \"\",\n    \"reason\": \"Exhibit 4 shows Maria Scalzo was appointed fiduciary on July 7, 2020.\",\n    \"briefEvidence\": [\n      \"u5\"\n    ],\n    \"externalEvidence\": [\n      \"upload:35\"\n    ],\n    \"evidenceQuote\": \"The Court therefore appoints MARIA SCALZO aka MARISA SCALZO as such fiduciary... Date: July 7, 2020\",\n    \"evidenceState\": \"supported\",\n    \"proposedDisposition\": \"pass\",\n    \"coverage\": {\n      \"availableCount\": 1,\n      \"selectedCount\": 1,\n      \"truncated\": [],\n      \"exhaustive\": true,\n      \"completeForNegativeFindings\": false\n    }\n  },\n  {\n    \"candidateId\": \"cited_record_support:u5:fact10\",\n    \"checkId\": \"cited_record_support\",\n    \"issueCode\": \"record_support_confirmed\",\n    \"targetId\": \"u5:fact10\",\n    \"unitId\": \"u5\",\n    \"claim\": \"Letters of Authority were issued to Maria Scalzo for the Estate of Anthony Notarian.\",\n    \"problem\": \"\",\n    \"reason\": \"Exhibit 4 states the appointment entry constitutes letters of authority.\",\n    \"briefEvidence\": [\n      \"u5\"\n    ],\n    \"externalEvidence\": [\n      \"upload:35\"\n    ],\n    \"evidenceQuote\": \"This entry of appointment constitutes the fiduciary's letters of authority.\",\n    \"evidenceState\": \"supported\",\n    \"proposedDisposition\": \"pass\",\n    \"coverage\": {\n      \"availableCount\": 1,\n      \"selectedCount\": 1,\n      \"truncated\": [],\n      \"exhaustive\": true,\n      \"completeForNegativeFindings\": false\n    }\n  },\n  {\n    \"candidateId\": \"cited_record_support:u5:fact11\",\n    \"checkId\": \"cited_record_support\",\n    \"issueCode\": \"record_support_confirmed\",\n    \"targetId\": \"u5:fact11\",\n    \"unitId\": \"u5\",\n    \"claim\": \"The Estate of Anthony Notarian filed an action against Gino Notarian and other defendants for the return of estate assets.\",\n    \"problem\": \"\",\n    \"reason\": \"The probate order describes a complaint by Maria Scalzo alleging Gino conveyed away estate real property.\",\n    \"briefEvidence\": [\n      \"u5\"\n    ],\n    \"externalEvidence\": [\n      \"upload:35\"\n    ],\n    \"evidenceQuote\": \"Maria Scalzo alleges Gino Notarian concealed, embezzled, or conveyed away real property that belonged to Anthony Notarian to himself as Anthony's power of attorney.\",\n    \"evidenceState\": \"supported\",\n    \"proposedDisposition\": \"pass\",\n    \"coverage\": {\n      \"availableCount\": 1,\n      \"selectedCount\": 1,\n      \"truncated\": [],\n      \"exhaustive\": true,\n      \"completeForNegativeFindings\": false\n    }\n  },\n  {\n    \"candidateId\": \"cited_record_support:u5:fact12\",\n    \"checkId\": \"cited_record_support\",\n    \"issueCode\": \"record_support_confirmed\",\n    \"targetId\": \"u5:fact12\",\n    \"unitId\": \"u5\",\n    \"claim\": \"The estate-asset action was filed as Case No. 20 PC 000280 in the Geauga County Court of Common Pleas, Probate Division.\",\n    \"problem\": \"\",\n    \"reason\": \"The probate action is identified as Case No. 20 PC 000280 in the Geauga County Probate Division.\",\n    \"briefEvidence\": [\n      \"u5\"\n    ],\n    \"externalEvidence\": [\n      \"upload:35\"\n    ],\n    \"evidenceQuote\": \"IN THE COURT OF COMMON PLEAS PROBATE DIVISION GEAUGA COUNTY, OHIO... CASE NO. 20 PC 000280\",\n    \"evidenceState\": \"supported\",\n    \"proposedDisposition\": \"pass\",\n    \"coverage\": {\n      \"availableCount\": 1,\n      \"selectedCount\": 1,\n      \"truncated\": [],\n      \"exhaustive\": true,\n      \"completeForNegativeFindings\": false\n    }\n  },\n  {\n    \"candidateId\": \"cited_record_support:u5:fact13\",\n    \"checkId\": \"cited_record_support\",\n    \"issueCode\": \"record_support_confirmed\",\n    \"targetId\": \"u5:fact13\",\n    \"unitId\": \"u5\",\n    \"claim\": \"In August 2021, Gino Notarian transferred the Cedar Road premises to Julia Notarian.\",\n    \"problem\": \"\",\n    \"reason\": \"Exhibit 5 states Gino transferred the Cedar Road property to Julia Notarian and Charles Rossbach on August 27, 2021.\",\n    \"briefEvidence\": [\n      \"u5\"\n    ],\n    \"externalEvidence\": [\n      \"upload:35\"\n    ],\n    \"evidenceQuote\": \"the executrix learned Gino Notarian transferred real property located at 8127 Cedar Road to Julia M. Notarian and Charles Rossbach on August 27, 2021.\",\n    \"evidenceState\": \"supported\",\n    \"proposedDisposition\": \"pass\",\n    \"coverage\": {\n      \"availableCount\": 1,\n      \"selectedCount\": 1,\n      \"truncated\": [],\n      \"exhaustive\": true,\n      \"completeForNegativeFindings\": false\n    }\n  },\n  {\n    \"candidateId\": \"cited_record_support:u5:fact14\",\n    \"checkId\": \"cited_record_support\",\n    \"issueCode\": \"record_support_confirmed\",\n    \"targetId\": \"u5:fact14\",\n    \"unitId\": \"u5\",\n    \"claim\": \"In August 2021, Gino Notarian transferred the Cedar Road premises to Charles Rossbach III.\",\n    \"problem\": \"\",\n    \"reason\": \"Exhibit 5 states Gino transferred the Cedar Road property to Julia Notarian and Charles Rossbach on August 27, 2021.\",\n    \"briefEvidence\": [\n      \"u5\"\n    ],\n    \"externalEvidence\": [\n      \"upload:35\"\n    ],\n    \"evidenceQuote\": \"Gino Notarian transferred real property located at 8127 Cedar Road to Julia M. Notarian and Charles Rossbach on August 27, 2021.\",\n    \"evidenceState\": \"supported\",\n    \"proposedDisposition\": \"pass\",\n    \"coverage\": {\n      \"availableCount\": 1,\n      \"selectedCount\": 1,\n      \"truncated\": [],\n      \"exhaustive\": true,\n      \"completeForNegativeFindings\": false\n    }\n  }\n]\n\nReturn exactly one ruling per candidate, preserving every candidateId. Every\nruling must contain a specific, nonempty reason. REVIEW and MUST_FIX must cite\nat least one supplied evidence reference:\n{\"rulings\": [{\"candidateId\": \"record_support:u42:fact1\", \"disposition\": \"must_fix | review | pass\", \"reason\": \"Why Opponent did or did not carry its burden\", \"evidenceRefs\": [\"u42\", \"matter:doc-1\"], \"confidence\": \"high | medium | low\"}]}\n\nMUST_FIX without evidence references is forbidden. For a record contradiction, cite the brief claim and contradictory record passage. For authority mismatch, cite the proposition and source passage. Unavailable evidence, incomplete retrieval, and uncertain applicability are REVIEW or PASS, never MUST_FIX.\n"
+        }
+      ],
+      "status": "complete",
+      "response": "{\"rulings\":[{\"candidateId\":\"cited_record_support:u5:fact7\",\"disposition\":\"pass\",\"reason\":\"Opponent has not established a record-support defect. The supplied notice expressly states that Julia Notarian and Charles Rossbach III had not paid rent.\",\"evidenceRefs\":[\"u5\",\"upload:35\"],\"confidence\":\"high\"},{\"candidateId\":\"cited_record_support:u5:fact8\",\"disposition\":\"must_fix\",\"reason\":\"The brief claim states that Anthony Notarian died on February 22, 2020, but the cited probate record expressly states: \u201cDecedent died ... on 02/21/2020.\u201d This is a specific contradiction requiring correction before filing.\",\"evidenceRefs\":[\"u5\",\"upload:35\"],\"confidence\":\"high\"},{\"candidateId\":\"cited_record_support:u5:fact9\",\"disposition\":\"pass\",\"reason\":\"Opponent has not established a defect. The supplied appointment entry identifies Maria Scalzo as fiduciary and is dated July 7, 2020.\",\"evidenceRefs\":[\"u5\",\"upload:35\"],\"confidence\":\"high\"},{\"candidateId\":\"cited_record_support:u5:fact10\",\"disposition\":\"pass\",\"reason\":\"Opponent has not established a defect. The supplied record expressly provides that the appointment entry constitutes the fiduciary\u2019s letters of authority.\",\"evidenceRefs\":[\"u5\",\"upload:35\"],\"confidence\":\"high\"},{\"candidateId\":\"cited_record_support:u5:fact11\",\"disposition\":\"pass\",\"reason\":\"Opponent has not established a record-support defect. The supplied probate-order passage describes Maria Scalzo\u2019s allegations that Gino Notarian concealed, embezzled, or conveyed estate real property.\",\"evidenceRefs\":[\"u5\",\"upload:35\"],\"confidence\":\"medium\"},{\"candidateId\":\"cited_record_support:u5:fact12\",\"disposition\":\"pass\",\"reason\":\"Opponent has not established a defect. The supplied caption identifies the Geauga County Court of Common Pleas, Probate Division, and Case No. 20 PC 000280.\",\"evidenceRefs\":[\"u5\",\"upload:35\"],\"confidence\":\"high\"},{\"candidateId\":\"cited_record_support:u5:fact13\",\"disposition\":\"pass\",\"reason\":\"Opponent has not established a defect. The supplied record states that Gino Notarian transferred the Cedar Road property to Julia M. Notarian and Charles Rossbach on August 27, 2021.\",\"evidenceRefs\":[\"u5\",\"upload:35\"],\"confidence\":\"high\"},{\"candidateId\":\"cited_record_support:u5:fact14\",\"disposition\":\"pass\",\"reason\":\"Opponent has not established a defect. The supplied record states that Gino Notarian transferred the Cedar Road property to Julia M. Notarian and Charles Rossbach on August 27, 2021.\",\"evidenceRefs\":[\"u5\",\"upload:35\"],\"confidence\":\"high\"}]}",
+      "elapsedSeconds": 6.551
+    }
+  ]
+}

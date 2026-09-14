@@ -103,4 +103,18 @@ with separately named R002 and R010 technical-retry directories. The comparison
 command is implemented in
 `lexis_real_briefs/experiment/tools/score_rule_floor_stability.py`; it accepts
 explicit per-condition replacement paths so degraded originals remain
-auditable.
+auditable. Each shard's committed `report.public.json` contains both conditions
+and all fields used by the scorer while excluding raw model transcripts, local
+database copies, and retrieved corpus dumps. A fresh clone therefore reproduces
+the reported metrics without the multi-gigabyte private run directories.
+
+```bash
+.venv/bin/python lexis_real_briefs/experiment/tools/score_rule_floor_stability.py \
+  --fixtures-dir lexis_real_briefs/experiment/fixtures-rule-floor-attorney-reviewed-20260913 \
+  --run lexis_real_briefs/experiment/results/heldout-rule-floor-llama-sol-attorney-reviewed-rep1-20260913 \
+  --run lexis_real_briefs/experiment/results/heldout-rule-floor-llama-sol-attorney-reviewed-rep2-20260913 \
+  --run lexis_real_briefs/experiment/results/heldout-rule-floor-llama-sol-attorney-reviewed-rep3-20260913 \
+  --run lexis_real_briefs/experiment/results/heldout-rule-floor-llama-sol-attorney-reviewed-rep4-20260913 \
+  --replacement 2:R002:mutant:lexis_real_briefs/experiment/results/heldout-rule-floor-llama-sol-attorney-reviewed-rep2-r002-technical-retry-20260913/shards/R002/report.public.json \
+  --replacement 4:R010:mutant:lexis_real_briefs/experiment/results/heldout-rule-floor-llama-sol-attorney-reviewed-rep4-r010-technical-retry-20260913/shards/R010/report.public.json
+```

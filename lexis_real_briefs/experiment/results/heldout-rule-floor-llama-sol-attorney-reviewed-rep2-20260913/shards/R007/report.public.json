@@ -1,0 +1,1968 @@
+{
+  "manifest": {
+    "registry_id": "lexis-mutation-2026-09",
+    "created_at": "2026-09-14T02:21:17.281440+00:00",
+    "mode": "live",
+    "git_commit": "351fb785e9bc1bfc7b9954de0f94d16861aa0d9f",
+    "git_status": " M backend/apps/caselaw/management/commands/enrich_caselaw_metadata.py\n m private-content\n?? downloaded_opinions/\n?? lexis_real_briefs/experiment/results/heldout-authority-terra-mistral-rep1-20260913/\n?? lexis_real_briefs/experiment/results/heldout-authority-terra-mistral-rep2-20260913/\n?? lexis_real_briefs/experiment/results/heldout-authority-terra-mistral-rep3-20260913/\n?? lexis_real_briefs/experiment/results/heldout-authority-terra-mistral-rep4-20260913/\n?? lexis_real_briefs/experiment/results/heldout-rule-floor-llama-sol-attorney-reviewed-rep1-20260913/\n?? lexis_real_briefs/experiment/results/heldout-rule-floor-llama-sol-attorney-reviewed-rep2-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-f005-attribution-grounded-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-f005-complete-opinions-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-f005-frozen-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-f005-grounded-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-f005-opinion-status-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-f005-reuse-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-live-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-live-bounded-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-live-final-f007-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-live-final-f007b-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-live-hybrid-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-live-hybrid-fixed-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-live-targeted-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-offline-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-offline-after-unavailable-fix-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-priority-frozen-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-priority-rerun-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-rules-citations-terra-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-rules-citations-terra-batched-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-rules-citations-terra-final-20260913/\n?? lexis_real_briefs/experiment/results/micro-judge-hardening-deepseek-20260913.json\n?? lexis_real_briefs/experiment/results/micro-judge-hardening-deepseek-offset8-20260913.json\n?? lexis_real_briefs/experiment/results/micro-judge-hardening-gpt55-20260913.json\n?? lexis_real_briefs/experiment/results/micro-judge-hardening-gpt56terra-20260913.json\n?? lexis_real_briefs/experiment/results/micro-judge-hardening-gpt56terra-deployed-20260913.json\n?? lexis_real_briefs/experiment/results/micro-judge-hardening-grok46-20260913.json\n?? lexis_real_briefs/experiment/results/micro-judge-rule-floor-llama-4-maverick-20260913.json\n?? lexis_real_briefs/experiment/results/micro-judge-rule-floor-mistral-large-3-20260913.json\n?? lexis_real_briefs/experiment/results/micro-judge-rules-gpt55-20260913.json\n?? lexis_real_briefs/experiment/results/micro-judge-rules-gpt56terra-20260913.json\n?? lexis_real_briefs/experiment/results/micro-rules-all-fixtures-20260913/\n?? lexis_real_briefs/experiment/results/qualification-authority-f005-nested-fixed-rep1-20260913/\n?? lexis_real_briefs/experiment/results/qualification-authority-f005-nested-fixed-rep2-20260913/\n?? lexis_real_briefs/experiment/results/qualification-authority-f005-nested-fixed-rep3-20260913/\n?? lexis_real_briefs/experiment/results/qualification-authority-f005-rep1-20260913/\n?? lexis_real_briefs/experiment/results/qualification-authority-f005-stable-inventory-20260913/\n?? lexis_real_briefs/experiment/results/qualification-rule-floor-contract-rep1-20260913/\n?? lexis_real_briefs/experiment/results/qualification-rule-floor-final-rep1-20260913/\n?? lexis_real_briefs/experiment/results/qualification-rule-floor-fresh10-20260913/\n?? lexis_real_briefs/experiment/results/qualification-rule-floor-fresh10-rep2-20260913/\n?? lexis_real_briefs/experiment/results/qualification-rule-floor-gate-rep1-20260913/\n?? lexis_real_briefs/experiment/results/qualification-rule-floor-gate-rep2-20260913/\n?? lexis_real_briefs/experiment/results/qualification-rule-floor-gate-rep3-20260913/\n?? lexis_real_briefs/experiment/results/qualification-rule-floor-mistral-high-rep1-20260913/\n?? lexis_real_briefs/experiment/results/qualification-rule-floor-mistral-rep1-20260913/\n?? lexis_real_briefs/experiment/results/qualification-rule-floor-ready-rep1-20260913/\n?? lexis_real_briefs/experiment/results/qualification-rule-floor-rep1-20260913/\n?? lexis_real_briefs/experiment/results/qualification-rule-floor-repaired-rep1-20260913/\n?? lexis_real_briefs/experiment/results/qualification-rule-floor-terra-mistral-fixed-rep1-20260913/\n?? lexis_real_briefs/experiment/results/qualification-rule-floor-terra-mistral-rep1-20260913/\n?? lexis_real_briefs/experiment/results/qualification-vawa-coverage-rep1-20260913/\n?? lexis_real_briefs/experiment/results/qualification-vawa-coverage-rep2-20260913/\n?? lexis_real_briefs/experiment/results/qualification-vawa-coverage-rep3-20260913/\n",
+    "command": [
+      "/home/quinten/agentic_housing_drafting/.venv/bin/python",
+      "/home/quinten/agentic_housing_drafting/lexis_real_briefs/experiment/tools/run_experiment.py",
+      "--output-dir",
+      "/home/quinten/agentic_housing_drafting/lexis_real_briefs/experiment/results/heldout-rule-floor-llama-sol-attorney-reviewed-rep2-20260913/shards/R007",
+      "--fixtures-dir",
+      "/home/quinten/agentic_housing_drafting/lexis_real_briefs/experiment/fixtures-rule-floor-attorney-reviewed-20260913",
+      "--fixture",
+      "R007",
+      "--model",
+      "gpt-5.4-mini",
+      "--reasoning",
+      "medium",
+      "--live",
+      "--attack-model",
+      "gpt-5.6-terra",
+      "--judge-model",
+      "mistral-large-3",
+      "--base-model",
+      "gpt-5.6-terra",
+      "--cell",
+      "terra-mistral",
+      "--check",
+      "rule_elements"
+    ],
+    "python": "3.12.3 (main, Aug 31 2026, 10:18:26) [GCC 13.3.0]",
+    "cell": "terra-mistral",
+    "models": {
+      "attack": "gpt-5.6-terra",
+      "judge": "mistral-large-3",
+      "base": "gpt-5.6-terra"
+    },
+    "model": "gpt-5.6-terra",
+    "attack_family": "openai",
+    "judge_family": "mistral",
+    "same_family_judge": false,
+    "role_routing": "named Opponent prompts -> attack; legacy and correctness Judge prompts -> judge; everything else -> base",
+    "reasoning": "medium",
+    "temperature": 0,
+    "provider_host": "quint-mln02sj6-eastus2.cognitiveservices.azure.com",
+    "model_version_note": "Requested deployment alias; the provider's snapshot identity is not exposed to the application client.",
+    "code_sha256": "cb878b0f0d1116b568f85046fb43fd7c4bbf33f640bcadd5855a47ef13925d0c",
+    "dependencies_sha256": "f5f5236ee56cf7f75c2f0f59f570b7386388e27164eb9ec999572462072c4366",
+    "unit_budget_chars": 260000,
+    "unit_text_chars": 2400,
+    "brief_text_chars": 120000,
+    "source_ids": [
+      "ohio-cases",
+      "ohio-statutes",
+      "ohio-ordinances",
+      "treatise"
+    ],
+    "enabled_checks": [
+      "rule_elements"
+    ],
+    "blinding": "The Gym receives brief text and record text only. No fixture id, condition label, mutation class or gold vulnerability reaches any prompt.",
+    "scoring": "The Gym writes stable per-target dispositions. Whether a result matches the registered mutation remains a separate, human-checkable step.",
+    "fixtures": [
+      {
+        "fixture_id": "R007",
+        "control_sha256": "fe31e307fc16da8e35c3fda1db183ce5f7beff2b68fd995a35d312d261e5c09e",
+        "mutant_sha256": "a5014172cee2f76d056f509a6158edc460b53bfe9d2a0a17f86ad49c7165f23a",
+        "attachment_sha256": {
+          "record-01.txt": "c056213601f65015856e59e3df96d13ce512ef2d666e101171be6f93dab2db6e"
+        }
+      }
+    ]
+  },
+  "results": [
+    {
+      "fixture_id": "R007",
+      "condition": "control",
+      "case_family_id": "synthetic-rule-review-r007",
+      "stratum": "synthetic_rule_elements_attorney_review",
+      "run_id": 34,
+      "run_at": "2026-09-14T02:21:35.775689+00:00",
+      "status": "complete",
+      "pipeline_status": "complete",
+      "degraded": null,
+      "error": "",
+      "brief_sha256": "fe31e307fc16da8e35c3fda1db183ce5f7beff2b68fd995a35d312d261e5c09e",
+      "brief_chars": 807,
+      "record_documents": 1,
+      "attack_model": "gpt-5.6-terra",
+      "judge_model": "mistral-large-3",
+      "base_model": "gpt-5.6-terra",
+      "same_family": false,
+      "reasoning": "medium",
+      "unit_budget_chars": 260000,
+      "units": 13,
+      "court": {
+        "mode": "auto",
+        "reason": "No maintained court profile matched this document's caption or the case record.",
+        "matched": "",
+        "where": "",
+        "courtSlug": ""
+      },
+      "deterministic_findings": {
+        "rule_elements": 0
+      },
+      "checks_run": [
+        {
+          "id": "record_support",
+          "label": "Test material facts against the record",
+          "description": "Opponent tests only atomic, record-verifiable, material claims; Judge sustains a defect only when the supplied evidence and record coverage establish it.",
+          "kind": "model",
+          "category": "correctness",
+          "categoryLabel": "Correctness",
+          "categoryDescription": "Is the law right? Is the authority controlling? Are the required elements present, and does the record establish what the brief says it does?",
+          "defaultEnabled": true,
+          "requires": [
+            "case_record"
+          ],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "rule_elements",
+          "label": "Audit the elements of the rules invoked",
+          "description": "Detects the rules the brief cites or invokes by name, then audits each element of those rules: is it pleaded, and is it supported.",
+          "kind": "model",
+          "category": "correctness",
+          "categoryLabel": "Correctness",
+          "categoryDescription": "Is the law right? Is the authority controlling? Are the required elements present, and does the record establish what the brief says it does?",
+          "defaultEnabled": true,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "on",
+          "reason": ""
+        },
+        {
+          "id": "authority_support",
+          "label": "Test cited authority support",
+          "description": "Whether each cited authority supports the material legal proposition for which the brief uses it.",
+          "kind": "model",
+          "category": "correctness",
+          "categoryLabel": "Correctness",
+          "categoryDescription": "Is the law right? Is the authority controlling? Are the required elements present, and does the record establish what the brief says it does?",
+          "defaultEnabled": true,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "adversarial",
+          "label": "Opposing counsel, a judge, and a coach",
+          "description": "The core of the gym: opposing counsel makes the strongest arguments available against the brief, a judge weighs them, and a coach proposes answers.",
+          "kind": "model",
+          "category": "completeness",
+          "categoryLabel": "Argumentative completeness",
+          "categoryDescription": "Does the brief connect its rules to its facts? Does it work the difficult element instead of restating the rule? Does it confront adverse authority and answer the counterargument a court will think of on its own?",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_issue_framing",
+          "label": "Issue framing",
+          "description": "Does the brief identify the real dispute early and frame it around the favorable legal question?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_macro_organization",
+          "label": "Macro-organization",
+          "description": "Are arguments ordered logically and by importance? Can the reader see the roadmap?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_paragraph_organization",
+          "label": "Paragraph-level organization",
+          "description": "Do paragraphs have discernible propositions or topic sentences, and develop one point at a time?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_rule_synthesis",
+          "label": "Rule synthesis",
+          "description": "Does the writer synthesize authorities into a rule rather than serially summarize cases?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_rule_application",
+          "label": "Rule-to-fact application",
+          "description": "Is the reasoning explicit -- \"because X fact satisfies Y element\" -- rather than leaving the inferential step to the court?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_fact_selection",
+          "label": "Fact selection and narrative coherence",
+          "description": "Are legally significant facts foregrounded and organized in a comprehensible chronology or theory?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_use_of_authority",
+          "label": "Use of authority",
+          "description": "Are important propositions backed by strong authorities placed where they actually matter, rather than citation dumping?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_counterarguments",
+          "label": "Handling counterarguments",
+          "description": "Does the brief acknowledge and answer the strongest objection rather than arguing past it?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_concision",
+          "label": "Concision and reader burden",
+          "description": "Does it say the same thing once, in the right place, without unnecessary throat-clearing?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_calibration",
+          "label": "Calibrated confidence and credibility",
+          "description": "Does it distinguish strong propositions from uncertain ones and avoid overclaiming?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_relief_alignment",
+          "label": "Requested-relief alignment",
+          "description": "Does the argument actually lead to the precise thing the brief asks the court to do?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_emphasis",
+          "label": "Emphasis",
+          "description": "Does the document devote its space to the issues that matter rather than treating every point as equally important?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "custom_checklist",
+          "label": "Custom checklist",
+          "description": "Applies review questions you wrote. An item can look things up -- authority, the case record, passages of the brief -- rather than answering from the brief alone. Attach a checklist for this to run.",
+          "kind": "model",
+          "category": "custom",
+          "categoryLabel": "Your own checks",
+          "categoryDescription": "Review questions you wrote, in your words, applied to this brief.",
+          "defaultEnabled": false,
+          "requires": [
+            "checklist"
+          ],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "court_formatting",
+          "label": "This court's filing rules",
+          "description": "Required elements, type size, spacing, margins, and page limits for the selected court.",
+          "kind": "deterministic",
+          "category": "form",
+          "categoryLabel": "Form of the filing",
+          "categoryDescription": "Whether the paper meets this court's rules and the conventions of practice.",
+          "defaultEnabled": false,
+          "requires": [
+            "court_profile"
+          ],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "pleading_form",
+          "label": "Form of the pleading",
+          "description": "Conventions of practice rather than any one court's rules: numbered paragraphs running in order, a prayer for relief, a signature block, exhibit references that resolve, no placeholder left in the text.",
+          "kind": "deterministic",
+          "category": "form",
+          "categoryLabel": "Form of the filing",
+          "categoryDescription": "Whether the paper meets this court's rules and the conventions of practice.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "draft_validation",
+          "label": "Draft-mode validation",
+          "description": "The same checks Draft mode runs: unresolved template data and placeholders, draft structure, rendered Word consistency, citation linting, source support, and filing-package consistency.",
+          "kind": "deterministic",
+          "category": "form",
+          "categoryLabel": "Form of the filing",
+          "categoryDescription": "Whether the paper meets this court's rules and the conventions of practice.",
+          "defaultEnabled": false,
+          "requires": [
+            "native_draft"
+          ],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "grammar",
+          "label": "Grammar and mechanics",
+          "description": "Doubled words, missing sentence spacing, unbalanced quotes and parentheses.",
+          "kind": "deterministic",
+          "category": "language",
+          "categoryLabel": "Language",
+          "categoryDescription": "Sentence-level mechanics, reported as nudges rather than as defects in the argument.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "confused_words",
+          "label": "Misspelled and easily confused words",
+          "description": "Not a dictionary spell check, on purpose: a general dictionary flags half of every case name. This looks for the words legal writing actually gets wrong, and for real words used in place of other real words.",
+          "kind": "deterministic",
+          "category": "language",
+          "categoryLabel": "Language",
+          "categoryDescription": "Sentence-level mechanics, reported as nudges rather than as defects in the argument.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "passive_voice",
+          "label": "Passive voice",
+          "description": "Reported as a nudge, never an error. Phrases a court expects to read are on an accepted list you can add to for this session.",
+          "kind": "deterministic",
+          "category": "language",
+          "categoryLabel": "Language",
+          "categoryDescription": "Sentence-level mechanics, reported as nudges rather than as defects in the argument.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "acceptedPassivePhrases: phrases this court expects, which the check stays quiet about.",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "readability",
+          "label": "Readability",
+          "description": "Sentence length and reading-level measures, reported as several formulas rather than one score.",
+          "kind": "deterministic",
+          "category": "language",
+          "categoryLabel": "Language",
+          "categoryDescription": "Sentence-level mechanics, reported as nudges rather than as defects in the argument.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        }
+      ],
+      "check_results": {
+        "rule_elements": {
+          "findings": [],
+          "tests": [
+            {
+              "checkId": "rule_elements",
+              "issueCode": "required_element_carried",
+              "targetId": "vawa-eviction-protection:covered_housing",
+              "unitId": "u1",
+              "disposition": "pass",
+              "claim": "Identify the covered program; 24 C.F.R. \u00a7 5.2003 includes Section 8 tenant-based assistance such as the Housing Choice Voucher program.",
+              "problem": "The brief identifies Wilson's Housing Choice Voucher as Section 8 tenant-based assistance and expressly alleges that it is a covered housing program. The voucher record corroborates that Wilson is the tenant and Jennings is the landlord.",
+              "briefEvidence": [
+                "u1"
+              ],
+              "externalEvidence": [
+                "https://www.ecfr.gov/current/title-24/section-5.2005"
+              ],
+              "reason": "Opponent carried its burden by expressly alleging that the Housing Choice Voucher program is a covered housing program under 24 C.F.R. \u00a7 5.2003, and the voucher record corroborates Wilson's status as the tenant and Jennings as the landlord.",
+              "confidence": "high",
+              "userVisible": true
+            },
+            {
+              "checkId": "rule_elements",
+              "issueCode": "required_element_not_established",
+              "targetId": "vawa-eviction-protection:protected_status",
+              "unitId": "u1",
+              "disposition": "review",
+              "claim": "Allege the applicable domestic violence dating violence sexual assault or stalking status.",
+              "problem": "The brief expressly alleges that Wilson is a victim of domestic violence. The police report corroborates that she was assaulted, but the supplied excerpt does not establish facts showing the assault qualifies as domestic violence rather than another protected category.",
+              "briefEvidence": [
+                "u1"
+              ],
+              "externalEvidence": [
+                "https://www.ecfr.gov/current/title-24/section-5.2005"
+              ],
+              "reason": "The brief alleges Wilson is a victim of domestic violence, but the supplied police report excerpt does not establish facts showing the assault qualifies as domestic violence rather than another protected category. The evidence does not definitively establish the required element.",
+              "confidence": "medium",
+              "userVisible": false
+            },
+            {
+              "checkId": "rule_elements",
+              "issueCode": "required_element_carried",
+              "targetId": "vawa-eviction-protection:direct_result",
+              "unitId": "u1",
+              "disposition": "pass",
+              "claim": "Plead the causal connection between the adverse ground and protected violence.",
+              "problem": "The brief pleads that the alleged eviction damage directly resulted from domestic violence against Wilson. The police report supports the claimed causal connection by stating that the perpetrator damaged the door during the assault.",
+              "briefEvidence": [
+                "u1"
+              ],
+              "externalEvidence": [
+                "https://www.ecfr.gov/current/title-24/section-5.2005"
+              ],
+              "reason": "Opponent carried its burden by pleading that the alleged eviction damage directly resulted from domestic violence against Wilson, and the police report supports the causal connection by stating the perpetrator damaged the door during the assault.",
+              "confidence": "high",
+              "userVisible": true
+            },
+            {
+              "checkId": "rule_elements",
+              "issueCode": "required_element_carried",
+              "targetId": "vawa-eviction-protection:requested_documentation",
+              "unitId": "u1",
+              "disposition": "pass",
+              "claim": "Address request date deadline extensions and a permitted form of documentation.",
+              "problem": "This requirement applies only upon a permissible written documentation request. The brief states that no documentation was requested, and the docket certification corroborates that no such request appears in the record.",
+              "briefEvidence": [
+                "u1"
+              ],
+              "externalEvidence": [
+                "https://www.ecfr.gov/current/title-24/section-5.2005"
+              ],
+              "reason": "Opponent carried its burden by stating no documentation was requested, and the docket certification corroborates that no such request appears in the record. The requirement does not apply under these circumstances.",
+              "confidence": "high",
+              "userVisible": true
+            },
+            {
+              "checkId": "rule_elements",
+              "issueCode": "required_element_carried",
+              "targetId": "vawa-eviction-protection:exception_addressed",
+              "unitId": "u1",
+              "disposition": "pass",
+              "claim": "Address bifurcation actual-and-imminent-threat or other applicable statutory exception.",
+              "problem": "This requirement applies only if Jennings relies on a VAWA exception. The brief states that Jennings has not asserted an exception, and the docket certification supports that assertion.",
+              "briefEvidence": [
+                "u1"
+              ],
+              "externalEvidence": [
+                "https://www.ecfr.gov/current/title-24/section-5.2005"
+              ],
+              "reason": "Opponent carried its burden by stating Jennings has not asserted a VAWA exception, and the docket certification supports this assertion. The requirement does not apply under these circumstances.",
+              "confidence": "high",
+              "userVisible": true
+            }
+          ],
+          "summary": "0 must fix, 0 review, 4 passed, 1 could not be verified"
+        }
+      },
+      "correctness_tests": [
+        {
+          "checkId": "rule_elements",
+          "issueCode": "required_element_carried",
+          "targetId": "vawa-eviction-protection:covered_housing",
+          "unitId": "u1",
+          "disposition": "pass",
+          "claim": "Identify the covered program; 24 C.F.R. \u00a7 5.2003 includes Section 8 tenant-based assistance such as the Housing Choice Voucher program.",
+          "problem": "The brief identifies Wilson's Housing Choice Voucher as Section 8 tenant-based assistance and expressly alleges that it is a covered housing program. The voucher record corroborates that Wilson is the tenant and Jennings is the landlord.",
+          "briefEvidence": [
+            "u1"
+          ],
+          "externalEvidence": [
+            "https://www.ecfr.gov/current/title-24/section-5.2005"
+          ],
+          "reason": "Opponent carried its burden by expressly alleging that the Housing Choice Voucher program is a covered housing program under 24 C.F.R. \u00a7 5.2003, and the voucher record corroborates Wilson's status as the tenant and Jennings as the landlord.",
+          "confidence": "high",
+          "userVisible": true
+        },
+        {
+          "checkId": "rule_elements",
+          "issueCode": "required_element_not_established",
+          "targetId": "vawa-eviction-protection:protected_status",
+          "unitId": "u1",
+          "disposition": "review",
+          "claim": "Allege the applicable domestic violence dating violence sexual assault or stalking status.",
+          "problem": "The brief expressly alleges that Wilson is a victim of domestic violence. The police report corroborates that she was assaulted, but the supplied excerpt does not establish facts showing the assault qualifies as domestic violence rather than another protected category.",
+          "briefEvidence": [
+            "u1"
+          ],
+          "externalEvidence": [
+            "https://www.ecfr.gov/current/title-24/section-5.2005"
+          ],
+          "reason": "The brief alleges Wilson is a victim of domestic violence, but the supplied police report excerpt does not establish facts showing the assault qualifies as domestic violence rather than another protected category. The evidence does not definitively establish the required element.",
+          "confidence": "medium",
+          "userVisible": false
+        },
+        {
+          "checkId": "rule_elements",
+          "issueCode": "required_element_carried",
+          "targetId": "vawa-eviction-protection:direct_result",
+          "unitId": "u1",
+          "disposition": "pass",
+          "claim": "Plead the causal connection between the adverse ground and protected violence.",
+          "problem": "The brief pleads that the alleged eviction damage directly resulted from domestic violence against Wilson. The police report supports the claimed causal connection by stating that the perpetrator damaged the door during the assault.",
+          "briefEvidence": [
+            "u1"
+          ],
+          "externalEvidence": [
+            "https://www.ecfr.gov/current/title-24/section-5.2005"
+          ],
+          "reason": "Opponent carried its burden by pleading that the alleged eviction damage directly resulted from domestic violence against Wilson, and the police report supports the causal connection by stating the perpetrator damaged the door during the assault.",
+          "confidence": "high",
+          "userVisible": true
+        },
+        {
+          "checkId": "rule_elements",
+          "issueCode": "required_element_carried",
+          "targetId": "vawa-eviction-protection:requested_documentation",
+          "unitId": "u1",
+          "disposition": "pass",
+          "claim": "Address request date deadline extensions and a permitted form of documentation.",
+          "problem": "This requirement applies only upon a permissible written documentation request. The brief states that no documentation was requested, and the docket certification corroborates that no such request appears in the record.",
+          "briefEvidence": [
+            "u1"
+          ],
+          "externalEvidence": [
+            "https://www.ecfr.gov/current/title-24/section-5.2005"
+          ],
+          "reason": "Opponent carried its burden by stating no documentation was requested, and the docket certification corroborates that no such request appears in the record. The requirement does not apply under these circumstances.",
+          "confidence": "high",
+          "userVisible": true
+        },
+        {
+          "checkId": "rule_elements",
+          "issueCode": "required_element_carried",
+          "targetId": "vawa-eviction-protection:exception_addressed",
+          "unitId": "u1",
+          "disposition": "pass",
+          "claim": "Address bifurcation actual-and-imminent-threat or other applicable statutory exception.",
+          "problem": "This requirement applies only if Jennings relies on a VAWA exception. The brief states that Jennings has not asserted an exception, and the docket certification supports that assertion.",
+          "briefEvidence": [
+            "u1"
+          ],
+          "externalEvidence": [
+            "https://www.ecfr.gov/current/title-24/section-5.2005"
+          ],
+          "reason": "Opponent carried its burden by stating Jennings has not asserted a VAWA exception, and the docket certification supports this assertion. The requirement does not apply under these circumstances.",
+          "confidence": "high",
+          "userVisible": true
+        }
+      ],
+      "rule_audit": [
+        {
+          "slug": "vawa-eviction-protection",
+          "name": "VAWA eviction protection",
+          "citation": "34 U.S.C. \u00a7 12491; 24 C.F.R. \u00a7 5.2005",
+          "label": "VAWA eviction protection (34 U.S.C. \u00a7 12491; 24 C.F.R. \u00a7 5.2005)",
+          "summary": "In a covered housing program, including Section 8 tenant-based assistance such as the Housing Choice Voucher program, victim status or an incident directly resulting from domestic violence, dating violence, sexual assault, or stalking cannot itself be a basis for covered adverse action, subject to statutory exceptions.",
+          "verification": "verified",
+          "source": "34 U.S.C. \u00a7 12491; 24 C.F.R. \u00a7\u00a7 5.2003, 5.2005, 5.2007; Iskin (6th ed. 2022), \u00a7 III (VAWA)",
+          "sourceUrl": "https://www.ecfr.gov/current/title-24/section-5.2005",
+          "invokedBy": "citation",
+          "matched": "34 U.S.C. \u00a7 12491",
+          "excerpt": "stance. Jennings Property Management manages the rental property. Argument The damage alleged in the eviction directly resulted from the domestic violence against Wilson. Wilson is protected under 34 U.S.C. \u00a7 12491 and 24 C.F.R. \u00a7 5.2005. The Housing Choice Voucher program is a covered housing program under 24 C.F.R. \u00a7 5.2003. Wilson is a victim of domestic violence. No documentation was requested, and Jennings Property Management has not asserted a VAWA exception. Conclusion The court shoul",
+          "audited": true,
+          "briefCoverage": {
+            "reviewedChars": 807,
+            "totalChars": 807,
+            "truncated": false
+          },
+          "requiresApplicabilityReview": false,
+          "elements": [
+            {
+              "id": "covered_housing",
+              "label": "Housing program is covered by VAWA",
+              "requirement": "Identify the covered program; 24 C.F.R. \u00a7 5.2003 includes Section 8 tenant-based assistance such as the Housing Choice Voucher program.",
+              "severity": "error",
+              "needsRecordSupport": true,
+              "requiredWhen": "",
+              "patterns": [
+                "covered housing",
+                "public housing",
+                "Section 8",
+                "Housing Choice Voucher",
+                "LIHTC"
+              ],
+              "note": "",
+              "origin": "profile",
+              "pled": "yes",
+              "applicability": "applicable",
+              "supported": "yes",
+              "explanation": "The brief identifies Wilson's Housing Choice Voucher as Section 8 tenant-based assistance and expressly alleges that it is a covered housing program. The voucher record corroborates that Wilson is the tenant and Jennings is the landlord.",
+              "quote": "Jessica Wilson holds a Housing Choice Voucher issued under Section 8 tenant-based assistance. ... The Housing Choice Voucher program is a covered housing program under 24 C.F.R. \u00a7 5.2003.",
+              "materialIds": [
+                "upload:35"
+              ],
+              "unmet": false
+            },
+            {
+              "id": "protected_status",
+              "label": "Tenant or affiliated individual has protected victim status",
+              "requirement": "Allege the applicable domestic violence dating violence sexual assault or stalking status.",
+              "severity": "error",
+              "needsRecordSupport": true,
+              "requiredWhen": "",
+              "patterns": [
+                "victim.{0,30}(domestic violence|dating violence|sexual assault|stalking)"
+              ],
+              "note": "",
+              "origin": "profile",
+              "pled": "yes",
+              "applicability": "applicable",
+              "supported": "partial",
+              "explanation": "The brief expressly alleges that Wilson is a victim of domestic violence. The police report corroborates that she was assaulted, but the supplied excerpt does not establish facts showing the assault qualifies as domestic violence rather than another protected category.",
+              "quote": "Wilson is a victim of domestic violence.",
+              "materialIds": [
+                "upload:35"
+              ],
+              "unmet": true
+            },
+            {
+              "id": "direct_result",
+              "label": "Challenged ground directly results from protected violence",
+              "requirement": "Plead the causal connection between the adverse ground and protected violence.",
+              "severity": "error",
+              "needsRecordSupport": true,
+              "requiredWhen": "",
+              "patterns": [
+                "direct result",
+                "because of.{0,30}(violence|stalking|assault)"
+              ],
+              "note": "",
+              "origin": "profile",
+              "pled": "yes",
+              "applicability": "applicable",
+              "supported": "yes",
+              "explanation": "The brief pleads that the alleged eviction damage directly resulted from domestic violence against Wilson. The police report supports the claimed causal connection by stating that the perpetrator damaged the door during the assault.",
+              "quote": "The damage alleged in the eviction directly resulted from the domestic violence against Wilson.",
+              "materialIds": [
+                "upload:35"
+              ],
+              "unmet": false
+            },
+            {
+              "id": "requested_documentation",
+              "label": "Tenant timely supplied permissible documentation or adequately explained nonproduction",
+              "requirement": "Address request date deadline extensions and a permitted form of documentation.",
+              "severity": "error",
+              "needsRecordSupport": true,
+              "requiredWhen": "Only if the housing provider made a permissible written request for documentation under 24 C.F.R. \u00a7 5.2007.",
+              "patterns": [
+                "HUD[- ]5382",
+                "certif",
+                "documentation"
+              ],
+              "note": "",
+              "origin": "profile",
+              "pled": "yes",
+              "applicability": "not_applicable",
+              "supported": "yes",
+              "explanation": "This requirement applies only upon a permissible written documentation request. The brief states that no documentation was requested, and the docket certification corroborates that no such request appears in the record.",
+              "quote": "No documentation was requested",
+              "materialIds": [
+                "upload:35"
+              ],
+              "unmet": false
+            },
+            {
+              "id": "exception_addressed",
+              "label": "Any asserted VAWA exception is addressed",
+              "requirement": "Address bifurcation actual-and-imminent-threat or other applicable statutory exception.",
+              "severity": "error",
+              "needsRecordSupport": true,
+              "requiredWhen": "Only if the provider relies on a VAWA statutory or regulatory exception.",
+              "patterns": [
+                "actual and imminent threat",
+                "bifurcat"
+              ],
+              "note": "",
+              "origin": "profile",
+              "pled": "yes",
+              "applicability": "not_applicable",
+              "supported": "yes",
+              "explanation": "This requirement applies only if Jennings relies on a VAWA exception. The brief states that Jennings has not asserted an exception, and the docket certification supports that assertion.",
+              "quote": "Jennings Property Management has not asserted a VAWA exception.",
+              "materialIds": [
+                "upload:35"
+              ],
+              "unmet": false
+            }
+          ],
+          "unmetCount": 1,
+          "verdict": "1 of 5 elements need review; unavailable evidence or unrecognized wording does not establish a defect."
+        }
+      ],
+      "compliance": {
+        "checked": false,
+        "reason": "You turned this check off for this session.",
+        "findings": [],
+        "detection": {
+          "mode": "auto",
+          "reason": "No maintained court profile matched this document's caption or the case record.",
+          "matched": "",
+          "where": "",
+          "courtSlug": ""
+        }
+      },
+      "challenges": [],
+      "challenge_count": 0,
+      "opponent_calls": [],
+      "judge_calls": [],
+      "verdict": "correctness review completed",
+      "assessment": "Correctness review completed. 0 must-fix findings; 0 items need attorney review. Rule elements: 4 passed, 1 could not be verified",
+      "stage_trace": [
+        {
+          "stage": "document_checks",
+          "method": "deterministic",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "materials",
+          "method": "all",
+          "count": 1,
+          "budgetChars": 150000,
+          "perMaterialChars": 150000,
+          "truncated": [],
+          "trace": []
+        },
+        {
+          "stage": "argument_map",
+          "method": "skipped",
+          "count": 0,
+          "trace": [
+            "No selected check requires a generative argument map."
+          ]
+        },
+        {
+          "stage": "persuasion",
+          "method": "off",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "record_targets",
+          "method": "off",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "opponent:record_support",
+          "method": "off",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "authority_research",
+          "method": "source_specific",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "research_queries",
+          "method": "off",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "research",
+          "method": "retrieval",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "opponent",
+          "method": "off",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "opponent:authority_support",
+          "method": "off",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "rule_elements",
+          "method": "llm",
+          "count": 1,
+          "trace": [
+            {
+              "stage": "rule_elements:vawa-eviction-protection",
+              "method": "llm",
+              "count": 5,
+              "trace": [
+                {
+                  "attempt": 1,
+                  "plan": {
+                    "method": "llm",
+                    "llmAttempt": 1
+                  },
+                  "success": true,
+                  "code": "rule_elements:vawa-eviction-protection_complete",
+                  "message": "rule_elements:vawa-eviction-protection produced 5 item(s)."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "stage": "judge",
+          "method": "off",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "judge:rule_elements",
+          "method": "llm",
+          "count": 5,
+          "trace": [
+            {
+              "attempt": 1,
+              "plan": {
+                "method": "llm",
+                "llmAttempt": 1
+              },
+              "success": true,
+              "code": "judge:rule_elements_complete",
+              "message": "judge:rule_elements produced 5 item(s)."
+            }
+          ],
+          "checkId": "rule_elements",
+          "batch": 1,
+          "batches": 1,
+          "candidateIds": [
+            "rule_elements:vawa-eviction-protection:covered_housing",
+            "rule_elements:vawa-eviction-protection:direct_result",
+            "rule_elements:vawa-eviction-protection:exception_addressed",
+            "rule_elements:vawa-eviction-protection:protected_status",
+            "rule_elements:vawa-eviction-protection:requested_documentation"
+          ],
+          "unavailable": false
+        },
+        {
+          "stage": "coach",
+          "method": "skipped",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "assessment",
+          "method": "deterministic",
+          "count": 1,
+          "trace": []
+        }
+      ],
+      "research_trace": [],
+      "model_calls": [
+        {
+          "prompt_key": "argument_gym.rule_elements",
+          "role": "base",
+          "model": "gpt-5.6-terra",
+          "settings": {
+            "temperature": 0,
+            "model": "gpt-5.6-terra",
+            "reasoning_level": "medium"
+          },
+          "status": "complete",
+          "elapsed_seconds": 7.621
+        },
+        {
+          "prompt_key": "argument_gym.correctness_judge",
+          "role": "judge",
+          "model": "mistral-large-3",
+          "settings": {
+            "temperature": 0,
+            "model": "mistral-large-3",
+            "reasoning_level": "medium"
+          },
+          "status": "complete",
+          "elapsed_seconds": 6.915
+        }
+      ],
+      "attacks_given_to_judge": 0
+    },
+    {
+      "fixture_id": "R007",
+      "condition": "mutant",
+      "case_family_id": "synthetic-rule-review-r007",
+      "stratum": "synthetic_rule_elements_attorney_review",
+      "run_id": 35,
+      "run_at": "2026-09-14T02:21:53.070571+00:00",
+      "status": "complete",
+      "pipeline_status": "complete",
+      "degraded": null,
+      "error": "",
+      "brief_sha256": "a5014172cee2f76d056f509a6158edc460b53bfe9d2a0a17f86ad49c7165f23a",
+      "brief_chars": 710,
+      "record_documents": 1,
+      "attack_model": "gpt-5.6-terra",
+      "judge_model": "mistral-large-3",
+      "base_model": "gpt-5.6-terra",
+      "same_family": false,
+      "reasoning": "medium",
+      "unit_budget_chars": 260000,
+      "units": 12,
+      "court": {
+        "mode": "auto",
+        "reason": "No maintained court profile matched this document's caption or the case record.",
+        "matched": "",
+        "where": "",
+        "courtSlug": ""
+      },
+      "deterministic_findings": {
+        "rule_elements": 1
+      },
+      "checks_run": [
+        {
+          "id": "record_support",
+          "label": "Test material facts against the record",
+          "description": "Opponent tests only atomic, record-verifiable, material claims; Judge sustains a defect only when the supplied evidence and record coverage establish it.",
+          "kind": "model",
+          "category": "correctness",
+          "categoryLabel": "Correctness",
+          "categoryDescription": "Is the law right? Is the authority controlling? Are the required elements present, and does the record establish what the brief says it does?",
+          "defaultEnabled": true,
+          "requires": [
+            "case_record"
+          ],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "rule_elements",
+          "label": "Audit the elements of the rules invoked",
+          "description": "Detects the rules the brief cites or invokes by name, then audits each element of those rules: is it pleaded, and is it supported.",
+          "kind": "model",
+          "category": "correctness",
+          "categoryLabel": "Correctness",
+          "categoryDescription": "Is the law right? Is the authority controlling? Are the required elements present, and does the record establish what the brief says it does?",
+          "defaultEnabled": true,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "on",
+          "reason": ""
+        },
+        {
+          "id": "authority_support",
+          "label": "Test cited authority support",
+          "description": "Whether each cited authority supports the material legal proposition for which the brief uses it.",
+          "kind": "model",
+          "category": "correctness",
+          "categoryLabel": "Correctness",
+          "categoryDescription": "Is the law right? Is the authority controlling? Are the required elements present, and does the record establish what the brief says it does?",
+          "defaultEnabled": true,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "adversarial",
+          "label": "Opposing counsel, a judge, and a coach",
+          "description": "The core of the gym: opposing counsel makes the strongest arguments available against the brief, a judge weighs them, and a coach proposes answers.",
+          "kind": "model",
+          "category": "completeness",
+          "categoryLabel": "Argumentative completeness",
+          "categoryDescription": "Does the brief connect its rules to its facts? Does it work the difficult element instead of restating the rule? Does it confront adverse authority and answer the counterargument a court will think of on its own?",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_issue_framing",
+          "label": "Issue framing",
+          "description": "Does the brief identify the real dispute early and frame it around the favorable legal question?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_macro_organization",
+          "label": "Macro-organization",
+          "description": "Are arguments ordered logically and by importance? Can the reader see the roadmap?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_paragraph_organization",
+          "label": "Paragraph-level organization",
+          "description": "Do paragraphs have discernible propositions or topic sentences, and develop one point at a time?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_rule_synthesis",
+          "label": "Rule synthesis",
+          "description": "Does the writer synthesize authorities into a rule rather than serially summarize cases?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_rule_application",
+          "label": "Rule-to-fact application",
+          "description": "Is the reasoning explicit -- \"because X fact satisfies Y element\" -- rather than leaving the inferential step to the court?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_fact_selection",
+          "label": "Fact selection and narrative coherence",
+          "description": "Are legally significant facts foregrounded and organized in a comprehensible chronology or theory?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_use_of_authority",
+          "label": "Use of authority",
+          "description": "Are important propositions backed by strong authorities placed where they actually matter, rather than citation dumping?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_counterarguments",
+          "label": "Handling counterarguments",
+          "description": "Does the brief acknowledge and answer the strongest objection rather than arguing past it?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_concision",
+          "label": "Concision and reader burden",
+          "description": "Does it say the same thing once, in the right place, without unnecessary throat-clearing?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_calibration",
+          "label": "Calibrated confidence and credibility",
+          "description": "Does it distinguish strong propositions from uncertain ones and avoid overclaiming?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_relief_alignment",
+          "label": "Requested-relief alignment",
+          "description": "Does the argument actually lead to the precise thing the brief asks the court to do?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_emphasis",
+          "label": "Emphasis",
+          "description": "Does the document devote its space to the issues that matter rather than treating every point as equally important?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "custom_checklist",
+          "label": "Custom checklist",
+          "description": "Applies review questions you wrote. An item can look things up -- authority, the case record, passages of the brief -- rather than answering from the brief alone. Attach a checklist for this to run.",
+          "kind": "model",
+          "category": "custom",
+          "categoryLabel": "Your own checks",
+          "categoryDescription": "Review questions you wrote, in your words, applied to this brief.",
+          "defaultEnabled": false,
+          "requires": [
+            "checklist"
+          ],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "court_formatting",
+          "label": "This court's filing rules",
+          "description": "Required elements, type size, spacing, margins, and page limits for the selected court.",
+          "kind": "deterministic",
+          "category": "form",
+          "categoryLabel": "Form of the filing",
+          "categoryDescription": "Whether the paper meets this court's rules and the conventions of practice.",
+          "defaultEnabled": false,
+          "requires": [
+            "court_profile"
+          ],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "pleading_form",
+          "label": "Form of the pleading",
+          "description": "Conventions of practice rather than any one court's rules: numbered paragraphs running in order, a prayer for relief, a signature block, exhibit references that resolve, no placeholder left in the text.",
+          "kind": "deterministic",
+          "category": "form",
+          "categoryLabel": "Form of the filing",
+          "categoryDescription": "Whether the paper meets this court's rules and the conventions of practice.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "draft_validation",
+          "label": "Draft-mode validation",
+          "description": "The same checks Draft mode runs: unresolved template data and placeholders, draft structure, rendered Word consistency, citation linting, source support, and filing-package consistency.",
+          "kind": "deterministic",
+          "category": "form",
+          "categoryLabel": "Form of the filing",
+          "categoryDescription": "Whether the paper meets this court's rules and the conventions of practice.",
+          "defaultEnabled": false,
+          "requires": [
+            "native_draft"
+          ],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "grammar",
+          "label": "Grammar and mechanics",
+          "description": "Doubled words, missing sentence spacing, unbalanced quotes and parentheses.",
+          "kind": "deterministic",
+          "category": "language",
+          "categoryLabel": "Language",
+          "categoryDescription": "Sentence-level mechanics, reported as nudges rather than as defects in the argument.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "confused_words",
+          "label": "Misspelled and easily confused words",
+          "description": "Not a dictionary spell check, on purpose: a general dictionary flags half of every case name. This looks for the words legal writing actually gets wrong, and for real words used in place of other real words.",
+          "kind": "deterministic",
+          "category": "language",
+          "categoryLabel": "Language",
+          "categoryDescription": "Sentence-level mechanics, reported as nudges rather than as defects in the argument.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "passive_voice",
+          "label": "Passive voice",
+          "description": "Reported as a nudge, never an error. Phrases a court expects to read are on an accepted list you can add to for this session.",
+          "kind": "deterministic",
+          "category": "language",
+          "categoryLabel": "Language",
+          "categoryDescription": "Sentence-level mechanics, reported as nudges rather than as defects in the argument.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "acceptedPassivePhrases: phrases this court expects, which the check stays quiet about.",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "readability",
+          "label": "Readability",
+          "description": "Sentence length and reading-level measures, reported as several formulas rather than one score.",
+          "kind": "deterministic",
+          "category": "language",
+          "categoryLabel": "Language",
+          "categoryDescription": "Sentence-level mechanics, reported as nudges rather than as defects in the argument.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        }
+      ],
+      "check_results": {
+        "rule_elements": {
+          "findings": [
+            {
+              "ruleCode": "rule_elements.missing_required_element",
+              "severity": "error",
+              "message": "The eviction is described as based on property damage, but the brief does not plead that the damage directly resulted from domestic violence. The police report supplies that causal connection by stating that the perpetrator damaged the door during the assault.",
+              "target": {
+                "unitId": "u1"
+              },
+              "details": {
+                "checkId": "rule_elements",
+                "issueCode": "missing_required_element",
+                "targetId": "vawa-eviction-protection:direct_result",
+                "unitId": "u1",
+                "disposition": "must_fix",
+                "claim": "Plead the causal connection between the adverse ground and protected violence.",
+                "problem": "The eviction is described as based on property damage, but the brief does not plead that the damage directly resulted from domestic violence. The police report supplies that causal connection by stating that the perpetrator damaged the door during the assault.",
+                "briefEvidence": [
+                  "u1"
+                ],
+                "externalEvidence": [
+                  "https://www.ecfr.gov/current/title-24/section-5.2005"
+                ],
+                "reason": "The brief fails to plead the causal connection between the property damage (adverse ground) and the domestic violence, despite the police report stating the perpetrator damaged the door during the assault. This element is missing and must be corrected.",
+                "confidence": "high",
+                "userVisible": true
+              }
+            }
+          ],
+          "tests": [
+            {
+              "checkId": "rule_elements",
+              "issueCode": "required_element_carried",
+              "targetId": "vawa-eviction-protection:covered_housing",
+              "unitId": "u1",
+              "disposition": "pass",
+              "claim": "Identify the covered program; 24 C.F.R. \u00a7 5.2003 includes Section 8 tenant-based assistance such as the Housing Choice Voucher program.",
+              "problem": "The brief identifies Wilson's Housing Choice Voucher and states that the program is covered. The voucher record confirms that Wilson is a tenant associated with Jennings Property Management.",
+              "briefEvidence": [
+                "u1"
+              ],
+              "externalEvidence": [
+                "https://www.ecfr.gov/current/title-24/section-5.2005"
+              ],
+              "reason": "The brief expressly identifies the Housing Choice Voucher program as the covered housing program under 24 C.F.R. \u00a7 5.2003, and the voucher record confirms Wilson's participation in the program. Opponent has carried its burden for this element.",
+              "confidence": "high",
+              "userVisible": true
+            },
+            {
+              "checkId": "rule_elements",
+              "issueCode": "required_element_not_established",
+              "targetId": "vawa-eviction-protection:protected_status",
+              "unitId": "u1",
+              "disposition": "review",
+              "claim": "Allege the applicable domestic violence dating violence sexual assault or stalking status.",
+              "problem": "The brief expressly alleges that Wilson is a victim of domestic violence. The police report supports that Wilson was assaulted, but does not establish the relationship or other facts necessary to classify the assault as domestic violence.",
+              "briefEvidence": [
+                "u1"
+              ],
+              "externalEvidence": [
+                "https://www.ecfr.gov/current/title-24/section-5.2005"
+              ],
+              "reason": "The brief alleges Wilson is a victim of domestic violence, but the police report does not establish the requisite relationship or other facts to classify the assault as domestic violence. The evidence is insufficient to confirm this element.",
+              "confidence": "medium",
+              "userVisible": false
+            },
+            {
+              "checkId": "rule_elements",
+              "issueCode": "missing_required_element",
+              "targetId": "vawa-eviction-protection:direct_result",
+              "unitId": "u1",
+              "disposition": "must_fix",
+              "claim": "Plead the causal connection between the adverse ground and protected violence.",
+              "problem": "The eviction is described as based on property damage, but the brief does not plead that the damage directly resulted from domestic violence. The police report supplies that causal connection by stating that the perpetrator damaged the door during the assault.",
+              "briefEvidence": [
+                "u1"
+              ],
+              "externalEvidence": [
+                "https://www.ecfr.gov/current/title-24/section-5.2005"
+              ],
+              "reason": "The brief fails to plead the causal connection between the property damage (adverse ground) and the domestic violence, despite the police report stating the perpetrator damaged the door during the assault. This element is missing and must be corrected.",
+              "confidence": "high",
+              "userVisible": true
+            },
+            {
+              "checkId": "rule_elements",
+              "issueCode": "required_element_carried",
+              "targetId": "vawa-eviction-protection:requested_documentation",
+              "unitId": "u1",
+              "disposition": "pass",
+              "claim": "Address request date deadline extensions and a permitted form of documentation.",
+              "problem": "This conditional requirement does not apply because the brief states that no documentation was requested, and the docket certification confirms that no documentation request was made.",
+              "briefEvidence": [
+                "u1"
+              ],
+              "externalEvidence": [
+                "https://www.ecfr.gov/current/title-24/section-5.2005"
+              ],
+              "reason": "The brief states no documentation was requested, and the docket certification confirms this. The conditional requirement does not apply, and Opponent has carried its burden.",
+              "confidence": "high",
+              "userVisible": true
+            },
+            {
+              "checkId": "rule_elements",
+              "issueCode": "required_element_carried",
+              "targetId": "vawa-eviction-protection:exception_addressed",
+              "unitId": "u1",
+              "disposition": "pass",
+              "claim": "Address bifurcation actual-and-imminent-threat or other applicable statutory exception.",
+              "problem": "This conditional requirement does not apply because the provider did not assert a VAWA exception. The brief makes that assertion and the docket certification supports it.",
+              "briefEvidence": [
+                "u1"
+              ],
+              "externalEvidence": [
+                "https://www.ecfr.gov/current/title-24/section-5.2005"
+              ],
+              "reason": "The brief asserts Jennings Property Management did not assert a VAWA exception, and the docket certification supports this. The conditional requirement does not apply, and Opponent has carried its burden.",
+              "confidence": "high",
+              "userVisible": true
+            }
+          ],
+          "summary": "1 must fix, 0 review, 3 passed, 1 could not be verified"
+        }
+      },
+      "correctness_tests": [
+        {
+          "checkId": "rule_elements",
+          "issueCode": "required_element_carried",
+          "targetId": "vawa-eviction-protection:covered_housing",
+          "unitId": "u1",
+          "disposition": "pass",
+          "claim": "Identify the covered program; 24 C.F.R. \u00a7 5.2003 includes Section 8 tenant-based assistance such as the Housing Choice Voucher program.",
+          "problem": "The brief identifies Wilson's Housing Choice Voucher and states that the program is covered. The voucher record confirms that Wilson is a tenant associated with Jennings Property Management.",
+          "briefEvidence": [
+            "u1"
+          ],
+          "externalEvidence": [
+            "https://www.ecfr.gov/current/title-24/section-5.2005"
+          ],
+          "reason": "The brief expressly identifies the Housing Choice Voucher program as the covered housing program under 24 C.F.R. \u00a7 5.2003, and the voucher record confirms Wilson's participation in the program. Opponent has carried its burden for this element.",
+          "confidence": "high",
+          "userVisible": true
+        },
+        {
+          "checkId": "rule_elements",
+          "issueCode": "required_element_not_established",
+          "targetId": "vawa-eviction-protection:protected_status",
+          "unitId": "u1",
+          "disposition": "review",
+          "claim": "Allege the applicable domestic violence dating violence sexual assault or stalking status.",
+          "problem": "The brief expressly alleges that Wilson is a victim of domestic violence. The police report supports that Wilson was assaulted, but does not establish the relationship or other facts necessary to classify the assault as domestic violence.",
+          "briefEvidence": [
+            "u1"
+          ],
+          "externalEvidence": [
+            "https://www.ecfr.gov/current/title-24/section-5.2005"
+          ],
+          "reason": "The brief alleges Wilson is a victim of domestic violence, but the police report does not establish the requisite relationship or other facts to classify the assault as domestic violence. The evidence is insufficient to confirm this element.",
+          "confidence": "medium",
+          "userVisible": false
+        },
+        {
+          "checkId": "rule_elements",
+          "issueCode": "missing_required_element",
+          "targetId": "vawa-eviction-protection:direct_result",
+          "unitId": "u1",
+          "disposition": "must_fix",
+          "claim": "Plead the causal connection between the adverse ground and protected violence.",
+          "problem": "The eviction is described as based on property damage, but the brief does not plead that the damage directly resulted from domestic violence. The police report supplies that causal connection by stating that the perpetrator damaged the door during the assault.",
+          "briefEvidence": [
+            "u1"
+          ],
+          "externalEvidence": [
+            "https://www.ecfr.gov/current/title-24/section-5.2005"
+          ],
+          "reason": "The brief fails to plead the causal connection between the property damage (adverse ground) and the domestic violence, despite the police report stating the perpetrator damaged the door during the assault. This element is missing and must be corrected.",
+          "confidence": "high",
+          "userVisible": true
+        },
+        {
+          "checkId": "rule_elements",
+          "issueCode": "required_element_carried",
+          "targetId": "vawa-eviction-protection:requested_documentation",
+          "unitId": "u1",
+          "disposition": "pass",
+          "claim": "Address request date deadline extensions and a permitted form of documentation.",
+          "problem": "This conditional requirement does not apply because the brief states that no documentation was requested, and the docket certification confirms that no documentation request was made.",
+          "briefEvidence": [
+            "u1"
+          ],
+          "externalEvidence": [
+            "https://www.ecfr.gov/current/title-24/section-5.2005"
+          ],
+          "reason": "The brief states no documentation was requested, and the docket certification confirms this. The conditional requirement does not apply, and Opponent has carried its burden.",
+          "confidence": "high",
+          "userVisible": true
+        },
+        {
+          "checkId": "rule_elements",
+          "issueCode": "required_element_carried",
+          "targetId": "vawa-eviction-protection:exception_addressed",
+          "unitId": "u1",
+          "disposition": "pass",
+          "claim": "Address bifurcation actual-and-imminent-threat or other applicable statutory exception.",
+          "problem": "This conditional requirement does not apply because the provider did not assert a VAWA exception. The brief makes that assertion and the docket certification supports it.",
+          "briefEvidence": [
+            "u1"
+          ],
+          "externalEvidence": [
+            "https://www.ecfr.gov/current/title-24/section-5.2005"
+          ],
+          "reason": "The brief asserts Jennings Property Management did not assert a VAWA exception, and the docket certification supports this. The conditional requirement does not apply, and Opponent has carried its burden.",
+          "confidence": "high",
+          "userVisible": true
+        }
+      ],
+      "rule_audit": [
+        {
+          "slug": "vawa-eviction-protection",
+          "name": "VAWA eviction protection",
+          "citation": "34 U.S.C. \u00a7 12491; 24 C.F.R. \u00a7 5.2005",
+          "label": "VAWA eviction protection (34 U.S.C. \u00a7 12491; 24 C.F.R. \u00a7 5.2005)",
+          "summary": "In a covered housing program, including Section 8 tenant-based assistance such as the Housing Choice Voucher program, victim status or an incident directly resulting from domestic violence, dating violence, sexual assault, or stalking cannot itself be a basis for covered adverse action, subject to statutory exceptions.",
+          "verification": "verified",
+          "source": "34 U.S.C. \u00a7 12491; 24 C.F.R. \u00a7\u00a7 5.2003, 5.2005, 5.2007; Iskin (6th ed. 2022), \u00a7 III (VAWA)",
+          "sourceUrl": "https://www.ecfr.gov/current/title-24/section-5.2005",
+          "invokedBy": "citation",
+          "matched": "34 U.S.C. \u00a7 12491",
+          "excerpt": "ty damage. Jessica Wilson holds a Housing Choice Voucher issued under Section 8 tenant-based assistance. Jennings Property Management manages the rental property. Argument Wilson is protected under 34 U.S.C. \u00a7 12491 and 24 C.F.R. \u00a7 5.2005. The Housing Choice Voucher program is a covered housing program under 24 C.F.R. \u00a7 5.2003. Wilson is a victim of domestic violence. No documentation was requested, and Jennings Property Management has not asserted a VAWA exception. Conclusion The court shoul",
+          "audited": true,
+          "briefCoverage": {
+            "reviewedChars": 710,
+            "totalChars": 710,
+            "truncated": false
+          },
+          "requiresApplicabilityReview": false,
+          "elements": [
+            {
+              "id": "covered_housing",
+              "label": "Housing program is covered by VAWA",
+              "requirement": "Identify the covered program; 24 C.F.R. \u00a7 5.2003 includes Section 8 tenant-based assistance such as the Housing Choice Voucher program.",
+              "severity": "error",
+              "needsRecordSupport": true,
+              "requiredWhen": "",
+              "patterns": [
+                "covered housing",
+                "public housing",
+                "Section 8",
+                "Housing Choice Voucher",
+                "LIHTC"
+              ],
+              "note": "",
+              "origin": "profile",
+              "pled": "yes",
+              "applicability": "applicable",
+              "supported": "yes",
+              "explanation": "The brief identifies Wilson's Housing Choice Voucher and states that the program is covered. The voucher record confirms that Wilson is a tenant associated with Jennings Property Management.",
+              "quote": "Jessica Wilson holds a Housing Choice Voucher issued under Section 8 tenant-based assistance. ... The Housing Choice Voucher program is a covered housing program under 24 C.F.R. \u00a7 5.2003.",
+              "materialIds": [
+                "upload:37"
+              ],
+              "unmet": false
+            },
+            {
+              "id": "protected_status",
+              "label": "Tenant or affiliated individual has protected victim status",
+              "requirement": "Allege the applicable domestic violence dating violence sexual assault or stalking status.",
+              "severity": "error",
+              "needsRecordSupport": true,
+              "requiredWhen": "",
+              "patterns": [
+                "victim.{0,30}(domestic violence|dating violence|sexual assault|stalking)"
+              ],
+              "note": "",
+              "origin": "profile",
+              "pled": "yes",
+              "applicability": "applicable",
+              "supported": "partial",
+              "explanation": "The brief expressly alleges that Wilson is a victim of domestic violence. The police report supports that Wilson was assaulted, but does not establish the relationship or other facts necessary to classify the assault as domestic violence.",
+              "quote": "Wilson is a victim of domestic violence.",
+              "materialIds": [
+                "upload:37"
+              ],
+              "unmet": true
+            },
+            {
+              "id": "direct_result",
+              "label": "Challenged ground directly results from protected violence",
+              "requirement": "Plead the causal connection between the adverse ground and protected violence.",
+              "severity": "error",
+              "needsRecordSupport": true,
+              "requiredWhen": "",
+              "patterns": [
+                "direct result",
+                "because of.{0,30}(violence|stalking|assault)"
+              ],
+              "note": "",
+              "origin": "profile",
+              "pled": "no",
+              "applicability": "applicable",
+              "supported": "yes",
+              "explanation": "The eviction is described as based on property damage, but the brief does not plead that the damage directly resulted from domestic violence. The police report supplies that causal connection by stating that the perpetrator damaged the door during the assault.",
+              "quote": "",
+              "materialIds": [
+                "upload:37"
+              ],
+              "unmet": true
+            },
+            {
+              "id": "requested_documentation",
+              "label": "Tenant timely supplied permissible documentation or adequately explained nonproduction",
+              "requirement": "Address request date deadline extensions and a permitted form of documentation.",
+              "severity": "error",
+              "needsRecordSupport": true,
+              "requiredWhen": "Only if the housing provider made a permissible written request for documentation under 24 C.F.R. \u00a7 5.2007.",
+              "patterns": [
+                "HUD[- ]5382",
+                "certif",
+                "documentation"
+              ],
+              "note": "",
+              "origin": "profile",
+              "pled": "yes",
+              "applicability": "not_applicable",
+              "supported": "yes",
+              "explanation": "This conditional requirement does not apply because the brief states that no documentation was requested, and the docket certification confirms that no documentation request was made.",
+              "quote": "No documentation was requested.",
+              "materialIds": [
+                "upload:37"
+              ],
+              "unmet": false
+            },
+            {
+              "id": "exception_addressed",
+              "label": "Any asserted VAWA exception is addressed",
+              "requirement": "Address bifurcation actual-and-imminent-threat or other applicable statutory exception.",
+              "severity": "error",
+              "needsRecordSupport": true,
+              "requiredWhen": "Only if the provider relies on a VAWA statutory or regulatory exception.",
+              "patterns": [
+                "actual and imminent threat",
+                "bifurcat"
+              ],
+              "note": "",
+              "origin": "profile",
+              "pled": "yes",
+              "applicability": "not_applicable",
+              "supported": "yes",
+              "explanation": "This conditional requirement does not apply because the provider did not assert a VAWA exception. The brief makes that assertion and the docket certification supports it.",
+              "quote": "Jennings Property Management has not asserted a VAWA exception.",
+              "materialIds": [
+                "upload:37"
+              ],
+              "unmet": false
+            }
+          ],
+          "unmetCount": 2,
+          "verdict": "2 of 5 elements need review; unavailable evidence or unrecognized wording does not establish a defect."
+        }
+      ],
+      "compliance": {
+        "checked": false,
+        "reason": "You turned this check off for this session.",
+        "findings": [],
+        "detection": {
+          "mode": "auto",
+          "reason": "No maintained court profile matched this document's caption or the case record.",
+          "matched": "",
+          "where": "",
+          "courtSlug": ""
+        }
+      },
+      "challenges": [
+        {
+          "ordinal": 1,
+          "category": "missing_element",
+          "severity": "high",
+          "confidence": "high",
+          "opponent_argument": "The eviction is described as based on property damage, but the brief does not plead that the damage directly resulted from domestic violence. The police report supplies that causal connection by stating that the perpetrator damaged the door during the assault.",
+          "why_it_matters": "The brief fails to plead the causal connection between the property damage (adverse ground) and the domestic violence, despite the police report stating the perpetrator damaged the door during the assault. This element is missing and must be corrected.",
+          "target": {
+            "unitId": "u1",
+            "section": "",
+            "paragraph": 1,
+            "page": null,
+            "excerpt": "Jennings Property Management v. Jessica Wilson\nCuyahoga County Common Pleas Court",
+            "blockKey": ""
+          },
+          "legal_sources": [],
+          "record_sources": [
+            {
+              "materialId": "upload:37",
+              "title": "record-01",
+              "status": "",
+              "quote": "ty damage. Jessica Wilson holds a Housing Choice Voucher issued under Section 8 tenant-based assistance. Jennings Property Management manages the rental property. Argument Wilson is protected under 34 U.S.C. \u00a7 12491 and 24 C.F.R. \u00a7 5.2005. The Housing Choice Voucher program is a covered housing program under 24 C.F.R. \u00a7 5.2003. Wilson is a victim of domestic violence. No documentation was requested, and Jennings Property Management has not asserted a VAWA exception. Conclusion The court shoul"
+            }
+          ],
+          "judge_assessment": "The brief fails to plead the causal connection between the property damage (adverse ground) and the domestic violence, despite the police report stating the perpetrator damaged the door during the assault. This element is missing and must be corrected.",
+          "judge_verdict": "sustained",
+          "suggested_response": "The alleged property damage directly resulted from domestic violence against Wilson. As reflected in the police report, the perpetrator damaged the door during the assault on Wilson.",
+          "coaching_recommendation": "Add a factual allegation tying the asserted property damage to the domestic-violence incident. The record identifies the police report as showing that the perpetrator damaged the door during the assault.",
+          "disposition": "open"
+        }
+      ],
+      "challenge_count": 1,
+      "opponent_calls": [],
+      "judge_calls": [],
+      "verdict": "correctness review completed",
+      "assessment": "Correctness review completed. 1 must-fix finding; 0 items need attorney review. Rule elements: 1 failure, 0 review",
+      "stage_trace": [
+        {
+          "stage": "document_checks",
+          "method": "deterministic",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "materials",
+          "method": "all",
+          "count": 1,
+          "budgetChars": 150000,
+          "perMaterialChars": 150000,
+          "truncated": [],
+          "trace": []
+        },
+        {
+          "stage": "argument_map",
+          "method": "skipped",
+          "count": 0,
+          "trace": [
+            "No selected check requires a generative argument map."
+          ]
+        },
+        {
+          "stage": "persuasion",
+          "method": "off",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "record_targets",
+          "method": "off",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "opponent:record_support",
+          "method": "off",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "authority_research",
+          "method": "source_specific",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "research_queries",
+          "method": "off",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "research",
+          "method": "retrieval",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "opponent",
+          "method": "off",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "opponent:authority_support",
+          "method": "off",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "rule_elements",
+          "method": "llm",
+          "count": 1,
+          "trace": [
+            {
+              "stage": "rule_elements:vawa-eviction-protection",
+              "method": "llm",
+              "count": 5,
+              "trace": [
+                {
+                  "attempt": 1,
+                  "plan": {
+                    "method": "llm",
+                    "llmAttempt": 1
+                  },
+                  "success": true,
+                  "code": "rule_elements:vawa-eviction-protection_complete",
+                  "message": "rule_elements:vawa-eviction-protection produced 5 item(s)."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "stage": "judge",
+          "method": "off",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "judge:rule_elements",
+          "method": "llm",
+          "count": 5,
+          "trace": [
+            {
+              "attempt": 1,
+              "plan": {
+                "method": "llm",
+                "llmAttempt": 1
+              },
+              "success": true,
+              "code": "judge:rule_elements_complete",
+              "message": "judge:rule_elements produced 5 item(s)."
+            }
+          ],
+          "checkId": "rule_elements",
+          "batch": 1,
+          "batches": 1,
+          "candidateIds": [
+            "rule_elements:vawa-eviction-protection:covered_housing",
+            "rule_elements:vawa-eviction-protection:direct_result",
+            "rule_elements:vawa-eviction-protection:exception_addressed",
+            "rule_elements:vawa-eviction-protection:protected_status",
+            "rule_elements:vawa-eviction-protection:requested_documentation"
+          ],
+          "unavailable": false
+        },
+        {
+          "stage": "coach",
+          "method": "llm",
+          "count": 1,
+          "trace": [
+            {
+              "attempt": 1,
+              "plan": {
+                "method": "llm",
+                "llmAttempt": 1
+              },
+              "success": true,
+              "code": "coach_complete",
+              "message": "coach produced 1 item(s)."
+            }
+          ]
+        },
+        {
+          "stage": "assessment",
+          "method": "deterministic",
+          "count": 1,
+          "trace": []
+        }
+      ],
+      "research_trace": [],
+      "model_calls": [
+        {
+          "prompt_key": "argument_gym.rule_elements",
+          "role": "base",
+          "model": "gpt-5.6-terra",
+          "settings": {
+            "temperature": 0,
+            "model": "gpt-5.6-terra",
+            "reasoning_level": "medium"
+          },
+          "status": "complete",
+          "elapsed_seconds": 10.027
+        },
+        {
+          "prompt_key": "argument_gym.correctness_judge",
+          "role": "judge",
+          "model": "mistral-large-3",
+          "settings": {
+            "temperature": 0,
+            "model": "mistral-large-3",
+            "reasoning_level": "medium"
+          },
+          "status": "complete",
+          "elapsed_seconds": 3.075
+        },
+        {
+          "prompt_key": "argument_gym.coach",
+          "role": "base",
+          "model": "gpt-5.6-terra",
+          "settings": {
+            "temperature": 0,
+            "model": "gpt-5.6-terra",
+            "reasoning_level": "medium"
+          },
+          "status": "complete",
+          "elapsed_seconds": 3.883
+        }
+      ],
+      "attacks_given_to_judge": 0
+    }
+  ],
+  "public_export": {
+    "removed_fields": [
+      "retrieval"
+    ],
+    "why": "verbatim excerpts of third-party legal corpora retrieved by the research stage; not ours to redistribute and not evidence for any reported figure",
+    "full_record": "report.json, kept locally alongside this file"
+  }
+}

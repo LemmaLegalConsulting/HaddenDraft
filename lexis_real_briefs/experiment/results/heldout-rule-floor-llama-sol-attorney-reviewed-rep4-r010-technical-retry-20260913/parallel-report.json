@@ -1,0 +1,45 @@
+{
+  "created_at": "2026-09-14T02:27:33.477867+00:00",
+  "workers": 1,
+  "courtlistener": "disabled_in_parallel_children",
+  "fixtures": [
+    "R010"
+  ],
+  "shards": [
+    {
+      "fixture_id": "R010",
+      "returncode": 0,
+      "started_at": "2026-09-14T02:27:04.325330+00:00",
+      "ended_at": "2026-09-14T02:27:33.477603+00:00",
+      "elapsed_seconds": 29.152273,
+      "output_dir": "/home/quinten/agentic_housing_drafting/lexis_real_briefs/experiment/results/heldout-rule-floor-llama-sol-attorney-reviewed-rep4-r010-technical-retry-20260913/shards/R010",
+      "log": "/home/quinten/agentic_housing_drafting/lexis_real_briefs/experiment/results/heldout-rule-floor-llama-sol-attorney-reviewed-rep4-r010-technical-retry-20260913/shards/R010.log",
+      "command": [
+        "/home/quinten/agentic_housing_drafting/.venv/bin/python",
+        "/home/quinten/agentic_housing_drafting/lexis_real_briefs/experiment/tools/run_experiment.py",
+        "--output-dir",
+        "/home/quinten/agentic_housing_drafting/lexis_real_briefs/experiment/results/heldout-rule-floor-llama-sol-attorney-reviewed-rep4-r010-technical-retry-20260913/shards/R010",
+        "--fixtures-dir",
+        "/home/quinten/agentic_housing_drafting/lexis_real_briefs/experiment/fixtures-rule-floor-attorney-reviewed-20260913",
+        "--fixture",
+        "R010",
+        "--model",
+        "gpt-5.4-mini",
+        "--reasoning",
+        "medium",
+        "--live",
+        "--attack-model",
+        "gpt-5.6-terra",
+        "--judge-model",
+        "mistral-large-3",
+        "--base-model",
+        "gpt-5.6-terra",
+        "--cell",
+        "terra-mistral",
+        "--check",
+        "rule_elements"
+      ],
+      "courtlistener_max_citations": 0
+    }
+  ]
+}

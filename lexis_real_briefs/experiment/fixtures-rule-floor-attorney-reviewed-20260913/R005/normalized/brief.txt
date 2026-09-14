@@ -1,0 +1,18 @@
+JANE DOE vs JOHN SMITH
+C.P.C. NO. 2023 CV 01234
+MEMORANDUM IN SUPPORT OF DISMISSAL
+
+Statement of Facts
+Jane Doe, the landlord, filed an eviction action against John Smith, the tenant. The tenant had previously filed a complaint with a code-enforcement agency regarding the rental property. The landlord acknowledged receipt of the complaint and subsequently filed the eviction action.
+
+Argument
+R.C. 5321.02 prohibits a landlord from taking retaliatory action against a tenant who has engaged in protected activity. To establish this defense, the tenant must show protected activity, landlord knowledge, a prohibited act, and a causal connection between the protected activity and the prohibited act.
+The tenant engaged in protected activity by filing a complaint with a code-enforcement agency. The landlord gained knowledge of this complaint.
+The landlord committed a prohibited act by filing an eviction action.
+
+The causal connection between the protected activity and the prohibited act is established because the tenant complained to a code-enforcement agency on January 10, 2023, the landlord acknowledged it on January 15, messaged 'You will regret involving the city' on January 18, and filed the eviction on February 20, 2023, showing a clear link because the tenant complained.
+
+The landlord did not assert a statutory exception under R.C. 5321.03 or division 5321.02(C).
+
+Conclusion
+The court should grant relief to the tenant.

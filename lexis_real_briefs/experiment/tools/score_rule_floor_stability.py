@@ -9,7 +9,23 @@ from pathlib import Path
 
 
 def result_path(run: Path, fixture_id: str, condition: str) -> Path:
-    return run / "shards" / fixture_id / f"{fixture_id}-{condition}" / "result.json"
+    private = run / "shards" / fixture_id / f"{fixture_id}-{condition}" / "result.json"
+    if private.is_file():
+        return private
+    return run / "shards" / fixture_id / "report.public.json"
+
+
+def load_result(path: Path, condition: str) -> dict:
+    payload = json.loads(path.read_text())
+    if "results" not in payload:
+        return payload
+    matches = [
+        result for result in payload["results"]
+        if result.get("condition") == condition
+    ]
+    if len(matches) != 1:
+        raise ValueError(f"Expected one {condition} result in {path}; found {len(matches)}")
+    return matches[0]
 
 
 def main() -> None:
@@ -47,15 +63,15 @@ def main() -> None:
             target_id = fixture["mutation"]["expected_target_id"]
             condition_results = {}
             for condition in ("control", "mutant"):
-                original = json.loads(
-                    result_path(run, fixture_id, condition).read_text()
+                original = load_result(
+                    result_path(run, fixture_id, condition), condition
                 )
                 original_degraded += bool(original.get("degraded"))
                 path = replacements.get(
                     (run_index, fixture_id, condition),
                     result_path(run, fixture_id, condition),
                 )
-                result = json.loads(path.read_text())
+                result = load_result(path, condition)
                 scored_degraded += bool(result.get("degraded"))
                 tests = {
                     test["targetId"]: test["disposition"]
@@ -89,7 +105,7 @@ def main() -> None:
                     (run_index, fixture_id, condition),
                     result_path(run, fixture_id, condition),
                 )
-                result = json.loads(path.read_text())
+                result = load_result(path, condition)
                 metrics[f"extra_{condition}"] += sum(
                     test.get("disposition") == "must_fix"
                     and test.get("checkId") == "rule_elements"
@@ -131,7 +147,7 @@ def main() -> None:
                 (run_index, fixture_id, "control"),
                 result_path(run, fixture_id, "control"),
             )
-            result = json.loads(path.read_text())
+            result = load_result(path, "control")
             tests = {
                 test["targetId"]: test["disposition"]
                 for test in result.get("correctness_tests", [])
