@@ -1,0 +1,131 @@
+IN THE COURT OF COMMON PLEAS SUMMIT COUNTY, OHIO
+
+Defendants, Mark E. Houser and Charlene Houser, are and were at all times relevant the owners of the property located at 273 Cranz Place, Akron, Ohio. Plaintiff Teri Carroll was a guest of the Housers' tenant, Patrick Morrison. (See Rental Agreement attached to Defendant's Motion for Summary Judgment as "Exhibit A"). The Housers initiated eviction proceedings against Mr. Morrison, Plaintiff Terri Carroll and all other occupants on December 11, 2005 for failure to pay rent as required by the lease agreement. (See Notice To Leave The Premises sttached to Defendant's Motion for Summary Judgment as "Exhibit C"). Twelve days later, on December 23, 2005, Plaintiff left the house, walking down the rear porch steps in her bare feet, despite the fact that there was snow on the ground, to retrieve some blinds left out in the yard. (See Plaintiff's Deposition which has been filed with the court at page 34, 38). As she was re-entering the house, Plaintiff slipped on the porch steps and fell, injuring her elbow. (Plaintiff's Depo. at page 39).
+
+Defendants Mark and Charlene Houser have filed a motion for summary judgment pursuant to Civ. R. 56(C).
+
+II. LAW AND ARGUMENT
+
+A. THE SUMMARY JUDGMENT STANDARD
+
+Plaintiff has failed to carry her burden of setting forth specific facts and demonstrating genuine issues of material fact regarding each allegation of her complaint. See, Civ.R. 56(E).
+
+A complete failure of proof concerning an essential element of the nonmoving party's case necessarily renders all other facts immaterial. As a result, a moving party is entitled to judgment as a matter of law where the nonmoving party failed to come forth with evidence of specific facts on an essential element of the case with respect to which he has the burden of proof. Black Cosentino (1996), 117 Ohio App.3d 40, 43 (citing Celotex Corp. v. Catrett (1986), 477 U.S. 317, 323).
+
+In responding to a motion for summary judgment, the nonmoving party may not rest on bare allegations to demonstrate a factual dispute. Dresher v. Burt (1996), 75 Ohio St.3d 280, 293, 1996 Ohio 107, 662 N.E.2d 264. Additionally, a summary judgment motion must be overcome by specific and provable facts and not mere allegations; evidence of a possible inference is insufficient. Jackson v. Alert Fire and Safety Equip., Inc. (1991), 58 Ohio St.3d 48, 52; Cox v. Commercial Parts Serv. (1994), 96 Ohio App.3d 417, 421. The key to the granting of summary judgment motion is that there are no genuine issues as to a material fact. Material facts are determined by substantive law. Only disputes over facts that might affect the outcome of a suit under governing law will properly preclude the grant of a motion for summary judgment. Irrelevant and unnecessary factual disputes will not be counted. Anderson v. Liberty Lobby, Inc., 477 U.S. 242, 247-248; Perez v.
+
+Scripps-Howard Broadcasting (1988), 35 Ohio St.3d 215.
+
+Here, plaintiff cannot set forth any evidence showing a material issue of fact for a jury to determine. Thus, defendants are entitled to summary judgment on each of plaintiff's claims. B. NEGLIGENCE
+
+To prevail in a negligence action, the plaintiff must prove the 1) the existence of a duty, 2) a breach of that duty, and 3) an injury proximately resulting from the breach of that duty. Menifee v. Ohio Welding Prods., Inc. (1984), 15 Ohio St.3d 75, 77, 472 N.E.2d 707. Plaintiff has failed to produce evidence that satisfies each of these three prongs.
+
+1. Plaintiff was not a tenant at the time of the incident.
+
+Plaintiff was not a party to the lease between Defendants and Mr. Morrison. (Exhibit A) . Defendants Mark and Charlene Houser initiated eviction proceedings against their tenant Patrick Morrison and Plaintiff on December 11, 2005. Mr. Houser posted the required three-day notice to leave the premises at the property, naming both Mr. Morrison and Plaintiff, as well as "all other occupants." (Exhibit C) Plaintiff's disingenuous affidavit to the contrary is insufficient to create a genuine question of material fact. By her own admission, Plaintiff did not pay any rent to the Housers. (Plaintiff's Depo. at page 13). Furthermore, the fact that Mr. Houser may at one time have considered Plaintiff to be a tenant has no impact on the legal relationship between the two parties at the time of the incident. Defendants owed no duty to the Plaintiff other than to refrain from willful, wanton or reckless conduct. Under Ohio law, a landlord owes the same duty to a guest of a tenant, lawfully on the premises, as he does to the tenant. (emphasis added) Shump v. First Continental-Robinwood Assocs. (1994), 71 Ohio St. 3d 414, 419, 644 N.E.2d 291, 294. As noted above, the Housers had initiated eviction proceedings against the tenant, Mr. Morrison, and all the other residents of 273 Cranz, including Plaintiff. Because plaintiff was not lawfully on the premises at the time of the incident, Shump is inapplicable.
+
+Therefore, the Housers owed Plaintiff only the duty they owed to any other licensee "who enters the premises of another by permission or acquiescence, for his own pleasure or benefit." Light v. Ohio Univ. (1986), 28 Ohio St.3d 66, 68, 28 Ohio B. 165, 502 N.E.2d 611. That duty is merely to refrain from willful, wanton or reckless conduct that is likely to injure him. See Gladon v. Greater Cleveland Regional Transit Auth. (1996), 75 Ohio St.3d 312, 315, 1996 Ohio 137, 662 N.E.2d 287.
+
+2. The Housers are not liable for Plaintiff's injuries, pursuant to R.C. 5321.04
+
+The Ohio legislature created the Landlord-Tenant act to regulate residential property rental relationships. R.C. §) 5321.04(A)(2) provides that a "landlord who is a party to a rental agreement shall (1) Comply with the requirements of all applicable building, housing, health, and safety codes that materially affect health and safety; (2) Make all repairs and do whatever is reasonably necessary to put and keep the premises in a fit and habitable condition."
+
+A violation of a building code does not constitute negligence per se and is not conclusive proof of a party's negligence. Chambers v. St. Mary's School (1998), 82 Ohio St.3€6 563, 568, 1998 Ohio 184, 697 N.E.2d 198. Rather, evidence of a code violation may be 'taken into consideration along with all other materials correctly submitted pursuant to Civ.R. 56(E) in order to determine whether a party was negligent. Id. An alleged violation of R.C. 5321.04 does not obviate a plaintiff's obligation to prove that the violation was the proximate cause of the injury complained of and that the landlord had notice of the defective condition. Shroades v. Rental Homes, Inc. (1981), 68 Ohio St. 24 20, 25-26, 427 N.E.2d 774."
+
+' Overruled in part by Boyd v. Hariani, 9th Dist. No. C.A. 22500, 2005 Ohio 4536. The Ninth Appellate District held that a subsequent Supreme Court case, Sikora v. Wenzel, 88 Ohio St.3d 493, 2000 Ohio 406, 727 N.E.2d 1277, overruled Shroades "to the extent that [it] suggested that a tenant's reasonable, but unsuccessful, effort to provide notice to a landlord could constitute
+
+4
+
+While the issue of proximate cause is ordinarily a question of fact, in those situations where reasonable minds could not differ as to the matter of proximate cause because circumstances clearly indicate an obvious cause and effect relationship, the issue of proximate cause may be determined as a matter of law. See Zawkocki v. Houtz (1974), 40 Ohio App. 2d 118, 123, citing Ornella v Robertson (1968), 14 Ohio St. 2d 144, 151. See, also, 70 Ohio Jurisprudence 3d (1986) 419, Negligence, Section 217.
+
+Plaintiff cites the lack of a handrail on the back porch steps as the proximate cause of her injuries. During Plaintiff's deposition testimony she admitted that not only was she outside in the snow in her bare feet, she was carrying blinds that had been left out in the yard in her hands. (Plaintiff's Depo. at page 36). The blinds were, by her own admission "seven foot long." (Id.) Even if a handrail had been present, when Plaintiff slipped on the step it is unlikely that a handrail would have prevented her from falling, as her hands were not free to grab one. Therefore, the lack of a handrail was not the proximate cause of Plaintiff's injuries, and R.C. 5321.04 is inapplicable, under Shroades.
+
+3. Plaintiff's common law negligence claim holds no merit Without respect to Plaintiff's statutory claim, her common law claim must fail. (See Complaint, 5). Plaintiff claims that the steps she safely traversed no more than a minute or two before, suddenly became unreasonably dangerous when she walked back up the steps to the house. As the Supreme Court explained in Raflo v. Losantiville Country Club "one who upon entering a building traverses a step, the height of which is proscribed by the state building code, cannot maintain that the hazard was so insubstantial as to go unnoticed at that time, yet was unreasonably notice."" (internal citations omitted.) Boyd at P22
+
+dangerous, hence actionable, when it occasioned her fall upon leaving the building." (1973), 34 Ohio St.2d 1, 295 N.E.2d 202, paragraph one of the syllabus. Similarly, "one who enters a building by traversing a step described as 'abnormally high,' is charged with knowledge of the presence of that abnormality upon exiting." Id., paragraph two of the syllabus, following Leighton v. Hower Corp. (1948), 149 Ohio St. 72, 77 N.E.2d 600
+
+When a danger is "open and obvious, a landowner owes no duty of care to individuals lawfully on the premises." Armstrong v. Best Buy Co., Inc., 99 Ohio St.3d 79, 2003-Ohio-2573
+
+In a factually similar case, the Ninth Appellate District held that the trial court properly granted summary judgment against the guest of a tenant who claimed that a defective porch handrail caused him to fall. Virde v. Stalnaker, 2004 Ohio 2671, P16 (Ohio Ct. App. 2004). Citing Raflo, the court held that his status on the property was governed by common law distinctions and that as an invitee, he traversed the known defect "at his peril." Id Plaintiff alleges that the lack of a handrail on the back porch steps was the cause of her injuries. She was aware of the lack of handrail when she safely went down the steps in her bare feet, out into the snow. She is charged with notice of the lack of a handrail and cannot claim that the steps became unreasonably dangerous during the few minutes that elapsed between her going down and then returning.
+
+4. Plaintiff's own negligence was the cause of her injuries In Mowery v. McCracken (August 31, 1987), Hancock App. No. 5-85-33, the court discussed whether summary judgment was ever appropriate in comparative negligence cases. Citing Tatro v. Harp (Sept. 26, 1984), Lucas C.P. No. 83-2422, the court stated that As a general rule, summary judgment should not be used in negligence actions, particularly under comparative negligence statutes which contemplate a weighing or balancing of the negligence of each party and a determination of the percentage of negligence attributable to
+
+each. However, this is not to say that summary judgment is never appropriate; in rare cases it is permissable for a court to rule as a matter of law that one party's negligence exceeds that of the other. It is appropriate where the evidence of plaintiff's negligence is clear and the quantum so great, * * * and where the evidence is so conclusive that reasonable minds can come to only one conclusion.
+
+To hold that summary judgment is never appropriate in comparative negligence actions would be to force all such cases to trial even in plain and indisputable cases, defeating the purpose of the summary judgment procedure which is to terminate expensive and needless litigation where no genuine issue of fact exists. It is this Court's opinion that such a result was surely not intended by the drafters of the comparative negligence statutes.
+
+(Internal citations omitted) Id. at 10-11.
+
+Ohio law recognizes contributory negligence as "any want of ordinary care on the part of the person injured, which combined and concurred with the defendant's negligence and contributed to the injury as a proximate cause thereof, and as an element without which the injury would not have occurred." Stiver v. Miami Valley Cable Council (1995), 663 N.E.2d 1310, quoting Brinkmoeller Wilson (1975), 41 Ohio St.2d 223, 226, 325 N.E.2d 233.
+
+Plaintiff walked, in her bare feet, through the snow to get the blinds before she returned to the house with wet feet. (Plaintiff's Depo. at page 38). She was able to safely traverse the steps on the way down. The only difference between then and when she walked back up them was that her bare feet were wet from the snow and her hands were full. Her own negligence is solely responsible for her injuries.
+
+5. Defendants Mark and Charlene Houser were not in exclusive possession and control over the area where the Plaintiff fell.
+
+The evidence in this case is undisputed that the tenant, Patrick Morrison and the Plaintiff had exclusive possession and control of the leased property, and, further, were responsible for rehabilitating and maintaining the steps where plaintiff fell. Mark Houser stated in his deposition
+
+that "Mr. Morrison, being a rehab guy, was going to perform some of the needed work on the house." (See Defendant Mark Houser's Deposition which has been filed with the court at page 9). In fact, Mr. Houser specifically directed Mr. Morrison to fix the things that were on the list of repairs required by the Health Department. (Houser Dep. at page 10). "It has been the rule in Ohio that a landlord out-of-possession is not liable to persons injured by reasons of the acts or failures of the tenant." Forester v. FL. M., Inc. (1978), 60 Ohio App.2d 342. The lessor who does not retain the right to admit or exclude others from the premises has generally not reserved the degree of possession or control necessary to impose liability for the condition of the premises. Pifts v. Housing Authority (1953), 160 Ohio St. 129, 113 N.E.2d 869 ; Cooper v. Roose (1949), 151 Ohio St. 316, 85 N.E.2d 545. The testimony of defendant Mark Houser clearly establishes that Morrison had taken the responsibility to maintain the property and do necessary repairs. Accordingly, summary judgment is also appropriate on this ground.
+
+However, even if the court finds that the Housers were in possession or cortrol of the property, they are not liable for Plaintiff's injuries.
+
+In Shump, the plaintiff decedent had been a social guest of the tenant, who succumbed to smoke inhalation allegedly due to the landlord's failure to properly install a smoke detector in the apartment, in violation of a city ordinance. 71 Ohio St. 3d at 415. The Ohio Supreme Court held in that case"the common-law classifications of trespasser, licensee, and invitee determine the legal duty that a tenant owes others who enter upon rental property that is in the exclusive control of the tenant. However, with regard to areas within the exclusive possession of a tenant, the common-law classifications do not affect the legal duty that a landlord owes a tenant or others lawfully upon the leased premises." [emphasis added), /d. at 417. Unless the court finds that Plaintiff was in control of the area where she fell, Shump is inapplicable and the Housers owe only a common law duty to
+
+refrain from wanton or willful conduct.
+
+Additionally, the Ninth Appellate District has declined to extend the Shump holding to cases involving injuries suffered from a mishap occurring in a common area. See, e.g. Sanders v. Bellevue Manor Apts.(Jan. 3, 1996), Lorain App. No. 95CA¥006A067; Rios v. Shauck (June 3, 1998), Lorain App. No. 97CA006753. In those cases, the court held that as to common areas, the coramon law duty of care toward a licensee still applies, namely that the landlord will refrain from wanton and willful misconduct. While the property in question is a single-family unit, the outside entrance, walkway, and steps would generally be considered a common area in a multi-unit facility. As a matter of policy, there is no incentive to treat the two differently and this Court should accordingly grant summary judgment in favor of the Housers.
+
+HII CONCLUSION
+
+Defendants Mark and Charlene Houser submit that there are no genuine issues as to any material fact with respect to plaintiff's complaint, and that defendants are entitled to judgment as a matter of law for the following reasons:
+
+Defendants owed Plaintiff, who was a licensee only the duty to refrain from wanton, willful or reckless conduct;
+
+2 Plaintiff has failed to demonstrate the existence of an unsafe condition; 3 Plaintiff's own negligence was the cause of her injuries; and 4 Defendants were not in exclusive possession or control of the area where Plaintiff fell.
+
+WHEREFORE, defendants, Mark and Charlene Houser, respectfully move this Court for an order granting summary judgment in favor of defendants as to plaintiff's complaint.
+
+Respectfully submitted,
+
+alpfF. Dublikar (0019235)
+
+BAKER, DUBLIKAR, BECK,
+
+WILEY & MATHEWS
+
+400 South Main Street
+
+North Canton, Ohio 44720
+
+Phone: (330) 499-6000
+
+Fax: (330) 499-6423
+
+E-mail dublikar@bakerfirm.com
+
+Counsel for Defendants
+
+PROOF OF SERVICE
+
+A copy of the foregoing reply brief was sent by ordinary U.S. mail this Ab day of April, 2007, to:
+
+Geoffrey L. Eicher, Esq.
+
+Semple & Eicher Co., LPA
+
+National City Center, Seventh Floor
+
+One Cascade Plaza
+
+Akron, Ohio 44308
+
+Counsel for Plaintiff
+
+Ralmh F. Dublikar
+
+BAKER, DUBLIKAR, BECK,
+
+WILEY & MATHEWS
+
+10
+
+Page 1

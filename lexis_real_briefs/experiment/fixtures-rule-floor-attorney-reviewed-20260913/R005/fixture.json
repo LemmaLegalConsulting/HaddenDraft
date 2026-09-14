@@ -1,0 +1,72 @@
+{
+  "fixture_id": "R005",
+  "case_family_id": "synthetic-rule-review-r005",
+  "stratum": "synthetic_rule_elements_attorney_review",
+  "document": {
+    "title": "Memorandum in Support of Dismissal",
+    "court": "Fictional Ohio trial court",
+    "jurisdiction": "Ohio",
+    "pleading_type": "trial_brief",
+    "side": "",
+    "filed": "2026-09-13"
+  },
+  "files": {
+    "source": null,
+    "source_scan": null,
+    "control": "normalized/brief.txt",
+    "mutant": "mutant/brief.txt",
+    "attachments": [
+      "attachments/record-01.txt"
+    ],
+    "attachment_notes": [
+      "Identical fictional record supplied to both arms."
+    ]
+  },
+  "mutation": {
+    "type": "rule_element_omission",
+    "subtype": "causal_connection",
+    "operation": "delete",
+    "section": "Argument",
+    "description": "Deleted the only proposed paragraph applying causal_connection.",
+    "gold_vulnerability": "PROPOSED: the mutant invokes R.C. 5321.02 but omits application of causal_connection.",
+    "expected_direction": "mutant_worse",
+    "materiality": "proposed_high_unverified",
+    "target_location": {
+      "section": "Argument",
+      "control_excerpt": "The causal connection between the protected activity and the prohibited act is established because the tenant complained to a code-enforcement agency on January 10, 2023, the landlord acknowledged it on January 15, messaged 'You will regret involving the city' on January 18, and filed the eviction on February 20, 2023, showing a clear link because the tenant complained.",
+      "mutant_excerpt": ""
+    },
+    "characters_changed": 374,
+    "control_chars": 1440,
+    "mutant_chars": 1066,
+    "fraction_of_brief_changed": 0.259722,
+    "expected_check_id": "rule_elements",
+    "expected_target_id": "rc-5321-02-retaliation:causal_connection",
+    "expected_disposition": "must_fix"
+  },
+  "gold": {
+    "control_has_target_defect": false,
+    "mutant_has_target_defect": true,
+    "expected_direction": "mutant_worse",
+    "materiality": "proposed_high_unverified",
+    "verified_by": [],
+    "verification_status": "proposed_unverified",
+    "verification_note": "Llama-authored proposal; do not run or score until attorney review is complete."
+  },
+  "provenance": {
+    "control_sha256": "0ba062c7eb06f4fa7d6196085f1d4e8f0e12ebd7b4fae528a1133ad9c01a3ae5",
+    "mutant_sha256": "2d274ecdde5dc41259a279f497dd29a34f0af9fb6c6ac04a78b51b04253bad9d",
+    "attachment_sha256": {
+      "record-01.txt": "83e421ddddddcbb525eec3312ec9034ecebb81931e6d3de08979eb22c286cddb"
+    },
+    "mutation_version": "exact-paragraph-deletion-1.0",
+    "generator": {
+      "provider": "Azure AI Services",
+      "deployment": "llama-4-maverick",
+      "family": "Meta Llama",
+      "generated_at": "2026-09-14T01:47:26.615603+00:00",
+      "attempts": 1,
+      "researcher_edits": "None; whitespace normalization and deletion only."
+    }
+  }
+}

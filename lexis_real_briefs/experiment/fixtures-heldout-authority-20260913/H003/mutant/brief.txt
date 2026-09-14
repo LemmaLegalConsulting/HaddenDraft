@@ -1,0 +1,147 @@
+I. STATEMENT OF THE CASE
+
+Texlo cannot prevail in its claims for the Gatekeeper System because it did not install a new System at the beginning of the lease but used a system installed by the previous tenant and owned by the landlord without landlord's knowledge or consent. Even assuming arguendo that Texlo gained ownership of the system through the bill of sale or simply by using the system, which is not just erroneous but perplexing, landlord cannot be held responsible for any damages because Texlo waived its claims for damages under the lease and because Texlo cannot show any damages as its right to install a new system at its own cost remained intact, discussed below.
+
+A.  Statement of Jurisdiction:
+
+Appellee tenant agrees that the appeal was timely, except for a spurious assertion that the interlocutory order denying its motion for judgment on the pleadings (T.d. 47, Entry) did not merge into the final order (T.d. 87, Final Judgment Entry). It is instructive to note that the tenant mischaracterizes the trial court's entry denying the landlord's motion for judgment on the pleadings as "T.d. 47, Judgment on the Pleadings Order" (Appellee Brief at p. 3, fn 1), when it is, in fact, titled "Entry Denying Defendant's Motion for Judgment on the Pleadings Pursuant to Civ.R. 12(C)" (T.d. 47, Entry).
+
+The tenant frivolously asserts that In re Brazile, 2002-Ohio-6652 (1st Dist.), stands for the proposition that nonfinal orders do not merge into a final appealable order (Appellee's brief at p. 3). The Brazile case was a juvenile court appeal which involved two final orders, the first of which had not been appealed, a quite different and irrelevant situation from that involved in the instant case, as will be discussed herein. The law is clear - nonfinal orders merge into the final order. App.R. 4(A)(2), Appeal as of right - When taken; Fannie Mae v. Hirschhaut, 2019-Ohio-3636, P 48 (1st Dist.).
+
+B. Procedural Posture: The parties do not appear to significantly differ as to the procedural posture of the case, though the tenant's inclusion of dates for irrelevant events seems a waste of time where there is no dispute.
+
+C. Statement of Facts: Appellee argues that the landlord must have known that the tenant did not install its own Gatekeeper system and that in some fashion the landlord approved the tenant doing so. But the tenant did not present any evidence at trial that would support that argument. It is clear that the landlord did not know that the tenant had not installed its own system; in fact the landlord could not know that Texlo did not install its own system because Texlo was not required to notify the landlord that it was installing or had installed a wire underground that was not visible to the landlord.
+
+In support of its assertions, the tenant at p. 7 of its brief cites very vague testimony by its President that, "It was all part of -- they asked us to mark it, where the system is, and obviously they knew because Kroger had it. This was their wire at the time, prior to us taking the store." (T.p. 47), and "it's always been known that that is where the wire was run" (T.p. 47). At best, this testimony shows that a wire existed when the tenant moved in but does not support the much broader assertion that the landlord knew that the tenant failed to install a new wire and continued to use a wire previously installed by a different tenant. The tenant also on p. 7 argues a conclusion not supported by evidence that, inter alia, "naturally" the parties made an agreement about the Gatekeeper; this is contradicted by the tenant's own evidence, as pointed out in Appellant's brief from pp. 2-8; the tenant's demand letters by themselves (Trial Exhibits J and K; T.d. 2 & T.d. 25, Letters attached to Complaint and Amended Complaint, Ex. 4 & 5) falsely claimed that, "Lessee did install the cart theft deterrence system known as the 'Gatekeeper,' at its sole cost and expense, in accordance with the terms of the Lease." (T.d. 25, Amended Complaint, Ex. 4).
+
+The citations in the tenant's brief at p. 7 and a statement by the tenant's President that it did not install a transmitter or switch because, "We used their system" (T.d. 176), are similarly unilluminating. Whether Texlo used "their system" is not the issue, the issue is whether Texlo notified Gator that it was using the old wire; there is no dispute that it did not.
+
+Contrary to the tenant's assertions at p. 10 that it was the tenant's "unequivocal understanding" that the landlord let the tenant use and then sold Texlo the Gatekeeper system which had been installed by the previous tenant, the evidence demonstrates that the parties agreed and the tenant represented to the landlord that it had installed its own system. Tenant's president testified that he did not notify the landlord that it had not done so (T.p. 105); landlord's president similarly testified that he did not know that Texlo did not install its own system (T.p. 243). Instead, the tenant's counsel repeatedly represented to the landlord that the tenant had installed a system - there is no possible dispute on that point.
+
+Tenant's assertions on p. 10 that "the Gatekeeper system" was "transferred to Texlo by the Bill of Sale" is not supported by the evidence presented at trial - as the tenant concedes the Bill of Sale "did not enumerate the Gatekeeper System explicitly" ( Id.). According to the terms of the lease, the parties contracted for and anticipated that the tenant would install its own Gatekeeper system; the tenant represented that it had done so, and the trial court did not hold otherwise. Tenant's assertion at p. 10 that, "Texlo's unequivocal understanding from the very beginning was that the Gatekeeper system ... would be part of the property transfer" is both irrelevant and untrue - clearly the tenant knew the wire did not transfer because it made false statements that it had installed a Gatekeeper system. The landlord could not have intended to sell the system to the tenant when the tenant stated, and the landlord believed, that the tenant had installed its own system.
+
+Ohio law is silent on whether a sale may ever be made unintentionally, though in 1806 the U.S. Supreme Court held that, "He who sells property on a description given by himself, is bound to make good that description; and if it be untrue in a material point, although the variance be occasioned by a mistake, he must still remain liable for that variance" ( McFerran v. Taylor, 7 U.S. (3 Cranch) 270, 281 (1806)). Here, however, the landlord did not sell property on an untrue description, as reflected by the Bill of Sale that makes no reference to the Gatekeeper System or wire, but specifically transfers other items, as the tenant had falsely asserted that it had installed its own system and had never notified the landlord that it was "adopting" the system installed by a prior tenant.
+
+Tenant's President, David Pearson, testified that it had repaired the system several times before the events in question in this case (T.p. 62-63); Pearson agreed with tenant's counsel that he had not notified the landlord. Curiously, tenant asserts that it had to have Gatekeeper fix earlier problems (T.p. 63) but that it, "is not one of the companies that is going to come out tomorrow to get it fixed" for the problem about which it currently complains (T.p. 67). The earlier periods of the system not working apparently did not cause the tenant sufficient problems to address the dispute when it could have been more easily resolved.
+
+Finally, a trial court is not at liberty to interpret an unambiguous contract and look at extrinsic evidence to find for one party versus the other. This is precisely what happened here, where the court considered irrelevant testimony to reinterpret an unambiguous contract.
+
+III. ARGUMENT:
+
+ASSIGNMENT OF ERROR NO. 1:
+
+THE TRIAL COURT ERRED IN DENYING THE LANDLORD'S MOTION FOR JUDGMENT ON THE PLEADINGS (T.d. 47, Entry).
+
+ISSUE PRESENTED FOR REVIEW: The tenant does not address landlord's statement of the issue presented for review, except in a footnote that it stands by its assertion that the argument should be stricken.
+
+STANDARD OF REVIEW: The tenant does not appear to dispute that the standard of review is de novo.
+
+CONTENTIONS AND REASONS:
+
+Tenant falsely and frivolously asserts that In re Brazile, 2002-Ohio-6652 (1st Dist.), requires striking of the landlord's first assignment of error. But the Brazile case was a juvenile court appeal which involved two final orders, the first of which had not been appealed, a very different and completely irrelevant situation from that involved in the instant case. The law is clear - nonfinal orders merge into the final order. R.C. 2505.02, Final order, and App.R. 3, Appeal as of right, require that a final order be one which both determines the action with respect to the order and prevents a judgment at trial ( Crown Servs. v. Miami Valley Paper Tube Co., 2020-Ohio-4409). App.R. 4(A)(2), Appeal as of right - When taken, permits appeals only from final orders. Fannie Mae v. Hirschhaut, 2019-Ohio-3636, P 48 (1st Dist.).
+
+Ohio Const. art. IV, § 3(B)(2), Court of appeals, limits the jurisdiction of the courts of appeals in Ohio to review of final orders. The Ohio Supreme Court in Riscatti v. Prime Properties Ltd. Partnership, 2013-Ohio-4530, P 19, held that an order denying a motion for judgment on the pleadings was not a final, appealable order. That ruling was expounded upon over the years by every court of appeals in the state; this Court in Colosseo USA, Inc. v. Univ. of Cincinnati, 2019-Ohio-2026, P 27 (1st Dist.), held that denial of a motion for judgment on the pleadings is not a final order, but that the trial court retains jurisdiction to reconsider its earlier ruling, which by definition makes it an interlocutory order. See, e.g., Smith v. Chen, 2015-Ohio-1480, PP 1, 5. "An order is appealable under R.C. 2505.02(B)(4) if it satisfies a three-part test: (1) the order must either grant or deny relief sought in a certain type of proceeding, which the General Assembly calls a 'provisional remedy;' (2) the order must both determine the action with respect to the provisional remedy and prevent a judgment in favor of the appealing party with respect to the provisional remedy; and (3) the reviewing court must decide that the party appealing the order would not be afforded a meaningful or effective remedy by an appeal following final judgment." Jezerinac v. Dioun, 2023- Ohio-2882, P 37 (10th Dist.). The denial of the motion to dismiss in this case did not constitute a provisional remedy or prevent a judgment in favor of either party with respect to a provisional remedy, nor did it prevent a meaningful remedy on appeal - it thus did not constitute a final order.
+
+The tenant does not address the landlord's argument that the trial court erred in denying the motion for judgment on the pleadings based on the tenant having moved to reopen the pleadings, so this issue does not require a reply.
+
+The only argument Tenant does make is that in some fashion this Court's decision in Dev., Ltd. v. LivFitNutrition, LLC, 2014-Ohio-3830 (1st Dist.), is irrelevant because it, "did not bring a claim for constructive eviction" (Appellee's Brief at p. 21). This is disingenuous and what Texlo is omitting from its argument is that Texlo made a claim for breaching the lease which, "covenants that Plaintiff shall peaceably and quietly occupy and enjoy the full possession and use of the Leased Premises and use of the Common Facilities without hindrance by Defendant or any other person lawfully claiming by, through or under Defendant" (T.d. 2, Complaint, P 19; T.d. 25, Amended Complaint, P 19). "To constitute a breach of the covenant, "the interference with the tenant's quiet enjoyment must be so substantial as to be tantamount to an eviction, actual or constructive." Sherritt v. Leath, 2022-Ohio-2367, P 58 (5th Dist.).
+
+The trial court held that the case could proceed on a theory that the landlord breached the covenant of quiet enjoyment (T.d. 47 at 6), but ultimately ruled that "Gator did not breach the covenant of quiet enjoyment because it did not actually or constructively evict Tenant" (T.d. 74 at 8). Tenant's counsel cites no authority and makes no argument on this point.
+
+ASSIGNMENT OF ERROR NO. 2:
+
+THE TRIAL COURT ERRED IN ACCEPTING THE TENANT'S ADOPTION OF THE PRIOR TENANT'S GATEKEEPER SYSTEM WITHOUT TELLING THE LANDLORD AS COMPLIANCE WITH §6.14 OF THE LEASE AND THUS THAT "BY UTILIZING THE EXISTING 'GATEKEEPER'S SYTEM, TEXLO INSTALLED A CAR THEFT DETERRENCE SYSTEM'" ( sic, T.d. 74, Decision Granting Judgment at 2, P 4).
+
+ISSUE PRESENTED FOR REVIEW: Whether the trial court erred in its finding that by using the Gatekeeper system previously installed by the landlord's former tenant, Texlo thereby "installed" it within the meaning of the contract where it lacked permission and did not tell its landlord that it had done so.
+
+STANDARD OF REVIEW: The parties agree that contract interpretation is reviewed de novo, but tenant asserts that this Court's decision in Qiming He v. Half Price Heating & Air, 2021-Ohio-1599 (1st Dist.), means that a manifest weight standard should apply. Tenant's argument flies directly in the face of the controlling authority, Boone Coleman Constr., Inc. v. Village of Piketon, 2016-Ohio-628, P 10, in which the Ohio Supreme Court held, "We review the interpretation of a contract, a question of law, for abuse of discretion."
+
+CONTENTIONS AND REASONS:
+
+ The tenant's argument ignores its repeated false statements that it had installed a Gatekeeper system. As the tenant notes in its brief, Section 6.14 of the contract gave it the right to install a Gatekeeper System, but Texlo ignores the essential part of that section which provides that it as tenant had the right to install the System at its own cost. No amount of contract reinterpretation should be allowed to save the tenant from the effect of its own false statements or the fact that it never incurred the cost of installing a system. If there had been a light fixture in the common area that was operated with a switch located in the store, that does not mean the light fixture became the property of the tenant in the store because it used the switch or that the light fixture was legally located inside the premises even though it could not operate without the switch inside the leasehold; it also does not mean that by using the switch to operate the light fixture, the tenant installed the light fixture.
+
+In Qiming He v. Half Price Heating & Air, 2021-Ohio-1599 (1st Dist.), the alleged breach related to the manufacturer of a furnace; the defendant had installed a furnace manufactured by the company stated in the contract though its label may have been somewhat confusing. The issue there was application of the facts to the contract, not of the trial court rewriting an unambiguous contract to rule that by using a wire which had been installed by a prior tenant this tenant had "installed" it (T.d. 74, Decision After Trial and Entry Granting Judgment to Plaintiff Texlo LLC, at 2, P 4). The trial court should never be able to rewrite a contract entered into between the parties to justify its ruling.
+
+ASSIGNMENT OF ERROR NO. 3:
+
+THE TRIAL COURT ERRED IN IGNORING THE WAIVER PROVISION IN THE SECOND AMENDED LEASE IN DENYING THE LANDLORD'S MOTION FOR JUDGMENT ON THE PLEADINGS, ON ITS MOTION FOR SUMMARY JUDGMENT, AND AT TRIAL (Trial Ex. C, Second Amendment to Lease; T.d. 47, Entry Denying Defendant's Motion for Judgment on the Pleadings; T.d. 61, Entry Denying Defendant's and Plaintiff's Motions for Summary Judgment; T.d. 74 at 5, Decision After Trial).
+
+ISSUE PRESENTED FOR REVIEW: Whether the trial court erred in failing to give effect to the waiver agreement.
+
+STANDARD OF REVIEW: In response to the landlord's position that this issue is subject to de novo review, tenant simply asserts, "See §II(B)(1)(a)." Assuming that this refers to its position that this Court's decision in Qiming He v. Half Price Heating & Air, 2021-Ohio-1599 (1st Dist.), and is intended to mean that a manifest weight standard should apply, the issue here is entirely different - the question is not who manufactured an appliance as in that case, but simply the meaning and application of the words, "Lessee shall have the right, at Lessee's sole cost and expense, (a) to install a cart theft deterrence system..." (Trial Ex. 1, Lease at 17, §6.14, Cart Theft Deterrence System), and "Lessee waives any and all claims it may have if any, under the Lease or by law" (Trial Ex. 2, Second Amendment to Lease at 4, § 11). The question of the meaning of those provisions is thus a matter of law subject to de novo review.
+
+CONTENTIONS AND REASONS:
+
+Tenant asserts at pp. 29-30 that the caselaw supporting the landlord's argument is irrelevant because District of Columbia v. Heller, 554 U.S. 570, 578 (2008) and Kentucky v. Biden, 23 F.4th 585 (6th Cir. 2022), are not contract cases and because the Black's Law Dictionary definition and George H. Dingledy Lumber Co. v. Erie R. Co., 102 Ohio St. 236 (1921) control. But the Black's Law Dictionary definition of ejusdem generis is not relevant here - in the modern world ejusdem generis is used in statutory interpretation ( Harrington v. Purdue Pharma L.P., __U.S.__, 144 S.Ct. 2071 (2024)), while here the issue here is about prefatory versus operative terms in a contract. In Kingdomware Technologies, Inc. v. United States, 579 U.S. 162, 173 (2016), Justice Thomas wrote for the unanimous Court that a prefatory clause about objectives "does not change the plain meaning of the operative clause."
+
+George H. Dingledy Lumber Co. v. Erie R. Co., 102 Ohio St. 236 (1921), cited by the tenant at p. 31, involved a lessor and lessee where the lessee had agreed to indemnify the lessor. An employee of the lessee was injured and brought a personal injury claim against the lessor, which sought indemnity from the lessee. The Court held in the Syllabus that, "contracts of indemnity purporting to relieve one from the results of his failure to exercise ordinary care shall be strictly construed, and will not be held to provide such indemnification unless so expressed in clear and unequivocal terms" (Syllabus, 102 Ohio St. at 236). Justice Matthias wrote that public policy requires that exemptions from negligence claims should be restricted "unless it is so expressed in clear and unequivocal terms" (102 Ohio St. at 242).
+
+Cases interpreting the 1921 decision in George H. Dingledy Lumber Co., supra, make it clear that the doctrine requiring narrow construction of indemnification clauses relates to negligence cases. See, e.g., Gabbard v. Madison Local School Dist. Bd. of Edn., 2021-Ohio-2067, P 27 , Glaspell v. Ohio Edison Co., 29 Ohio St.3d 44, 47 (1987), Kay v. Pennsylvania R. Co., 156 Ohio St. 503, Syllabus (1952).
+
+But the present case is about neither negligence nor statutory interpretation, and here the expression was clear and unequivocal. The operative language of the contract here indemnified the landlord from the non- negligent and clearly anticipated result of repaving, as to which the only evidence in the case is that the cutting of the Gatekeeper wire installed by a prior tenant was the natural and inevitable result of repaving.
+
+ASSIGNMENT OF ERROR NO. 4:
+
+THE TRIAL COURT ERRED IN AWARDING CONSEQUENTIAL DAMAGES OF $ 23,516.94 WHERE THE LEASE SPECIFICALLY EXCLUDED SUCH DAMAGES (T.d. 2, Complaint at Ex. 1, Lease at 35, §13.20; T.d. 74, Decision After Trial and Entry Granting Judgment to Plaintiff Texlo LLC at 8).
+
+ISSUE PRESENTED FOR REVIEW: Whether the trial court erred in holding the tenant to be the prevailing party under the lease, where it had demanded (T.d. 2, Complaint, Exhibits 4 & 5 at 113-115) and sued for $ 33,042.59 (T.d. 2 at 5), despite the tenant having lied about installing a Gatekeeper system.
+
+STANDARD OF REVIEW: The tenant does not appear to dispute that the question of whether damages are direct or consequential is subject to de novo review, and that factual findings are made under a manifest-weight-of-the- evidence standard.
+
+CONTENTIONS AND REASONS:
+
+Tenant asserts that the trial court's award was supported by evidence that the replacement cost of the Gatekeeper was $ 13,430.99 and the shopping carts lost because of the cutting of the wire was $ 10,085.95 (Tenant's brief at p. 34). But the evidence did not support those figures. First, the prior tenant's transmitter was not damaged by the repaving, and the evidence demonstrated that the value of the new transmitter was $ 1,595 (T.d. 11 at 20); the trial court did not subtract that from the damages. Second, the landlord's president testified that the system installed by Gatekeeper for Texlo was a double-wire system, not the single-wire necessary to operate the system (T.p. 245); the outcome is that the tenant got a new system at landlord's expense by misrepresenting that it had previously installed a system at its own cost. Third, imposing the cost of replacing shopping carts on the landlord cannot be anything except consequential damages prohibited by the lease agreement.
+
+How can it be said that the landlord is liable for its contractor cutting a wire installed by a previous tenant which had been "adopted" by the current tenant in violation of the lease (Ex. 1, Lease p. 17, § 6.14)? If this is a negligence case, as tenant implies, then the rule in Palsgraf v. Long Island Railroad Co., 248 N.Y. 339, 162 N.E. 99 (1928), that remote damages are not foreseeable, applies. If the landlord ever had a duty it was to the previous tenant. Quoting Judge Cardozo in Palsgraf, Justice Wright, in Grover v. Eli Lilly & Co., 63 Ohio St.3d 756, 761 (1992), wrote for the majority, "The plaintiff sues in her own right for a wrong personal to her, and not as the vicarious beneficiary of a breach of duty to another." Here if there was a breach of duty by the landlord it was to the former tenant, not the current one.
+
+Tenant cites Andrew v. Power Marketing Direct, 2012-Ohio-4371 (10th Dist.) and N. Side Bank & Trust Co. v. Trinity Aviation LLC, 2024-Ohio-590 (1st Dist.) in support of its assertion that damage to the Gatekeeper would be direct rather than consequential damages. Andrew v. Power distinguishes actual and consequential damages at P 66, and P 100-101. This Court in N. Side Bank held at P 29 that, "Damages awarded for a breach of contract are "the 'natural or probable consequences of the breach.'" This would appear to resolve the issue - even if there was a breach of contract here, the damages suffered are consequential. The parties had agreed that consequential damages are not recoverable (Ex. 1, Lease, p. 35, § 13.20); quod erat demonstrandum.
+
+CONCLUSION
+
+The trial court's final order should be reversed and remanded for further proceedings with guidance from this Court because the tenant did not install or own the system; even if this court finds that the tenant somehow owned the system, tenant cannot show any damages attributable to the landlord that have not been waived as provided by the lease.
+
+Respectfully submitted,
+
+/s/ Paul Croushore
+
+Paul Croushore (0055524)
+
+P.O. Box 75170
+
+Cincinnati, OH 45275
+
+(513) 225-6666
+
+Fax (859) 689-0793
+
+croushlaw@gmail.com
+
+Attorney for Appellant
+
+Oana Johnson (PHV 26699-2023)
+
+215 E. Bay Street, Suite 401
+
+Charleston, SC 29401
+
+(843) 709-1025
+
+Fax (866) 422 5567
+
+Email: oana@odjlaw.com
+
+CERTIFICATE OF COMPLIANCE
+
+I certify that this Brief complies with the word-count provision set forth in First District Local Rule 19(B)(1). This Brief is printed using Times New Roman 14-point typeface using Microsoft Word word processing software and contains 3,945 words.
+
+/s/ Paul Croushore
+
+Paul Croushore (0055524)
+
+CERTIFICATE OF SERVICE
+
+The Reply Brief of Appellant was served by email upon Appellee's counsel on this 29th day of August 2024.
+
+/s/ Paul Croushore
+
+Paul Croushore (0055524)

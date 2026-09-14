@@ -1,0 +1,140 @@
+{
+  "registry_id": "lexis-mutation-2026-09",
+  "created_at": "2026-09-13T20:22:54.432429+00:00",
+  "mode": "live",
+  "git_commit": "8dbd38030a7f09a0c914a071925e89cdd8933fa0",
+  "git_status": " M backend/apps/ai/openai_client.py\n M backend/apps/ai/tests.py\n M backend/apps/argument_gym/correctness.py\n M backend/apps/argument_gym/pipeline.py\n M backend/apps/argument_gym/rule_audit.py\n M backend/apps/argument_gym/test_correctness.py\n M backend/apps/caselaw/management/commands/enrich_caselaw_metadata.py\n M backend/apps/rules/legal_rules.py\n M backend/apps/rules/test_legal_rules.py\n M content/legal-rules/vawa-eviction-protection.yaml\n M lexis_real_briefs/experiment/tools/inspect_correctness_run.py\n m private-content\n M prompts/argument_gym.rule_elements.yaml\n?? downloaded_opinions/\n?? lab_notebook/2026-09-13_new_corpus_plan.md\n?? lexis_real_briefs/experiment/results/micro-correctness-f005-attribution-grounded-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-f005-complete-opinions-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-f005-frozen-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-f005-grounded-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-f005-opinion-status-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-f005-reuse-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-live-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-live-bounded-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-live-final-f007-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-live-final-f007b-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-live-hybrid-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-live-hybrid-fixed-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-live-targeted-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-offline-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-offline-after-unavailable-fix-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-priority-frozen-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-priority-rerun-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-rules-citations-terra-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-rules-citations-terra-batched-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-rules-citations-terra-final-20260913/\n?? lexis_real_briefs/experiment/results/micro-judge-hardening-deepseek-20260913.json\n?? lexis_real_briefs/experiment/results/micro-judge-hardening-deepseek-offset8-20260913.json\n?? lexis_real_briefs/experiment/results/micro-judge-hardening-gpt55-20260913.json\n?? lexis_real_briefs/experiment/results/micro-judge-hardening-gpt56terra-20260913.json\n?? lexis_real_briefs/experiment/results/micro-judge-hardening-gpt56terra-deployed-20260913.json\n?? lexis_real_briefs/experiment/results/micro-judge-hardening-grok46-20260913.json\n?? lexis_real_briefs/experiment/results/micro-judge-rule-floor-llama-4-maverick-20260913.json\n?? lexis_real_briefs/experiment/results/micro-judge-rule-floor-mistral-large-3-20260913.json\n?? lexis_real_briefs/experiment/results/micro-judge-rules-gpt55-20260913.json\n?? lexis_real_briefs/experiment/results/micro-judge-rules-gpt56terra-20260913.json\n?? lexis_real_briefs/experiment/results/micro-rules-all-fixtures-20260913/\n?? lexis_real_briefs/experiment/results/qualification-authority-f005-nested-fixed-rep1-20260913/\n?? lexis_real_briefs/experiment/results/qualification-authority-f005-nested-fixed-rep2-20260913/\n?? lexis_real_briefs/experiment/results/qualification-authority-f005-nested-fixed-rep3-20260913/\n?? lexis_real_briefs/experiment/results/qualification-authority-f005-rep1-20260913/\n?? lexis_real_briefs/experiment/results/qualification-authority-f005-stable-inventory-20260913/\n?? lexis_real_briefs/experiment/results/qualification-rule-floor-contract-rep1-20260913/\n?? lexis_real_briefs/experiment/results/qualification-rule-floor-final-rep1-20260913/\n?? lexis_real_briefs/experiment/results/qualification-rule-floor-fresh10-20260913/\n?? lexis_real_briefs/experiment/results/qualification-rule-floor-fresh10-rep2-20260913/\n?? lexis_real_briefs/experiment/results/qualification-rule-floor-gate-rep1-20260913/\n?? lexis_real_briefs/experiment/results/qualification-rule-floor-gate-rep2-20260913/\n?? lexis_real_briefs/experiment/results/qualification-rule-floor-gate-rep3-20260913/\n?? lexis_real_briefs/experiment/results/qualification-rule-floor-mistral-high-rep1-20260913/\n?? lexis_real_briefs/experiment/results/qualification-rule-floor-mistral-rep1-20260913/\n?? lexis_real_briefs/experiment/results/qualification-rule-floor-ready-rep1-20260913/\n?? lexis_real_briefs/experiment/results/qualification-rule-floor-rep1-20260913/\n?? lexis_real_briefs/experiment/results/qualification-rule-floor-repaired-rep1-20260913/\n?? lexis_real_briefs/experiment/results/qualification-rule-floor-terra-mistral-fixed-rep1-20260913/\n?? lexis_real_briefs/experiment/results/qualification-rule-floor-terra-mistral-rep1-20260913/\n?? lexis_real_briefs/experiment/results/qualification-vawa-coverage-rep1-20260913/\n?? lexis_real_briefs/experiment/results/qualification-vawa-coverage-rep2-20260913/\n?? lexis_real_briefs/experiment/results/qualification-vawa-coverage-rep3-20260913/\n?? lexis_real_briefs/experiment/tools/build_rule_floor_fixtures.py\n?? lexis_real_briefs/experiment/tools/generate_rule_floor_validation_fixtures.py\n",
+  "command": [
+    "/home/quinten/agentic_housing_drafting/.venv/bin/python",
+    "lexis_real_briefs/experiment/tools/run_experiment.py",
+    "--output-dir",
+    "lexis_real_briefs/experiment/results/qualification-rule-floor-fresh10-rep2-20260913",
+    "--fixtures-dir",
+    "lexis_real_briefs/experiment/fixtures-rule-floor-validation",
+    "--live",
+    "--attack-model",
+    "gpt-5.6-terra",
+    "--judge-model",
+    "mistral-large-3",
+    "--base-model",
+    "gpt-5.6-terra",
+    "--reasoning",
+    "medium",
+    "--check",
+    "rule_elements"
+  ],
+  "python": "3.12.3 (main, Aug 31 2026, 10:18:26) [GCC 13.3.0]",
+  "cell": "single-model",
+  "models": {
+    "attack": "gpt-5.6-terra",
+    "judge": "mistral-large-3",
+    "base": "gpt-5.6-terra"
+  },
+  "model": "gpt-5.6-terra",
+  "attack_family": "openai",
+  "judge_family": "mistral",
+  "same_family_judge": false,
+  "role_routing": "named Opponent prompts -> attack; legacy and correctness Judge prompts -> judge; everything else -> base",
+  "reasoning": "medium",
+  "temperature": 0,
+  "provider_host": "quint-mln02sj6-eastus2.cognitiveservices.azure.com",
+  "model_version_note": "Requested deployment alias; the provider's snapshot identity is not exposed to the application client.",
+  "code_sha256": "b4148a8310b5986c2bd7571e634dabc65582eb582944c2842e6f37eccc87f82b",
+  "dependencies_sha256": "f5f5236ee56cf7f75c2f0f59f570b7386388e27164eb9ec999572462072c4366",
+  "unit_budget_chars": 260000,
+  "unit_text_chars": 2400,
+  "brief_text_chars": 120000,
+  "source_ids": [
+    "ohio-cases",
+    "ohio-statutes",
+    "ohio-ordinances",
+    "treatise"
+  ],
+  "enabled_checks": [
+    "rule_elements"
+  ],
+  "blinding": "The Gym receives brief text and record text only. No fixture id, condition label, mutation class or gold vulnerability reaches any prompt.",
+  "scoring": "The Gym writes stable per-target dispositions. Whether a result matches the registered mutation remains a separate, human-checkable step.",
+  "fixtures": [
+    {
+      "fixture_id": "Q005",
+      "control_sha256": "b18484519d390eaa6c079b8957697e81fa325fc71df3cb606bdfdc9509d7e0fd",
+      "mutant_sha256": "b453d3a32506b949921a00c8e837f1439f99d0684927b52db847810383580856",
+      "attachment_sha256": {
+        "record-01.txt": "da4e5dd55d0cc209bfa28c540e35e251d8fa1b9965bee841cf131c79c6db4141"
+      }
+    },
+    {
+      "fixture_id": "Q006",
+      "control_sha256": "3131bc10ec484568d80d77100f9ead878da0eb9d1b46a24526abcd6e7f18fc89",
+      "mutant_sha256": "d3e94a5c424c2303996033e6070604f52c7f328cba4e9ad9c8c140a3866bcbaa",
+      "attachment_sha256": {
+        "record-01.txt": "5845244737867b3527181d1aac27c0eda73b06c97e720e00e49e0f0e353aeabf"
+      }
+    },
+    {
+      "fixture_id": "Q007",
+      "control_sha256": "2b40ece1d11a488b9d00a1df4a2b003a836984b0bf137d3928e4e0bc495dd8ad",
+      "mutant_sha256": "53307692ba4418ac9ccd3d7e4cd7e95cb5aec98359937419f08cfca8dc984526",
+      "attachment_sha256": {
+        "record-01.txt": "23138cd9265b5deb5ec7b60459091cf6d54f95693d3796c6906d3d16cbf9bfca"
+      }
+    },
+    {
+      "fixture_id": "Q008",
+      "control_sha256": "d877f64ca22b582dceccf2d1c5a54ec45d26107c8feaa251830b6f7ef2551b85",
+      "mutant_sha256": "49c60bddb6845b2f9693735d4326111448940feac5a7856c3354c90f8b5d3940",
+      "attachment_sha256": {
+        "record-01.txt": "9fd7afb6464dcbf3cc099f3e29aa9781ee6f67452631207e31e32a1aa90a6fb3"
+      }
+    },
+    {
+      "fixture_id": "Q009",
+      "control_sha256": "636b4cb407dca7270a09bdcbea83457fb7f6c624fc66597877128afe95d55cc5",
+      "mutant_sha256": "bd6d27b47c926317220b51aa8f2f11197c9e2ac8552a4368880654d36e26fe5a",
+      "attachment_sha256": {
+        "record-01.txt": "f13e232c06414db6fa1961f5296ea0f0300a257262913e843b77034190aeebf7"
+      }
+    },
+    {
+      "fixture_id": "Q010",
+      "control_sha256": "a6cc9a5937227aa614170107d31ec52cc83fa662720b476bdd80c1a8c2863058",
+      "mutant_sha256": "363086142c630fc78190c0b00671f3e7ec31c50b568185547459962b42e1a4c6",
+      "attachment_sha256": {
+        "record-01.txt": "53c6516aab3f1f6b3ec0d9f09518cb41b82f4674eb2a2217d8715b6b75b60b8d"
+      }
+    },
+    {
+      "fixture_id": "Q011",
+      "control_sha256": "1f270c6aaa95b3923ab35efe5b696d4ea154f441efabe0af15dfbf8cd8f947b3",
+      "mutant_sha256": "8c4d70f149fe93b9414254212c51a6c75865c8e603d6ddf6f57204ee00c5c5e5",
+      "attachment_sha256": {
+        "record-01.txt": "f23033f37caa0ac4b8f6f5b67b8e49e8261cabb63c23fc45925fa1251d7e218a"
+      }
+    },
+    {
+      "fixture_id": "Q012",
+      "control_sha256": "57937bfc90e98ba1a10ede08a1db2e291759be26acb8e53debcfe9e70d5f3285",
+      "mutant_sha256": "bb46e1dd81ddd2815a2450b05b0263645cff3887c1965d0e5b136404cbe8bda2",
+      "attachment_sha256": {
+        "record-01.txt": "f51a2168f9e3202349f3dffc8b73673b810047ce060143b127cfd4932607b11a"
+      }
+    },
+    {
+      "fixture_id": "Q013",
+      "control_sha256": "d121214a8ea82a11ca7cea5cca3f37d70fabf092a7c1deca2ac2e8dab927bf5b",
+      "mutant_sha256": "b1193fa62d8d9939f2dfd49151f150ab20b5d78cd0ca4305fde96836ede59c5e",
+      "attachment_sha256": {
+        "record-01.txt": "f28b6e6d34232e51f623e75c0e7c55df049181fb7d4de0a6fccd525b01b285a0"
+      }
+    },
+    {
+      "fixture_id": "Q014",
+      "control_sha256": "ec68932b80f89a6adcb279272d03ea327916924cb1168ef1ebe49b31e7991a41",
+      "mutant_sha256": "b4ade5ea42790ea0d874e5f3e50cab950053b2ea7428c30dd15db65241908e2d",
+      "attachment_sha256": {
+        "record-01.txt": "b200a637b1d8fb7f3b4c8cc3378d3a9e5f05495ee618215a617b42c55eff9d05"
+      }
+    }
+  ]
+}

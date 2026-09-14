@@ -1,0 +1,19 @@
+IN THE COURT OF COMMON PLEAS
+Cuyahoga County, Ohio
+
+Jane Doe, Defendant
+vs.
+Project Owner, Plaintiff
+
+MEMORANDUM
+
+Statement of Facts
+The defendant tenant entered a project-based Section 8 tenancy with the plaintiff project owner. The owner served a termination notice dated February 10, 2023, with a termination date of March 17, 2023. The notice stated that the reason for termination was nonpayment of rent, specifying an arrearage of $1,200 covering January 1, 2023, through February 28, 2023, with an effective computation date of February 28, 2023. The notice advised the tenant of the right to defend in a judicial eviction action. The lease clause governing nonpayment terminations requires a 30-day notice period (Exhibit A). The notice was served on February 10, 2023 (Exhibit B).
+
+Argument
+The termination notice must comply with 24 C.F.R. § 247.4.
+
+The notice correctly identified the covered program as project-based Section 8 and stated the termination date as March 17, 2023. It provided specific reasons for termination, namely nonpayment of rent with detailed accounting. The notice also advised the tenant of the right to defend in a judicial eviction action. The applicable timing for a nonpayment termination under the lease is 30 days, and the notice period from February 10, 2023, to March 17, 2023, satisfies this requirement.
+
+Conclusion
+The court should dismiss this action or deny possession because the termination notice failed to comply with applicable federal regulations.

@@ -1,0 +1,3785 @@
+{
+  "manifest": {
+    "registry_id": "lexis-mutation-2026-09",
+    "created_at": "2026-09-14T02:00:29.677282+00:00",
+    "mode": "live",
+    "git_commit": "12535def8d726fadccdee131e89355d615d26b5f",
+    "git_status": " M backend/apps/caselaw/management/commands/enrich_caselaw_metadata.py\n M lexis_real_briefs/experiment/tools/generate_rule_floor_review_fixtures.py\n m private-content\n?? downloaded_opinions/\n?? lexis_real_briefs/experiment/results/heldout-authority-terra-mistral-rep1-20260913/\n?? lexis_real_briefs/experiment/results/heldout-authority-terra-mistral-rep2-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-f005-attribution-grounded-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-f005-complete-opinions-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-f005-frozen-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-f005-grounded-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-f005-opinion-status-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-f005-reuse-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-live-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-live-bounded-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-live-final-f007-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-live-final-f007b-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-live-hybrid-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-live-hybrid-fixed-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-live-targeted-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-offline-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-offline-after-unavailable-fix-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-priority-frozen-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-priority-rerun-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-rules-citations-terra-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-rules-citations-terra-batched-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-rules-citations-terra-final-20260913/\n?? lexis_real_briefs/experiment/results/micro-judge-hardening-deepseek-20260913.json\n?? lexis_real_briefs/experiment/results/micro-judge-hardening-deepseek-offset8-20260913.json\n?? lexis_real_briefs/experiment/results/micro-judge-hardening-gpt55-20260913.json\n?? lexis_real_briefs/experiment/results/micro-judge-hardening-gpt56terra-20260913.json\n?? lexis_real_briefs/experiment/results/micro-judge-hardening-gpt56terra-deployed-20260913.json\n?? lexis_real_briefs/experiment/results/micro-judge-hardening-grok46-20260913.json\n?? lexis_real_briefs/experiment/results/micro-judge-rule-floor-llama-4-maverick-20260913.json\n?? lexis_real_briefs/experiment/results/micro-judge-rule-floor-mistral-large-3-20260913.json\n?? lexis_real_briefs/experiment/results/micro-judge-rules-gpt55-20260913.json\n?? lexis_real_briefs/experiment/results/micro-judge-rules-gpt56terra-20260913.json\n?? lexis_real_briefs/experiment/results/micro-rules-all-fixtures-20260913/\n?? lexis_real_briefs/experiment/results/qualification-authority-f005-nested-fixed-rep1-20260913/\n?? lexis_real_briefs/experiment/results/qualification-authority-f005-nested-fixed-rep2-20260913/\n?? lexis_real_briefs/experiment/results/qualification-authority-f005-nested-fixed-rep3-20260913/\n?? lexis_real_briefs/experiment/results/qualification-authority-f005-rep1-20260913/\n?? lexis_real_briefs/experiment/results/qualification-authority-f005-stable-inventory-20260913/\n?? lexis_real_briefs/experiment/results/qualification-rule-floor-contract-rep1-20260913/\n?? lexis_real_briefs/experiment/results/qualification-rule-floor-final-rep1-20260913/\n?? lexis_real_briefs/experiment/results/qualification-rule-floor-fresh10-20260913/\n?? lexis_real_briefs/experiment/results/qualification-rule-floor-fresh10-rep2-20260913/\n?? lexis_real_briefs/experiment/results/qualification-rule-floor-gate-rep1-20260913/\n?? lexis_real_briefs/experiment/results/qualification-rule-floor-gate-rep2-20260913/\n?? lexis_real_briefs/experiment/results/qualification-rule-floor-gate-rep3-20260913/\n?? lexis_real_briefs/experiment/results/qualification-rule-floor-mistral-high-rep1-20260913/\n?? lexis_real_briefs/experiment/results/qualification-rule-floor-mistral-rep1-20260913/\n?? lexis_real_briefs/experiment/results/qualification-rule-floor-ready-rep1-20260913/\n?? lexis_real_briefs/experiment/results/qualification-rule-floor-rep1-20260913/\n?? lexis_real_briefs/experiment/results/qualification-rule-floor-repaired-rep1-20260913/\n?? lexis_real_briefs/experiment/results/qualification-rule-floor-terra-mistral-fixed-rep1-20260913/\n?? lexis_real_briefs/experiment/results/qualification-rule-floor-terra-mistral-rep1-20260913/\n?? lexis_real_briefs/experiment/results/qualification-vawa-coverage-rep1-20260913/\n?? lexis_real_briefs/experiment/results/qualification-vawa-coverage-rep2-20260913/\n?? lexis_real_briefs/experiment/results/qualification-vawa-coverage-rep3-20260913/\n",
+    "command": [
+      "/home/quinten/agentic_housing_drafting/.venv/bin/python",
+      "/home/quinten/agentic_housing_drafting/lexis_real_briefs/experiment/tools/run_experiment.py",
+      "--output-dir",
+      "/home/quinten/agentic_housing_drafting/lexis_real_briefs/experiment/results/heldout-authority-terra-mistral-rep2-20260913/shards/H007",
+      "--fixtures-dir",
+      "/home/quinten/agentic_housing_drafting/lexis_real_briefs/experiment/fixtures-heldout-authority-20260913",
+      "--fixture",
+      "H007",
+      "--model",
+      "gpt-5.4-mini",
+      "--reasoning",
+      "medium",
+      "--live",
+      "--attack-model",
+      "gpt-5.6-terra",
+      "--judge-model",
+      "mistral-large-3",
+      "--base-model",
+      "gpt-5.6-terra",
+      "--cell",
+      "terra-mistral",
+      "--check",
+      "authority_support"
+    ],
+    "python": "3.12.3 (main, Aug 31 2026, 10:18:26) [GCC 13.3.0]",
+    "cell": "terra-mistral",
+    "models": {
+      "attack": "gpt-5.6-terra",
+      "judge": "mistral-large-3",
+      "base": "gpt-5.6-terra"
+    },
+    "model": "gpt-5.6-terra",
+    "attack_family": "openai",
+    "judge_family": "mistral",
+    "same_family_judge": false,
+    "role_routing": "named Opponent prompts -> attack; legacy and correctness Judge prompts -> judge; everything else -> base",
+    "reasoning": "medium",
+    "temperature": 0,
+    "provider_host": "quint-mln02sj6-eastus2.cognitiveservices.azure.com",
+    "model_version_note": "Requested deployment alias; the provider's snapshot identity is not exposed to the application client.",
+    "code_sha256": "0e7c6325ef9c724dd885107a7918ba4fb8ca42e66869e67bc492bfd4be55dfdf",
+    "dependencies_sha256": "f5f5236ee56cf7f75c2f0f59f570b7386388e27164eb9ec999572462072c4366",
+    "unit_budget_chars": 260000,
+    "unit_text_chars": 2400,
+    "brief_text_chars": 120000,
+    "source_ids": [
+      "ohio-cases",
+      "ohio-statutes",
+      "ohio-ordinances",
+      "treatise"
+    ],
+    "enabled_checks": [
+      "authority_support"
+    ],
+    "blinding": "The Gym receives brief text and record text only. No fixture id, condition label, mutation class or gold vulnerability reaches any prompt.",
+    "scoring": "The Gym writes stable per-target dispositions. Whether a result matches the registered mutation remains a separate, human-checkable step.",
+    "fixtures": [
+      {
+        "fixture_id": "H007",
+        "control_sha256": "bf0c794798d80f6e53341fb3884b158f957e9140cb687cb9924f6abbe2647462",
+        "mutant_sha256": "e98a1893da0bf894967fb88f6666911058981aaea392a94bb28a844c2fe5fc9c",
+        "attachment_sha256": {}
+      }
+    ]
+  },
+  "results": [
+    {
+      "fixture_id": "H007",
+      "condition": "control",
+      "case_family_id": "estate-of-anthony-notarian-et-al-vs-nota",
+      "stratum": "heldout_housing_property_authority",
+      "run_id": 34,
+      "run_at": "2026-09-14T02:01:20.712182+00:00",
+      "status": "complete",
+      "pipeline_status": "complete",
+      "degraded": null,
+      "error": "",
+      "brief_sha256": "bf0c794798d80f6e53341fb3884b158f957e9140cb687cb9924f6abbe2647462",
+      "brief_chars": 9268,
+      "record_documents": 0,
+      "attack_model": "gpt-5.6-terra",
+      "judge_model": "mistral-large-3",
+      "base_model": "gpt-5.6-terra",
+      "same_family": false,
+      "reasoning": "medium",
+      "unit_budget_chars": 260000,
+      "units": 29,
+      "court": {
+        "mode": "auto",
+        "reason": "No maintained court profile matched this document's caption or the case record.",
+        "matched": "",
+        "where": "",
+        "courtSlug": ""
+      },
+      "deterministic_findings": {
+        "authority_support": 2
+      },
+      "checks_run": [
+        {
+          "id": "record_support",
+          "label": "Test material facts against the record",
+          "description": "Opponent tests only atomic, record-verifiable, material claims; Judge sustains a defect only when the supplied evidence and record coverage establish it.",
+          "kind": "model",
+          "category": "correctness",
+          "categoryLabel": "Correctness",
+          "categoryDescription": "Is the law right? Is the authority controlling? Are the required elements present, and does the record establish what the brief says it does?",
+          "defaultEnabled": true,
+          "requires": [
+            "case_record"
+          ],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "rule_elements",
+          "label": "Audit the elements of the rules invoked",
+          "description": "Detects the rules the brief cites or invokes by name, then audits each element of those rules: is it pleaded, and is it supported.",
+          "kind": "model",
+          "category": "correctness",
+          "categoryLabel": "Correctness",
+          "categoryDescription": "Is the law right? Is the authority controlling? Are the required elements present, and does the record establish what the brief says it does?",
+          "defaultEnabled": true,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "authority_support",
+          "label": "Test cited authority support",
+          "description": "Whether each cited authority supports the material legal proposition for which the brief uses it.",
+          "kind": "model",
+          "category": "correctness",
+          "categoryLabel": "Correctness",
+          "categoryDescription": "Is the law right? Is the authority controlling? Are the required elements present, and does the record establish what the brief says it does?",
+          "defaultEnabled": true,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "on",
+          "reason": ""
+        },
+        {
+          "id": "adversarial",
+          "label": "Opposing counsel, a judge, and a coach",
+          "description": "The core of the gym: opposing counsel makes the strongest arguments available against the brief, a judge weighs them, and a coach proposes answers.",
+          "kind": "model",
+          "category": "completeness",
+          "categoryLabel": "Argumentative completeness",
+          "categoryDescription": "Does the brief connect its rules to its facts? Does it work the difficult element instead of restating the rule? Does it confront adverse authority and answer the counterargument a court will think of on its own?",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_issue_framing",
+          "label": "Issue framing",
+          "description": "Does the brief identify the real dispute early and frame it around the favorable legal question?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_macro_organization",
+          "label": "Macro-organization",
+          "description": "Are arguments ordered logically and by importance? Can the reader see the roadmap?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_paragraph_organization",
+          "label": "Paragraph-level organization",
+          "description": "Do paragraphs have discernible propositions or topic sentences, and develop one point at a time?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_rule_synthesis",
+          "label": "Rule synthesis",
+          "description": "Does the writer synthesize authorities into a rule rather than serially summarize cases?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_rule_application",
+          "label": "Rule-to-fact application",
+          "description": "Is the reasoning explicit -- \"because X fact satisfies Y element\" -- rather than leaving the inferential step to the court?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_fact_selection",
+          "label": "Fact selection and narrative coherence",
+          "description": "Are legally significant facts foregrounded and organized in a comprehensible chronology or theory?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_use_of_authority",
+          "label": "Use of authority",
+          "description": "Are important propositions backed by strong authorities placed where they actually matter, rather than citation dumping?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_counterarguments",
+          "label": "Handling counterarguments",
+          "description": "Does the brief acknowledge and answer the strongest objection rather than arguing past it?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_concision",
+          "label": "Concision and reader burden",
+          "description": "Does it say the same thing once, in the right place, without unnecessary throat-clearing?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_calibration",
+          "label": "Calibrated confidence and credibility",
+          "description": "Does it distinguish strong propositions from uncertain ones and avoid overclaiming?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_relief_alignment",
+          "label": "Requested-relief alignment",
+          "description": "Does the argument actually lead to the precise thing the brief asks the court to do?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_emphasis",
+          "label": "Emphasis",
+          "description": "Does the document devote its space to the issues that matter rather than treating every point as equally important?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "custom_checklist",
+          "label": "Custom checklist",
+          "description": "Applies review questions you wrote. An item can look things up -- authority, the case record, passages of the brief -- rather than answering from the brief alone. Attach a checklist for this to run.",
+          "kind": "model",
+          "category": "custom",
+          "categoryLabel": "Your own checks",
+          "categoryDescription": "Review questions you wrote, in your words, applied to this brief.",
+          "defaultEnabled": false,
+          "requires": [
+            "checklist"
+          ],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "court_formatting",
+          "label": "This court's filing rules",
+          "description": "Required elements, type size, spacing, margins, and page limits for the selected court.",
+          "kind": "deterministic",
+          "category": "form",
+          "categoryLabel": "Form of the filing",
+          "categoryDescription": "Whether the paper meets this court's rules and the conventions of practice.",
+          "defaultEnabled": false,
+          "requires": [
+            "court_profile"
+          ],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "pleading_form",
+          "label": "Form of the pleading",
+          "description": "Conventions of practice rather than any one court's rules: numbered paragraphs running in order, a prayer for relief, a signature block, exhibit references that resolve, no placeholder left in the text.",
+          "kind": "deterministic",
+          "category": "form",
+          "categoryLabel": "Form of the filing",
+          "categoryDescription": "Whether the paper meets this court's rules and the conventions of practice.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "draft_validation",
+          "label": "Draft-mode validation",
+          "description": "The same checks Draft mode runs: unresolved template data and placeholders, draft structure, rendered Word consistency, citation linting, source support, and filing-package consistency.",
+          "kind": "deterministic",
+          "category": "form",
+          "categoryLabel": "Form of the filing",
+          "categoryDescription": "Whether the paper meets this court's rules and the conventions of practice.",
+          "defaultEnabled": false,
+          "requires": [
+            "native_draft"
+          ],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "grammar",
+          "label": "Grammar and mechanics",
+          "description": "Doubled words, missing sentence spacing, unbalanced quotes and parentheses.",
+          "kind": "deterministic",
+          "category": "language",
+          "categoryLabel": "Language",
+          "categoryDescription": "Sentence-level mechanics, reported as nudges rather than as defects in the argument.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "confused_words",
+          "label": "Misspelled and easily confused words",
+          "description": "Not a dictionary spell check, on purpose: a general dictionary flags half of every case name. This looks for the words legal writing actually gets wrong, and for real words used in place of other real words.",
+          "kind": "deterministic",
+          "category": "language",
+          "categoryLabel": "Language",
+          "categoryDescription": "Sentence-level mechanics, reported as nudges rather than as defects in the argument.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "passive_voice",
+          "label": "Passive voice",
+          "description": "Reported as a nudge, never an error. Phrases a court expects to read are on an accepted list you can add to for this session.",
+          "kind": "deterministic",
+          "category": "language",
+          "categoryLabel": "Language",
+          "categoryDescription": "Sentence-level mechanics, reported as nudges rather than as defects in the argument.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "acceptedPassivePhrases: phrases this court expects, which the check stays quiet about.",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "readability",
+          "label": "Readability",
+          "description": "Sentence length and reading-level measures, reported as several formulas rather than one score.",
+          "kind": "deterministic",
+          "category": "language",
+          "categoryLabel": "Language",
+          "categoryDescription": "Sentence-level mechanics, reported as nudges rather than as defects in the argument.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        }
+      ],
+      "check_results": {
+        "authority_support": {
+          "findings": [
+            {
+              "ruleCode": "authority_support.procedural_posture_misstated",
+              "severity": "error",
+              "message": "Dresher does not establish that the defendants in the present case had an opportunity to present defenses or respond to a motion for partial summary judgment.",
+              "target": {
+                "unitId": "u2"
+              },
+              "details": {
+                "checkId": "authority_support",
+                "issueCode": "procedural_posture_misstated",
+                "targetId": "u2:authority1",
+                "unitId": "u2",
+                "disposition": "must_fix",
+                "claim": "Dresher v. Burt, 75 Ohio St.3d 280, 293, 662 N.E.2d 264 (1996).\nDefendants have had opportunity to present their defenses and reply to plaintiffs Motion for Partial Summary Judgment.",
+                "problem": "Dresher does not establish that the defendants in the present case had an opportunity to present defenses or respond to a motion for partial summary judgment.",
+                "briefEvidence": [
+                  "u2"
+                ],
+                "externalEvidence": [
+                  "1"
+                ],
+                "reason": "The evidence establishes that Dresher v. Burt, 75 Ohio St.3d 280, 662 N.E.2d 264 (1996) does not address the procedural posture or outcome regarding the opportunity of defendants to present defenses or respond to a motion for partial summary judgment. The decision solely concerns the standards for granting summary judgment under Civ.R. 56, as evidenced by the quote: 'The sole issue in this appeal involves the standards for granting summary judgment when the moving party asserts that the nonmoving party has no evidence to establish an essential element of the nonmoving party\u2019s case.'",
+                "confidence": "high",
+                "userVisible": true
+              }
+            },
+            {
+              "ruleCode": "authority_support.authority_support_mismatch",
+              "severity": "error",
+              "message": "The claimed case name is \"Wos v. Wos,\" but the cited authority is captioned In re Estate of McDaniel.",
+              "target": {
+                "unitId": "u10"
+              },
+              "details": {
+                "checkId": "authority_support",
+                "issueCode": "authority_support_mismatch",
+                "targetId": "u10:authority1",
+                "unitId": "u10",
+                "disposition": "must_fix",
+                "claim": "Matter of Estate of McDaniel, 7th Dist. No. 22 CA 0956, 2023-Ohio-1065, 212 N.E.3d 351;",
+                "problem": "The claimed case name is \"Wos v. Wos,\" but the cited authority is captioned In re Estate of McDaniel.",
+                "briefEvidence": [
+                  "u10"
+                ],
+                "externalEvidence": [
+                  "2"
+                ],
+                "reason": "The evidence contradicts the claim that the cited authority is 'Wos v. Wos.' The source explicitly identifies the decision as 'In re Estate of McDaniel, 7th Dist. No. 22 CA 0956, 2023-Ohio-1065,' as shown in the quote: '[Cite as In re Estate of McDaniel, 2023-Ohio-1065.]' and 'IN THE MATTER OF: ESTATE OF: HELEN L. MCDANIEL.'",
+                "confidence": "high",
+                "userVisible": true
+              }
+            }
+          ],
+          "tests": [
+            {
+              "checkId": "authority_support",
+              "issueCode": "nested_authority_attribution_unmeasured",
+              "targetId": "u5:authority3",
+              "unitId": "u5",
+              "disposition": "review",
+              "claim": "85640, 2005-Ohio-4998, J 22 (\"The power to manage real property as described in R.C. 2113.311 ...",
+              "problem": "The citation appears inside language attributed to another source, so the surrounding quotation was not treated as a verbatim attribution to this citation.",
+              "briefEvidence": [
+                "u5"
+              ],
+              "externalEvidence": [],
+              "reason": "Nested attribution requires a separate source-chain analysis.",
+              "confidence": "low",
+              "userVisible": false
+            },
+            {
+              "checkId": "authority_support",
+              "issueCode": "authority_unverifiable",
+              "targetId": "u5:authority1",
+              "unitId": "u5",
+              "disposition": "review",
+              "claim": "Plaintiff will address these matters one at a time.\nFirst, R.C. \u00a7 2113.311(E) grants estate executors and administrators statutory authority to manage estate property and \"[p]rosecute actions for forcible entry and detainer\" as a form of managing estate property.",
+              "problem": "The cited authority R.C. \u00a7 2113.311(E) could not be verified from retrieved source text.",
+              "briefEvidence": [
+                "u5"
+              ],
+              "externalEvidence": [],
+              "reason": "Unretrieved authority cannot establish a citation defect.",
+              "confidence": "low",
+              "userVisible": false
+            },
+            {
+              "checkId": "authority_support",
+              "issueCode": "authority_unverifiable",
+              "targetId": "u5:authority2",
+              "unitId": "u5",
+              "disposition": "review",
+              "claim": "See In re Estate of Jacob, 8th Dist. Cuyahoga No. 85640, 2005-Ohio-4998, J 22 (\"The power to manage real property as described in R.C. 2113.311 ... includes, among other things, the power to make repairs, insure the premises and to prosecute actions for forcible entry and detainer.\");",
+              "problem": "The cited authority Estate of Jacob, 8th Dist. Cuyahoga No. 85640, 2005-Ohio-4998, J 22 (\"The power to manage real property as described in R.C. 2113.311 ... includes, among other things, the power to make repairs, insure the premises and to prosecute actions for forcib could not be verified from retrieved source text.",
+              "briefEvidence": [
+                "u5"
+              ],
+              "externalEvidence": [],
+              "reason": "Unretrieved authority cannot establish a citation defect.",
+              "confidence": "low",
+              "userVisible": false
+            },
+            {
+              "checkId": "authority_support",
+              "issueCode": "authority_unverifiable",
+              "targetId": "u20:authority2",
+              "unitId": "u20",
+              "disposition": "review",
+              "claim": "Gino Notarian never had the ability to convey the property to himself, and never had valid title to convey to Julia Notarian and Charles Rossbach III.\nIt is undisputed Gino Notarian signed over title of the real property located at 8127 Cedar Road to defendants after plaintiff brought an action under R.C. 2109.50 to recover the property from him.",
+              "problem": "The cited authority R.C. 2109.50 could not be verified from retrieved source text.",
+              "briefEvidence": [
+                "u20"
+              ],
+              "externalEvidence": [],
+              "reason": "Unretrieved authority cannot establish a citation defect.",
+              "confidence": "low",
+              "userVisible": false
+            },
+            {
+              "checkId": "authority_support",
+              "issueCode": "authority_unverifiable",
+              "targetId": "u20:authority3",
+              "unitId": "u20",
+              "disposition": "review",
+              "claim": "R.C. 2109.56 states \"All gifts, grants, or conveyances of real property ...",
+              "problem": "The cited authority R.C. 2109.56 could not be verified from retrieved source text.",
+              "briefEvidence": [
+                "u20"
+              ],
+              "externalEvidence": [],
+              "reason": "Unretrieved authority cannot establish a citation defect.",
+              "confidence": "low",
+              "userVisible": false
+            },
+            {
+              "checkId": "authority_support",
+              "issueCode": "authority_unverifiable",
+              "targetId": "u25:authority1",
+              "unitId": "u25",
+              "disposition": "review",
+              "claim": "Dev. Corp. v. Speedy, 2023-Ohio-1796, J 26-28, 216 N.E.3d 18, 26.",
+              "problem": "The cited authority Dev. Corp. v. Speedy, 2023-Ohio-1796, J 26-28, 216 N.E.3d 18, 26 could not be verified from retrieved source text.",
+              "briefEvidence": [
+                "u25"
+              ],
+              "externalEvidence": [],
+              "reason": "Unretrieved authority cannot establish a citation defect.",
+              "confidence": "low",
+              "userVisible": false
+            },
+            {
+              "checkId": "authority_support",
+              "issueCode": "procedural_posture_misstated",
+              "targetId": "u2:authority1",
+              "unitId": "u2",
+              "disposition": "must_fix",
+              "claim": "Dresher v. Burt, 75 Ohio St.3d 280, 293, 662 N.E.2d 264 (1996).\nDefendants have had opportunity to present their defenses and reply to plaintiffs Motion for Partial Summary Judgment.",
+              "problem": "Dresher does not establish that the defendants in the present case had an opportunity to present defenses or respond to a motion for partial summary judgment.",
+              "briefEvidence": [
+                "u2"
+              ],
+              "externalEvidence": [
+                "1"
+              ],
+              "reason": "The evidence establishes that Dresher v. Burt, 75 Ohio St.3d 280, 662 N.E.2d 264 (1996) does not address the procedural posture or outcome regarding the opportunity of defendants to present defenses or respond to a motion for partial summary judgment. The decision solely concerns the standards for granting summary judgment under Civ.R. 56, as evidenced by the quote: 'The sole issue in this appeal involves the standards for granting summary judgment when the moving party asserts that the nonmoving party has no evidence to establish an essential element of the nonmoving party\u2019s case.'",
+              "confidence": "high",
+              "userVisible": true
+            },
+            {
+              "checkId": "authority_support",
+              "issueCode": "opinion_status_not_applicable",
+              "targetId": "u2:authority1:opinion_status",
+              "unitId": "u2",
+              "disposition": "pass",
+              "claim": "Dresher v. Burt, 75 Ohio St.3d 280, 293, 662 N.E.2d 264 (1996).\nDefendants have had opportunity to present their defenses and reply to plaintiffs Motion for Partial Summary Judgment.",
+              "problem": "",
+              "briefEvidence": [
+                "u2"
+              ],
+              "externalEvidence": [],
+              "reason": "No language is attributed to a dissenting, concurring, or plurality opinion, and the target does not rely on any nonmajority opinion.",
+              "confidence": "high",
+              "userVisible": false
+            },
+            {
+              "checkId": "authority_support",
+              "issueCode": "authority_support_mismatch",
+              "targetId": "u10:authority1",
+              "unitId": "u10",
+              "disposition": "must_fix",
+              "claim": "Matter of Estate of McDaniel, 7th Dist. No. 22 CA 0956, 2023-Ohio-1065, 212 N.E.3d 351;",
+              "problem": "The claimed case name is \"Wos v. Wos,\" but the cited authority is captioned In re Estate of McDaniel.",
+              "briefEvidence": [
+                "u10"
+              ],
+              "externalEvidence": [
+                "2"
+              ],
+              "reason": "The evidence contradicts the claim that the cited authority is 'Wos v. Wos.' The source explicitly identifies the decision as 'In re Estate of McDaniel, 7th Dist. No. 22 CA 0956, 2023-Ohio-1065,' as shown in the quote: '[Cite as In re Estate of McDaniel, 2023-Ohio-1065.]' and 'IN THE MATTER OF: ESTATE OF: HELEN L. MCDANIEL.'",
+              "confidence": "high",
+              "userVisible": true
+            },
+            {
+              "checkId": "authority_support",
+              "issueCode": "opinion_status_not_applicable",
+              "targetId": "u10:authority1:opinion_status",
+              "unitId": "u10",
+              "disposition": "pass",
+              "claim": "Matter of Estate of McDaniel, 7th Dist. No. 22 CA 0956, 2023-Ohio-1065, 212 N.E.3d 351;",
+              "problem": "",
+              "briefEvidence": [
+                "u10"
+              ],
+              "externalEvidence": [],
+              "reason": "The target does not attribute any language or proposition to a concurrence, dissent, plurality, or other nonmajority opinion.",
+              "confidence": "high",
+              "userVisible": false
+            },
+            {
+              "checkId": "authority_support",
+              "issueCode": "authority_supported",
+              "targetId": "u20:authority1",
+              "unitId": "u20",
+              "disposition": "pass",
+              "claim": "Goldberg v. Maloney, 111 Ohio St.3d 211, 2006-Ohio-5485, 855 N.E.2d 856, at J34-36.",
+              "problem": "",
+              "briefEvidence": [
+                "u20"
+              ],
+              "externalEvidence": [
+                "3"
+              ],
+              "reason": "The evidence supports the identity of the cited authority as Goldberg v. Maloney, 111 Ohio St.3d 211, 2006-Ohio-5485, as confirmed by the quote: '[Cite as Goldberg v. Maloney, 111 Ohio St.3d 211, 2006-Ohio-5485.]' The pinpoint reference 'J34-36' is unmeasured but does not undermine the general support for the authority's identity.",
+              "confidence": "high",
+              "userVisible": true
+            },
+            {
+              "checkId": "authority_support",
+              "issueCode": "opinion_status_not_applicable",
+              "targetId": "u20:authority1:opinion_status",
+              "unitId": "u20",
+              "disposition": "pass",
+              "claim": "Goldberg v. Maloney, 111 Ohio St.3d 211, 2006-Ohio-5485, 855 N.E.2d 856, at J34-36.",
+              "problem": "",
+              "briefEvidence": [
+                "u20"
+              ],
+              "externalEvidence": [
+                "3"
+              ],
+              "reason": "No language is attributed to a nonmajority opinion, and the source identifies the decision as a per curiam opinion without reliance on any nonmajority language.",
+              "confidence": "high",
+              "userVisible": false
+            }
+          ],
+          "summary": "2 must fix, 0 review, 4 passed, 6 could not be verified"
+        }
+      },
+      "correctness_tests": [
+        {
+          "checkId": "authority_support",
+          "issueCode": "nested_authority_attribution_unmeasured",
+          "targetId": "u5:authority3",
+          "unitId": "u5",
+          "disposition": "review",
+          "claim": "85640, 2005-Ohio-4998, J 22 (\"The power to manage real property as described in R.C. 2113.311 ...",
+          "problem": "The citation appears inside language attributed to another source, so the surrounding quotation was not treated as a verbatim attribution to this citation.",
+          "briefEvidence": [
+            "u5"
+          ],
+          "externalEvidence": [],
+          "reason": "Nested attribution requires a separate source-chain analysis.",
+          "confidence": "low",
+          "userVisible": false
+        },
+        {
+          "checkId": "authority_support",
+          "issueCode": "authority_unverifiable",
+          "targetId": "u5:authority1",
+          "unitId": "u5",
+          "disposition": "review",
+          "claim": "Plaintiff will address these matters one at a time.\nFirst, R.C. \u00a7 2113.311(E) grants estate executors and administrators statutory authority to manage estate property and \"[p]rosecute actions for forcible entry and detainer\" as a form of managing estate property.",
+          "problem": "The cited authority R.C. \u00a7 2113.311(E) could not be verified from retrieved source text.",
+          "briefEvidence": [
+            "u5"
+          ],
+          "externalEvidence": [],
+          "reason": "Unretrieved authority cannot establish a citation defect.",
+          "confidence": "low",
+          "userVisible": false
+        },
+        {
+          "checkId": "authority_support",
+          "issueCode": "authority_unverifiable",
+          "targetId": "u5:authority2",
+          "unitId": "u5",
+          "disposition": "review",
+          "claim": "See In re Estate of Jacob, 8th Dist. Cuyahoga No. 85640, 2005-Ohio-4998, J 22 (\"The power to manage real property as described in R.C. 2113.311 ... includes, among other things, the power to make repairs, insure the premises and to prosecute actions for forcible entry and detainer.\");",
+          "problem": "The cited authority Estate of Jacob, 8th Dist. Cuyahoga No. 85640, 2005-Ohio-4998, J 22 (\"The power to manage real property as described in R.C. 2113.311 ... includes, among other things, the power to make repairs, insure the premises and to prosecute actions for forcib could not be verified from retrieved source text.",
+          "briefEvidence": [
+            "u5"
+          ],
+          "externalEvidence": [],
+          "reason": "Unretrieved authority cannot establish a citation defect.",
+          "confidence": "low",
+          "userVisible": false
+        },
+        {
+          "checkId": "authority_support",
+          "issueCode": "authority_unverifiable",
+          "targetId": "u20:authority2",
+          "unitId": "u20",
+          "disposition": "review",
+          "claim": "Gino Notarian never had the ability to convey the property to himself, and never had valid title to convey to Julia Notarian and Charles Rossbach III.\nIt is undisputed Gino Notarian signed over title of the real property located at 8127 Cedar Road to defendants after plaintiff brought an action under R.C. 2109.50 to recover the property from him.",
+          "problem": "The cited authority R.C. 2109.50 could not be verified from retrieved source text.",
+          "briefEvidence": [
+            "u20"
+          ],
+          "externalEvidence": [],
+          "reason": "Unretrieved authority cannot establish a citation defect.",
+          "confidence": "low",
+          "userVisible": false
+        },
+        {
+          "checkId": "authority_support",
+          "issueCode": "authority_unverifiable",
+          "targetId": "u20:authority3",
+          "unitId": "u20",
+          "disposition": "review",
+          "claim": "R.C. 2109.56 states \"All gifts, grants, or conveyances of real property ...",
+          "problem": "The cited authority R.C. 2109.56 could not be verified from retrieved source text.",
+          "briefEvidence": [
+            "u20"
+          ],
+          "externalEvidence": [],
+          "reason": "Unretrieved authority cannot establish a citation defect.",
+          "confidence": "low",
+          "userVisible": false
+        },
+        {
+          "checkId": "authority_support",
+          "issueCode": "authority_unverifiable",
+          "targetId": "u25:authority1",
+          "unitId": "u25",
+          "disposition": "review",
+          "claim": "Dev. Corp. v. Speedy, 2023-Ohio-1796, J 26-28, 216 N.E.3d 18, 26.",
+          "problem": "The cited authority Dev. Corp. v. Speedy, 2023-Ohio-1796, J 26-28, 216 N.E.3d 18, 26 could not be verified from retrieved source text.",
+          "briefEvidence": [
+            "u25"
+          ],
+          "externalEvidence": [],
+          "reason": "Unretrieved authority cannot establish a citation defect.",
+          "confidence": "low",
+          "userVisible": false
+        },
+        {
+          "checkId": "authority_support",
+          "issueCode": "procedural_posture_misstated",
+          "targetId": "u2:authority1",
+          "unitId": "u2",
+          "disposition": "must_fix",
+          "claim": "Dresher v. Burt, 75 Ohio St.3d 280, 293, 662 N.E.2d 264 (1996).\nDefendants have had opportunity to present their defenses and reply to plaintiffs Motion for Partial Summary Judgment.",
+          "problem": "Dresher does not establish that the defendants in the present case had an opportunity to present defenses or respond to a motion for partial summary judgment.",
+          "briefEvidence": [
+            "u2"
+          ],
+          "externalEvidence": [
+            "1"
+          ],
+          "reason": "The evidence establishes that Dresher v. Burt, 75 Ohio St.3d 280, 662 N.E.2d 264 (1996) does not address the procedural posture or outcome regarding the opportunity of defendants to present defenses or respond to a motion for partial summary judgment. The decision solely concerns the standards for granting summary judgment under Civ.R. 56, as evidenced by the quote: 'The sole issue in this appeal involves the standards for granting summary judgment when the moving party asserts that the nonmoving party has no evidence to establish an essential element of the nonmoving party\u2019s case.'",
+          "confidence": "high",
+          "userVisible": true
+        },
+        {
+          "checkId": "authority_support",
+          "issueCode": "opinion_status_not_applicable",
+          "targetId": "u2:authority1:opinion_status",
+          "unitId": "u2",
+          "disposition": "pass",
+          "claim": "Dresher v. Burt, 75 Ohio St.3d 280, 293, 662 N.E.2d 264 (1996).\nDefendants have had opportunity to present their defenses and reply to plaintiffs Motion for Partial Summary Judgment.",
+          "problem": "",
+          "briefEvidence": [
+            "u2"
+          ],
+          "externalEvidence": [],
+          "reason": "No language is attributed to a dissenting, concurring, or plurality opinion, and the target does not rely on any nonmajority opinion.",
+          "confidence": "high",
+          "userVisible": false
+        },
+        {
+          "checkId": "authority_support",
+          "issueCode": "authority_support_mismatch",
+          "targetId": "u10:authority1",
+          "unitId": "u10",
+          "disposition": "must_fix",
+          "claim": "Matter of Estate of McDaniel, 7th Dist. No. 22 CA 0956, 2023-Ohio-1065, 212 N.E.3d 351;",
+          "problem": "The claimed case name is \"Wos v. Wos,\" but the cited authority is captioned In re Estate of McDaniel.",
+          "briefEvidence": [
+            "u10"
+          ],
+          "externalEvidence": [
+            "2"
+          ],
+          "reason": "The evidence contradicts the claim that the cited authority is 'Wos v. Wos.' The source explicitly identifies the decision as 'In re Estate of McDaniel, 7th Dist. No. 22 CA 0956, 2023-Ohio-1065,' as shown in the quote: '[Cite as In re Estate of McDaniel, 2023-Ohio-1065.]' and 'IN THE MATTER OF: ESTATE OF: HELEN L. MCDANIEL.'",
+          "confidence": "high",
+          "userVisible": true
+        },
+        {
+          "checkId": "authority_support",
+          "issueCode": "opinion_status_not_applicable",
+          "targetId": "u10:authority1:opinion_status",
+          "unitId": "u10",
+          "disposition": "pass",
+          "claim": "Matter of Estate of McDaniel, 7th Dist. No. 22 CA 0956, 2023-Ohio-1065, 212 N.E.3d 351;",
+          "problem": "",
+          "briefEvidence": [
+            "u10"
+          ],
+          "externalEvidence": [],
+          "reason": "The target does not attribute any language or proposition to a concurrence, dissent, plurality, or other nonmajority opinion.",
+          "confidence": "high",
+          "userVisible": false
+        },
+        {
+          "checkId": "authority_support",
+          "issueCode": "authority_supported",
+          "targetId": "u20:authority1",
+          "unitId": "u20",
+          "disposition": "pass",
+          "claim": "Goldberg v. Maloney, 111 Ohio St.3d 211, 2006-Ohio-5485, 855 N.E.2d 856, at J34-36.",
+          "problem": "",
+          "briefEvidence": [
+            "u20"
+          ],
+          "externalEvidence": [
+            "3"
+          ],
+          "reason": "The evidence supports the identity of the cited authority as Goldberg v. Maloney, 111 Ohio St.3d 211, 2006-Ohio-5485, as confirmed by the quote: '[Cite as Goldberg v. Maloney, 111 Ohio St.3d 211, 2006-Ohio-5485.]' The pinpoint reference 'J34-36' is unmeasured but does not undermine the general support for the authority's identity.",
+          "confidence": "high",
+          "userVisible": true
+        },
+        {
+          "checkId": "authority_support",
+          "issueCode": "opinion_status_not_applicable",
+          "targetId": "u20:authority1:opinion_status",
+          "unitId": "u20",
+          "disposition": "pass",
+          "claim": "Goldberg v. Maloney, 111 Ohio St.3d 211, 2006-Ohio-5485, 855 N.E.2d 856, at J34-36.",
+          "problem": "",
+          "briefEvidence": [
+            "u20"
+          ],
+          "externalEvidence": [
+            "3"
+          ],
+          "reason": "No language is attributed to a nonmajority opinion, and the source identifies the decision as a per curiam opinion without reliance on any nonmajority language.",
+          "confidence": "high",
+          "userVisible": false
+        }
+      ],
+      "rule_audit": [],
+      "compliance": {
+        "checked": false,
+        "reason": "You turned this check off for this session.",
+        "findings": [],
+        "detection": {
+          "mode": "auto",
+          "reason": "No maintained court profile matched this document's caption or the case record.",
+          "matched": "",
+          "where": "",
+          "courtSlug": ""
+        }
+      },
+      "challenges": [
+        {
+          "ordinal": 1,
+          "category": "legal_authority",
+          "severity": "high",
+          "confidence": "high",
+          "opponent_argument": "Dresher does not establish that the defendants in the present case had an opportunity to present defenses or respond to a motion for partial summary judgment.",
+          "why_it_matters": "The evidence establishes that Dresher v. Burt, 75 Ohio St.3d 280, 662 N.E.2d 264 (1996) does not address the procedural posture or outcome regarding the opportunity of defendants to present defenses or respond to a motion for partial summary judgment. The decision solely concerns the standards for granting summary judgment under Civ.R. 56, as evidenced by the quote: 'The sole issue in this appeal involves the standards for granting summary judgment when the moving party asserts that the nonmoving party has no evidence to establish an essential element of the nonmoving party\u2019s case.'",
+          "target": {
+            "unitId": "u2",
+            "section": "",
+            "paragraph": 2,
+            "page": null,
+            "excerpt": "her initial burden, thus the burden shifted to defendants to set forth facts showing there still exists a genuine issue for trial. Dresher v. Burt, 75 Ohio St.3d 280, 293, 662 N.E.2d 264 (1996).\nDefendants have had opportunity to present their defenses and reply to plaintiffs Motion for Partial Summ",
+            "blockKey": ""
+          },
+          "legal_sources": [
+            {
+              "id": "1",
+              "title": "Dresher v. Burt",
+              "citation": "662 N.E.2d 264",
+              "snippet": "",
+              "sourceKind": "local_cases",
+              "sourceLabel": "Local case law",
+              "url": "/api/caselaw/decisions/1214/",
+              "externalId": "local-case:1214:30998",
+              "metadata": {
+                "decisionId": 1214,
+                "court": "",
+                "county": "",
+                "judge": "",
+                "decisionDate": "1996-03-06",
+                "entryDate": null,
+                "publicationStatus": "Published",
+                "precedentialStatus": "Published",
+                "authorityLevel": "",
+                "treatmentStatus": "unchecked",
+                "metadataVerified": false,
+                "approvedForDrafting": false,
+                "documentType": "overview",
+                "issues": [],
+                "searchKeywords": [],
+                "statutesCited": [],
+                "regulationsCited": [],
+                "casesCited": [],
+                "sourceSha256": "5dd1cdc4088f5fb4fbc0897a8df9328da4e828d43c4b25a50f0fd78baf6710a1",
+                "warning": "Treatment/currentness has not been checked.",
+                "rankScore": 10081
+              },
+              "queries": [
+                "\"Dresher v. Burt, 75 Ohio St.3d 280, 293, 662 N.E.2d 264 (1996)\""
+              ],
+              "targets": [
+                "u2:authority1"
+              ],
+              "snippet_removed": true
+            }
+          ],
+          "record_sources": [],
+          "judge_assessment": "The evidence establishes that Dresher v. Burt, 75 Ohio St.3d 280, 662 N.E.2d 264 (1996) does not address the procedural posture or outcome regarding the opportunity of defendants to present defenses or respond to a motion for partial summary judgment. The decision solely concerns the standards for granting summary judgment under Civ.R. 56, as evidenced by the quote: 'The sole issue in this appeal involves the standards for granting summary judgment when the moving party asserts that the nonmoving party has no evidence to establish an essential element of the nonmoving party\u2019s case.'",
+          "judge_verdict": "sustained",
+          "suggested_response": "Under Dresher, once the movant satisfies her initial burden, the nonmovant must set forth specific facts demonstrating a genuine issue for trial. Dresher v. Burt, 75 Ohio St.3d 280, 293, 662 N.E.2d 264 (1996).",
+          "coaching_recommendation": "Delete the unsupported assertion that defendants had an opportunity to respond. Limit the citation to Dresher's rule concerning the nonmovant's reciprocal burden after the movant satisfies the initial burden.",
+          "disposition": "open"
+        },
+        {
+          "ordinal": 2,
+          "category": "legal_authority",
+          "severity": "high",
+          "confidence": "high",
+          "opponent_argument": "The claimed case name is \"Wos v. Wos,\" but the cited authority is captioned In re Estate of McDaniel.",
+          "why_it_matters": "The evidence contradicts the claim that the cited authority is 'Wos v. Wos.' The source explicitly identifies the decision as 'In re Estate of McDaniel, 7th Dist. No. 22 CA 0956, 2023-Ohio-1065,' as shown in the quote: '[Cite as In re Estate of McDaniel, 2023-Ohio-1065.]' and 'IN THE MATTER OF: ESTATE OF: HELEN L. MCDANIEL.'",
+          "target": {
+            "unitId": "u10",
+            "section": "",
+            "paragraph": 4,
+            "page": null,
+            "excerpt": "It is not unusual for estate executors and administrators to bring forcible entry and detainer actions pursuant to probate court orders to manage property. Sed \u00ab. Mundy, 11th Dist. Portage No. 2016-P-0019, 2016-Ohio-8431; Estate of Wos v. Wos, 6th Dist. Lucas No. L-05-1408, 2006-Ohio-4302; Matter of",
+            "blockKey": ""
+          },
+          "legal_sources": [
+            {
+              "id": "2",
+              "title": "Wos v. Wos",
+              "citation": "2023-Ohio-1065",
+              "snippet": "",
+              "sourceKind": "ohio_reported_decisions",
+              "sourceLabel": "Supreme Court of Ohio Reporter of Decisions",
+              "url": "https://www.supremecourt.ohio.gov/rod/docs/pdf/7/2023/2023-Ohio-1065.pdf",
+              "externalId": "ohio-rod:2023-Ohio-1065",
+              "queries": [
+                "\"Matter of Estate of McDaniel, 7th Dist. No. 22 CA 0956, 2023-Ohio-1065, 212 N.E.3d 351\""
+              ],
+              "targets": [
+                "u10:authority1"
+              ],
+              "metadata": {
+                "targetId": "u10:authority1",
+                "decisionId": 1298,
+                "provider": "Supreme Court of Ohio"
+              },
+              "snippet_removed": true
+            }
+          ],
+          "record_sources": [],
+          "judge_assessment": "The evidence contradicts the claim that the cited authority is 'Wos v. Wos.' The source explicitly identifies the decision as 'In re Estate of McDaniel, 7th Dist. No. 22 CA 0956, 2023-Ohio-1065,' as shown in the quote: '[Cite as In re Estate of McDaniel, 2023-Ohio-1065.]' and 'IN THE MATTER OF: ESTATE OF: HELEN L. MCDANIEL.'",
+          "judge_verdict": "sustained",
+          "suggested_response": "In re Estate of McDaniel, 7th Dist. No. 22 CA 0956, 2023-Ohio-1065, 212 N.E.3d 351;",
+          "coaching_recommendation": "Correct the case name for the 2023-Ohio-1065 authority to its reported caption. The supplied source identifies that decision as In re Estate of McDaniel, not Matter of Estate of McDaniel.",
+          "disposition": "open"
+        }
+      ],
+      "challenge_count": 2,
+      "opponent_calls": [
+        {
+          "prompt_key": "argument_gym.authority_opponent",
+          "payload": {
+            "challenges": [
+              {
+                "targetId": "u2:authority1",
+                "attributionType": "procedural_posture_or_outcome",
+                "evidenceState": "overstated",
+                "challenge": "Dresher does not establish that the defendants in the present case had an opportunity to present defenses or respond to a motion for partial summary judgment.",
+                "reason": "The cited decision addresses the standards governing summary judgment and the movant's initial Civ.R. 56 burden. It does not concern, or supply a procedural outcome regarding, the parties in this litigation having an opportunity to respond.",
+                "evidenceRefs": [
+                  "1"
+                ],
+                "sourcePassage": "\"The sole issue in this appeal involves the standards for granting summary judgment when the moving party asserts that the nonmoving party has no evidence to establish an essential element of the nonmoving party\u2019s case.\"",
+                "opinionStatusState": "not_applicable",
+                "opinionStatusChallenge": "",
+                "opinionStatusReason": "No language is attributed to a particular opinion type, and the target does not quote or rely on a dissenting, concurring, or plurality opinion.",
+                "opinionStatusEvidenceRefs": [],
+                "opinionStatusPassage": ""
+              },
+              {
+                "targetId": "u10:authority1",
+                "attributionType": "general_support",
+                "evidenceState": "contradicted",
+                "challenge": "The claimed case name is \"Wos v. Wos,\" but the cited authority is captioned In re Estate of McDaniel.",
+                "reason": "The source identifies the decision as In re Estate of McDaniel, Case No. 22 CA 0956, 2023-Ohio-1065. It is not Wos v. Wos.",
+                "evidenceRefs": [
+                  "2"
+                ],
+                "sourcePassage": "\"[Cite as In re Estate of McDaniel, 2023-Ohio-1065.]\" ... \"IN THE MATTER OF: ESTATE OF: HELEN L. MCDANIEL\" ... \"Case No. 22 CA 0956.\"",
+                "opinionStatusState": "not_applicable",
+                "opinionStatusChallenge": "",
+                "opinionStatusReason": "The target attributes no quoted language or proposition to a concurrence, dissent, plurality, or other nonmajority opinion.",
+                "opinionStatusEvidenceRefs": [],
+                "opinionStatusPassage": ""
+              },
+              {
+                "targetId": "u20:authority1",
+                "attributionType": "general_support",
+                "evidenceState": "supported",
+                "challenge": "",
+                "reason": "The source is Goldberg v. Maloney, 111 Ohio St.3d 211, 2006-Ohio-5485, and thus supports the identity of the bare cited authority. The supplied material does not provide measurable verification of the separate \"J34-36\" reference.",
+                "evidenceRefs": [
+                  "3"
+                ],
+                "sourcePassage": "\"[Cite as Goldberg v. Maloney, 111 Ohio St.3d 211, 2006-Ohio-5485.]\"",
+                "opinionStatusState": "not_applicable",
+                "opinionStatusChallenge": "",
+                "opinionStatusReason": "No language is attributed to a particular opinion type. The source identifies the decision as a per curiam opinion, but no nonmajority language is invoked by the target.",
+                "opinionStatusEvidenceRefs": [
+                  "3"
+                ],
+                "opinionStatusPassage": "\"Per Curiam.\""
+              }
+            ]
+          }
+        }
+      ],
+      "judge_calls": [],
+      "verdict": "correctness review completed",
+      "assessment": "Correctness review completed. 2 must-fix findings; 0 items need attorney review. Authority support: 2 failure, 0 review",
+      "stage_trace": [
+        {
+          "stage": "document_checks",
+          "method": "deterministic",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "materials",
+          "method": "none",
+          "count": 0,
+          "budgetChars": 150000,
+          "perMaterialChars": 150000,
+          "truncated": [],
+          "trace": []
+        },
+        {
+          "stage": "argument_map",
+          "method": "skipped",
+          "count": 0,
+          "trace": [
+            "No selected check requires a generative argument map."
+          ]
+        },
+        {
+          "stage": "persuasion",
+          "method": "off",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "record_targets",
+          "method": "off",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "opponent:record_support",
+          "method": "off",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "authority_research",
+          "method": "source_specific",
+          "count": 3,
+          "trace": [
+            {
+              "query": "\"Dresher v. Burt, 75 Ohio St.3d 280, 293, 662 N.E.2d 264 (1996)\"",
+              "purpose": "Resolve cited authority Dresher v. Burt, 75 Ohio St.3d 280, 293, 662 N.E.2d 264 (1996).",
+              "targets": [
+                "u2:authority1"
+              ],
+              "sourceIds": [
+                "ohio-cases",
+                "ohio-statutes",
+                "ohio-ordinances",
+                "treatise"
+              ],
+              "resultCount": 1,
+              "rejectedResultCount": 19,
+              "augmentation": {
+                "finalEvaluation": {
+                  "adequate": true,
+                  "reasons": []
+                }
+              }
+            },
+            {
+              "query": "\"R.C. \u00a7 2113.311(E)\"",
+              "purpose": "Resolve cited authority R.C. \u00a7 2113.311(E).",
+              "targets": [
+                "u5:authority1"
+              ],
+              "sourceIds": [
+                "ohio-cases",
+                "ohio-statutes",
+                "ohio-ordinances",
+                "treatise"
+              ],
+              "resultCount": 0,
+              "rejectedResultCount": 20,
+              "augmentation": {
+                "finalEvaluation": {
+                  "adequate": false,
+                  "reasons": [
+                    "The cited authority was not resolved."
+                  ]
+                }
+              },
+              "freeReportedFallback": {
+                "method": "ohio_rod_then_cap",
+                "ohioRequested": 3,
+                "ohioResolved": 3,
+                "capRequested": 1,
+                "capResolved": 0,
+                "resolved": 3
+              },
+              "externalFallback": {
+                "method": "off",
+                "requested": 0,
+                "resolved": 0
+              }
+            },
+            {
+              "query": "\"Estate of Jacob, 8th Dist. Cuyahoga No. 85640, 2005-Ohio-4998, J 22 (\"The power to manage real property as described in R.C. 2113.311 ... includes, among other things, the power to make repairs, insure the premises and to prosecute actions for forcib\"",
+              "purpose": "Resolve cited authority Estate of Jacob, 8th Dist. Cuyahoga No. 85640, 2005-Ohio-4998, J 22 (\"The power to manage real property as described in R.C. 2113.311 ... includes, among other things, the power to make repairs, insure the premises and to prosecute actions for forcib.",
+              "targets": [
+                "u5:authority2"
+              ],
+              "sourceIds": [
+                "ohio-cases",
+                "ohio-statutes",
+                "ohio-ordinances",
+                "treatise"
+              ],
+              "resultCount": 0,
+              "rejectedResultCount": 20,
+              "augmentation": {
+                "finalEvaluation": {
+                  "adequate": false,
+                  "reasons": [
+                    "The cited authority was not resolved."
+                  ]
+                }
+              },
+              "freeReportedFallback": {
+                "method": "ohio_rod_then_cap",
+                "ohioRequested": 3,
+                "ohioResolved": 3,
+                "capRequested": 1,
+                "capResolved": 0,
+                "resolved": 3
+              },
+              "externalFallback": {
+                "method": "off",
+                "requested": 0,
+                "resolved": 0
+              }
+            },
+            {
+              "query": "\"R.C. 2113.311\"",
+              "purpose": "Resolve cited authority R.C. 2113.311.",
+              "targets": [
+                "u5:authority3"
+              ],
+              "sourceIds": [
+                "ohio-cases",
+                "ohio-statutes",
+                "ohio-ordinances",
+                "treatise"
+              ],
+              "resultCount": 0,
+              "rejectedResultCount": 20,
+              "augmentation": {
+                "finalEvaluation": {
+                  "adequate": false,
+                  "reasons": [
+                    "The cited authority was not resolved."
+                  ]
+                }
+              },
+              "freeReportedFallback": {
+                "method": "ohio_rod_then_cap",
+                "ohioRequested": 3,
+                "ohioResolved": 3,
+                "capRequested": 1,
+                "capResolved": 0,
+                "resolved": 3
+              },
+              "externalFallback": {
+                "method": "off",
+                "requested": 0,
+                "resolved": 0
+              }
+            },
+            {
+              "query": "\"Matter of Estate of McDaniel, 7th Dist. No. 22 CA 0956, 2023-Ohio-1065, 212 N.E.3d 351\"",
+              "purpose": "Resolve cited authority Matter of Estate of McDaniel, 7th Dist. No. 22 CA 0956, 2023-Ohio-1065, 212 N.E.3d 351.",
+              "targets": [
+                "u10:authority1"
+              ],
+              "sourceIds": [
+                "ohio-cases",
+                "ohio-statutes",
+                "ohio-ordinances",
+                "treatise"
+              ],
+              "resultCount": 1,
+              "rejectedResultCount": 20,
+              "augmentation": {
+                "finalEvaluation": {
+                  "adequate": true,
+                  "reasons": []
+                }
+              },
+              "freeReportedFallback": {
+                "method": "ohio_rod_then_cap",
+                "ohioRequested": 3,
+                "ohioResolved": 3,
+                "capRequested": 1,
+                "capResolved": 0,
+                "resolved": 3
+              },
+              "externalFallback": {
+                "method": "off",
+                "requested": 0,
+                "resolved": 0
+              }
+            },
+            {
+              "query": "\"Goldberg v. Maloney, 111 Ohio St.3d 211, 2006-Ohio-5485, 855 N.E.2d 856\"",
+              "purpose": "Resolve cited authority Goldberg v. Maloney, 111 Ohio St.3d 211, 2006-Ohio-5485, 855 N.E.2d 856.",
+              "targets": [
+                "u20:authority1"
+              ],
+              "sourceIds": [
+                "ohio-cases",
+                "ohio-statutes",
+                "ohio-ordinances",
+                "treatise"
+              ],
+              "resultCount": 1,
+              "rejectedResultCount": 20,
+              "augmentation": {
+                "finalEvaluation": {
+                  "adequate": true,
+                  "reasons": []
+                }
+              },
+              "freeReportedFallback": {
+                "method": "ohio_rod_then_cap",
+                "ohioRequested": 3,
+                "ohioResolved": 3,
+                "capRequested": 1,
+                "capResolved": 0,
+                "resolved": 3
+              },
+              "externalFallback": {
+                "method": "off",
+                "requested": 0,
+                "resolved": 0
+              }
+            },
+            {
+              "query": "\"R.C. 2109.50\"",
+              "purpose": "Resolve cited authority R.C. 2109.50.",
+              "targets": [
+                "u20:authority2"
+              ],
+              "sourceIds": [
+                "ohio-cases",
+                "ohio-statutes",
+                "ohio-ordinances",
+                "treatise"
+              ],
+              "resultCount": 0,
+              "rejectedResultCount": 2,
+              "augmentation": {
+                "finalEvaluation": {
+                  "adequate": false,
+                  "reasons": [
+                    "The cited authority was not resolved."
+                  ]
+                }
+              },
+              "freeReportedFallback": {
+                "method": "ohio_rod_then_cap",
+                "ohioRequested": 3,
+                "ohioResolved": 3,
+                "capRequested": 1,
+                "capResolved": 0,
+                "resolved": 3
+              },
+              "externalFallback": {
+                "method": "off",
+                "requested": 0,
+                "resolved": 0
+              }
+            },
+            {
+              "query": "\"R.C. 2109.56\"",
+              "purpose": "Resolve cited authority R.C. 2109.56.",
+              "targets": [
+                "u20:authority3"
+              ],
+              "sourceIds": [
+                "ohio-cases",
+                "ohio-statutes",
+                "ohio-ordinances",
+                "treatise"
+              ],
+              "resultCount": 0,
+              "rejectedResultCount": 2,
+              "augmentation": {
+                "finalEvaluation": {
+                  "adequate": false,
+                  "reasons": [
+                    "The cited authority was not resolved."
+                  ]
+                }
+              },
+              "freeReportedFallback": {
+                "method": "ohio_rod_then_cap",
+                "ohioRequested": 3,
+                "ohioResolved": 3,
+                "capRequested": 1,
+                "capResolved": 0,
+                "resolved": 3
+              },
+              "externalFallback": {
+                "method": "off",
+                "requested": 0,
+                "resolved": 0
+              }
+            },
+            {
+              "query": "\"Dev. Corp. v. Speedy, 2023-Ohio-1796, J 26-28, 216 N.E.3d 18, 26\"",
+              "purpose": "Resolve cited authority Dev. Corp. v. Speedy, 2023-Ohio-1796, J 26-28, 216 N.E.3d 18, 26.",
+              "targets": [
+                "u25:authority1"
+              ],
+              "sourceIds": [
+                "ohio-cases",
+                "ohio-statutes",
+                "ohio-ordinances",
+                "treatise"
+              ],
+              "resultCount": 0,
+              "rejectedResultCount": 20,
+              "augmentation": {
+                "finalEvaluation": {
+                  "adequate": false,
+                  "reasons": [
+                    "The cited authority was not resolved."
+                  ]
+                }
+              },
+              "freeReportedFallback": {
+                "method": "ohio_rod_then_cap",
+                "ohioRequested": 3,
+                "ohioResolved": 3,
+                "capRequested": 1,
+                "capResolved": 0,
+                "resolved": 3
+              },
+              "externalFallback": {
+                "method": "off",
+                "requested": 0,
+                "resolved": 0
+              }
+            }
+          ]
+        },
+        {
+          "stage": "research_queries",
+          "method": "off",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "research",
+          "method": "retrieval",
+          "count": 3,
+          "trace": []
+        },
+        {
+          "stage": "opponent",
+          "method": "off",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "opponent:authority_support",
+          "method": "llm",
+          "count": 12,
+          "batches": 1,
+          "batchSize": 4,
+          "traces": [
+            {
+              "stage": "opponent:authority_support",
+              "method": "llm",
+              "count": 6,
+              "trace": [
+                {
+                  "attempt": 1,
+                  "plan": {
+                    "method": "llm",
+                    "llmAttempt": 1
+                  },
+                  "success": true,
+                  "code": "opponent:authority_support_complete",
+                  "message": "opponent:authority_support produced 6 item(s)."
+                }
+              ]
+            }
+          ],
+          "unavailable": false
+        },
+        {
+          "stage": "judge",
+          "method": "off",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "judge:authority_support",
+          "method": "llm",
+          "count": 6,
+          "trace": [
+            {
+              "attempt": 1,
+              "plan": {
+                "method": "llm",
+                "llmAttempt": 1
+              },
+              "success": true,
+              "code": "judge:authority_support_complete",
+              "message": "judge:authority_support produced 6 item(s)."
+            }
+          ],
+          "checkId": "authority_support",
+          "batch": 1,
+          "batches": 1,
+          "candidateIds": [
+            "authority_support:u10:authority1",
+            "authority_support:u10:authority1:opinion_status",
+            "authority_support:u20:authority1",
+            "authority_support:u20:authority1:opinion_status",
+            "authority_support:u2:authority1",
+            "authority_support:u2:authority1:opinion_status"
+          ],
+          "unavailable": false
+        },
+        {
+          "stage": "coach",
+          "method": "llm",
+          "count": 2,
+          "trace": [
+            {
+              "attempt": 1,
+              "plan": {
+                "method": "llm",
+                "llmAttempt": 1
+              },
+              "success": true,
+              "code": "coach_complete",
+              "message": "coach produced 2 item(s)."
+            }
+          ]
+        },
+        {
+          "stage": "assessment",
+          "method": "deterministic",
+          "count": 1,
+          "trace": []
+        }
+      ],
+      "research_trace": [
+        {
+          "query": "\"Dresher v. Burt, 75 Ohio St.3d 280, 293, 662 N.E.2d 264 (1996)\"",
+          "purpose": "Resolve cited authority Dresher v. Burt, 75 Ohio St.3d 280, 293, 662 N.E.2d 264 (1996).",
+          "targets": [
+            "u2:authority1"
+          ],
+          "sourceIds": [
+            "ohio-cases",
+            "ohio-statutes",
+            "ohio-ordinances",
+            "treatise"
+          ],
+          "resultCount": 1,
+          "rejectedResultCount": 19,
+          "augmentation": {
+            "finalEvaluation": {
+              "adequate": true,
+              "reasons": []
+            }
+          }
+        },
+        {
+          "query": "\"R.C. \u00a7 2113.311(E)\"",
+          "purpose": "Resolve cited authority R.C. \u00a7 2113.311(E).",
+          "targets": [
+            "u5:authority1"
+          ],
+          "sourceIds": [
+            "ohio-cases",
+            "ohio-statutes",
+            "ohio-ordinances",
+            "treatise"
+          ],
+          "resultCount": 0,
+          "rejectedResultCount": 20,
+          "augmentation": {
+            "finalEvaluation": {
+              "adequate": false,
+              "reasons": [
+                "The cited authority was not resolved."
+              ]
+            }
+          },
+          "freeReportedFallback": {
+            "method": "ohio_rod_then_cap",
+            "ohioRequested": 3,
+            "ohioResolved": 3,
+            "capRequested": 1,
+            "capResolved": 0,
+            "resolved": 3
+          },
+          "externalFallback": {
+            "method": "off",
+            "requested": 0,
+            "resolved": 0
+          }
+        },
+        {
+          "query": "\"Estate of Jacob, 8th Dist. Cuyahoga No. 85640, 2005-Ohio-4998, J 22 (\"The power to manage real property as described in R.C. 2113.311 ... includes, among other things, the power to make repairs, insure the premises and to prosecute actions for forcib\"",
+          "purpose": "Resolve cited authority Estate of Jacob, 8th Dist. Cuyahoga No. 85640, 2005-Ohio-4998, J 22 (\"The power to manage real property as described in R.C. 2113.311 ... includes, among other things, the power to make repairs, insure the premises and to prosecute actions for forcib.",
+          "targets": [
+            "u5:authority2"
+          ],
+          "sourceIds": [
+            "ohio-cases",
+            "ohio-statutes",
+            "ohio-ordinances",
+            "treatise"
+          ],
+          "resultCount": 0,
+          "rejectedResultCount": 20,
+          "augmentation": {
+            "finalEvaluation": {
+              "adequate": false,
+              "reasons": [
+                "The cited authority was not resolved."
+              ]
+            }
+          },
+          "freeReportedFallback": {
+            "method": "ohio_rod_then_cap",
+            "ohioRequested": 3,
+            "ohioResolved": 3,
+            "capRequested": 1,
+            "capResolved": 0,
+            "resolved": 3
+          },
+          "externalFallback": {
+            "method": "off",
+            "requested": 0,
+            "resolved": 0
+          }
+        },
+        {
+          "query": "\"R.C. 2113.311\"",
+          "purpose": "Resolve cited authority R.C. 2113.311.",
+          "targets": [
+            "u5:authority3"
+          ],
+          "sourceIds": [
+            "ohio-cases",
+            "ohio-statutes",
+            "ohio-ordinances",
+            "treatise"
+          ],
+          "resultCount": 0,
+          "rejectedResultCount": 20,
+          "augmentation": {
+            "finalEvaluation": {
+              "adequate": false,
+              "reasons": [
+                "The cited authority was not resolved."
+              ]
+            }
+          },
+          "freeReportedFallback": {
+            "method": "ohio_rod_then_cap",
+            "ohioRequested": 3,
+            "ohioResolved": 3,
+            "capRequested": 1,
+            "capResolved": 0,
+            "resolved": 3
+          },
+          "externalFallback": {
+            "method": "off",
+            "requested": 0,
+            "resolved": 0
+          }
+        },
+        {
+          "query": "\"Matter of Estate of McDaniel, 7th Dist. No. 22 CA 0956, 2023-Ohio-1065, 212 N.E.3d 351\"",
+          "purpose": "Resolve cited authority Matter of Estate of McDaniel, 7th Dist. No. 22 CA 0956, 2023-Ohio-1065, 212 N.E.3d 351.",
+          "targets": [
+            "u10:authority1"
+          ],
+          "sourceIds": [
+            "ohio-cases",
+            "ohio-statutes",
+            "ohio-ordinances",
+            "treatise"
+          ],
+          "resultCount": 1,
+          "rejectedResultCount": 20,
+          "augmentation": {
+            "finalEvaluation": {
+              "adequate": true,
+              "reasons": []
+            }
+          },
+          "freeReportedFallback": {
+            "method": "ohio_rod_then_cap",
+            "ohioRequested": 3,
+            "ohioResolved": 3,
+            "capRequested": 1,
+            "capResolved": 0,
+            "resolved": 3
+          },
+          "externalFallback": {
+            "method": "off",
+            "requested": 0,
+            "resolved": 0
+          }
+        },
+        {
+          "query": "\"Goldberg v. Maloney, 111 Ohio St.3d 211, 2006-Ohio-5485, 855 N.E.2d 856\"",
+          "purpose": "Resolve cited authority Goldberg v. Maloney, 111 Ohio St.3d 211, 2006-Ohio-5485, 855 N.E.2d 856.",
+          "targets": [
+            "u20:authority1"
+          ],
+          "sourceIds": [
+            "ohio-cases",
+            "ohio-statutes",
+            "ohio-ordinances",
+            "treatise"
+          ],
+          "resultCount": 1,
+          "rejectedResultCount": 20,
+          "augmentation": {
+            "finalEvaluation": {
+              "adequate": true,
+              "reasons": []
+            }
+          },
+          "freeReportedFallback": {
+            "method": "ohio_rod_then_cap",
+            "ohioRequested": 3,
+            "ohioResolved": 3,
+            "capRequested": 1,
+            "capResolved": 0,
+            "resolved": 3
+          },
+          "externalFallback": {
+            "method": "off",
+            "requested": 0,
+            "resolved": 0
+          }
+        },
+        {
+          "query": "\"R.C. 2109.50\"",
+          "purpose": "Resolve cited authority R.C. 2109.50.",
+          "targets": [
+            "u20:authority2"
+          ],
+          "sourceIds": [
+            "ohio-cases",
+            "ohio-statutes",
+            "ohio-ordinances",
+            "treatise"
+          ],
+          "resultCount": 0,
+          "rejectedResultCount": 2,
+          "augmentation": {
+            "finalEvaluation": {
+              "adequate": false,
+              "reasons": [
+                "The cited authority was not resolved."
+              ]
+            }
+          },
+          "freeReportedFallback": {
+            "method": "ohio_rod_then_cap",
+            "ohioRequested": 3,
+            "ohioResolved": 3,
+            "capRequested": 1,
+            "capResolved": 0,
+            "resolved": 3
+          },
+          "externalFallback": {
+            "method": "off",
+            "requested": 0,
+            "resolved": 0
+          }
+        },
+        {
+          "query": "\"R.C. 2109.56\"",
+          "purpose": "Resolve cited authority R.C. 2109.56.",
+          "targets": [
+            "u20:authority3"
+          ],
+          "sourceIds": [
+            "ohio-cases",
+            "ohio-statutes",
+            "ohio-ordinances",
+            "treatise"
+          ],
+          "resultCount": 0,
+          "rejectedResultCount": 2,
+          "augmentation": {
+            "finalEvaluation": {
+              "adequate": false,
+              "reasons": [
+                "The cited authority was not resolved."
+              ]
+            }
+          },
+          "freeReportedFallback": {
+            "method": "ohio_rod_then_cap",
+            "ohioRequested": 3,
+            "ohioResolved": 3,
+            "capRequested": 1,
+            "capResolved": 0,
+            "resolved": 3
+          },
+          "externalFallback": {
+            "method": "off",
+            "requested": 0,
+            "resolved": 0
+          }
+        },
+        {
+          "query": "\"Dev. Corp. v. Speedy, 2023-Ohio-1796, J 26-28, 216 N.E.3d 18, 26\"",
+          "purpose": "Resolve cited authority Dev. Corp. v. Speedy, 2023-Ohio-1796, J 26-28, 216 N.E.3d 18, 26.",
+          "targets": [
+            "u25:authority1"
+          ],
+          "sourceIds": [
+            "ohio-cases",
+            "ohio-statutes",
+            "ohio-ordinances",
+            "treatise"
+          ],
+          "resultCount": 0,
+          "rejectedResultCount": 20,
+          "augmentation": {
+            "finalEvaluation": {
+              "adequate": false,
+              "reasons": [
+                "The cited authority was not resolved."
+              ]
+            }
+          },
+          "freeReportedFallback": {
+            "method": "ohio_rod_then_cap",
+            "ohioRequested": 3,
+            "ohioResolved": 3,
+            "capRequested": 1,
+            "capResolved": 0,
+            "resolved": 3
+          },
+          "externalFallback": {
+            "method": "off",
+            "requested": 0,
+            "resolved": 0
+          }
+        }
+      ],
+      "model_calls": [
+        {
+          "prompt_key": "argument_gym.authority_opponent",
+          "role": "attack",
+          "model": "gpt-5.6-terra",
+          "settings": {
+            "temperature": 0,
+            "model": "gpt-5.6-terra",
+            "reasoning_level": "medium"
+          },
+          "status": "complete",
+          "elapsed_seconds": 12.7
+        },
+        {
+          "prompt_key": "argument_gym.correctness_judge",
+          "role": "judge",
+          "model": "mistral-large-3",
+          "settings": {
+            "temperature": 0,
+            "model": "mistral-large-3",
+            "reasoning_level": "medium"
+          },
+          "status": "complete",
+          "elapsed_seconds": 11.925
+        },
+        {
+          "prompt_key": "argument_gym.coach",
+          "role": "base",
+          "model": "gpt-5.6-terra",
+          "settings": {
+            "temperature": 0,
+            "model": "gpt-5.6-terra",
+            "reasoning_level": "medium"
+          },
+          "status": "complete",
+          "elapsed_seconds": 9.62
+        }
+      ],
+      "attacks_given_to_judge": 0
+    },
+    {
+      "fixture_id": "H007",
+      "condition": "mutant",
+      "case_family_id": "estate-of-anthony-notarian-et-al-vs-nota",
+      "stratum": "heldout_housing_property_authority",
+      "run_id": 35,
+      "run_at": "2026-09-14T02:02:06.723298+00:00",
+      "status": "complete",
+      "pipeline_status": "complete",
+      "degraded": null,
+      "error": "",
+      "brief_sha256": "e98a1893da0bf894967fb88f6666911058981aaea392a94bb28a844c2fe5fc9c",
+      "brief_chars": 9272,
+      "record_documents": 0,
+      "attack_model": "gpt-5.6-terra",
+      "judge_model": "mistral-large-3",
+      "base_model": "gpt-5.6-terra",
+      "same_family": false,
+      "reasoning": "medium",
+      "unit_budget_chars": 260000,
+      "units": 31,
+      "court": {
+        "mode": "auto",
+        "reason": "No maintained court profile matched this document's caption or the case record.",
+        "matched": "",
+        "where": "",
+        "courtSlug": ""
+      },
+      "deterministic_findings": {
+        "authority_support": 2
+      },
+      "checks_run": [
+        {
+          "id": "record_support",
+          "label": "Test material facts against the record",
+          "description": "Opponent tests only atomic, record-verifiable, material claims; Judge sustains a defect only when the supplied evidence and record coverage establish it.",
+          "kind": "model",
+          "category": "correctness",
+          "categoryLabel": "Correctness",
+          "categoryDescription": "Is the law right? Is the authority controlling? Are the required elements present, and does the record establish what the brief says it does?",
+          "defaultEnabled": true,
+          "requires": [
+            "case_record"
+          ],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "rule_elements",
+          "label": "Audit the elements of the rules invoked",
+          "description": "Detects the rules the brief cites or invokes by name, then audits each element of those rules: is it pleaded, and is it supported.",
+          "kind": "model",
+          "category": "correctness",
+          "categoryLabel": "Correctness",
+          "categoryDescription": "Is the law right? Is the authority controlling? Are the required elements present, and does the record establish what the brief says it does?",
+          "defaultEnabled": true,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "authority_support",
+          "label": "Test cited authority support",
+          "description": "Whether each cited authority supports the material legal proposition for which the brief uses it.",
+          "kind": "model",
+          "category": "correctness",
+          "categoryLabel": "Correctness",
+          "categoryDescription": "Is the law right? Is the authority controlling? Are the required elements present, and does the record establish what the brief says it does?",
+          "defaultEnabled": true,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "on",
+          "reason": ""
+        },
+        {
+          "id": "adversarial",
+          "label": "Opposing counsel, a judge, and a coach",
+          "description": "The core of the gym: opposing counsel makes the strongest arguments available against the brief, a judge weighs them, and a coach proposes answers.",
+          "kind": "model",
+          "category": "completeness",
+          "categoryLabel": "Argumentative completeness",
+          "categoryDescription": "Does the brief connect its rules to its facts? Does it work the difficult element instead of restating the rule? Does it confront adverse authority and answer the counterargument a court will think of on its own?",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_issue_framing",
+          "label": "Issue framing",
+          "description": "Does the brief identify the real dispute early and frame it around the favorable legal question?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_macro_organization",
+          "label": "Macro-organization",
+          "description": "Are arguments ordered logically and by importance? Can the reader see the roadmap?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_paragraph_organization",
+          "label": "Paragraph-level organization",
+          "description": "Do paragraphs have discernible propositions or topic sentences, and develop one point at a time?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_rule_synthesis",
+          "label": "Rule synthesis",
+          "description": "Does the writer synthesize authorities into a rule rather than serially summarize cases?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_rule_application",
+          "label": "Rule-to-fact application",
+          "description": "Is the reasoning explicit -- \"because X fact satisfies Y element\" -- rather than leaving the inferential step to the court?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_fact_selection",
+          "label": "Fact selection and narrative coherence",
+          "description": "Are legally significant facts foregrounded and organized in a comprehensible chronology or theory?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_use_of_authority",
+          "label": "Use of authority",
+          "description": "Are important propositions backed by strong authorities placed where they actually matter, rather than citation dumping?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_counterarguments",
+          "label": "Handling counterarguments",
+          "description": "Does the brief acknowledge and answer the strongest objection rather than arguing past it?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_concision",
+          "label": "Concision and reader burden",
+          "description": "Does it say the same thing once, in the right place, without unnecessary throat-clearing?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_calibration",
+          "label": "Calibrated confidence and credibility",
+          "description": "Does it distinguish strong propositions from uncertain ones and avoid overclaiming?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_relief_alignment",
+          "label": "Requested-relief alignment",
+          "description": "Does the argument actually lead to the precise thing the brief asks the court to do?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_emphasis",
+          "label": "Emphasis",
+          "description": "Does the document devote its space to the issues that matter rather than treating every point as equally important?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "custom_checklist",
+          "label": "Custom checklist",
+          "description": "Applies review questions you wrote. An item can look things up -- authority, the case record, passages of the brief -- rather than answering from the brief alone. Attach a checklist for this to run.",
+          "kind": "model",
+          "category": "custom",
+          "categoryLabel": "Your own checks",
+          "categoryDescription": "Review questions you wrote, in your words, applied to this brief.",
+          "defaultEnabled": false,
+          "requires": [
+            "checklist"
+          ],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "court_formatting",
+          "label": "This court's filing rules",
+          "description": "Required elements, type size, spacing, margins, and page limits for the selected court.",
+          "kind": "deterministic",
+          "category": "form",
+          "categoryLabel": "Form of the filing",
+          "categoryDescription": "Whether the paper meets this court's rules and the conventions of practice.",
+          "defaultEnabled": false,
+          "requires": [
+            "court_profile"
+          ],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "pleading_form",
+          "label": "Form of the pleading",
+          "description": "Conventions of practice rather than any one court's rules: numbered paragraphs running in order, a prayer for relief, a signature block, exhibit references that resolve, no placeholder left in the text.",
+          "kind": "deterministic",
+          "category": "form",
+          "categoryLabel": "Form of the filing",
+          "categoryDescription": "Whether the paper meets this court's rules and the conventions of practice.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "draft_validation",
+          "label": "Draft-mode validation",
+          "description": "The same checks Draft mode runs: unresolved template data and placeholders, draft structure, rendered Word consistency, citation linting, source support, and filing-package consistency.",
+          "kind": "deterministic",
+          "category": "form",
+          "categoryLabel": "Form of the filing",
+          "categoryDescription": "Whether the paper meets this court's rules and the conventions of practice.",
+          "defaultEnabled": false,
+          "requires": [
+            "native_draft"
+          ],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "grammar",
+          "label": "Grammar and mechanics",
+          "description": "Doubled words, missing sentence spacing, unbalanced quotes and parentheses.",
+          "kind": "deterministic",
+          "category": "language",
+          "categoryLabel": "Language",
+          "categoryDescription": "Sentence-level mechanics, reported as nudges rather than as defects in the argument.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "confused_words",
+          "label": "Misspelled and easily confused words",
+          "description": "Not a dictionary spell check, on purpose: a general dictionary flags half of every case name. This looks for the words legal writing actually gets wrong, and for real words used in place of other real words.",
+          "kind": "deterministic",
+          "category": "language",
+          "categoryLabel": "Language",
+          "categoryDescription": "Sentence-level mechanics, reported as nudges rather than as defects in the argument.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "passive_voice",
+          "label": "Passive voice",
+          "description": "Reported as a nudge, never an error. Phrases a court expects to read are on an accepted list you can add to for this session.",
+          "kind": "deterministic",
+          "category": "language",
+          "categoryLabel": "Language",
+          "categoryDescription": "Sentence-level mechanics, reported as nudges rather than as defects in the argument.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "acceptedPassivePhrases: phrases this court expects, which the check stays quiet about.",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "readability",
+          "label": "Readability",
+          "description": "Sentence length and reading-level measures, reported as several formulas rather than one score.",
+          "kind": "deterministic",
+          "category": "language",
+          "categoryLabel": "Language",
+          "categoryDescription": "Sentence-level mechanics, reported as nudges rather than as defects in the argument.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        }
+      ],
+      "check_results": {
+        "authority_support": {
+          "findings": [
+            {
+              "ruleCode": "authority_support.procedural_posture_misstated",
+              "severity": "error",
+              "message": "Dresher does not establish that the defendants in this case had an opportunity to present defenses or reply to plaintiffs' motion for partial summary judgment.",
+              "target": {
+                "unitId": "u2"
+              },
+              "details": {
+                "checkId": "authority_support",
+                "issueCode": "procedural_posture_misstated",
+                "targetId": "u2:authority1",
+                "unitId": "u2",
+                "disposition": "must_fix",
+                "claim": "Dresher v. Burt, 75 Ohio St.3d 280, 293, 662 N.E.2d 264 (1996).\nDefendants have had opportunity to present their defenses and reply to plaintiffs Motion for Partial Summary Judgment.",
+                "problem": "Dresher does not establish that the defendants in this case had an opportunity to present defenses or reply to plaintiffs' motion for partial summary judgment.",
+                "briefEvidence": [
+                  "u2"
+                ],
+                "externalEvidence": [
+                  "1"
+                ],
+                "reason": "The opponent has established that Dresher v. Burt, 75 Ohio St.3d 280, 293, 662 N.E.2d 264 (1996), does not support the procedural posture claim that defendants had an opportunity to present defenses or reply to plaintiffs' Motion for Partial Summary Judgment. The evidence quote confirms the case addresses only the legal standards for summary judgment, not the procedural history of the present case.",
+                "confidence": "high",
+                "userVisible": true
+              }
+            },
+            {
+              "ruleCode": "authority_support.authority_support_mismatch",
+              "severity": "error",
+              "message": "The claimed case name is \"Wos v. Wos,\" but the cited authority is In re Estate of McDaniel.",
+              "target": {
+                "unitId": "u12"
+              },
+              "details": {
+                "checkId": "authority_support",
+                "issueCode": "authority_support_mismatch",
+                "targetId": "u12:authority1",
+                "unitId": "u12",
+                "disposition": "must_fix",
+                "claim": "Matter of Estate of McDaniel, 7th Dist. No. 22 CA 0956, 2023-Ohio-1065, 212 N.E.3d 351;",
+                "problem": "The claimed case name is \"Wos v. Wos,\" but the cited authority is In re Estate of McDaniel.",
+                "briefEvidence": [
+                  "u12"
+                ],
+                "externalEvidence": [
+                  "2"
+                ],
+                "reason": "The opponent has established a mismatch between the claimed case name ('Wos v. Wos') and the cited authority (In re Estate of McDaniel). The evidence quote confirms the official caption and citation refer to an estate matter involving Helen L. McDaniel, not Wos v. Wos.",
+                "confidence": "high",
+                "userVisible": true
+              }
+            }
+          ],
+          "tests": [
+            {
+              "checkId": "authority_support",
+              "issueCode": "nested_authority_attribution_unmeasured",
+              "targetId": "u5:authority2",
+              "unitId": "u5",
+              "disposition": "review",
+              "claim": "85640, 2005-Ohio-4998, J 22 (\"The power to manage real property as described in R.C. 2113.311 ...",
+              "problem": "The citation appears inside language attributed to another source, so the surrounding quotation was not treated as a verbatim attribution to this citation.",
+              "briefEvidence": [
+                "u5"
+              ],
+              "externalEvidence": [],
+              "reason": "Nested attribution requires a separate source-chain analysis.",
+              "confidence": "low",
+              "userVisible": false
+            },
+            {
+              "checkId": "authority_support",
+              "issueCode": "authority_unverifiable",
+              "targetId": "u5:authority1",
+              "unitId": "u5",
+              "disposition": "review",
+              "claim": "Plaintiff will address these matters one at a time.\nFirst, R.C. \u00a7 2113.311(E) grants estate executors and administrators statutory authority to manage estate property and \"[p]rosecute actions for forcible entry and detainer\" as a form of managing estate property.",
+              "problem": "The cited authority R.C. \u00a7 2113.311(E) could not be verified from retrieved source text.",
+              "briefEvidence": [
+                "u5"
+              ],
+              "externalEvidence": [],
+              "reason": "Unretrieved authority cannot establish a citation defect.",
+              "confidence": "low",
+              "userVisible": false
+            },
+            {
+              "checkId": "authority_support",
+              "issueCode": "authority_unverifiable",
+              "targetId": "u22:authority2",
+              "unitId": "u22",
+              "disposition": "review",
+              "claim": "Gino Notarian never had the ability to convey the property to himself, and never had valid title to convey to Julia Notarian and Charles Rossbach III.\nIt is undisputed Gino Notarian signed over title of the real property located at 8127 Cedar Road to defendants after plaintiff brought an action under R.C. 2109.50 to recover the property from him.",
+              "problem": "The cited authority R.C. 2109.50 could not be verified from retrieved source text.",
+              "briefEvidence": [
+                "u22"
+              ],
+              "externalEvidence": [],
+              "reason": "Unretrieved authority cannot establish a citation defect.",
+              "confidence": "low",
+              "userVisible": false
+            },
+            {
+              "checkId": "authority_support",
+              "issueCode": "authority_unverifiable",
+              "targetId": "u22:authority3",
+              "unitId": "u22",
+              "disposition": "review",
+              "claim": "R.C. 2109.56 states \"All gifts, grants, or conveyances of real property ...",
+              "problem": "The cited authority R.C. 2109.56 could not be verified from retrieved source text.",
+              "briefEvidence": [
+                "u22"
+              ],
+              "externalEvidence": [],
+              "reason": "Unretrieved authority cannot establish a citation defect.",
+              "confidence": "low",
+              "userVisible": false
+            },
+            {
+              "checkId": "authority_support",
+              "issueCode": "authority_unverifiable",
+              "targetId": "u27:authority1",
+              "unitId": "u27",
+              "disposition": "review",
+              "claim": "Dev. Corp. v. Speedy, 2023-Ohio-1796, J 26-28, 216 N.E.3d 18, 26.",
+              "problem": "The cited authority Dev. Corp. v. Speedy, 2023-Ohio-1796, J 26-28, 216 N.E.3d 18, 26 could not be verified from retrieved source text.",
+              "briefEvidence": [
+                "u27"
+              ],
+              "externalEvidence": [],
+              "reason": "Unretrieved authority cannot establish a citation defect.",
+              "confidence": "low",
+              "userVisible": false
+            },
+            {
+              "checkId": "authority_support",
+              "issueCode": "procedural_posture_misstated",
+              "targetId": "u2:authority1",
+              "unitId": "u2",
+              "disposition": "must_fix",
+              "claim": "Dresher v. Burt, 75 Ohio St.3d 280, 293, 662 N.E.2d 264 (1996).\nDefendants have had opportunity to present their defenses and reply to plaintiffs Motion for Partial Summary Judgment.",
+              "problem": "Dresher does not establish that the defendants in this case had an opportunity to present defenses or reply to plaintiffs' motion for partial summary judgment.",
+              "briefEvidence": [
+                "u2"
+              ],
+              "externalEvidence": [
+                "1"
+              ],
+              "reason": "The opponent has established that Dresher v. Burt, 75 Ohio St.3d 280, 293, 662 N.E.2d 264 (1996), does not support the procedural posture claim that defendants had an opportunity to present defenses or reply to plaintiffs' Motion for Partial Summary Judgment. The evidence quote confirms the case addresses only the legal standards for summary judgment, not the procedural history of the present case.",
+              "confidence": "high",
+              "userVisible": true
+            },
+            {
+              "checkId": "authority_support",
+              "issueCode": "opinion_status_unverifiable",
+              "targetId": "u2:authority1:opinion_status",
+              "unitId": "u2",
+              "disposition": "review",
+              "claim": "Dresher v. Burt, 75 Ohio St.3d 280, 293, 662 N.E.2d 264 (1996).\nDefendants have had opportunity to present their defenses and reply to plaintiffs Motion for Partial Summary Judgment.",
+              "problem": "",
+              "briefEvidence": [
+                "u2"
+              ],
+              "externalEvidence": [
+                "1"
+              ],
+              "reason": "The evidence does not establish whether the relevant language in Dresher v. Burt was joined by a majority, as the excerpt only identifies the author (Douglas, J.) without further opinion-alignment details.",
+              "confidence": "medium",
+              "userVisible": false
+            },
+            {
+              "checkId": "authority_support",
+              "issueCode": "authority_supported",
+              "targetId": "u5:authority3",
+              "unitId": "u5",
+              "disposition": "pass",
+              "claim": "See also Collins v. Jackson, 34 Ohio App.3d 101, 102, 517 N.E.2d 269 (8th Dist. 1986) (\"An executrix charged with the duty to manage real estate is expressly authorized to prosecute actions for forcible entry and detention.\").\nPlaintiff filed an application to manage real property in Case No.",
+              "problem": "",
+              "briefEvidence": [
+                "u5"
+              ],
+              "externalEvidence": [
+                "4"
+              ],
+              "reason": "The opponent has not established a defect. The quoted rule from Collins v. Jackson, 34 Ohio App.3d 101, 102, 517 N.E.2d 269 (8th Dist. 1986), appears verbatim in the source and supports the claim.",
+              "confidence": "high",
+              "userVisible": true
+            },
+            {
+              "checkId": "authority_support",
+              "issueCode": "opinion_status_supported",
+              "targetId": "u5:authority3:opinion_status",
+              "unitId": "u5",
+              "disposition": "pass",
+              "claim": "See also Collins v. Jackson, 34 Ohio App.3d 101, 102, 517 N.E.2d 269 (8th Dist. 1986) (\"An executrix charged with the duty to manage real estate is expressly authorized to prosecute actions for forcible entry and detention.\").\nPlaintiff filed an application to manage real property in Case No.",
+              "problem": "",
+              "briefEvidence": [
+                "u5"
+              ],
+              "externalEvidence": [
+                "4"
+              ],
+              "reason": "The evidence confirms the quoted rule is part of the controlling disposition, with two judges concurring (one in judgment only), and is not a dissent or concurrence.",
+              "confidence": "high",
+              "userVisible": true
+            },
+            {
+              "checkId": "authority_support",
+              "issueCode": "authority_support_mismatch",
+              "targetId": "u12:authority1",
+              "unitId": "u12",
+              "disposition": "must_fix",
+              "claim": "Matter of Estate of McDaniel, 7th Dist. No. 22 CA 0956, 2023-Ohio-1065, 212 N.E.3d 351;",
+              "problem": "The claimed case name is \"Wos v. Wos,\" but the cited authority is In re Estate of McDaniel.",
+              "briefEvidence": [
+                "u12"
+              ],
+              "externalEvidence": [
+                "2"
+              ],
+              "reason": "The opponent has established a mismatch between the claimed case name ('Wos v. Wos') and the cited authority (In re Estate of McDaniel). The evidence quote confirms the official caption and citation refer to an estate matter involving Helen L. McDaniel, not Wos v. Wos.",
+              "confidence": "high",
+              "userVisible": true
+            },
+            {
+              "checkId": "authority_support",
+              "issueCode": "opinion_status_supported",
+              "targetId": "u12:authority1:opinion_status",
+              "unitId": "u12",
+              "disposition": "pass",
+              "claim": "Matter of Estate of McDaniel, 7th Dist. No. 22 CA 0956, 2023-Ohio-1065, 212 N.E.3d 351;",
+              "problem": "",
+              "briefEvidence": [
+                "u12"
+              ],
+              "externalEvidence": [
+                "2"
+              ],
+              "reason": "The evidence confirms the decision is a majority opinion by Robb, J., with no indication of dissent, concurrence, or plurality status.",
+              "confidence": "high",
+              "userVisible": true
+            },
+            {
+              "checkId": "authority_support",
+              "issueCode": "authority_supported",
+              "targetId": "u22:authority1",
+              "unitId": "u22",
+              "disposition": "pass",
+              "claim": "Goldberg v. Maloney, 111 Ohio St.3d 211, 2006-Ohio-5485, 855 N.E.2d 856, at J34-36.",
+              "problem": "",
+              "briefEvidence": [
+                "u22"
+              ],
+              "externalEvidence": [
+                "3"
+              ],
+              "reason": "The opponent has not established a defect. The evidence confirms the citation and case name (Goldberg v. Maloney) are correctly stated and the decision supports the general claim.",
+              "confidence": "high",
+              "userVisible": true
+            },
+            {
+              "checkId": "authority_support",
+              "issueCode": "opinion_status_supported",
+              "targetId": "u22:authority1:opinion_status",
+              "unitId": "u22",
+              "disposition": "pass",
+              "claim": "Goldberg v. Maloney, 111 Ohio St.3d 211, 2006-Ohio-5485, 855 N.E.2d 856, at J34-36.",
+              "problem": "",
+              "briefEvidence": [
+                "u22"
+              ],
+              "externalEvidence": [
+                "3"
+              ],
+              "reason": "The evidence confirms the decision is designated per curiam, not a dissent, concurrence, or plurality opinion.",
+              "confidence": "high",
+              "userVisible": true
+            }
+          ],
+          "summary": "2 must fix, 0 review, 5 passed, 6 could not be verified"
+        }
+      },
+      "correctness_tests": [
+        {
+          "checkId": "authority_support",
+          "issueCode": "nested_authority_attribution_unmeasured",
+          "targetId": "u5:authority2",
+          "unitId": "u5",
+          "disposition": "review",
+          "claim": "85640, 2005-Ohio-4998, J 22 (\"The power to manage real property as described in R.C. 2113.311 ...",
+          "problem": "The citation appears inside language attributed to another source, so the surrounding quotation was not treated as a verbatim attribution to this citation.",
+          "briefEvidence": [
+            "u5"
+          ],
+          "externalEvidence": [],
+          "reason": "Nested attribution requires a separate source-chain analysis.",
+          "confidence": "low",
+          "userVisible": false
+        },
+        {
+          "checkId": "authority_support",
+          "issueCode": "authority_unverifiable",
+          "targetId": "u5:authority1",
+          "unitId": "u5",
+          "disposition": "review",
+          "claim": "Plaintiff will address these matters one at a time.\nFirst, R.C. \u00a7 2113.311(E) grants estate executors and administrators statutory authority to manage estate property and \"[p]rosecute actions for forcible entry and detainer\" as a form of managing estate property.",
+          "problem": "The cited authority R.C. \u00a7 2113.311(E) could not be verified from retrieved source text.",
+          "briefEvidence": [
+            "u5"
+          ],
+          "externalEvidence": [],
+          "reason": "Unretrieved authority cannot establish a citation defect.",
+          "confidence": "low",
+          "userVisible": false
+        },
+        {
+          "checkId": "authority_support",
+          "issueCode": "authority_unverifiable",
+          "targetId": "u22:authority2",
+          "unitId": "u22",
+          "disposition": "review",
+          "claim": "Gino Notarian never had the ability to convey the property to himself, and never had valid title to convey to Julia Notarian and Charles Rossbach III.\nIt is undisputed Gino Notarian signed over title of the real property located at 8127 Cedar Road to defendants after plaintiff brought an action under R.C. 2109.50 to recover the property from him.",
+          "problem": "The cited authority R.C. 2109.50 could not be verified from retrieved source text.",
+          "briefEvidence": [
+            "u22"
+          ],
+          "externalEvidence": [],
+          "reason": "Unretrieved authority cannot establish a citation defect.",
+          "confidence": "low",
+          "userVisible": false
+        },
+        {
+          "checkId": "authority_support",
+          "issueCode": "authority_unverifiable",
+          "targetId": "u22:authority3",
+          "unitId": "u22",
+          "disposition": "review",
+          "claim": "R.C. 2109.56 states \"All gifts, grants, or conveyances of real property ...",
+          "problem": "The cited authority R.C. 2109.56 could not be verified from retrieved source text.",
+          "briefEvidence": [
+            "u22"
+          ],
+          "externalEvidence": [],
+          "reason": "Unretrieved authority cannot establish a citation defect.",
+          "confidence": "low",
+          "userVisible": false
+        },
+        {
+          "checkId": "authority_support",
+          "issueCode": "authority_unverifiable",
+          "targetId": "u27:authority1",
+          "unitId": "u27",
+          "disposition": "review",
+          "claim": "Dev. Corp. v. Speedy, 2023-Ohio-1796, J 26-28, 216 N.E.3d 18, 26.",
+          "problem": "The cited authority Dev. Corp. v. Speedy, 2023-Ohio-1796, J 26-28, 216 N.E.3d 18, 26 could not be verified from retrieved source text.",
+          "briefEvidence": [
+            "u27"
+          ],
+          "externalEvidence": [],
+          "reason": "Unretrieved authority cannot establish a citation defect.",
+          "confidence": "low",
+          "userVisible": false
+        },
+        {
+          "checkId": "authority_support",
+          "issueCode": "procedural_posture_misstated",
+          "targetId": "u2:authority1",
+          "unitId": "u2",
+          "disposition": "must_fix",
+          "claim": "Dresher v. Burt, 75 Ohio St.3d 280, 293, 662 N.E.2d 264 (1996).\nDefendants have had opportunity to present their defenses and reply to plaintiffs Motion for Partial Summary Judgment.",
+          "problem": "Dresher does not establish that the defendants in this case had an opportunity to present defenses or reply to plaintiffs' motion for partial summary judgment.",
+          "briefEvidence": [
+            "u2"
+          ],
+          "externalEvidence": [
+            "1"
+          ],
+          "reason": "The opponent has established that Dresher v. Burt, 75 Ohio St.3d 280, 293, 662 N.E.2d 264 (1996), does not support the procedural posture claim that defendants had an opportunity to present defenses or reply to plaintiffs' Motion for Partial Summary Judgment. The evidence quote confirms the case addresses only the legal standards for summary judgment, not the procedural history of the present case.",
+          "confidence": "high",
+          "userVisible": true
+        },
+        {
+          "checkId": "authority_support",
+          "issueCode": "opinion_status_unverifiable",
+          "targetId": "u2:authority1:opinion_status",
+          "unitId": "u2",
+          "disposition": "review",
+          "claim": "Dresher v. Burt, 75 Ohio St.3d 280, 293, 662 N.E.2d 264 (1996).\nDefendants have had opportunity to present their defenses and reply to plaintiffs Motion for Partial Summary Judgment.",
+          "problem": "",
+          "briefEvidence": [
+            "u2"
+          ],
+          "externalEvidence": [
+            "1"
+          ],
+          "reason": "The evidence does not establish whether the relevant language in Dresher v. Burt was joined by a majority, as the excerpt only identifies the author (Douglas, J.) without further opinion-alignment details.",
+          "confidence": "medium",
+          "userVisible": false
+        },
+        {
+          "checkId": "authority_support",
+          "issueCode": "authority_supported",
+          "targetId": "u5:authority3",
+          "unitId": "u5",
+          "disposition": "pass",
+          "claim": "See also Collins v. Jackson, 34 Ohio App.3d 101, 102, 517 N.E.2d 269 (8th Dist. 1986) (\"An executrix charged with the duty to manage real estate is expressly authorized to prosecute actions for forcible entry and detention.\").\nPlaintiff filed an application to manage real property in Case No.",
+          "problem": "",
+          "briefEvidence": [
+            "u5"
+          ],
+          "externalEvidence": [
+            "4"
+          ],
+          "reason": "The opponent has not established a defect. The quoted rule from Collins v. Jackson, 34 Ohio App.3d 101, 102, 517 N.E.2d 269 (8th Dist. 1986), appears verbatim in the source and supports the claim.",
+          "confidence": "high",
+          "userVisible": true
+        },
+        {
+          "checkId": "authority_support",
+          "issueCode": "opinion_status_supported",
+          "targetId": "u5:authority3:opinion_status",
+          "unitId": "u5",
+          "disposition": "pass",
+          "claim": "See also Collins v. Jackson, 34 Ohio App.3d 101, 102, 517 N.E.2d 269 (8th Dist. 1986) (\"An executrix charged with the duty to manage real estate is expressly authorized to prosecute actions for forcible entry and detention.\").\nPlaintiff filed an application to manage real property in Case No.",
+          "problem": "",
+          "briefEvidence": [
+            "u5"
+          ],
+          "externalEvidence": [
+            "4"
+          ],
+          "reason": "The evidence confirms the quoted rule is part of the controlling disposition, with two judges concurring (one in judgment only), and is not a dissent or concurrence.",
+          "confidence": "high",
+          "userVisible": true
+        },
+        {
+          "checkId": "authority_support",
+          "issueCode": "authority_support_mismatch",
+          "targetId": "u12:authority1",
+          "unitId": "u12",
+          "disposition": "must_fix",
+          "claim": "Matter of Estate of McDaniel, 7th Dist. No. 22 CA 0956, 2023-Ohio-1065, 212 N.E.3d 351;",
+          "problem": "The claimed case name is \"Wos v. Wos,\" but the cited authority is In re Estate of McDaniel.",
+          "briefEvidence": [
+            "u12"
+          ],
+          "externalEvidence": [
+            "2"
+          ],
+          "reason": "The opponent has established a mismatch between the claimed case name ('Wos v. Wos') and the cited authority (In re Estate of McDaniel). The evidence quote confirms the official caption and citation refer to an estate matter involving Helen L. McDaniel, not Wos v. Wos.",
+          "confidence": "high",
+          "userVisible": true
+        },
+        {
+          "checkId": "authority_support",
+          "issueCode": "opinion_status_supported",
+          "targetId": "u12:authority1:opinion_status",
+          "unitId": "u12",
+          "disposition": "pass",
+          "claim": "Matter of Estate of McDaniel, 7th Dist. No. 22 CA 0956, 2023-Ohio-1065, 212 N.E.3d 351;",
+          "problem": "",
+          "briefEvidence": [
+            "u12"
+          ],
+          "externalEvidence": [
+            "2"
+          ],
+          "reason": "The evidence confirms the decision is a majority opinion by Robb, J., with no indication of dissent, concurrence, or plurality status.",
+          "confidence": "high",
+          "userVisible": true
+        },
+        {
+          "checkId": "authority_support",
+          "issueCode": "authority_supported",
+          "targetId": "u22:authority1",
+          "unitId": "u22",
+          "disposition": "pass",
+          "claim": "Goldberg v. Maloney, 111 Ohio St.3d 211, 2006-Ohio-5485, 855 N.E.2d 856, at J34-36.",
+          "problem": "",
+          "briefEvidence": [
+            "u22"
+          ],
+          "externalEvidence": [
+            "3"
+          ],
+          "reason": "The opponent has not established a defect. The evidence confirms the citation and case name (Goldberg v. Maloney) are correctly stated and the decision supports the general claim.",
+          "confidence": "high",
+          "userVisible": true
+        },
+        {
+          "checkId": "authority_support",
+          "issueCode": "opinion_status_supported",
+          "targetId": "u22:authority1:opinion_status",
+          "unitId": "u22",
+          "disposition": "pass",
+          "claim": "Goldberg v. Maloney, 111 Ohio St.3d 211, 2006-Ohio-5485, 855 N.E.2d 856, at J34-36.",
+          "problem": "",
+          "briefEvidence": [
+            "u22"
+          ],
+          "externalEvidence": [
+            "3"
+          ],
+          "reason": "The evidence confirms the decision is designated per curiam, not a dissent, concurrence, or plurality opinion.",
+          "confidence": "high",
+          "userVisible": true
+        }
+      ],
+      "rule_audit": [],
+      "compliance": {
+        "checked": false,
+        "reason": "You turned this check off for this session.",
+        "findings": [],
+        "detection": {
+          "mode": "auto",
+          "reason": "No maintained court profile matched this document's caption or the case record.",
+          "matched": "",
+          "where": "",
+          "courtSlug": ""
+        }
+      },
+      "challenges": [
+        {
+          "ordinal": 1,
+          "category": "legal_authority",
+          "severity": "high",
+          "confidence": "high",
+          "opponent_argument": "Dresher does not establish that the defendants in this case had an opportunity to present defenses or reply to plaintiffs' motion for partial summary judgment.",
+          "why_it_matters": "The opponent has established that Dresher v. Burt, 75 Ohio St.3d 280, 293, 662 N.E.2d 264 (1996), does not support the procedural posture claim that defendants had an opportunity to present defenses or reply to plaintiffs' Motion for Partial Summary Judgment. The evidence quote confirms the case addresses only the legal standards for summary judgment, not the procedural history of the present case.",
+          "target": {
+            "unitId": "u2",
+            "section": "",
+            "paragraph": 2,
+            "page": null,
+            "excerpt": "her initial burden, thus the burden shifted to defendants to set forth facts showing there still exists a genuine issue for trial. Dresher v. Burt, 75 Ohio St.3d 280, 293, 662 N.E.2d 264 (1996).\nDefendants have had opportunity to present their defenses and reply to plaintiffs Motion for Partial Summ",
+            "blockKey": ""
+          },
+          "legal_sources": [
+            {
+              "id": "1",
+              "title": "Dresher v. Burt",
+              "citation": "662 N.E.2d 264",
+              "snippet": "",
+              "sourceKind": "local_cases",
+              "sourceLabel": "Local case law",
+              "url": "/api/caselaw/decisions/1214/",
+              "externalId": "local-case:1214:30998",
+              "metadata": {
+                "decisionId": 1214,
+                "court": "",
+                "county": "",
+                "judge": "",
+                "decisionDate": "1996-03-06",
+                "entryDate": null,
+                "publicationStatus": "Published",
+                "precedentialStatus": "Published",
+                "authorityLevel": "",
+                "treatmentStatus": "unchecked",
+                "metadataVerified": false,
+                "approvedForDrafting": false,
+                "documentType": "overview",
+                "issues": [],
+                "searchKeywords": [],
+                "statutesCited": [],
+                "regulationsCited": [],
+                "casesCited": [],
+                "sourceSha256": "5dd1cdc4088f5fb4fbc0897a8df9328da4e828d43c4b25a50f0fd78baf6710a1",
+                "warning": "Treatment/currentness has not been checked.",
+                "rankScore": 10081
+              },
+              "queries": [
+                "\"Dresher v. Burt, 75 Ohio St.3d 280, 293, 662 N.E.2d 264 (1996)\""
+              ],
+              "targets": [
+                "u2:authority1"
+              ],
+              "snippet_removed": true
+            }
+          ],
+          "record_sources": [],
+          "judge_assessment": "The opponent has established that Dresher v. Burt, 75 Ohio St.3d 280, 293, 662 N.E.2d 264 (1996), does not support the procedural posture claim that defendants had an opportunity to present defenses or reply to plaintiffs' Motion for Partial Summary Judgment. The evidence quote confirms the case addresses only the legal standards for summary judgment, not the procedural history of the present case.",
+          "judge_verdict": "sustained",
+          "suggested_response": "Once plaintiff has met her initial burden, defendants must set forth specific facts showing that a genuine issue remains for trial. Dresher v. Burt, 75 Ohio St.3d 280, 293, 662 N.E.2d 264 (1996).",
+          "coaching_recommendation": "Delete the procedural-history assertion that defendants had an opportunity to respond unless it can be supported by the docket or another record material. Retain Dresher only for the reciprocal-burden rule.",
+          "disposition": "open"
+        },
+        {
+          "ordinal": 2,
+          "category": "legal_authority",
+          "severity": "high",
+          "confidence": "high",
+          "opponent_argument": "The claimed case name is \"Wos v. Wos,\" but the cited authority is In re Estate of McDaniel.",
+          "why_it_matters": "The opponent has established a mismatch between the claimed case name ('Wos v. Wos') and the cited authority (In re Estate of McDaniel). The evidence quote confirms the official caption and citation refer to an estate matter involving Helen L. McDaniel, not Wos v. Wos.",
+          "target": {
+            "unitId": "u12",
+            "section": "",
+            "paragraph": 4,
+            "page": null,
+            "excerpt": "It is not unusual for estate executors and administrators to bring forcible entry and detainer actions pursuant to probate court orders to manage property. Sed \u00ab. Mundy, 11th Dist. Portage No. 2016-P-0019, 2016-Ohio-8431; Estate of Wos v. Wos, 6th Dist. Lucas No. L-05-1408, 2006-Ohio-4302; Matter of",
+            "blockKey": ""
+          },
+          "legal_sources": [
+            {
+              "id": "2",
+              "title": "Wos v. Wos",
+              "citation": "2023-Ohio-1065",
+              "snippet": "",
+              "sourceKind": "local_cases",
+              "sourceLabel": "Local case law",
+              "url": "/api/caselaw/decisions/1298/",
+              "externalId": "local-case:1298:39486",
+              "metadata": {
+                "decisionId": 1298,
+                "court": "",
+                "county": "",
+                "judge": "",
+                "decisionDate": "2023-01-01",
+                "entryDate": null,
+                "publicationStatus": "published",
+                "precedentialStatus": "published",
+                "authorityLevel": "",
+                "treatmentStatus": "unchecked",
+                "metadataVerified": false,
+                "approvedForDrafting": false,
+                "documentType": "ocr_chunk",
+                "issues": [],
+                "searchKeywords": [],
+                "statutesCited": [],
+                "regulationsCited": [],
+                "casesCited": [],
+                "sourceSha256": "14cdf7ba7c42e0b3cd1a925b76714ae6216bd478929abb0aef0847d6c54a197e",
+                "warning": "Treatment/currentness has not been checked.",
+                "rankScore": 10079
+              },
+              "queries": [
+                "\"Matter of Estate of McDaniel, 7th Dist. No. 22 CA 0956, 2023-Ohio-1065, 212 N.E.3d 351\""
+              ],
+              "targets": [
+                "u12:authority1"
+              ],
+              "snippet_removed": true
+            }
+          ],
+          "record_sources": [],
+          "judge_assessment": "The opponent has established a mismatch between the claimed case name ('Wos v. Wos') and the cited authority (In re Estate of McDaniel). The evidence quote confirms the official caption and citation refer to an estate matter involving Helen L. McDaniel, not Wos v. Wos.",
+          "judge_verdict": "sustained",
+          "suggested_response": "In re Estate of McDaniel, 7th Dist. No. 22 CA 0956, 2023-Ohio-1065, 212 N.E.3d 351;",
+          "coaching_recommendation": "Correct the case caption to match the supplied authority. The supplied decision is captioned In re Estate of McDaniel, not Wos v. Wos.",
+          "disposition": "open"
+        }
+      ],
+      "challenge_count": 2,
+      "opponent_calls": [
+        {
+          "prompt_key": "argument_gym.authority_opponent",
+          "payload": {
+            "challenges": [
+              {
+                "targetId": "u2:authority1",
+                "attributionType": "procedural_posture_or_outcome",
+                "evidenceState": "overstated",
+                "challenge": "Dresher does not establish that the defendants in this case had an opportunity to present defenses or reply to plaintiffs' motion for partial summary judgment.",
+                "reason": "The retrieved decision concerns the legal standards governing summary judgment. It contains no procedural finding about the parties, briefing, or opportunities to respond in the present case.",
+                "evidenceRefs": [
+                  "1"
+                ],
+                "sourcePassage": "\"The sole issue in this appeal involves the standards for granting summary judgment when the moving party asserts that the nonmoving party has no evidence to establish an essential element of the nonmoving party's case.\"",
+                "opinionStatusState": "unverifiable",
+                "opinionStatusChallenge": "",
+                "opinionStatusReason": "The supplied source excerpt identifies Douglas, J., but does not provide sufficient opinion-alignment information to determine whether the relevant language was joined by a majority.",
+                "opinionStatusEvidenceRefs": [
+                  "1"
+                ],
+                "opinionStatusPassage": "\"Douglas, J. The sole issue in this appeal involves the standards for granting summary judgment...\""
+              },
+              {
+                "targetId": "u5:authority3",
+                "attributionType": "quotation",
+                "evidenceState": "supported",
+                "challenge": "",
+                "reason": "The quoted sentence appears verbatim in Collins and states the rule relied upon.",
+                "evidenceRefs": [
+                  "4"
+                ],
+                "sourcePassage": "\"An executrix charged with the duty to manage real estate is expressly authorized to prosecute actions for forcible entry and detention. See R.C. 2113.311(B)(5).\"",
+                "opinionStatusState": "supported",
+                "opinionStatusChallenge": "",
+                "opinionStatusReason": "The statement appears in the court's opinion by Parrino, J. A second judge concurred, while the presiding judge concurred in judgment only; the quoted rule is part of the controlling disposition rather than identified as a dissent or concurrence.",
+                "opinionStatusEvidenceRefs": [
+                  "4"
+                ],
+                "opinionStatusPassage": "\"Parrino, J.\" ... \"Ann McManamon, J., concurs. Jackson, P.J., concurs in judgment only.\""
+              },
+              {
+                "targetId": "u12:authority1",
+                "attributionType": "general_support",
+                "evidenceState": "contradicted",
+                "challenge": "The claimed case name is \"Wos v. Wos,\" but the cited authority is In re Estate of McDaniel.",
+                "reason": "The retrieved decision's official citation and caption identify an estate matter involving Helen L. McDaniel, not a case named Wos v. Wos.",
+                "evidenceRefs": [
+                  "2"
+                ],
+                "sourcePassage": "\"[Cite as In re Estate of McDaniel, 2023-Ohio-1065.]\" ... \"IN THE MATTER OF: ESTATE OF: HELEN L. MCDANIEL\"",
+                "opinionStatusState": "supported",
+                "opinionStatusChallenge": "",
+                "opinionStatusReason": "The source identifies the decision as an opinion and judgment entry by Robb, J., before a three-judge appellate panel, with no indication that the relevant decision is a dissent, concurrence, or plurality opinion.",
+                "opinionStatusEvidenceRefs": [
+                  "2"
+                ],
+                "opinionStatusPassage": "\"BEFORE: Carol Ann Robb, Cheryl L. Waite, Mark A. Hanni, Judges. JUDGMENT: Affirmed.\" ... \"Robb, J.\""
+              },
+              {
+                "targetId": "u22:authority1",
+                "attributionType": "general_support",
+                "evidenceState": "supported",
+                "challenge": "",
+                "reason": "The retrieved source identifies Goldberg v. Maloney as 111 Ohio St.3d 211, 2006-Ohio-5485, and describes the Supreme Court's disposition of the prohibition appeal.",
+                "evidenceRefs": [
+                  "3"
+                ],
+                "sourcePassage": "\"[Cite as Goldberg v. Maloney, 111 Ohio St.3d 211, 2006-Ohio-5485.]\" ... \"Because the probate judge does not patently and unambiguously lack jurisdiction to proceed in the concealment case, we reverse.\"",
+                "opinionStatusState": "supported",
+                "opinionStatusChallenge": "",
+                "opinionStatusReason": "The decision is expressly designated per curiam, rather than as a dissent, concurrence, or plurality opinion.",
+                "opinionStatusEvidenceRefs": [
+                  "3"
+                ],
+                "opinionStatusPassage": "\"Per Curiam.\""
+              }
+            ]
+          }
+        }
+      ],
+      "judge_calls": [],
+      "verdict": "correctness review completed",
+      "assessment": "Correctness review completed. 2 must-fix findings; 0 items need attorney review. Authority support: 2 failure, 0 review",
+      "stage_trace": [
+        {
+          "stage": "document_checks",
+          "method": "deterministic",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "materials",
+          "method": "none",
+          "count": 0,
+          "budgetChars": 150000,
+          "perMaterialChars": 150000,
+          "truncated": [],
+          "trace": []
+        },
+        {
+          "stage": "argument_map",
+          "method": "skipped",
+          "count": 0,
+          "trace": [
+            "No selected check requires a generative argument map."
+          ]
+        },
+        {
+          "stage": "persuasion",
+          "method": "off",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "record_targets",
+          "method": "off",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "opponent:record_support",
+          "method": "off",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "authority_research",
+          "method": "source_specific",
+          "count": 4,
+          "trace": [
+            {
+              "query": "\"Dresher v. Burt, 75 Ohio St.3d 280, 293, 662 N.E.2d 264 (1996)\"",
+              "purpose": "Resolve cited authority Dresher v. Burt, 75 Ohio St.3d 280, 293, 662 N.E.2d 264 (1996).",
+              "targets": [
+                "u2:authority1"
+              ],
+              "sourceIds": [
+                "ohio-cases",
+                "ohio-statutes",
+                "ohio-ordinances",
+                "treatise"
+              ],
+              "resultCount": 1,
+              "rejectedResultCount": 19,
+              "augmentation": {
+                "finalEvaluation": {
+                  "adequate": true,
+                  "reasons": []
+                }
+              }
+            },
+            {
+              "query": "\"R.C. \u00a7 2113.311(E)\"",
+              "purpose": "Resolve cited authority R.C. \u00a7 2113.311(E).",
+              "targets": [
+                "u5:authority1"
+              ],
+              "sourceIds": [
+                "ohio-cases",
+                "ohio-statutes",
+                "ohio-ordinances",
+                "treatise"
+              ],
+              "resultCount": 0,
+              "rejectedResultCount": 20,
+              "augmentation": {
+                "finalEvaluation": {
+                  "adequate": false,
+                  "reasons": [
+                    "The cited authority was not resolved."
+                  ]
+                }
+              },
+              "freeReportedFallback": {
+                "method": "ohio_rod_then_cap",
+                "ohioRequested": 0,
+                "ohioResolved": 0,
+                "capRequested": 2,
+                "capResolved": 1,
+                "resolved": 1
+              },
+              "externalFallback": {
+                "method": "off",
+                "requested": 0,
+                "resolved": 0
+              }
+            },
+            {
+              "query": "\"R.C. 2113.311\"",
+              "purpose": "Resolve cited authority R.C. 2113.311.",
+              "targets": [
+                "u5:authority2"
+              ],
+              "sourceIds": [
+                "ohio-cases",
+                "ohio-statutes",
+                "ohio-ordinances",
+                "treatise"
+              ],
+              "resultCount": 0,
+              "rejectedResultCount": 20,
+              "augmentation": {
+                "finalEvaluation": {
+                  "adequate": false,
+                  "reasons": [
+                    "The cited authority was not resolved."
+                  ]
+                }
+              },
+              "freeReportedFallback": {
+                "method": "ohio_rod_then_cap",
+                "ohioRequested": 0,
+                "ohioResolved": 0,
+                "capRequested": 2,
+                "capResolved": 1,
+                "resolved": 1
+              },
+              "externalFallback": {
+                "method": "off",
+                "requested": 0,
+                "resolved": 0
+              }
+            },
+            {
+              "query": "\"Collins v. Jackson, 34 Ohio App.3d 101, 102, 517 N.E.2d 269 (8th Dist. 1986) (\"An executrix charged with the duty to manage real estate is expressly authorized to prosecute actions for forcible entry and detention.\")\"",
+              "purpose": "Resolve cited authority Collins v. Jackson, 34 Ohio App.3d 101, 102, 517 N.E.2d 269 (8th Dist. 1986) (\"An executrix charged with the duty to manage real estate is expressly authorized to prosecute actions for forcible entry and detention.\").",
+              "targets": [
+                "u5:authority3"
+              ],
+              "sourceIds": [
+                "ohio-cases",
+                "ohio-statutes",
+                "ohio-ordinances",
+                "treatise"
+              ],
+              "resultCount": 1,
+              "rejectedResultCount": 20,
+              "augmentation": {
+                "finalEvaluation": {
+                  "adequate": true,
+                  "reasons": []
+                }
+              },
+              "freeReportedFallback": {
+                "method": "ohio_rod_then_cap",
+                "ohioRequested": 0,
+                "ohioResolved": 0,
+                "capRequested": 2,
+                "capResolved": 1,
+                "resolved": 1
+              },
+              "externalFallback": {
+                "method": "off",
+                "requested": 0,
+                "resolved": 0
+              }
+            },
+            {
+              "query": "\"Matter of Estate of McDaniel, 7th Dist. No. 22 CA 0956, 2023-Ohio-1065, 212 N.E.3d 351\"",
+              "purpose": "Resolve cited authority Matter of Estate of McDaniel, 7th Dist. No. 22 CA 0956, 2023-Ohio-1065, 212 N.E.3d 351.",
+              "targets": [
+                "u12:authority1"
+              ],
+              "sourceIds": [
+                "ohio-cases",
+                "ohio-statutes",
+                "ohio-ordinances",
+                "treatise"
+              ],
+              "resultCount": 1,
+              "rejectedResultCount": 19,
+              "augmentation": {
+                "finalEvaluation": {
+                  "adequate": true,
+                  "reasons": []
+                }
+              }
+            },
+            {
+              "query": "\"Goldberg v. Maloney, 111 Ohio St.3d 211, 2006-Ohio-5485, 855 N.E.2d 856\"",
+              "purpose": "Resolve cited authority Goldberg v. Maloney, 111 Ohio St.3d 211, 2006-Ohio-5485, 855 N.E.2d 856.",
+              "targets": [
+                "u22:authority1"
+              ],
+              "sourceIds": [
+                "ohio-cases",
+                "ohio-statutes",
+                "ohio-ordinances",
+                "treatise"
+              ],
+              "resultCount": 1,
+              "rejectedResultCount": 19,
+              "augmentation": {
+                "finalEvaluation": {
+                  "adequate": true,
+                  "reasons": []
+                }
+              }
+            },
+            {
+              "query": "\"R.C. 2109.50\"",
+              "purpose": "Resolve cited authority R.C. 2109.50.",
+              "targets": [
+                "u22:authority2"
+              ],
+              "sourceIds": [
+                "ohio-cases",
+                "ohio-statutes",
+                "ohio-ordinances",
+                "treatise"
+              ],
+              "resultCount": 0,
+              "rejectedResultCount": 3,
+              "augmentation": {
+                "finalEvaluation": {
+                  "adequate": false,
+                  "reasons": [
+                    "The cited authority was not resolved."
+                  ]
+                }
+              },
+              "freeReportedFallback": {
+                "method": "ohio_rod_then_cap",
+                "ohioRequested": 0,
+                "ohioResolved": 0,
+                "capRequested": 2,
+                "capResolved": 1,
+                "resolved": 1
+              },
+              "externalFallback": {
+                "method": "off",
+                "requested": 0,
+                "resolved": 0
+              }
+            },
+            {
+              "query": "\"R.C. 2109.56\"",
+              "purpose": "Resolve cited authority R.C. 2109.56.",
+              "targets": [
+                "u22:authority3"
+              ],
+              "sourceIds": [
+                "ohio-cases",
+                "ohio-statutes",
+                "ohio-ordinances",
+                "treatise"
+              ],
+              "resultCount": 0,
+              "rejectedResultCount": 3,
+              "augmentation": {
+                "finalEvaluation": {
+                  "adequate": false,
+                  "reasons": [
+                    "The cited authority was not resolved."
+                  ]
+                }
+              },
+              "freeReportedFallback": {
+                "method": "ohio_rod_then_cap",
+                "ohioRequested": 0,
+                "ohioResolved": 0,
+                "capRequested": 2,
+                "capResolved": 1,
+                "resolved": 1
+              },
+              "externalFallback": {
+                "method": "off",
+                "requested": 0,
+                "resolved": 0
+              }
+            },
+            {
+              "query": "\"Dev. Corp. v. Speedy, 2023-Ohio-1796, J 26-28, 216 N.E.3d 18, 26\"",
+              "purpose": "Resolve cited authority Dev. Corp. v. Speedy, 2023-Ohio-1796, J 26-28, 216 N.E.3d 18, 26.",
+              "targets": [
+                "u27:authority1"
+              ],
+              "sourceIds": [
+                "ohio-cases",
+                "ohio-statutes",
+                "ohio-ordinances",
+                "treatise"
+              ],
+              "resultCount": 0,
+              "rejectedResultCount": 20,
+              "augmentation": {
+                "finalEvaluation": {
+                  "adequate": false,
+                  "reasons": [
+                    "The cited authority was not resolved."
+                  ]
+                }
+              },
+              "freeReportedFallback": {
+                "method": "ohio_rod_then_cap",
+                "ohioRequested": 0,
+                "ohioResolved": 0,
+                "capRequested": 2,
+                "capResolved": 1,
+                "resolved": 1
+              },
+              "externalFallback": {
+                "method": "off",
+                "requested": 0,
+                "resolved": 0
+              }
+            }
+          ]
+        },
+        {
+          "stage": "research_queries",
+          "method": "off",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "research",
+          "method": "retrieval",
+          "count": 4,
+          "trace": []
+        },
+        {
+          "stage": "opponent",
+          "method": "off",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "opponent:authority_support",
+          "method": "llm",
+          "count": 13,
+          "batches": 1,
+          "batchSize": 4,
+          "traces": [
+            {
+              "stage": "opponent:authority_support",
+              "method": "llm",
+              "count": 8,
+              "trace": [
+                {
+                  "attempt": 1,
+                  "plan": {
+                    "method": "llm",
+                    "llmAttempt": 1
+                  },
+                  "success": true,
+                  "code": "opponent:authority_support_complete",
+                  "message": "opponent:authority_support produced 8 item(s)."
+                }
+              ]
+            }
+          ],
+          "unavailable": false
+        },
+        {
+          "stage": "judge",
+          "method": "off",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "judge:authority_support",
+          "method": "llm",
+          "count": 8,
+          "trace": [
+            {
+              "attempt": 1,
+              "plan": {
+                "method": "llm",
+                "llmAttempt": 1
+              },
+              "success": true,
+              "code": "judge:authority_support_complete",
+              "message": "judge:authority_support produced 8 item(s)."
+            }
+          ],
+          "checkId": "authority_support",
+          "batch": 1,
+          "batches": 1,
+          "candidateIds": [
+            "authority_support:u12:authority1",
+            "authority_support:u12:authority1:opinion_status",
+            "authority_support:u22:authority1",
+            "authority_support:u22:authority1:opinion_status",
+            "authority_support:u2:authority1",
+            "authority_support:u2:authority1:opinion_status",
+            "authority_support:u5:authority3",
+            "authority_support:u5:authority3:opinion_status"
+          ],
+          "unavailable": false
+        },
+        {
+          "stage": "coach",
+          "method": "llm",
+          "count": 2,
+          "trace": [
+            {
+              "attempt": 1,
+              "plan": {
+                "method": "llm",
+                "llmAttempt": 1
+              },
+              "success": true,
+              "code": "coach_complete",
+              "message": "coach produced 2 item(s)."
+            }
+          ]
+        },
+        {
+          "stage": "assessment",
+          "method": "deterministic",
+          "count": 1,
+          "trace": []
+        }
+      ],
+      "research_trace": [
+        {
+          "query": "\"Dresher v. Burt, 75 Ohio St.3d 280, 293, 662 N.E.2d 264 (1996)\"",
+          "purpose": "Resolve cited authority Dresher v. Burt, 75 Ohio St.3d 280, 293, 662 N.E.2d 264 (1996).",
+          "targets": [
+            "u2:authority1"
+          ],
+          "sourceIds": [
+            "ohio-cases",
+            "ohio-statutes",
+            "ohio-ordinances",
+            "treatise"
+          ],
+          "resultCount": 1,
+          "rejectedResultCount": 19,
+          "augmentation": {
+            "finalEvaluation": {
+              "adequate": true,
+              "reasons": []
+            }
+          }
+        },
+        {
+          "query": "\"R.C. \u00a7 2113.311(E)\"",
+          "purpose": "Resolve cited authority R.C. \u00a7 2113.311(E).",
+          "targets": [
+            "u5:authority1"
+          ],
+          "sourceIds": [
+            "ohio-cases",
+            "ohio-statutes",
+            "ohio-ordinances",
+            "treatise"
+          ],
+          "resultCount": 0,
+          "rejectedResultCount": 20,
+          "augmentation": {
+            "finalEvaluation": {
+              "adequate": false,
+              "reasons": [
+                "The cited authority was not resolved."
+              ]
+            }
+          },
+          "freeReportedFallback": {
+            "method": "ohio_rod_then_cap",
+            "ohioRequested": 0,
+            "ohioResolved": 0,
+            "capRequested": 2,
+            "capResolved": 1,
+            "resolved": 1
+          },
+          "externalFallback": {
+            "method": "off",
+            "requested": 0,
+            "resolved": 0
+          }
+        },
+        {
+          "query": "\"R.C. 2113.311\"",
+          "purpose": "Resolve cited authority R.C. 2113.311.",
+          "targets": [
+            "u5:authority2"
+          ],
+          "sourceIds": [
+            "ohio-cases",
+            "ohio-statutes",
+            "ohio-ordinances",
+            "treatise"
+          ],
+          "resultCount": 0,
+          "rejectedResultCount": 20,
+          "augmentation": {
+            "finalEvaluation": {
+              "adequate": false,
+              "reasons": [
+                "The cited authority was not resolved."
+              ]
+            }
+          },
+          "freeReportedFallback": {
+            "method": "ohio_rod_then_cap",
+            "ohioRequested": 0,
+            "ohioResolved": 0,
+            "capRequested": 2,
+            "capResolved": 1,
+            "resolved": 1
+          },
+          "externalFallback": {
+            "method": "off",
+            "requested": 0,
+            "resolved": 0
+          }
+        },
+        {
+          "query": "\"Collins v. Jackson, 34 Ohio App.3d 101, 102, 517 N.E.2d 269 (8th Dist. 1986) (\"An executrix charged with the duty to manage real estate is expressly authorized to prosecute actions for forcible entry and detention.\")\"",
+          "purpose": "Resolve cited authority Collins v. Jackson, 34 Ohio App.3d 101, 102, 517 N.E.2d 269 (8th Dist. 1986) (\"An executrix charged with the duty to manage real estate is expressly authorized to prosecute actions for forcible entry and detention.\").",
+          "targets": [
+            "u5:authority3"
+          ],
+          "sourceIds": [
+            "ohio-cases",
+            "ohio-statutes",
+            "ohio-ordinances",
+            "treatise"
+          ],
+          "resultCount": 1,
+          "rejectedResultCount": 20,
+          "augmentation": {
+            "finalEvaluation": {
+              "adequate": true,
+              "reasons": []
+            }
+          },
+          "freeReportedFallback": {
+            "method": "ohio_rod_then_cap",
+            "ohioRequested": 0,
+            "ohioResolved": 0,
+            "capRequested": 2,
+            "capResolved": 1,
+            "resolved": 1
+          },
+          "externalFallback": {
+            "method": "off",
+            "requested": 0,
+            "resolved": 0
+          }
+        },
+        {
+          "query": "\"Matter of Estate of McDaniel, 7th Dist. No. 22 CA 0956, 2023-Ohio-1065, 212 N.E.3d 351\"",
+          "purpose": "Resolve cited authority Matter of Estate of McDaniel, 7th Dist. No. 22 CA 0956, 2023-Ohio-1065, 212 N.E.3d 351.",
+          "targets": [
+            "u12:authority1"
+          ],
+          "sourceIds": [
+            "ohio-cases",
+            "ohio-statutes",
+            "ohio-ordinances",
+            "treatise"
+          ],
+          "resultCount": 1,
+          "rejectedResultCount": 19,
+          "augmentation": {
+            "finalEvaluation": {
+              "adequate": true,
+              "reasons": []
+            }
+          }
+        },
+        {
+          "query": "\"Goldberg v. Maloney, 111 Ohio St.3d 211, 2006-Ohio-5485, 855 N.E.2d 856\"",
+          "purpose": "Resolve cited authority Goldberg v. Maloney, 111 Ohio St.3d 211, 2006-Ohio-5485, 855 N.E.2d 856.",
+          "targets": [
+            "u22:authority1"
+          ],
+          "sourceIds": [
+            "ohio-cases",
+            "ohio-statutes",
+            "ohio-ordinances",
+            "treatise"
+          ],
+          "resultCount": 1,
+          "rejectedResultCount": 19,
+          "augmentation": {
+            "finalEvaluation": {
+              "adequate": true,
+              "reasons": []
+            }
+          }
+        },
+        {
+          "query": "\"R.C. 2109.50\"",
+          "purpose": "Resolve cited authority R.C. 2109.50.",
+          "targets": [
+            "u22:authority2"
+          ],
+          "sourceIds": [
+            "ohio-cases",
+            "ohio-statutes",
+            "ohio-ordinances",
+            "treatise"
+          ],
+          "resultCount": 0,
+          "rejectedResultCount": 3,
+          "augmentation": {
+            "finalEvaluation": {
+              "adequate": false,
+              "reasons": [
+                "The cited authority was not resolved."
+              ]
+            }
+          },
+          "freeReportedFallback": {
+            "method": "ohio_rod_then_cap",
+            "ohioRequested": 0,
+            "ohioResolved": 0,
+            "capRequested": 2,
+            "capResolved": 1,
+            "resolved": 1
+          },
+          "externalFallback": {
+            "method": "off",
+            "requested": 0,
+            "resolved": 0
+          }
+        },
+        {
+          "query": "\"R.C. 2109.56\"",
+          "purpose": "Resolve cited authority R.C. 2109.56.",
+          "targets": [
+            "u22:authority3"
+          ],
+          "sourceIds": [
+            "ohio-cases",
+            "ohio-statutes",
+            "ohio-ordinances",
+            "treatise"
+          ],
+          "resultCount": 0,
+          "rejectedResultCount": 3,
+          "augmentation": {
+            "finalEvaluation": {
+              "adequate": false,
+              "reasons": [
+                "The cited authority was not resolved."
+              ]
+            }
+          },
+          "freeReportedFallback": {
+            "method": "ohio_rod_then_cap",
+            "ohioRequested": 0,
+            "ohioResolved": 0,
+            "capRequested": 2,
+            "capResolved": 1,
+            "resolved": 1
+          },
+          "externalFallback": {
+            "method": "off",
+            "requested": 0,
+            "resolved": 0
+          }
+        },
+        {
+          "query": "\"Dev. Corp. v. Speedy, 2023-Ohio-1796, J 26-28, 216 N.E.3d 18, 26\"",
+          "purpose": "Resolve cited authority Dev. Corp. v. Speedy, 2023-Ohio-1796, J 26-28, 216 N.E.3d 18, 26.",
+          "targets": [
+            "u27:authority1"
+          ],
+          "sourceIds": [
+            "ohio-cases",
+            "ohio-statutes",
+            "ohio-ordinances",
+            "treatise"
+          ],
+          "resultCount": 0,
+          "rejectedResultCount": 20,
+          "augmentation": {
+            "finalEvaluation": {
+              "adequate": false,
+              "reasons": [
+                "The cited authority was not resolved."
+              ]
+            }
+          },
+          "freeReportedFallback": {
+            "method": "ohio_rod_then_cap",
+            "ohioRequested": 0,
+            "ohioResolved": 0,
+            "capRequested": 2,
+            "capResolved": 1,
+            "resolved": 1
+          },
+          "externalFallback": {
+            "method": "off",
+            "requested": 0,
+            "resolved": 0
+          }
+        }
+      ],
+      "model_calls": [
+        {
+          "prompt_key": "argument_gym.authority_opponent",
+          "role": "attack",
+          "model": "gpt-5.6-terra",
+          "settings": {
+            "temperature": 0,
+            "model": "gpt-5.6-terra",
+            "reasoning_level": "medium"
+          },
+          "status": "complete",
+          "elapsed_seconds": 19.814
+        },
+        {
+          "prompt_key": "argument_gym.correctness_judge",
+          "role": "judge",
+          "model": "mistral-large-3",
+          "settings": {
+            "temperature": 0,
+            "model": "mistral-large-3",
+            "reasoning_level": "medium"
+          },
+          "status": "complete",
+          "elapsed_seconds": 9.918
+        },
+        {
+          "prompt_key": "argument_gym.coach",
+          "role": "base",
+          "model": "gpt-5.6-terra",
+          "settings": {
+            "temperature": 0,
+            "model": "gpt-5.6-terra",
+            "reasoning_level": "medium"
+          },
+          "status": "complete",
+          "elapsed_seconds": 9.831
+        }
+      ],
+      "attacks_given_to_judge": 0
+    }
+  ],
+  "public_export": {
+    "removed_fields": [
+      "retrieval",
+      "snippet (on every retrieved source)"
+    ],
+    "why": "verbatim excerpts of third-party legal corpora, whether the research stage retrieved them into `retrieval` or the authority check quoted them into a source's `snippet`; not ours to redistribute and not evidence for any reported figure. Each source keeps its title, citation, url and provider, so the authority can still be looked up.",
+    "full_record": "report.json, kept locally alongside this file",
+    "redacted_after_publication": "This file was published with the source snippets still in it. They were removed afterwards by tools/redact_public_reports.py; nothing else changed."
+  }
+}

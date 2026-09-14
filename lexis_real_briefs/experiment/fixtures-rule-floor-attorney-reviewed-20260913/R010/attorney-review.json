@@ -1,0 +1,14 @@
+{
+  "fixtureId": "R010",
+  "ruleSlug": "common-law-timely-rent-tender",
+  "targetElement": "timely_full_tender",
+  "reviewer": "User attorney (explicit approval in session)",
+  "reviewedAt": "2026-09-13",
+  "controlCorrectlyAppliesEveryApplicableElement": true,
+  "recordSupportsEveryAppliedElement": true,
+  "deletionRemovesOnlyTargetApplication": true,
+  "mutantClearlyOmitsTargetApplication": true,
+  "ruleAndExpectedDispositionAreCorrect": true,
+  "approved": true,
+  "notes": ""
+}

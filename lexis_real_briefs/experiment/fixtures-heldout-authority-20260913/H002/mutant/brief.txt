@@ -1,0 +1,287 @@
+ASSIGNMENTS OF ERROR
+
+ASSIGNMENT OF ERROR I
+
+THE TRIAL COURT ABUSED IN ITS DISCRETION IN ORDERING THE APPOINTMENT OF A RECIEVER WHEN IT IMPLICITLY GRANTED A JUDGMENT IN DUSSAULT MOVING'S FAVOR WHEN IT HAD NOT FILED A VALID COUNTERCLAIM; MOTION FOR SUMMARY JUDGMENT: OR MOTION TO APPOINT RECIEVER.
+
+ASSIGNMENT OF ERROR II
+
+THE TRIAL COURT ABUSED ITS DISCRETION IN APPOINTING A RECEIVER BECAUSE THEIR WAS NO STATUTORY BASIS FOR DOING SO. ESPECIALLY WHEN THERE WOULD BE NO LEGAL GROUNDS FOR THE APPOINTMENT OF A RECEIVER IN DUSSAULT'S FAVOR SINCE THEY ARE THE SUBJECT OF A COMPLAINT FOR REPLEVIN AND CONVERSION AND A MOTION FOR SUMMARY JUDGMENT.
+
+ASSIGNMENT OF ERROR III
+
+THE TRIAL COURT ERRED IN APPOINTING A RECEIVER EX PARTE AND OVER OBJECTION OF THE APPELLANTS.
+
+ISSUES PRESENTED FOR REVIEW
+
+ISSUE RAISED BY ASSIGNMENT OF ERROR I
+
+CAN A COURT APPOINT A RECEIVER IN FAVOR OF A PARTY THAT IS SUBJECT TO A MOTION FOR SUMMARY JUDGMENT AND THAT HAS VIOLATED A COURT ORDER: OHIO'S "SELF-HELP" STATUTE: AND THE APPELLANTS' LEASE?
+
+ISSUE RAISED BY ASSIGNMENT OF ERROR II
+
+CAN A TRIAL COURT ORDER THE APPOINTMENT OF A RECIEVER WHEN IT HAS NO STATUTORY BASIS TO DO SO?
+
+ISSUE RAISED BY ASSIGNEMNT OF ERROR III
+
+CAN A TRIAL COURT ORDER THE APPOINTMENT OF A RECEIVER EX PARTE AND OVER THE OBJECTION OF A PARTY. AND WITHOUT A HEARING?
+
+STATEMENT OF THE CASE
+
+This is an appeal from the March 15, 2011 Order of Judge Daniel Gaul appointing a receiver to sell all of the Plaintiffs-Appellants ("Appellants) personal property that is currently being held by Defendant-Appellee Dussault Moving, Inc. ("Dussault"), despite the fact the Appellants have an outstanding Motion for Summary Judgment (including Supplemental a Supplemental Motion for Summary Judgment) pending against Dussault for Replevin and Conversion 1.
+
+FACTS 2
+
+This case, which has engendered much hostility among all the parties, arises out of a forcible entry and detainer case heard by Judge Daniel Gaul in Case No. CV 684169. As a result of that case, the Court, on May 6, 2009, ordered the Appellants to move all of their personal property from their residence at the Imperial House Apartments (owned by Mid-America Management Corp.). The Court gave the Appellants to complete the move by May 14, 2009 and to use professional movers.
+
+The Appellants hired and paid for the services of Corlett Movers to move all of their property. With the help of their attorneys at the time, the Appellants arranged an agreeable date in which to begin to move all of their property. However, and most likely due to the hostility between the Appellants and Mid-America, they were denied access to their property and even arrested and charged with Criminal Trespass.
+
+The Trial Court's Writ of Restitution in favor of Mid-America on May 6, 2009, authorized only the Lakewood Police; Cuyahoga County Sheriff's Department; or bailiff of the Court of Common Pleas to restore the premises-Unit 1301- to Mid-America. Mid-America was not authorized to resort to "self-help" and remove the Appellants' property and have it stored with Dussault against their will.
+
+Despite having secured the services of professional movers (Corlett Movers) to move their personal property, Mid-America refused to allow it to happen and instead contracted with Dussault to move and store the Appellants' property. (It was discovered that Mid-America had already contracted with Dussault a week prior to the trial court's deadline for the Appellants to move their property.) See, Affidavit of Kathleen Hendricks, attached to Mid-America's Opposition to Plaintiffs' Partial Motion for Summary Judgment, filed Dec. 7, 2009; and Affidavit of Michael DeBartolo, attached to Opposition to Dussault's Motion for Summary Judgment. The Plaintiffs did not authorize or approve of this contract.
+
+Dussault has admitted to moving the Plaintiffs' personal property and storing it at its warehouse for $ 1,080.00/month. See, Affidavit of Arthur Dussault, attached as Exhibit to Dussault's Motion for Summary Judgment. Dussault's contract to move the Appellants' property was exclusively with Mid-America and not the Appellants. Moreover, all invoices are addressed to Mid-America as well. See, Dussault's Motion for Summary Judgment, Exhibit B. Therefore, Dussault is unlawfully holding the Appellants' personal property, and has been doing so since May 2009.
+
+Despite the Appellants having secured the services of professional movers (Corlett Movers) to move their personal property, Mid-America refused Corlett access and instead resorted to "self-help" by contracting with Dussault to move and store the Appellants' property. Mid-America's actions violated the Ohio statutory prohibition against "self-help" and the Appellants' Lease terms with Mid-America. See, Reply to Mid-America's Opposition to Plaintiffs' Supplemental motion for Summary Judgment, Exhibit 6.
+
+As a result of Dussault's actions, the Appellants filed on July 9, 2009, a Complaint for Replevin and Conversion, along with a Motion for Order of Immediate Possession of Property.
+
+Dussault Answered and filed a "counterclaim." Dussault, however, did not file an affirmative claim for relief. Dussault merely asserted that they had a "warehouseman's lien" based upon the contract they signed exclusively with Mid-America, to which the Appellants were not parties and did not authorize or ratify, and strenuously objected to.
+
+Thereafter, the Appellants filed a Motion for Summary Judgment and a Supplemental Motion for Summary Judgment for Replevin and Conversion, which has not been ruled upon. Dussault filed its own Motion for Summary Judgment, which was opposed and has not been ruled upon. Dussault also filed a Motion to Appoint Receiver. However, Dussault filed this motion pursuant to Rule 66, Ohio Rules of Civil Procedure and NOT § 2735.01 of the Ohio Revised Code and without citing any basis for which they sought a receiver.
+
+Then, the Court, ex.parte, granted the Motion to Appoint Receiver and this appeal followed.
+
+LAW AND ARGUMENT
+
+ASSIGNMENT OF ERROR I
+
+THE TRIAL COURT ABUSED IN ITS DISCRETION IN ORDERING THE APPOINTMENT OF A RECIEVER WHEN IT IMPLICITLY GRANTED A JUDGMENT IN DUSSAULT MOVING'S FAVOR WHEN IT HAD NOT FILED A VALID COUNTERCLAIM: VALID MOTION FOR SUMMARY JUDGMENT: OR VALID MOTION TO APPOINT RECIEVER.
+
+ISSUE RAISED BY ASSIGNMENT OF ERROR I
+
+CAN A COURT APPOINT A RECEIVER IN FAVOR OF A PARTY THAT IS SUBJECT TO A MOTION FOR SUMMARY JUDGMENT AND THAT HAS VIOLATED A COURT ORDER; OHIO'S "SELF-HELP" STATUTE: AND THE APPELLANTS' LEASE?
+
+In this case, the Appellants are the party to have filed a Motion for Summary Judgment against Dussault seeking the immediate return of all of their property that was unlawfully taken and damages related thereto. Dussault has not denied that they have taken the Appellants' property and are storing it against their will.
+
+Dussault's response has been that since they entered into a moving a contract with Mid-America, and not the Appellants, they nonetheless hold a Warehouseman's Lien on the Appellants' property and have ultra superior rights over it. This, however, is not the law, nor is it grounds for a valid counterclaim, or a basis to grant judgment in Dussault's favor.
+
+The Appellants, on the other hand, have set forth facts conclusively establishing that Dussault took their property against their will and without their consent and that they are entitled to it immediately. See, Plaintiffs' Partial Motion for Summary Judgment; Plaintiffs' Supplemental Motion for Summary Judgment; and Plaintiffs' Reply to Dussault's Opposition to Supplemental Motion for Summary Judgment.
+
+In the Reply to Dussault's Opposition to the Appellants' Supplemental Motion for Summary Judgment, Appellant DeBartolo further clarified that Dussault had unlawfully taken and was unlawfully storing their property against their will by stating:
+
+3. On May 7, 2009, this Court ordered Steve Kerr and myself to be evicted from the Imperial House Apartments in Lakewood, Ohio, which is managed by Defendant Mid-America Management Corp.
+
+4. This court gave Steve Kerr and myself until May 14, 2009 to have all of our personal belongings moved from the Imperial House, using professional movers.
+
+5. On May 13, 2009 we placed a call to Ms. Kathleen Hendricks, who is the property manager of the Imperial House, to arrange a time for us to move our personal belongings from our former apartment.
+
+6. Ms. Hendricks was unavailable, so we left a message for her informing her that we would be present at 9:00 A.M. on May 14, 2009 to move all of our personal belongings.
+
+7. On May 14, 2009 Steve Kerr and I arrived with seven movers and a moving truck to move all of our personal belongings.
+
+8. We were denied access to our apartment because these movers were not licensed. These movers were professional and bonded.
+
+9. On the afternoon of May 14, 2009, we contracted with professional movers who were licensed and bonded to move all of our personal property. This moving company was called Corlett Movers.
+
+10. Later in the day on May 14, 2009, I was allowed into our former apartment, along with Lakewood Police officers, so that Corlett could provide us with an estimate for moving all of our personal property.
+
+11. On May 14, 2009, Steve Kerr and I retained Corlett Movers to move all of our personal property from our former apartment at Imperial House.
+
+12. Our attorneys told us that they had reached an agreement with Mid-America that allowed us to move all of our personal property from Imperial House on May 15, 2009.
+
+13. However, upon arriving at the Imperial House on the morning of May 15, 2009, Corlett Movers and I were denied access to our former apartment to accomplish the move.
+
+14. Even though Corlett Movers were denied access to our personal property, we still had to pay Corlett $ 801.00 for their services that day.
+
+15. Because we were denied access to our former apartment, we could not move our personal property.
+
+16. As I attempted to gain access to our former apartment, I was arrested by the Lakewood Police Department for trespassing, despite the fact that our attorneys assured us they had spoken to representatives of the Imperial House authorizing us to be on their property so we could move our personal property. The City of Lakewood dismissed the trespassing charge.
+
+17. Rather than allow us to use Corlett Movers to move all of our personal property from our former apartment at the Imperial House, the Imperial House contracted with Dussault Moving, Inc. to move all of our personal property from our former apartment. Kathy Hendricks contracted with Dussault on May 9, 2009.
+
+18. Neither I, nor Steve Kerr contracted with Dussault Moving to move our personal property.
+
+19. On several occasions I spoke to Michelle Dussault and told her that we were not authorizing their services.
+
+20. I asked Michelle Dussault to consult with an attorney regarding this matter before taking on the moving job. She refused.
+
+21. I told Michelle Dussault we had our own moving company to move our personal property.
+
+22. We had many conversations with Michelle and Arthur Dussault while our property was held in storage with Dussault Moving without our consent and told them we had a space for our personal property where they should deliver it, but they refused.
+
+23. We even asked for our prescription medication and eyeglasses and they refused.
+
+24. Dussault never provided us with an Estimate or Bill of Lading.
+
+25. Dussault never provided us with the U.S. Department of Transportation's Federal Motor Carrier Safety Administration's booklet Your Rights and Responsibilities when you Move, as required by law.
+
+26. Steve Kerr and I have been without the great majority of our personal property since May 14, 2009 and this has created a hardship on us.
+
+Therefore, it is clear that Dussault is not entitled to judgment in its favor, let alone a receiver appointed on its behalf.
+
+Dussault and Mid-America have violated: 1) the Trial Court's Writ of Restitution Order; 2) Ohio's "Self-Help" Statute; and 3) the Appellants' Lease with Mid-America regarding their protection against "self-help."
+
+Dussault and Mid-America violated this Court's May 6, 2009 Writ of Restitution Order 3 and Ohio's "self-help" statute in restoring their premises. Dussault and Mid-America violated this Court's Order and Ohio's "self-help" statute when it used a private company and not a police officer, bailiff or sheriff to remove the Plaintiffs' personal property. See, O.R.C. § 5321.15. Specifically, O.R.C. § 5321.15(A) states:
+
+No landlord of residential premises shall initiate any act, including termination of utilities or services, exclusion from the premises, or threat of any unlawful act, against a tenant, or a tenant whose right to possession has been terminated, for the purpose of recovering possession of residential premises, other than as provided in Chapters 1923., 5303., and 5321. of the Revised Code.
+
+(emphasis added).
+
+The Ohio Court of Appeals for the Fourth District discussed the reasoning behind Ohio's "self-help" statute and specifically rejected Mid-America's contention that State ex rel. Marsol Apt. Co. v. Vanuci (1980), 68 Ohio App.2d 181, 428 N.E.2d 468 applies to this case. See, Bank One, Cincinnati v. Wait (1996), 110 Ohio App.3d 460, 674 N.E.2d 752. In fact, the Marsol court did not sanction a landlord's resort to "self help" to restore the landlord's premises. As discussed below in more detail, the Court wrote that "self help" is not authorized by statute for public policy reasons to help maintain the peace.
+
+First, unlike Marsol, which approved of a bailiff to move a former tenant's property that had been abandoned, the Plaintiffs' property in this case was never abandoned. Next, the Court in Wait, supra., correctly pointed out that unlike the facts of this case, the Marsol court authorized the bailiff to conduct the move, not a private company such as Dussault. Thus, not only did Mid-America violate this Court's Writ of Restitution Order, it violated Ohio's "self-help" statute.
+
+In Wait the Court detailed the public policy behind Ohio's "self-help" statute, using the Marsol decision as background.
+
+We note that in Marsol, the court commented that the apparent intent of the General Assembly in the enactment of R.C. 5321, the statute prohibiting landlords from removing the personal property of tenants, was to 'minimize hardships and breaches of the peace which frequently accompany dispossessions carried out by private parties.' Id., 68 Ohio App.2d at 185, 428 N.E.2d at 471. To permit nonlaw-enforcement officers to execute writs of possession would frustrate the apparent intent of R.C. 2327.02(C).
+
+Bank One, Cincinnati v. Wait, 110 Ohio App.3d at 466-467, 674 N.E.2d at 756 (emphasis added).
+
+Then, in footnote 5 to above quoted language in Wait, the Court of Appeals cited again to Marsol in detailing exactly how Writs of Possession are to be executed, and whom is to pay for its costs.
+
+FN5. It appears that appellants, by requesting the trial court to order Paul Wait (rather than the sheriff) to remove the tires, wants Paul Wait to bear the removal costs.
+
+We note that if appellants had requested the trial court to issue a writ of possession ordering the sheriff to remove the tires, Paul Wait theoretically would bear the removal costs. In State ex rel. Marsol Apt. Co. v. Vannuci (1980), 68 Ohio App.2d 181, 22 0.0.3d 279, 428 N.E.2d 468, the court held that the landlord must permanently bear all removal and storage costs:
+
+"If the landlord fails to furnish the bailiff with the manpower to effectuate the actual removal of the property from the premises, we hold that the court may initially impose on the landlord the expense of removing the tenant's possessions. This expense should, however, ultimately be assessed against the tenant, either as court costs or in the form of a supplemental judgment for damages in favor of the landlord. [Footnote omitted.] We also hold that the landlord may not be charged for the cost of storing the property since his responsibility for the property ends when the property is lawfully removed from the premises. * * * " See, also, Markovich v. Hunt (Jan. 19, 1995), Lawrence App. No. 94 CA 16, unreported, 1995 WL 25337, where we held that if the purchaser removes the property, the purchaser may recover the removal costs from the seller.
+
+Therefore, since the Plaintiffs' personal property was unlawfully removed by Mid-America, it is Mid-America's responsibility to bear the cost of removal and storage of their items. Furthermore, any contract and warehouse lien that exists, is only enforceable between Dussault and Mid-America. As a result, the Plaintiffs are entitled to immediate return of the personal property that is being held by Dussault.
+
+This Court, under similar facts, has ordered judgment in favor of a party similarly situated as the Appellants who had their property unlawfully taken. See, Tabar v. Charlie's Towing Service, Inc, et al. (1994), 97 Ohio App.3d 423, 646 N.E.2d 1132.
+
+In Tabar, supra., Tabar had stored her semi-truck at a company known as QIF. During the term of the storage, QIF breached its lease with its landlord-Fabrizi, Inc. After QIF abandoned the Fabrizi premises, Charlies Towing Service took over the premises as a tenant. Thereafter, Fabrizi authorized Charlie's Towing to remove Tabar's truck and store it at another property owned by Fabrizi. After Tabar learned of her truck's location, Emilio Fabrizi, owner of Fabrizi, Inc. told her that he would not release her truck until she paid him towing and storage fees.
+
+The Eighth District Court of Appeals rejected Fabrizi's contention that Tabar had entered into an implied bailment with Tabar. Rather, the Court of Appeals entered final judgment in favor of Tabar and against Fabrizi in the amount of $ 19,800.00 for their wrongful conversion of her truck. Likewise, this Court should also enter judgment in favor of the Plaintiffs and against defendants Dussault and Mid-America.
+
+In reaching their conclusion that Tabar was damaged and that Charlie's Towing Service and Fabrizi were liable, the Tabar Court rejected Fabrizi's contention that a bailor-bailee relationship existed between itself and Tabar:
+
+On appeal of the case sub judice, the parties do not dispute Fabrizi, Inc. exerted dominion and control over Tabar's vehicle or that Tabar demanded its return from Fabrizi, Inc. and Fabrizi, Inc. refused to deliver until appellant paid undetermined storage and towing fees. Tabar and Fabrizi, Inc., rather, dispute whether Fabrizi, Inc.'s acquisition of Tabar's vehicle was a wrongful or unlawful exercise of control over Tabar's vehicle. The common pleas court relied on Kayanda v. Kamenir (1984), 16 Ohio Misc.2d 1,16 OBR 201, 475 N.E.2d 519, and concluded Fabrizi, Inc.'s actions resulted in an implied contract for bailment between Tabar and Fabrizi, Inc. and were, therefore, legal.
+
+A bailment requires (1) the delivery of property by one party to another for a particular purpose; (2) the bailment arises from an express or implied contract; and (3) the bailee's return of the bailed property, in the same condition as delivered, to the bailor once the purpose has been accomplished . Collins v. Click Camera & Video, Inc. (1993), 86 Ohio App.3d 826, 621 N.E.2d 1294; Wolf v. Lakewood Hosp. (1991), 73 Ohio App.3d 709, 598 N.E.2d 160; W. Am. Ins. Co. v. Stith (1990), 66 Ohio App.3d 605, 585 N.E.2d 903;Kayanda, supra. There must be an affirmative act of delivery by the bailor to the bailee. Wolf, supra.
+
+In the case sub judice, Tabar affirmatively delivered her vehicle to QIF for repairs pursuant to an express contract which called for appellant to pay for the repairs and take possession of her vehicle once repairs were completed. Hence, Tabar and QIF entered into a contract for bailment, which QIF breached. Thereafter, Fabrizi, Inc., which was not a party to the bailment agreement between Tabar and QIF but was merely QIF's landlord, took possession of Tabar's truck and moved it to another location without her knowledge or permission. Thus, Tabar neither affirmatively delivered her vehicle to Fabrizi, Inc. for bailment nor can it be said her bailment to QIF was the equivalent of a bailment to Fabrizi, Inc. since QIF was not the agent, employee or partner of Fabrizi, Inc. In the absence of an affirmative delivery by Tabar of her vehicle to Fabrizi, Inc., there was no bailment between the parties.
+
+Tabar v. Charlie's Towing Service, Inc, et al, 97 Ohio App.3d at 427-428, 646 N.E.2d at 1136.
+
+As a result, not only is clear that judgment should be rendered in favor of the Appellants as to the merits of this case, but that under no circumstances can a judgment be rendered in favor of Dussault. Therefore, the Trial Court's Order appointing a receiver in favor of Dussault is clear error, and this Order must be vacated.
+
+ASSIGNMENT OF ERROR II
+
+THE TRIAL COURT ABUSED ITS DISCRETION IN APPOINTING A RECEIVER BECAUSE THEIR WAS NO STATUTORY BASIS FOR DOING SO, ESPECIALLY WHEN THERE WOULD BE NO LEGAL GROUNDS FOR THE APPOINTMENT OF A RECEIVER IN DUSSAULT'S FAVOR SINCE THEY ARE THE SUBJECT OF A COMPLAINT FOR REPLEVIN AND CONVERSION AND A MOTION FOR SUMMARY JUDGMENT.
+
+ISSUE RAISED BY ASSIGNMENT OF ERROR II
+
+CAN A TRIAL COURT ORDER THE APPOINTMENT OF A RECIEVER WHEN IT HAS NO STATUTORY BASIS TO DO SO?
+
+The only parties to this appeal who have a valid legal claim pending are the Appellants, yet they are the parties staring down the appointment of a receiver. Dussault filed what it called a counterclaim against the Appellants averring that it had a Warehouseman's Lien on the property of the Appellants that it took, but this was in reality a claim it had against Mid-America based upon the moving contract these two parties entered into and in which the Appellants are not parties.
+
+Then, Dussault filed a Motion to Appoint Receiver, but cited no reason why such appointment was necessary, nor did they cite any statutory basis. Dussault's Motion to Appoint receiver merely cited Rule 66, of the Ohio Rules of Civil Procedure, which simply states:
+
+An action wherein a receiver has been appointed shall not be dismissed except by order of the court. Receiverships shall be administered in the manner provided by law and as provided by rules of court.
+
+"The party requesting the receivership must show by clear and convincing evidence that the appointment is necessary for the preservation of the complainant's rights.". See, Kelley v. Ferraro (2010), 188 Ohio App.3d 734, 751 (holding that not appointing a receiver was proper because no judgment had rendered against any party) (citing Malloy v. Malloy Color Lab, Inc. (1989). 63 Ohio App.3d 434. 437. 579 N.E.2d 248. 250). See. e.g., Equity Ctrs. Dev. Co. v. S. Coast Ctrs.. Inc. (1992). 83 Ohio App.3d 643. 615 N.E.2d 662 (trial court abused its discretion in appointing receiver before any determination of the parties' rights and interests had been made).
+
+Notwithstanding that the Appellants are entitled to immediate possession of their property that is currently under Dussault's control, Ohio law does not allow a receiver to be appointed under these facts of this case. Ohio Revised Code § 2735.01 only allows a receiver to be appointed under the following five circumstances, none of which apply in this case:
+
+A receiver may be appointed by the supreme court or a judge thereof, the court of appeals or a judge thereof in his district, the court of common pleas or a judge thereof in his county, or the probate court, in causes pending in such courts respectively, in the following cases:
+
+(A) In an action by a vendor to vacate a fraudulent purchase of property, or by a creditor to subject property or a fund to his claim, or between partners or others jointly owning or interested in any property or fund, on the application of the plaintiff, or of a party whose right to or interest in the property or fund, or the proceeds thereof, is probable, and when it is shown that the property or fund is in danger of being lost, removed, or materially injured;
+
+(B) In an action by a mortgagee, for the foreclosure of his mortgage and sale of the mortgaged property, when it appears that the mortgaged property is in danger of being lost, removed, or materially injured, or that the condition of the mortgage has not been performed, and the property is probably insufficient to discharge the mortgage debt;
+
+(C) After judgment, to carry the judgment into effect;
+
+(D) After judgment, to dispose of the property according to the judgment, or to preserve it during the pendency of an appeal, or when an execution has been returned unsatisfied and the judgment debtor refuses to apply the property in satisfaction of the judgment;
+
+(E) When a corporation has been dissolved, or is insolvent, or in imminent danger of insolvency, or has forfeited its corporate rights;
+
+(F) In all other cases in which receivers have been appointed by the usages of equity.
+
+Since a court only has discretion to appoint a receiver in the circumstances authorized by Ohio revised Code § 2735.01, it is axiomatic that that a court abuses its discretion where there is none.
+
+Furthermore, a receiver may only be appointed in cases where the petitioning party will suffer irreparable harm. See, Milo v. Curtis (1994), 100 Ohio App.3d 1, 651 N.E.2d 1340. Dussault has not argued, nor presented evidence that it will suffer irreparable harm if the Appellants' property is not sold by a receiver. Dussault is actually controlling the Appellants' property.
+
+The Ohio Supreme Court has stated that "the appointment of a receiver is the exercise of an extraordinary, drastic, and sometimes harsh power which equity possesses, and is only to be exercised where the failure to do so would place the petitioning party in danger of suffering an irreparable loss or injury." Holies v. Watkins (1927). 117 Ohio St. 165, 174. 157 N.E. 557, 559. Because the appointment of a receiver is such an extraordinary remedy, a petitioning party must show by clear and convincing evidence that the appointment is necessary for the preservation of the petitioning party's rights. Malloy v. Malloy Color Lab. Inc. (1989), 63 Ohio App.3d 434, 437. 579 N.E.2d 248. 250. If the petitioning party meets this initial evidentiary burden, then the trial court is vested with sound discretion to decide whether to appoint a receiver, and its decision will not be reversed on appeal absent an abuse of discretion. See Equity Centers Dev. Co. v. S. Coast Centers. Inc. (1992). 83 Ohio App.3d 643, 649-650, 615 N.E.2d 662. 666-667.
+
+See, Milo v. Curtis, (1994), 100 Ohio App.3d at 5, 651 N.E.2d at 1343.
+
+Dussault is in possession of the property for which they have sought a receiver, so there is no threat whatsoever of harm to be done to it, except by Dussault.
+
+Therefore, Dussault Moving is not entitled to the appointment of receiver; rather, Dussault should be ordered to return all of the Appellants' property to them immediately.
+
+ASSIGNMENT OF ERROR III
+
+THE TRIAL COURT ERRED IN APPOINTING A RECEIVER EX PARTE AND OVER OBJECTION OF THE APPELLANTS.
+
+ISSUE RAISED BY ASSIGNEMNT OF ERROR III
+
+CAN A TRIAL COURT ORDER THE APPOINTMENT OF A RECEIVER EX PARTE AND OVER THE OBJECTION OF A PARTY, AND WITHOUT A HEARING?
+
+Ohio Revised Code § 2735.02 states that a receiver must be appointed with the consent of all parties. In this case, the receiver was appointed ex parte and without the knowledge of the Appellants. Furthermore, no hearing was conducted regarding the propriety of appointing a receiver in this case.
+
+After the Appellants found out about the receiver, they filed an objection. In fact, the Appellants were never a part of the appointment of the receiver in this case, and there was no hearing as required by law.
+
+Therefore, it was error for the Court to appoint a receiver ex parte in this case, and this court must vacate the appointment of the receiver on this basis.
+
+CONCLUSION
+
+WHERFORE, this Court must vacate the appointment of the receiver in this case, and Order that judgment be rendered in the Appellants' favor granting them their property returned immediately.
+
+Respectfully Submitted,
+
+/s/ [Signature]
+
+BRETT M. MANCINO (0071148)
+
+Attorney for Plaintiffs
+
+1360 East Ninth Street
+
+1000 IMG Center
+
+Cleveland, Ohio 44114
+
+Phone: 216-241-8333
+
+Fax: 216-241-5890
+
+bmancino@rcs-law.com
+
+PROOF OF SERVICE
+
+A copy of the foregoing has been served upon the following on this 13th day of June 2011:
+
+Robert I. Chernett, Esq.
+
+Evan T. Byron, Esq.
+
+The Tower at Erieview
+
+1301 East Ninth Street, Suite 3300
+
+Cleveland, Ohio 44114
+
+(216) 737-5000 Tel.
+
+(216) 737-0011 Fax
+
+Attorneys for Mid-America Management Corp.
+
+Michael J. Flament, Esq.
+
+Brian Moriarty, Esq.
+
+1370 Ontario Street, Suite 2000
+
+Cleveland, Ohio 44113-1726
+
+(216) 363-6031 Tel.
+
+Attorneys for Dussault Movers, Inc.
+
+/s/ [Signature]
+
+BRETT M. MANCINO (0071148)
+
+Attorney for Appellants

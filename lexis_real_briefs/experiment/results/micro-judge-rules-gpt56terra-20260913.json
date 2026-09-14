@@ -1,0 +1,360 @@
+{
+  "sourceCall": "/home/quinten/agentic_housing_drafting/lexis_real_briefs/experiment/results/micro-correctness-live-final-f007b-20260913/F007-control/call-008.json",
+  "model": "gpt-5.6-terra",
+  "expected": 10,
+  "returned": 10,
+  "missing": [],
+  "extra": [],
+  "blankReasons": 0,
+  "adverseWithoutEvidence": 0,
+  "traces": [
+    {
+      "stage": "judge:rule_elements",
+      "method": "llm",
+      "count": 8,
+      "trace": [
+        {
+          "attempt": 1,
+          "plan": {
+            "method": "llm"
+          },
+          "success": true,
+          "code": "judge:rule_elements_complete",
+          "message": "judge:rule_elements produced 8 item(s)."
+        }
+      ],
+      "checkId": "rule_elements",
+      "batch": 1,
+      "batches": 2,
+      "candidateIds": [
+        "rule_elements:rc-1923-04-notice:notice_served",
+        "rule_elements:rc-1923-04-notice:service_method",
+        "rule_elements:rc-1923-04-notice:statutory_language",
+        "rule_elements:rc-1923-04-notice:table-confirm-the-complaint-filing-date",
+        "rule_elements:rc-1923-04-notice:table-confirm-the-notice-service-date",
+        "rule_elements:rc-1923-04-notice:table-confirm-whether-the-notice-contains-required-statutory-langu",
+        "rule_elements:rc-1923-04-notice:table-fact-eviction-ground",
+        "rule_elements:rc-1923-04-notice:waiting_period"
+      ],
+      "unavailable": false
+    },
+    {
+      "stage": "judge:rule_elements",
+      "method": "llm",
+      "count": 2,
+      "trace": [
+        {
+          "attempt": 1,
+          "plan": {
+            "method": "llm"
+          },
+          "success": true,
+          "code": "judge:rule_elements_complete",
+          "message": "judge:rule_elements produced 2 item(s)."
+        }
+      ],
+      "checkId": "rule_elements",
+      "batch": 2,
+      "batches": 2,
+      "candidateIds": [
+        "rule_elements:rc-1923-04-notice:table-fact-notice-days-between-service-and-filing",
+        "rule_elements:rc-1923-04-notice:table-fact-notice-exists"
+      ],
+      "unavailable": false
+    }
+  ],
+  "rulings": [
+    {
+      "candidateId": "rule_elements:rc-1923-04-notice:notice_served",
+      "checkId": "rule_elements",
+      "issueCode": "required_element_carried",
+      "targetId": "rc-1923-04-notice:notice_served",
+      "unitId": "u2",
+      "claim": "The brief identifies a notice and says it was served on the tenant.",
+      "problem": "The brief identifies an eviction notice and states that plaintiff served it on defendants on June 28, 2023. The Coggins affidavit states that she served a Three-Day Notice to Leave Premises at 8127 Cedar Road and that the attached notice was the one served on Julia Notarian and Charles Rossbach III.",
+      "reason": "4 of 10 elements need review; unavailable evidence or unrecognized wording does not establish a defect.",
+      "briefEvidence": [
+        "u2"
+      ],
+      "externalEvidence": [],
+      "evidenceQuote": "First, plaintiff served the defendants with an eviction notice on June 28, 2023. See attached Exhibit 12 and Exhibit 3.",
+      "recordMaterialIds": [
+        "upload:35"
+      ],
+      "proposedDisposition": "pass",
+      "disposition": "pass",
+      "judgeReason": "Opponent has not established a defect. The brief expressly states that plaintiff served defendants with an eviction notice on June 28, 2023, and the supplied description of the Coggins affidavit corroborates service of the attached Three-Day Notice on the named defendants.",
+      "evidenceRefs": [
+        "u2"
+      ],
+      "confidence": "high",
+      "userVisible": true
+    },
+    {
+      "candidateId": "rule_elements:rc-1923-04-notice:statutory_language",
+      "checkId": "rule_elements",
+      "issueCode": "required_element_carried",
+      "targetId": "rc-1923-04-notice:statutory_language",
+      "unitId": "u2",
+      "claim": "The brief says whether the notice contained the statutorily required language, and quotes or attaches it rather than characterizing it.",
+      "problem": "The brief quotes the statutory language and asserts that the notice included it in printed, bold lettering. The attached notice contains the required language: \u201cYOU ARE BEING ASKED TO LEAVE THE PREMISES...\u201d",
+      "reason": "4 of 10 elements need review; unavailable evidence or unrecognized wording does not establish a defect.",
+      "briefEvidence": [
+        "u2"
+      ],
+      "externalEvidence": [],
+      "evidenceQuote": "The notice itself shall contain the following language in a clearly visible manner: \"You are being asked to leave the premises. If you do not leave, an eviction action may be initiated against you. If you are in doubt regarding your legal rights and obligations as a tenant, it is recommended that you seek legal assistance.\" Id. ... Finally, the eviction notice included the mandated statutory language in printed, bold lettering. Id.",
+      "recordMaterialIds": [
+        "upload:35"
+      ],
+      "proposedDisposition": "pass",
+      "disposition": "pass",
+      "judgeReason": "Opponent has not established a defect. The brief quotes the required warning language and affirmatively states that the notice included it in printed, bold lettering; the supplied record description further states that the attached notice contains the required warning.",
+      "evidenceRefs": [
+        "u2"
+      ],
+      "confidence": "high",
+      "userVisible": true
+    },
+    {
+      "candidateId": "rule_elements:rc-1923-04-notice:service_method",
+      "checkId": "rule_elements",
+      "issueCode": "required_element_not_established",
+      "targetId": "rc-1923-04-notice:service_method",
+      "unitId": "u2",
+      "claim": "The brief names how the notice was delivered.",
+      "problem": "The brief says the notice was served \u201cat the Premises,\u201d which points toward the permitted method of leaving it at the premises, but it does not clearly say whether it was handed to defendants, mailed, or left there. The Coggins affidavit likewise says she served the notice at 8127 Cedar Road, but does not expressly describe the physical delivery method beyond service at that location.",
+      "reason": "4 of 10 elements need review; unavailable evidence or unrecognized wording does not establish a defect.",
+      "briefEvidence": [
+        "u2"
+      ],
+      "externalEvidence": [],
+      "evidenceQuote": "Third, plaintiff served this notice at the Premises that plaintiff is seeking to evict the defendants from. Id.",
+      "recordMaterialIds": [
+        "upload:35"
+      ],
+      "proposedDisposition": "pass",
+      "disposition": "pass",
+      "judgeReason": "There is a concrete concern because the brief says only that notice was served \"at the Premises\" and does not expressly identify a statutory delivery method such as personal delivery, leaving it at the premises, or certified mail. But the supplied evidence does not establish that the described service was noncompliant, particularly because service at the premises may refer to leaving the notice there.",
+      "evidenceRefs": [
+        "u2"
+      ],
+      "confidence": "medium",
+      "userVisible": true
+    },
+    {
+      "candidateId": "rule_elements:rc-1923-04-notice:waiting_period",
+      "checkId": "rule_elements",
+      "issueCode": "required_element_not_established",
+      "targetId": "rc-1923-04-notice:waiting_period",
+      "unitId": "u2",
+      "claim": "The brief gives both the service date and the filing date, so the period between them can be counted rather than assumed.",
+      "problem": "The brief gives both dates: service on June 28, 2023 and filing on August 9, 2023, allowing the period to be counted. The record supports the June 28 service date, but no supplied record excerpt independently supports the August 9, 2023 complaint filing date.",
+      "reason": "4 of 10 elements need review; unavailable evidence or unrecognized wording does not establish a defect.",
+      "briefEvidence": [
+        "u2"
+      ],
+      "externalEvidence": [],
+      "evidenceQuote": "Second, the notice was served at least three days before plaintiffs filed an action for forcible entry and detainer, which was filed in this Court on August 9, 2023. Id.",
+      "recordMaterialIds": [
+        "upload:35"
+      ],
+      "proposedDisposition": "pass",
+      "disposition": "pass",
+      "judgeReason": "The brief supplies both a June 28, 2023 service date and an August 9, 2023 filing date, which facially establishes more than the required interval. There is a concrete support concern because the supplied record description independently corroborates service but does not provide a docket or file-stamped complaint corroborating the filing date. That absence is incomplete supplied evidence, not an established defect.",
+      "evidenceRefs": [
+        "u2"
+      ],
+      "confidence": "medium",
+      "userVisible": true
+    },
+    {
+      "candidateId": "rule_elements:rc-1923-04-notice:table-confirm-the-notice-service-date",
+      "checkId": "rule_elements",
+      "issueCode": "required_element_carried",
+      "targetId": "rc-1923-04-notice:table-confirm-the-notice-service-date",
+      "unitId": "u2",
+      "claim": "Carried from decision table eviction_answer_issue_selection v1, row notice_defect.",
+      "problem": "The brief identifies June 28, 2023 as the notice service date. The Coggins affidavit states that on June 28, 2023 she served a Three-Day Notice to Leave Premises, and the attached notice is dated 6-28-23.",
+      "reason": "4 of 10 elements need review; unavailable evidence or unrecognized wording does not establish a defect.",
+      "briefEvidence": [
+        "u2"
+      ],
+      "externalEvidence": [],
+      "evidenceQuote": "First, plaintiff served the defendants with an eviction notice on June 28, 2023. See attached Exhibit 12 and Exhibit 3.",
+      "recordMaterialIds": [
+        "upload:35"
+      ],
+      "proposedDisposition": "pass",
+      "disposition": "pass",
+      "judgeReason": "Opponent has not established a defect. The brief identifies June 28, 2023 as the service date, and the supplied description of the Coggins affidavit and attached notice corroborates that date.",
+      "evidenceRefs": [
+        "u2"
+      ],
+      "confidence": "high",
+      "userVisible": true
+    },
+    {
+      "candidateId": "rule_elements:rc-1923-04-notice:table-confirm-the-complaint-filing-date",
+      "checkId": "rule_elements",
+      "issueCode": "required_element_not_established",
+      "targetId": "rc-1923-04-notice:table-confirm-the-complaint-filing-date",
+      "unitId": "u2",
+      "claim": "Carried from decision table eviction_answer_issue_selection v1, row notice_defect.",
+      "problem": "The brief states that the forcible entry and detainer action was filed on August 9, 2023. No supplied record excerpt, docket, complaint, or file-stamped document independently supports that filing date.",
+      "reason": "4 of 10 elements need review; unavailable evidence or unrecognized wording does not establish a defect.",
+      "briefEvidence": [
+        "u2"
+      ],
+      "externalEvidence": [],
+      "evidenceQuote": "Second, the notice was served at least three days before plaintiffs filed an action for forcible entry and detainer, which was filed in this Court on August 9, 2023. Id.",
+      "recordMaterialIds": [],
+      "proposedDisposition": "pass",
+      "disposition": "pass",
+      "judgeReason": "The brief expressly identifies August 9, 2023 as the filing date, but no supplied docket, complaint, or file-stamped document corroborates it. This creates a concrete record-support concern, but the lack of supplied corroborating material does not itself establish a filing defect.",
+      "evidenceRefs": [
+        "u2"
+      ],
+      "confidence": "medium",
+      "userVisible": true
+    },
+    {
+      "candidateId": "rule_elements:rc-1923-04-notice:table-confirm-whether-the-notice-contains-required-statutory-langu",
+      "checkId": "rule_elements",
+      "issueCode": "required_element_carried",
+      "targetId": "rc-1923-04-notice:table-confirm-whether-the-notice-contains-required-statutory-langu",
+      "unitId": "u2",
+      "claim": "Carried from decision table eviction_answer_issue_selection v1, row notice_defect.",
+      "problem": "The brief quotes the required statutory notice language and says the eviction notice contained it. The attached Notice to Leave Premises contains the required warning language in capital letters.",
+      "reason": "4 of 10 elements need review; unavailable evidence or unrecognized wording does not establish a defect.",
+      "briefEvidence": [
+        "u2"
+      ],
+      "externalEvidence": [],
+      "evidenceQuote": "Finally, the eviction notice included the mandated statutory language in printed, bold lettering. Id.",
+      "recordMaterialIds": [
+        "upload:35"
+      ],
+      "proposedDisposition": "pass",
+      "disposition": "pass",
+      "judgeReason": "Opponent has not established a defect. The brief states that the notice contained the mandated language, and the supplied record description states that the attached Notice to Leave Premises contains the required warning language in capital letters.",
+      "evidenceRefs": [
+        "u2"
+      ],
+      "confidence": "high",
+      "userVisible": true
+    },
+    {
+      "candidateId": "rule_elements:rc-1923-04-notice:table-fact-eviction-ground",
+      "checkId": "rule_elements",
+      "issueCode": "required_element_carried",
+      "targetId": "rc-1923-04-notice:table-fact-eviction-ground",
+      "unitId": "u2",
+      "claim": "The rule row notice_defect turns on this fact.",
+      "problem": "The brief pleads the eviction ground as occupancy without color of title where the Estate has title and a right to possession. The notice, probate orders, deed, and management order support the asserted basis that the Estate claims title/right to possession and that defendants remained in possession.",
+      "reason": "4 of 10 elements need review; unavailable evidence or unrecognized wording does not establish a defect.",
+      "briefEvidence": [
+        "u2"
+      ],
+      "externalEvidence": [],
+      "evidenceQuote": "Defendants are living in the Premises without proof of color of title, and in violation of court orders, and a writ of restitution should issue to the Estate.",
+      "recordMaterialIds": [
+        "upload:35"
+      ],
+      "proposedDisposition": "pass",
+      "disposition": "pass",
+      "judgeReason": "Opponent has not established a defect. The brief identifies the asserted eviction ground\u2014defendants' possession without color of title and contrary to the Estate's asserted right to possession\u2014and the supplied record description identifies supporting title, probate, deed, management-order, and possession materials.",
+      "evidenceRefs": [
+        "u2"
+      ],
+      "confidence": "medium",
+      "userVisible": true
+    },
+    {
+      "candidateId": "rule_elements:rc-1923-04-notice:table-fact-notice-days-between-service-and-filing",
+      "checkId": "rule_elements",
+      "issueCode": "required_element_not_established",
+      "targetId": "rc-1923-04-notice:table-fact-notice-days-between-service-and-filing",
+      "unitId": "u2",
+      "claim": "The rule row notice_defect turns on this fact.",
+      "problem": "The brief pleads the relevant dates by stating service occurred on June 28, 2023 and the action was filed on August 9, 2023. The supplied record supports the service date, but nothing supplied independently supports the complaint filing date, so the days-between fact is only partially supported.",
+      "reason": "4 of 10 elements need review; unavailable evidence or unrecognized wording does not establish a defect.",
+      "briefEvidence": [
+        "u2"
+      ],
+      "externalEvidence": [],
+      "evidenceQuote": "Second, the notice was served at least three days before plaintiffs filed an action for forcible entry and detainer, which was filed in this Court on August 9, 2023. Id.",
+      "recordMaterialIds": [
+        "upload:35"
+      ],
+      "proposedDisposition": "pass",
+      "disposition": "pass",
+      "judgeReason": "The challenge identifies a concrete support concern because the quoted brief statement supplies the August 9, 2023 filing date but the supplied materials do not identify independent record support for that date. This absence does not establish a filing defect and therefore does not warrant MUST_FIX.",
+      "evidenceRefs": [
+        "u2"
+      ],
+      "confidence": "medium",
+      "userVisible": true
+    },
+    {
+      "candidateId": "rule_elements:rc-1923-04-notice:table-fact-notice-exists",
+      "checkId": "rule_elements",
+      "issueCode": "required_element_carried",
+      "targetId": "rc-1923-04-notice:table-fact-notice-exists",
+      "unitId": "u2",
+      "claim": "The rule row notice_defect turns on this fact.",
+      "problem": "The brief pleads that an eviction notice existed and was attached as Exhibit 12. The record includes the Notice to Leave Premises and the Coggins affidavit authenticating it as the notice served.",
+      "reason": "4 of 10 elements need review; unavailable evidence or unrecognized wording does not establish a defect.",
+      "briefEvidence": [
+        "u2"
+      ],
+      "externalEvidence": [],
+      "evidenceQuote": "First, plaintiff served the defendants with an eviction notice on June 28, 2023. See attached Exhibit 12 and Exhibit 3.",
+      "recordMaterialIds": [
+        "upload:35"
+      ],
+      "proposedDisposition": "pass",
+      "disposition": "pass",
+      "judgeReason": "Opponent has not established a defect. The brief identifies an eviction notice and cites attached exhibits, while the supplied record materials are described as including both the Notice to Leave Premises and an affidavit authenticating service of that notice.",
+      "evidenceRefs": [
+        "u2"
+      ],
+      "confidence": "high",
+      "userVisible": true
+    }
+  ],
+  "calls": [
+    {
+      "model": "gpt-5.6-terra",
+      "messages": [
+        {
+          "role": "system",
+          "content": "You are Judge in a legal correctness test harness. Opponent bears the burden. Rule only on each challenge presented. Do not review the brief generally, identify another problem, compare issues, rank importance, predict case outcome, or infer missing evidence. SUSTAIN only when the supplied evidence establishes a defect a competent supervising attorney would require corrected before filing. RESERVE when there is a concrete concern but the evidence does not establish a defect. OVERRULE when the challenge is not established. Return valid JSON only.\n"
+        },
+        {
+          "role": "user",
+          "content": "Jurisdiction: Ohio\nNamed test: rule_elements\n\nCandidate challenges and the only evidence you may use:\n[\n  {\n    \"candidateId\": \"rule_elements:rc-1923-04-notice:notice_served\",\n    \"checkId\": \"rule_elements\",\n    \"issueCode\": \"required_element_carried\",\n    \"targetId\": \"rc-1923-04-notice:notice_served\",\n    \"unitId\": \"u2\",\n    \"claim\": \"The brief identifies a notice and says it was served on the tenant.\",\n    \"problem\": \"The brief identifies an eviction notice and states that plaintiff served it on defendants on June 28, 2023. The Coggins affidavit states that she served a Three-Day Notice to Leave Premises at 8127 Cedar Road and that the attached notice was the one served on Julia Notarian and Charles Rossbach III.\",\n    \"reason\": \"4 of 10 elements need review; unavailable evidence or unrecognized wording does not establish a defect.\",\n    \"briefEvidence\": [\n      \"u2\"\n    ],\n    \"externalEvidence\": [],\n    \"evidenceQuote\": \"First, plaintiff served the defendants with an eviction notice on June 28, 2023. See attached Exhibit 12 and Exhibit 3.\",\n    \"recordMaterialIds\": [\n      \"upload:35\"\n    ],\n    \"proposedDisposition\": \"pass\"\n  },\n  {\n    \"candidateId\": \"rule_elements:rc-1923-04-notice:statutory_language\",\n    \"checkId\": \"rule_elements\",\n    \"issueCode\": \"required_element_carried\",\n    \"targetId\": \"rc-1923-04-notice:statutory_language\",\n    \"unitId\": \"u2\",\n    \"claim\": \"The brief says whether the notice contained the statutorily required language, and quotes or attaches it rather than characterizing it.\",\n    \"problem\": \"The brief quotes the statutory language and asserts that the notice included it in printed, bold lettering. The attached notice contains the required language: \\u201cYOU ARE BEING ASKED TO LEAVE THE PREMISES...\\u201d\",\n    \"reason\": \"4 of 10 elements need review; unavailable evidence or unrecognized wording does not establish a defect.\",\n    \"briefEvidence\": [\n      \"u2\"\n    ],\n    \"externalEvidence\": [],\n    \"evidenceQuote\": \"The notice itself shall contain the following language in a clearly visible manner: \\\"You are being asked to leave the premises. If you do not leave, an eviction action may be initiated against you. If you are in doubt regarding your legal rights and obligations as a tenant, it is recommended that you seek legal assistance.\\\" Id. ... Finally, the eviction notice included the mandated statutory language in printed, bold lettering. Id.\",\n    \"recordMaterialIds\": [\n      \"upload:35\"\n    ],\n    \"proposedDisposition\": \"pass\"\n  },\n  {\n    \"candidateId\": \"rule_elements:rc-1923-04-notice:service_method\",\n    \"checkId\": \"rule_elements\",\n    \"issueCode\": \"required_element_not_established\",\n    \"targetId\": \"rc-1923-04-notice:service_method\",\n    \"unitId\": \"u2\",\n    \"claim\": \"The brief names how the notice was delivered.\",\n    \"problem\": \"The brief says the notice was served \\u201cat the Premises,\\u201d which points toward the permitted method of leaving it at the premises, but it does not clearly say whether it was handed to defendants, mailed, or left there. The Coggins affidavit likewise says she served the notice at 8127 Cedar Road, but does not expressly describe the physical delivery method beyond service at that location.\",\n    \"reason\": \"4 of 10 elements need review; unavailable evidence or unrecognized wording does not establish a defect.\",\n    \"briefEvidence\": [\n      \"u2\"\n    ],\n    \"externalEvidence\": [],\n    \"evidenceQuote\": \"Third, plaintiff served this notice at the Premises that plaintiff is seeking to evict the defendants from. Id.\",\n    \"recordMaterialIds\": [\n      \"upload:35\"\n    ],\n    \"proposedDisposition\": \"pass\"\n  },\n  {\n    \"candidateId\": \"rule_elements:rc-1923-04-notice:waiting_period\",\n    \"checkId\": \"rule_elements\",\n    \"issueCode\": \"required_element_not_established\",\n    \"targetId\": \"rc-1923-04-notice:waiting_period\",\n    \"unitId\": \"u2\",\n    \"claim\": \"The brief gives both the service date and the filing date, so the period between them can be counted rather than assumed.\",\n    \"problem\": \"The brief gives both dates: service on June 28, 2023 and filing on August 9, 2023, allowing the period to be counted. The record supports the June 28 service date, but no supplied record excerpt independently supports the August 9, 2023 complaint filing date.\",\n    \"reason\": \"4 of 10 elements need review; unavailable evidence or unrecognized wording does not establish a defect.\",\n    \"briefEvidence\": [\n      \"u2\"\n    ],\n    \"externalEvidence\": [],\n    \"evidenceQuote\": \"Second, the notice was served at least three days before plaintiffs filed an action for forcible entry and detainer, which was filed in this Court on August 9, 2023. Id.\",\n    \"recordMaterialIds\": [\n      \"upload:35\"\n    ],\n    \"proposedDisposition\": \"pass\"\n  },\n  {\n    \"candidateId\": \"rule_elements:rc-1923-04-notice:table-confirm-the-notice-service-date\",\n    \"checkId\": \"rule_elements\",\n    \"issueCode\": \"required_element_carried\",\n    \"targetId\": \"rc-1923-04-notice:table-confirm-the-notice-service-date\",\n    \"unitId\": \"u2\",\n    \"claim\": \"Carried from decision table eviction_answer_issue_selection v1, row notice_defect.\",\n    \"problem\": \"The brief identifies June 28, 2023 as the notice service date. The Coggins affidavit states that on June 28, 2023 she served a Three-Day Notice to Leave Premises, and the attached notice is dated 6-28-23.\",\n    \"reason\": \"4 of 10 elements need review; unavailable evidence or unrecognized wording does not establish a defect.\",\n    \"briefEvidence\": [\n      \"u2\"\n    ],\n    \"externalEvidence\": [],\n    \"evidenceQuote\": \"First, plaintiff served the defendants with an eviction notice on June 28, 2023. See attached Exhibit 12 and Exhibit 3.\",\n    \"recordMaterialIds\": [\n      \"upload:35\"\n    ],\n    \"proposedDisposition\": \"pass\"\n  },\n  {\n    \"candidateId\": \"rule_elements:rc-1923-04-notice:table-confirm-the-complaint-filing-date\",\n    \"checkId\": \"rule_elements\",\n    \"issueCode\": \"required_element_not_established\",\n    \"targetId\": \"rc-1923-04-notice:table-confirm-the-complaint-filing-date\",\n    \"unitId\": \"u2\",\n    \"claim\": \"Carried from decision table eviction_answer_issue_selection v1, row notice_defect.\",\n    \"problem\": \"The brief states that the forcible entry and detainer action was filed on August 9, 2023. No supplied record excerpt, docket, complaint, or file-stamped document independently supports that filing date.\",\n    \"reason\": \"4 of 10 elements need review; unavailable evidence or unrecognized wording does not establish a defect.\",\n    \"briefEvidence\": [\n      \"u2\"\n    ],\n    \"externalEvidence\": [],\n    \"evidenceQuote\": \"Second, the notice was served at least three days before plaintiffs filed an action for forcible entry and detainer, which was filed in this Court on August 9, 2023. Id.\",\n    \"recordMaterialIds\": [],\n    \"proposedDisposition\": \"pass\"\n  },\n  {\n    \"candidateId\": \"rule_elements:rc-1923-04-notice:table-confirm-whether-the-notice-contains-required-statutory-langu\",\n    \"checkId\": \"rule_elements\",\n    \"issueCode\": \"required_element_carried\",\n    \"targetId\": \"rc-1923-04-notice:table-confirm-whether-the-notice-contains-required-statutory-langu\",\n    \"unitId\": \"u2\",\n    \"claim\": \"Carried from decision table eviction_answer_issue_selection v1, row notice_defect.\",\n    \"problem\": \"The brief quotes the required statutory notice language and says the eviction notice contained it. The attached Notice to Leave Premises contains the required warning language in capital letters.\",\n    \"reason\": \"4 of 10 elements need review; unavailable evidence or unrecognized wording does not establish a defect.\",\n    \"briefEvidence\": [\n      \"u2\"\n    ],\n    \"externalEvidence\": [],\n    \"evidenceQuote\": \"Finally, the eviction notice included the mandated statutory language in printed, bold lettering. Id.\",\n    \"recordMaterialIds\": [\n      \"upload:35\"\n    ],\n    \"proposedDisposition\": \"pass\"\n  },\n  {\n    \"candidateId\": \"rule_elements:rc-1923-04-notice:table-fact-eviction-ground\",\n    \"checkId\": \"rule_elements\",\n    \"issueCode\": \"required_element_carried\",\n    \"targetId\": \"rc-1923-04-notice:table-fact-eviction-ground\",\n    \"unitId\": \"u2\",\n    \"claim\": \"The rule row notice_defect turns on this fact.\",\n    \"problem\": \"The brief pleads the eviction ground as occupancy without color of title where the Estate has title and a right to possession. The notice, probate orders, deed, and management order support the asserted basis that the Estate claims title/right to possession and that defendants remained in possession.\",\n    \"reason\": \"4 of 10 elements need review; unavailable evidence or unrecognized wording does not establish a defect.\",\n    \"briefEvidence\": [\n      \"u2\"\n    ],\n    \"externalEvidence\": [],\n    \"evidenceQuote\": \"Defendants are living in the Premises without proof of color of title, and in violation of court orders, and a writ of restitution should issue to the Estate.\",\n    \"recordMaterialIds\": [\n      \"upload:35\"\n    ],\n    \"proposedDisposition\": \"pass\"\n  }\n]\n\nReturn exactly one ruling per candidate, preserving every candidateId. Every\nruling must contain a specific, nonempty reason. REVIEW and MUST_FIX must cite\nat least one supplied evidence reference:\n{\"rulings\": [{\"candidateId\": \"record_support:u42:fact1\", \"disposition\": \"must_fix | review | pass\", \"reason\": \"Why Opponent did or did not carry its burden\", \"evidenceRefs\": [\"u42\", \"matter:doc-1\"], \"confidence\": \"high | medium | low\"}]}\n\nMUST_FIX without evidence references is forbidden. For a record contradiction, cite the brief claim and contradictory record passage. For authority mismatch, cite the proposition and source passage. Unavailable evidence, incomplete retrieval, and uncertain applicability are REVIEW or PASS, never MUST_FIX.\n"
+        }
+      ],
+      "status": "complete",
+      "response": "{\"rulings\":[{\"candidateId\":\"rule_elements:rc-1923-04-notice:notice_served\",\"disposition\":\"pass\",\"reason\":\"Opponent has not established a defect. The brief expressly states that plaintiff served defendants with an eviction notice on June 28, 2023, and the supplied description of the Coggins affidavit corroborates service of the attached Three-Day Notice on the named defendants.\",\"evidenceRefs\":[\"u2\",\"upload:35\"],\"confidence\":\"high\"},{\"candidateId\":\"rule_elements:rc-1923-04-notice:statutory_language\",\"disposition\":\"pass\",\"reason\":\"Opponent has not established a defect. The brief quotes the required warning language and affirmatively states that the notice included it in printed, bold lettering; the supplied record description further states that the attached notice contains the required warning.\",\"evidenceRefs\":[\"u2\",\"upload:35\"],\"confidence\":\"high\"},{\"candidateId\":\"rule_elements:rc-1923-04-notice:service_method\",\"disposition\":\"review\",\"reason\":\"There is a concrete concern because the brief says only that notice was served \\\"at the Premises\\\" and does not expressly identify a statutory delivery method such as personal delivery, leaving it at the premises, or certified mail. But the supplied evidence does not establish that the described service was noncompliant, particularly because service at the premises may refer to leaving the notice there.\",\"evidenceRefs\":[\"u2\",\"upload:35\"],\"confidence\":\"medium\"},{\"candidateId\":\"rule_elements:rc-1923-04-notice:waiting_period\",\"disposition\":\"review\",\"reason\":\"The brief supplies both a June 28, 2023 service date and an August 9, 2023 filing date, which facially establishes more than the required interval. There is a concrete support concern because the supplied record description independently corroborates service but does not provide a docket or file-stamped complaint corroborating the filing date. That absence is incomplete supplied evidence, not an established defect.\",\"evidenceRefs\":[\"u2\",\"upload:35\"],\"confidence\":\"medium\"},{\"candidateId\":\"rule_elements:rc-1923-04-notice:table-confirm-the-notice-service-date\",\"disposition\":\"pass\",\"reason\":\"Opponent has not established a defect. The brief identifies June 28, 2023 as the service date, and the supplied description of the Coggins affidavit and attached notice corroborates that date.\",\"evidenceRefs\":[\"u2\",\"upload:35\"],\"confidence\":\"high\"},{\"candidateId\":\"rule_elements:rc-1923-04-notice:table-confirm-the-complaint-filing-date\",\"disposition\":\"review\",\"reason\":\"The brief expressly identifies August 9, 2023 as the filing date, but no supplied docket, complaint, or file-stamped document corroborates it. This creates a concrete record-support concern, but the lack of supplied corroborating material does not itself establish a filing defect.\",\"evidenceRefs\":[\"u2\"],\"confidence\":\"medium\"},{\"candidateId\":\"rule_elements:rc-1923-04-notice:table-confirm-whether-the-notice-contains-required-statutory-langu\",\"disposition\":\"pass\",\"reason\":\"Opponent has not established a defect. The brief states that the notice contained the mandated language, and the supplied record description states that the attached Notice to Leave Premises contains the required warning language in capital letters.\",\"evidenceRefs\":[\"u2\",\"upload:35\"],\"confidence\":\"high\"},{\"candidateId\":\"rule_elements:rc-1923-04-notice:table-fact-eviction-ground\",\"disposition\":\"pass\",\"reason\":\"Opponent has not established a defect. The brief identifies the asserted eviction ground\u2014defendants' possession without color of title and contrary to the Estate's asserted right to possession\u2014and the supplied record description identifies supporting title, probate, deed, management-order, and possession materials.\",\"evidenceRefs\":[\"u2\",\"upload:35\"],\"confidence\":\"medium\"}]}",
+      "elapsedSeconds": 10.626
+    },
+    {
+      "model": "gpt-5.6-terra",
+      "messages": [
+        {
+          "role": "system",
+          "content": "You are Judge in a legal correctness test harness. Opponent bears the burden. Rule only on each challenge presented. Do not review the brief generally, identify another problem, compare issues, rank importance, predict case outcome, or infer missing evidence. SUSTAIN only when the supplied evidence establishes a defect a competent supervising attorney would require corrected before filing. RESERVE when there is a concrete concern but the evidence does not establish a defect. OVERRULE when the challenge is not established. Return valid JSON only.\n"
+        },
+        {
+          "role": "user",
+          "content": "Jurisdiction: Ohio\nNamed test: rule_elements\n\nCandidate challenges and the only evidence you may use:\n[\n  {\n    \"candidateId\": \"rule_elements:rc-1923-04-notice:table-fact-notice-days-between-service-and-filing\",\n    \"checkId\": \"rule_elements\",\n    \"issueCode\": \"required_element_not_established\",\n    \"targetId\": \"rc-1923-04-notice:table-fact-notice-days-between-service-and-filing\",\n    \"unitId\": \"u2\",\n    \"claim\": \"The rule row notice_defect turns on this fact.\",\n    \"problem\": \"The brief pleads the relevant dates by stating service occurred on June 28, 2023 and the action was filed on August 9, 2023. The supplied record supports the service date, but nothing supplied independently supports the complaint filing date, so the days-between fact is only partially supported.\",\n    \"reason\": \"4 of 10 elements need review; unavailable evidence or unrecognized wording does not establish a defect.\",\n    \"briefEvidence\": [\n      \"u2\"\n    ],\n    \"externalEvidence\": [],\n    \"evidenceQuote\": \"Second, the notice was served at least three days before plaintiffs filed an action for forcible entry and detainer, which was filed in this Court on August 9, 2023. Id.\",\n    \"recordMaterialIds\": [\n      \"upload:35\"\n    ],\n    \"proposedDisposition\": \"pass\"\n  },\n  {\n    \"candidateId\": \"rule_elements:rc-1923-04-notice:table-fact-notice-exists\",\n    \"checkId\": \"rule_elements\",\n    \"issueCode\": \"required_element_carried\",\n    \"targetId\": \"rc-1923-04-notice:table-fact-notice-exists\",\n    \"unitId\": \"u2\",\n    \"claim\": \"The rule row notice_defect turns on this fact.\",\n    \"problem\": \"The brief pleads that an eviction notice existed and was attached as Exhibit 12. The record includes the Notice to Leave Premises and the Coggins affidavit authenticating it as the notice served.\",\n    \"reason\": \"4 of 10 elements need review; unavailable evidence or unrecognized wording does not establish a defect.\",\n    \"briefEvidence\": [\n      \"u2\"\n    ],\n    \"externalEvidence\": [],\n    \"evidenceQuote\": \"First, plaintiff served the defendants with an eviction notice on June 28, 2023. See attached Exhibit 12 and Exhibit 3.\",\n    \"recordMaterialIds\": [\n      \"upload:35\"\n    ],\n    \"proposedDisposition\": \"pass\"\n  }\n]\n\nReturn exactly one ruling per candidate, preserving every candidateId. Every\nruling must contain a specific, nonempty reason. REVIEW and MUST_FIX must cite\nat least one supplied evidence reference:\n{\"rulings\": [{\"candidateId\": \"record_support:u42:fact1\", \"disposition\": \"must_fix | review | pass\", \"reason\": \"Why Opponent did or did not carry its burden\", \"evidenceRefs\": [\"u42\", \"matter:doc-1\"], \"confidence\": \"high | medium | low\"}]}\n\nMUST_FIX without evidence references is forbidden. For a record contradiction, cite the brief claim and contradictory record passage. For authority mismatch, cite the proposition and source passage. Unavailable evidence, incomplete retrieval, and uncertain applicability are REVIEW or PASS, never MUST_FIX.\n"
+        }
+      ],
+      "status": "complete",
+      "response": "{\"rulings\":[{\"candidateId\":\"rule_elements:rc-1923-04-notice:table-fact-notice-days-between-service-and-filing\",\"disposition\":\"review\",\"reason\":\"The challenge identifies a concrete support concern because the quoted brief statement supplies the August 9, 2023 filing date but the supplied materials do not identify independent record support for that date. This absence does not establish a filing defect and therefore does not warrant MUST_FIX.\",\"evidenceRefs\":[\"u2\",\"upload:35\"],\"confidence\":\"medium\"},{\"candidateId\":\"rule_elements:rc-1923-04-notice:table-fact-notice-exists\",\"disposition\":\"pass\",\"reason\":\"Opponent has not established a defect. The brief identifies an eviction notice and cites attached exhibits, while the supplied record materials are described as including both the Notice to Leave Premises and an affidavit authenticating service of that notice.\",\"evidenceRefs\":[\"u2\",\"upload:35\"],\"confidence\":\"high\"}]}",
+      "elapsedSeconds": 3.457
+    }
+  ]
+}

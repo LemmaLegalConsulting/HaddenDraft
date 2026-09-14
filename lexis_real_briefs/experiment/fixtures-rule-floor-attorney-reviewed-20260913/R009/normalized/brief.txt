@@ -1,0 +1,16 @@
+CUYAHOGA COUNTY COURT OF COMMON PLEAS
+Cuyahoga Metropolitan Housing Authority v. John Smith
+Case No. 2023 CV 00001
+
+MEMORANDUM IN SUPPORT OF DEFENDANT'S MOTION TO DISMISS
+
+Statement of Facts
+The Cuyahoga Metropolitan Housing Authority (CMHA), a public housing agency (PHA), initiated this eviction action against its tenant, John Smith, alleging nonpayment of rent. CMHA served Mr. Smith with a termination notice on February 1, 2023, stating that the tenancy would terminate on March 15, 2023, due to nonpayment. The notice advised Mr. Smith that he could request a grievance hearing by February 10, 2023.
+
+Argument
+
+The termination notice failed to comply with federal regulations because it omitted several required advisements and factual statements. Specifically, it did not state the specific grounds for termination, inform Mr. Smith of his right to reply, or advise him of his right to inspect relevant documents. Additionally, it lacked instructions for a 30-day cure, an itemization of rent and other allowed arrearages by month, a payment deadline before filing, information about income recertification, details on hardship exemption, and an explanation of switching from flat rent to income-based rent.
+The termination notice's timing complied with federal regulations governing public housing. 24 C.F.R. §§ 966.4(l)(3), 966.51-.57 require a minimum 30-day notice period. The 42-day period from February 1, 2023, to March 15, 2023, satisfied the 30-day minimum. Because January rent was due January 1, 2023, service on February 1, 2023, was not before the day after rent was due. Completion of the grievance process is inapplicable as no grievance was requested and CMHA asserted no exclusion.
+
+Conclusion
+The court should dismiss this action.

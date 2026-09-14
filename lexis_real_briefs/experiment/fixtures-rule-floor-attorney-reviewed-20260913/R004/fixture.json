@@ -1,0 +1,72 @@
+{
+  "fixture_id": "R004",
+  "case_family_id": "synthetic-rule-review-r004",
+  "stratum": "synthetic_rule_elements_attorney_review",
+  "document": {
+    "title": "Tenant's Memorandum in Support of Damages for Unlawful Lockout",
+    "court": "Fictional Ohio trial court",
+    "jurisdiction": "Ohio",
+    "pleading_type": "trial_brief",
+    "side": "",
+    "filed": "2026-09-13"
+  },
+  "files": {
+    "source": null,
+    "source_scan": null,
+    "control": "normalized/brief.txt",
+    "mutant": "mutant/brief.txt",
+    "attachments": [
+      "attachments/record-01.txt"
+    ],
+    "attachment_notes": [
+      "Identical fictional record supplied to both arms."
+    ]
+  },
+  "mutation": {
+    "type": "rule_element_omission",
+    "subtype": "resulting_damage",
+    "operation": "delete",
+    "section": "Argument",
+    "description": "Deleted the only proposed paragraph applying resulting_damage.",
+    "gold_vulnerability": "PROPOSED: the mutant invokes R.C. 5321.15 but omits application of resulting_damage.",
+    "expected_direction": "mutant_worse",
+    "materiality": "proposed_high_unverified",
+    "target_location": {
+      "section": "Argument",
+      "control_excerpt": "The lockout caused Jenny Tenant to incur $250 in hotel costs and $100 for a locksmith to regain entry, demonstrating actual harm resulting from Landlord's prohibited act.",
+      "mutant_excerpt": ""
+    },
+    "characters_changed": 172,
+    "control_chars": 1242,
+    "mutant_chars": 1070,
+    "fraction_of_brief_changed": 0.138486,
+    "expected_check_id": "rule_elements",
+    "expected_target_id": "rc-5321-15-self-help:resulting_damage",
+    "expected_disposition": "must_fix"
+  },
+  "gold": {
+    "control_has_target_defect": false,
+    "mutant_has_target_defect": true,
+    "expected_direction": "mutant_worse",
+    "materiality": "proposed_high_unverified",
+    "verified_by": [],
+    "verification_status": "proposed_unverified",
+    "verification_note": "Llama-authored proposal; do not run or score until attorney review is complete."
+  },
+  "provenance": {
+    "control_sha256": "e94dfe28aec5585fa24338bb2c8e2ffb38622192e519f17a05320b3088cab7e5",
+    "mutant_sha256": "dcb462e64ca9b52a1eac9d3bfa65a2cce3aabadf3f803c6509183c3d4321947d",
+    "attachment_sha256": {
+      "record-01.txt": "5a3409d936fcfa19c478b4dddf07acdf90314a836e32fea22b21291351b85c28"
+    },
+    "mutation_version": "exact-paragraph-deletion-1.0",
+    "generator": {
+      "provider": "Azure AI Services",
+      "deployment": "llama-4-maverick",
+      "family": "Meta Llama",
+      "generated_at": "2026-09-14T01:34:00.000205+00:00",
+      "attempts": 1,
+      "researcher_edits": "None; whitespace normalization and deletion only."
+    }
+  }
+}

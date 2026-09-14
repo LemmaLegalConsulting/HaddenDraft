@@ -1,0 +1,1 @@
+Lease Clause: 'Full monthly rent of $800 is due on March 1, 2023, with a five-day grace period.' Cashier's Check: '$800, dated March 3, 2023.' Delivery Receipt: 'Received $800 cashier's check on March 3, 2023.' Landlord's Refusal Message: 'Refused $800 cashier's check on March 3, 2023, as it was deemed unnecessary.'

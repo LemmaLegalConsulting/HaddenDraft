@@ -1,0 +1,66 @@
+[
+  {
+    "fixtureId": "H001",
+    "caseFamilyId": "jacob-v-fadel",
+    "controlSha256": "2323397e017c703aff11b4c9508b1b7e2222f2c2086fe0ae8dd09cbf1eb3a96e",
+    "mutantSha256": "fa37eb8262f019fd624a925e42c553a79194c459b2685b950d10094777726fba",
+    "checkId": "authority_support",
+    "previewTargetId": "u90:authority1"
+  },
+  {
+    "fixtureId": "H002",
+    "caseFamilyId": "debartolo-v-dussault-moving-inc",
+    "controlSha256": "5da0488d6939aca4d0689c550a531647e24eea6c0ff95588856c3d53c0b287b2",
+    "mutantSha256": "09a6dcbe332968801e125831c12b51692a72e08e16d9851ba8f478facdbb53e5",
+    "checkId": "authority_support",
+    "previewTargetId": "u86:authority1"
+  },
+  {
+    "fixtureId": "H003",
+    "caseFamilyId": "texlo-v-gator-hillcrest--c-240090",
+    "controlSha256": "f6876b9dae661946ae1acfe98c8f72d8abdb6a2b2637537ba8b9c1ad5a2c3ded",
+    "mutantSha256": "143e1a7e6089d578b079c75c03bb14bb6ff0141544af77bd658c30a67cda19ae",
+    "checkId": "authority_support",
+    "previewTargetId": "u51:authority2"
+  },
+  {
+    "fixtureId": "H004",
+    "caseFamilyId": "lee-v-wallace",
+    "controlSha256": "2e076e653a2e377992dc9e1f08fd0f6dc8666654971ff674edda55ab2b1b8fab",
+    "mutantSha256": "49e51b4b7239a2d3e5399be6c6e893cd4cd4a99d5cab5f716cf28dac4fcb02ee",
+    "checkId": "authority_support",
+    "previewTargetId": "u24:authority1"
+  },
+  {
+    "fixtureId": "H005",
+    "caseFamilyId": "carroll-v-houser--cv-2006-06-4106",
+    "controlSha256": "61201fc2cc585587995b15df0d4b582b478de0ae3677bd414959101b9b130155",
+    "mutantSha256": "57696bf44ae0d14e2aa901c08f18f8c0c59e98aea088b05b282a0e24952fcd4d",
+    "checkId": "authority_support",
+    "previewTargetId": "u62:authority1"
+  },
+  {
+    "fixtureId": "H006",
+    "caseFamilyId": "crenshaw-v-integrity-realty",
+    "controlSha256": "4abbb18184a3333aa284d58816b90f61a669dd3555242bb2ded4c8fe0da941cb",
+    "mutantSha256": "6889de3d563da4fcf4d8389a06cab895d2a046fabde3baf85fb80e584867edfb",
+    "checkId": "authority_support",
+    "previewTargetId": "u76:authority1"
+  },
+  {
+    "fixtureId": "H007",
+    "caseFamilyId": "estate-of-anthony-notarian-et-al-vs-nota",
+    "controlSha256": "bf0c794798d80f6e53341fb3884b158f957e9140cb687cb9924f6abbe2647462",
+    "mutantSha256": "e98a1893da0bf894967fb88f6666911058981aaea392a94bb28a844c2fe5fc9c",
+    "checkId": "authority_support",
+    "previewTargetId": "u5:authority2"
+  },
+  {
+    "fixtureId": "H008",
+    "caseFamilyId": "jackson-v-carlton-townhouse-condo-assoc",
+    "controlSha256": "ade8e91be9e9b1960dcf684dd5169cda2aadc835132b9103882be6baf8411bd6",
+    "mutantSha256": "c85ef9dfd614c055c3d9cc602f09895596ef4b7c47246ee690631f88f2faa149",
+    "checkId": "authority_support",
+    "previewTargetId": "u99:authority2"
+  }
+]

@@ -1,0 +1,14 @@
+{
+  "fixtureId": "R008",
+  "ruleSlug": "hud-project-based-24-cfr-247-notice",
+  "targetElement": "ten_day_discussion_advisement",
+  "reviewer": "User attorney (explicit approval in session)",
+  "reviewedAt": "2026-09-13",
+  "controlCorrectlyAppliesEveryApplicableElement": true,
+  "recordSupportsEveryAppliedElement": true,
+  "deletionRemovesOnlyTargetApplication": true,
+  "mutantClearlyOmitsTargetApplication": true,
+  "ruleAndExpectedDispositionAreCorrect": true,
+  "approved": true,
+  "notes": ""
+}

@@ -1,0 +1,54 @@
+{
+  "fixture_id": "H005",
+  "case_family_id": "carroll-v-houser--cv-2006-06-4106",
+  "stratum": "heldout_housing_property_authority",
+  "document": {
+    "title": "Carroll v. Houser",
+    "court": "",
+    "jurisdiction": "Ohio",
+    "pleading_type": "brief",
+    "side": "",
+    "filed": ""
+  },
+  "files": {
+    "source": "normalized/brief.txt",
+    "source_scan": null,
+    "control": "normalized/brief.txt",
+    "mutant": "mutant/brief.txt",
+    "attachments": [],
+    "attachment_notes": []
+  },
+  "mutation": {
+    "type": "quotation_mismatch",
+    "subtype": "attorney_verified_authority_support",
+    "operation": "replace",
+    "target_location": {
+      "control_excerpt": "a landowner owes no duty of care to individuals lawfully on the premises.",
+      "mutant_excerpt": "a landowner is subject to strict liability for individuals lawfully on the premises."
+    },
+    "gold_vulnerability": "authority_support should reject the altered proposition attributed to Armstrong v. Best Buy Co., Inc., 99 Ohio St.3d 79, 2003-Ohio-2573.",
+    "expected_direction": "mutant_worse",
+    "materiality": "high",
+    "edit_regions": 1
+  },
+  "gold": {
+    "check_id": "authority_support",
+    "preview_target_id": "u62:authority1",
+    "control_has_target_defect": false,
+    "mutant_has_target_defect": true,
+    "expected_control_disposition": "pass",
+    "expected_mutant_disposition": "must_fix",
+    "verification_status": "attorney_verified",
+    "verified_by": [
+      "researcher (manual source review)"
+    ]
+  },
+  "provenance": {
+    "source_sha256": "c98f49aa15d4719bf12ca6552d08098ab9a54d0d250d3254bfaf356801a15c53",
+    "control_sha256": "61201fc2cc585587995b15df0d4b582b478de0ae3677bd414959101b9b130155",
+    "mutant_sha256": "57696bf44ae0d14e2aa901c08f18f8c0c59e98aea088b05b282a0e24952fcd4d",
+    "attachment_sha256": {},
+    "normalization_version": "1.0",
+    "mutation_version": "heldout-authority-1.0"
+  }
+}

@@ -1,0 +1,2140 @@
+{
+  "manifest": {
+    "registry_id": "lexis-mutation-2026-09",
+    "created_at": "2026-09-14T02:25:55.572425+00:00",
+    "mode": "live",
+    "git_commit": "351fb785e9bc1bfc7b9954de0f94d16861aa0d9f",
+    "git_status": " M backend/apps/caselaw/management/commands/enrich_caselaw_metadata.py\n m private-content\n?? downloaded_opinions/\n?? lab_notebook/2026-09-13_heldout_authority_replicates_1_to_4.md\n?? lexis_real_briefs/experiment/results/heldout-authority-terra-mistral-rep1-20260913/\n?? lexis_real_briefs/experiment/results/heldout-authority-terra-mistral-rep2-20260913/\n?? lexis_real_briefs/experiment/results/heldout-authority-terra-mistral-rep3-20260913/\n?? lexis_real_briefs/experiment/results/heldout-authority-terra-mistral-rep4-20260913/\n?? lexis_real_briefs/experiment/results/heldout-rule-floor-llama-sol-attorney-reviewed-rep1-20260913/\n?? lexis_real_briefs/experiment/results/heldout-rule-floor-llama-sol-attorney-reviewed-rep2-20260913/\n?? lexis_real_briefs/experiment/results/heldout-rule-floor-llama-sol-attorney-reviewed-rep2-r002-technical-retry-20260913/\n?? lexis_real_briefs/experiment/results/heldout-rule-floor-llama-sol-attorney-reviewed-rep3-20260913/\n?? lexis_real_briefs/experiment/results/heldout-rule-floor-llama-sol-attorney-reviewed-rep4-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-f005-attribution-grounded-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-f005-complete-opinions-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-f005-frozen-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-f005-grounded-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-f005-opinion-status-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-f005-reuse-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-live-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-live-bounded-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-live-final-f007-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-live-final-f007b-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-live-hybrid-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-live-hybrid-fixed-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-live-targeted-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-offline-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-offline-after-unavailable-fix-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-priority-frozen-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-priority-rerun-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-rules-citations-terra-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-rules-citations-terra-batched-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-rules-citations-terra-final-20260913/\n?? lexis_real_briefs/experiment/results/micro-judge-hardening-deepseek-20260913.json\n?? lexis_real_briefs/experiment/results/micro-judge-hardening-deepseek-offset8-20260913.json\n?? lexis_real_briefs/experiment/results/micro-judge-hardening-gpt55-20260913.json\n?? lexis_real_briefs/experiment/results/micro-judge-hardening-gpt56terra-20260913.json\n?? lexis_real_briefs/experiment/results/micro-judge-hardening-gpt56terra-deployed-20260913.json\n?? lexis_real_briefs/experiment/results/micro-judge-hardening-grok46-20260913.json\n?? lexis_real_briefs/experiment/results/micro-judge-rule-floor-llama-4-maverick-20260913.json\n?? lexis_real_briefs/experiment/results/micro-judge-rule-floor-mistral-large-3-20260913.json\n?? lexis_real_briefs/experiment/results/micro-judge-rules-gpt55-20260913.json\n?? lexis_real_briefs/experiment/results/micro-judge-rules-gpt56terra-20260913.json\n?? lexis_real_briefs/experiment/results/micro-rules-all-fixtures-20260913/\n?? lexis_real_briefs/experiment/results/qualification-authority-f005-nested-fixed-rep1-20260913/\n?? lexis_real_briefs/experiment/results/qualification-authority-f005-nested-fixed-rep2-20260913/\n?? lexis_real_briefs/experiment/results/qualification-authority-f005-nested-fixed-rep3-20260913/\n?? lexis_real_briefs/experiment/results/qualification-authority-f005-rep1-20260913/\n?? lexis_real_briefs/experiment/results/qualification-authority-f005-stable-inventory-20260913/\n?? lexis_real_briefs/experiment/results/qualification-rule-floor-contract-rep1-20260913/\n?? lexis_real_briefs/experiment/results/qualification-rule-floor-final-rep1-20260913/\n?? lexis_real_briefs/experiment/results/qualification-rule-floor-fresh10-20260913/\n?? lexis_real_briefs/experiment/results/qualification-rule-floor-fresh10-rep2-20260913/\n?? lexis_real_briefs/experiment/results/qualification-rule-floor-gate-rep1-20260913/\n?? lexis_real_briefs/experiment/results/qualification-rule-floor-gate-rep2-20260913/\n?? lexis_real_briefs/experiment/results/qualification-rule-floor-gate-rep3-20260913/\n?? lexis_real_briefs/experiment/results/qualification-rule-floor-mistral-high-rep1-20260913/\n?? lexis_real_briefs/experiment/results/qualification-rule-floor-mistral-rep1-20260913/\n?? lexis_real_briefs/experiment/results/qualification-rule-floor-ready-rep1-20260913/\n?? lexis_real_briefs/experiment/results/qualification-rule-floor-rep1-20260913/\n?? lexis_real_briefs/experiment/results/qualification-rule-floor-repaired-rep1-20260913/\n?? lexis_real_briefs/experiment/results/qualification-rule-floor-terra-mistral-fixed-rep1-20260913/\n?? lexis_real_briefs/experiment/results/qualification-rule-floor-terra-mistral-rep1-20260913/\n?? lexis_real_briefs/experiment/results/qualification-vawa-coverage-rep1-20260913/\n?? lexis_real_briefs/experiment/results/qualification-vawa-coverage-rep2-20260913/\n?? lexis_real_briefs/experiment/results/qualification-vawa-coverage-rep3-20260913/\n",
+    "command": [
+      "/home/quinten/agentic_housing_drafting/.venv/bin/python",
+      "/home/quinten/agentic_housing_drafting/lexis_real_briefs/experiment/tools/run_experiment.py",
+      "--output-dir",
+      "/home/quinten/agentic_housing_drafting/lexis_real_briefs/experiment/results/heldout-rule-floor-llama-sol-attorney-reviewed-rep4-20260913/shards/R009",
+      "--fixtures-dir",
+      "/home/quinten/agentic_housing_drafting/lexis_real_briefs/experiment/fixtures-rule-floor-attorney-reviewed-20260913",
+      "--fixture",
+      "R009",
+      "--model",
+      "gpt-5.4-mini",
+      "--reasoning",
+      "medium",
+      "--live",
+      "--attack-model",
+      "gpt-5.6-terra",
+      "--judge-model",
+      "mistral-large-3",
+      "--base-model",
+      "gpt-5.6-terra",
+      "--cell",
+      "terra-mistral",
+      "--check",
+      "rule_elements"
+    ],
+    "python": "3.12.3 (main, Aug 31 2026, 10:18:26) [GCC 13.3.0]",
+    "cell": "terra-mistral",
+    "models": {
+      "attack": "gpt-5.6-terra",
+      "judge": "mistral-large-3",
+      "base": "gpt-5.6-terra"
+    },
+    "model": "gpt-5.6-terra",
+    "attack_family": "openai",
+    "judge_family": "mistral",
+    "same_family_judge": false,
+    "role_routing": "named Opponent prompts -> attack; legacy and correctness Judge prompts -> judge; everything else -> base",
+    "reasoning": "medium",
+    "temperature": 0,
+    "provider_host": "quint-mln02sj6-eastus2.cognitiveservices.azure.com",
+    "model_version_note": "Requested deployment alias; the provider's snapshot identity is not exposed to the application client.",
+    "code_sha256": "49d92db72082eddb9ee4e40a28f9ef7d77f2893d558ccfad11328e345e6d9d4b",
+    "dependencies_sha256": "f5f5236ee56cf7f75c2f0f59f570b7386388e27164eb9ec999572462072c4366",
+    "unit_budget_chars": 260000,
+    "unit_text_chars": 2400,
+    "brief_text_chars": 120000,
+    "source_ids": [
+      "ohio-cases",
+      "ohio-statutes",
+      "ohio-ordinances",
+      "treatise"
+    ],
+    "enabled_checks": [
+      "rule_elements"
+    ],
+    "blinding": "The Gym receives brief text and record text only. No fixture id, condition label, mutation class or gold vulnerability reaches any prompt.",
+    "scoring": "The Gym writes stable per-target dispositions. Whether a result matches the registered mutation remains a separate, human-checkable step.",
+    "fixtures": [
+      {
+        "fixture_id": "R009",
+        "control_sha256": "9dc818d371522eeb6c7eba8909254cc68b0c8dcf3577ccbfa831f21fa3d35c6f",
+        "mutant_sha256": "96c3b5fb101eb5ee45467ae01fcb2a9c4e58e1a3d275b36faa767a4d3b7494ce",
+        "attachment_sha256": {
+          "record-01.txt": "13dbb6edb8f4aca0028b7d922c89ddd0649f82205b3ced6f84d6b99ce5db94b5"
+        }
+      }
+    ]
+  },
+  "results": [
+    {
+      "fixture_id": "R009",
+      "condition": "control",
+      "case_family_id": "synthetic-rule-review-r009",
+      "stratum": "synthetic_rule_elements_attorney_review",
+      "run_id": 34,
+      "run_at": "2026-09-14T02:26:24.363103+00:00",
+      "status": "complete",
+      "pipeline_status": "complete",
+      "degraded": null,
+      "error": "",
+      "brief_sha256": "9dc818d371522eeb6c7eba8909254cc68b0c8dcf3577ccbfa831f21fa3d35c6f",
+      "brief_chars": 1757,
+      "record_documents": 1,
+      "attack_model": "gpt-5.6-terra",
+      "judge_model": "mistral-large-3",
+      "base_model": "gpt-5.6-terra",
+      "same_family": false,
+      "reasoning": "medium",
+      "unit_budget_chars": 260000,
+      "units": 10,
+      "court": {
+        "mode": "auto",
+        "reason": "No maintained court profile matched this document's caption or the case record.",
+        "matched": "",
+        "where": "",
+        "courtSlug": ""
+      },
+      "deterministic_findings": {
+        "rule_elements": 0
+      },
+      "checks_run": [
+        {
+          "id": "record_support",
+          "label": "Test material facts against the record",
+          "description": "Opponent tests only atomic, record-verifiable, material claims; Judge sustains a defect only when the supplied evidence and record coverage establish it.",
+          "kind": "model",
+          "category": "correctness",
+          "categoryLabel": "Correctness",
+          "categoryDescription": "Is the law right? Is the authority controlling? Are the required elements present, and does the record establish what the brief says it does?",
+          "defaultEnabled": true,
+          "requires": [
+            "case_record"
+          ],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "rule_elements",
+          "label": "Audit the elements of the rules invoked",
+          "description": "Detects the rules the brief cites or invokes by name, then audits each element of those rules: is it pleaded, and is it supported.",
+          "kind": "model",
+          "category": "correctness",
+          "categoryLabel": "Correctness",
+          "categoryDescription": "Is the law right? Is the authority controlling? Are the required elements present, and does the record establish what the brief says it does?",
+          "defaultEnabled": true,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "on",
+          "reason": ""
+        },
+        {
+          "id": "authority_support",
+          "label": "Test cited authority support",
+          "description": "Whether each cited authority supports the material legal proposition for which the brief uses it.",
+          "kind": "model",
+          "category": "correctness",
+          "categoryLabel": "Correctness",
+          "categoryDescription": "Is the law right? Is the authority controlling? Are the required elements present, and does the record establish what the brief says it does?",
+          "defaultEnabled": true,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "adversarial",
+          "label": "Opposing counsel, a judge, and a coach",
+          "description": "The core of the gym: opposing counsel makes the strongest arguments available against the brief, a judge weighs them, and a coach proposes answers.",
+          "kind": "model",
+          "category": "completeness",
+          "categoryLabel": "Argumentative completeness",
+          "categoryDescription": "Does the brief connect its rules to its facts? Does it work the difficult element instead of restating the rule? Does it confront adverse authority and answer the counterargument a court will think of on its own?",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_issue_framing",
+          "label": "Issue framing",
+          "description": "Does the brief identify the real dispute early and frame it around the favorable legal question?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_macro_organization",
+          "label": "Macro-organization",
+          "description": "Are arguments ordered logically and by importance? Can the reader see the roadmap?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_paragraph_organization",
+          "label": "Paragraph-level organization",
+          "description": "Do paragraphs have discernible propositions or topic sentences, and develop one point at a time?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_rule_synthesis",
+          "label": "Rule synthesis",
+          "description": "Does the writer synthesize authorities into a rule rather than serially summarize cases?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_rule_application",
+          "label": "Rule-to-fact application",
+          "description": "Is the reasoning explicit -- \"because X fact satisfies Y element\" -- rather than leaving the inferential step to the court?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_fact_selection",
+          "label": "Fact selection and narrative coherence",
+          "description": "Are legally significant facts foregrounded and organized in a comprehensible chronology or theory?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_use_of_authority",
+          "label": "Use of authority",
+          "description": "Are important propositions backed by strong authorities placed where they actually matter, rather than citation dumping?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_counterarguments",
+          "label": "Handling counterarguments",
+          "description": "Does the brief acknowledge and answer the strongest objection rather than arguing past it?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_concision",
+          "label": "Concision and reader burden",
+          "description": "Does it say the same thing once, in the right place, without unnecessary throat-clearing?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_calibration",
+          "label": "Calibrated confidence and credibility",
+          "description": "Does it distinguish strong propositions from uncertain ones and avoid overclaiming?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_relief_alignment",
+          "label": "Requested-relief alignment",
+          "description": "Does the argument actually lead to the precise thing the brief asks the court to do?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_emphasis",
+          "label": "Emphasis",
+          "description": "Does the document devote its space to the issues that matter rather than treating every point as equally important?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "custom_checklist",
+          "label": "Custom checklist",
+          "description": "Applies review questions you wrote. An item can look things up -- authority, the case record, passages of the brief -- rather than answering from the brief alone. Attach a checklist for this to run.",
+          "kind": "model",
+          "category": "custom",
+          "categoryLabel": "Your own checks",
+          "categoryDescription": "Review questions you wrote, in your words, applied to this brief.",
+          "defaultEnabled": false,
+          "requires": [
+            "checklist"
+          ],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "court_formatting",
+          "label": "This court's filing rules",
+          "description": "Required elements, type size, spacing, margins, and page limits for the selected court.",
+          "kind": "deterministic",
+          "category": "form",
+          "categoryLabel": "Form of the filing",
+          "categoryDescription": "Whether the paper meets this court's rules and the conventions of practice.",
+          "defaultEnabled": false,
+          "requires": [
+            "court_profile"
+          ],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "pleading_form",
+          "label": "Form of the pleading",
+          "description": "Conventions of practice rather than any one court's rules: numbered paragraphs running in order, a prayer for relief, a signature block, exhibit references that resolve, no placeholder left in the text.",
+          "kind": "deterministic",
+          "category": "form",
+          "categoryLabel": "Form of the filing",
+          "categoryDescription": "Whether the paper meets this court's rules and the conventions of practice.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "draft_validation",
+          "label": "Draft-mode validation",
+          "description": "The same checks Draft mode runs: unresolved template data and placeholders, draft structure, rendered Word consistency, citation linting, source support, and filing-package consistency.",
+          "kind": "deterministic",
+          "category": "form",
+          "categoryLabel": "Form of the filing",
+          "categoryDescription": "Whether the paper meets this court's rules and the conventions of practice.",
+          "defaultEnabled": false,
+          "requires": [
+            "native_draft"
+          ],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "grammar",
+          "label": "Grammar and mechanics",
+          "description": "Doubled words, missing sentence spacing, unbalanced quotes and parentheses.",
+          "kind": "deterministic",
+          "category": "language",
+          "categoryLabel": "Language",
+          "categoryDescription": "Sentence-level mechanics, reported as nudges rather than as defects in the argument.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "confused_words",
+          "label": "Misspelled and easily confused words",
+          "description": "Not a dictionary spell check, on purpose: a general dictionary flags half of every case name. This looks for the words legal writing actually gets wrong, and for real words used in place of other real words.",
+          "kind": "deterministic",
+          "category": "language",
+          "categoryLabel": "Language",
+          "categoryDescription": "Sentence-level mechanics, reported as nudges rather than as defects in the argument.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "passive_voice",
+          "label": "Passive voice",
+          "description": "Reported as a nudge, never an error. Phrases a court expects to read are on an accepted list you can add to for this session.",
+          "kind": "deterministic",
+          "category": "language",
+          "categoryLabel": "Language",
+          "categoryDescription": "Sentence-level mechanics, reported as nudges rather than as defects in the argument.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "acceptedPassivePhrases: phrases this court expects, which the check stays quiet about.",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "readability",
+          "label": "Readability",
+          "description": "Sentence length and reading-level measures, reported as several formulas rather than one score.",
+          "kind": "deterministic",
+          "category": "language",
+          "categoryLabel": "Language",
+          "categoryDescription": "Sentence-level mechanics, reported as nudges rather than as defects in the argument.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        }
+      ],
+      "check_results": {
+        "rule_elements": {
+          "findings": [],
+          "tests": [
+            {
+              "checkId": "rule_elements",
+              "issueCode": "required_element_carried",
+              "targetId": "hud-public-housing-termination-grievance:public_housing",
+              "unitId": "u1",
+              "disposition": "pass",
+              "claim": "Identify the PHA and program.",
+              "problem": "The brief identifies CMHA as a public housing agency and states that Smith lived in CMHA public housing. The supplied notice likewise identifies CMHA and describes the tenancy as public housing.",
+              "briefEvidence": [
+                "u1"
+              ],
+              "externalEvidence": [
+                "https://www.ecfr.gov/current/title-24/part-966"
+              ],
+              "reason": "The brief sufficiently identifies CMHA as the public housing agency and describes the tenancy as public housing, as required by 24 C.F.R. Part 966. The evidence quote and notice excerpt confirm this element is established.",
+              "confidence": "high",
+              "userVisible": true
+            },
+            {
+              "checkId": "rule_elements",
+              "issueCode": "required_element_carried",
+              "targetId": "hud-public-housing-termination-grievance:timely_written_notice",
+              "unitId": "u1",
+              "disposition": "pass",
+              "claim": "Provide service termination dates and ground; apply 30 days for current nonpayment and the regulation's other branches.",
+              "problem": "The brief supplies the nonpayment ground, service date, termination date, and applies a 30-day period. The notice excerpt confirms service on February 1, 2023, termination on March 15, 2023, and nonpayment of January rent.",
+              "briefEvidence": [
+                "u1"
+              ],
+              "externalEvidence": [
+                "https://www.ecfr.gov/current/title-24/part-966"
+              ],
+              "reason": "The brief establishes the nonpayment ground, service date (February 1, 2023), termination date (March 15, 2023), and applies the 30-day notice period required by 24 C.F.R. \u00a7\u00a7 966.4(l)(3), 966.51-.57. The notice excerpt confirms compliance with the timing requirement.",
+              "confidence": "high",
+              "userVisible": true
+            },
+            {
+              "checkId": "rule_elements",
+              "issueCode": "required_element_not_established",
+              "targetId": "hud-public-housing-termination-grievance:notice_content",
+              "unitId": "u1",
+              "disposition": "review",
+              "claim": "Quote each required advisement and the specific factual grounds.",
+              "problem": "The brief expressly pleads the particular notice-content defects on which it relies: missing specific grounds, reply-right, and document-inspection advisements. The notice excerpt supports the absence of reply and inspection advisements, but it does state nonpayment as the termination ground, leaving only partial support for the claimed absence of specific grounds.",
+              "briefEvidence": [
+                "u1"
+              ],
+              "externalEvidence": [
+                "https://www.ecfr.gov/current/title-24/part-966"
+              ],
+              "reason": "The brief claims the notice omitted specific grounds, reply-right, and document-inspection advisements. While the notice excerpt confirms the absence of reply and inspection advisements, it does state nonpayment as the termination ground. The brief's claim of missing 'specific grounds' is partially unsupported. The defect in the reply-right and document-inspection advisements is established and must be corrected.",
+              "confidence": "high",
+              "userVisible": false
+            },
+            {
+              "checkId": "rule_elements",
+              "issueCode": "required_element_not_established",
+              "targetId": "hud-public-housing-termination-grievance:grievance_advisement",
+              "unitId": "u1",
+              "disposition": "review",
+              "claim": "Quote the advisement or the compliant exclusion statements.",
+              "problem": "The brief states that the notice advised Smith he could request a grievance hearing by February 10, but it does not establish that the advisement was fully accurate or contained every required grievance-right statement. The record confirms that limited advisement, but does not establish the full content required for a compliant grievance notice.",
+              "briefEvidence": [
+                "u1"
+              ],
+              "externalEvidence": [
+                "https://www.ecfr.gov/current/title-24/part-966"
+              ],
+              "reason": "The brief states the notice advised Smith he could request a grievance hearing by February 10, 2023, but does not establish that the advisement included all required grievance-right statements. The record confirms only a limited advisement, which is insufficient under 24 C.F.R. Part 966.",
+              "confidence": "high",
+              "userVisible": false
+            },
+            {
+              "checkId": "rule_elements",
+              "issueCode": "required_element_carried",
+              "targetId": "hud-public-housing-termination-grievance:process_completed",
+              "unitId": "u1",
+              "disposition": "pass",
+              "claim": "Show request deadline and completion of any timely requested informal settlement and hearing.",
+              "problem": "This element is triggered only by a timely grievance request. The brief states that no grievance was requested, and the docket certification in the supplied notice excerpt confirms that no grievance was requested.",
+              "briefEvidence": [
+                "u1"
+              ],
+              "externalEvidence": [
+                "https://www.ecfr.gov/current/title-24/part-966"
+              ],
+              "reason": "The brief and docket certification confirm no grievance was requested, rendering this element inapplicable. The evidence supports the brief's assertion.",
+              "confidence": "high",
+              "userVisible": true
+            },
+            {
+              "checkId": "rule_elements",
+              "issueCode": "required_element_carried",
+              "targetId": "hud-public-housing-termination-grievance:valid_exclusion",
+              "unitId": "u1",
+              "disposition": "pass",
+              "claim": "Establish the qualifying activity and applicable HUD due-process determination and required notice statements.",
+              "problem": "A valid-exclusion showing is required only where the PHA asserts that no grievance hearing was required. The brief expressly says CMHA asserted no exclusion, and the supplied docket certification says the same.",
+              "briefEvidence": [
+                "u1"
+              ],
+              "externalEvidence": [
+                "https://www.ecfr.gov/current/title-24/part-966"
+              ],
+              "reason": "The brief and docket certification confirm CMHA asserted no exclusion, rendering this element inapplicable. The evidence supports the brief's assertion.",
+              "confidence": "high",
+              "userVisible": true
+            }
+          ],
+          "summary": "0 must fix, 0 review, 4 passed, 2 could not be verified"
+        }
+      },
+      "correctness_tests": [
+        {
+          "checkId": "rule_elements",
+          "issueCode": "required_element_carried",
+          "targetId": "hud-public-housing-termination-grievance:public_housing",
+          "unitId": "u1",
+          "disposition": "pass",
+          "claim": "Identify the PHA and program.",
+          "problem": "The brief identifies CMHA as a public housing agency and states that Smith lived in CMHA public housing. The supplied notice likewise identifies CMHA and describes the tenancy as public housing.",
+          "briefEvidence": [
+            "u1"
+          ],
+          "externalEvidence": [
+            "https://www.ecfr.gov/current/title-24/part-966"
+          ],
+          "reason": "The brief sufficiently identifies CMHA as the public housing agency and describes the tenancy as public housing, as required by 24 C.F.R. Part 966. The evidence quote and notice excerpt confirm this element is established.",
+          "confidence": "high",
+          "userVisible": true
+        },
+        {
+          "checkId": "rule_elements",
+          "issueCode": "required_element_carried",
+          "targetId": "hud-public-housing-termination-grievance:timely_written_notice",
+          "unitId": "u1",
+          "disposition": "pass",
+          "claim": "Provide service termination dates and ground; apply 30 days for current nonpayment and the regulation's other branches.",
+          "problem": "The brief supplies the nonpayment ground, service date, termination date, and applies a 30-day period. The notice excerpt confirms service on February 1, 2023, termination on March 15, 2023, and nonpayment of January rent.",
+          "briefEvidence": [
+            "u1"
+          ],
+          "externalEvidence": [
+            "https://www.ecfr.gov/current/title-24/part-966"
+          ],
+          "reason": "The brief establishes the nonpayment ground, service date (February 1, 2023), termination date (March 15, 2023), and applies the 30-day notice period required by 24 C.F.R. \u00a7\u00a7 966.4(l)(3), 966.51-.57. The notice excerpt confirms compliance with the timing requirement.",
+          "confidence": "high",
+          "userVisible": true
+        },
+        {
+          "checkId": "rule_elements",
+          "issueCode": "required_element_not_established",
+          "targetId": "hud-public-housing-termination-grievance:notice_content",
+          "unitId": "u1",
+          "disposition": "review",
+          "claim": "Quote each required advisement and the specific factual grounds.",
+          "problem": "The brief expressly pleads the particular notice-content defects on which it relies: missing specific grounds, reply-right, and document-inspection advisements. The notice excerpt supports the absence of reply and inspection advisements, but it does state nonpayment as the termination ground, leaving only partial support for the claimed absence of specific grounds.",
+          "briefEvidence": [
+            "u1"
+          ],
+          "externalEvidence": [
+            "https://www.ecfr.gov/current/title-24/part-966"
+          ],
+          "reason": "The brief claims the notice omitted specific grounds, reply-right, and document-inspection advisements. While the notice excerpt confirms the absence of reply and inspection advisements, it does state nonpayment as the termination ground. The brief's claim of missing 'specific grounds' is partially unsupported. The defect in the reply-right and document-inspection advisements is established and must be corrected.",
+          "confidence": "high",
+          "userVisible": false
+        },
+        {
+          "checkId": "rule_elements",
+          "issueCode": "required_element_not_established",
+          "targetId": "hud-public-housing-termination-grievance:grievance_advisement",
+          "unitId": "u1",
+          "disposition": "review",
+          "claim": "Quote the advisement or the compliant exclusion statements.",
+          "problem": "The brief states that the notice advised Smith he could request a grievance hearing by February 10, but it does not establish that the advisement was fully accurate or contained every required grievance-right statement. The record confirms that limited advisement, but does not establish the full content required for a compliant grievance notice.",
+          "briefEvidence": [
+            "u1"
+          ],
+          "externalEvidence": [
+            "https://www.ecfr.gov/current/title-24/part-966"
+          ],
+          "reason": "The brief states the notice advised Smith he could request a grievance hearing by February 10, 2023, but does not establish that the advisement included all required grievance-right statements. The record confirms only a limited advisement, which is insufficient under 24 C.F.R. Part 966.",
+          "confidence": "high",
+          "userVisible": false
+        },
+        {
+          "checkId": "rule_elements",
+          "issueCode": "required_element_carried",
+          "targetId": "hud-public-housing-termination-grievance:process_completed",
+          "unitId": "u1",
+          "disposition": "pass",
+          "claim": "Show request deadline and completion of any timely requested informal settlement and hearing.",
+          "problem": "This element is triggered only by a timely grievance request. The brief states that no grievance was requested, and the docket certification in the supplied notice excerpt confirms that no grievance was requested.",
+          "briefEvidence": [
+            "u1"
+          ],
+          "externalEvidence": [
+            "https://www.ecfr.gov/current/title-24/part-966"
+          ],
+          "reason": "The brief and docket certification confirm no grievance was requested, rendering this element inapplicable. The evidence supports the brief's assertion.",
+          "confidence": "high",
+          "userVisible": true
+        },
+        {
+          "checkId": "rule_elements",
+          "issueCode": "required_element_carried",
+          "targetId": "hud-public-housing-termination-grievance:valid_exclusion",
+          "unitId": "u1",
+          "disposition": "pass",
+          "claim": "Establish the qualifying activity and applicable HUD due-process determination and required notice statements.",
+          "problem": "A valid-exclusion showing is required only where the PHA asserts that no grievance hearing was required. The brief expressly says CMHA asserted no exclusion, and the supplied docket certification says the same.",
+          "briefEvidence": [
+            "u1"
+          ],
+          "externalEvidence": [
+            "https://www.ecfr.gov/current/title-24/part-966"
+          ],
+          "reason": "The brief and docket certification confirm CMHA asserted no exclusion, rendering this element inapplicable. The evidence supports the brief's assertion.",
+          "confidence": "high",
+          "userVisible": true
+        }
+      ],
+      "rule_audit": [
+        {
+          "slug": "hud-public-housing-termination-grievance",
+          "name": "Public housing termination notice and grievance prerequisite",
+          "citation": "24 C.F.R. \u00a7\u00a7 966.4(l)(3), 966.51-.57",
+          "label": "Public housing termination notice and grievance prerequisite (24 C.F.R. \u00a7\u00a7 966.4(l)(3), 966.51-.57)",
+          "summary": "A PHA termination notice must meet program-specific content and timing requirements, and when a grievance hearing is available the tenancy cannot terminate before the request period and any timely requested grievance are complete.",
+          "verification": "verified",
+          "source": "24 C.F.R. \u00a7\u00a7 966.4(l)(3), 966.51-.57; Cuyahoga Metro. Hous. Auth. v. Younger, 93 Ohio App.3d 819 (8th Dist. 1994); Iskin (6th ed. 2022), \u00a7 III.F",
+          "sourceUrl": "https://www.ecfr.gov/current/title-24/part-966",
+          "invokedBy": "citation",
+          "matched": "24 C.F.R. \u00a7\u00a7 966.4",
+          "excerpt": "cation, details on hardship exemption, and an explanation of switching from flat rent to income-based rent. The termination notice's timing complied with federal regulations governing public housing. 24 C.F.R. \u00a7\u00a7 966.4(l)(3), 966.51-.57 require a minimum 30-day notice period. The 42-day period from February 1, 2023, to March 15, 2023, satisfied the 30-day minimum. Because January rent was due January 1, 2023, service on February 1, 2023, was not before the day after rent was due. Completion of t",
+          "audited": true,
+          "briefCoverage": {
+            "reviewedChars": 1757,
+            "totalChars": 1757,
+            "truncated": false
+          },
+          "requiresApplicabilityReview": false,
+          "elements": [
+            {
+              "id": "public_housing",
+              "label": "Tenancy is operated by a PHA under public housing rules",
+              "requirement": "Identify the PHA and program.",
+              "severity": "error",
+              "needsRecordSupport": true,
+              "requiredWhen": "",
+              "patterns": [
+                "public housing",
+                "PHA",
+                "housing authority"
+              ],
+              "note": "",
+              "origin": "profile",
+              "pled": "yes",
+              "applicability": "applicable",
+              "supported": "yes",
+              "explanation": "The brief identifies CMHA as a public housing agency and states that Smith lived in CMHA public housing. The supplied notice likewise identifies CMHA and describes the tenancy as public housing.",
+              "quote": "The Cuyahoga Metropolitan Housing Authority (CMHA), a public housing agency (PHA), initiated this eviction action against its tenant, John Smith.",
+              "materialIds": [
+                "upload:35"
+              ],
+              "unmet": false
+            },
+            {
+              "id": "timely_written_notice",
+              "label": "Written notice met the applicable ground-specific period",
+              "requirement": "Provide service termination dates and ground; apply 30 days for current nonpayment and the regulation's other branches.",
+              "severity": "error",
+              "needsRecordSupport": true,
+              "requiredWhen": "",
+              "patterns": [
+                "written notice",
+                "30 days",
+                "reasonable period"
+              ],
+              "note": "",
+              "origin": "profile",
+              "pled": "yes",
+              "applicability": "applicable",
+              "supported": "yes",
+              "explanation": "The brief supplies the nonpayment ground, service date, termination date, and applies a 30-day period. The notice excerpt confirms service on February 1, 2023, termination on March 15, 2023, and nonpayment of January rent.",
+              "quote": "The termination notice's timing complied with federal regulations governing public housing. 24 C.F.R. \u00a7\u00a7 966.4(l)(3), 966.51-.57 require a minimum 30-day notice period. The 42-day period from February 1, 2023, to March 15, 2023, satisfied the 30-day minimum.",
+              "materialIds": [
+                "upload:35"
+              ],
+              "unmet": false
+            },
+            {
+              "id": "notice_content",
+              "label": "Notice states specific grounds reply right and document-inspection right",
+              "requirement": "Quote each required advisement and the specific factual grounds.",
+              "severity": "error",
+              "needsRecordSupport": true,
+              "requiredWhen": "",
+              "patterns": [
+                "right to (reply|examine)",
+                "specific grounds"
+              ],
+              "note": "",
+              "origin": "profile",
+              "pled": "yes",
+              "applicability": "applicable",
+              "supported": "partial",
+              "explanation": "The brief expressly pleads the particular notice-content defects on which it relies: missing specific grounds, reply-right, and document-inspection advisements. The notice excerpt supports the absence of reply and inspection advisements, but it does state nonpayment as the termination ground, leaving only partial support for the claimed absence of specific grounds.",
+              "quote": "Specifically, it did not state the specific grounds for termination, inform Mr. Smith of his right to reply, or advise him of his right to inspect relevant documents.",
+              "materialIds": [
+                "upload:35"
+              ],
+              "unmet": true
+            },
+            {
+              "id": "grievance_advisement",
+              "label": "Notice accurately advises of grievance rights",
+              "requirement": "Quote the advisement or the compliant exclusion statements.",
+              "severity": "error",
+              "needsRecordSupport": true,
+              "requiredWhen": "",
+              "patterns": [
+                "grievance",
+                "right to request.{0,30}hearing"
+              ],
+              "note": "",
+              "origin": "profile",
+              "pled": "partial",
+              "applicability": "applicable",
+              "supported": "partial",
+              "explanation": "The brief states that the notice advised Smith he could request a grievance hearing by February 10, but it does not establish that the advisement was fully accurate or contained every required grievance-right statement. The record confirms that limited advisement, but does not establish the full content required for a compliant grievance notice.",
+              "quote": "The notice advised Mr. Smith that he could request a grievance hearing by February 10, 2023.",
+              "materialIds": [
+                "upload:35"
+              ],
+              "unmet": true
+            },
+            {
+              "id": "process_completed",
+              "label": "Available grievance process was completed before termination",
+              "requirement": "Show request deadline and completion of any timely requested informal settlement and hearing.",
+              "severity": "error",
+              "needsRecordSupport": true,
+              "requiredWhen": "Only when the dispute is grievable and a grievance was timely requested.",
+              "patterns": [
+                "grievance.{0,50}(complete|decision|hearing)"
+              ],
+              "note": "",
+              "origin": "profile",
+              "pled": "yes",
+              "applicability": "not_applicable",
+              "supported": "yes",
+              "explanation": "This element is triggered only by a timely grievance request. The brief states that no grievance was requested, and the docket certification in the supplied notice excerpt confirms that no grievance was requested.",
+              "quote": "Completion of the grievance process is inapplicable as no grievance was requested and CMHA asserted no exclusion.",
+              "materialIds": [
+                "upload:35"
+              ],
+              "unmet": false
+            },
+            {
+              "id": "valid_exclusion",
+              "label": "Any claimed grievance exclusion satisfies the federal rule",
+              "requirement": "Establish the qualifying activity and applicable HUD due-process determination and required notice statements.",
+              "severity": "error",
+              "needsRecordSupport": true,
+              "requiredWhen": "Only when the PHA asserts that no grievance hearing was required.",
+              "patterns": [
+                "not entitled.{0,40}grievance",
+                "due process determination"
+              ],
+              "note": "",
+              "origin": "profile",
+              "pled": "yes",
+              "applicability": "not_applicable",
+              "supported": "yes",
+              "explanation": "A valid-exclusion showing is required only where the PHA asserts that no grievance hearing was required. The brief expressly says CMHA asserted no exclusion, and the supplied docket certification says the same.",
+              "quote": "Completion of the grievance process is inapplicable as no grievance was requested and CMHA asserted no exclusion.",
+              "materialIds": [
+                "upload:35"
+              ],
+              "unmet": false
+            }
+          ],
+          "unmetCount": 2,
+          "verdict": "2 of 6 elements need review; unavailable evidence or unrecognized wording does not establish a defect."
+        }
+      ],
+      "compliance": {
+        "checked": false,
+        "reason": "You turned this check off for this session.",
+        "findings": [],
+        "detection": {
+          "mode": "auto",
+          "reason": "No maintained court profile matched this document's caption or the case record.",
+          "matched": "",
+          "where": "",
+          "courtSlug": ""
+        }
+      },
+      "challenges": [],
+      "challenge_count": 0,
+      "opponent_calls": [],
+      "judge_calls": [],
+      "verdict": "correctness review completed",
+      "assessment": "Correctness review completed. 0 must-fix findings; 0 items need attorney review. Rule elements: 4 passed, 2 could not be verified",
+      "stage_trace": [
+        {
+          "stage": "document_checks",
+          "method": "deterministic",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "materials",
+          "method": "all",
+          "count": 1,
+          "budgetChars": 150000,
+          "perMaterialChars": 150000,
+          "truncated": [],
+          "trace": []
+        },
+        {
+          "stage": "argument_map",
+          "method": "skipped",
+          "count": 0,
+          "trace": [
+            "No selected check requires a generative argument map."
+          ]
+        },
+        {
+          "stage": "persuasion",
+          "method": "off",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "record_targets",
+          "method": "off",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "opponent:record_support",
+          "method": "off",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "authority_research",
+          "method": "source_specific",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "research_queries",
+          "method": "off",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "research",
+          "method": "retrieval",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "opponent",
+          "method": "off",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "opponent:authority_support",
+          "method": "off",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "rule_elements",
+          "method": "llm",
+          "count": 1,
+          "trace": [
+            {
+              "stage": "rule_elements:hud-public-housing-termination-grievance",
+              "method": "llm",
+              "count": 6,
+              "trace": [
+                {
+                  "attempt": 1,
+                  "plan": {
+                    "method": "llm",
+                    "llmAttempt": 1
+                  },
+                  "success": true,
+                  "code": "rule_elements:hud-public-housing-termination-grievance_complete",
+                  "message": "rule_elements:hud-public-housing-termination-grievance produced 6 item(s)."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "stage": "judge",
+          "method": "off",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "judge:rule_elements",
+          "method": "llm",
+          "count": 6,
+          "trace": [
+            {
+              "attempt": 1,
+              "plan": {
+                "method": "llm",
+                "llmAttempt": 1
+              },
+              "success": true,
+              "code": "judge:rule_elements_complete",
+              "message": "judge:rule_elements produced 6 item(s)."
+            }
+          ],
+          "checkId": "rule_elements",
+          "batch": 1,
+          "batches": 1,
+          "candidateIds": [
+            "rule_elements:hud-public-housing-termination-grievance:grievance_advisement",
+            "rule_elements:hud-public-housing-termination-grievance:notice_content",
+            "rule_elements:hud-public-housing-termination-grievance:process_completed",
+            "rule_elements:hud-public-housing-termination-grievance:public_housing",
+            "rule_elements:hud-public-housing-termination-grievance:timely_written_notice",
+            "rule_elements:hud-public-housing-termination-grievance:valid_exclusion"
+          ],
+          "unavailable": false
+        },
+        {
+          "stage": "coach",
+          "method": "skipped",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "assessment",
+          "method": "deterministic",
+          "count": 1,
+          "trace": []
+        }
+      ],
+      "research_trace": [],
+      "model_calls": [
+        {
+          "prompt_key": "argument_gym.rule_elements",
+          "role": "base",
+          "model": "gpt-5.6-terra",
+          "settings": {
+            "temperature": 0,
+            "model": "gpt-5.6-terra",
+            "reasoning_level": "medium"
+          },
+          "status": "complete",
+          "elapsed_seconds": 21.704
+        },
+        {
+          "prompt_key": "argument_gym.correctness_judge",
+          "role": "judge",
+          "model": "mistral-large-3",
+          "settings": {
+            "temperature": 0,
+            "model": "mistral-large-3",
+            "reasoning_level": "medium"
+          },
+          "status": "complete",
+          "elapsed_seconds": 4.371
+        }
+      ],
+      "attacks_given_to_judge": 0
+    },
+    {
+      "fixture_id": "R009",
+      "condition": "mutant",
+      "case_family_id": "synthetic-rule-review-r009",
+      "stratum": "synthetic_rule_elements_attorney_review",
+      "run_id": 35,
+      "run_at": "2026-09-14T02:26:52.971419+00:00",
+      "status": "complete",
+      "pipeline_status": "complete",
+      "degraded": null,
+      "error": "",
+      "brief_sha256": "96c3b5fb101eb5ee45467ae01fcb2a9c4e58e1a3d275b36faa767a4d3b7494ce",
+      "brief_chars": 1159,
+      "record_documents": 1,
+      "attack_model": "gpt-5.6-terra",
+      "judge_model": "mistral-large-3",
+      "base_model": "gpt-5.6-terra",
+      "same_family": false,
+      "reasoning": "medium",
+      "unit_budget_chars": 260000,
+      "units": 10,
+      "court": {
+        "mode": "auto",
+        "reason": "No maintained court profile matched this document's caption or the case record.",
+        "matched": "",
+        "where": "",
+        "courtSlug": ""
+      },
+      "deterministic_findings": {
+        "rule_elements": 2
+      },
+      "checks_run": [
+        {
+          "id": "record_support",
+          "label": "Test material facts against the record",
+          "description": "Opponent tests only atomic, record-verifiable, material claims; Judge sustains a defect only when the supplied evidence and record coverage establish it.",
+          "kind": "model",
+          "category": "correctness",
+          "categoryLabel": "Correctness",
+          "categoryDescription": "Is the law right? Is the authority controlling? Are the required elements present, and does the record establish what the brief says it does?",
+          "defaultEnabled": true,
+          "requires": [
+            "case_record"
+          ],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "rule_elements",
+          "label": "Audit the elements of the rules invoked",
+          "description": "Detects the rules the brief cites or invokes by name, then audits each element of those rules: is it pleaded, and is it supported.",
+          "kind": "model",
+          "category": "correctness",
+          "categoryLabel": "Correctness",
+          "categoryDescription": "Is the law right? Is the authority controlling? Are the required elements present, and does the record establish what the brief says it does?",
+          "defaultEnabled": true,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "on",
+          "reason": ""
+        },
+        {
+          "id": "authority_support",
+          "label": "Test cited authority support",
+          "description": "Whether each cited authority supports the material legal proposition for which the brief uses it.",
+          "kind": "model",
+          "category": "correctness",
+          "categoryLabel": "Correctness",
+          "categoryDescription": "Is the law right? Is the authority controlling? Are the required elements present, and does the record establish what the brief says it does?",
+          "defaultEnabled": true,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "adversarial",
+          "label": "Opposing counsel, a judge, and a coach",
+          "description": "The core of the gym: opposing counsel makes the strongest arguments available against the brief, a judge weighs them, and a coach proposes answers.",
+          "kind": "model",
+          "category": "completeness",
+          "categoryLabel": "Argumentative completeness",
+          "categoryDescription": "Does the brief connect its rules to its facts? Does it work the difficult element instead of restating the rule? Does it confront adverse authority and answer the counterargument a court will think of on its own?",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_issue_framing",
+          "label": "Issue framing",
+          "description": "Does the brief identify the real dispute early and frame it around the favorable legal question?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_macro_organization",
+          "label": "Macro-organization",
+          "description": "Are arguments ordered logically and by importance? Can the reader see the roadmap?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_paragraph_organization",
+          "label": "Paragraph-level organization",
+          "description": "Do paragraphs have discernible propositions or topic sentences, and develop one point at a time?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_rule_synthesis",
+          "label": "Rule synthesis",
+          "description": "Does the writer synthesize authorities into a rule rather than serially summarize cases?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_rule_application",
+          "label": "Rule-to-fact application",
+          "description": "Is the reasoning explicit -- \"because X fact satisfies Y element\" -- rather than leaving the inferential step to the court?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_fact_selection",
+          "label": "Fact selection and narrative coherence",
+          "description": "Are legally significant facts foregrounded and organized in a comprehensible chronology or theory?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_use_of_authority",
+          "label": "Use of authority",
+          "description": "Are important propositions backed by strong authorities placed where they actually matter, rather than citation dumping?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_counterarguments",
+          "label": "Handling counterarguments",
+          "description": "Does the brief acknowledge and answer the strongest objection rather than arguing past it?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_concision",
+          "label": "Concision and reader burden",
+          "description": "Does it say the same thing once, in the right place, without unnecessary throat-clearing?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_calibration",
+          "label": "Calibrated confidence and credibility",
+          "description": "Does it distinguish strong propositions from uncertain ones and avoid overclaiming?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_relief_alignment",
+          "label": "Requested-relief alignment",
+          "description": "Does the argument actually lead to the precise thing the brief asks the court to do?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_emphasis",
+          "label": "Emphasis",
+          "description": "Does the document devote its space to the issues that matter rather than treating every point as equally important?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "custom_checklist",
+          "label": "Custom checklist",
+          "description": "Applies review questions you wrote. An item can look things up -- authority, the case record, passages of the brief -- rather than answering from the brief alone. Attach a checklist for this to run.",
+          "kind": "model",
+          "category": "custom",
+          "categoryLabel": "Your own checks",
+          "categoryDescription": "Review questions you wrote, in your words, applied to this brief.",
+          "defaultEnabled": false,
+          "requires": [
+            "checklist"
+          ],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "court_formatting",
+          "label": "This court's filing rules",
+          "description": "Required elements, type size, spacing, margins, and page limits for the selected court.",
+          "kind": "deterministic",
+          "category": "form",
+          "categoryLabel": "Form of the filing",
+          "categoryDescription": "Whether the paper meets this court's rules and the conventions of practice.",
+          "defaultEnabled": false,
+          "requires": [
+            "court_profile"
+          ],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "pleading_form",
+          "label": "Form of the pleading",
+          "description": "Conventions of practice rather than any one court's rules: numbered paragraphs running in order, a prayer for relief, a signature block, exhibit references that resolve, no placeholder left in the text.",
+          "kind": "deterministic",
+          "category": "form",
+          "categoryLabel": "Form of the filing",
+          "categoryDescription": "Whether the paper meets this court's rules and the conventions of practice.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "draft_validation",
+          "label": "Draft-mode validation",
+          "description": "The same checks Draft mode runs: unresolved template data and placeholders, draft structure, rendered Word consistency, citation linting, source support, and filing-package consistency.",
+          "kind": "deterministic",
+          "category": "form",
+          "categoryLabel": "Form of the filing",
+          "categoryDescription": "Whether the paper meets this court's rules and the conventions of practice.",
+          "defaultEnabled": false,
+          "requires": [
+            "native_draft"
+          ],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "grammar",
+          "label": "Grammar and mechanics",
+          "description": "Doubled words, missing sentence spacing, unbalanced quotes and parentheses.",
+          "kind": "deterministic",
+          "category": "language",
+          "categoryLabel": "Language",
+          "categoryDescription": "Sentence-level mechanics, reported as nudges rather than as defects in the argument.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "confused_words",
+          "label": "Misspelled and easily confused words",
+          "description": "Not a dictionary spell check, on purpose: a general dictionary flags half of every case name. This looks for the words legal writing actually gets wrong, and for real words used in place of other real words.",
+          "kind": "deterministic",
+          "category": "language",
+          "categoryLabel": "Language",
+          "categoryDescription": "Sentence-level mechanics, reported as nudges rather than as defects in the argument.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "passive_voice",
+          "label": "Passive voice",
+          "description": "Reported as a nudge, never an error. Phrases a court expects to read are on an accepted list you can add to for this session.",
+          "kind": "deterministic",
+          "category": "language",
+          "categoryLabel": "Language",
+          "categoryDescription": "Sentence-level mechanics, reported as nudges rather than as defects in the argument.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "acceptedPassivePhrases: phrases this court expects, which the check stays quiet about.",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "readability",
+          "label": "Readability",
+          "description": "Sentence length and reading-level measures, reported as several formulas rather than one score.",
+          "kind": "deterministic",
+          "category": "language",
+          "categoryLabel": "Language",
+          "categoryDescription": "Sentence-level mechanics, reported as nudges rather than as defects in the argument.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        }
+      ],
+      "check_results": {
+        "rule_elements": {
+          "findings": [
+            {
+              "ruleCode": "rule_elements.missing_required_element",
+              "severity": "error",
+              "message": "The rule applies because the matter concerns a PHA tenancy. The brief identifies CMHA as a PHA but does not identify the tenancy as a public-housing program tenancy; the record does identify CMHA public housing.",
+              "target": {
+                "unitId": "u1"
+              },
+              "details": {
+                "checkId": "rule_elements",
+                "issueCode": "missing_required_element",
+                "targetId": "hud-public-housing-termination-grievance:public_housing",
+                "unitId": "u1",
+                "disposition": "must_fix",
+                "claim": "Identify the PHA and program.",
+                "problem": "The rule applies because the matter concerns a PHA tenancy. The brief identifies CMHA as a PHA but does not identify the tenancy as a public-housing program tenancy; the record does identify CMHA public housing.",
+                "briefEvidence": [
+                  "u1"
+                ],
+                "externalEvidence": [
+                  "https://www.ecfr.gov/current/title-24/part-966"
+                ],
+                "reason": "The brief identifies CMHA as a PHA but does not explicitly identify the tenancy as a public-housing program tenancy, despite the record confirming CMHA public housing. A competent supervising attorney would require this element to be clearly stated in the brief. The record evidence ('upload:37') establishes that this is a public-housing tenancy, but the brief fails to carry this required element.",
+                "confidence": "high",
+                "userVisible": true
+              }
+            },
+            {
+              "ruleCode": "rule_elements.missing_required_element",
+              "severity": "error",
+              "message": "The brief identifies nonpayment as the stated ground but does not plead the required reply right or document-inspection right, nor does it quote specific factual grounds. The supplied notice likewise lacks those required advisements.",
+              "target": {
+                "unitId": "u1"
+              },
+              "details": {
+                "checkId": "rule_elements",
+                "issueCode": "missing_required_element",
+                "targetId": "hud-public-housing-termination-grievance:notice_content",
+                "unitId": "u1",
+                "disposition": "must_fix",
+                "claim": "Quote each required advisement and the specific factual grounds.",
+                "problem": "The brief identifies nonpayment as the stated ground but does not plead the required reply right or document-inspection right, nor does it quote specific factual grounds. The supplied notice likewise lacks those required advisements.",
+                "briefEvidence": [
+                  "u1"
+                ],
+                "externalEvidence": [
+                  "https://www.ecfr.gov/current/title-24/part-966"
+                ],
+                "reason": "The brief fails to plead the required reply right or document-inspection right, nor does it quote specific factual grounds beyond identifying nonpayment. The notice excerpt likewise omits these required advisements. A competent supervising attorney would require correction of this defect before filing.",
+                "confidence": "high",
+                "userVisible": true
+              }
+            }
+          ],
+          "tests": [
+            {
+              "checkId": "rule_elements",
+              "issueCode": "missing_required_element",
+              "targetId": "hud-public-housing-termination-grievance:public_housing",
+              "unitId": "u1",
+              "disposition": "must_fix",
+              "claim": "Identify the PHA and program.",
+              "problem": "The rule applies because the matter concerns a PHA tenancy. The brief identifies CMHA as a PHA but does not identify the tenancy as a public-housing program tenancy; the record does identify CMHA public housing.",
+              "briefEvidence": [
+                "u1"
+              ],
+              "externalEvidence": [
+                "https://www.ecfr.gov/current/title-24/part-966"
+              ],
+              "reason": "The brief identifies CMHA as a PHA but does not explicitly identify the tenancy as a public-housing program tenancy, despite the record confirming CMHA public housing. A competent supervising attorney would require this element to be clearly stated in the brief. The record evidence ('upload:37') establishes that this is a public-housing tenancy, but the brief fails to carry this required element.",
+              "confidence": "high",
+              "userVisible": true
+            },
+            {
+              "checkId": "rule_elements",
+              "issueCode": "required_element_carried",
+              "targetId": "hud-public-housing-termination-grievance:timely_written_notice",
+              "unitId": "u1",
+              "disposition": "pass",
+              "claim": "Provide service termination dates and ground; apply 30 days for current nonpayment and the regulation's other branches.",
+              "problem": "The brief supplies the nonpayment ground, service date, termination date, and its 42-day timing calculation, and asserts compliance with the 30-day period. The notice excerpt confirms those dates, the ground, and service.",
+              "briefEvidence": [
+                "u1"
+              ],
+              "externalEvidence": [
+                "https://www.ecfr.gov/current/title-24/part-966"
+              ],
+              "reason": "The brief supplies the nonpayment ground, service date, termination date, and a 42-day timing calculation, and asserts compliance with the 30-day period. The notice excerpt confirms these details, satisfying the required element.",
+              "confidence": "high",
+              "userVisible": true
+            },
+            {
+              "checkId": "rule_elements",
+              "issueCode": "missing_required_element",
+              "targetId": "hud-public-housing-termination-grievance:notice_content",
+              "unitId": "u1",
+              "disposition": "must_fix",
+              "claim": "Quote each required advisement and the specific factual grounds.",
+              "problem": "The brief identifies nonpayment as the stated ground but does not plead the required reply right or document-inspection right, nor does it quote specific factual grounds. The supplied notice likewise lacks those required advisements.",
+              "briefEvidence": [
+                "u1"
+              ],
+              "externalEvidence": [
+                "https://www.ecfr.gov/current/title-24/part-966"
+              ],
+              "reason": "The brief fails to plead the required reply right or document-inspection right, nor does it quote specific factual grounds beyond identifying nonpayment. The notice excerpt likewise omits these required advisements. A competent supervising attorney would require correction of this defect before filing.",
+              "confidence": "high",
+              "userVisible": true
+            },
+            {
+              "checkId": "rule_elements",
+              "issueCode": "required_element_carried",
+              "targetId": "hud-public-housing-termination-grievance:grievance_advisement",
+              "unitId": "u1",
+              "disposition": "pass",
+              "claim": "Quote the advisement or the compliant exclusion statements.",
+              "problem": "The brief states that the notice advised Smith that he could request a grievance hearing and gives the request deadline. The notice excerpt contains the same grievance-hearing advisement.",
+              "briefEvidence": [
+                "u1"
+              ],
+              "externalEvidence": [
+                "https://www.ecfr.gov/current/title-24/part-966"
+              ],
+              "reason": "The brief states that the notice advised Smith of his right to request a grievance hearing and provides the deadline. The notice excerpt confirms this advisement, satisfying the required element.",
+              "confidence": "high",
+              "userVisible": true
+            },
+            {
+              "checkId": "rule_elements",
+              "issueCode": "required_element_carried",
+              "targetId": "hud-public-housing-termination-grievance:process_completed",
+              "unitId": "u1",
+              "disposition": "pass",
+              "claim": "Show request deadline and completion of any timely requested informal settlement and hearing.",
+              "problem": "This element is required only if a grievable dispute resulted in a timely grievance request. The brief states that no grievance was requested, and the docket certification in the record supports that assertion.",
+              "briefEvidence": [
+                "u1"
+              ],
+              "externalEvidence": [
+                "https://www.ecfr.gov/current/title-24/part-966"
+              ],
+              "reason": "The brief states that no grievance was requested, and the docket certification in the record supports this assertion. The element is inapplicable here and thus satisfied.",
+              "confidence": "high",
+              "userVisible": true
+            },
+            {
+              "checkId": "rule_elements",
+              "issueCode": "required_element_carried",
+              "targetId": "hud-public-housing-termination-grievance:valid_exclusion",
+              "unitId": "u1",
+              "disposition": "pass",
+              "claim": "Establish the qualifying activity and applicable HUD due-process determination and required notice statements.",
+              "problem": "This element applies only where the PHA asserts that no grievance hearing was required based on an exclusion. The brief expressly says CMHA asserted no exclusion, which the docket certification supports.",
+              "briefEvidence": [
+                "u1"
+              ],
+              "externalEvidence": [
+                "https://www.ecfr.gov/current/title-24/part-966"
+              ],
+              "reason": "The brief expressly states that CMHA asserted no exclusion, and the docket certification supports this. The element is inapplicable and thus satisfied.",
+              "confidence": "high",
+              "userVisible": true
+            }
+          ],
+          "summary": "2 must fix, 0 review, 4 passed"
+        }
+      },
+      "correctness_tests": [
+        {
+          "checkId": "rule_elements",
+          "issueCode": "missing_required_element",
+          "targetId": "hud-public-housing-termination-grievance:public_housing",
+          "unitId": "u1",
+          "disposition": "must_fix",
+          "claim": "Identify the PHA and program.",
+          "problem": "The rule applies because the matter concerns a PHA tenancy. The brief identifies CMHA as a PHA but does not identify the tenancy as a public-housing program tenancy; the record does identify CMHA public housing.",
+          "briefEvidence": [
+            "u1"
+          ],
+          "externalEvidence": [
+            "https://www.ecfr.gov/current/title-24/part-966"
+          ],
+          "reason": "The brief identifies CMHA as a PHA but does not explicitly identify the tenancy as a public-housing program tenancy, despite the record confirming CMHA public housing. A competent supervising attorney would require this element to be clearly stated in the brief. The record evidence ('upload:37') establishes that this is a public-housing tenancy, but the brief fails to carry this required element.",
+          "confidence": "high",
+          "userVisible": true
+        },
+        {
+          "checkId": "rule_elements",
+          "issueCode": "required_element_carried",
+          "targetId": "hud-public-housing-termination-grievance:timely_written_notice",
+          "unitId": "u1",
+          "disposition": "pass",
+          "claim": "Provide service termination dates and ground; apply 30 days for current nonpayment and the regulation's other branches.",
+          "problem": "The brief supplies the nonpayment ground, service date, termination date, and its 42-day timing calculation, and asserts compliance with the 30-day period. The notice excerpt confirms those dates, the ground, and service.",
+          "briefEvidence": [
+            "u1"
+          ],
+          "externalEvidence": [
+            "https://www.ecfr.gov/current/title-24/part-966"
+          ],
+          "reason": "The brief supplies the nonpayment ground, service date, termination date, and a 42-day timing calculation, and asserts compliance with the 30-day period. The notice excerpt confirms these details, satisfying the required element.",
+          "confidence": "high",
+          "userVisible": true
+        },
+        {
+          "checkId": "rule_elements",
+          "issueCode": "missing_required_element",
+          "targetId": "hud-public-housing-termination-grievance:notice_content",
+          "unitId": "u1",
+          "disposition": "must_fix",
+          "claim": "Quote each required advisement and the specific factual grounds.",
+          "problem": "The brief identifies nonpayment as the stated ground but does not plead the required reply right or document-inspection right, nor does it quote specific factual grounds. The supplied notice likewise lacks those required advisements.",
+          "briefEvidence": [
+            "u1"
+          ],
+          "externalEvidence": [
+            "https://www.ecfr.gov/current/title-24/part-966"
+          ],
+          "reason": "The brief fails to plead the required reply right or document-inspection right, nor does it quote specific factual grounds beyond identifying nonpayment. The notice excerpt likewise omits these required advisements. A competent supervising attorney would require correction of this defect before filing.",
+          "confidence": "high",
+          "userVisible": true
+        },
+        {
+          "checkId": "rule_elements",
+          "issueCode": "required_element_carried",
+          "targetId": "hud-public-housing-termination-grievance:grievance_advisement",
+          "unitId": "u1",
+          "disposition": "pass",
+          "claim": "Quote the advisement or the compliant exclusion statements.",
+          "problem": "The brief states that the notice advised Smith that he could request a grievance hearing and gives the request deadline. The notice excerpt contains the same grievance-hearing advisement.",
+          "briefEvidence": [
+            "u1"
+          ],
+          "externalEvidence": [
+            "https://www.ecfr.gov/current/title-24/part-966"
+          ],
+          "reason": "The brief states that the notice advised Smith of his right to request a grievance hearing and provides the deadline. The notice excerpt confirms this advisement, satisfying the required element.",
+          "confidence": "high",
+          "userVisible": true
+        },
+        {
+          "checkId": "rule_elements",
+          "issueCode": "required_element_carried",
+          "targetId": "hud-public-housing-termination-grievance:process_completed",
+          "unitId": "u1",
+          "disposition": "pass",
+          "claim": "Show request deadline and completion of any timely requested informal settlement and hearing.",
+          "problem": "This element is required only if a grievable dispute resulted in a timely grievance request. The brief states that no grievance was requested, and the docket certification in the record supports that assertion.",
+          "briefEvidence": [
+            "u1"
+          ],
+          "externalEvidence": [
+            "https://www.ecfr.gov/current/title-24/part-966"
+          ],
+          "reason": "The brief states that no grievance was requested, and the docket certification in the record supports this assertion. The element is inapplicable here and thus satisfied.",
+          "confidence": "high",
+          "userVisible": true
+        },
+        {
+          "checkId": "rule_elements",
+          "issueCode": "required_element_carried",
+          "targetId": "hud-public-housing-termination-grievance:valid_exclusion",
+          "unitId": "u1",
+          "disposition": "pass",
+          "claim": "Establish the qualifying activity and applicable HUD due-process determination and required notice statements.",
+          "problem": "This element applies only where the PHA asserts that no grievance hearing was required based on an exclusion. The brief expressly says CMHA asserted no exclusion, which the docket certification supports.",
+          "briefEvidence": [
+            "u1"
+          ],
+          "externalEvidence": [
+            "https://www.ecfr.gov/current/title-24/part-966"
+          ],
+          "reason": "The brief expressly states that CMHA asserted no exclusion, and the docket certification supports this. The element is inapplicable and thus satisfied.",
+          "confidence": "high",
+          "userVisible": true
+        }
+      ],
+      "rule_audit": [
+        {
+          "slug": "hud-public-housing-termination-grievance",
+          "name": "Public housing termination notice and grievance prerequisite",
+          "citation": "24 C.F.R. \u00a7\u00a7 966.4(l)(3), 966.51-.57",
+          "label": "Public housing termination notice and grievance prerequisite (24 C.F.R. \u00a7\u00a7 966.4(l)(3), 966.51-.57)",
+          "summary": "A PHA termination notice must meet program-specific content and timing requirements, and when a grievance hearing is available the tenancy cannot terminate before the request period and any timely requested grievance are complete.",
+          "verification": "verified",
+          "source": "24 C.F.R. \u00a7\u00a7 966.4(l)(3), 966.51-.57; Cuyahoga Metro. Hous. Auth. v. Younger, 93 Ohio App.3d 819 (8th Dist. 1994); Iskin (6th ed. 2022), \u00a7 III.F",
+          "sourceUrl": "https://www.ecfr.gov/current/title-24/part-966",
+          "invokedBy": "citation",
+          "matched": "24 C.F.R. \u00a7\u00a7 966.4",
+          "excerpt": "nt. The notice advised Mr. Smith that he could request a grievance hearing by February 10, 2023. Argument The termination notice's timing complied with federal regulations governing public housing. 24 C.F.R. \u00a7\u00a7 966.4(l)(3), 966.51-.57 require a minimum 30-day notice period. The 42-day period from February 1, 2023, to March 15, 2023, satisfied the 30-day minimum. Because January rent was due January 1, 2023, service on February 1, 2023, was not before the day after rent was due. Completion of t",
+          "audited": true,
+          "briefCoverage": {
+            "reviewedChars": 1159,
+            "totalChars": 1159,
+            "truncated": false
+          },
+          "requiresApplicabilityReview": false,
+          "elements": [
+            {
+              "id": "public_housing",
+              "label": "Tenancy is operated by a PHA under public housing rules",
+              "requirement": "Identify the PHA and program.",
+              "severity": "error",
+              "needsRecordSupport": true,
+              "requiredWhen": "",
+              "patterns": [
+                "public housing",
+                "PHA",
+                "housing authority"
+              ],
+              "note": "",
+              "origin": "profile",
+              "pled": "no",
+              "applicability": "applicable",
+              "supported": "yes",
+              "explanation": "The rule applies because the matter concerns a PHA tenancy. The brief identifies CMHA as a PHA but does not identify the tenancy as a public-housing program tenancy; the record does identify CMHA public housing.",
+              "quote": "The Cuyahoga Metropolitan Housing Authority (CMHA), a public housing agency (PHA), initiated this eviction action against its tenant, John Smith.",
+              "materialIds": [
+                "upload:37"
+              ],
+              "unmet": true
+            },
+            {
+              "id": "timely_written_notice",
+              "label": "Written notice met the applicable ground-specific period",
+              "requirement": "Provide service termination dates and ground; apply 30 days for current nonpayment and the regulation's other branches.",
+              "severity": "error",
+              "needsRecordSupport": true,
+              "requiredWhen": "",
+              "patterns": [
+                "written notice",
+                "30 days",
+                "reasonable period"
+              ],
+              "note": "",
+              "origin": "profile",
+              "pled": "yes",
+              "applicability": "applicable",
+              "supported": "yes",
+              "explanation": "The brief supplies the nonpayment ground, service date, termination date, and its 42-day timing calculation, and asserts compliance with the 30-day period. The notice excerpt confirms those dates, the ground, and service.",
+              "quote": "The 42-day period from February 1, 2023, to March 15, 2023, satisfied the 30-day minimum. Because January rent was due January 1, 2023, service on February 1, 2023, was not before the day after rent was due.",
+              "materialIds": [
+                "upload:37"
+              ],
+              "unmet": false
+            },
+            {
+              "id": "notice_content",
+              "label": "Notice states specific grounds reply right and document-inspection right",
+              "requirement": "Quote each required advisement and the specific factual grounds.",
+              "severity": "error",
+              "needsRecordSupport": true,
+              "requiredWhen": "",
+              "patterns": [
+                "right to (reply|examine)",
+                "specific grounds"
+              ],
+              "note": "",
+              "origin": "profile",
+              "pled": "no",
+              "applicability": "applicable",
+              "supported": "no",
+              "explanation": "The brief identifies nonpayment as the stated ground but does not plead the required reply right or document-inspection right, nor does it quote specific factual grounds. The supplied notice likewise lacks those required advisements.",
+              "quote": "",
+              "materialIds": [
+                "upload:37"
+              ],
+              "unmet": true
+            },
+            {
+              "id": "grievance_advisement",
+              "label": "Notice accurately advises of grievance rights",
+              "requirement": "Quote the advisement or the compliant exclusion statements.",
+              "severity": "error",
+              "needsRecordSupport": true,
+              "requiredWhen": "",
+              "patterns": [
+                "grievance",
+                "right to request.{0,30}hearing"
+              ],
+              "note": "",
+              "origin": "profile",
+              "pled": "yes",
+              "applicability": "applicable",
+              "supported": "yes",
+              "explanation": "The brief states that the notice advised Smith that he could request a grievance hearing and gives the request deadline. The notice excerpt contains the same grievance-hearing advisement.",
+              "quote": "The notice advised Mr. Smith that he could request a grievance hearing by February 10, 2023.",
+              "materialIds": [
+                "upload:37"
+              ],
+              "unmet": false
+            },
+            {
+              "id": "process_completed",
+              "label": "Available grievance process was completed before termination",
+              "requirement": "Show request deadline and completion of any timely requested informal settlement and hearing.",
+              "severity": "error",
+              "needsRecordSupport": true,
+              "requiredWhen": "Only when the dispute is grievable and a grievance was timely requested.",
+              "patterns": [
+                "grievance.{0,50}(complete|decision|hearing)"
+              ],
+              "note": "",
+              "origin": "profile",
+              "pled": "yes",
+              "applicability": "not_applicable",
+              "supported": "yes",
+              "explanation": "This element is required only if a grievable dispute resulted in a timely grievance request. The brief states that no grievance was requested, and the docket certification in the record supports that assertion.",
+              "quote": "Completion of the grievance process is inapplicable as no grievance was requested and CMHA asserted no exclusion.",
+              "materialIds": [
+                "upload:37"
+              ],
+              "unmet": false
+            },
+            {
+              "id": "valid_exclusion",
+              "label": "Any claimed grievance exclusion satisfies the federal rule",
+              "requirement": "Establish the qualifying activity and applicable HUD due-process determination and required notice statements.",
+              "severity": "error",
+              "needsRecordSupport": true,
+              "requiredWhen": "Only when the PHA asserts that no grievance hearing was required.",
+              "patterns": [
+                "not entitled.{0,40}grievance",
+                "due process determination"
+              ],
+              "note": "",
+              "origin": "profile",
+              "pled": "yes",
+              "applicability": "not_applicable",
+              "supported": "yes",
+              "explanation": "This element applies only where the PHA asserts that no grievance hearing was required based on an exclusion. The brief expressly says CMHA asserted no exclusion, which the docket certification supports.",
+              "quote": "Completion of the grievance process is inapplicable as no grievance was requested and CMHA asserted no exclusion.",
+              "materialIds": [
+                "upload:37"
+              ],
+              "unmet": false
+            }
+          ],
+          "unmetCount": 2,
+          "verdict": "2 of 6 elements need review; unavailable evidence or unrecognized wording does not establish a defect."
+        }
+      ],
+      "compliance": {
+        "checked": false,
+        "reason": "You turned this check off for this session.",
+        "findings": [],
+        "detection": {
+          "mode": "auto",
+          "reason": "No maintained court profile matched this document's caption or the case record.",
+          "matched": "",
+          "where": "",
+          "courtSlug": ""
+        }
+      },
+      "challenges": [
+        {
+          "ordinal": 1,
+          "category": "missing_element",
+          "severity": "high",
+          "confidence": "high",
+          "opponent_argument": "The rule applies because the matter concerns a PHA tenancy. The brief identifies CMHA as a PHA but does not identify the tenancy as a public-housing program tenancy; the record does identify CMHA public housing.",
+          "why_it_matters": "The brief identifies CMHA as a PHA but does not explicitly identify the tenancy as a public-housing program tenancy, despite the record confirming CMHA public housing. A competent supervising attorney would require this element to be clearly stated in the brief. The record evidence ('upload:37') establishes that this is a public-housing tenancy, but the brief fails to carry this required element.",
+          "target": {
+            "unitId": "u1",
+            "section": "",
+            "paragraph": 1,
+            "page": null,
+            "excerpt": "CUYAHOGA COUNTY COURT OF COMMON PLEAS\nCuyahoga Metropolitan Housing Authority v. John Smith\nCase No. 2023 CV 00001",
+            "blockKey": ""
+          },
+          "legal_sources": [],
+          "record_sources": [
+            {
+              "materialId": "upload:37",
+              "title": "record-01",
+              "status": "",
+              "quote": "The Cuyahoga Metropolitan Housing Authority (CMHA), a public housing agency (PHA), initiated this eviction action against its tenant, John Smith."
+            }
+          ],
+          "judge_assessment": "The brief identifies CMHA as a PHA but does not explicitly identify the tenancy as a public-housing program tenancy, despite the record confirming CMHA public housing. A competent supervising attorney would require this element to be clearly stated in the brief. The record evidence ('upload:37') establishes that this is a public-housing tenancy, but the brief fails to carry this required element.",
+          "judge_verdict": "sustained",
+          "suggested_response": "CMHA, a public housing agency, initiated this eviction action against Mr. Smith arising from his tenancy in CMHA public housing. [upload:37]",
+          "coaching_recommendation": "Add a factual sentence identifying CMHA as the public housing agency and the tenancy as a CMHA public-housing tenancy. The supplied record supports that limited clarification.",
+          "disposition": "open"
+        },
+        {
+          "ordinal": 2,
+          "category": "missing_element",
+          "severity": "high",
+          "confidence": "high",
+          "opponent_argument": "The brief identifies nonpayment as the stated ground but does not plead the required reply right or document-inspection right, nor does it quote specific factual grounds. The supplied notice likewise lacks those required advisements.",
+          "why_it_matters": "The brief fails to plead the required reply right or document-inspection right, nor does it quote specific factual grounds beyond identifying nonpayment. The notice excerpt likewise omits these required advisements. A competent supervising attorney would require correction of this defect before filing.",
+          "target": {
+            "unitId": "u1",
+            "section": "",
+            "paragraph": 1,
+            "page": null,
+            "excerpt": "CUYAHOGA COUNTY COURT OF COMMON PLEAS\nCuyahoga Metropolitan Housing Authority v. John Smith\nCase No. 2023 CV 00001",
+            "blockKey": ""
+          },
+          "legal_sources": [],
+          "record_sources": [
+            {
+              "materialId": "upload:37",
+              "title": "record-01",
+              "status": "",
+              "quote": "nt. The notice advised Mr. Smith that he could request a grievance hearing by February 10, 2023. Argument The termination notice's timing complied with federal regulations governing public housing. 24 C.F.R. \u00a7\u00a7 966.4(l)(3), 966.51-.57 require a minimum 30-day notice period. The 42-day period from February 1, 2023, to March 15, 2023, satisfied the 30-day minimum. Because January rent was due January 1, 2023, service on February 1, 2023, was not before the day after rent was due. Completion of t"
+            }
+          ],
+          "judge_assessment": "The brief fails to plead the required reply right or document-inspection right, nor does it quote specific factual grounds beyond identifying nonpayment. The notice excerpt likewise omits these required advisements. A competent supervising attorney would require correction of this defect before filing.",
+          "judge_verdict": "sustained",
+          "suggested_response": "The present record establishes that the notice advised Mr. Smith that he could request a grievance hearing by February 10, 2023. [upload:37] The present excerpt does not establish the notice's language concerning any right to reply, any right to inspect documents, or the notice's specific factual grounds.",
+          "coaching_recommendation": "Do not allege that the notice contained the required reply right, document-inspection right, or particularized factual grounds on this record. Obtain and quote the complete termination notice, if it contains those advisements; otherwise, the present brief cannot safely assert compliance with those notice-content requirements.",
+          "disposition": "open"
+        }
+      ],
+      "challenge_count": 2,
+      "opponent_calls": [],
+      "judge_calls": [],
+      "verdict": "correctness review completed",
+      "assessment": "Correctness review completed. 2 must-fix findings; 0 items need attorney review. Rule elements: 2 failure, 0 review",
+      "stage_trace": [
+        {
+          "stage": "document_checks",
+          "method": "deterministic",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "materials",
+          "method": "all",
+          "count": 1,
+          "budgetChars": 150000,
+          "perMaterialChars": 150000,
+          "truncated": [],
+          "trace": []
+        },
+        {
+          "stage": "argument_map",
+          "method": "skipped",
+          "count": 0,
+          "trace": [
+            "No selected check requires a generative argument map."
+          ]
+        },
+        {
+          "stage": "persuasion",
+          "method": "off",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "record_targets",
+          "method": "off",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "opponent:record_support",
+          "method": "off",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "authority_research",
+          "method": "source_specific",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "research_queries",
+          "method": "off",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "research",
+          "method": "retrieval",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "opponent",
+          "method": "off",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "opponent:authority_support",
+          "method": "off",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "rule_elements",
+          "method": "llm",
+          "count": 1,
+          "trace": [
+            {
+              "stage": "rule_elements:hud-public-housing-termination-grievance",
+              "method": "llm",
+              "count": 6,
+              "trace": [
+                {
+                  "attempt": 1,
+                  "plan": {
+                    "method": "llm",
+                    "llmAttempt": 1
+                  },
+                  "success": true,
+                  "code": "rule_elements:hud-public-housing-termination-grievance_complete",
+                  "message": "rule_elements:hud-public-housing-termination-grievance produced 6 item(s)."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "stage": "judge",
+          "method": "off",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "judge:rule_elements",
+          "method": "llm",
+          "count": 6,
+          "trace": [
+            {
+              "attempt": 1,
+              "plan": {
+                "method": "llm",
+                "llmAttempt": 1
+              },
+              "success": true,
+              "code": "judge:rule_elements_complete",
+              "message": "judge:rule_elements produced 6 item(s)."
+            }
+          ],
+          "checkId": "rule_elements",
+          "batch": 1,
+          "batches": 1,
+          "candidateIds": [
+            "rule_elements:hud-public-housing-termination-grievance:grievance_advisement",
+            "rule_elements:hud-public-housing-termination-grievance:notice_content",
+            "rule_elements:hud-public-housing-termination-grievance:process_completed",
+            "rule_elements:hud-public-housing-termination-grievance:public_housing",
+            "rule_elements:hud-public-housing-termination-grievance:timely_written_notice",
+            "rule_elements:hud-public-housing-termination-grievance:valid_exclusion"
+          ],
+          "unavailable": false
+        },
+        {
+          "stage": "coach",
+          "method": "llm",
+          "count": 2,
+          "trace": [
+            {
+              "attempt": 1,
+              "plan": {
+                "method": "llm",
+                "llmAttempt": 1
+              },
+              "success": true,
+              "code": "coach_complete",
+              "message": "coach produced 2 item(s)."
+            }
+          ]
+        },
+        {
+          "stage": "assessment",
+          "method": "deterministic",
+          "count": 1,
+          "trace": []
+        }
+      ],
+      "research_trace": [],
+      "model_calls": [
+        {
+          "prompt_key": "argument_gym.rule_elements",
+          "role": "base",
+          "model": "gpt-5.6-terra",
+          "settings": {
+            "temperature": 0,
+            "model": "gpt-5.6-terra",
+            "reasoning_level": "medium"
+          },
+          "status": "complete",
+          "elapsed_seconds": 11.255
+        },
+        {
+          "prompt_key": "argument_gym.correctness_judge",
+          "role": "judge",
+          "model": "mistral-large-3",
+          "settings": {
+            "temperature": 0,
+            "model": "mistral-large-3",
+            "reasoning_level": "medium"
+          },
+          "status": "complete",
+          "elapsed_seconds": 6.122
+        },
+        {
+          "prompt_key": "argument_gym.coach",
+          "role": "base",
+          "model": "gpt-5.6-terra",
+          "settings": {
+            "temperature": 0,
+            "model": "gpt-5.6-terra",
+            "reasoning_level": "medium"
+          },
+          "status": "complete",
+          "elapsed_seconds": 7.528
+        }
+      ],
+      "attacks_given_to_judge": 0
+    }
+  ],
+  "public_export": {
+    "removed_fields": [
+      "retrieval"
+    ],
+    "why": "verbatim excerpts of third-party legal corpora retrieved by the research stage; not ours to redistribute and not evidence for any reported figure",
+    "full_record": "report.json, kept locally alongside this file"
+  }
+}

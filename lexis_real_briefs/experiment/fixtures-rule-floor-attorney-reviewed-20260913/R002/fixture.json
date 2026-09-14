@@ -1,0 +1,72 @@
+{
+  "fixture_id": "R002",
+  "case_family_id": "synthetic-rule-review-r002",
+  "stratum": "synthetic_rule_elements_attorney_review",
+  "document": {
+    "title": "Memorandum in Opposition to Eviction",
+    "court": "Fictional Ohio trial court",
+    "jurisdiction": "Ohio",
+    "pleading_type": "trial_brief",
+    "side": "",
+    "filed": "2026-09-13"
+  },
+  "files": {
+    "source": null,
+    "source_scan": null,
+    "control": "normalized/brief.txt",
+    "mutant": "mutant/brief.txt",
+    "attachments": [
+      "attachments/record-01.txt"
+    ],
+    "attachment_notes": [
+      "Identical fictional record supplied to both arms."
+    ]
+  },
+  "mutation": {
+    "type": "rule_element_omission",
+    "subtype": "specific_act",
+    "operation": "delete",
+    "section": "Argument",
+    "description": "Deleted the only proposed paragraph applying specific_act.",
+    "gold_vulnerability": "PROPOSED: the mutant invokes R.C. 5321.11 but omits application of specific_act.",
+    "expected_direction": "mutant_worse",
+    "materiality": "proposed_high_unverified",
+    "target_location": {
+      "section": "Argument",
+      "control_excerpt": "The written notice did not specify the noncompliant act or omission as required by R.C. 5321.11, quoting only a generic 'lease violation'.",
+      "mutant_excerpt": ""
+    },
+    "characters_changed": 140,
+    "control_chars": 991,
+    "mutant_chars": 851,
+    "fraction_of_brief_changed": 0.141271,
+    "expected_check_id": "rule_elements",
+    "expected_target_id": "rc-5321-11-notice-to-cure:specific_act",
+    "expected_disposition": "must_fix"
+  },
+  "gold": {
+    "control_has_target_defect": false,
+    "mutant_has_target_defect": true,
+    "expected_direction": "mutant_worse",
+    "materiality": "proposed_high_unverified",
+    "verified_by": [],
+    "verification_status": "proposed_unverified",
+    "verification_note": "Llama-authored proposal; do not run or score until attorney review is complete."
+  },
+  "provenance": {
+    "control_sha256": "f06e7f222d6f5113eee8cf36ce892fbe71e93e36a010a470b2ede52c3049c35f",
+    "mutant_sha256": "ed5b361e09d4e5d645acc2909bb73d67dee4a399f1c5fb04727d149f7da8013e",
+    "attachment_sha256": {
+      "record-01.txt": "7dd8208159fe4fd82b7eb64e26ba51b626c1cf57e5f82d20251f42ca0e4bf01e"
+    },
+    "mutation_version": "exact-paragraph-deletion-1.0",
+    "generator": {
+      "provider": "Azure AI Services",
+      "deployment": "llama-4-maverick",
+      "family": "Meta Llama",
+      "generated_at": "2026-09-14T01:45:20.691756+00:00",
+      "attempts": 1,
+      "researcher_edits": "None; whitespace normalization and deletion only."
+    }
+  }
+}

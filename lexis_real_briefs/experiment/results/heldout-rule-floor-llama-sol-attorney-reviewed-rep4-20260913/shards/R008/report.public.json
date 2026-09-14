@@ -1,0 +1,2413 @@
+{
+  "manifest": {
+    "registry_id": "lexis-mutation-2026-09",
+    "created_at": "2026-09-14T02:25:54.204413+00:00",
+    "mode": "live",
+    "git_commit": "351fb785e9bc1bfc7b9954de0f94d16861aa0d9f",
+    "git_status": " M backend/apps/caselaw/management/commands/enrich_caselaw_metadata.py\n m private-content\n?? downloaded_opinions/\n?? lab_notebook/2026-09-13_heldout_authority_replicates_1_to_4.md\n?? lexis_real_briefs/experiment/results/heldout-authority-terra-mistral-rep1-20260913/\n?? lexis_real_briefs/experiment/results/heldout-authority-terra-mistral-rep2-20260913/\n?? lexis_real_briefs/experiment/results/heldout-authority-terra-mistral-rep3-20260913/\n?? lexis_real_briefs/experiment/results/heldout-authority-terra-mistral-rep4-20260913/\n?? lexis_real_briefs/experiment/results/heldout-rule-floor-llama-sol-attorney-reviewed-rep1-20260913/\n?? lexis_real_briefs/experiment/results/heldout-rule-floor-llama-sol-attorney-reviewed-rep2-20260913/\n?? lexis_real_briefs/experiment/results/heldout-rule-floor-llama-sol-attorney-reviewed-rep2-r002-technical-retry-20260913/\n?? lexis_real_briefs/experiment/results/heldout-rule-floor-llama-sol-attorney-reviewed-rep3-20260913/\n?? lexis_real_briefs/experiment/results/heldout-rule-floor-llama-sol-attorney-reviewed-rep4-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-f005-attribution-grounded-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-f005-complete-opinions-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-f005-frozen-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-f005-grounded-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-f005-opinion-status-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-f005-reuse-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-live-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-live-bounded-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-live-final-f007-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-live-final-f007b-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-live-hybrid-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-live-hybrid-fixed-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-live-targeted-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-offline-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-offline-after-unavailable-fix-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-priority-frozen-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-priority-rerun-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-rules-citations-terra-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-rules-citations-terra-batched-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-rules-citations-terra-final-20260913/\n?? lexis_real_briefs/experiment/results/micro-judge-hardening-deepseek-20260913.json\n?? lexis_real_briefs/experiment/results/micro-judge-hardening-deepseek-offset8-20260913.json\n?? lexis_real_briefs/experiment/results/micro-judge-hardening-gpt55-20260913.json\n?? lexis_real_briefs/experiment/results/micro-judge-hardening-gpt56terra-20260913.json\n?? lexis_real_briefs/experiment/results/micro-judge-hardening-gpt56terra-deployed-20260913.json\n?? lexis_real_briefs/experiment/results/micro-judge-hardening-grok46-20260913.json\n?? lexis_real_briefs/experiment/results/micro-judge-rule-floor-llama-4-maverick-20260913.json\n?? lexis_real_briefs/experiment/results/micro-judge-rule-floor-mistral-large-3-20260913.json\n?? lexis_real_briefs/experiment/results/micro-judge-rules-gpt55-20260913.json\n?? lexis_real_briefs/experiment/results/micro-judge-rules-gpt56terra-20260913.json\n?? lexis_real_briefs/experiment/results/micro-rules-all-fixtures-20260913/\n?? lexis_real_briefs/experiment/results/qualification-authority-f005-nested-fixed-rep1-20260913/\n?? lexis_real_briefs/experiment/results/qualification-authority-f005-nested-fixed-rep2-20260913/\n?? lexis_real_briefs/experiment/results/qualification-authority-f005-nested-fixed-rep3-20260913/\n?? lexis_real_briefs/experiment/results/qualification-authority-f005-rep1-20260913/\n?? lexis_real_briefs/experiment/results/qualification-authority-f005-stable-inventory-20260913/\n?? lexis_real_briefs/experiment/results/qualification-rule-floor-contract-rep1-20260913/\n?? lexis_real_briefs/experiment/results/qualification-rule-floor-final-rep1-20260913/\n?? lexis_real_briefs/experiment/results/qualification-rule-floor-fresh10-20260913/\n?? lexis_real_briefs/experiment/results/qualification-rule-floor-fresh10-rep2-20260913/\n?? lexis_real_briefs/experiment/results/qualification-rule-floor-gate-rep1-20260913/\n?? lexis_real_briefs/experiment/results/qualification-rule-floor-gate-rep2-20260913/\n?? lexis_real_briefs/experiment/results/qualification-rule-floor-gate-rep3-20260913/\n?? lexis_real_briefs/experiment/results/qualification-rule-floor-mistral-high-rep1-20260913/\n?? lexis_real_briefs/experiment/results/qualification-rule-floor-mistral-rep1-20260913/\n?? lexis_real_briefs/experiment/results/qualification-rule-floor-ready-rep1-20260913/\n?? lexis_real_briefs/experiment/results/qualification-rule-floor-rep1-20260913/\n?? lexis_real_briefs/experiment/results/qualification-rule-floor-repaired-rep1-20260913/\n?? lexis_real_briefs/experiment/results/qualification-rule-floor-terra-mistral-fixed-rep1-20260913/\n?? lexis_real_briefs/experiment/results/qualification-rule-floor-terra-mistral-rep1-20260913/\n?? lexis_real_briefs/experiment/results/qualification-vawa-coverage-rep1-20260913/\n?? lexis_real_briefs/experiment/results/qualification-vawa-coverage-rep2-20260913/\n?? lexis_real_briefs/experiment/results/qualification-vawa-coverage-rep3-20260913/\n",
+    "command": [
+      "/home/quinten/agentic_housing_drafting/.venv/bin/python",
+      "/home/quinten/agentic_housing_drafting/lexis_real_briefs/experiment/tools/run_experiment.py",
+      "--output-dir",
+      "/home/quinten/agentic_housing_drafting/lexis_real_briefs/experiment/results/heldout-rule-floor-llama-sol-attorney-reviewed-rep4-20260913/shards/R008",
+      "--fixtures-dir",
+      "/home/quinten/agentic_housing_drafting/lexis_real_briefs/experiment/fixtures-rule-floor-attorney-reviewed-20260913",
+      "--fixture",
+      "R008",
+      "--model",
+      "gpt-5.4-mini",
+      "--reasoning",
+      "medium",
+      "--live",
+      "--attack-model",
+      "gpt-5.6-terra",
+      "--judge-model",
+      "mistral-large-3",
+      "--base-model",
+      "gpt-5.6-terra",
+      "--cell",
+      "terra-mistral",
+      "--check",
+      "rule_elements"
+    ],
+    "python": "3.12.3 (main, Aug 31 2026, 10:18:26) [GCC 13.3.0]",
+    "cell": "terra-mistral",
+    "models": {
+      "attack": "gpt-5.6-terra",
+      "judge": "mistral-large-3",
+      "base": "gpt-5.6-terra"
+    },
+    "model": "gpt-5.6-terra",
+    "attack_family": "openai",
+    "judge_family": "mistral",
+    "same_family_judge": false,
+    "role_routing": "named Opponent prompts -> attack; legacy and correctness Judge prompts -> judge; everything else -> base",
+    "reasoning": "medium",
+    "temperature": 0,
+    "provider_host": "quint-mln02sj6-eastus2.cognitiveservices.azure.com",
+    "model_version_note": "Requested deployment alias; the provider's snapshot identity is not exposed to the application client.",
+    "code_sha256": "4899537c83ea9ff3370be806ee3a6403c73d5fa36a8c990abfaf2369ace34a1e",
+    "dependencies_sha256": "f5f5236ee56cf7f75c2f0f59f570b7386388e27164eb9ec999572462072c4366",
+    "unit_budget_chars": 260000,
+    "unit_text_chars": 2400,
+    "brief_text_chars": 120000,
+    "source_ids": [
+      "ohio-cases",
+      "ohio-statutes",
+      "ohio-ordinances",
+      "treatise"
+    ],
+    "enabled_checks": [
+      "rule_elements"
+    ],
+    "blinding": "The Gym receives brief text and record text only. No fixture id, condition label, mutation class or gold vulnerability reaches any prompt.",
+    "scoring": "The Gym writes stable per-target dispositions. Whether a result matches the registered mutation remains a separate, human-checkable step.",
+    "fixtures": [
+      {
+        "fixture_id": "R008",
+        "control_sha256": "8ed2c34045625d31a7f9e63f29c697da2bfd36a79c646f777e23ac7cf0518026",
+        "mutant_sha256": "296708f805e76fbdbe2e9a1eff545fa333fdfa39e47552d48449f3be75fc1d2a",
+        "attachment_sha256": {
+          "record-01.txt": "648f21caad0c66ca29e886363ffc066e98275268045ed664b2a6271a209d4991"
+        }
+      }
+    ]
+  },
+  "results": [
+    {
+      "fixture_id": "R008",
+      "condition": "control",
+      "case_family_id": "synthetic-rule-review-r008",
+      "stratum": "synthetic_rule_elements_attorney_review",
+      "run_id": 34,
+      "run_at": "2026-09-14T02:26:25.178133+00:00",
+      "status": "complete",
+      "pipeline_status": "complete",
+      "degraded": null,
+      "error": "",
+      "brief_sha256": "8ed2c34045625d31a7f9e63f29c697da2bfd36a79c646f777e23ac7cf0518026",
+      "brief_chars": 1628,
+      "record_documents": 1,
+      "attack_model": "gpt-5.6-terra",
+      "judge_model": "mistral-large-3",
+      "base_model": "gpt-5.6-terra",
+      "same_family": false,
+      "reasoning": "medium",
+      "unit_budget_chars": 260000,
+      "units": 10,
+      "court": {
+        "mode": "auto",
+        "reason": "No maintained court profile matched this document's caption or the case record.",
+        "matched": "",
+        "where": "",
+        "courtSlug": ""
+      },
+      "deterministic_findings": {
+        "rule_elements": 2
+      },
+      "checks_run": [
+        {
+          "id": "record_support",
+          "label": "Test material facts against the record",
+          "description": "Opponent tests only atomic, record-verifiable, material claims; Judge sustains a defect only when the supplied evidence and record coverage establish it.",
+          "kind": "model",
+          "category": "correctness",
+          "categoryLabel": "Correctness",
+          "categoryDescription": "Is the law right? Is the authority controlling? Are the required elements present, and does the record establish what the brief says it does?",
+          "defaultEnabled": true,
+          "requires": [
+            "case_record"
+          ],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "rule_elements",
+          "label": "Audit the elements of the rules invoked",
+          "description": "Detects the rules the brief cites or invokes by name, then audits each element of those rules: is it pleaded, and is it supported.",
+          "kind": "model",
+          "category": "correctness",
+          "categoryLabel": "Correctness",
+          "categoryDescription": "Is the law right? Is the authority controlling? Are the required elements present, and does the record establish what the brief says it does?",
+          "defaultEnabled": true,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "on",
+          "reason": ""
+        },
+        {
+          "id": "authority_support",
+          "label": "Test cited authority support",
+          "description": "Whether each cited authority supports the material legal proposition for which the brief uses it.",
+          "kind": "model",
+          "category": "correctness",
+          "categoryLabel": "Correctness",
+          "categoryDescription": "Is the law right? Is the authority controlling? Are the required elements present, and does the record establish what the brief says it does?",
+          "defaultEnabled": true,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "adversarial",
+          "label": "Opposing counsel, a judge, and a coach",
+          "description": "The core of the gym: opposing counsel makes the strongest arguments available against the brief, a judge weighs them, and a coach proposes answers.",
+          "kind": "model",
+          "category": "completeness",
+          "categoryLabel": "Argumentative completeness",
+          "categoryDescription": "Does the brief connect its rules to its facts? Does it work the difficult element instead of restating the rule? Does it confront adverse authority and answer the counterargument a court will think of on its own?",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_issue_framing",
+          "label": "Issue framing",
+          "description": "Does the brief identify the real dispute early and frame it around the favorable legal question?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_macro_organization",
+          "label": "Macro-organization",
+          "description": "Are arguments ordered logically and by importance? Can the reader see the roadmap?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_paragraph_organization",
+          "label": "Paragraph-level organization",
+          "description": "Do paragraphs have discernible propositions or topic sentences, and develop one point at a time?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_rule_synthesis",
+          "label": "Rule synthesis",
+          "description": "Does the writer synthesize authorities into a rule rather than serially summarize cases?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_rule_application",
+          "label": "Rule-to-fact application",
+          "description": "Is the reasoning explicit -- \"because X fact satisfies Y element\" -- rather than leaving the inferential step to the court?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_fact_selection",
+          "label": "Fact selection and narrative coherence",
+          "description": "Are legally significant facts foregrounded and organized in a comprehensible chronology or theory?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_use_of_authority",
+          "label": "Use of authority",
+          "description": "Are important propositions backed by strong authorities placed where they actually matter, rather than citation dumping?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_counterarguments",
+          "label": "Handling counterarguments",
+          "description": "Does the brief acknowledge and answer the strongest objection rather than arguing past it?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_concision",
+          "label": "Concision and reader burden",
+          "description": "Does it say the same thing once, in the right place, without unnecessary throat-clearing?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_calibration",
+          "label": "Calibrated confidence and credibility",
+          "description": "Does it distinguish strong propositions from uncertain ones and avoid overclaiming?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_relief_alignment",
+          "label": "Requested-relief alignment",
+          "description": "Does the argument actually lead to the precise thing the brief asks the court to do?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_emphasis",
+          "label": "Emphasis",
+          "description": "Does the document devote its space to the issues that matter rather than treating every point as equally important?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "custom_checklist",
+          "label": "Custom checklist",
+          "description": "Applies review questions you wrote. An item can look things up -- authority, the case record, passages of the brief -- rather than answering from the brief alone. Attach a checklist for this to run.",
+          "kind": "model",
+          "category": "custom",
+          "categoryLabel": "Your own checks",
+          "categoryDescription": "Review questions you wrote, in your words, applied to this brief.",
+          "defaultEnabled": false,
+          "requires": [
+            "checklist"
+          ],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "court_formatting",
+          "label": "This court's filing rules",
+          "description": "Required elements, type size, spacing, margins, and page limits for the selected court.",
+          "kind": "deterministic",
+          "category": "form",
+          "categoryLabel": "Form of the filing",
+          "categoryDescription": "Whether the paper meets this court's rules and the conventions of practice.",
+          "defaultEnabled": false,
+          "requires": [
+            "court_profile"
+          ],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "pleading_form",
+          "label": "Form of the pleading",
+          "description": "Conventions of practice rather than any one court's rules: numbered paragraphs running in order, a prayer for relief, a signature block, exhibit references that resolve, no placeholder left in the text.",
+          "kind": "deterministic",
+          "category": "form",
+          "categoryLabel": "Form of the filing",
+          "categoryDescription": "Whether the paper meets this court's rules and the conventions of practice.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "draft_validation",
+          "label": "Draft-mode validation",
+          "description": "The same checks Draft mode runs: unresolved template data and placeholders, draft structure, rendered Word consistency, citation linting, source support, and filing-package consistency.",
+          "kind": "deterministic",
+          "category": "form",
+          "categoryLabel": "Form of the filing",
+          "categoryDescription": "Whether the paper meets this court's rules and the conventions of practice.",
+          "defaultEnabled": false,
+          "requires": [
+            "native_draft"
+          ],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "grammar",
+          "label": "Grammar and mechanics",
+          "description": "Doubled words, missing sentence spacing, unbalanced quotes and parentheses.",
+          "kind": "deterministic",
+          "category": "language",
+          "categoryLabel": "Language",
+          "categoryDescription": "Sentence-level mechanics, reported as nudges rather than as defects in the argument.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "confused_words",
+          "label": "Misspelled and easily confused words",
+          "description": "Not a dictionary spell check, on purpose: a general dictionary flags half of every case name. This looks for the words legal writing actually gets wrong, and for real words used in place of other real words.",
+          "kind": "deterministic",
+          "category": "language",
+          "categoryLabel": "Language",
+          "categoryDescription": "Sentence-level mechanics, reported as nudges rather than as defects in the argument.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "passive_voice",
+          "label": "Passive voice",
+          "description": "Reported as a nudge, never an error. Phrases a court expects to read are on an accepted list you can add to for this session.",
+          "kind": "deterministic",
+          "category": "language",
+          "categoryLabel": "Language",
+          "categoryDescription": "Sentence-level mechanics, reported as nudges rather than as defects in the argument.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "acceptedPassivePhrases: phrases this court expects, which the check stays quiet about.",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "readability",
+          "label": "Readability",
+          "description": "Sentence length and reading-level measures, reported as several formulas rather than one score.",
+          "kind": "deterministic",
+          "category": "language",
+          "categoryLabel": "Language",
+          "categoryDescription": "Sentence-level mechanics, reported as nudges rather than as defects in the argument.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        }
+      ],
+      "check_results": {
+        "rule_elements": {
+          "findings": [
+            {
+              "ruleCode": "rule_elements.missing_required_element",
+              "severity": "error",
+              "message": "The brief identifies the tenancy as project-based Section 8 and invokes 24 C.F.R. \u00a7 247.4. The supplied notice excerpt does not identify the federal program or otherwise establish project-based coverage.",
+              "target": {
+                "unitId": "u5"
+              },
+              "details": {
+                "checkId": "rule_elements",
+                "issueCode": "missing_required_element",
+                "targetId": "hud-project-based-24-cfr-247-notice:covered_program",
+                "unitId": "u5",
+                "disposition": "must_fix",
+                "claim": "Identify the federal program and regulation governing termination.",
+                "problem": "The brief identifies the tenancy as project-based Section 8 and invokes 24 C.F.R. \u00a7 247.4. The supplied notice excerpt does not identify the federal program or otherwise establish project-based coverage.",
+                "briefEvidence": [
+                  "u5"
+                ],
+                "externalEvidence": [
+                  "https://www.ecfr.gov/current/title-24/part-247/section-247.4"
+                ],
+                "reason": "The brief identifies the tenancy as project-based Section 8 and invokes 24 C.F.R. \u00a7 247.4, but the supplied notice excerpt does not identify the federal program or establish project-based coverage. A competent supervising attorney would require correction to explicitly link the notice to the federal program and regulation governing termination.",
+                "confidence": "high",
+                "userVisible": true
+              }
+            },
+            {
+              "ruleCode": "rule_elements.missing_required_element",
+              "severity": "error",
+              "message": "The brief supplies service and termination dates and asserts compliance with a 30-day lease requirement, but it does not identify or apply the applicable federal notice period for the cited program and ground. The record supports the dates and lease provision, but not a federal timing requirement.",
+              "target": {
+                "unitId": "u5"
+              },
+              "details": {
+                "checkId": "rule_elements",
+                "issueCode": "missing_required_element",
+                "targetId": "hud-project-based-24-cfr-247-notice:applicable_timing",
+                "unitId": "u5",
+                "disposition": "must_fix",
+                "claim": "Apply the period for the identified program and ground using service and termination dates.",
+                "problem": "The brief supplies service and termination dates and asserts compliance with a 30-day lease requirement, but it does not identify or apply the applicable federal notice period for the cited program and ground. The record supports the dates and lease provision, but not a federal timing requirement.",
+                "briefEvidence": [
+                  "u5"
+                ],
+                "externalEvidence": [
+                  "https://www.ecfr.gov/current/title-24/part-247/section-247.4"
+                ],
+                "reason": "The brief asserts compliance with a 30-day lease requirement but does not identify or apply the applicable federal notice period for project-based Section 8 nonpayment terminations under 24 C.F.R. \u00a7 247.4. A competent supervising attorney would require correction to address the federal timing requirement explicitly.",
+                "confidence": "high",
+                "userVisible": true
+              }
+            }
+          ],
+          "tests": [
+            {
+              "checkId": "rule_elements",
+              "issueCode": "missing_required_element",
+              "targetId": "hud-project-based-24-cfr-247-notice:covered_program",
+              "unitId": "u5",
+              "disposition": "must_fix",
+              "claim": "Identify the federal program and regulation governing termination.",
+              "problem": "The brief identifies the tenancy as project-based Section 8 and invokes 24 C.F.R. \u00a7 247.4. The supplied notice excerpt does not identify the federal program or otherwise establish project-based coverage.",
+              "briefEvidence": [
+                "u5"
+              ],
+              "externalEvidence": [
+                "https://www.ecfr.gov/current/title-24/part-247/section-247.4"
+              ],
+              "reason": "The brief identifies the tenancy as project-based Section 8 and invokes 24 C.F.R. \u00a7 247.4, but the supplied notice excerpt does not identify the federal program or establish project-based coverage. A competent supervising attorney would require correction to explicitly link the notice to the federal program and regulation governing termination.",
+              "confidence": "high",
+              "userVisible": true
+            },
+            {
+              "checkId": "rule_elements",
+              "issueCode": "required_element_carried",
+              "targetId": "hud-project-based-24-cfr-247-notice:termination_date",
+              "unitId": "u5",
+              "disposition": "pass",
+              "claim": "Quote the date stated in the notice.",
+              "problem": "The brief states that the notice gave a March 17, 2023 termination date. The supplied notice expressly states that the tenancy will terminate on that date.",
+              "briefEvidence": [
+                "u5"
+              ],
+              "externalEvidence": [
+                "https://www.ecfr.gov/current/title-24/part-247/section-247.4"
+              ],
+              "reason": "The brief and the supplied notice expressly state the termination date of March 17, 2023, satisfying the requirement to quote the date stated in the notice.",
+              "confidence": "high",
+              "userVisible": true
+            },
+            {
+              "checkId": "rule_elements",
+              "issueCode": "required_element_carried",
+              "targetId": "hud-project-based-24-cfr-247-notice:specific_reasons",
+              "unitId": "u5",
+              "disposition": "pass",
+              "claim": "Identify concrete conduct dates persons or a nonpayment accounting rather than only lease language.",
+              "problem": "The brief identifies nonpayment and provides the arrearage amount and covered dates, rather than relying only on generalized lease language. The notice excerpt contains the same specific nonpayment information.",
+              "briefEvidence": [
+                "u5"
+              ],
+              "externalEvidence": [
+                "https://www.ecfr.gov/current/title-24/part-247/section-247.4"
+              ],
+              "reason": "The brief identifies nonpayment as the reason for termination, provides the arrearage amount ($1,200), and specifies the covered period (January 1, 2023, through February 28, 2023), which matches the notice excerpt. This satisfies the requirement for concrete conduct or nonpayment accounting.",
+              "confidence": "high",
+              "userVisible": true
+            },
+            {
+              "checkId": "rule_elements",
+              "issueCode": "required_element_carried",
+              "targetId": "hud-project-based-24-cfr-247-notice:ten_day_discussion_advisement",
+              "unitId": "u5",
+              "disposition": "pass",
+              "claim": "Quote the discussion-right advisement.",
+              "problem": "The brief specifically alleges that the notice omitted the required ten-day discussion-right advisement. The supplied full notice text contains no discussion-right advisement.",
+              "briefEvidence": [
+                "u5"
+              ],
+              "externalEvidence": [
+                "https://www.ecfr.gov/current/title-24/part-247/section-247.4"
+              ],
+              "reason": "The brief alleges the notice omitted the required ten-day discussion-right advisement, and the supplied notice text contains no such advisement. 24 C.F.R. \u00a7 247.4 requires this advisement, and its absence is a defect a competent supervising attorney would require corrected.",
+              "confidence": "high",
+              "userVisible": true
+            },
+            {
+              "checkId": "rule_elements",
+              "issueCode": "required_element_carried",
+              "targetId": "hud-project-based-24-cfr-247-notice:judicial_defense_advisement",
+              "unitId": "u5",
+              "disposition": "pass",
+              "claim": "Quote the judicial-action and defense advisement.",
+              "problem": "The brief alleges that the notice advised the tenant of the right to defend in a judicial eviction. The notice excerpt expressly includes that advisement.",
+              "briefEvidence": [
+                "u5"
+              ],
+              "externalEvidence": [
+                "https://www.ecfr.gov/current/title-24/part-247/section-247.4"
+              ],
+              "reason": "The brief and the notice excerpt expressly include the advisement of the right to defend in a judicial eviction action, satisfying the requirement.",
+              "confidence": "high",
+              "userVisible": true
+            },
+            {
+              "checkId": "rule_elements",
+              "issueCode": "required_element_carried",
+              "targetId": "hud-project-based-24-cfr-247-notice:nonpayment_accounting",
+              "unitId": "u5",
+              "disposition": "pass",
+              "claim": "Identify the arrearage amount covered period and effective computation date.",
+              "problem": "This conditional element applies because the asserted ground is nonpayment of rent. The brief provides the amount, covered period, and computation date, all of which appear in the notice excerpt.",
+              "briefEvidence": [
+                "u5"
+              ],
+              "externalEvidence": [
+                "https://www.ecfr.gov/current/title-24/part-247/section-247.4"
+              ],
+              "reason": "The brief provides the arrearage amount ($1,200), covered period (January 1, 2023, through February 28, 2023), and effective computation date (February 28, 2023), which appear in the notice excerpt. This satisfies the conditional nonpayment accounting requirement.",
+              "confidence": "high",
+              "userVisible": true
+            },
+            {
+              "checkId": "rule_elements",
+              "issueCode": "missing_required_element",
+              "targetId": "hud-project-based-24-cfr-247-notice:applicable_timing",
+              "unitId": "u5",
+              "disposition": "must_fix",
+              "claim": "Apply the period for the identified program and ground using service and termination dates.",
+              "problem": "The brief supplies service and termination dates and asserts compliance with a 30-day lease requirement, but it does not identify or apply the applicable federal notice period for the cited program and ground. The record supports the dates and lease provision, but not a federal timing requirement.",
+              "briefEvidence": [
+                "u5"
+              ],
+              "externalEvidence": [
+                "https://www.ecfr.gov/current/title-24/part-247/section-247.4"
+              ],
+              "reason": "The brief asserts compliance with a 30-day lease requirement but does not identify or apply the applicable federal notice period for project-based Section 8 nonpayment terminations under 24 C.F.R. \u00a7 247.4. A competent supervising attorney would require correction to address the federal timing requirement explicitly.",
+              "confidence": "high",
+              "userVisible": true
+            }
+          ],
+          "summary": "2 must fix, 0 review, 5 passed"
+        }
+      },
+      "correctness_tests": [
+        {
+          "checkId": "rule_elements",
+          "issueCode": "missing_required_element",
+          "targetId": "hud-project-based-24-cfr-247-notice:covered_program",
+          "unitId": "u5",
+          "disposition": "must_fix",
+          "claim": "Identify the federal program and regulation governing termination.",
+          "problem": "The brief identifies the tenancy as project-based Section 8 and invokes 24 C.F.R. \u00a7 247.4. The supplied notice excerpt does not identify the federal program or otherwise establish project-based coverage.",
+          "briefEvidence": [
+            "u5"
+          ],
+          "externalEvidence": [
+            "https://www.ecfr.gov/current/title-24/part-247/section-247.4"
+          ],
+          "reason": "The brief identifies the tenancy as project-based Section 8 and invokes 24 C.F.R. \u00a7 247.4, but the supplied notice excerpt does not identify the federal program or establish project-based coverage. A competent supervising attorney would require correction to explicitly link the notice to the federal program and regulation governing termination.",
+          "confidence": "high",
+          "userVisible": true
+        },
+        {
+          "checkId": "rule_elements",
+          "issueCode": "required_element_carried",
+          "targetId": "hud-project-based-24-cfr-247-notice:termination_date",
+          "unitId": "u5",
+          "disposition": "pass",
+          "claim": "Quote the date stated in the notice.",
+          "problem": "The brief states that the notice gave a March 17, 2023 termination date. The supplied notice expressly states that the tenancy will terminate on that date.",
+          "briefEvidence": [
+            "u5"
+          ],
+          "externalEvidence": [
+            "https://www.ecfr.gov/current/title-24/part-247/section-247.4"
+          ],
+          "reason": "The brief and the supplied notice expressly state the termination date of March 17, 2023, satisfying the requirement to quote the date stated in the notice.",
+          "confidence": "high",
+          "userVisible": true
+        },
+        {
+          "checkId": "rule_elements",
+          "issueCode": "required_element_carried",
+          "targetId": "hud-project-based-24-cfr-247-notice:specific_reasons",
+          "unitId": "u5",
+          "disposition": "pass",
+          "claim": "Identify concrete conduct dates persons or a nonpayment accounting rather than only lease language.",
+          "problem": "The brief identifies nonpayment and provides the arrearage amount and covered dates, rather than relying only on generalized lease language. The notice excerpt contains the same specific nonpayment information.",
+          "briefEvidence": [
+            "u5"
+          ],
+          "externalEvidence": [
+            "https://www.ecfr.gov/current/title-24/part-247/section-247.4"
+          ],
+          "reason": "The brief identifies nonpayment as the reason for termination, provides the arrearage amount ($1,200), and specifies the covered period (January 1, 2023, through February 28, 2023), which matches the notice excerpt. This satisfies the requirement for concrete conduct or nonpayment accounting.",
+          "confidence": "high",
+          "userVisible": true
+        },
+        {
+          "checkId": "rule_elements",
+          "issueCode": "required_element_carried",
+          "targetId": "hud-project-based-24-cfr-247-notice:ten_day_discussion_advisement",
+          "unitId": "u5",
+          "disposition": "pass",
+          "claim": "Quote the discussion-right advisement.",
+          "problem": "The brief specifically alleges that the notice omitted the required ten-day discussion-right advisement. The supplied full notice text contains no discussion-right advisement.",
+          "briefEvidence": [
+            "u5"
+          ],
+          "externalEvidence": [
+            "https://www.ecfr.gov/current/title-24/part-247/section-247.4"
+          ],
+          "reason": "The brief alleges the notice omitted the required ten-day discussion-right advisement, and the supplied notice text contains no such advisement. 24 C.F.R. \u00a7 247.4 requires this advisement, and its absence is a defect a competent supervising attorney would require corrected.",
+          "confidence": "high",
+          "userVisible": true
+        },
+        {
+          "checkId": "rule_elements",
+          "issueCode": "required_element_carried",
+          "targetId": "hud-project-based-24-cfr-247-notice:judicial_defense_advisement",
+          "unitId": "u5",
+          "disposition": "pass",
+          "claim": "Quote the judicial-action and defense advisement.",
+          "problem": "The brief alleges that the notice advised the tenant of the right to defend in a judicial eviction. The notice excerpt expressly includes that advisement.",
+          "briefEvidence": [
+            "u5"
+          ],
+          "externalEvidence": [
+            "https://www.ecfr.gov/current/title-24/part-247/section-247.4"
+          ],
+          "reason": "The brief and the notice excerpt expressly include the advisement of the right to defend in a judicial eviction action, satisfying the requirement.",
+          "confidence": "high",
+          "userVisible": true
+        },
+        {
+          "checkId": "rule_elements",
+          "issueCode": "required_element_carried",
+          "targetId": "hud-project-based-24-cfr-247-notice:nonpayment_accounting",
+          "unitId": "u5",
+          "disposition": "pass",
+          "claim": "Identify the arrearage amount covered period and effective computation date.",
+          "problem": "This conditional element applies because the asserted ground is nonpayment of rent. The brief provides the amount, covered period, and computation date, all of which appear in the notice excerpt.",
+          "briefEvidence": [
+            "u5"
+          ],
+          "externalEvidence": [
+            "https://www.ecfr.gov/current/title-24/part-247/section-247.4"
+          ],
+          "reason": "The brief provides the arrearage amount ($1,200), covered period (January 1, 2023, through February 28, 2023), and effective computation date (February 28, 2023), which appear in the notice excerpt. This satisfies the conditional nonpayment accounting requirement.",
+          "confidence": "high",
+          "userVisible": true
+        },
+        {
+          "checkId": "rule_elements",
+          "issueCode": "missing_required_element",
+          "targetId": "hud-project-based-24-cfr-247-notice:applicable_timing",
+          "unitId": "u5",
+          "disposition": "must_fix",
+          "claim": "Apply the period for the identified program and ground using service and termination dates.",
+          "problem": "The brief supplies service and termination dates and asserts compliance with a 30-day lease requirement, but it does not identify or apply the applicable federal notice period for the cited program and ground. The record supports the dates and lease provision, but not a federal timing requirement.",
+          "briefEvidence": [
+            "u5"
+          ],
+          "externalEvidence": [
+            "https://www.ecfr.gov/current/title-24/part-247/section-247.4"
+          ],
+          "reason": "The brief asserts compliance with a 30-day lease requirement but does not identify or apply the applicable federal notice period for project-based Section 8 nonpayment terminations under 24 C.F.R. \u00a7 247.4. A competent supervising attorney would require correction to address the federal timing requirement explicitly.",
+          "confidence": "high",
+          "userVisible": true
+        }
+      ],
+      "rule_audit": [
+        {
+          "slug": "hud-project-based-24-cfr-247-notice",
+          "name": "Project-based HUD termination notice",
+          "citation": "24 C.F.R. \u00a7 247.4",
+          "label": "Project-based HUD termination notice (24 C.F.R. \u00a7 247.4)",
+          "summary": "A covered project-based tenancy termination notice must state the termination date, sufficiently specific reasons, the ten-day discussion right, and the right to defend in a judicial eviction; nonpayment notices have added accounting content.",
+          "verification": "verified",
+          "source": "24 C.F.R. \u00a7 247.4; HUD Handbook 4350.3 REV-1 \u00b6 8-13.B; Iskin (6th ed. 2022), \u00a7\u00a7 III.C-D",
+          "sourceUrl": "https://www.ecfr.gov/current/title-24/part-247/section-247.4",
+          "invokedBy": "citation",
+          "matched": "24 C.F.R. \u00a7 247.4",
+          "excerpt": "e lease clause governing nonpayment terminations requires a 30-day notice period (Exhibit A). The notice was served on February 10, 2023 (Exhibit B). Argument The termination notice must comply with 24 C.F.R. \u00a7 247.4. The termination notice did not quote or contain any advisement regarding a right to discuss the termination within ten days. The notice correctly identified the covered program as project-based Section 8 and stated the termination date as March 17, 2023. It provided specific rea",
+          "audited": true,
+          "briefCoverage": {
+            "reviewedChars": 1628,
+            "totalChars": 1628,
+            "truncated": false
+          },
+          "requiresApplicabilityReview": false,
+          "elements": [
+            {
+              "id": "covered_program",
+              "label": "Tenancy is covered by the cited project-based rule",
+              "requirement": "Identify the federal program and regulation governing termination.",
+              "severity": "error",
+              "needsRecordSupport": true,
+              "requiredWhen": "",
+              "patterns": [
+                "project[- ]based",
+                "Section 8",
+                "subsidized housing"
+              ],
+              "note": "",
+              "origin": "profile",
+              "pled": "yes",
+              "applicability": "applicable",
+              "supported": "no",
+              "explanation": "The brief identifies the tenancy as project-based Section 8 and invokes 24 C.F.R. \u00a7 247.4. The supplied notice excerpt does not identify the federal program or otherwise establish project-based coverage.",
+              "quote": "The defendant tenant entered a project-based Section 8 tenancy with the plaintiff project owner.",
+              "materialIds": [],
+              "unmet": true
+            },
+            {
+              "id": "termination_date",
+              "label": "Notice states the termination date",
+              "requirement": "Quote the date stated in the notice.",
+              "severity": "error",
+              "needsRecordSupport": true,
+              "requiredWhen": "",
+              "patterns": [
+                "terminat.{0,30}(date|effective)"
+              ],
+              "note": "",
+              "origin": "profile",
+              "pled": "yes",
+              "applicability": "applicable",
+              "supported": "yes",
+              "explanation": "The brief states that the notice gave a March 17, 2023 termination date. The supplied notice expressly states that the tenancy will terminate on that date.",
+              "quote": "The owner served a termination notice dated February 10, 2023, with a termination date of March 17, 2023.",
+              "materialIds": [
+                "upload:35"
+              ],
+              "unmet": false
+            },
+            {
+              "id": "specific_reasons",
+              "label": "Notice states sufficiently specific factual reasons",
+              "requirement": "Identify concrete conduct dates persons or a nonpayment accounting rather than only lease language.",
+              "severity": "error",
+              "needsRecordSupport": true,
+              "requiredWhen": "",
+              "patterns": [
+                "specific.{0,30}(reason|ground|incident)"
+              ],
+              "note": "",
+              "origin": "profile",
+              "pled": "yes",
+              "applicability": "applicable",
+              "supported": "yes",
+              "explanation": "The brief identifies nonpayment and provides the arrearage amount and covered dates, rather than relying only on generalized lease language. The notice excerpt contains the same specific nonpayment information.",
+              "quote": "The notice stated that the reason for termination was nonpayment of rent, specifying an arrearage of $1,200 covering January 1, 2023, through February 28, 2023, with an effective computation date of February 28, 2023.",
+              "materialIds": [
+                "upload:35"
+              ],
+              "unmet": false
+            },
+            {
+              "id": "ten_day_discussion_advisement",
+              "label": "Notice advises of ten-day opportunity to discuss termination",
+              "requirement": "Quote the discussion-right advisement.",
+              "severity": "error",
+              "needsRecordSupport": true,
+              "requiredWhen": "",
+              "patterns": [
+                "ten days.{0,60}discuss",
+                "10 days.{0,60}discuss"
+              ],
+              "note": "",
+              "origin": "profile",
+              "pled": "yes",
+              "applicability": "applicable",
+              "supported": "yes",
+              "explanation": "The brief specifically alleges that the notice omitted the required ten-day discussion-right advisement. The supplied full notice text contains no discussion-right advisement.",
+              "quote": "The termination notice did not quote or contain any advisement regarding a right to discuss the termination within ten days.",
+              "materialIds": [
+                "upload:35"
+              ],
+              "unmet": false
+            },
+            {
+              "id": "judicial_defense_advisement",
+              "label": "Notice advises that enforcement is judicial and tenant may defend",
+              "requirement": "Quote the judicial-action and defense advisement.",
+              "severity": "error",
+              "needsRecordSupport": true,
+              "requiredWhen": "",
+              "patterns": [
+                "judicial.{0,60}defen",
+                "court.{0,60}defen"
+              ],
+              "note": "",
+              "origin": "profile",
+              "pled": "yes",
+              "applicability": "applicable",
+              "supported": "yes",
+              "explanation": "The brief alleges that the notice advised the tenant of the right to defend in a judicial eviction. The notice excerpt expressly includes that advisement.",
+              "quote": "The notice also advised the tenant of the right to defend in a judicial eviction action.",
+              "materialIds": [
+                "upload:35"
+              ],
+              "unmet": false
+            },
+            {
+              "id": "nonpayment_accounting",
+              "label": "Nonpayment notice states amount due and computation date",
+              "requirement": "Identify the arrearage amount covered period and effective computation date.",
+              "severity": "error",
+              "needsRecordSupport": true,
+              "requiredWhen": "Only when termination is for nonpayment of rent.",
+              "patterns": [
+                "amount.{0,30}due",
+                "past due rent"
+              ],
+              "note": "",
+              "origin": "profile",
+              "pled": "yes",
+              "applicability": "applicable",
+              "supported": "yes",
+              "explanation": "This conditional element applies because the asserted ground is nonpayment of rent. The brief provides the amount, covered period, and computation date, all of which appear in the notice excerpt.",
+              "quote": "It provided specific reasons for termination, namely nonpayment of rent with detailed accounting.",
+              "materialIds": [
+                "upload:35"
+              ],
+              "unmet": false
+            },
+            {
+              "id": "applicable_timing",
+              "label": "Applicable federal notice period elapsed",
+              "requirement": "Apply the period for the identified program and ground using service and termination dates.",
+              "severity": "error",
+              "needsRecordSupport": true,
+              "requiredWhen": "",
+              "patterns": [
+                "(ten|10|thirty|30) days",
+                "notice period"
+              ],
+              "note": "",
+              "origin": "profile",
+              "pled": "no",
+              "applicability": "applicable",
+              "supported": "partial",
+              "explanation": "The brief supplies service and termination dates and asserts compliance with a 30-day lease requirement, but it does not identify or apply the applicable federal notice period for the cited program and ground. The record supports the dates and lease provision, but not a federal timing requirement.",
+              "quote": "The applicable timing for a nonpayment termination under the lease is 30 days, and the notice period from February 10, 2023, to March 17, 2023, satisfies this requirement.",
+              "materialIds": [
+                "upload:35"
+              ],
+              "unmet": true
+            }
+          ],
+          "unmetCount": 2,
+          "verdict": "2 of 7 elements need review; unavailable evidence or unrecognized wording does not establish a defect."
+        }
+      ],
+      "compliance": {
+        "checked": false,
+        "reason": "You turned this check off for this session.",
+        "findings": [],
+        "detection": {
+          "mode": "auto",
+          "reason": "No maintained court profile matched this document's caption or the case record.",
+          "matched": "",
+          "where": "",
+          "courtSlug": ""
+        }
+      },
+      "challenges": [
+        {
+          "ordinal": 1,
+          "category": "missing_element",
+          "severity": "high",
+          "confidence": "high",
+          "opponent_argument": "The brief identifies the tenancy as project-based Section 8 and invokes 24 C.F.R. \u00a7 247.4. The supplied notice excerpt does not identify the federal program or otherwise establish project-based coverage.",
+          "why_it_matters": "The brief identifies the tenancy as project-based Section 8 and invokes 24 C.F.R. \u00a7 247.4, but the supplied notice excerpt does not identify the federal program or establish project-based coverage. A competent supervising attorney would require correction to explicitly link the notice to the federal program and regulation governing termination.",
+          "target": {
+            "unitId": "u5",
+            "section": "MEMORANDUM",
+            "paragraph": 4,
+            "page": null,
+            "excerpt": "Argument\nThe termination notice must comply with 24 C.F.R. \u00a7 247.4.",
+            "blockKey": ""
+          },
+          "legal_sources": [],
+          "record_sources": [],
+          "judge_assessment": "The brief identifies the tenancy as project-based Section 8 and invokes 24 C.F.R. \u00a7 247.4, but the supplied notice excerpt does not identify the federal program or establish project-based coverage. A competent supervising attorney would require correction to explicitly link the notice to the federal program and regulation governing termination.",
+          "judge_verdict": "sustained",
+          "suggested_response": "The record establishes the lease notice requirement, but it does not identify a federal housing program establishing that 24 C.F.R. \u00a7 247.4 governs this tenancy.",
+          "coaching_recommendation": "Delete the assertion that 24 C.F.R. \u00a7 247.4 governs unless the record is supplemented with evidence identifying the tenancy as a covered HUD project-based program. The supplied record does not establish that coverage.",
+          "disposition": "open"
+        },
+        {
+          "ordinal": 2,
+          "category": "missing_element",
+          "severity": "high",
+          "confidence": "high",
+          "opponent_argument": "The brief supplies service and termination dates and asserts compliance with a 30-day lease requirement, but it does not identify or apply the applicable federal notice period for the cited program and ground. The record supports the dates and lease provision, but not a federal timing requirement.",
+          "why_it_matters": "The brief asserts compliance with a 30-day lease requirement but does not identify or apply the applicable federal notice period for project-based Section 8 nonpayment terminations under 24 C.F.R. \u00a7 247.4. A competent supervising attorney would require correction to address the federal timing requirement explicitly.",
+          "target": {
+            "unitId": "u5",
+            "section": "MEMORANDUM",
+            "paragraph": 4,
+            "page": null,
+            "excerpt": "Argument\nThe termination notice must comply with 24 C.F.R. \u00a7 247.4.",
+            "blockKey": ""
+          },
+          "legal_sources": [],
+          "record_sources": [
+            {
+              "materialId": "upload:35",
+              "title": "record-01",
+              "status": "",
+              "quote": "The applicable timing for a nonpayment termination under the lease is 30 days, and the notice period from February 10, 2023, to March 17, 2023, satisfies this requirement."
+            }
+          ],
+          "judge_assessment": "The brief asserts compliance with a 30-day lease requirement but does not identify or apply the applicable federal notice period for project-based Section 8 nonpayment terminations under 24 C.F.R. \u00a7 247.4. A competent supervising attorney would require correction to address the federal timing requirement explicitly.",
+          "judge_verdict": "sustained",
+          "suggested_response": "The applicable timing under the lease for a nonpayment termination is 30 days. The notice period from February 10, 2023, to March 17, 2023, satisfies that lease requirement.",
+          "coaching_recommendation": "Do not assert compliance with a federal notice period without authority identifying the period applicable to the program and ground for termination. The supplied record supports only the lease's 30-day requirement and the February 10, 2023, to March 17, 2023, notice period.",
+          "disposition": "open"
+        }
+      ],
+      "challenge_count": 2,
+      "opponent_calls": [],
+      "judge_calls": [],
+      "verdict": "correctness review completed",
+      "assessment": "Correctness review completed. 2 must-fix findings; 0 items need attorney review. Rule elements: 2 failure, 0 review",
+      "stage_trace": [
+        {
+          "stage": "document_checks",
+          "method": "deterministic",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "materials",
+          "method": "all",
+          "count": 1,
+          "budgetChars": 150000,
+          "perMaterialChars": 150000,
+          "truncated": [],
+          "trace": []
+        },
+        {
+          "stage": "argument_map",
+          "method": "skipped",
+          "count": 0,
+          "trace": [
+            "No selected check requires a generative argument map."
+          ]
+        },
+        {
+          "stage": "persuasion",
+          "method": "off",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "record_targets",
+          "method": "off",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "opponent:record_support",
+          "method": "off",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "authority_research",
+          "method": "source_specific",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "research_queries",
+          "method": "off",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "research",
+          "method": "retrieval",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "opponent",
+          "method": "off",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "opponent:authority_support",
+          "method": "off",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "rule_elements",
+          "method": "llm",
+          "count": 1,
+          "trace": [
+            {
+              "stage": "rule_elements:hud-project-based-24-cfr-247-notice",
+              "method": "llm",
+              "count": 7,
+              "trace": [
+                {
+                  "attempt": 1,
+                  "plan": {
+                    "method": "llm",
+                    "llmAttempt": 1
+                  },
+                  "success": true,
+                  "code": "rule_elements:hud-project-based-24-cfr-247-notice_complete",
+                  "message": "rule_elements:hud-project-based-24-cfr-247-notice produced 7 item(s)."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "stage": "judge",
+          "method": "off",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "judge:rule_elements",
+          "method": "llm",
+          "count": 7,
+          "trace": [
+            {
+              "attempt": 1,
+              "plan": {
+                "method": "llm",
+                "llmAttempt": 1
+              },
+              "success": true,
+              "code": "judge:rule_elements_complete",
+              "message": "judge:rule_elements produced 7 item(s)."
+            }
+          ],
+          "checkId": "rule_elements",
+          "batch": 1,
+          "batches": 1,
+          "candidateIds": [
+            "rule_elements:hud-project-based-24-cfr-247-notice:applicable_timing",
+            "rule_elements:hud-project-based-24-cfr-247-notice:covered_program",
+            "rule_elements:hud-project-based-24-cfr-247-notice:judicial_defense_advisement",
+            "rule_elements:hud-project-based-24-cfr-247-notice:nonpayment_accounting",
+            "rule_elements:hud-project-based-24-cfr-247-notice:specific_reasons",
+            "rule_elements:hud-project-based-24-cfr-247-notice:ten_day_discussion_advisement",
+            "rule_elements:hud-project-based-24-cfr-247-notice:termination_date"
+          ],
+          "unavailable": false
+        },
+        {
+          "stage": "coach",
+          "method": "llm",
+          "count": 2,
+          "trace": [
+            {
+              "attempt": 1,
+              "plan": {
+                "method": "llm",
+                "llmAttempt": 1
+              },
+              "success": true,
+              "code": "coach_complete",
+              "message": "coach produced 2 item(s)."
+            }
+          ]
+        },
+        {
+          "stage": "assessment",
+          "method": "deterministic",
+          "count": 1,
+          "trace": []
+        }
+      ],
+      "research_trace": [],
+      "model_calls": [
+        {
+          "prompt_key": "argument_gym.rule_elements",
+          "role": "base",
+          "model": "gpt-5.6-terra",
+          "settings": {
+            "temperature": 0,
+            "model": "gpt-5.6-terra",
+            "reasoning_level": "medium"
+          },
+          "status": "complete",
+          "elapsed_seconds": 16.074
+        },
+        {
+          "prompt_key": "argument_gym.correctness_judge",
+          "role": "judge",
+          "model": "mistral-large-3",
+          "settings": {
+            "temperature": 0,
+            "model": "mistral-large-3",
+            "reasoning_level": "medium"
+          },
+          "status": "complete",
+          "elapsed_seconds": 5.571
+        },
+        {
+          "prompt_key": "argument_gym.coach",
+          "role": "base",
+          "model": "gpt-5.6-terra",
+          "settings": {
+            "temperature": 0,
+            "model": "gpt-5.6-terra",
+            "reasoning_level": "medium"
+          },
+          "status": "complete",
+          "elapsed_seconds": 6.348
+        }
+      ],
+      "attacks_given_to_judge": 0
+    },
+    {
+      "fixture_id": "R008",
+      "condition": "mutant",
+      "case_family_id": "synthetic-rule-review-r008",
+      "stratum": "synthetic_rule_elements_attorney_review",
+      "run_id": 35,
+      "run_at": "2026-09-14T02:26:57.068060+00:00",
+      "status": "complete",
+      "pipeline_status": "complete",
+      "degraded": null,
+      "error": "",
+      "brief_sha256": "296708f805e76fbdbe2e9a1eff545fa333fdfa39e47552d48449f3be75fc1d2a",
+      "brief_chars": 1502,
+      "record_documents": 1,
+      "attack_model": "gpt-5.6-terra",
+      "judge_model": "mistral-large-3",
+      "base_model": "gpt-5.6-terra",
+      "same_family": false,
+      "reasoning": "medium",
+      "unit_budget_chars": 260000,
+      "units": 9,
+      "court": {
+        "mode": "auto",
+        "reason": "No maintained court profile matched this document's caption or the case record.",
+        "matched": "",
+        "where": "",
+        "courtSlug": ""
+      },
+      "deterministic_findings": {
+        "rule_elements": 3
+      },
+      "checks_run": [
+        {
+          "id": "record_support",
+          "label": "Test material facts against the record",
+          "description": "Opponent tests only atomic, record-verifiable, material claims; Judge sustains a defect only when the supplied evidence and record coverage establish it.",
+          "kind": "model",
+          "category": "correctness",
+          "categoryLabel": "Correctness",
+          "categoryDescription": "Is the law right? Is the authority controlling? Are the required elements present, and does the record establish what the brief says it does?",
+          "defaultEnabled": true,
+          "requires": [
+            "case_record"
+          ],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "rule_elements",
+          "label": "Audit the elements of the rules invoked",
+          "description": "Detects the rules the brief cites or invokes by name, then audits each element of those rules: is it pleaded, and is it supported.",
+          "kind": "model",
+          "category": "correctness",
+          "categoryLabel": "Correctness",
+          "categoryDescription": "Is the law right? Is the authority controlling? Are the required elements present, and does the record establish what the brief says it does?",
+          "defaultEnabled": true,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "on",
+          "reason": ""
+        },
+        {
+          "id": "authority_support",
+          "label": "Test cited authority support",
+          "description": "Whether each cited authority supports the material legal proposition for which the brief uses it.",
+          "kind": "model",
+          "category": "correctness",
+          "categoryLabel": "Correctness",
+          "categoryDescription": "Is the law right? Is the authority controlling? Are the required elements present, and does the record establish what the brief says it does?",
+          "defaultEnabled": true,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "adversarial",
+          "label": "Opposing counsel, a judge, and a coach",
+          "description": "The core of the gym: opposing counsel makes the strongest arguments available against the brief, a judge weighs them, and a coach proposes answers.",
+          "kind": "model",
+          "category": "completeness",
+          "categoryLabel": "Argumentative completeness",
+          "categoryDescription": "Does the brief connect its rules to its facts? Does it work the difficult element instead of restating the rule? Does it confront adverse authority and answer the counterargument a court will think of on its own?",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_issue_framing",
+          "label": "Issue framing",
+          "description": "Does the brief identify the real dispute early and frame it around the favorable legal question?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_macro_organization",
+          "label": "Macro-organization",
+          "description": "Are arguments ordered logically and by importance? Can the reader see the roadmap?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_paragraph_organization",
+          "label": "Paragraph-level organization",
+          "description": "Do paragraphs have discernible propositions or topic sentences, and develop one point at a time?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_rule_synthesis",
+          "label": "Rule synthesis",
+          "description": "Does the writer synthesize authorities into a rule rather than serially summarize cases?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_rule_application",
+          "label": "Rule-to-fact application",
+          "description": "Is the reasoning explicit -- \"because X fact satisfies Y element\" -- rather than leaving the inferential step to the court?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_fact_selection",
+          "label": "Fact selection and narrative coherence",
+          "description": "Are legally significant facts foregrounded and organized in a comprehensible chronology or theory?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_use_of_authority",
+          "label": "Use of authority",
+          "description": "Are important propositions backed by strong authorities placed where they actually matter, rather than citation dumping?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_counterarguments",
+          "label": "Handling counterarguments",
+          "description": "Does the brief acknowledge and answer the strongest objection rather than arguing past it?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_concision",
+          "label": "Concision and reader burden",
+          "description": "Does it say the same thing once, in the right place, without unnecessary throat-clearing?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_calibration",
+          "label": "Calibrated confidence and credibility",
+          "description": "Does it distinguish strong propositions from uncertain ones and avoid overclaiming?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_relief_alignment",
+          "label": "Requested-relief alignment",
+          "description": "Does the argument actually lead to the precise thing the brief asks the court to do?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_emphasis",
+          "label": "Emphasis",
+          "description": "Does the document devote its space to the issues that matter rather than treating every point as equally important?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "custom_checklist",
+          "label": "Custom checklist",
+          "description": "Applies review questions you wrote. An item can look things up -- authority, the case record, passages of the brief -- rather than answering from the brief alone. Attach a checklist for this to run.",
+          "kind": "model",
+          "category": "custom",
+          "categoryLabel": "Your own checks",
+          "categoryDescription": "Review questions you wrote, in your words, applied to this brief.",
+          "defaultEnabled": false,
+          "requires": [
+            "checklist"
+          ],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "court_formatting",
+          "label": "This court's filing rules",
+          "description": "Required elements, type size, spacing, margins, and page limits for the selected court.",
+          "kind": "deterministic",
+          "category": "form",
+          "categoryLabel": "Form of the filing",
+          "categoryDescription": "Whether the paper meets this court's rules and the conventions of practice.",
+          "defaultEnabled": false,
+          "requires": [
+            "court_profile"
+          ],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "pleading_form",
+          "label": "Form of the pleading",
+          "description": "Conventions of practice rather than any one court's rules: numbered paragraphs running in order, a prayer for relief, a signature block, exhibit references that resolve, no placeholder left in the text.",
+          "kind": "deterministic",
+          "category": "form",
+          "categoryLabel": "Form of the filing",
+          "categoryDescription": "Whether the paper meets this court's rules and the conventions of practice.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "draft_validation",
+          "label": "Draft-mode validation",
+          "description": "The same checks Draft mode runs: unresolved template data and placeholders, draft structure, rendered Word consistency, citation linting, source support, and filing-package consistency.",
+          "kind": "deterministic",
+          "category": "form",
+          "categoryLabel": "Form of the filing",
+          "categoryDescription": "Whether the paper meets this court's rules and the conventions of practice.",
+          "defaultEnabled": false,
+          "requires": [
+            "native_draft"
+          ],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "grammar",
+          "label": "Grammar and mechanics",
+          "description": "Doubled words, missing sentence spacing, unbalanced quotes and parentheses.",
+          "kind": "deterministic",
+          "category": "language",
+          "categoryLabel": "Language",
+          "categoryDescription": "Sentence-level mechanics, reported as nudges rather than as defects in the argument.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "confused_words",
+          "label": "Misspelled and easily confused words",
+          "description": "Not a dictionary spell check, on purpose: a general dictionary flags half of every case name. This looks for the words legal writing actually gets wrong, and for real words used in place of other real words.",
+          "kind": "deterministic",
+          "category": "language",
+          "categoryLabel": "Language",
+          "categoryDescription": "Sentence-level mechanics, reported as nudges rather than as defects in the argument.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "passive_voice",
+          "label": "Passive voice",
+          "description": "Reported as a nudge, never an error. Phrases a court expects to read are on an accepted list you can add to for this session.",
+          "kind": "deterministic",
+          "category": "language",
+          "categoryLabel": "Language",
+          "categoryDescription": "Sentence-level mechanics, reported as nudges rather than as defects in the argument.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "acceptedPassivePhrases: phrases this court expects, which the check stays quiet about.",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "readability",
+          "label": "Readability",
+          "description": "Sentence length and reading-level measures, reported as several formulas rather than one score.",
+          "kind": "deterministic",
+          "category": "language",
+          "categoryLabel": "Language",
+          "categoryDescription": "Sentence-level mechanics, reported as nudges rather than as defects in the argument.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        }
+      ],
+      "check_results": {
+        "rule_elements": {
+          "findings": [
+            {
+              "ruleCode": "rule_elements.missing_required_element",
+              "severity": "warning",
+              "message": "The brief identifies the tenancy as project-based Section 8 and invokes 24 C.F.R. \u00a7 247.4, but the supplied notice and exhibits do not establish the federal program coverage.",
+              "target": {
+                "unitId": "u5"
+              },
+              "details": {
+                "checkId": "rule_elements",
+                "issueCode": "missing_required_element",
+                "targetId": "hud-project-based-24-cfr-247-notice:covered_program",
+                "unitId": "u5",
+                "disposition": "review",
+                "claim": "Identify the federal program and regulation governing termination.",
+                "problem": "The brief identifies the tenancy as project-based Section 8 and invokes 24 C.F.R. \u00a7 247.4, but the supplied notice and exhibits do not establish the federal program coverage.",
+                "briefEvidence": [
+                  "u5"
+                ],
+                "externalEvidence": [
+                  "https://www.ecfr.gov/current/title-24/part-247/section-247.4"
+                ],
+                "reason": "The brief identifies the tenancy as project-based Section 8 and invokes 24 C.F.R. \u00a7 247.4, but the supplied notice and exhibits do not explicitly establish the federal program coverage. The evidence does not definitively confirm the program's applicability, though the brief's assertion is plausible.",
+                "confidence": "medium",
+                "userVisible": true
+              }
+            },
+            {
+              "ruleCode": "rule_elements.missing_required_element",
+              "severity": "error",
+              "message": "The complete supplied brief does not allege that the notice advised the tenant of a ten-day opportunity to discuss the termination. The supplied notice excerpt likewise contains no such advisement.",
+              "target": {
+                "unitId": "u5"
+              },
+              "details": {
+                "checkId": "rule_elements",
+                "issueCode": "missing_required_element",
+                "targetId": "hud-project-based-24-cfr-247-notice:ten_day_discussion_advisement",
+                "unitId": "u5",
+                "disposition": "must_fix",
+                "claim": "Quote the discussion-right advisement.",
+                "problem": "The complete supplied brief does not allege that the notice advised the tenant of a ten-day opportunity to discuss the termination. The supplied notice excerpt likewise contains no such advisement.",
+                "briefEvidence": [
+                  "u5"
+                ],
+                "externalEvidence": [
+                  "https://www.ecfr.gov/current/title-24/part-247/section-247.4"
+                ],
+                "reason": "The brief and notice excerpt fail to include the required advisement of the tenant's ten-day opportunity to discuss the termination, as mandated by 24 C.F.R. \u00a7 247.4. Neither the brief nor the supplied evidence (u5) contains this advisement.",
+                "confidence": "high",
+                "userVisible": true
+              }
+            },
+            {
+              "ruleCode": "rule_elements.missing_required_element",
+              "severity": "error",
+              "message": "The brief calculates compliance with a 30-day lease notice provision, but does not identify or apply the applicable federal notice period required by the cited regulation and program. The record supports the service and termination dates and the lease clause, but not a federal timing requirement.",
+              "target": {
+                "unitId": "u5"
+              },
+              "details": {
+                "checkId": "rule_elements",
+                "issueCode": "missing_required_element",
+                "targetId": "hud-project-based-24-cfr-247-notice:applicable_timing",
+                "unitId": "u5",
+                "disposition": "must_fix",
+                "claim": "Apply the period for the identified program and ground using service and termination dates.",
+                "problem": "The brief calculates compliance with a 30-day lease notice provision, but does not identify or apply the applicable federal notice period required by the cited regulation and program. The record supports the service and termination dates and the lease clause, but not a federal timing requirement.",
+                "briefEvidence": [
+                  "u5"
+                ],
+                "externalEvidence": [
+                  "https://www.ecfr.gov/current/title-24/part-247/section-247.4"
+                ],
+                "reason": "The brief relies on a 30-day lease notice provision but fails to identify or apply the federal notice period required by 24 C.F.R. \u00a7 247.4 for project-based Section 8 tenancies. The evidence (u5) does not establish compliance with the federal timing requirement.",
+                "confidence": "high",
+                "userVisible": true
+              }
+            }
+          ],
+          "tests": [
+            {
+              "checkId": "rule_elements",
+              "issueCode": "missing_required_element",
+              "targetId": "hud-project-based-24-cfr-247-notice:covered_program",
+              "unitId": "u5",
+              "disposition": "review",
+              "claim": "Identify the federal program and regulation governing termination.",
+              "problem": "The brief identifies the tenancy as project-based Section 8 and invokes 24 C.F.R. \u00a7 247.4, but the supplied notice and exhibits do not establish the federal program coverage.",
+              "briefEvidence": [
+                "u5"
+              ],
+              "externalEvidence": [
+                "https://www.ecfr.gov/current/title-24/part-247/section-247.4"
+              ],
+              "reason": "The brief identifies the tenancy as project-based Section 8 and invokes 24 C.F.R. \u00a7 247.4, but the supplied notice and exhibits do not explicitly establish the federal program coverage. The evidence does not definitively confirm the program's applicability, though the brief's assertion is plausible.",
+              "confidence": "medium",
+              "userVisible": true
+            },
+            {
+              "checkId": "rule_elements",
+              "issueCode": "required_element_carried",
+              "targetId": "hud-project-based-24-cfr-247-notice:termination_date",
+              "unitId": "u5",
+              "disposition": "pass",
+              "claim": "Quote the date stated in the notice.",
+              "problem": "The brief states that the notice gave a March 17, 2023 termination date, and the notice excerpt expressly states that date.",
+              "briefEvidence": [
+                "u5"
+              ],
+              "externalEvidence": [
+                "https://www.ecfr.gov/current/title-24/part-247/section-247.4"
+              ],
+              "reason": "The brief explicitly states the termination date (March 17, 2023) as provided in the notice excerpt, and the record material (upload:37) corroborates this.",
+              "confidence": "high",
+              "userVisible": true
+            },
+            {
+              "checkId": "rule_elements",
+              "issueCode": "required_element_carried",
+              "targetId": "hud-project-based-24-cfr-247-notice:specific_reasons",
+              "unitId": "u5",
+              "disposition": "pass",
+              "claim": "Identify concrete conduct dates persons or a nonpayment accounting rather than only lease language.",
+              "problem": "The brief identifies nonpayment and provides a specific arrearage amount, covered period, and computation date. The notice excerpt contains the same factual accounting.",
+              "briefEvidence": [
+                "u5"
+              ],
+              "externalEvidence": [
+                "https://www.ecfr.gov/current/title-24/part-247/section-247.4"
+              ],
+              "reason": "The brief provides specific details of the nonpayment (arrearage amount, covered period, and computation date), which are explicitly stated in the notice excerpt and record material (upload:37).",
+              "confidence": "high",
+              "userVisible": true
+            },
+            {
+              "checkId": "rule_elements",
+              "issueCode": "missing_required_element",
+              "targetId": "hud-project-based-24-cfr-247-notice:ten_day_discussion_advisement",
+              "unitId": "u5",
+              "disposition": "must_fix",
+              "claim": "Quote the discussion-right advisement.",
+              "problem": "The complete supplied brief does not allege that the notice advised the tenant of a ten-day opportunity to discuss the termination. The supplied notice excerpt likewise contains no such advisement.",
+              "briefEvidence": [
+                "u5"
+              ],
+              "externalEvidence": [
+                "https://www.ecfr.gov/current/title-24/part-247/section-247.4"
+              ],
+              "reason": "The brief and notice excerpt fail to include the required advisement of the tenant's ten-day opportunity to discuss the termination, as mandated by 24 C.F.R. \u00a7 247.4. Neither the brief nor the supplied evidence (u5) contains this advisement.",
+              "confidence": "high",
+              "userVisible": true
+            },
+            {
+              "checkId": "rule_elements",
+              "issueCode": "required_element_carried",
+              "targetId": "hud-project-based-24-cfr-247-notice:judicial_defense_advisement",
+              "unitId": "u5",
+              "disposition": "pass",
+              "claim": "Quote the judicial-action and defense advisement.",
+              "problem": "The brief alleges that the notice advised the tenant of the right to defend in a judicial eviction action, and the notice excerpt expressly contains that advisement.",
+              "briefEvidence": [
+                "u5"
+              ],
+              "externalEvidence": [
+                "https://www.ecfr.gov/current/title-24/part-247/section-247.4"
+              ],
+              "reason": "The brief alleges the notice advised the tenant of the right to defend in a judicial eviction action, and the notice excerpt (upload:37) expressly contains this advisement.",
+              "confidence": "high",
+              "userVisible": true
+            },
+            {
+              "checkId": "rule_elements",
+              "issueCode": "required_element_carried",
+              "targetId": "hud-project-based-24-cfr-247-notice:nonpayment_accounting",
+              "unitId": "u5",
+              "disposition": "pass",
+              "claim": "Identify the arrearage amount covered period and effective computation date.",
+              "problem": "Because the stated ground is nonpayment, the accounting requirement applies. The brief supplies the amount, covered period, and computation date, all of which appear in the notice excerpt.",
+              "briefEvidence": [
+                "u5"
+              ],
+              "externalEvidence": [
+                "https://www.ecfr.gov/current/title-24/part-247/section-247.4"
+              ],
+              "reason": "The brief provides the required nonpayment accounting (arrearage amount, covered period, and computation date), which is corroborated by the notice excerpt (upload:37).",
+              "confidence": "high",
+              "userVisible": true
+            },
+            {
+              "checkId": "rule_elements",
+              "issueCode": "missing_required_element",
+              "targetId": "hud-project-based-24-cfr-247-notice:applicable_timing",
+              "unitId": "u5",
+              "disposition": "must_fix",
+              "claim": "Apply the period for the identified program and ground using service and termination dates.",
+              "problem": "The brief calculates compliance with a 30-day lease notice provision, but does not identify or apply the applicable federal notice period required by the cited regulation and program. The record supports the service and termination dates and the lease clause, but not a federal timing requirement.",
+              "briefEvidence": [
+                "u5"
+              ],
+              "externalEvidence": [
+                "https://www.ecfr.gov/current/title-24/part-247/section-247.4"
+              ],
+              "reason": "The brief relies on a 30-day lease notice provision but fails to identify or apply the federal notice period required by 24 C.F.R. \u00a7 247.4 for project-based Section 8 tenancies. The evidence (u5) does not establish compliance with the federal timing requirement.",
+              "confidence": "high",
+              "userVisible": true
+            }
+          ],
+          "summary": "2 must fix, 1 review, 4 passed"
+        }
+      },
+      "correctness_tests": [
+        {
+          "checkId": "rule_elements",
+          "issueCode": "missing_required_element",
+          "targetId": "hud-project-based-24-cfr-247-notice:covered_program",
+          "unitId": "u5",
+          "disposition": "review",
+          "claim": "Identify the federal program and regulation governing termination.",
+          "problem": "The brief identifies the tenancy as project-based Section 8 and invokes 24 C.F.R. \u00a7 247.4, but the supplied notice and exhibits do not establish the federal program coverage.",
+          "briefEvidence": [
+            "u5"
+          ],
+          "externalEvidence": [
+            "https://www.ecfr.gov/current/title-24/part-247/section-247.4"
+          ],
+          "reason": "The brief identifies the tenancy as project-based Section 8 and invokes 24 C.F.R. \u00a7 247.4, but the supplied notice and exhibits do not explicitly establish the federal program coverage. The evidence does not definitively confirm the program's applicability, though the brief's assertion is plausible.",
+          "confidence": "medium",
+          "userVisible": true
+        },
+        {
+          "checkId": "rule_elements",
+          "issueCode": "required_element_carried",
+          "targetId": "hud-project-based-24-cfr-247-notice:termination_date",
+          "unitId": "u5",
+          "disposition": "pass",
+          "claim": "Quote the date stated in the notice.",
+          "problem": "The brief states that the notice gave a March 17, 2023 termination date, and the notice excerpt expressly states that date.",
+          "briefEvidence": [
+            "u5"
+          ],
+          "externalEvidence": [
+            "https://www.ecfr.gov/current/title-24/part-247/section-247.4"
+          ],
+          "reason": "The brief explicitly states the termination date (March 17, 2023) as provided in the notice excerpt, and the record material (upload:37) corroborates this.",
+          "confidence": "high",
+          "userVisible": true
+        },
+        {
+          "checkId": "rule_elements",
+          "issueCode": "required_element_carried",
+          "targetId": "hud-project-based-24-cfr-247-notice:specific_reasons",
+          "unitId": "u5",
+          "disposition": "pass",
+          "claim": "Identify concrete conduct dates persons or a nonpayment accounting rather than only lease language.",
+          "problem": "The brief identifies nonpayment and provides a specific arrearage amount, covered period, and computation date. The notice excerpt contains the same factual accounting.",
+          "briefEvidence": [
+            "u5"
+          ],
+          "externalEvidence": [
+            "https://www.ecfr.gov/current/title-24/part-247/section-247.4"
+          ],
+          "reason": "The brief provides specific details of the nonpayment (arrearage amount, covered period, and computation date), which are explicitly stated in the notice excerpt and record material (upload:37).",
+          "confidence": "high",
+          "userVisible": true
+        },
+        {
+          "checkId": "rule_elements",
+          "issueCode": "missing_required_element",
+          "targetId": "hud-project-based-24-cfr-247-notice:ten_day_discussion_advisement",
+          "unitId": "u5",
+          "disposition": "must_fix",
+          "claim": "Quote the discussion-right advisement.",
+          "problem": "The complete supplied brief does not allege that the notice advised the tenant of a ten-day opportunity to discuss the termination. The supplied notice excerpt likewise contains no such advisement.",
+          "briefEvidence": [
+            "u5"
+          ],
+          "externalEvidence": [
+            "https://www.ecfr.gov/current/title-24/part-247/section-247.4"
+          ],
+          "reason": "The brief and notice excerpt fail to include the required advisement of the tenant's ten-day opportunity to discuss the termination, as mandated by 24 C.F.R. \u00a7 247.4. Neither the brief nor the supplied evidence (u5) contains this advisement.",
+          "confidence": "high",
+          "userVisible": true
+        },
+        {
+          "checkId": "rule_elements",
+          "issueCode": "required_element_carried",
+          "targetId": "hud-project-based-24-cfr-247-notice:judicial_defense_advisement",
+          "unitId": "u5",
+          "disposition": "pass",
+          "claim": "Quote the judicial-action and defense advisement.",
+          "problem": "The brief alleges that the notice advised the tenant of the right to defend in a judicial eviction action, and the notice excerpt expressly contains that advisement.",
+          "briefEvidence": [
+            "u5"
+          ],
+          "externalEvidence": [
+            "https://www.ecfr.gov/current/title-24/part-247/section-247.4"
+          ],
+          "reason": "The brief alleges the notice advised the tenant of the right to defend in a judicial eviction action, and the notice excerpt (upload:37) expressly contains this advisement.",
+          "confidence": "high",
+          "userVisible": true
+        },
+        {
+          "checkId": "rule_elements",
+          "issueCode": "required_element_carried",
+          "targetId": "hud-project-based-24-cfr-247-notice:nonpayment_accounting",
+          "unitId": "u5",
+          "disposition": "pass",
+          "claim": "Identify the arrearage amount covered period and effective computation date.",
+          "problem": "Because the stated ground is nonpayment, the accounting requirement applies. The brief supplies the amount, covered period, and computation date, all of which appear in the notice excerpt.",
+          "briefEvidence": [
+            "u5"
+          ],
+          "externalEvidence": [
+            "https://www.ecfr.gov/current/title-24/part-247/section-247.4"
+          ],
+          "reason": "The brief provides the required nonpayment accounting (arrearage amount, covered period, and computation date), which is corroborated by the notice excerpt (upload:37).",
+          "confidence": "high",
+          "userVisible": true
+        },
+        {
+          "checkId": "rule_elements",
+          "issueCode": "missing_required_element",
+          "targetId": "hud-project-based-24-cfr-247-notice:applicable_timing",
+          "unitId": "u5",
+          "disposition": "must_fix",
+          "claim": "Apply the period for the identified program and ground using service and termination dates.",
+          "problem": "The brief calculates compliance with a 30-day lease notice provision, but does not identify or apply the applicable federal notice period required by the cited regulation and program. The record supports the service and termination dates and the lease clause, but not a federal timing requirement.",
+          "briefEvidence": [
+            "u5"
+          ],
+          "externalEvidence": [
+            "https://www.ecfr.gov/current/title-24/part-247/section-247.4"
+          ],
+          "reason": "The brief relies on a 30-day lease notice provision but fails to identify or apply the federal notice period required by 24 C.F.R. \u00a7 247.4 for project-based Section 8 tenancies. The evidence (u5) does not establish compliance with the federal timing requirement.",
+          "confidence": "high",
+          "userVisible": true
+        }
+      ],
+      "rule_audit": [
+        {
+          "slug": "hud-project-based-24-cfr-247-notice",
+          "name": "Project-based HUD termination notice",
+          "citation": "24 C.F.R. \u00a7 247.4",
+          "label": "Project-based HUD termination notice (24 C.F.R. \u00a7 247.4)",
+          "summary": "A covered project-based tenancy termination notice must state the termination date, sufficiently specific reasons, the ten-day discussion right, and the right to defend in a judicial eviction; nonpayment notices have added accounting content.",
+          "verification": "verified",
+          "source": "24 C.F.R. \u00a7 247.4; HUD Handbook 4350.3 REV-1 \u00b6 8-13.B; Iskin (6th ed. 2022), \u00a7\u00a7 III.C-D",
+          "sourceUrl": "https://www.ecfr.gov/current/title-24/part-247/section-247.4",
+          "invokedBy": "citation",
+          "matched": "24 C.F.R. \u00a7 247.4",
+          "excerpt": "e lease clause governing nonpayment terminations requires a 30-day notice period (Exhibit A). The notice was served on February 10, 2023 (Exhibit B). Argument The termination notice must comply with 24 C.F.R. \u00a7 247.4. The notice correctly identified the covered program as project-based Section 8 and stated the termination date as March 17, 2023. It provided specific reasons for termination, namely nonpayment of rent with detailed accounting. The notice also advised the tenant of the right to d",
+          "audited": true,
+          "briefCoverage": {
+            "reviewedChars": 1502,
+            "totalChars": 1502,
+            "truncated": false
+          },
+          "requiresApplicabilityReview": false,
+          "elements": [
+            {
+              "id": "covered_program",
+              "label": "Tenancy is covered by the cited project-based rule",
+              "requirement": "Identify the federal program and regulation governing termination.",
+              "severity": "error",
+              "needsRecordSupport": true,
+              "requiredWhen": "",
+              "patterns": [
+                "project[- ]based",
+                "Section 8",
+                "subsidized housing"
+              ],
+              "note": "",
+              "origin": "profile",
+              "pled": "yes",
+              "applicability": "applicable",
+              "supported": "no",
+              "explanation": "The brief identifies the tenancy as project-based Section 8 and invokes 24 C.F.R. \u00a7 247.4, but the supplied notice and exhibits do not establish the federal program coverage.",
+              "quote": "The defendant tenant entered a project-based Section 8 tenancy with the plaintiff project owner.",
+              "materialIds": [],
+              "unmet": true
+            },
+            {
+              "id": "termination_date",
+              "label": "Notice states the termination date",
+              "requirement": "Quote the date stated in the notice.",
+              "severity": "error",
+              "needsRecordSupport": true,
+              "requiredWhen": "",
+              "patterns": [
+                "terminat.{0,30}(date|effective)"
+              ],
+              "note": "",
+              "origin": "profile",
+              "pled": "yes",
+              "applicability": "applicable",
+              "supported": "yes",
+              "explanation": "The brief states that the notice gave a March 17, 2023 termination date, and the notice excerpt expressly states that date.",
+              "quote": "The owner served a termination notice dated February 10, 2023, with a termination date of March 17, 2023.",
+              "materialIds": [
+                "upload:37"
+              ],
+              "unmet": false
+            },
+            {
+              "id": "specific_reasons",
+              "label": "Notice states sufficiently specific factual reasons",
+              "requirement": "Identify concrete conduct dates persons or a nonpayment accounting rather than only lease language.",
+              "severity": "error",
+              "needsRecordSupport": true,
+              "requiredWhen": "",
+              "patterns": [
+                "specific.{0,30}(reason|ground|incident)"
+              ],
+              "note": "",
+              "origin": "profile",
+              "pled": "yes",
+              "applicability": "applicable",
+              "supported": "yes",
+              "explanation": "The brief identifies nonpayment and provides a specific arrearage amount, covered period, and computation date. The notice excerpt contains the same factual accounting.",
+              "quote": "The notice stated that the reason for termination was nonpayment of rent, specifying an arrearage of $1,200 covering January 1, 2023, through February 28, 2023, with an effective computation date of February 28, 2023.",
+              "materialIds": [
+                "upload:37"
+              ],
+              "unmet": false
+            },
+            {
+              "id": "ten_day_discussion_advisement",
+              "label": "Notice advises of ten-day opportunity to discuss termination",
+              "requirement": "Quote the discussion-right advisement.",
+              "severity": "error",
+              "needsRecordSupport": true,
+              "requiredWhen": "",
+              "patterns": [
+                "ten days.{0,60}discuss",
+                "10 days.{0,60}discuss"
+              ],
+              "note": "",
+              "origin": "profile",
+              "pled": "no",
+              "applicability": "applicable",
+              "supported": "no",
+              "explanation": "The complete supplied brief does not allege that the notice advised the tenant of a ten-day opportunity to discuss the termination. The supplied notice excerpt likewise contains no such advisement.",
+              "quote": "",
+              "materialIds": [],
+              "unmet": true
+            },
+            {
+              "id": "judicial_defense_advisement",
+              "label": "Notice advises that enforcement is judicial and tenant may defend",
+              "requirement": "Quote the judicial-action and defense advisement.",
+              "severity": "error",
+              "needsRecordSupport": true,
+              "requiredWhen": "",
+              "patterns": [
+                "judicial.{0,60}defen",
+                "court.{0,60}defen"
+              ],
+              "note": "",
+              "origin": "profile",
+              "pled": "yes",
+              "applicability": "applicable",
+              "supported": "yes",
+              "explanation": "The brief alleges that the notice advised the tenant of the right to defend in a judicial eviction action, and the notice excerpt expressly contains that advisement.",
+              "quote": "The notice advised the tenant of the right to defend in a judicial eviction action.",
+              "materialIds": [
+                "upload:37"
+              ],
+              "unmet": false
+            },
+            {
+              "id": "nonpayment_accounting",
+              "label": "Nonpayment notice states amount due and computation date",
+              "requirement": "Identify the arrearage amount covered period and effective computation date.",
+              "severity": "error",
+              "needsRecordSupport": true,
+              "requiredWhen": "Only when termination is for nonpayment of rent.",
+              "patterns": [
+                "amount.{0,30}due",
+                "past due rent"
+              ],
+              "note": "",
+              "origin": "profile",
+              "pled": "yes",
+              "applicability": "applicable",
+              "supported": "yes",
+              "explanation": "Because the stated ground is nonpayment, the accounting requirement applies. The brief supplies the amount, covered period, and computation date, all of which appear in the notice excerpt.",
+              "quote": "The notice stated that the reason for termination was nonpayment of rent, specifying an arrearage of $1,200 covering January 1, 2023, through February 28, 2023, with an effective computation date of February 28, 2023.",
+              "materialIds": [
+                "upload:37"
+              ],
+              "unmet": false
+            },
+            {
+              "id": "applicable_timing",
+              "label": "Applicable federal notice period elapsed",
+              "requirement": "Apply the period for the identified program and ground using service and termination dates.",
+              "severity": "error",
+              "needsRecordSupport": true,
+              "requiredWhen": "",
+              "patterns": [
+                "(ten|10|thirty|30) days",
+                "notice period"
+              ],
+              "note": "",
+              "origin": "profile",
+              "pled": "no",
+              "applicability": "applicable",
+              "supported": "no",
+              "explanation": "The brief calculates compliance with a 30-day lease notice provision, but does not identify or apply the applicable federal notice period required by the cited regulation and program. The record supports the service and termination dates and the lease clause, but not a federal timing requirement.",
+              "quote": "",
+              "materialIds": [],
+              "unmet": true
+            }
+          ],
+          "unmetCount": 3,
+          "verdict": "3 of 7 elements need review; unavailable evidence or unrecognized wording does not establish a defect."
+        }
+      ],
+      "compliance": {
+        "checked": false,
+        "reason": "You turned this check off for this session.",
+        "findings": [],
+        "detection": {
+          "mode": "auto",
+          "reason": "No maintained court profile matched this document's caption or the case record.",
+          "matched": "",
+          "where": "",
+          "courtSlug": ""
+        }
+      },
+      "challenges": [
+        {
+          "ordinal": 1,
+          "category": "missing_element",
+          "severity": "medium",
+          "confidence": "medium",
+          "opponent_argument": "The brief identifies the tenancy as project-based Section 8 and invokes 24 C.F.R. \u00a7 247.4, but the supplied notice and exhibits do not establish the federal program coverage.",
+          "why_it_matters": "The brief identifies the tenancy as project-based Section 8 and invokes 24 C.F.R. \u00a7 247.4, but the supplied notice and exhibits do not explicitly establish the federal program coverage. The evidence does not definitively confirm the program's applicability, though the brief's assertion is plausible.",
+          "target": {
+            "unitId": "u5",
+            "section": "MEMORANDUM",
+            "paragraph": 4,
+            "page": null,
+            "excerpt": "Argument\nThe termination notice must comply with 24 C.F.R. \u00a7 247.4.",
+            "blockKey": ""
+          },
+          "legal_sources": [],
+          "record_sources": [],
+          "judge_assessment": "The brief identifies the tenancy as project-based Section 8 and invokes 24 C.F.R. \u00a7 247.4, but the supplied notice and exhibits do not explicitly establish the federal program coverage. The evidence does not definitively confirm the program's applicability, though the brief's assertion is plausible.",
+          "judge_verdict": "reserved",
+          "suggested_response": "The present record does not establish that this tenancy is subject to 24 C.F.R. \u00a7 247.4.",
+          "coaching_recommendation": "Do not assert that 24 C.F.R. \u00a7 247.4 governs unless the record identifies the tenancy or property as covered by the relevant HUD program. Add record support for coverage, or delete the regulation-specific contention.",
+          "disposition": "open"
+        },
+        {
+          "ordinal": 2,
+          "category": "missing_element",
+          "severity": "high",
+          "confidence": "high",
+          "opponent_argument": "The complete supplied brief does not allege that the notice advised the tenant of a ten-day opportunity to discuss the termination. The supplied notice excerpt likewise contains no such advisement.",
+          "why_it_matters": "The brief and notice excerpt fail to include the required advisement of the tenant's ten-day opportunity to discuss the termination, as mandated by 24 C.F.R. \u00a7 247.4. Neither the brief nor the supplied evidence (u5) contains this advisement.",
+          "target": {
+            "unitId": "u5",
+            "section": "MEMORANDUM",
+            "paragraph": 4,
+            "page": null,
+            "excerpt": "Argument\nThe termination notice must comply with 24 C.F.R. \u00a7 247.4.",
+            "blockKey": ""
+          },
+          "legal_sources": [],
+          "record_sources": [],
+          "judge_assessment": "The brief and notice excerpt fail to include the required advisement of the tenant's ten-day opportunity to discuss the termination, as mandated by 24 C.F.R. \u00a7 247.4. Neither the brief nor the supplied evidence (u5) contains this advisement.",
+          "judge_verdict": "sustained",
+          "suggested_response": "The present record excerpt does not establish whether the termination notice advised Tenant of any opportunity to discuss the proposed termination.",
+          "coaching_recommendation": "A contention that the notice omitted the discussion-right advisement requires both a basis for \u00a7 247.4's applicability and the complete notice or other record evidence showing the omission. The supplied material does not provide either.",
+          "disposition": "open"
+        },
+        {
+          "ordinal": 3,
+          "category": "missing_element",
+          "severity": "high",
+          "confidence": "high",
+          "opponent_argument": "The brief calculates compliance with a 30-day lease notice provision, but does not identify or apply the applicable federal notice period required by the cited regulation and program. The record supports the service and termination dates and the lease clause, but not a federal timing requirement.",
+          "why_it_matters": "The brief relies on a 30-day lease notice provision but fails to identify or apply the federal notice period required by 24 C.F.R. \u00a7 247.4 for project-based Section 8 tenancies. The evidence (u5) does not establish compliance with the federal timing requirement.",
+          "target": {
+            "unitId": "u5",
+            "section": "MEMORANDUM",
+            "paragraph": 4,
+            "page": null,
+            "excerpt": "Argument\nThe termination notice must comply with 24 C.F.R. \u00a7 247.4.",
+            "blockKey": ""
+          },
+          "legal_sources": [],
+          "record_sources": [],
+          "judge_assessment": "The brief relies on a 30-day lease notice provision but fails to identify or apply the federal notice period required by 24 C.F.R. \u00a7 247.4 for project-based Section 8 tenancies. The evidence (u5) does not establish compliance with the federal timing requirement.",
+          "judge_verdict": "sustained",
+          "suggested_response": "The present record does not establish the federal notice period, if any, applicable to this tenancy and asserted termination ground.",
+          "coaching_recommendation": "Do not measure notice solely against a lease provision while invoking \u00a7 247.4. The brief needs authority establishing the federal period applicable to the identified program and termination ground, plus record-supported service and effective-termination dates.",
+          "disposition": "open"
+        }
+      ],
+      "challenge_count": 3,
+      "opponent_calls": [],
+      "judge_calls": [],
+      "verdict": "correctness review completed",
+      "assessment": "Correctness review completed. 2 must-fix findings; 1 item need attorney review. Rule elements: 2 failure, 1 review",
+      "stage_trace": [
+        {
+          "stage": "document_checks",
+          "method": "deterministic",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "materials",
+          "method": "all",
+          "count": 1,
+          "budgetChars": 150000,
+          "perMaterialChars": 150000,
+          "truncated": [],
+          "trace": []
+        },
+        {
+          "stage": "argument_map",
+          "method": "skipped",
+          "count": 0,
+          "trace": [
+            "No selected check requires a generative argument map."
+          ]
+        },
+        {
+          "stage": "persuasion",
+          "method": "off",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "record_targets",
+          "method": "off",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "opponent:record_support",
+          "method": "off",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "authority_research",
+          "method": "source_specific",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "research_queries",
+          "method": "off",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "research",
+          "method": "retrieval",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "opponent",
+          "method": "off",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "opponent:authority_support",
+          "method": "off",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "rule_elements",
+          "method": "llm",
+          "count": 1,
+          "trace": [
+            {
+              "stage": "rule_elements:hud-project-based-24-cfr-247-notice",
+              "method": "llm",
+              "count": 7,
+              "trace": [
+                {
+                  "attempt": 1,
+                  "plan": {
+                    "method": "llm",
+                    "llmAttempt": 1
+                  },
+                  "success": true,
+                  "code": "rule_elements:hud-project-based-24-cfr-247-notice_complete",
+                  "message": "rule_elements:hud-project-based-24-cfr-247-notice produced 7 item(s)."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "stage": "judge",
+          "method": "off",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "judge:rule_elements",
+          "method": "llm",
+          "count": 7,
+          "trace": [
+            {
+              "attempt": 1,
+              "plan": {
+                "method": "llm",
+                "llmAttempt": 1
+              },
+              "success": true,
+              "code": "judge:rule_elements_complete",
+              "message": "judge:rule_elements produced 7 item(s)."
+            }
+          ],
+          "checkId": "rule_elements",
+          "batch": 1,
+          "batches": 1,
+          "candidateIds": [
+            "rule_elements:hud-project-based-24-cfr-247-notice:applicable_timing",
+            "rule_elements:hud-project-based-24-cfr-247-notice:covered_program",
+            "rule_elements:hud-project-based-24-cfr-247-notice:judicial_defense_advisement",
+            "rule_elements:hud-project-based-24-cfr-247-notice:nonpayment_accounting",
+            "rule_elements:hud-project-based-24-cfr-247-notice:specific_reasons",
+            "rule_elements:hud-project-based-24-cfr-247-notice:ten_day_discussion_advisement",
+            "rule_elements:hud-project-based-24-cfr-247-notice:termination_date"
+          ],
+          "unavailable": false
+        },
+        {
+          "stage": "coach",
+          "method": "llm",
+          "count": 3,
+          "trace": [
+            {
+              "attempt": 1,
+              "plan": {
+                "method": "llm",
+                "llmAttempt": 1
+              },
+              "success": true,
+              "code": "coach_complete",
+              "message": "coach produced 3 item(s)."
+            }
+          ]
+        },
+        {
+          "stage": "assessment",
+          "method": "deterministic",
+          "count": 1,
+          "trace": []
+        }
+      ],
+      "research_trace": [],
+      "model_calls": [
+        {
+          "prompt_key": "argument_gym.rule_elements",
+          "role": "base",
+          "model": "gpt-5.6-terra",
+          "settings": {
+            "temperature": 0,
+            "model": "gpt-5.6-terra",
+            "reasoning_level": "medium"
+          },
+          "status": "complete",
+          "elapsed_seconds": 11.68
+        },
+        {
+          "prompt_key": "argument_gym.correctness_judge",
+          "role": "judge",
+          "model": "mistral-large-3",
+          "settings": {
+            "temperature": 0,
+            "model": "mistral-large-3",
+            "reasoning_level": "medium"
+          },
+          "status": "complete",
+          "elapsed_seconds": 6.597
+        },
+        {
+          "prompt_key": "argument_gym.coach",
+          "role": "base",
+          "model": "gpt-5.6-terra",
+          "settings": {
+            "temperature": 0,
+            "model": "gpt-5.6-terra",
+            "reasoning_level": "medium"
+          },
+          "status": "complete",
+          "elapsed_seconds": 9.988
+        }
+      ],
+      "attacks_given_to_judge": 0
+    }
+  ],
+  "public_export": {
+    "removed_fields": [
+      "retrieval"
+    ],
+    "why": "verbatim excerpts of third-party legal corpora retrieved by the research stage; not ours to redistribute and not evidence for any reported figure",
+    "full_record": "report.json, kept locally alongside this file"
+  }
+}

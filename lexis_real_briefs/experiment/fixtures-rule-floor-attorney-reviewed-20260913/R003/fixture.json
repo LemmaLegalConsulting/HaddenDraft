@@ -1,0 +1,72 @@
+{
+  "fixture_id": "R003",
+  "case_family_id": "synthetic-rule-review-r003",
+  "stratum": "synthetic_rule_elements_attorney_review",
+  "document": {
+    "title": "Memorandum in Support of Possession",
+    "court": "Fictional Ohio trial court",
+    "jurisdiction": "Ohio",
+    "pleading_type": "trial_brief",
+    "side": "",
+    "filed": "2026-09-13"
+  },
+  "files": {
+    "source": null,
+    "source_scan": null,
+    "control": "normalized/brief.txt",
+    "mutant": "mutant/brief.txt",
+    "attachments": [
+      "attachments/record-01.txt"
+    ],
+    "attachment_notes": [
+      "Identical fictional record supplied to both arms."
+    ]
+  },
+  "mutation": {
+    "type": "rule_element_omission",
+    "subtype": "condition_not_remedied",
+    "operation": "delete",
+    "section": "Argument",
+    "description": "Deleted the only proposed paragraph applying condition_not_remedied.",
+    "gold_vulnerability": "PROPOSED: the mutant invokes R.C. 5321.11 but omits application of condition_not_remedied.",
+    "expected_direction": "mutant_worse",
+    "materiality": "proposed_high_unverified",
+    "target_location": {
+      "section": "Argument",
+      "control_excerpt": "The defendant failed to remedy the specified obstruction within the statutory period, as evidenced by the post-deadline inspection on March 15, 2023, which confirmed the continued presence of the obstruction.",
+      "mutant_excerpt": ""
+    },
+    "characters_changed": 210,
+    "control_chars": 858,
+    "mutant_chars": 648,
+    "fraction_of_brief_changed": 0.244755,
+    "expected_check_id": "rule_elements",
+    "expected_target_id": "rc-5321-11-notice-to-cure:condition_not_remedied",
+    "expected_disposition": "must_fix"
+  },
+  "gold": {
+    "control_has_target_defect": false,
+    "mutant_has_target_defect": true,
+    "expected_direction": "mutant_worse",
+    "materiality": "proposed_high_unverified",
+    "verified_by": [],
+    "verification_status": "proposed_unverified",
+    "verification_note": "Llama-authored proposal; do not run or score until attorney review is complete."
+  },
+  "provenance": {
+    "control_sha256": "2a8672e497d216fee5763595258d7b365133b98f7e16b987abded18a1ff8be5c",
+    "mutant_sha256": "e234dab00dfcfbfd8be877132148e342fd908a466a8db197835ff801993c393e",
+    "attachment_sha256": {
+      "record-01.txt": "30a73c0014f47d583eabfef24e159bce719922a980ca56e484d6d63f3e76b5ff"
+    },
+    "mutation_version": "exact-paragraph-deletion-1.0",
+    "generator": {
+      "provider": "Azure AI Services",
+      "deployment": "llama-4-maverick",
+      "family": "Meta Llama",
+      "generated_at": "2026-09-14T01:36:21.240996+00:00",
+      "attempts": 1,
+      "researcher_edits": "None; whitespace normalization and deletion only."
+    }
+  }
+}

@@ -1,0 +1,54 @@
+{
+  "fixture_id": "H008",
+  "case_family_id": "jackson-v-carlton-townhouse-condo-assoc",
+  "stratum": "heldout_housing_property_authority",
+  "document": {
+    "title": "Jackson v. Carlton Townhouse Condominium Association",
+    "court": "",
+    "jurisdiction": "Ohio",
+    "pleading_type": "brief",
+    "side": "",
+    "filed": ""
+  },
+  "files": {
+    "source": "normalized/brief.txt",
+    "source_scan": null,
+    "control": "normalized/brief.txt",
+    "mutant": "mutant/brief.txt",
+    "attachments": [],
+    "attachment_notes": []
+  },
+  "mutation": {
+    "type": "holding_overstatement",
+    "subtype": "attorney_verified_authority_support",
+    "operation": "replace",
+    "target_location": {
+      "control_excerpt": "the state statute applicable to personal injury actions",
+      "mutant_excerpt": "the state statute applicable to written contract actions"
+    },
+    "gold_vulnerability": "authority_support should reject the altered proposition attributed to Wilson v. Garcia, 471 U.S. 261 (1985).",
+    "expected_direction": "mutant_worse",
+    "materiality": "high",
+    "edit_regions": 1
+  },
+  "gold": {
+    "check_id": "authority_support",
+    "preview_target_id": "u99:authority2",
+    "control_has_target_defect": false,
+    "mutant_has_target_defect": true,
+    "expected_control_disposition": "pass",
+    "expected_mutant_disposition": "must_fix",
+    "verification_status": "attorney_verified",
+    "verified_by": [
+      "researcher (manual source review)"
+    ]
+  },
+  "provenance": {
+    "source_sha256": "833b0901dcfccf9a004b505711e09228862173efaf228c2e181b4d649992a2b8",
+    "control_sha256": "ade8e91be9e9b1960dcf684dd5169cda2aadc835132b9103882be6baf8411bd6",
+    "mutant_sha256": "c85ef9dfd614c055c3d9cc602f09895596ef4b7c47246ee690631f88f2faa149",
+    "attachment_sha256": {},
+    "normalization_version": "1.0",
+    "mutation_version": "heldout-authority-1.0"
+  }
+}
