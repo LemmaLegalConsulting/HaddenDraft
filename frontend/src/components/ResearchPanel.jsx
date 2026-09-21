@@ -26,6 +26,7 @@ import { caseCount, jurisdictionFacets, narrowResults, selectionAfterNarrowing }
 import LegalServerSaveToggle from "./LegalServerSaveToggle.jsx";
 import { saveDefault } from "./legalServerSave.js";
 import { LibraryBrowser } from "./LibraryBrowser.jsx";
+import { ResearchSearch } from "./ResearchSearch.jsx";
 import { CaseFacetBrowser, CitationPreviewModal, MarkdownResponse, SourceBrowserModal, SourceFullViewButton } from "./MarkdownResponse.jsx";
 import { PanelHeading } from "./PanelHeading.jsx";
 
@@ -118,9 +119,12 @@ export function ResearchPanel({ matter, sources, onResults, legalserverSave = nu
   const [error, setError] = useState("");
   const [previewCitation, setPreviewCitation] = useState(null);
   const [caseSourceCitation, setCaseSourceCitation] = useState(null);
-  // Asking and browsing are different jobs: one starts from a question, the
-  // other from the shelf. They share the source viewer, not the panel.
-  const [view, setView] = useState("ask");
+  // Three jobs, not one crowded form. Searching returns the corpus's own text
+  // and never calls a model; asking puts a model between the reader and the
+  // corpus; browsing starts from the shelf rather than from a question. They
+  // share the source viewer, not the panel -- and searching is the default,
+  // because a research library should answer without being asked to generate.
+  const [view, setView] = useState("search");
 
   React.useEffect(() => {
     let cancelled = false;
@@ -282,16 +286,20 @@ export function ResearchPanel({ matter, sources, onResults, legalserverSave = nu
     <div className="panel">
       <PanelHeading
         title="Research"
-        description="Ask a question of the connected sources, or browse what has been imported."
+        description="Search the corpus without AI, ask a question and get a cited answer, or browse what has been imported."
       />
       <div className="research-view-tabs" role="tablist" aria-label="Research view">
+        <button type="button" role="tab" aria-selected={view === "search"} className={view === "search" ? "selected" : ""} onClick={() => setView("search")}>
+          <Search size={15} /> Search the corpus
+        </button>
         <button type="button" role="tab" aria-selected={view === "ask"} className={view === "ask" ? "selected" : ""} onClick={() => setView("ask")}>
-          <Search size={15} /> Ask a question
+          <Bot size={15} /> Ask a question
         </button>
         <button type="button" role="tab" aria-selected={view === "browse"} className={view === "browse" ? "selected" : ""} onClick={() => setView("browse")}>
           <Library size={15} /> Browse the library
         </button>
       </div>
+      {view === "search" && <ResearchSearch matter={matter} onOpenSource={setCaseSourceCitation} />}
       {view === "browse" && <LibraryBrowser onOpenSource={setCaseSourceCitation} />}
       {view === "ask" && (
       <>

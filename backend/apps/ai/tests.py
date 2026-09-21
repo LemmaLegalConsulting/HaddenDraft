@@ -135,6 +135,7 @@ class PromptCatalogTests(TestCase):
                 "caselaw.metadata_extract",
                 "caselaw.metadata_verify",
                 "research.answer",
+                "research.rerank",
                 "research.treatise_relevance",
                 "argument_gym.argument_map",
                 "argument_gym.assessment",

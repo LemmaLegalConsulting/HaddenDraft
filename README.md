@@ -106,6 +106,18 @@ Run backend tests:
 
 ```bash
 .venv/bin/python backend/manage.py test apps.ai apps.sources apps.core apps.matters
+
+# Build the term-neighbour table research-mode query expansion reads. Counting
+# only -- no model is called, during the build or at query time. Not committed:
+# it is derived from the imported case law as well as from the content library.
+.venv/bin/python backend/manage.py build_research_index
+.venv/bin/python backend/manage.py build_research_index --status
+
+# Bring already-imported decisions onto the shared county vocabulary, so
+# "Cuyahoga" and "Cuyahoga County" stop being two shelves. --report lists the
+# spellings the vocabulary does not hold instead of guessing at them.
+.venv/bin/python backend/manage.py normalize_case_counties --report
+.venv/bin/python backend/manage.py normalize_case_counties
 ```
 
 Run a quick backend workflow smoke test:
@@ -642,12 +654,59 @@ Derivation logic for the panels lives in plain `.js` modules
 `components/argumentGym.js`) so it is
 covered by `npm run test`; the `.jsx` components stay presentational.
 
+## Searching the Corpus Without AI
+
+Research has three views, and **Search the corpus** is the default. It searches
+everything this application holds — case law, statutes, local ordinances,
+treatises and handbooks — and never calls a model. The code that answers a
+search, `backend/apps/sources/research/`, does not import `apps.ai` at all, and
+a test enforces that: whatever happens to a model provider, a search still
+returns the library's own answer.
+
+| Endpoint | Purpose |
+| --- | --- |
+| `POST /api/research/search/` | One search. `GET` with `?q=` works too, so a search can be linked to |
+| `GET /api/research/search/status/` | What the index holds, what expansion can do, whether AI is available |
+
+**What a query can say.** A quoted `"phrase"` and a citation (`R.C. 5321.04`,
+`2023-Ohio-3480`, `197 Ohio App. 3d 484`, `24 C.F.R. 982.310`) are requirements,
+not hints: only text that literally contains them comes back, and the section a
+citation names outranks the chapter of commentary that discusses it. When
+nothing in the corpus contains one, the search says which phrase or citation
+went unmatched rather than ranking something else into the gap. `court:`,
+`county:`, `municipality:`, `district:`, `year:`, `status:`, `judge:`,
+`title:`, `source:` narrow; `-word` excludes.
+
+**Narrowing.** Results carry source type, court, county, appellate district,
+municipality, year, publication status and judge, and each facet is counted
+against the *other* narrowing in force, so the alternatives on offer are the
+ones that would return something. County and appellate district both come from
+`content/jurisdictions/ohio-counties.yaml`, so "Cuyahoga" and "Cuyahoga County"
+are one value on the shelf and narrowing by either finds every decision.
+
+**Expansion.** A researcher types "deficient notice"; the opinion says
+"defective". Both bridges are file-backed and neither calls a model: a reviewed
+thesaurus of terms of art, and a table of neighbours learned offline from corpus
+co-occurrence by `manage.py build_research_index`. Every result says which of
+the reader's own words it contains, which it does not, and which matches came
+from an expansion. An exact query is never broadened.
+
+**AI, when it is asked for.** Reranking and synthesis are off by default, opt-in
+per search, and applied on top of a finished result set. Every response reports
+in words what a model did — including that it did nothing — and a provider that
+is down or switched off degrades to the deterministic results with the reason
+stated, rather than to an error.
+
+See [`content/research-index/README.md`](content/research-index/README.md) for
+the maintained thesaurus, the district map, the known-answer regression queries,
+and how to build the learned neighbour table.
+
 ## Browsing the Library
 
-Research has two views. **Ask a question** runs the connectors and returns cited
-results. **Browse the library** opens the same material without a question,
-because a reader who does not yet know what to ask still needs to see what has
-been imported.
+The other two views. **Ask a question** runs the connectors and returns a cited
+answer written by a model. **Browse the library** opens the same material
+without a question, because a reader who does not yet know what to ask still
+needs to see what has been imported.
 
 | Endpoint | Purpose |
 | --- | --- |
@@ -663,9 +722,11 @@ counted against the *other* narrowing in force, so the alternatives on offer are
 the ones that would actually return something.
 
 Metadata came out of documents rather than a controlled vocabulary, so the same
-county arrives as "Cuyahoga" and "Cuyahoga County" and the same judge with and
-without the honorific. Those are grouped as one value, labelled with the
-spelling the documents use most; narrowing by either finds both. Facets a corpus
+judge arrives with and without the honorific. Those are grouped as one value,
+labelled with the spelling the documents use most; narrowing by either finds
+both. Counties are handled further upstream: ingestion writes the canonical name
+from `content/jurisdictions/ohio-counties.yaml`, and
+`manage.py normalize_case_counties` brings a corpus imported earlier onto it. Facets a corpus
 never filled in are not offered — a field no document supplied shows no chips
 rather than an empty group.
 
