@@ -14,6 +14,7 @@ from __future__ import annotations
 import re
 
 from apps.caselaw.values import text_values
+from apps.core.jurisdictions import canonical_county
 
 SCALAR_FACETS = {
     "court": "court",
@@ -98,7 +99,10 @@ def canonical_value(facet, value):
         return ""
     text = re.sub(r"\s+", " ", text)
     if facet == "county":
-        return re.sub(r"\s+county$", "", text)
+        # The shared vocabulary rather than a local regex, so browsing, research
+        # and the database cannot drift into three different ideas of which
+        # spellings are the same county.
+        return canonical_county(value).casefold() or text
     if facet == "judge":
         return re.sub(r"^(judge|magistrate|hon\.?|the honorable)\s+", "", text)
     return text
