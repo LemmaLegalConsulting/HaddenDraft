@@ -149,18 +149,29 @@ class Command(BaseCommand):
             text=text[:VERIFY_CHARS],
             draft=json.dumps(draft, ensure_ascii=False, indent=1),
         )
-        verified = _json_object(client.complete(
-            system=checked.system,
-            user=checked.user,
-            temperature=0,
-            model=checked.default_model,
-            reasoning_level=checked.default_reasoning_level,
-        ))
+        verifier_model = checked.default_model
+        try:
+            verified = _json_object(client.complete(
+                system=checked.system,
+                user=checked.user,
+                temperature=0,
+                model=checked.default_model,
+                reasoning_level=checked.default_reasoning_level,
+            ))
+        except OpenAIBackendError:
+            verifier_model = drafted.default_model
+            verified = _json_object(client.complete(
+                system=checked.system,
+                user=checked.user,
+                temperature=0,
+                model=drafted.default_model,
+                reasoning_level=drafted.default_reasoning_level,
+            ))
 
         merged = merge(sidecar, verified)
         merged["metadata_review"] = {
             "drafted_by": drafted.default_model,
-            "verified_by": checked.default_model,
+            "verified_by": verifier_model,
             "authoritative_fields_from": sidecar.get("source_url") or sidecar.get("metadata_source", ""),
         }
         storage.put_bytes(
@@ -169,7 +180,7 @@ class Command(BaseCommand):
             content_type="application/json",
         )
         storage.put_bytes(
-            content=VERIFIED_MARKER.format(model=checked.default_model).encode("utf-8"),
+            content=VERIFIED_MARKER.format(model=verifier_model).encode("utf-8"),
             key=f"{name}.verified.json",
             content_type="text/plain",
         )
