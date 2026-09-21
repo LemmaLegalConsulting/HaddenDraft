@@ -1,0 +1,57 @@
+{
+  "registry_id": "lexis-mutation-2026-09",
+  "created_at": "2026-09-13T16:01:53.332464+00:00",
+  "mode": "live",
+  "git_commit": "96846f959ed2b27da481bb94c3f3bf615e7a1c98",
+  "git_status": " M .env.example\n M backend/apps/ai/tests.py\n M backend/apps/argument_gym/correctness.py\n M backend/apps/argument_gym/ingestion.py\n M backend/apps/argument_gym/pipeline.py\n M backend/apps/argument_gym/test_async_runs.py\n M backend/apps/argument_gym/test_checks.py\n M backend/apps/argument_gym/test_correctness.py\n M backend/apps/argument_gym/tests.py\n M backend/apps/argument_gym/views.py\n M backend/apps/sources/connectors/rag.py\n M backend/apps/sources/registry.py\n M backend/config/settings.py\n M docs/ARGUMENT_GYM.md\n M frontend/src/components/argumentGym.js\n M lexis_real_briefs/experiment/tools/routing.py\n M lexis_real_briefs/experiment/tools/run_experiment.py\n M prompts/argument_gym.authority_opponent.yaml\n M prompts/argument_gym.judge.yaml\n M prompts/argument_gym.record_targets.yaml\n M requirements.txt\n?? backend/apps/sources/courtlistener.py\n?? backend/apps/sources/test_courtlistener.py\n?? lab_notebook/2026-09-13_new_corpus_plan.md\n?? lexis_real_briefs/experiment/results/micro-correctness-live-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-live-bounded-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-live-final-f007-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-live-hybrid-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-live-hybrid-fixed-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-live-targeted-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-offline-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-offline-after-unavailable-fix-20260913/\n",
+  "command": [
+    "/home/quinten/agentic_housing_drafting/.venv/bin/python",
+    "lexis_real_briefs/experiment/tools/run_experiment.py",
+    "--output-dir",
+    "lexis_real_briefs/experiment/results/micro-correctness-live-final-f007-20260913",
+    "--live",
+    "--model",
+    "gpt-5.5",
+    "--fixture",
+    "F007"
+  ],
+  "python": "3.12.3 (main, Aug 31 2026, 10:18:26) [GCC 13.3.0]",
+  "cell": "single-model",
+  "models": {
+    "attack": "gpt-5.5",
+    "judge": "gpt-5.5",
+    "base": "gpt-5.5"
+  },
+  "model": "gpt-5.5",
+  "attack_family": "openai",
+  "judge_family": "openai",
+  "same_family_judge": true,
+  "role_routing": "named Opponent prompts -> attack; legacy and correctness Judge prompts -> judge; everything else -> base",
+  "reasoning": "medium",
+  "temperature": 0,
+  "provider_host": "quint-mln02sj6-eastus2.cognitiveservices.azure.com",
+  "model_version_note": "Requested deployment alias; the provider's snapshot identity is not exposed to the application client.",
+  "code_sha256": "e5cf6d9066202366e7c0364f101322ea45830d694f65b1a34aa2f343718d2a52",
+  "dependencies_sha256": "f5f5236ee56cf7f75c2f0f59f570b7386388e27164eb9ec999572462072c4366",
+  "unit_budget_chars": 260000,
+  "unit_text_chars": 2400,
+  "brief_text_chars": 120000,
+  "source_ids": [
+    "ohio-cases",
+    "ohio-statutes",
+    "ohio-ordinances",
+    "treatise"
+  ],
+  "blinding": "The Gym receives brief text and record text only. No fixture id, condition label, mutation class or gold vulnerability reaches any prompt.",
+  "scoring": "The Gym writes stable per-target dispositions. Whether a result matches the registered mutation remains a separate, human-checkable step.",
+  "fixtures": [
+    {
+      "fixture_id": "F007",
+      "control_sha256": "25c278e6c41bf47cd10191abcb8f997f16c7a2a62c5b87cd282a5e1c8dc6fd58",
+      "mutant_sha256": "3cc5eaf97a507a75a4e4f32b12b620288c4fafba7f7b9b584f285515b5375126",
+      "attachment_sha256": {
+        "record-01-record.txt": "09b94bcbf54f940600b314f8a389ba75c62cc364ac25a9bdacaefaef15b4a160"
+      }
+    }
+  ]
+}

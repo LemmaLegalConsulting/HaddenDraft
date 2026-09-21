@@ -1,0 +1,101 @@
+{
+  "registry_id": "lexis-mutation-2026-09",
+  "created_at": "2026-09-13T17:18:14.703639+00:00",
+  "mode": "live",
+  "git_commit": "db69fe5c48a81dae8fd681606ab3de6c88dc0410",
+  "git_status": " M backend/apps/argument_gym/correctness.py\n M backend/apps/argument_gym/rule_audit.py\n M backend/apps/argument_gym/test_correctness.py\n M backend/apps/rules/legal_rules.py\n M backend/apps/rules/models.py\n M backend/apps/rules/test_legal_rules.py\n M content/legal-rules/README.md\n ? private-content\n M prompts/argument_gym.authority_opponent.yaml\n M prompts/argument_gym.rule_elements.yaml\n?? backend/apps/rules/migrations/0005_alter_legalruleprofile_rule_type.py\n?? content/legal-rules/cares-act-30-day-notice.yaml\n?? content/legal-rules/common-law-late-rent-course-of-dealing.yaml\n?? content/legal-rules/common-law-timely-rent-tender.yaml\n?? content/legal-rules/fha-reasonable-accommodation-eviction.yaml\n?? content/legal-rules/hcv-hap-nonpayment.yaml\n?? content/legal-rules/hcv-notice-copy-to-pha.yaml\n?? content/legal-rules/hud-project-based-24-cfr-247-notice.yaml\n?? content/legal-rules/hud-project-based-ten-day-meeting.yaml\n?? content/legal-rules/hud-public-housing-termination-grievance.yaml\n?? content/legal-rules/local-pay-to-stay.yaml\n?? content/legal-rules/rc-1923-04-waiver-rent.yaml\n?? content/legal-rules/rc-1923-061-b-counterclaim-offset.yaml\n?? content/legal-rules/rc-5321-11-notice-to-cure.yaml\n?? content/legal-rules/rc-5321-15-self-help.yaml\n?? content/legal-rules/vawa-eviction-protection.yaml\n?? lab_notebook/2026-09-13_new_corpus_plan.md\n?? lexis_real_briefs/experiment/results/micro-correctness-live-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-live-bounded-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-live-final-f007-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-live-final-f007b-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-live-hybrid-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-live-hybrid-fixed-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-live-targeted-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-offline-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-offline-after-unavailable-fix-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-rules-citations-terra-20260913/\n?? lexis_real_briefs/experiment/results/micro-judge-hardening-deepseek-20260913.json\n?? lexis_real_briefs/experiment/results/micro-judge-hardening-deepseek-offset8-20260913.json\n?? lexis_real_briefs/experiment/results/micro-judge-hardening-gpt55-20260913.json\n?? lexis_real_briefs/experiment/results/micro-judge-hardening-gpt56terra-20260913.json\n?? lexis_real_briefs/experiment/results/micro-judge-hardening-gpt56terra-deployed-20260913.json\n?? lexis_real_briefs/experiment/results/micro-judge-hardening-grok46-20260913.json\n?? lexis_real_briefs/experiment/results/micro-judge-rules-gpt55-20260913.json\n?? lexis_real_briefs/experiment/results/micro-judge-rules-gpt56terra-20260913.json\n",
+  "command": [
+    "/home/quinten/agentic_housing_drafting/.venv/bin/python",
+    "lexis_real_briefs/experiment/tools/run_experiment.py",
+    "--output-dir",
+    "lexis_real_briefs/experiment/results/micro-correctness-rules-citations-terra-20260913",
+    "--live",
+    "--model",
+    "gpt-5.6-terra"
+  ],
+  "python": "3.12.3 (main, Aug 31 2026, 10:18:26) [GCC 13.3.0]",
+  "cell": "single-model",
+  "models": {
+    "attack": "gpt-5.6-terra",
+    "judge": "gpt-5.6-terra",
+    "base": "gpt-5.6-terra"
+  },
+  "model": "gpt-5.6-terra",
+  "attack_family": "openai",
+  "judge_family": "openai",
+  "same_family_judge": true,
+  "role_routing": "named Opponent prompts -> attack; legacy and correctness Judge prompts -> judge; everything else -> base",
+  "reasoning": "medium",
+  "temperature": 0,
+  "provider_host": "quint-mln02sj6-eastus2.cognitiveservices.azure.com",
+  "model_version_note": "Requested deployment alias; the provider's snapshot identity is not exposed to the application client.",
+  "code_sha256": "7f8b3a489deed3bb2cedc71b535201030d767b6d37b58e6dacf874e33faa045a",
+  "dependencies_sha256": "f5f5236ee56cf7f75c2f0f59f570b7386388e27164eb9ec999572462072c4366",
+  "unit_budget_chars": 260000,
+  "unit_text_chars": 2400,
+  "brief_text_chars": 120000,
+  "source_ids": [
+    "ohio-cases",
+    "ohio-statutes",
+    "ohio-ordinances",
+    "treatise"
+  ],
+  "blinding": "The Gym receives brief text and record text only. No fixture id, condition label, mutation class or gold vulnerability reaches any prompt.",
+  "scoring": "The Gym writes stable per-target dispositions. Whether a result matches the registered mutation remains a separate, human-checkable step.",
+  "fixtures": [
+    {
+      "fixture_id": "F001",
+      "control_sha256": "5d2f2c189a51779c53b45b9efbdb0ec2074802a575cf7621d9c977918b55822b",
+      "mutant_sha256": "5fea6b337d7ac6c9a577d7ddba3f027de0737e46a8e27f9db6fe116c4994a12b",
+      "attachment_sha256": {}
+    },
+    {
+      "fixture_id": "F002",
+      "control_sha256": "bb64c9f4bce8cd864b5ed7b0e159ec4f29eae02c7a9fca22eefc5343a4d2102d",
+      "mutant_sha256": "dfeb7ee49d57f92088e6b23d8f0261c782cc6d5d972ea9bccff6b278e5071bdc",
+      "attachment_sha256": {}
+    },
+    {
+      "fixture_id": "F003",
+      "control_sha256": "ae5a9fef0f41f489aa144f38f803165270acedcd6013c0fac813410358a8b217",
+      "mutant_sha256": "449df4168309da2cda9144d9b4f73c60b61ff0f2c42c072c9a08be615dd9f6ed",
+      "attachment_sha256": {}
+    },
+    {
+      "fixture_id": "F004",
+      "control_sha256": "3bee19ac239e658fdc78b4c77a535ebe410ac9d3c8ec3602b92c5877de952811",
+      "mutant_sha256": "69af3c36bb573b5d5e3270d93653664a1fb31604d95e8183e2941fbcef216c7e",
+      "attachment_sha256": {}
+    },
+    {
+      "fixture_id": "F005",
+      "control_sha256": "fa9982d84b3563254ebbc6974cd0b614a7adfa784ef7c8d85dd131b79dca686d",
+      "mutant_sha256": "4656c22119ace67938335f7fc8cb46ad7ed4aa3eb3e1eac917f553bcd6280e2f",
+      "attachment_sha256": {}
+    },
+    {
+      "fixture_id": "F006",
+      "control_sha256": "7d9118e00fa38b0bfc6871e66494270d930a4b2fea3ec3d97e137b4182354c9f",
+      "mutant_sha256": "408d9df5c9f3fb0e6def98817ced0e91c4bdddb1b75c471171c402c67924719f",
+      "attachment_sha256": {
+        "record-01-record.txt": "e385fafb2877eff27dfb74ba965f0977ab7db94f660ddfdef22161cc8d940d34"
+      }
+    },
+    {
+      "fixture_id": "F007",
+      "control_sha256": "25c278e6c41bf47cd10191abcb8f997f16c7a2a62c5b87cd282a5e1c8dc6fd58",
+      "mutant_sha256": "3cc5eaf97a507a75a4e4f32b12b620288c4fafba7f7b9b584f285515b5375126",
+      "attachment_sha256": {
+        "record-01-record.txt": "09b94bcbf54f940600b314f8a389ba75c62cc364ac25a9bdacaefaef15b4a160"
+      }
+    },
+    {
+      "fixture_id": "F008",
+      "control_sha256": "9455829dcb65c6561ea67c1211df60ecde6d1de8cc0a199967443b6794b63d2b",
+      "mutant_sha256": "3f8742124abe6b3333ebad7afca1a2290a674a9655a0eed7769e978e70c91f5c",
+      "attachment_sha256": {
+        "record-01-record.txt": "8d7f272508eb13fa718a569f386d36bd4f7e7616de0f07091c43fcc4fee8e8b0"
+      }
+    }
+  ]
+}

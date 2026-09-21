@@ -1,0 +1,74 @@
+{
+  "registry_id": "lexis-mutation-2026-09",
+  "created_at": "2026-09-14T02:24:34.053366+00:00",
+  "mode": "live",
+  "git_commit": "351fb785e9bc1bfc7b9954de0f94d16861aa0d9f",
+  "git_status": " M backend/apps/caselaw/management/commands/enrich_caselaw_metadata.py\n m private-content\n?? downloaded_opinions/\n?? lab_notebook/2026-09-13_heldout_authority_replicates_1_to_4.md\n?? lexis_real_briefs/experiment/results/heldout-authority-terra-mistral-rep1-20260913/\n?? lexis_real_briefs/experiment/results/heldout-authority-terra-mistral-rep2-20260913/\n?? lexis_real_briefs/experiment/results/heldout-authority-terra-mistral-rep3-20260913/\n?? lexis_real_briefs/experiment/results/heldout-authority-terra-mistral-rep4-20260913/\n?? lexis_real_briefs/experiment/results/heldout-rule-floor-llama-sol-attorney-reviewed-rep1-20260913/\n?? lexis_real_briefs/experiment/results/heldout-rule-floor-llama-sol-attorney-reviewed-rep2-20260913/\n?? lexis_real_briefs/experiment/results/heldout-rule-floor-llama-sol-attorney-reviewed-rep2-r002-technical-retry-20260913/\n?? lexis_real_briefs/experiment/results/heldout-rule-floor-llama-sol-attorney-reviewed-rep3-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-f005-attribution-grounded-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-f005-complete-opinions-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-f005-frozen-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-f005-grounded-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-f005-opinion-status-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-f005-reuse-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-live-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-live-bounded-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-live-final-f007-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-live-final-f007b-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-live-hybrid-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-live-hybrid-fixed-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-live-targeted-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-offline-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-offline-after-unavailable-fix-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-priority-frozen-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-priority-rerun-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-rules-citations-terra-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-rules-citations-terra-batched-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-rules-citations-terra-final-20260913/\n?? lexis_real_briefs/experiment/results/micro-judge-hardening-deepseek-20260913.json\n?? lexis_real_briefs/experiment/results/micro-judge-hardening-deepseek-offset8-20260913.json\n?? lexis_real_briefs/experiment/results/micro-judge-hardening-gpt55-20260913.json\n?? lexis_real_briefs/experiment/results/micro-judge-hardening-gpt56terra-20260913.json\n?? lexis_real_briefs/experiment/results/micro-judge-hardening-gpt56terra-deployed-20260913.json\n?? lexis_real_briefs/experiment/results/micro-judge-hardening-grok46-20260913.json\n?? lexis_real_briefs/experiment/results/micro-judge-rule-floor-llama-4-maverick-20260913.json\n?? lexis_real_briefs/experiment/results/micro-judge-rule-floor-mistral-large-3-20260913.json\n?? lexis_real_briefs/experiment/results/micro-judge-rules-gpt55-20260913.json\n?? lexis_real_briefs/experiment/results/micro-judge-rules-gpt56terra-20260913.json\n?? lexis_real_briefs/experiment/results/micro-rules-all-fixtures-20260913/\n?? lexis_real_briefs/experiment/results/qualification-authority-f005-nested-fixed-rep1-20260913/\n?? lexis_real_briefs/experiment/results/qualification-authority-f005-nested-fixed-rep2-20260913/\n?? lexis_real_briefs/experiment/results/qualification-authority-f005-nested-fixed-rep3-20260913/\n?? lexis_real_briefs/experiment/results/qualification-authority-f005-rep1-20260913/\n?? lexis_real_briefs/experiment/results/qualification-authority-f005-stable-inventory-20260913/\n?? lexis_real_briefs/experiment/results/qualification-rule-floor-contract-rep1-20260913/\n?? lexis_real_briefs/experiment/results/qualification-rule-floor-final-rep1-20260913/\n?? lexis_real_briefs/experiment/results/qualification-rule-floor-fresh10-20260913/\n?? lexis_real_briefs/experiment/results/qualification-rule-floor-fresh10-rep2-20260913/\n?? lexis_real_briefs/experiment/results/qualification-rule-floor-gate-rep1-20260913/\n?? lexis_real_briefs/experiment/results/qualification-rule-floor-gate-rep2-20260913/\n?? lexis_real_briefs/experiment/results/qualification-rule-floor-gate-rep3-20260913/\n?? lexis_real_briefs/experiment/results/qualification-rule-floor-mistral-high-rep1-20260913/\n?? lexis_real_briefs/experiment/results/qualification-rule-floor-mistral-rep1-20260913/\n?? lexis_real_briefs/experiment/results/qualification-rule-floor-ready-rep1-20260913/\n?? lexis_real_briefs/experiment/results/qualification-rule-floor-rep1-20260913/\n?? lexis_real_briefs/experiment/results/qualification-rule-floor-repaired-rep1-20260913/\n?? lexis_real_briefs/experiment/results/qualification-rule-floor-terra-mistral-fixed-rep1-20260913/\n?? lexis_real_briefs/experiment/results/qualification-rule-floor-terra-mistral-rep1-20260913/\n?? lexis_real_briefs/experiment/results/qualification-vawa-coverage-rep1-20260913/\n?? lexis_real_briefs/experiment/results/qualification-vawa-coverage-rep2-20260913/\n?? lexis_real_briefs/experiment/results/qualification-vawa-coverage-rep3-20260913/\n",
+  "command": [
+    "/home/quinten/agentic_housing_drafting/.venv/bin/python",
+    "/home/quinten/agentic_housing_drafting/lexis_real_briefs/experiment/tools/run_experiment.py",
+    "--output-dir",
+    "/home/quinten/agentic_housing_drafting/lexis_real_briefs/experiment/results/heldout-rule-floor-llama-sol-attorney-reviewed-rep3-20260913/shards/R004",
+    "--fixtures-dir",
+    "/home/quinten/agentic_housing_drafting/lexis_real_briefs/experiment/fixtures-rule-floor-attorney-reviewed-20260913",
+    "--fixture",
+    "R004",
+    "--model",
+    "gpt-5.4-mini",
+    "--reasoning",
+    "medium",
+    "--live",
+    "--attack-model",
+    "gpt-5.6-terra",
+    "--judge-model",
+    "mistral-large-3",
+    "--base-model",
+    "gpt-5.6-terra",
+    "--cell",
+    "terra-mistral",
+    "--check",
+    "rule_elements"
+  ],
+  "python": "3.12.3 (main, Aug 31 2026, 10:18:26) [GCC 13.3.0]",
+  "cell": "terra-mistral",
+  "models": {
+    "attack": "gpt-5.6-terra",
+    "judge": "mistral-large-3",
+    "base": "gpt-5.6-terra"
+  },
+  "model": "gpt-5.6-terra",
+  "attack_family": "openai",
+  "judge_family": "mistral",
+  "same_family_judge": false,
+  "role_routing": "named Opponent prompts -> attack; legacy and correctness Judge prompts -> judge; everything else -> base",
+  "reasoning": "medium",
+  "temperature": 0,
+  "provider_host": "quint-mln02sj6-eastus2.cognitiveservices.azure.com",
+  "model_version_note": "Requested deployment alias; the provider's snapshot identity is not exposed to the application client.",
+  "code_sha256": "ee19e50720fcf3296b77bca657634a8ec471f42669525f0f6b0b0686882cd494",
+  "dependencies_sha256": "f5f5236ee56cf7f75c2f0f59f570b7386388e27164eb9ec999572462072c4366",
+  "unit_budget_chars": 260000,
+  "unit_text_chars": 2400,
+  "brief_text_chars": 120000,
+  "source_ids": [
+    "ohio-cases",
+    "ohio-statutes",
+    "ohio-ordinances",
+    "treatise"
+  ],
+  "enabled_checks": [
+    "rule_elements"
+  ],
+  "blinding": "The Gym receives brief text and record text only. No fixture id, condition label, mutation class or gold vulnerability reaches any prompt.",
+  "scoring": "The Gym writes stable per-target dispositions. Whether a result matches the registered mutation remains a separate, human-checkable step.",
+  "fixtures": [
+    {
+      "fixture_id": "R004",
+      "control_sha256": "e94dfe28aec5585fa24338bb2c8e2ffb38622192e519f17a05320b3088cab7e5",
+      "mutant_sha256": "dcb462e64ca9b52a1eac9d3bfa65a2cce3aabadf3f803c6509183c3d4321947d",
+      "attachment_sha256": {
+        "record-01.txt": "5a3409d936fcfa19c478b4dddf07acdf90314a836e32fea22b21291351b85c28"
+      }
+    }
+  ]
+}

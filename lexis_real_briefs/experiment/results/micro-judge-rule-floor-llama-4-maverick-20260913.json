@@ -1,0 +1,75 @@
+{
+  "sourceCall": "/home/quinten/agentic_housing_drafting/lexis_real_briefs/experiment/results/qualification-rule-floor-rep1-20260913/Q001-control/call-002.json",
+  "model": "llama-4-maverick",
+  "expected": 5,
+  "returned": 0,
+  "missing": [
+    "rule_elements:rc-5321-11-notice-to-cure:condition_not_remedied",
+    "rule_elements:rc-5321-11-notice-to-cure:covered_breach",
+    "rule_elements:rc-5321-11-notice-to-cure:specific_act",
+    "rule_elements:rc-5321-11-notice-to-cure:termination_date",
+    "rule_elements:rc-5321-11-notice-to-cure:written_notice"
+  ],
+  "extra": [],
+  "blankReasons": 0,
+  "adverseWithoutEvidence": 0,
+  "traces": [
+    {
+      "stage": "judge:rule_elements",
+      "method": "deterministic",
+      "count": 0,
+      "trace": [
+        {
+          "attempt": 1,
+          "plan": {
+            "method": "llm"
+          },
+          "success": false,
+          "code": "judge:rule_elements_empty",
+          "message": "The judge:rule_elements stage produced nothing usable."
+        },
+        {
+          "attempt": 2,
+          "plan": {
+            "method": "deterministic",
+            "repair": "fallback_judge:rule_elements"
+          },
+          "success": false,
+          "code": "judge:rule_elements_empty",
+          "message": "The judge:rule_elements stage produced nothing usable."
+        }
+      ],
+      "checkId": "rule_elements",
+      "batch": 1,
+      "batches": 1,
+      "candidateIds": [
+        "rule_elements:rc-5321-11-notice-to-cure:condition_not_remedied",
+        "rule_elements:rc-5321-11-notice-to-cure:covered_breach",
+        "rule_elements:rc-5321-11-notice-to-cure:specific_act",
+        "rule_elements:rc-5321-11-notice-to-cure:termination_date",
+        "rule_elements:rc-5321-11-notice-to-cure:written_notice"
+      ],
+      "unavailable": true,
+      "checkUnavailable": true
+    }
+  ],
+  "rulings": [],
+  "calls": [
+    {
+      "model": "llama-4-maverick",
+      "messages": [
+        {
+          "role": "system",
+          "content": "You are Judge in a legal correctness test harness. Opponent bears the burden. Rule only on each challenge presented. Do not review the brief generally, identify another problem, compare issues, rank importance, predict case outcome, or infer missing evidence. SUSTAIN only when the supplied evidence establishes a defect a competent supervising attorney would require corrected before filing. RESERVE when there is a concrete concern but the evidence does not establish a defect. OVERRULE when the challenge is not established. Return valid JSON only.\n"
+        },
+        {
+          "role": "user",
+          "content": "Jurisdiction: Ohio\nNamed test: rule_elements\n\nCandidate challenges and the only evidence you may use:\n[\n  {\n    \"candidateId\": \"rule_elements:rc-5321-11-notice-to-cure:covered_breach\",\n    \"checkId\": \"rule_elements\",\n    \"issueCode\": \"required_element_carried\",\n    \"targetId\": \"rc-5321-11-notice-to-cure:covered_breach\",\n    \"unitId\": \"u6\",\n    \"claim\": \"Identify the covered obligation and material health-or-safety effect.\",\n    \"problem\": \"The brief identifies a tenant breach of R.C. 5321.05\\u2014storing open gasoline cans in the only exit corridor\\u2014and alleges that it materially affected health and safety. The declaration corroborates the obstruction, fire hazard, and egress hazard.\",\n    \"reason\": \"2 of 5 elements need review; unavailable evidence or unrecognized wording does not establish a defect.\",\n    \"briefEvidence\": [\n      \"u6\"\n    ],\n    \"externalEvidence\": [\n      \"https://codes.ohio.gov/ohio-revised-code/section-5321.11\"\n    ],\n    \"evidenceQuote\": \"Taylor's storage of open gasoline cans in the only exit corridor breached the tenant's obligation under R.C. 5321.05 and materially affected health and safety.\",\n    \"briefCoverage\": {\n      \"reviewedChars\": 1421,\n      \"totalChars\": 1421,\n      \"truncated\": false\n    },\n    \"recordMaterialIds\": [\n      \"upload:35\"\n    ],\n    \"proposedDisposition\": \"pass\",\n    \"userVisible\": true\n  },\n  {\n    \"candidateId\": \"rule_elements:rc-5321-11-notice-to-cure:written_notice\",\n    \"checkId\": \"rule_elements\",\n    \"issueCode\": \"required_element_carried\",\n    \"targetId\": \"rc-5321-11-notice-to-cure:written_notice\",\n    \"unitId\": \"u6\",\n    \"claim\": \"Identify delivery and receipt of a written notice.\",\n    \"problem\": \"The brief alleges that the landlord delivered a written notice and that Taylor received it on January 1, 2026. The declaration states that the notice was hand-delivered and that Taylor signed a receipt that day.\",\n    \"reason\": \"2 of 5 elements need review; unavailable evidence or unrecognized wording does not establish a defect.\",\n    \"briefEvidence\": [\n      \"u6\"\n    ],\n    \"externalEvidence\": [\n      \"https://codes.ohio.gov/ohio-revised-code/section-5321.11\"\n    ],\n    \"evidenceQuote\": \"On January 1, 2026, Oak Street Homes delivered a written notice to Taylor, who received it that day.\",\n    \"briefCoverage\": {\n      \"reviewedChars\": 1421,\n      \"totalChars\": 1421,\n      \"truncated\": false\n    },\n    \"recordMaterialIds\": [\n      \"upload:35\"\n    ],\n    \"proposedDisposition\": \"pass\",\n    \"userVisible\": true\n  },\n  {\n    \"candidateId\": \"rule_elements:rc-5321-11-notice-to-cure:specific_act\",\n    \"checkId\": \"rule_elements\",\n    \"issueCode\": \"required_element_not_established\",\n    \"targetId\": \"rc-5321-11-notice-to-cure:specific_act\",\n    \"unitId\": \"u6\",\n    \"claim\": \"Quote or attach the notice's factual specification.\",\n    \"problem\": \"The brief states that the notice specified the precise noncompliant act, but it does not quote or attach the notice itself. The supplied declaration provides the notice's factual specification, identifying the open gasoline cans in the only interior exit corridor.\",\n    \"reason\": \"2 of 5 elements need review; unavailable evidence or unrecognized wording does not establish a defect.\",\n    \"briefEvidence\": [\n      \"u6\"\n    ],\n    \"externalEvidence\": [\n      \"https://codes.ohio.gov/ohio-revised-code/section-5321.11\"\n    ],\n    \"evidenceQuote\": \"The landlord delivered a written notice that specified the precise noncompliant act: storing open gasoline cans in the exit corridor.\",\n    \"briefCoverage\": {\n      \"reviewedChars\": 1421,\n      \"totalChars\": 1421,\n      \"truncated\": false\n    },\n    \"recordMaterialIds\": [\n      \"upload:35\"\n    ],\n    \"proposedDisposition\": \"review\",\n    \"userVisible\": false\n  },\n  {\n    \"candidateId\": \"rule_elements:rc-5321-11-notice-to-cure:termination_date\",\n    \"checkId\": \"rule_elements\",\n    \"issueCode\": \"required_element_carried\",\n    \"targetId\": \"rc-5321-11-notice-to-cure:termination_date\",\n    \"unitId\": \"u6\",\n    \"claim\": \"Provide receipt and termination dates.\",\n    \"problem\": \"The brief provides both the January 1, 2026 receipt date and the February 15, 2026 termination date, and expressly alleges that the interval was forty-five days. The declaration confirms both dates.\",\n    \"reason\": \"2 of 5 elements need review; unavailable evidence or unrecognized wording does not establish a defect.\",\n    \"briefEvidence\": [\n      \"u6\"\n    ],\n    \"externalEvidence\": [\n      \"https://codes.ohio.gov/ohio-revised-code/section-5321.11\"\n    ],\n    \"evidenceQuote\": \"The written notice set February 15, 2026 as the termination date, forty-five days after Taylor received it.\",\n    \"briefCoverage\": {\n      \"reviewedChars\": 1421,\n      \"totalChars\": 1421,\n      \"truncated\": false\n    },\n    \"recordMaterialIds\": [\n      \"upload:35\"\n    ],\n    \"proposedDisposition\": \"pass\",\n    \"userVisible\": true\n  },\n  {\n    \"candidateId\": \"rule_elements:rc-5321-11-notice-to-cure:condition_not_remedied\",\n    \"checkId\": \"rule_elements\",\n    \"issueCode\": \"required_element_not_established\",\n    \"targetId\": \"rc-5321-11-notice-to-cure:condition_not_remedied\",\n    \"unitId\": \"u6\",\n    \"claim\": \"Address remedy within the statutory period.\",\n    \"problem\": \"The brief alleges that Taylor did not remedy the condition during the statutory period. The record supports that the gasoline cans remained on January 20, but it does not establish that they remained unremedied through the February 15 termination date or otherwise throughout the full statutory period.\",\n    \"reason\": \"2 of 5 elements need review; unavailable evidence or unrecognized wording does not establish a defect.\",\n    \"briefEvidence\": [\n      \"u6\"\n    ],\n    \"externalEvidence\": [\n      \"https://codes.ohio.gov/ohio-revised-code/section-5321.11\"\n    ],\n    \"evidenceQuote\": \"Taylor did not remedy the condition during the statutory period; the cans remained in the corridor when the property was inspected on January 20.\",\n    \"briefCoverage\": {\n      \"reviewedChars\": 1421,\n      \"totalChars\": 1421,\n      \"truncated\": false\n    },\n    \"recordMaterialIds\": [\n      \"upload:35\"\n    ],\n    \"proposedDisposition\": \"review\",\n    \"userVisible\": false\n  }\n]\n\nReturn exactly one ruling per candidate, preserving every candidateId. Every\nruling must contain a specific, nonempty reason. REVIEW and MUST_FIX must cite\nat least one supplied evidence reference:\n{\"rulings\": [{\"candidateId\": \"record_support:u42:fact1\", \"disposition\": \"must_fix | review | pass\", \"reason\": \"Why Opponent did or did not carry its burden\", \"evidenceRefs\": [\"u42\", \"matter:doc-1\"], \"confidence\": \"high | medium | low\"}]}\n\nMUST_FIX without evidence references is forbidden. For a record contradiction, cite the brief claim and contradictory record passage. For authority mismatch, cite the proposition and source passage. Unavailable evidence, incomplete retrieval, and uncertain applicability are REVIEW or PASS, never MUST_FIX.\n"
+        }
+      ],
+      "status": "complete",
+      "response": "```json\n{\n  \"rulings\": [\n    {\n      \"candidateId\": \"rule_elements:rc-5321-11-notice-to-cure:covered_breach\",\n      \"disposition\": \"OVERRULE\",\n      \"reason\": \"The brief and declaration together establish the covered obligation and material health-or-safety effect as required by R.C. 5321.11.\",\n      \"evidenceRefs\": [\n        \"u6\",\n        \"https://codes.ohio.gov/ohio-revised-code/section-5321.11\"\n      ],\n      \"confidence\": \"high\"\n    },\n    {\n      \"candidateId\": \"rule_elements:rc-5321-11-notice-to-cure:written_notice\",\n      \"disposition\": \"OVERRULE\",\n      \"reason\": \"The brief and declaration establish delivery and receipt of a written notice as required by R.C. 5321.11.\",\n      \"evidenceRefs\": [\n        \"u6\",\n        \"https://codes.ohio.gov/ohio-revised-code/section-5321.11\"\n      ],\n      \"confidence\": \"high\"\n    },\n    {\n      \"candidateId\": \"rule_elements:rc-5321-11-notice-to-cure:specific_act\",\n      \"disposition\": \"RESERVE\",\n      \"reason\": \"The brief alleges the notice specified the noncompliant act, and the declaration provides the factual specification, but the notice itself is not quoted or attached.\",\n      \"evidenceRefs\": [\n        \"u6\",\n        \"https://codes.ohio.gov/ohio-revised-code/section-5321.11\"\n      ],\n      \"confidence\": \"medium\"\n    },\n    {\n      \"candidateId\": \"rule_elements:rc-5321-11-notice-to-cure:termination_date\",\n      \"disposition\": \"OVERRULE\",\n      \"reason\": \"The brief and declaration establish both the receipt and termination dates, and confirm the interval was forty-five days as required by R.C. 5321.11.\",\n      \"evidenceRefs\": [\n        \"u6\",\n        \"https://codes.ohio.gov/ohio-revised-code/section-5321.11\"\n      ],\n      \"confidence\": \"high\"\n    },\n    {\n      \"candidateId\": \"rule_elements:rc-5321-11-notice-to-cure:condition_not_remedied\",\n      \"disposition\": \"RESERVE\",\n      \"reason\": \"The brief alleges the condition was not remedied during the statutory period, but the record only confirms the condition remained on January 20, not through the February 15 termination date.\",\n      \"evidenceRefs\": [\n        \"u6\",\n        \"https://codes.ohio.gov/ohio-revised-code/section-5321.11\"\n      ],\n      \"confidence\": \"medium\"\n    }\n  ]\n}\n```",
+      "elapsedSeconds": 2.83
+    }
+  ]
+}

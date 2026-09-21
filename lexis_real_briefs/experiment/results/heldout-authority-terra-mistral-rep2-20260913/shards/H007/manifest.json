@@ -1,0 +1,72 @@
+{
+  "registry_id": "lexis-mutation-2026-09",
+  "created_at": "2026-09-14T02:00:29.677282+00:00",
+  "mode": "live",
+  "git_commit": "12535def8d726fadccdee131e89355d615d26b5f",
+  "git_status": " M backend/apps/caselaw/management/commands/enrich_caselaw_metadata.py\n M lexis_real_briefs/experiment/tools/generate_rule_floor_review_fixtures.py\n m private-content\n?? downloaded_opinions/\n?? lexis_real_briefs/experiment/results/heldout-authority-terra-mistral-rep1-20260913/\n?? lexis_real_briefs/experiment/results/heldout-authority-terra-mistral-rep2-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-f005-attribution-grounded-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-f005-complete-opinions-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-f005-frozen-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-f005-grounded-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-f005-opinion-status-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-f005-reuse-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-live-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-live-bounded-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-live-final-f007-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-live-final-f007b-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-live-hybrid-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-live-hybrid-fixed-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-live-targeted-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-offline-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-offline-after-unavailable-fix-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-priority-frozen-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-priority-rerun-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-rules-citations-terra-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-rules-citations-terra-batched-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-rules-citations-terra-final-20260913/\n?? lexis_real_briefs/experiment/results/micro-judge-hardening-deepseek-20260913.json\n?? lexis_real_briefs/experiment/results/micro-judge-hardening-deepseek-offset8-20260913.json\n?? lexis_real_briefs/experiment/results/micro-judge-hardening-gpt55-20260913.json\n?? lexis_real_briefs/experiment/results/micro-judge-hardening-gpt56terra-20260913.json\n?? lexis_real_briefs/experiment/results/micro-judge-hardening-gpt56terra-deployed-20260913.json\n?? lexis_real_briefs/experiment/results/micro-judge-hardening-grok46-20260913.json\n?? lexis_real_briefs/experiment/results/micro-judge-rule-floor-llama-4-maverick-20260913.json\n?? lexis_real_briefs/experiment/results/micro-judge-rule-floor-mistral-large-3-20260913.json\n?? lexis_real_briefs/experiment/results/micro-judge-rules-gpt55-20260913.json\n?? lexis_real_briefs/experiment/results/micro-judge-rules-gpt56terra-20260913.json\n?? lexis_real_briefs/experiment/results/micro-rules-all-fixtures-20260913/\n?? lexis_real_briefs/experiment/results/qualification-authority-f005-nested-fixed-rep1-20260913/\n?? lexis_real_briefs/experiment/results/qualification-authority-f005-nested-fixed-rep2-20260913/\n?? lexis_real_briefs/experiment/results/qualification-authority-f005-nested-fixed-rep3-20260913/\n?? lexis_real_briefs/experiment/results/qualification-authority-f005-rep1-20260913/\n?? lexis_real_briefs/experiment/results/qualification-authority-f005-stable-inventory-20260913/\n?? lexis_real_briefs/experiment/results/qualification-rule-floor-contract-rep1-20260913/\n?? lexis_real_briefs/experiment/results/qualification-rule-floor-final-rep1-20260913/\n?? lexis_real_briefs/experiment/results/qualification-rule-floor-fresh10-20260913/\n?? lexis_real_briefs/experiment/results/qualification-rule-floor-fresh10-rep2-20260913/\n?? lexis_real_briefs/experiment/results/qualification-rule-floor-gate-rep1-20260913/\n?? lexis_real_briefs/experiment/results/qualification-rule-floor-gate-rep2-20260913/\n?? lexis_real_briefs/experiment/results/qualification-rule-floor-gate-rep3-20260913/\n?? lexis_real_briefs/experiment/results/qualification-rule-floor-mistral-high-rep1-20260913/\n?? lexis_real_briefs/experiment/results/qualification-rule-floor-mistral-rep1-20260913/\n?? lexis_real_briefs/experiment/results/qualification-rule-floor-ready-rep1-20260913/\n?? lexis_real_briefs/experiment/results/qualification-rule-floor-rep1-20260913/\n?? lexis_real_briefs/experiment/results/qualification-rule-floor-repaired-rep1-20260913/\n?? lexis_real_briefs/experiment/results/qualification-rule-floor-terra-mistral-fixed-rep1-20260913/\n?? lexis_real_briefs/experiment/results/qualification-rule-floor-terra-mistral-rep1-20260913/\n?? lexis_real_briefs/experiment/results/qualification-vawa-coverage-rep1-20260913/\n?? lexis_real_briefs/experiment/results/qualification-vawa-coverage-rep2-20260913/\n?? lexis_real_briefs/experiment/results/qualification-vawa-coverage-rep3-20260913/\n",
+  "command": [
+    "/home/quinten/agentic_housing_drafting/.venv/bin/python",
+    "/home/quinten/agentic_housing_drafting/lexis_real_briefs/experiment/tools/run_experiment.py",
+    "--output-dir",
+    "/home/quinten/agentic_housing_drafting/lexis_real_briefs/experiment/results/heldout-authority-terra-mistral-rep2-20260913/shards/H007",
+    "--fixtures-dir",
+    "/home/quinten/agentic_housing_drafting/lexis_real_briefs/experiment/fixtures-heldout-authority-20260913",
+    "--fixture",
+    "H007",
+    "--model",
+    "gpt-5.4-mini",
+    "--reasoning",
+    "medium",
+    "--live",
+    "--attack-model",
+    "gpt-5.6-terra",
+    "--judge-model",
+    "mistral-large-3",
+    "--base-model",
+    "gpt-5.6-terra",
+    "--cell",
+    "terra-mistral",
+    "--check",
+    "authority_support"
+  ],
+  "python": "3.12.3 (main, Aug 31 2026, 10:18:26) [GCC 13.3.0]",
+  "cell": "terra-mistral",
+  "models": {
+    "attack": "gpt-5.6-terra",
+    "judge": "mistral-large-3",
+    "base": "gpt-5.6-terra"
+  },
+  "model": "gpt-5.6-terra",
+  "attack_family": "openai",
+  "judge_family": "mistral",
+  "same_family_judge": false,
+  "role_routing": "named Opponent prompts -> attack; legacy and correctness Judge prompts -> judge; everything else -> base",
+  "reasoning": "medium",
+  "temperature": 0,
+  "provider_host": "quint-mln02sj6-eastus2.cognitiveservices.azure.com",
+  "model_version_note": "Requested deployment alias; the provider's snapshot identity is not exposed to the application client.",
+  "code_sha256": "0e7c6325ef9c724dd885107a7918ba4fb8ca42e66869e67bc492bfd4be55dfdf",
+  "dependencies_sha256": "f5f5236ee56cf7f75c2f0f59f570b7386388e27164eb9ec999572462072c4366",
+  "unit_budget_chars": 260000,
+  "unit_text_chars": 2400,
+  "brief_text_chars": 120000,
+  "source_ids": [
+    "ohio-cases",
+    "ohio-statutes",
+    "ohio-ordinances",
+    "treatise"
+  ],
+  "enabled_checks": [
+    "authority_support"
+  ],
+  "blinding": "The Gym receives brief text and record text only. No fixture id, condition label, mutation class or gold vulnerability reaches any prompt.",
+  "scoring": "The Gym writes stable per-target dispositions. Whether a result matches the registered mutation remains a separate, human-checkable step.",
+  "fixtures": [
+    {
+      "fixture_id": "H007",
+      "control_sha256": "bf0c794798d80f6e53341fb3884b158f957e9140cb687cb9924f6abbe2647462",
+      "mutant_sha256": "e98a1893da0bf894967fb88f6666911058981aaea392a94bb28a844c2fe5fc9c",
+      "attachment_sha256": {}
+    }
+  ]
+}

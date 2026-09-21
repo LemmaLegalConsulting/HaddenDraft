@@ -1,0 +1,4127 @@
+{
+  "manifest": {
+    "registry_id": "lexis-mutation-2026-09",
+    "created_at": "2026-09-13T19:20:28.512615+00:00",
+    "mode": "live",
+    "git_commit": "8dbd38030a7f09a0c914a071925e89cdd8933fa0",
+    "git_status": " M backend/apps/argument_gym/correctness.py\n M backend/apps/argument_gym/rule_audit.py\n M backend/apps/argument_gym/test_correctness.py\n M backend/apps/caselaw/management/commands/enrich_caselaw_metadata.py\n m private-content\n?? downloaded_opinions/\n?? lab_notebook/2026-09-13_new_corpus_plan.md\n?? lexis_real_briefs/experiment/results/micro-correctness-f005-attribution-grounded-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-f005-complete-opinions-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-f005-frozen-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-f005-grounded-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-f005-opinion-status-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-f005-reuse-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-live-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-live-bounded-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-live-final-f007-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-live-final-f007b-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-live-hybrid-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-live-hybrid-fixed-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-live-targeted-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-offline-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-offline-after-unavailable-fix-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-priority-frozen-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-priority-rerun-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-rules-citations-terra-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-rules-citations-terra-batched-20260913/\n?? lexis_real_briefs/experiment/results/micro-correctness-rules-citations-terra-final-20260913/\n?? lexis_real_briefs/experiment/results/micro-judge-hardening-deepseek-20260913.json\n?? lexis_real_briefs/experiment/results/micro-judge-hardening-deepseek-offset8-20260913.json\n?? lexis_real_briefs/experiment/results/micro-judge-hardening-gpt55-20260913.json\n?? lexis_real_briefs/experiment/results/micro-judge-hardening-gpt56terra-20260913.json\n?? lexis_real_briefs/experiment/results/micro-judge-hardening-gpt56terra-deployed-20260913.json\n?? lexis_real_briefs/experiment/results/micro-judge-hardening-grok46-20260913.json\n?? lexis_real_briefs/experiment/results/micro-judge-rule-floor-llama-4-maverick-20260913.json\n?? lexis_real_briefs/experiment/results/micro-judge-rule-floor-mistral-large-3-20260913.json\n?? lexis_real_briefs/experiment/results/micro-judge-rules-gpt55-20260913.json\n?? lexis_real_briefs/experiment/results/micro-judge-rules-gpt56terra-20260913.json\n?? lexis_real_briefs/experiment/results/micro-rules-all-fixtures-20260913/\n?? lexis_real_briefs/experiment/results/qualification-rule-floor-mistral-rep1-20260913/\n?? lexis_real_briefs/experiment/results/qualification-rule-floor-rep1-20260913/\n?? lexis_real_briefs/experiment/tools/build_rule_floor_fixtures.py\n",
+    "command": [
+      "/home/quinten/agentic_housing_drafting/.venv/bin/python",
+      "lexis_real_briefs/experiment/tools/run_experiment.py",
+      "--output-dir",
+      "lexis_real_briefs/experiment/results/qualification-rule-floor-mistral-rep1-20260913",
+      "--fixtures-dir",
+      "lexis_real_briefs/experiment/fixtures-rule-floor",
+      "--live",
+      "--attack-model",
+      "gpt-5.6-terra",
+      "--judge-model",
+      "mistral-large-3",
+      "--base-model",
+      "gpt-5.6-terra",
+      "--reasoning",
+      "medium",
+      "--check",
+      "rule_elements"
+    ],
+    "python": "3.12.3 (main, Aug 31 2026, 10:18:26) [GCC 13.3.0]",
+    "cell": "single-model",
+    "models": {
+      "attack": "gpt-5.6-terra",
+      "judge": "mistral-large-3",
+      "base": "gpt-5.6-terra"
+    },
+    "model": "gpt-5.6-terra",
+    "attack_family": "openai",
+    "judge_family": "mistral",
+    "same_family_judge": false,
+    "role_routing": "named Opponent prompts -> attack; legacy and correctness Judge prompts -> judge; everything else -> base",
+    "reasoning": "medium",
+    "temperature": 0,
+    "provider_host": "quint-mln02sj6-eastus2.cognitiveservices.azure.com",
+    "model_version_note": "Requested deployment alias; the provider's snapshot identity is not exposed to the application client.",
+    "code_sha256": "3ef58b3bb5f537b3316ba85bd371330fe9b1b50ca2486de0c6e9293a2d1ecc2f",
+    "dependencies_sha256": "f5f5236ee56cf7f75c2f0f59f570b7386388e27164eb9ec999572462072c4366",
+    "unit_budget_chars": 260000,
+    "unit_text_chars": 2400,
+    "brief_text_chars": 120000,
+    "source_ids": [
+      "ohio-cases",
+      "ohio-statutes",
+      "ohio-ordinances",
+      "treatise"
+    ],
+    "enabled_checks": [
+      "rule_elements"
+    ],
+    "blinding": "The Gym receives brief text and record text only. No fixture id, condition label, mutation class or gold vulnerability reaches any prompt.",
+    "scoring": "The Gym writes stable per-target dispositions. Whether a result matches the registered mutation remains a separate, human-checkable step.",
+    "fixtures": [
+      {
+        "fixture_id": "Q001",
+        "control_sha256": "9a6c948421de6e56fa122d6f8cd875ac6e453b0725b08f8d77c1ebe1f55969c3",
+        "mutant_sha256": "bb3529778b6eaeaea35500d6797b2d397a00346442529c6ffbb8fcb67625f8fb",
+        "attachment_sha256": {
+          "record-01.txt": "9ccc9a094457c554e0a5718230aa4cd3b90faf3af0555e3e35d26402d20c0e2d"
+        }
+      },
+      {
+        "fixture_id": "Q002",
+        "control_sha256": "ddb07fdb7b13e287345a0477081b9d29a7d664515c6ba6d713cd488d2ab08da9",
+        "mutant_sha256": "34712a94925e3e219a693ca4bd09e1857cbd4c837708d6ebb7373a32bfe18a63",
+        "attachment_sha256": {
+          "record-01.txt": "7268d22da10a7ddadfa05e2a359cc1d45534c998565d1afca14ffcfaa9c4cd48"
+        }
+      },
+      {
+        "fixture_id": "Q003",
+        "control_sha256": "2cca21f5d773afe0f60ce9664b45ebc7a5104473363644e003b95e64662e2420",
+        "mutant_sha256": "65f6fe370b00d1304abd0667faa2883e4ad2707ee9619da779c5650384703581",
+        "attachment_sha256": {
+          "record-01.txt": "8fc1da811a13082ea5b19f50fe044a063192c075b2f103755b5791bee8702650"
+        }
+      },
+      {
+        "fixture_id": "Q004",
+        "control_sha256": "4060d248f8b3cb07c42d524b53833f4f86a26e190f71f4c892146c235a59d326",
+        "mutant_sha256": "fa06295a16c9dc4fa55fd95103a3be6fa84290354f0f42bd2d317603000949ce",
+        "attachment_sha256": {
+          "record-01.txt": "aa4238f37038ada6996825aa767952b8aa6e58fd4ae1bdc564e7742f4ef8f7d0"
+        }
+      }
+    ]
+  },
+  "results": [
+    {
+      "fixture_id": "Q001",
+      "condition": "control",
+      "case_family_id": "synthetic-rule-floor-q001",
+      "stratum": "synthetic_rule_floor",
+      "run_id": 34,
+      "run_at": "2026-09-13T19:20:35.849961+00:00",
+      "status": "degraded",
+      "pipeline_status": "complete",
+      "degraded": {
+        "degraded": true,
+        "roles": [
+          "judge"
+        ],
+        "reason": "a model call failed or a Judge batch violated the completeness contract; the affected named check produced no countable verdict",
+        "failures": {
+          "judge": [
+            {
+              "prompt_key": "argument_gym.correctness_judge",
+              "model": "mistral-large-3",
+              "error_type": "OpenAIBackendError",
+              "error": "{\"error\":{\"code\":\"Invalid input\",\"message\":\"{\\\"detail\\\":[{\\\"type\\\":\\\"enum\\\",\\\"loc\\\":[\\\"body\\\",\\\"reasoning_effort\\\"],\\\"msg\\\":\\\"Input should be 'none' or 'high'\\\",\\\"input\\\":\\\"medium\\\",\\\"ctx\\\":{\\\"expected\\\":\\\"'none' or 'high'\\\"}}]}\",\"status\":422}}\nPlease check this guide to understand why this error co"
+            },
+            {
+              "prompt_key": "argument_gym.correctness_judge",
+              "model": "mistral-large-3",
+              "error_type": "IncompleteJudgeBatch",
+              "error": "rule_elements batch 1/1 did not return one justified, evidence-backed ruling per candidate",
+              "candidate_ids": [
+                "rule_elements:rc-5321-11-notice-to-cure:condition_not_remedied",
+                "rule_elements:rc-5321-11-notice-to-cure:covered_breach",
+                "rule_elements:rc-5321-11-notice-to-cure:specific_act",
+                "rule_elements:rc-5321-11-notice-to-cure:termination_date",
+                "rule_elements:rc-5321-11-notice-to-cure:written_notice"
+              ]
+            }
+          ]
+        }
+      },
+      "error": "",
+      "brief_sha256": "9a6c948421de6e56fa122d6f8cd875ac6e453b0725b08f8d77c1ebe1f55969c3",
+      "brief_chars": 1469,
+      "record_documents": 1,
+      "attack_model": "gpt-5.6-terra",
+      "judge_model": "mistral-large-3",
+      "base_model": "gpt-5.6-terra",
+      "same_family": false,
+      "reasoning": "medium",
+      "unit_budget_chars": 260000,
+      "units": 16,
+      "court": {
+        "mode": "auto",
+        "reason": "No maintained court profile matched this document's caption or the case record.",
+        "matched": "",
+        "where": "",
+        "courtSlug": ""
+      },
+      "deterministic_findings": {
+        "rule_elements": 0
+      },
+      "checks_run": [
+        {
+          "id": "record_support",
+          "label": "Test material facts against the record",
+          "description": "Opponent tests only atomic, record-verifiable, material claims; Judge sustains a defect only when the supplied evidence and record coverage establish it.",
+          "kind": "model",
+          "category": "correctness",
+          "categoryLabel": "Correctness",
+          "categoryDescription": "Is the law right? Is the authority controlling? Are the required elements present, and does the record establish what the brief says it does?",
+          "defaultEnabled": true,
+          "requires": [
+            "case_record"
+          ],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "rule_elements",
+          "label": "Audit the elements of the rules invoked",
+          "description": "Detects the rules the brief cites or invokes by name, then audits each element of those rules: is it pleaded, and is it supported.",
+          "kind": "model",
+          "category": "correctness",
+          "categoryLabel": "Correctness",
+          "categoryDescription": "Is the law right? Is the authority controlling? Are the required elements present, and does the record establish what the brief says it does?",
+          "defaultEnabled": true,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "unavailable",
+          "reason": "Judge did not return a complete, justified ruling for every candidate; no verdict from this check was retained."
+        },
+        {
+          "id": "authority_support",
+          "label": "Test cited authority support",
+          "description": "Whether each cited authority supports the material legal proposition for which the brief uses it.",
+          "kind": "model",
+          "category": "correctness",
+          "categoryLabel": "Correctness",
+          "categoryDescription": "Is the law right? Is the authority controlling? Are the required elements present, and does the record establish what the brief says it does?",
+          "defaultEnabled": true,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "adversarial",
+          "label": "Opposing counsel, a judge, and a coach",
+          "description": "The core of the gym: opposing counsel makes the strongest arguments available against the brief, a judge weighs them, and a coach proposes answers.",
+          "kind": "model",
+          "category": "completeness",
+          "categoryLabel": "Argumentative completeness",
+          "categoryDescription": "Does the brief connect its rules to its facts? Does it work the difficult element instead of restating the rule? Does it confront adverse authority and answer the counterargument a court will think of on its own?",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_issue_framing",
+          "label": "Issue framing",
+          "description": "Does the brief identify the real dispute early and frame it around the favorable legal question?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_macro_organization",
+          "label": "Macro-organization",
+          "description": "Are arguments ordered logically and by importance? Can the reader see the roadmap?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_paragraph_organization",
+          "label": "Paragraph-level organization",
+          "description": "Do paragraphs have discernible propositions or topic sentences, and develop one point at a time?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_rule_synthesis",
+          "label": "Rule synthesis",
+          "description": "Does the writer synthesize authorities into a rule rather than serially summarize cases?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_rule_application",
+          "label": "Rule-to-fact application",
+          "description": "Is the reasoning explicit -- \"because X fact satisfies Y element\" -- rather than leaving the inferential step to the court?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_fact_selection",
+          "label": "Fact selection and narrative coherence",
+          "description": "Are legally significant facts foregrounded and organized in a comprehensible chronology or theory?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_use_of_authority",
+          "label": "Use of authority",
+          "description": "Are important propositions backed by strong authorities placed where they actually matter, rather than citation dumping?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_counterarguments",
+          "label": "Handling counterarguments",
+          "description": "Does the brief acknowledge and answer the strongest objection rather than arguing past it?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_concision",
+          "label": "Concision and reader burden",
+          "description": "Does it say the same thing once, in the right place, without unnecessary throat-clearing?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_calibration",
+          "label": "Calibrated confidence and credibility",
+          "description": "Does it distinguish strong propositions from uncertain ones and avoid overclaiming?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_relief_alignment",
+          "label": "Requested-relief alignment",
+          "description": "Does the argument actually lead to the precise thing the brief asks the court to do?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_emphasis",
+          "label": "Emphasis",
+          "description": "Does the document devote its space to the issues that matter rather than treating every point as equally important?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "custom_checklist",
+          "label": "Custom checklist",
+          "description": "Applies review questions you wrote. An item can look things up -- authority, the case record, passages of the brief -- rather than answering from the brief alone. Attach a checklist for this to run.",
+          "kind": "model",
+          "category": "custom",
+          "categoryLabel": "Your own checks",
+          "categoryDescription": "Review questions you wrote, in your words, applied to this brief.",
+          "defaultEnabled": false,
+          "requires": [
+            "checklist"
+          ],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "court_formatting",
+          "label": "This court's filing rules",
+          "description": "Required elements, type size, spacing, margins, and page limits for the selected court.",
+          "kind": "deterministic",
+          "category": "form",
+          "categoryLabel": "Form of the filing",
+          "categoryDescription": "Whether the paper meets this court's rules and the conventions of practice.",
+          "defaultEnabled": false,
+          "requires": [
+            "court_profile"
+          ],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "pleading_form",
+          "label": "Form of the pleading",
+          "description": "Conventions of practice rather than any one court's rules: numbered paragraphs running in order, a prayer for relief, a signature block, exhibit references that resolve, no placeholder left in the text.",
+          "kind": "deterministic",
+          "category": "form",
+          "categoryLabel": "Form of the filing",
+          "categoryDescription": "Whether the paper meets this court's rules and the conventions of practice.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "draft_validation",
+          "label": "Draft-mode validation",
+          "description": "The same checks Draft mode runs: unresolved template data and placeholders, draft structure, rendered Word consistency, citation linting, source support, and filing-package consistency.",
+          "kind": "deterministic",
+          "category": "form",
+          "categoryLabel": "Form of the filing",
+          "categoryDescription": "Whether the paper meets this court's rules and the conventions of practice.",
+          "defaultEnabled": false,
+          "requires": [
+            "native_draft"
+          ],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "grammar",
+          "label": "Grammar and mechanics",
+          "description": "Doubled words, missing sentence spacing, unbalanced quotes and parentheses.",
+          "kind": "deterministic",
+          "category": "language",
+          "categoryLabel": "Language",
+          "categoryDescription": "Sentence-level mechanics, reported as nudges rather than as defects in the argument.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "confused_words",
+          "label": "Misspelled and easily confused words",
+          "description": "Not a dictionary spell check, on purpose: a general dictionary flags half of every case name. This looks for the words legal writing actually gets wrong, and for real words used in place of other real words.",
+          "kind": "deterministic",
+          "category": "language",
+          "categoryLabel": "Language",
+          "categoryDescription": "Sentence-level mechanics, reported as nudges rather than as defects in the argument.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "passive_voice",
+          "label": "Passive voice",
+          "description": "Reported as a nudge, never an error. Phrases a court expects to read are on an accepted list you can add to for this session.",
+          "kind": "deterministic",
+          "category": "language",
+          "categoryLabel": "Language",
+          "categoryDescription": "Sentence-level mechanics, reported as nudges rather than as defects in the argument.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "acceptedPassivePhrases: phrases this court expects, which the check stays quiet about.",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "readability",
+          "label": "Readability",
+          "description": "Sentence length and reading-level measures, reported as several formulas rather than one score.",
+          "kind": "deterministic",
+          "category": "language",
+          "categoryLabel": "Language",
+          "categoryDescription": "Sentence-level mechanics, reported as nudges rather than as defects in the argument.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        }
+      ],
+      "check_results": {
+        "rule_elements": {
+          "findings": [],
+          "tests": [],
+          "summary": "Judge did not return a complete, justified ruling for every candidate; no verdict from this check was retained."
+        }
+      },
+      "correctness_tests": [],
+      "rule_audit": [
+        {
+          "slug": "rc-5321-11-notice-to-cure",
+          "name": "Notice for tenant breach materially affecting health and safety",
+          "citation": "R.C. 5321.11",
+          "label": "Notice for tenant breach materially affecting health and safety (R.C. 5321.11)",
+          "summary": "For covered R.C. 5321.05 breaches materially affecting health and safety, the written notice must specify the noncompliant act or omission and a termination date at least thirty days after receipt; timely remedy prevents termination.",
+          "verification": "verified",
+          "source": "R.C. 5321.11; Iskin (6th ed. 2022), \u00a7\u00a7 I.D.2, II.A.2, II.F",
+          "sourceUrl": "https://codes.ohio.gov/ohio-revised-code/section-5321.11",
+          "invokedBy": "citation",
+          "matched": "R.C. 5321.11",
+          "excerpt": "IN THE FRANKLIN COUNTY MUNICIPAL COURT MEMORANDUM SUPPORTING TERMINATION UNDER R.C. 5321.11 STATEMENT OF FACTS Morgan Taylor rents a residential apartment from Oak Street Homes. Taylor stored open gasoline cans in the only interior exit corridor. The cans obstructed egress and created an immediate fire hazard. On January 1, 2026, Oak Street Homes delivered a written notice t",
+          "audited": true,
+          "briefCoverage": {
+            "reviewedChars": 1469,
+            "totalChars": 1469,
+            "truncated": false
+          },
+          "requiresApplicabilityReview": false,
+          "elements": [
+            {
+              "id": "covered_breach",
+              "label": "Alleged R.C. 5321.05 breach materially affects health and safety",
+              "requirement": "Identify the covered obligation and material health-or-safety effect.",
+              "severity": "error",
+              "needsRecordSupport": true,
+              "requiredWhen": "",
+              "patterns": [
+                "5321\\.05",
+                "materially affect.{0,30}health.{0,10}safety"
+              ],
+              "note": "",
+              "origin": "profile",
+              "pled": "yes",
+              "applicability": "applicable",
+              "supported": "yes",
+              "explanation": "The brief alleges that storing open gasoline cans in the only interior exit corridor breached the tenant's R.C. 5321.05 safety obligation and materially affected health and safety through fire and egress hazards. The declaration corroborates the obstructed exit corridor and immediate fire and egress hazard.",
+              "quote": "Taylor's storage of open gasoline cans in the only exit corridor breached the tenant's obligation under R.C. 5321.05 and materially affected health and safety.",
+              "materialIds": [
+                "upload:35"
+              ],
+              "unmet": false
+            },
+            {
+              "id": "written_notice",
+              "label": "Landlord delivered written notice",
+              "requirement": "Identify delivery and receipt of a written notice.",
+              "severity": "error",
+              "needsRecordSupport": true,
+              "requiredWhen": "",
+              "patterns": [
+                "written notice",
+                "receiv.{0,40}notice"
+              ],
+              "note": "",
+              "origin": "profile",
+              "pled": "yes",
+              "applicability": "applicable",
+              "supported": "yes",
+              "explanation": "The brief alleges delivery of a written notice on January 1, 2026, and receipt that day. The property manager's declaration states that the notice was hand-delivered and that Taylor signed a receipt.",
+              "quote": "On January 1, 2026, Oak Street Homes delivered a written notice to Taylor, who received it that day.",
+              "materialIds": [
+                "upload:35"
+              ],
+              "unmet": false
+            },
+            {
+              "id": "specific_act",
+              "label": "Notice specified the noncompliant act or omission",
+              "requirement": "Quote or attach the notice's factual specification.",
+              "severity": "error",
+              "needsRecordSupport": true,
+              "requiredWhen": "",
+              "patterns": [
+                "act or omission",
+                "specif.{0,50}(violation|breach|noncompliance)"
+              ],
+              "note": "",
+              "origin": "profile",
+              "pled": "yes",
+              "applicability": "applicable",
+              "supported": "yes",
+              "explanation": "The brief quotes the notice's factual specification of the noncompliant conduct. The declaration reproduces the same notice language.",
+              "quote": "The notice stated: \"Remove the open gasoline cans from the only interior exit corridor. Their storage there violates the tenant's safety obligation under R.C. 5321.05.\"",
+              "materialIds": [
+                "upload:35"
+              ],
+              "unmet": false
+            },
+            {
+              "id": "termination_date",
+              "label": "Notice set a termination date at least thirty days after receipt",
+              "requirement": "Provide receipt and termination dates.",
+              "severity": "error",
+              "needsRecordSupport": true,
+              "requiredWhen": "",
+              "patterns": [
+                "thirty days",
+                "30 days",
+                "termination date"
+              ],
+              "note": "",
+              "origin": "profile",
+              "pled": "yes",
+              "applicability": "applicable",
+              "supported": "yes",
+              "explanation": "The brief provides both the January 1, 2026 receipt date and the February 15, 2026 termination date, and alleges the forty-five-day interval. The declaration supports both dates.",
+              "quote": "The written notice set February 15, 2026 as the termination date, forty-five days after Taylor received it.",
+              "materialIds": [
+                "upload:35"
+              ],
+              "unmet": false
+            },
+            {
+              "id": "condition_not_remedied",
+              "label": "Condition remained unremedied",
+              "requirement": "Address remedy within the statutory period.",
+              "severity": "error",
+              "needsRecordSupport": true,
+              "requiredWhen": "",
+              "patterns": [
+                "fail.{0,30}remed",
+                "not remed"
+              ],
+              "note": "",
+              "origin": "profile",
+              "pled": "yes",
+              "applicability": "applicable",
+              "supported": "yes",
+              "explanation": "The brief alleges that Taylor did not remedy the condition during the statutory period and that the gasoline cans remained after the termination date. The declaration supports that the same cans were observed in the same location on February 16, 2026.",
+              "quote": "Taylor did not remedy the condition during the statutory period; the cans remained in the corridor when the property was inspected on February 16, after the termination date.",
+              "materialIds": [
+                "upload:35"
+              ],
+              "unmet": false
+            }
+          ],
+          "unmetCount": 0,
+          "verdict": "Every element on file is pleaded and supported."
+        }
+      ],
+      "compliance": {
+        "checked": false,
+        "reason": "You turned this check off for this session.",
+        "findings": [],
+        "detection": {
+          "mode": "auto",
+          "reason": "No maintained court profile matched this document's caption or the case record.",
+          "matched": "",
+          "where": "",
+          "courtSlug": ""
+        }
+      },
+      "challenges": [],
+      "challenge_count": 0,
+      "opponent_calls": [],
+      "judge_calls": [],
+      "verdict": "correctness review completed",
+      "assessment": "Correctness review completed. 0 must-fix findings; 0 items need attorney review. Rule elements: no eligible targets",
+      "stage_trace": [
+        {
+          "stage": "document_checks",
+          "method": "deterministic",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "materials",
+          "method": "all",
+          "count": 1,
+          "budgetChars": 150000,
+          "perMaterialChars": 150000,
+          "truncated": [],
+          "trace": []
+        },
+        {
+          "stage": "argument_map",
+          "method": "skipped",
+          "count": 0,
+          "trace": [
+            "No selected check requires a generative argument map."
+          ]
+        },
+        {
+          "stage": "persuasion",
+          "method": "off",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "record_targets",
+          "method": "off",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "opponent:record_support",
+          "method": "off",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "authority_research",
+          "method": "source_specific",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "research_queries",
+          "method": "off",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "research",
+          "method": "retrieval",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "opponent",
+          "method": "off",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "opponent:authority_support",
+          "method": "off",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "rule_elements",
+          "method": "llm",
+          "count": 1,
+          "trace": [
+            {
+              "stage": "rule_elements:rc-5321-11-notice-to-cure",
+              "method": "llm",
+              "count": 5,
+              "trace": [
+                {
+                  "attempt": 1,
+                  "plan": {
+                    "method": "llm"
+                  },
+                  "success": true,
+                  "code": "rule_elements:rc-5321-11-notice-to-cure_complete",
+                  "message": "rule_elements:rc-5321-11-notice-to-cure produced 5 item(s)."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "stage": "judge",
+          "method": "off",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "judge:rule_elements",
+          "method": "deterministic",
+          "count": 0,
+          "trace": [
+            {
+              "attempt": 1,
+              "plan": {
+                "method": "llm"
+              },
+              "success": false,
+              "code": "judge:rule_elements_empty",
+              "message": "The judge:rule_elements stage produced nothing usable."
+            },
+            {
+              "attempt": 2,
+              "plan": {
+                "method": "deterministic",
+                "repair": "fallback_judge:rule_elements"
+              },
+              "success": false,
+              "code": "judge:rule_elements_empty",
+              "message": "The judge:rule_elements stage produced nothing usable."
+            }
+          ],
+          "checkId": "rule_elements",
+          "batch": 1,
+          "batches": 1,
+          "candidateIds": [
+            "rule_elements:rc-5321-11-notice-to-cure:condition_not_remedied",
+            "rule_elements:rc-5321-11-notice-to-cure:covered_breach",
+            "rule_elements:rc-5321-11-notice-to-cure:specific_act",
+            "rule_elements:rc-5321-11-notice-to-cure:termination_date",
+            "rule_elements:rc-5321-11-notice-to-cure:written_notice"
+          ],
+          "unavailable": true,
+          "checkUnavailable": true
+        },
+        {
+          "stage": "coach",
+          "method": "skipped",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "assessment",
+          "method": "deterministic",
+          "count": 1,
+          "trace": []
+        }
+      ],
+      "research_trace": [],
+      "model_calls": [
+        {
+          "prompt_key": "argument_gym.rule_elements",
+          "role": "base",
+          "model": "gpt-5.6-terra",
+          "settings": {
+            "temperature": 0,
+            "model": "gpt-5.6-terra",
+            "reasoning_level": "medium"
+          },
+          "status": "complete",
+          "elapsed_seconds": 6.29
+        },
+        {
+          "prompt_key": "argument_gym.correctness_judge",
+          "role": "judge",
+          "model": "mistral-large-3",
+          "settings": {
+            "temperature": 0,
+            "model": "mistral-large-3",
+            "reasoning_level": "medium"
+          },
+          "status": "failed",
+          "error_type": "OpenAIBackendError",
+          "error": "{\"error\":{\"code\":\"Invalid input\",\"message\":\"{\\\"detail\\\":[{\\\"type\\\":\\\"enum\\\",\\\"loc\\\":[\\\"body\\\",\\\"reasoning_effort\\\"],\\\"msg\\\":\\\"Input should be 'none' or 'high'\\\",\\\"input\\\":\\\"medium\\\",\\\"ctx\\\":{\\\"expected\\\":\\\"'none' or 'high'\\\"}}]}\",\"status\":422}}\nPlease check this guide to understand why this error code might have been returned \nhttps://docs.microsoft.com/en-us/azure/machine-learning/how-to-troubles",
+          "elapsed_seconds": 0.519
+        }
+      ],
+      "attacks_given_to_judge": 0
+    },
+    {
+      "fixture_id": "Q001",
+      "condition": "mutant",
+      "case_family_id": "synthetic-rule-floor-q001",
+      "stratum": "synthetic_rule_floor",
+      "run_id": 35,
+      "run_at": "2026-09-13T19:20:42.739526+00:00",
+      "status": "degraded",
+      "pipeline_status": "complete",
+      "degraded": {
+        "degraded": true,
+        "roles": [
+          "judge"
+        ],
+        "reason": "a model call failed or a Judge batch violated the completeness contract; the affected named check produced no countable verdict",
+        "failures": {
+          "judge": [
+            {
+              "prompt_key": "argument_gym.correctness_judge",
+              "model": "mistral-large-3",
+              "error_type": "OpenAIBackendError",
+              "error": "{\"error\":{\"code\":\"Invalid input\",\"message\":\"{\\\"detail\\\":[{\\\"type\\\":\\\"enum\\\",\\\"loc\\\":[\\\"body\\\",\\\"reasoning_effort\\\"],\\\"msg\\\":\\\"Input should be 'none' or 'high'\\\",\\\"input\\\":\\\"medium\\\",\\\"ctx\\\":{\\\"expected\\\":\\\"'none' or 'high'\\\"}}]}\",\"status\":422}}\nPlease check this guide to understand why this error co"
+            },
+            {
+              "prompt_key": "argument_gym.correctness_judge",
+              "model": "mistral-large-3",
+              "error_type": "IncompleteJudgeBatch",
+              "error": "rule_elements batch 1/1 did not return one justified, evidence-backed ruling per candidate",
+              "candidate_ids": [
+                "rule_elements:rc-5321-11-notice-to-cure:condition_not_remedied",
+                "rule_elements:rc-5321-11-notice-to-cure:covered_breach",
+                "rule_elements:rc-5321-11-notice-to-cure:specific_act",
+                "rule_elements:rc-5321-11-notice-to-cure:termination_date",
+                "rule_elements:rc-5321-11-notice-to-cure:written_notice"
+              ]
+            }
+          ]
+        }
+      },
+      "error": "",
+      "brief_sha256": "bb3529778b6eaeaea35500d6797b2d397a00346442529c6ffbb8fcb67625f8fb",
+      "brief_chars": 1360,
+      "record_documents": 1,
+      "attack_model": "gpt-5.6-terra",
+      "judge_model": "mistral-large-3",
+      "base_model": "gpt-5.6-terra",
+      "same_family": false,
+      "reasoning": "medium",
+      "unit_budget_chars": 260000,
+      "units": 15,
+      "court": {
+        "mode": "auto",
+        "reason": "No maintained court profile matched this document's caption or the case record.",
+        "matched": "",
+        "where": "",
+        "courtSlug": ""
+      },
+      "deterministic_findings": {
+        "rule_elements": 0
+      },
+      "checks_run": [
+        {
+          "id": "record_support",
+          "label": "Test material facts against the record",
+          "description": "Opponent tests only atomic, record-verifiable, material claims; Judge sustains a defect only when the supplied evidence and record coverage establish it.",
+          "kind": "model",
+          "category": "correctness",
+          "categoryLabel": "Correctness",
+          "categoryDescription": "Is the law right? Is the authority controlling? Are the required elements present, and does the record establish what the brief says it does?",
+          "defaultEnabled": true,
+          "requires": [
+            "case_record"
+          ],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "rule_elements",
+          "label": "Audit the elements of the rules invoked",
+          "description": "Detects the rules the brief cites or invokes by name, then audits each element of those rules: is it pleaded, and is it supported.",
+          "kind": "model",
+          "category": "correctness",
+          "categoryLabel": "Correctness",
+          "categoryDescription": "Is the law right? Is the authority controlling? Are the required elements present, and does the record establish what the brief says it does?",
+          "defaultEnabled": true,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "unavailable",
+          "reason": "Judge did not return a complete, justified ruling for every candidate; no verdict from this check was retained."
+        },
+        {
+          "id": "authority_support",
+          "label": "Test cited authority support",
+          "description": "Whether each cited authority supports the material legal proposition for which the brief uses it.",
+          "kind": "model",
+          "category": "correctness",
+          "categoryLabel": "Correctness",
+          "categoryDescription": "Is the law right? Is the authority controlling? Are the required elements present, and does the record establish what the brief says it does?",
+          "defaultEnabled": true,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "adversarial",
+          "label": "Opposing counsel, a judge, and a coach",
+          "description": "The core of the gym: opposing counsel makes the strongest arguments available against the brief, a judge weighs them, and a coach proposes answers.",
+          "kind": "model",
+          "category": "completeness",
+          "categoryLabel": "Argumentative completeness",
+          "categoryDescription": "Does the brief connect its rules to its facts? Does it work the difficult element instead of restating the rule? Does it confront adverse authority and answer the counterargument a court will think of on its own?",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_issue_framing",
+          "label": "Issue framing",
+          "description": "Does the brief identify the real dispute early and frame it around the favorable legal question?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_macro_organization",
+          "label": "Macro-organization",
+          "description": "Are arguments ordered logically and by importance? Can the reader see the roadmap?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_paragraph_organization",
+          "label": "Paragraph-level organization",
+          "description": "Do paragraphs have discernible propositions or topic sentences, and develop one point at a time?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_rule_synthesis",
+          "label": "Rule synthesis",
+          "description": "Does the writer synthesize authorities into a rule rather than serially summarize cases?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_rule_application",
+          "label": "Rule-to-fact application",
+          "description": "Is the reasoning explicit -- \"because X fact satisfies Y element\" -- rather than leaving the inferential step to the court?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_fact_selection",
+          "label": "Fact selection and narrative coherence",
+          "description": "Are legally significant facts foregrounded and organized in a comprehensible chronology or theory?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_use_of_authority",
+          "label": "Use of authority",
+          "description": "Are important propositions backed by strong authorities placed where they actually matter, rather than citation dumping?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_counterarguments",
+          "label": "Handling counterarguments",
+          "description": "Does the brief acknowledge and answer the strongest objection rather than arguing past it?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_concision",
+          "label": "Concision and reader burden",
+          "description": "Does it say the same thing once, in the right place, without unnecessary throat-clearing?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_calibration",
+          "label": "Calibrated confidence and credibility",
+          "description": "Does it distinguish strong propositions from uncertain ones and avoid overclaiming?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_relief_alignment",
+          "label": "Requested-relief alignment",
+          "description": "Does the argument actually lead to the precise thing the brief asks the court to do?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_emphasis",
+          "label": "Emphasis",
+          "description": "Does the document devote its space to the issues that matter rather than treating every point as equally important?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "custom_checklist",
+          "label": "Custom checklist",
+          "description": "Applies review questions you wrote. An item can look things up -- authority, the case record, passages of the brief -- rather than answering from the brief alone. Attach a checklist for this to run.",
+          "kind": "model",
+          "category": "custom",
+          "categoryLabel": "Your own checks",
+          "categoryDescription": "Review questions you wrote, in your words, applied to this brief.",
+          "defaultEnabled": false,
+          "requires": [
+            "checklist"
+          ],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "court_formatting",
+          "label": "This court's filing rules",
+          "description": "Required elements, type size, spacing, margins, and page limits for the selected court.",
+          "kind": "deterministic",
+          "category": "form",
+          "categoryLabel": "Form of the filing",
+          "categoryDescription": "Whether the paper meets this court's rules and the conventions of practice.",
+          "defaultEnabled": false,
+          "requires": [
+            "court_profile"
+          ],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "pleading_form",
+          "label": "Form of the pleading",
+          "description": "Conventions of practice rather than any one court's rules: numbered paragraphs running in order, a prayer for relief, a signature block, exhibit references that resolve, no placeholder left in the text.",
+          "kind": "deterministic",
+          "category": "form",
+          "categoryLabel": "Form of the filing",
+          "categoryDescription": "Whether the paper meets this court's rules and the conventions of practice.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "draft_validation",
+          "label": "Draft-mode validation",
+          "description": "The same checks Draft mode runs: unresolved template data and placeholders, draft structure, rendered Word consistency, citation linting, source support, and filing-package consistency.",
+          "kind": "deterministic",
+          "category": "form",
+          "categoryLabel": "Form of the filing",
+          "categoryDescription": "Whether the paper meets this court's rules and the conventions of practice.",
+          "defaultEnabled": false,
+          "requires": [
+            "native_draft"
+          ],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "grammar",
+          "label": "Grammar and mechanics",
+          "description": "Doubled words, missing sentence spacing, unbalanced quotes and parentheses.",
+          "kind": "deterministic",
+          "category": "language",
+          "categoryLabel": "Language",
+          "categoryDescription": "Sentence-level mechanics, reported as nudges rather than as defects in the argument.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "confused_words",
+          "label": "Misspelled and easily confused words",
+          "description": "Not a dictionary spell check, on purpose: a general dictionary flags half of every case name. This looks for the words legal writing actually gets wrong, and for real words used in place of other real words.",
+          "kind": "deterministic",
+          "category": "language",
+          "categoryLabel": "Language",
+          "categoryDescription": "Sentence-level mechanics, reported as nudges rather than as defects in the argument.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "passive_voice",
+          "label": "Passive voice",
+          "description": "Reported as a nudge, never an error. Phrases a court expects to read are on an accepted list you can add to for this session.",
+          "kind": "deterministic",
+          "category": "language",
+          "categoryLabel": "Language",
+          "categoryDescription": "Sentence-level mechanics, reported as nudges rather than as defects in the argument.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "acceptedPassivePhrases: phrases this court expects, which the check stays quiet about.",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "readability",
+          "label": "Readability",
+          "description": "Sentence length and reading-level measures, reported as several formulas rather than one score.",
+          "kind": "deterministic",
+          "category": "language",
+          "categoryLabel": "Language",
+          "categoryDescription": "Sentence-level mechanics, reported as nudges rather than as defects in the argument.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        }
+      ],
+      "check_results": {
+        "rule_elements": {
+          "findings": [],
+          "tests": [],
+          "summary": "Judge did not return a complete, justified ruling for every candidate; no verdict from this check was retained."
+        }
+      },
+      "correctness_tests": [],
+      "rule_audit": [
+        {
+          "slug": "rc-5321-11-notice-to-cure",
+          "name": "Notice for tenant breach materially affecting health and safety",
+          "citation": "R.C. 5321.11",
+          "label": "Notice for tenant breach materially affecting health and safety (R.C. 5321.11)",
+          "summary": "For covered R.C. 5321.05 breaches materially affecting health and safety, the written notice must specify the noncompliant act or omission and a termination date at least thirty days after receipt; timely remedy prevents termination.",
+          "verification": "verified",
+          "source": "R.C. 5321.11; Iskin (6th ed. 2022), \u00a7\u00a7 I.D.2, II.A.2, II.F",
+          "sourceUrl": "https://codes.ohio.gov/ohio-revised-code/section-5321.11",
+          "invokedBy": "citation",
+          "matched": "R.C. 5321.11",
+          "excerpt": "IN THE FRANKLIN COUNTY MUNICIPAL COURT MEMORANDUM SUPPORTING TERMINATION UNDER R.C. 5321.11 STATEMENT OF FACTS Morgan Taylor rents a residential apartment from Oak Street Homes. Taylor stored open gasoline cans in the only interior exit corridor. The cans obstructed egress and created an immediate fire hazard. On January 1, 2026, Oak Street Homes delivered a written notice t",
+          "audited": true,
+          "briefCoverage": {
+            "reviewedChars": 1360,
+            "totalChars": 1360,
+            "truncated": false
+          },
+          "requiresApplicabilityReview": false,
+          "elements": [
+            {
+              "id": "covered_breach",
+              "label": "Alleged R.C. 5321.05 breach materially affects health and safety",
+              "requirement": "Identify the covered obligation and material health-or-safety effect.",
+              "severity": "error",
+              "needsRecordSupport": true,
+              "requiredWhen": "",
+              "patterns": [
+                "5321\\.05",
+                "materially affect.{0,30}health.{0,10}safety"
+              ],
+              "note": "",
+              "origin": "profile",
+              "pled": "yes",
+              "applicability": "applicable",
+              "supported": "yes",
+              "explanation": "The brief alleges a breach of the tenant's R.C. 5321.05 safety obligation by storing open gasoline cans in the only interior exit corridor, creating a material fire and egress hazard. The property-manager declaration supports both the hazardous condition and its health-and-safety effect.",
+              "quote": "Taylor's storage of open gasoline cans in the only exit corridor breached the tenant's obligation under R.C. 5321.05 and materially affected health and safety.",
+              "materialIds": [
+                "upload:37"
+              ],
+              "unmet": false
+            },
+            {
+              "id": "written_notice",
+              "label": "Landlord delivered written notice",
+              "requirement": "Identify delivery and receipt of a written notice.",
+              "severity": "error",
+              "needsRecordSupport": true,
+              "requiredWhen": "",
+              "patterns": [
+                "written notice",
+                "receiv.{0,40}notice"
+              ],
+              "note": "",
+              "origin": "profile",
+              "pled": "yes",
+              "applicability": "applicable",
+              "supported": "yes",
+              "explanation": "The brief alleges that the landlord delivered a written notice, and the declaration states that it was hand-delivered and received by Taylor on January 1, 2026, as shown by Taylor's signed receipt.",
+              "quote": "The landlord delivered a written notice that specified the precise noncompliant act.",
+              "materialIds": [
+                "upload:37"
+              ],
+              "unmet": false
+            },
+            {
+              "id": "specific_act",
+              "label": "Notice specified the noncompliant act or omission",
+              "requirement": "Quote or attach the notice's factual specification.",
+              "severity": "error",
+              "needsRecordSupport": true,
+              "requiredWhen": "",
+              "patterns": [
+                "act or omission",
+                "specif.{0,50}(violation|breach|noncompliance)"
+              ],
+              "note": "",
+              "origin": "profile",
+              "pled": "yes",
+              "applicability": "applicable",
+              "supported": "yes",
+              "explanation": "The brief quotes the notice's factual specification of the noncompliant conduct. The declaration reproduces the same notice language.",
+              "quote": "The notice stated: \"Remove the open gasoline cans from the only interior exit corridor. Their storage there violates the tenant's safety obligation under R.C. 5321.05.\"",
+              "materialIds": [
+                "upload:37"
+              ],
+              "unmet": false
+            },
+            {
+              "id": "termination_date",
+              "label": "Notice set a termination date at least thirty days after receipt",
+              "requirement": "Provide receipt and termination dates.",
+              "severity": "error",
+              "needsRecordSupport": true,
+              "requiredWhen": "",
+              "patterns": [
+                "thirty days",
+                "30 days",
+                "termination date"
+              ],
+              "note": "",
+              "origin": "profile",
+              "pled": "partial",
+              "applicability": "applicable",
+              "supported": "yes",
+              "explanation": "The brief refers to an inspection occurring after the termination date but does not provide the receipt date and termination date needed to show the required minimum interval. The declaration supplies January 1, 2026 receipt and a February 15, 2026 termination date, which is more than thirty days later.",
+              "quote": "Taylor did not remedy the condition during the statutory period; the cans remained in the corridor when the property was inspected on February 16, after the termination date.",
+              "materialIds": [
+                "upload:37"
+              ],
+              "unmet": true
+            },
+            {
+              "id": "condition_not_remedied",
+              "label": "Condition remained unremedied",
+              "requirement": "Address remedy within the statutory period.",
+              "severity": "error",
+              "needsRecordSupport": true,
+              "requiredWhen": "",
+              "patterns": [
+                "fail.{0,30}remed",
+                "not remed"
+              ],
+              "note": "",
+              "origin": "profile",
+              "pled": "yes",
+              "applicability": "applicable",
+              "supported": "yes",
+              "explanation": "The brief alleges that Taylor did not remedy the condition during the statutory period and that the cans remained on February 16. The declaration supports that assertion through the February 16 inspection observation.",
+              "quote": "Taylor did not remedy the condition during the statutory period; the cans remained in the corridor when the property was inspected on February 16, after the termination date.",
+              "materialIds": [
+                "upload:37"
+              ],
+              "unmet": false
+            }
+          ],
+          "unmetCount": 1,
+          "verdict": "1 of 5 elements need review; unavailable evidence or unrecognized wording does not establish a defect."
+        }
+      ],
+      "compliance": {
+        "checked": false,
+        "reason": "You turned this check off for this session.",
+        "findings": [],
+        "detection": {
+          "mode": "auto",
+          "reason": "No maintained court profile matched this document's caption or the case record.",
+          "matched": "",
+          "where": "",
+          "courtSlug": ""
+        }
+      },
+      "challenges": [],
+      "challenge_count": 0,
+      "opponent_calls": [],
+      "judge_calls": [],
+      "verdict": "correctness review completed",
+      "assessment": "Correctness review completed. 0 must-fix findings; 0 items need attorney review. Rule elements: no eligible targets",
+      "stage_trace": [
+        {
+          "stage": "document_checks",
+          "method": "deterministic",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "materials",
+          "method": "all",
+          "count": 1,
+          "budgetChars": 150000,
+          "perMaterialChars": 150000,
+          "truncated": [],
+          "trace": []
+        },
+        {
+          "stage": "argument_map",
+          "method": "skipped",
+          "count": 0,
+          "trace": [
+            "No selected check requires a generative argument map."
+          ]
+        },
+        {
+          "stage": "persuasion",
+          "method": "off",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "record_targets",
+          "method": "off",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "opponent:record_support",
+          "method": "off",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "authority_research",
+          "method": "source_specific",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "research_queries",
+          "method": "off",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "research",
+          "method": "retrieval",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "opponent",
+          "method": "off",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "opponent:authority_support",
+          "method": "off",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "rule_elements",
+          "method": "llm",
+          "count": 1,
+          "trace": [
+            {
+              "stage": "rule_elements:rc-5321-11-notice-to-cure",
+              "method": "llm",
+              "count": 5,
+              "trace": [
+                {
+                  "attempt": 1,
+                  "plan": {
+                    "method": "llm"
+                  },
+                  "success": true,
+                  "code": "rule_elements:rc-5321-11-notice-to-cure_complete",
+                  "message": "rule_elements:rc-5321-11-notice-to-cure produced 5 item(s)."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "stage": "judge",
+          "method": "off",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "judge:rule_elements",
+          "method": "deterministic",
+          "count": 0,
+          "trace": [
+            {
+              "attempt": 1,
+              "plan": {
+                "method": "llm"
+              },
+              "success": false,
+              "code": "judge:rule_elements_empty",
+              "message": "The judge:rule_elements stage produced nothing usable."
+            },
+            {
+              "attempt": 2,
+              "plan": {
+                "method": "deterministic",
+                "repair": "fallback_judge:rule_elements"
+              },
+              "success": false,
+              "code": "judge:rule_elements_empty",
+              "message": "The judge:rule_elements stage produced nothing usable."
+            }
+          ],
+          "checkId": "rule_elements",
+          "batch": 1,
+          "batches": 1,
+          "candidateIds": [
+            "rule_elements:rc-5321-11-notice-to-cure:condition_not_remedied",
+            "rule_elements:rc-5321-11-notice-to-cure:covered_breach",
+            "rule_elements:rc-5321-11-notice-to-cure:specific_act",
+            "rule_elements:rc-5321-11-notice-to-cure:termination_date",
+            "rule_elements:rc-5321-11-notice-to-cure:written_notice"
+          ],
+          "unavailable": true,
+          "checkUnavailable": true
+        },
+        {
+          "stage": "coach",
+          "method": "skipped",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "assessment",
+          "method": "deterministic",
+          "count": 1,
+          "trace": []
+        }
+      ],
+      "research_trace": [],
+      "model_calls": [
+        {
+          "prompt_key": "argument_gym.rule_elements",
+          "role": "base",
+          "model": "gpt-5.6-terra",
+          "settings": {
+            "temperature": 0,
+            "model": "gpt-5.6-terra",
+            "reasoning_level": "medium"
+          },
+          "status": "complete",
+          "elapsed_seconds": 6.305
+        },
+        {
+          "prompt_key": "argument_gym.correctness_judge",
+          "role": "judge",
+          "model": "mistral-large-3",
+          "settings": {
+            "temperature": 0,
+            "model": "mistral-large-3",
+            "reasoning_level": "medium"
+          },
+          "status": "failed",
+          "error_type": "OpenAIBackendError",
+          "error": "{\"error\":{\"code\":\"Invalid input\",\"message\":\"{\\\"detail\\\":[{\\\"type\\\":\\\"enum\\\",\\\"loc\\\":[\\\"body\\\",\\\"reasoning_effort\\\"],\\\"msg\\\":\\\"Input should be 'none' or 'high'\\\",\\\"input\\\":\\\"medium\\\",\\\"ctx\\\":{\\\"expected\\\":\\\"'none' or 'high'\\\"}}]}\",\"status\":422}}\nPlease check this guide to understand why this error code might have been returned \nhttps://docs.microsoft.com/en-us/azure/machine-learning/how-to-troubles",
+          "elapsed_seconds": 0.312
+        }
+      ],
+      "attacks_given_to_judge": 0
+    },
+    {
+      "fixture_id": "Q002",
+      "condition": "control",
+      "case_family_id": "synthetic-rule-floor-q002",
+      "stratum": "synthetic_rule_floor",
+      "run_id": 36,
+      "run_at": "2026-09-13T19:20:47.679296+00:00",
+      "status": "degraded",
+      "pipeline_status": "complete",
+      "degraded": {
+        "degraded": true,
+        "roles": [
+          "judge"
+        ],
+        "reason": "a model call failed or a Judge batch violated the completeness contract; the affected named check produced no countable verdict",
+        "failures": {
+          "judge": [
+            {
+              "prompt_key": "argument_gym.correctness_judge",
+              "model": "mistral-large-3",
+              "error_type": "OpenAIBackendError",
+              "error": "{\"error\":{\"code\":\"Invalid input\",\"message\":\"{\\\"detail\\\":[{\\\"type\\\":\\\"enum\\\",\\\"loc\\\":[\\\"body\\\",\\\"reasoning_effort\\\"],\\\"msg\\\":\\\"Input should be 'none' or 'high'\\\",\\\"input\\\":\\\"medium\\\",\\\"ctx\\\":{\\\"expected\\\":\\\"'none' or 'high'\\\"}}]}\",\"status\":422}}\nPlease check this guide to understand why this error co"
+            },
+            {
+              "prompt_key": "argument_gym.correctness_judge",
+              "model": "mistral-large-3",
+              "error_type": "IncompleteJudgeBatch",
+              "error": "rule_elements batch 1/1 did not return one justified, evidence-backed ruling per candidate",
+              "candidate_ids": [
+                "rule_elements:rc-5321-15-self-help:prohibited_recovery_act",
+                "rule_elements:rc-5321-15-self-help:residential_landlord_tenant",
+                "rule_elements:rc-5321-15-self-help:resulting_damage"
+              ]
+            }
+          ]
+        }
+      },
+      "error": "",
+      "brief_sha256": "ddb07fdb7b13e287345a0477081b9d29a7d664515c6ba6d713cd488d2ab08da9",
+      "brief_chars": 1252,
+      "record_documents": 1,
+      "attack_model": "gpt-5.6-terra",
+      "judge_model": "mistral-large-3",
+      "base_model": "gpt-5.6-terra",
+      "same_family": false,
+      "reasoning": "medium",
+      "unit_budget_chars": 260000,
+      "units": 14,
+      "court": {
+        "mode": "auto",
+        "reason": "No maintained court profile matched this document's caption or the case record.",
+        "matched": "",
+        "where": "",
+        "courtSlug": ""
+      },
+      "deterministic_findings": {
+        "rule_elements": 0
+      },
+      "checks_run": [
+        {
+          "id": "record_support",
+          "label": "Test material facts against the record",
+          "description": "Opponent tests only atomic, record-verifiable, material claims; Judge sustains a defect only when the supplied evidence and record coverage establish it.",
+          "kind": "model",
+          "category": "correctness",
+          "categoryLabel": "Correctness",
+          "categoryDescription": "Is the law right? Is the authority controlling? Are the required elements present, and does the record establish what the brief says it does?",
+          "defaultEnabled": true,
+          "requires": [
+            "case_record"
+          ],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "rule_elements",
+          "label": "Audit the elements of the rules invoked",
+          "description": "Detects the rules the brief cites or invokes by name, then audits each element of those rules: is it pleaded, and is it supported.",
+          "kind": "model",
+          "category": "correctness",
+          "categoryLabel": "Correctness",
+          "categoryDescription": "Is the law right? Is the authority controlling? Are the required elements present, and does the record establish what the brief says it does?",
+          "defaultEnabled": true,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "unavailable",
+          "reason": "Judge did not return a complete, justified ruling for every candidate; no verdict from this check was retained."
+        },
+        {
+          "id": "authority_support",
+          "label": "Test cited authority support",
+          "description": "Whether each cited authority supports the material legal proposition for which the brief uses it.",
+          "kind": "model",
+          "category": "correctness",
+          "categoryLabel": "Correctness",
+          "categoryDescription": "Is the law right? Is the authority controlling? Are the required elements present, and does the record establish what the brief says it does?",
+          "defaultEnabled": true,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "adversarial",
+          "label": "Opposing counsel, a judge, and a coach",
+          "description": "The core of the gym: opposing counsel makes the strongest arguments available against the brief, a judge weighs them, and a coach proposes answers.",
+          "kind": "model",
+          "category": "completeness",
+          "categoryLabel": "Argumentative completeness",
+          "categoryDescription": "Does the brief connect its rules to its facts? Does it work the difficult element instead of restating the rule? Does it confront adverse authority and answer the counterargument a court will think of on its own?",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_issue_framing",
+          "label": "Issue framing",
+          "description": "Does the brief identify the real dispute early and frame it around the favorable legal question?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_macro_organization",
+          "label": "Macro-organization",
+          "description": "Are arguments ordered logically and by importance? Can the reader see the roadmap?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_paragraph_organization",
+          "label": "Paragraph-level organization",
+          "description": "Do paragraphs have discernible propositions or topic sentences, and develop one point at a time?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_rule_synthesis",
+          "label": "Rule synthesis",
+          "description": "Does the writer synthesize authorities into a rule rather than serially summarize cases?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_rule_application",
+          "label": "Rule-to-fact application",
+          "description": "Is the reasoning explicit -- \"because X fact satisfies Y element\" -- rather than leaving the inferential step to the court?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_fact_selection",
+          "label": "Fact selection and narrative coherence",
+          "description": "Are legally significant facts foregrounded and organized in a comprehensible chronology or theory?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_use_of_authority",
+          "label": "Use of authority",
+          "description": "Are important propositions backed by strong authorities placed where they actually matter, rather than citation dumping?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_counterarguments",
+          "label": "Handling counterarguments",
+          "description": "Does the brief acknowledge and answer the strongest objection rather than arguing past it?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_concision",
+          "label": "Concision and reader burden",
+          "description": "Does it say the same thing once, in the right place, without unnecessary throat-clearing?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_calibration",
+          "label": "Calibrated confidence and credibility",
+          "description": "Does it distinguish strong propositions from uncertain ones and avoid overclaiming?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_relief_alignment",
+          "label": "Requested-relief alignment",
+          "description": "Does the argument actually lead to the precise thing the brief asks the court to do?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_emphasis",
+          "label": "Emphasis",
+          "description": "Does the document devote its space to the issues that matter rather than treating every point as equally important?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "custom_checklist",
+          "label": "Custom checklist",
+          "description": "Applies review questions you wrote. An item can look things up -- authority, the case record, passages of the brief -- rather than answering from the brief alone. Attach a checklist for this to run.",
+          "kind": "model",
+          "category": "custom",
+          "categoryLabel": "Your own checks",
+          "categoryDescription": "Review questions you wrote, in your words, applied to this brief.",
+          "defaultEnabled": false,
+          "requires": [
+            "checklist"
+          ],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "court_formatting",
+          "label": "This court's filing rules",
+          "description": "Required elements, type size, spacing, margins, and page limits for the selected court.",
+          "kind": "deterministic",
+          "category": "form",
+          "categoryLabel": "Form of the filing",
+          "categoryDescription": "Whether the paper meets this court's rules and the conventions of practice.",
+          "defaultEnabled": false,
+          "requires": [
+            "court_profile"
+          ],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "pleading_form",
+          "label": "Form of the pleading",
+          "description": "Conventions of practice rather than any one court's rules: numbered paragraphs running in order, a prayer for relief, a signature block, exhibit references that resolve, no placeholder left in the text.",
+          "kind": "deterministic",
+          "category": "form",
+          "categoryLabel": "Form of the filing",
+          "categoryDescription": "Whether the paper meets this court's rules and the conventions of practice.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "draft_validation",
+          "label": "Draft-mode validation",
+          "description": "The same checks Draft mode runs: unresolved template data and placeholders, draft structure, rendered Word consistency, citation linting, source support, and filing-package consistency.",
+          "kind": "deterministic",
+          "category": "form",
+          "categoryLabel": "Form of the filing",
+          "categoryDescription": "Whether the paper meets this court's rules and the conventions of practice.",
+          "defaultEnabled": false,
+          "requires": [
+            "native_draft"
+          ],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "grammar",
+          "label": "Grammar and mechanics",
+          "description": "Doubled words, missing sentence spacing, unbalanced quotes and parentheses.",
+          "kind": "deterministic",
+          "category": "language",
+          "categoryLabel": "Language",
+          "categoryDescription": "Sentence-level mechanics, reported as nudges rather than as defects in the argument.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "confused_words",
+          "label": "Misspelled and easily confused words",
+          "description": "Not a dictionary spell check, on purpose: a general dictionary flags half of every case name. This looks for the words legal writing actually gets wrong, and for real words used in place of other real words.",
+          "kind": "deterministic",
+          "category": "language",
+          "categoryLabel": "Language",
+          "categoryDescription": "Sentence-level mechanics, reported as nudges rather than as defects in the argument.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "passive_voice",
+          "label": "Passive voice",
+          "description": "Reported as a nudge, never an error. Phrases a court expects to read are on an accepted list you can add to for this session.",
+          "kind": "deterministic",
+          "category": "language",
+          "categoryLabel": "Language",
+          "categoryDescription": "Sentence-level mechanics, reported as nudges rather than as defects in the argument.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "acceptedPassivePhrases: phrases this court expects, which the check stays quiet about.",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "readability",
+          "label": "Readability",
+          "description": "Sentence length and reading-level measures, reported as several formulas rather than one score.",
+          "kind": "deterministic",
+          "category": "language",
+          "categoryLabel": "Language",
+          "categoryDescription": "Sentence-level mechanics, reported as nudges rather than as defects in the argument.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        }
+      ],
+      "check_results": {
+        "rule_elements": {
+          "findings": [],
+          "tests": [],
+          "summary": "Judge did not return a complete, justified ruling for every candidate; no verdict from this check was retained."
+        }
+      },
+      "correctness_tests": [],
+      "rule_audit": [
+        {
+          "slug": "rc-5321-15-self-help",
+          "name": "Prohibited self-help recovery of possession or rent",
+          "citation": "R.C. 5321.15",
+          "label": "Prohibited self-help recovery of possession or rent (R.C. 5321.15)",
+          "summary": "A residential landlord may not recover possession through utility termination, exclusion, or other unlawful acts, and may not seize tenant property for rent without a court order.",
+          "verification": "verified",
+          "source": "R.C. 5321.15; Iskin (6th ed. 2022), \u00a7\u00a7 XII-XIII",
+          "sourceUrl": "https://codes.ohio.gov/ohio-revised-code/section-5321.15",
+          "invokedBy": "citation",
+          "matched": "R.C. 5321.15",
+          "excerpt": "IN THE LORAIN MUNICIPAL COURT TENANT'S MEMORANDUM UNDER R.C. 5321.15 STATEMENT OF FACTS Alex Rivera rents a residential apartment from Lakeview Rentals. No court had issued a judgment for possession or a writ restoring the apartment to Lakeview. On February 10, 2026, Lakeview's manager changed the apartment locks and told Rivera that she could return o",
+          "audited": true,
+          "briefCoverage": {
+            "reviewedChars": 1252,
+            "totalChars": 1252,
+            "truncated": false
+          },
+          "requiresApplicabilityReview": false,
+          "elements": [
+            {
+              "id": "residential_landlord_tenant",
+              "label": "Residential landlord-tenant relationship",
+              "requirement": "Identify residential premises landlord and tenant or former tenant in possession.",
+              "severity": "error",
+              "needsRecordSupport": true,
+              "requiredWhen": "",
+              "patterns": [
+                "residential premises",
+                "landlord",
+                "tenant"
+              ],
+              "note": "",
+              "origin": "profile",
+              "pled": "yes",
+              "applicability": "applicable",
+              "supported": "yes",
+              "explanation": "This unconditional element applies. The brief identifies Rivera as the tenant of a residential apartment leased by Lakeview Rentals, and the joint stipulation confirms that she leased the premises as her residence.",
+              "quote": "The parties had a residential landlord-tenant relationship: Lakeview leased the apartment to Rivera as her home.",
+              "materialIds": [
+                "upload:39"
+              ],
+              "unmet": false
+            },
+            {
+              "id": "prohibited_recovery_act",
+              "label": "Prohibited act was used to recover possession or rent",
+              "requirement": "Identify exclusion utility or service termination unlawful threat or seizure without required judicial process.",
+              "severity": "error",
+              "needsRecordSupport": true,
+              "requiredWhen": "",
+              "patterns": [
+                "lock(ed|out)",
+                "shut.{0,20}off",
+                "terminat.{0,20}utilit",
+                "seiz.{0,30}(property|possessions)"
+              ],
+              "note": "",
+              "origin": "profile",
+              "pled": "yes",
+              "applicability": "applicable",
+              "supported": "yes",
+              "explanation": "This unconditional element applies. The brief alleges exclusion by a lock change to obtain possession or compel rent without judicial process, and the stipulation confirms the lock change, payment condition, and absence of a possession judgment or writ.",
+              "quote": "Lakeview used exclusion to recover possession or compel rent without judicial process when its manager changed the locks before any possession judgment or writ and conditioned reentry on payment.",
+              "materialIds": [
+                "upload:39"
+              ],
+              "unmet": false
+            },
+            {
+              "id": "resulting_damage",
+              "label": "Tenant identifies damage caused by the violation",
+              "requirement": "Plead actual harm causally resulting from the prohibited act.",
+              "severity": "error",
+              "needsRecordSupport": true,
+              "requiredWhen": "",
+              "patterns": [
+                "damages",
+                "harm",
+                "loss"
+              ],
+              "note": "",
+              "origin": "profile",
+              "pled": "yes",
+              "applicability": "applicable",
+              "supported": "yes",
+              "explanation": "This unconditional element applies. The brief pleads actual losses caused by the lockout, and the stipulation confirms the two-night exclusion and the hotel and medicine-replacement expenses.",
+              "quote": "The lockout caused Rivera actual harm: she paid $240 for two hotel nights and $85 to replace refrigerated medicine that spoiled while she was excluded.",
+              "materialIds": [
+                "upload:39"
+              ],
+              "unmet": false
+            }
+          ],
+          "unmetCount": 0,
+          "verdict": "Every element on file is pleaded and supported."
+        }
+      ],
+      "compliance": {
+        "checked": false,
+        "reason": "You turned this check off for this session.",
+        "findings": [],
+        "detection": {
+          "mode": "auto",
+          "reason": "No maintained court profile matched this document's caption or the case record.",
+          "matched": "",
+          "where": "",
+          "courtSlug": ""
+        }
+      },
+      "challenges": [],
+      "challenge_count": 0,
+      "opponent_calls": [],
+      "judge_calls": [],
+      "verdict": "correctness review completed",
+      "assessment": "Correctness review completed. 0 must-fix findings; 0 items need attorney review. Rule elements: no eligible targets",
+      "stage_trace": [
+        {
+          "stage": "document_checks",
+          "method": "deterministic",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "materials",
+          "method": "all",
+          "count": 1,
+          "budgetChars": 150000,
+          "perMaterialChars": 150000,
+          "truncated": [],
+          "trace": []
+        },
+        {
+          "stage": "argument_map",
+          "method": "skipped",
+          "count": 0,
+          "trace": [
+            "No selected check requires a generative argument map."
+          ]
+        },
+        {
+          "stage": "persuasion",
+          "method": "off",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "record_targets",
+          "method": "off",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "opponent:record_support",
+          "method": "off",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "authority_research",
+          "method": "source_specific",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "research_queries",
+          "method": "off",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "research",
+          "method": "retrieval",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "opponent",
+          "method": "off",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "opponent:authority_support",
+          "method": "off",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "rule_elements",
+          "method": "llm",
+          "count": 1,
+          "trace": [
+            {
+              "stage": "rule_elements:rc-5321-15-self-help",
+              "method": "llm",
+              "count": 3,
+              "trace": [
+                {
+                  "attempt": 1,
+                  "plan": {
+                    "method": "llm"
+                  },
+                  "success": true,
+                  "code": "rule_elements:rc-5321-15-self-help_complete",
+                  "message": "rule_elements:rc-5321-15-self-help produced 3 item(s)."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "stage": "judge",
+          "method": "off",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "judge:rule_elements",
+          "method": "deterministic",
+          "count": 0,
+          "trace": [
+            {
+              "attempt": 1,
+              "plan": {
+                "method": "llm"
+              },
+              "success": false,
+              "code": "judge:rule_elements_empty",
+              "message": "The judge:rule_elements stage produced nothing usable."
+            },
+            {
+              "attempt": 2,
+              "plan": {
+                "method": "deterministic",
+                "repair": "fallback_judge:rule_elements"
+              },
+              "success": false,
+              "code": "judge:rule_elements_empty",
+              "message": "The judge:rule_elements stage produced nothing usable."
+            }
+          ],
+          "checkId": "rule_elements",
+          "batch": 1,
+          "batches": 1,
+          "candidateIds": [
+            "rule_elements:rc-5321-15-self-help:prohibited_recovery_act",
+            "rule_elements:rc-5321-15-self-help:residential_landlord_tenant",
+            "rule_elements:rc-5321-15-self-help:resulting_damage"
+          ],
+          "unavailable": true,
+          "checkUnavailable": true
+        },
+        {
+          "stage": "coach",
+          "method": "skipped",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "assessment",
+          "method": "deterministic",
+          "count": 1,
+          "trace": []
+        }
+      ],
+      "research_trace": [],
+      "model_calls": [
+        {
+          "prompt_key": "argument_gym.rule_elements",
+          "role": "base",
+          "model": "gpt-5.6-terra",
+          "settings": {
+            "temperature": 0,
+            "model": "gpt-5.6-terra",
+            "reasoning_level": "medium"
+          },
+          "status": "complete",
+          "elapsed_seconds": 3.281
+        },
+        {
+          "prompt_key": "argument_gym.correctness_judge",
+          "role": "judge",
+          "model": "mistral-large-3",
+          "settings": {
+            "temperature": 0,
+            "model": "mistral-large-3",
+            "reasoning_level": "medium"
+          },
+          "status": "failed",
+          "error_type": "OpenAIBackendError",
+          "error": "{\"error\":{\"code\":\"Invalid input\",\"message\":\"{\\\"detail\\\":[{\\\"type\\\":\\\"enum\\\",\\\"loc\\\":[\\\"body\\\",\\\"reasoning_effort\\\"],\\\"msg\\\":\\\"Input should be 'none' or 'high'\\\",\\\"input\\\":\\\"medium\\\",\\\"ctx\\\":{\\\"expected\\\":\\\"'none' or 'high'\\\"}}]}\",\"status\":422}}\nPlease check this guide to understand why this error code might have been returned \nhttps://docs.microsoft.com/en-us/azure/machine-learning/how-to-troubles",
+          "elapsed_seconds": 1.372
+        }
+      ],
+      "attacks_given_to_judge": 0
+    },
+    {
+      "fixture_id": "Q002",
+      "condition": "mutant",
+      "case_family_id": "synthetic-rule-floor-q002",
+      "stratum": "synthetic_rule_floor",
+      "run_id": 37,
+      "run_at": "2026-09-13T19:20:51.931593+00:00",
+      "status": "degraded",
+      "pipeline_status": "complete",
+      "degraded": {
+        "degraded": true,
+        "roles": [
+          "judge"
+        ],
+        "reason": "a model call failed or a Judge batch violated the completeness contract; the affected named check produced no countable verdict",
+        "failures": {
+          "judge": [
+            {
+              "prompt_key": "argument_gym.correctness_judge",
+              "model": "mistral-large-3",
+              "error_type": "OpenAIBackendError",
+              "error": "{\"error\":{\"code\":\"Invalid input\",\"message\":\"{\\\"detail\\\":[{\\\"type\\\":\\\"enum\\\",\\\"loc\\\":[\\\"body\\\",\\\"reasoning_effort\\\"],\\\"msg\\\":\\\"Input should be 'none' or 'high'\\\",\\\"input\\\":\\\"medium\\\",\\\"ctx\\\":{\\\"expected\\\":\\\"'none' or 'high'\\\"}}]}\",\"status\":422}}\nPlease check this guide to understand why this error co"
+            },
+            {
+              "prompt_key": "argument_gym.correctness_judge",
+              "model": "mistral-large-3",
+              "error_type": "IncompleteJudgeBatch",
+              "error": "rule_elements batch 1/1 did not return one justified, evidence-backed ruling per candidate",
+              "candidate_ids": [
+                "rule_elements:rc-5321-15-self-help:prohibited_recovery_act",
+                "rule_elements:rc-5321-15-self-help:residential_landlord_tenant",
+                "rule_elements:rc-5321-15-self-help:resulting_damage"
+              ]
+            }
+          ]
+        }
+      },
+      "error": "",
+      "brief_sha256": "34712a94925e3e219a693ca4bd09e1857cbd4c837708d6ebb7373a32bfe18a63",
+      "brief_chars": 1099,
+      "record_documents": 1,
+      "attack_model": "gpt-5.6-terra",
+      "judge_model": "mistral-large-3",
+      "base_model": "gpt-5.6-terra",
+      "same_family": false,
+      "reasoning": "medium",
+      "unit_budget_chars": 260000,
+      "units": 13,
+      "court": {
+        "mode": "auto",
+        "reason": "No maintained court profile matched this document's caption or the case record.",
+        "matched": "",
+        "where": "",
+        "courtSlug": ""
+      },
+      "deterministic_findings": {
+        "rule_elements": 0
+      },
+      "checks_run": [
+        {
+          "id": "record_support",
+          "label": "Test material facts against the record",
+          "description": "Opponent tests only atomic, record-verifiable, material claims; Judge sustains a defect only when the supplied evidence and record coverage establish it.",
+          "kind": "model",
+          "category": "correctness",
+          "categoryLabel": "Correctness",
+          "categoryDescription": "Is the law right? Is the authority controlling? Are the required elements present, and does the record establish what the brief says it does?",
+          "defaultEnabled": true,
+          "requires": [
+            "case_record"
+          ],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "rule_elements",
+          "label": "Audit the elements of the rules invoked",
+          "description": "Detects the rules the brief cites or invokes by name, then audits each element of those rules: is it pleaded, and is it supported.",
+          "kind": "model",
+          "category": "correctness",
+          "categoryLabel": "Correctness",
+          "categoryDescription": "Is the law right? Is the authority controlling? Are the required elements present, and does the record establish what the brief says it does?",
+          "defaultEnabled": true,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "unavailable",
+          "reason": "Judge did not return a complete, justified ruling for every candidate; no verdict from this check was retained."
+        },
+        {
+          "id": "authority_support",
+          "label": "Test cited authority support",
+          "description": "Whether each cited authority supports the material legal proposition for which the brief uses it.",
+          "kind": "model",
+          "category": "correctness",
+          "categoryLabel": "Correctness",
+          "categoryDescription": "Is the law right? Is the authority controlling? Are the required elements present, and does the record establish what the brief says it does?",
+          "defaultEnabled": true,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "adversarial",
+          "label": "Opposing counsel, a judge, and a coach",
+          "description": "The core of the gym: opposing counsel makes the strongest arguments available against the brief, a judge weighs them, and a coach proposes answers.",
+          "kind": "model",
+          "category": "completeness",
+          "categoryLabel": "Argumentative completeness",
+          "categoryDescription": "Does the brief connect its rules to its facts? Does it work the difficult element instead of restating the rule? Does it confront adverse authority and answer the counterargument a court will think of on its own?",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_issue_framing",
+          "label": "Issue framing",
+          "description": "Does the brief identify the real dispute early and frame it around the favorable legal question?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_macro_organization",
+          "label": "Macro-organization",
+          "description": "Are arguments ordered logically and by importance? Can the reader see the roadmap?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_paragraph_organization",
+          "label": "Paragraph-level organization",
+          "description": "Do paragraphs have discernible propositions or topic sentences, and develop one point at a time?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_rule_synthesis",
+          "label": "Rule synthesis",
+          "description": "Does the writer synthesize authorities into a rule rather than serially summarize cases?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_rule_application",
+          "label": "Rule-to-fact application",
+          "description": "Is the reasoning explicit -- \"because X fact satisfies Y element\" -- rather than leaving the inferential step to the court?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_fact_selection",
+          "label": "Fact selection and narrative coherence",
+          "description": "Are legally significant facts foregrounded and organized in a comprehensible chronology or theory?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_use_of_authority",
+          "label": "Use of authority",
+          "description": "Are important propositions backed by strong authorities placed where they actually matter, rather than citation dumping?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_counterarguments",
+          "label": "Handling counterarguments",
+          "description": "Does the brief acknowledge and answer the strongest objection rather than arguing past it?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_concision",
+          "label": "Concision and reader burden",
+          "description": "Does it say the same thing once, in the right place, without unnecessary throat-clearing?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_calibration",
+          "label": "Calibrated confidence and credibility",
+          "description": "Does it distinguish strong propositions from uncertain ones and avoid overclaiming?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_relief_alignment",
+          "label": "Requested-relief alignment",
+          "description": "Does the argument actually lead to the precise thing the brief asks the court to do?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_emphasis",
+          "label": "Emphasis",
+          "description": "Does the document devote its space to the issues that matter rather than treating every point as equally important?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "custom_checklist",
+          "label": "Custom checklist",
+          "description": "Applies review questions you wrote. An item can look things up -- authority, the case record, passages of the brief -- rather than answering from the brief alone. Attach a checklist for this to run.",
+          "kind": "model",
+          "category": "custom",
+          "categoryLabel": "Your own checks",
+          "categoryDescription": "Review questions you wrote, in your words, applied to this brief.",
+          "defaultEnabled": false,
+          "requires": [
+            "checklist"
+          ],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "court_formatting",
+          "label": "This court's filing rules",
+          "description": "Required elements, type size, spacing, margins, and page limits for the selected court.",
+          "kind": "deterministic",
+          "category": "form",
+          "categoryLabel": "Form of the filing",
+          "categoryDescription": "Whether the paper meets this court's rules and the conventions of practice.",
+          "defaultEnabled": false,
+          "requires": [
+            "court_profile"
+          ],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "pleading_form",
+          "label": "Form of the pleading",
+          "description": "Conventions of practice rather than any one court's rules: numbered paragraphs running in order, a prayer for relief, a signature block, exhibit references that resolve, no placeholder left in the text.",
+          "kind": "deterministic",
+          "category": "form",
+          "categoryLabel": "Form of the filing",
+          "categoryDescription": "Whether the paper meets this court's rules and the conventions of practice.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "draft_validation",
+          "label": "Draft-mode validation",
+          "description": "The same checks Draft mode runs: unresolved template data and placeholders, draft structure, rendered Word consistency, citation linting, source support, and filing-package consistency.",
+          "kind": "deterministic",
+          "category": "form",
+          "categoryLabel": "Form of the filing",
+          "categoryDescription": "Whether the paper meets this court's rules and the conventions of practice.",
+          "defaultEnabled": false,
+          "requires": [
+            "native_draft"
+          ],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "grammar",
+          "label": "Grammar and mechanics",
+          "description": "Doubled words, missing sentence spacing, unbalanced quotes and parentheses.",
+          "kind": "deterministic",
+          "category": "language",
+          "categoryLabel": "Language",
+          "categoryDescription": "Sentence-level mechanics, reported as nudges rather than as defects in the argument.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "confused_words",
+          "label": "Misspelled and easily confused words",
+          "description": "Not a dictionary spell check, on purpose: a general dictionary flags half of every case name. This looks for the words legal writing actually gets wrong, and for real words used in place of other real words.",
+          "kind": "deterministic",
+          "category": "language",
+          "categoryLabel": "Language",
+          "categoryDescription": "Sentence-level mechanics, reported as nudges rather than as defects in the argument.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "passive_voice",
+          "label": "Passive voice",
+          "description": "Reported as a nudge, never an error. Phrases a court expects to read are on an accepted list you can add to for this session.",
+          "kind": "deterministic",
+          "category": "language",
+          "categoryLabel": "Language",
+          "categoryDescription": "Sentence-level mechanics, reported as nudges rather than as defects in the argument.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "acceptedPassivePhrases: phrases this court expects, which the check stays quiet about.",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "readability",
+          "label": "Readability",
+          "description": "Sentence length and reading-level measures, reported as several formulas rather than one score.",
+          "kind": "deterministic",
+          "category": "language",
+          "categoryLabel": "Language",
+          "categoryDescription": "Sentence-level mechanics, reported as nudges rather than as defects in the argument.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        }
+      ],
+      "check_results": {
+        "rule_elements": {
+          "findings": [],
+          "tests": [],
+          "summary": "Judge did not return a complete, justified ruling for every candidate; no verdict from this check was retained."
+        }
+      },
+      "correctness_tests": [],
+      "rule_audit": [
+        {
+          "slug": "rc-5321-15-self-help",
+          "name": "Prohibited self-help recovery of possession or rent",
+          "citation": "R.C. 5321.15",
+          "label": "Prohibited self-help recovery of possession or rent (R.C. 5321.15)",
+          "summary": "A residential landlord may not recover possession through utility termination, exclusion, or other unlawful acts, and may not seize tenant property for rent without a court order.",
+          "verification": "verified",
+          "source": "R.C. 5321.15; Iskin (6th ed. 2022), \u00a7\u00a7 XII-XIII",
+          "sourceUrl": "https://codes.ohio.gov/ohio-revised-code/section-5321.15",
+          "invokedBy": "citation",
+          "matched": "R.C. 5321.15",
+          "excerpt": "IN THE LORAIN MUNICIPAL COURT TENANT'S MEMORANDUM UNDER R.C. 5321.15 STATEMENT OF FACTS Alex Rivera rents a residential apartment from Lakeview Rentals. No court had issued a judgment for possession or a writ restoring the apartment to Lakeview. On February 10, 2026, Lakeview's manager changed the apartment locks and told Rivera that she could return o",
+          "audited": true,
+          "briefCoverage": {
+            "reviewedChars": 1099,
+            "totalChars": 1099,
+            "truncated": false
+          },
+          "requiresApplicabilityReview": false,
+          "elements": [
+            {
+              "id": "residential_landlord_tenant",
+              "label": "Residential landlord-tenant relationship",
+              "requirement": "Identify residential premises landlord and tenant or former tenant in possession.",
+              "severity": "error",
+              "needsRecordSupport": true,
+              "requiredWhen": "",
+              "patterns": [
+                "residential premises",
+                "landlord",
+                "tenant"
+              ],
+              "note": "",
+              "origin": "profile",
+              "pled": "yes",
+              "applicability": "applicable",
+              "supported": "yes",
+              "explanation": "The rule applies because the claim concerns recovery of possession or rent by a residential landlord. The brief identifies Lakeview as Rivera's residential landlord and the apartment as her home, and the stipulation confirms that relationship.",
+              "quote": "The parties had a residential landlord-tenant relationship: Lakeview leased the apartment to Rivera as her home.",
+              "materialIds": [
+                "upload:41"
+              ],
+              "unmet": false
+            },
+            {
+              "id": "prohibited_recovery_act",
+              "label": "Prohibited act was used to recover possession or rent",
+              "requirement": "Identify exclusion utility or service termination unlawful threat or seizure without required judicial process.",
+              "severity": "error",
+              "needsRecordSupport": true,
+              "requiredWhen": "",
+              "patterns": [
+                "lock(ed|out)",
+                "shut.{0,20}off",
+                "terminat.{0,20}utilit",
+                "seiz.{0,30}(property|possessions)"
+              ],
+              "note": "",
+              "origin": "profile",
+              "pled": "yes",
+              "applicability": "applicable",
+              "supported": "yes",
+              "explanation": "The brief pleads exclusion by lockout as the means used to recover possession or compel rent, without a possession judgment or writ. The stipulated record confirms the lock change, the payment condition for reentry, and the absence of judicial process.",
+              "quote": "Lakeview used exclusion to recover possession or compel rent without judicial process when its manager changed the locks before any possession judgment or writ and conditioned reentry on payment.",
+              "materialIds": [
+                "upload:41"
+              ],
+              "unmet": false
+            },
+            {
+              "id": "resulting_damage",
+              "label": "Tenant identifies damage caused by the violation",
+              "requirement": "Plead actual harm causally resulting from the prohibited act.",
+              "severity": "error",
+              "needsRecordSupport": true,
+              "requiredWhen": "",
+              "patterns": [
+                "damages",
+                "harm",
+                "loss"
+              ],
+              "note": "",
+              "origin": "profile",
+              "pled": "yes",
+              "applicability": "applicable",
+              "supported": "yes",
+              "explanation": "The brief alleges resulting loss from the lockout, including that Rivera was locked out for two nights. The record further supports actual causally related damages through hotel and spoiled-medicine expenses.",
+              "quote": "The residential relationship, deliberate lockout used to obtain possession or rent, absence of judicial process, and resulting loss establish the statutory claim.",
+              "materialIds": [
+                "upload:41"
+              ],
+              "unmet": false
+            }
+          ],
+          "unmetCount": 0,
+          "verdict": "Every element on file is pleaded and supported."
+        }
+      ],
+      "compliance": {
+        "checked": false,
+        "reason": "You turned this check off for this session.",
+        "findings": [],
+        "detection": {
+          "mode": "auto",
+          "reason": "No maintained court profile matched this document's caption or the case record.",
+          "matched": "",
+          "where": "",
+          "courtSlug": ""
+        }
+      },
+      "challenges": [],
+      "challenge_count": 0,
+      "opponent_calls": [],
+      "judge_calls": [],
+      "verdict": "correctness review completed",
+      "assessment": "Correctness review completed. 0 must-fix findings; 0 items need attorney review. Rule elements: no eligible targets",
+      "stage_trace": [
+        {
+          "stage": "document_checks",
+          "method": "deterministic",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "materials",
+          "method": "all",
+          "count": 1,
+          "budgetChars": 150000,
+          "perMaterialChars": 150000,
+          "truncated": [],
+          "trace": []
+        },
+        {
+          "stage": "argument_map",
+          "method": "skipped",
+          "count": 0,
+          "trace": [
+            "No selected check requires a generative argument map."
+          ]
+        },
+        {
+          "stage": "persuasion",
+          "method": "off",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "record_targets",
+          "method": "off",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "opponent:record_support",
+          "method": "off",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "authority_research",
+          "method": "source_specific",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "research_queries",
+          "method": "off",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "research",
+          "method": "retrieval",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "opponent",
+          "method": "off",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "opponent:authority_support",
+          "method": "off",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "rule_elements",
+          "method": "llm",
+          "count": 1,
+          "trace": [
+            {
+              "stage": "rule_elements:rc-5321-15-self-help",
+              "method": "llm",
+              "count": 3,
+              "trace": [
+                {
+                  "attempt": 1,
+                  "plan": {
+                    "method": "llm"
+                  },
+                  "success": true,
+                  "code": "rule_elements:rc-5321-15-self-help_complete",
+                  "message": "rule_elements:rc-5321-15-self-help produced 3 item(s)."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "stage": "judge",
+          "method": "off",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "judge:rule_elements",
+          "method": "deterministic",
+          "count": 0,
+          "trace": [
+            {
+              "attempt": 1,
+              "plan": {
+                "method": "llm"
+              },
+              "success": false,
+              "code": "judge:rule_elements_empty",
+              "message": "The judge:rule_elements stage produced nothing usable."
+            },
+            {
+              "attempt": 2,
+              "plan": {
+                "method": "deterministic",
+                "repair": "fallback_judge:rule_elements"
+              },
+              "success": false,
+              "code": "judge:rule_elements_empty",
+              "message": "The judge:rule_elements stage produced nothing usable."
+            }
+          ],
+          "checkId": "rule_elements",
+          "batch": 1,
+          "batches": 1,
+          "candidateIds": [
+            "rule_elements:rc-5321-15-self-help:prohibited_recovery_act",
+            "rule_elements:rc-5321-15-self-help:residential_landlord_tenant",
+            "rule_elements:rc-5321-15-self-help:resulting_damage"
+          ],
+          "unavailable": true,
+          "checkUnavailable": true
+        },
+        {
+          "stage": "coach",
+          "method": "skipped",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "assessment",
+          "method": "deterministic",
+          "count": 1,
+          "trace": []
+        }
+      ],
+      "research_trace": [],
+      "model_calls": [
+        {
+          "prompt_key": "argument_gym.rule_elements",
+          "role": "base",
+          "model": "gpt-5.6-terra",
+          "settings": {
+            "temperature": 0,
+            "model": "gpt-5.6-terra",
+            "reasoning_level": "medium"
+          },
+          "status": "complete",
+          "elapsed_seconds": 5.41
+        },
+        {
+          "prompt_key": "argument_gym.correctness_judge",
+          "role": "judge",
+          "model": "mistral-large-3",
+          "settings": {
+            "temperature": 0,
+            "model": "mistral-large-3",
+            "reasoning_level": "medium"
+          },
+          "status": "failed",
+          "error_type": "OpenAIBackendError",
+          "error": "{\"error\":{\"code\":\"Invalid input\",\"message\":\"{\\\"detail\\\":[{\\\"type\\\":\\\"enum\\\",\\\"loc\\\":[\\\"body\\\",\\\"reasoning_effort\\\"],\\\"msg\\\":\\\"Input should be 'none' or 'high'\\\",\\\"input\\\":\\\"medium\\\",\\\"ctx\\\":{\\\"expected\\\":\\\"'none' or 'high'\\\"}}]}\",\"status\":422}}\nPlease check this guide to understand why this error code might have been returned \nhttps://docs.microsoft.com/en-us/azure/machine-learning/how-to-troubles",
+          "elapsed_seconds": 0.55
+        }
+      ],
+      "attacks_given_to_judge": 0
+    },
+    {
+      "fixture_id": "Q003",
+      "condition": "control",
+      "case_family_id": "synthetic-rule-floor-q003",
+      "stratum": "synthetic_rule_floor",
+      "run_id": 38,
+      "run_at": "2026-09-13T19:21:13.654115+00:00",
+      "status": "degraded",
+      "pipeline_status": "complete",
+      "degraded": {
+        "degraded": true,
+        "roles": [
+          "judge"
+        ],
+        "reason": "a model call failed or a Judge batch violated the completeness contract; the affected named check produced no countable verdict",
+        "failures": {
+          "judge": [
+            {
+              "prompt_key": "argument_gym.correctness_judge",
+              "model": "mistral-large-3",
+              "error_type": "OpenAIBackendError",
+              "error": "{\"error\":{\"code\":\"Invalid input\",\"message\":\"{\\\"detail\\\":[{\\\"type\\\":\\\"enum\\\",\\\"loc\\\":[\\\"body\\\",\\\"reasoning_effort\\\"],\\\"msg\\\":\\\"Input should be 'none' or 'high'\\\",\\\"input\\\":\\\"medium\\\",\\\"ctx\\\":{\\\"expected\\\":\\\"'none' or 'high'\\\"}}]}\",\"status\":422}}\nPlease check this guide to understand why this error co"
+            },
+            {
+              "prompt_key": "argument_gym.correctness_judge",
+              "model": "mistral-large-3",
+              "error_type": "OpenAIBackendError",
+              "error": "{\"error\":{\"code\":\"Invalid input\",\"message\":\"{\\\"detail\\\":[{\\\"type\\\":\\\"enum\\\",\\\"loc\\\":[\\\"body\\\",\\\"reasoning_effort\\\"],\\\"msg\\\":\\\"Input should be 'none' or 'high'\\\",\\\"input\\\":\\\"medium\\\",\\\"ctx\\\":{\\\"expected\\\":\\\"'none' or 'high'\\\"}}]}\",\"status\":422}}\nPlease check this guide to understand why this error co"
+            },
+            {
+              "prompt_key": "argument_gym.correctness_judge",
+              "model": "mistral-large-3",
+              "error_type": "IncompleteJudgeBatch",
+              "error": "rule_elements batch 1/2 did not return one justified, evidence-backed ruling per candidate",
+              "candidate_ids": [
+                "rule_elements:rc-1923-04-notice:notice_served",
+                "rule_elements:rc-1923-04-notice:service_method",
+                "rule_elements:rc-1923-04-notice:special_route",
+                "rule_elements:rc-1923-04-notice:statutory_language",
+                "rule_elements:rc-1923-04-notice:table-confirm-the-complaint-filing-date",
+                "rule_elements:rc-1923-04-notice:table-confirm-the-notice-service-date",
+                "rule_elements:rc-1923-04-notice:table-confirm-whether-the-notice-contains-required-statutory-langu",
+                "rule_elements:rc-1923-04-notice:waiting_period"
+              ]
+            },
+            {
+              "prompt_key": "argument_gym.correctness_judge",
+              "model": "mistral-large-3",
+              "error_type": "IncompleteJudgeBatch",
+              "error": "rule_elements batch 2/2 did not return one justified, evidence-backed ruling per candidate",
+              "candidate_ids": [
+                "rule_elements:rc-1923-04-notice:table-fact-eviction-ground",
+                "rule_elements:rc-1923-04-notice:table-fact-notice-days-between-service-and-filing",
+                "rule_elements:rc-1923-04-notice:table-fact-notice-exists",
+                "rule_elements:rc-1923-04-waiver-rent:future_rent",
+                "rule_elements:rc-1923-04-waiver-rent:notice_served",
+                "rule_elements:rc-1923-04-waiver-rent:post_notice_acceptance"
+              ]
+            }
+          ]
+        }
+      },
+      "error": "",
+      "brief_sha256": "2cca21f5d773afe0f60ce9664b45ebc7a5104473363644e003b95e64662e2420",
+      "brief_chars": 1005,
+      "record_documents": 1,
+      "attack_model": "gpt-5.6-terra",
+      "judge_model": "mistral-large-3",
+      "base_model": "gpt-5.6-terra",
+      "same_family": false,
+      "reasoning": "medium",
+      "unit_budget_chars": 260000,
+      "units": 15,
+      "court": {
+        "mode": "auto",
+        "reason": "No maintained court profile matched this document's caption or the case record.",
+        "matched": "",
+        "where": "",
+        "courtSlug": ""
+      },
+      "deterministic_findings": {
+        "rule_elements": 0
+      },
+      "checks_run": [
+        {
+          "id": "record_support",
+          "label": "Test material facts against the record",
+          "description": "Opponent tests only atomic, record-verifiable, material claims; Judge sustains a defect only when the supplied evidence and record coverage establish it.",
+          "kind": "model",
+          "category": "correctness",
+          "categoryLabel": "Correctness",
+          "categoryDescription": "Is the law right? Is the authority controlling? Are the required elements present, and does the record establish what the brief says it does?",
+          "defaultEnabled": true,
+          "requires": [
+            "case_record"
+          ],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "rule_elements",
+          "label": "Audit the elements of the rules invoked",
+          "description": "Detects the rules the brief cites or invokes by name, then audits each element of those rules: is it pleaded, and is it supported.",
+          "kind": "model",
+          "category": "correctness",
+          "categoryLabel": "Correctness",
+          "categoryDescription": "Is the law right? Is the authority controlling? Are the required elements present, and does the record establish what the brief says it does?",
+          "defaultEnabled": true,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "unavailable",
+          "reason": "Judge did not return a complete, justified ruling for every candidate; no verdict from this check was retained."
+        },
+        {
+          "id": "authority_support",
+          "label": "Test cited authority support",
+          "description": "Whether each cited authority supports the material legal proposition for which the brief uses it.",
+          "kind": "model",
+          "category": "correctness",
+          "categoryLabel": "Correctness",
+          "categoryDescription": "Is the law right? Is the authority controlling? Are the required elements present, and does the record establish what the brief says it does?",
+          "defaultEnabled": true,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "adversarial",
+          "label": "Opposing counsel, a judge, and a coach",
+          "description": "The core of the gym: opposing counsel makes the strongest arguments available against the brief, a judge weighs them, and a coach proposes answers.",
+          "kind": "model",
+          "category": "completeness",
+          "categoryLabel": "Argumentative completeness",
+          "categoryDescription": "Does the brief connect its rules to its facts? Does it work the difficult element instead of restating the rule? Does it confront adverse authority and answer the counterargument a court will think of on its own?",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_issue_framing",
+          "label": "Issue framing",
+          "description": "Does the brief identify the real dispute early and frame it around the favorable legal question?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_macro_organization",
+          "label": "Macro-organization",
+          "description": "Are arguments ordered logically and by importance? Can the reader see the roadmap?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_paragraph_organization",
+          "label": "Paragraph-level organization",
+          "description": "Do paragraphs have discernible propositions or topic sentences, and develop one point at a time?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_rule_synthesis",
+          "label": "Rule synthesis",
+          "description": "Does the writer synthesize authorities into a rule rather than serially summarize cases?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_rule_application",
+          "label": "Rule-to-fact application",
+          "description": "Is the reasoning explicit -- \"because X fact satisfies Y element\" -- rather than leaving the inferential step to the court?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_fact_selection",
+          "label": "Fact selection and narrative coherence",
+          "description": "Are legally significant facts foregrounded and organized in a comprehensible chronology or theory?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_use_of_authority",
+          "label": "Use of authority",
+          "description": "Are important propositions backed by strong authorities placed where they actually matter, rather than citation dumping?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_counterarguments",
+          "label": "Handling counterarguments",
+          "description": "Does the brief acknowledge and answer the strongest objection rather than arguing past it?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_concision",
+          "label": "Concision and reader burden",
+          "description": "Does it say the same thing once, in the right place, without unnecessary throat-clearing?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_calibration",
+          "label": "Calibrated confidence and credibility",
+          "description": "Does it distinguish strong propositions from uncertain ones and avoid overclaiming?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_relief_alignment",
+          "label": "Requested-relief alignment",
+          "description": "Does the argument actually lead to the precise thing the brief asks the court to do?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "persuasion_emphasis",
+          "label": "Emphasis",
+          "description": "Does the document devote its space to the issues that matter rather than treating every point as equally important?",
+          "kind": "model",
+          "category": "persuasion",
+          "categoryLabel": "Persuasive communication",
+          "categoryDescription": "Not whether the brief is right, but whether it lands: how the question is framed, how the argument is ordered and emphasized, and whether a busy judge can follow it and believe it.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "custom_checklist",
+          "label": "Custom checklist",
+          "description": "Applies review questions you wrote. An item can look things up -- authority, the case record, passages of the brief -- rather than answering from the brief alone. Attach a checklist for this to run.",
+          "kind": "model",
+          "category": "custom",
+          "categoryLabel": "Your own checks",
+          "categoryDescription": "Review questions you wrote, in your words, applied to this brief.",
+          "defaultEnabled": false,
+          "requires": [
+            "checklist"
+          ],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "court_formatting",
+          "label": "This court's filing rules",
+          "description": "Required elements, type size, spacing, margins, and page limits for the selected court.",
+          "kind": "deterministic",
+          "category": "form",
+          "categoryLabel": "Form of the filing",
+          "categoryDescription": "Whether the paper meets this court's rules and the conventions of practice.",
+          "defaultEnabled": false,
+          "requires": [
+            "court_profile"
+          ],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "pleading_form",
+          "label": "Form of the pleading",
+          "description": "Conventions of practice rather than any one court's rules: numbered paragraphs running in order, a prayer for relief, a signature block, exhibit references that resolve, no placeholder left in the text.",
+          "kind": "deterministic",
+          "category": "form",
+          "categoryLabel": "Form of the filing",
+          "categoryDescription": "Whether the paper meets this court's rules and the conventions of practice.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "draft_validation",
+          "label": "Draft-mode validation",
+          "description": "The same checks Draft mode runs: unresolved template data and placeholders, draft structure, rendered Word consistency, citation linting, source support, and filing-package consistency.",
+          "kind": "deterministic",
+          "category": "form",
+          "categoryLabel": "Form of the filing",
+          "categoryDescription": "Whether the paper meets this court's rules and the conventions of practice.",
+          "defaultEnabled": false,
+          "requires": [
+            "native_draft"
+          ],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "grammar",
+          "label": "Grammar and mechanics",
+          "description": "Doubled words, missing sentence spacing, unbalanced quotes and parentheses.",
+          "kind": "deterministic",
+          "category": "language",
+          "categoryLabel": "Language",
+          "categoryDescription": "Sentence-level mechanics, reported as nudges rather than as defects in the argument.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "confused_words",
+          "label": "Misspelled and easily confused words",
+          "description": "Not a dictionary spell check, on purpose: a general dictionary flags half of every case name. This looks for the words legal writing actually gets wrong, and for real words used in place of other real words.",
+          "kind": "deterministic",
+          "category": "language",
+          "categoryLabel": "Language",
+          "categoryDescription": "Sentence-level mechanics, reported as nudges rather than as defects in the argument.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "passive_voice",
+          "label": "Passive voice",
+          "description": "Reported as a nudge, never an error. Phrases a court expects to read are on an accepted list you can add to for this session.",
+          "kind": "deterministic",
+          "category": "language",
+          "categoryLabel": "Language",
+          "categoryDescription": "Sentence-level mechanics, reported as nudges rather than as defects in the argument.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "acceptedPassivePhrases: phrases this court expects, which the check stays quiet about.",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        },
+        {
+          "id": "readability",
+          "label": "Readability",
+          "description": "Sentence length and reading-level measures, reported as several formulas rather than one score.",
+          "kind": "deterministic",
+          "category": "language",
+          "categoryLabel": "Language",
+          "categoryDescription": "Sentence-level mechanics, reported as nudges rather than as defects in the argument.",
+          "defaultEnabled": false,
+          "requires": [],
+          "settingsHelp": "",
+          "status": "off",
+          "reason": "You turned this check off for this session."
+        }
+      ],
+      "check_results": {
+        "rule_elements": {
+          "findings": [],
+          "tests": [],
+          "summary": "Judge did not return a complete, justified ruling for every candidate; no verdict from this check was retained."
+        }
+      },
+      "correctness_tests": [],
+      "rule_audit": [
+        {
+          "slug": "rc-1923-04-notice",
+          "name": "Notice to leave the premises",
+          "citation": "R.C. 1923.04",
+          "label": "Notice to leave the premises (R.C. 1923.04)",
+          "summary": "A forcible entry and detainer action requires that the party seeking possession first serve a notice to leave the premises, in the statutory form and by a permitted method, and then wait the statutory period before filing.",
+          "verification": "verified",
+          "source": "R.C. 1923.04; Iskin, Ohio Eviction and Landlord-Tenant Law (6th ed. 2022), \u00a7 I.C",
+          "sourceUrl": "https://codes.ohio.gov/ohio-revised-code/section-1923.04",
+          "invokedBy": "citation",
+          "matched": "R.C. 1923.04",
+          "excerpt": "IN THE CLEVELAND MUNICIPAL COURT TENANT'S WAIVER MEMORANDUM STATEMENT OF FACTS Maple Apartments served Jordan Lee with an R.C. 1923.04 notice to leave on January 3, 2026. On February 1, Maple accepted Lee's $900 payment and issued a written receipt. Maple nevertheless filed this possession action on the January 3 notice. ARGUMENT Lee expressly invokes Associated Estates Corp. v. Bartell, 24 Ohio App.3d 6 (8th Dist. 1",
+          "audited": true,
+          "briefCoverage": {
+            "reviewedChars": 1005,
+            "totalChars": 1005,
+            "truncated": false
+          },
+          "requiresApplicabilityReview": false,
+          "elements": [
+            {
+              "id": "notice_served",
+              "label": "A notice to leave the premises was served",
+              "requirement": "The brief identifies a notice and says it was served on the tenant.",
+              "severity": "error",
+              "needsRecordSupport": true,
+              "requiredWhen": "The brief asserts compliance with R.C. 1923.04 or specifically claims notice was not served.",
+              "patterns": [
+                "serv(ed|ice) .{0,60}notice",
+                "notice .{0,40}(was|were) serv"
+              ],
+              "note": "",
+              "origin": "profile",
+              "pled": "yes",
+              "applicability": "not_applicable",
+              "supported": "yes",
+              "explanation": "The brief alleges that Maple served a notice, but it does not assert compliance with R.C. 1923.04 or specifically claim that notice was not served. The stipulated exhibit independently supports service on January 3, 2026.",
+              "quote": "Maple Apartments served Jordan Lee with an R.C. 1923.04 notice to leave on January 3, 2026.",
+              "materialIds": [
+                "upload:43"
+              ],
+              "unmet": false
+            },
+            {
+              "id": "statutory_language",
+              "label": "The notice carried the language the statute requires",
+              "requirement": "The brief says whether the notice contained the statutorily required language, and quotes or attaches it rather than characterizing it.",
+              "severity": "error",
+              "needsRecordSupport": true,
+              "requiredWhen": "The brief asserts compliance with R.C. 1923.04 or specifically challenges the notice's statutory language.",
+              "patterns": [
+                "statutory language",
+                "required language",
+                "language required by"
+              ],
+              "note": "",
+              "origin": "profile",
+              "pled": "no",
+              "applicability": "not_applicable",
+              "supported": "no",
+              "explanation": "The brief's waiver theory does not assert statutory compliance or challenge the notice's statutory language. It neither quotes nor attaches the notice language, and the supplied record excerpt does not provide it.",
+              "quote": "",
+              "materialIds": [],
+              "unmet": false
+            },
+            {
+              "id": "service_method",
+              "label": "The notice was served by a permitted method",
+              "requirement": "The brief names how the notice was delivered.",
+              "severity": "warning",
+              "needsRecordSupport": true,
+              "requiredWhen": "The brief asserts compliance with R.C. 1923.04 or specifically challenges the manner of service.",
+              "patterns": [
+                "(personal|residential|certified) (service|mail)",
+                "posted (on|at) the",
+                "hand[- ]deliver"
+              ],
+              "note": "",
+              "origin": "profile",
+              "pled": "no",
+              "applicability": "not_applicable",
+              "supported": "no",
+              "explanation": "The brief's waiver theory does not assert statutory compliance or challenge the manner of service. Although the record reflects a signed acknowledgment, neither the brief nor the excerpt identifies a service method.",
+              "quote": "",
+              "materialIds": [],
+              "unmet": false
+            },
+            {
+              "id": "special_route",
+              "label": "Any claimed statutory alternative or deceased-resident route is satisfied",
+              "requirement": "Apply division B or C exactly, including added posting and ordinary-mail recipients for a deceased manufactured-home-park resident.",
+              "severity": "error",
+              "needsRecordSupport": true,
+              "requiredWhen": "Only if the brief relies on an alternative in division B or the adverse party is a deceased manufactured-home-park resident under division C.",
+              "patterns": [
+                "5313\\.06",
+                "5321\\.17\\(C\\)",
+                "deceased.{0,40}(resident|tenant)"
+              ],
+              "note": "",
+              "origin": "profile",
+              "pled": "no",
+              "applicability": "not_applicable",
+              "supported": "no",
+              "explanation": "The brief does not rely on a division B alternative, and nothing supplied indicates a deceased manufactured-home-park resident under division C.",
+              "quote": "",
+              "materialIds": [],
+              "unmet": false
+            },
+            {
+              "id": "waiting_period",
+              "label": "The statutory period ran before the complaint was filed",
+              "requirement": "The brief gives both the service date and the filing date, so the period between them can be counted rather than assumed.",
+              "severity": "error",
+              "needsRecordSupport": true,
+              "requiredWhen": "The brief asserts compliance with R.C. 1923.04 or specifically challenges the interval between service and filing.",
+              "patterns": [
+                "filed .{0,60}(after|before) .{0,40}notice",
+                "three days",
+                "(service|notice) date"
+              ],
+              "note": "",
+              "origin": "profile",
+              "pled": "no",
+              "applicability": "not_applicable",
+              "supported": "no",
+              "explanation": "The brief does not assert compliance with the statutory waiting period or challenge the interval between service and filing. Its asserted defect is waiver through acceptance of a future-rent payment after notice.",
+              "quote": "",
+              "materialIds": [],
+              "unmet": false
+            },
+            {
+              "id": "table-confirm-the-notice-service-date",
+              "label": "Confirm the notice service date.",
+              "requirement": "Carried from decision table eviction_answer_issue_selection v1, row notice_defect.",
+              "severity": "warning",
+              "needsRecordSupport": true,
+              "patterns": [],
+              "note": "",
+              "origin": "decision_table",
+              "source": {
+                "tableKey": "eviction_answer_issue_selection",
+                "tableVersion": 1,
+                "rowId": "notice_defect"
+              },
+              "pled": "yes",
+              "applicability": "applicable",
+              "supported": "yes",
+              "explanation": "The brief identifies January 3, 2026 as the notice-service date. The stipulated exhibit confirms service through Lee's signed acknowledgment on that date.",
+              "quote": "Maple Apartments served Jordan Lee with an R.C. 1923.04 notice to leave on January 3, 2026.",
+              "materialIds": [
+                "upload:43"
+              ],
+              "unmet": false
+            },
+            {
+              "id": "table-confirm-the-complaint-filing-date",
+              "label": "Confirm the complaint filing date.",
+              "requirement": "Carried from decision table eviction_answer_issue_selection v1, row notice_defect.",
+              "severity": "warning",
+              "needsRecordSupport": true,
+              "patterns": [],
+              "note": "",
+              "origin": "decision_table",
+              "source": {
+                "tableKey": "eviction_answer_issue_selection",
+                "tableVersion": 1,
+                "rowId": "notice_defect"
+              },
+              "pled": "no",
+              "applicability": "applicable",
+              "supported": "no",
+              "explanation": "The brief states that Maple filed a possession action based on the January 3 notice, but gives no complaint filing date. The supplied record excerpt likewise provides no filing date.",
+              "quote": "Maple nevertheless filed this possession action on the January 3 notice.",
+              "materialIds": [],
+              "unmet": true
+            },
+            {
+              "id": "table-confirm-whether-the-notice-contains-required-statutory-langu",
+              "label": "Confirm whether the notice contains required statutory language.",
+              "requirement": "Carried from decision table eviction_answer_issue_selection v1, row notice_defect.",
+              "severity": "warning",
+              "needsRecordSupport": true,
+              "patterns": [],
+              "note": "",
+              "origin": "decision_table",
+              "source": {
+                "tableKey": "eviction_answer_issue_selection",
+                "tableVersion": 1,
+                "rowId": "notice_defect"
+              },
+              "pled": "no",
+              "applicability": "applicable",
+              "supported": "no",
+              "explanation": "The brief does not state whether the notice contained the required statutory language and does not quote or attach the notice. The supplied exhibit excerpt confirms acknowledgment of notice but not its contents.",
+              "quote": "",
+              "materialIds": [],
+              "unmet": true
+            },
+            {
+              "id": "table-fact-eviction-ground",
+              "label": "The brief establishes eviction: ground",
+              "requirement": "The rule row notice_defect turns on this fact.",
+              "severity": "warning",
+              "needsRecordSupport": true,
+              "patterns": [],
+              "note": "",
+              "origin": "decision_table",
+              "source": {
+                "tableKey": "eviction_answer_issue_selection",
+                "tableVersion": 1,
+                "rowId": "notice_defect",
+                "field": "eviction.ground"
+              },
+              "pled": "no",
+              "applicability": "applicable",
+              "supported": "no",
+              "explanation": "The brief identifies a possession action and argues waiver of notice, but it does not identify or establish the substantive eviction ground on which Maple sought possession.",
+              "quote": "",
+              "materialIds": [],
+              "unmet": true
+            },
+            {
+              "id": "table-fact-notice-days-between-service-and-filing",
+              "label": "The brief establishes notice: days between service and filing",
+              "requirement": "The rule row notice_defect turns on this fact.",
+              "severity": "warning",
+              "needsRecordSupport": true,
+              "patterns": [],
+              "note": "",
+              "origin": "decision_table",
+              "source": {
+                "tableKey": "eviction_answer_issue_selection",
+                "tableVersion": 1,
+                "rowId": "notice_defect",
+                "field": "notice.days_between_service_and_filing"
+              },
+              "pled": "no",
+              "applicability": "applicable",
+              "supported": "no",
+              "explanation": "The service date is alleged, but the filing date is not. Accordingly, the days between service and filing cannot be determined from the brief or supplied record excerpt.",
+              "quote": "",
+              "materialIds": [],
+              "unmet": true
+            },
+            {
+              "id": "table-fact-notice-exists",
+              "label": "The brief establishes notice: exists",
+              "requirement": "The rule row notice_defect turns on this fact.",
+              "severity": "warning",
+              "needsRecordSupport": true,
+              "patterns": [],
+              "note": "",
+              "origin": "decision_table",
+              "source": {
+                "tableKey": "eviction_answer_issue_selection",
+                "tableVersion": 1,
+                "rowId": "notice_defect",
+                "field": "notice.exists"
+              },
+              "pled": "yes",
+              "applicability": "applicable",
+              "supported": "yes",
+              "explanation": "The brief identifies an R.C. 1923.04 notice to leave, and the stipulated exhibit confirms the January 3, 2026 notice and Lee's acknowledgment of service.",
+              "quote": "Maple Apartments served Jordan Lee with an R.C. 1923.04 notice to leave on January 3, 2026.",
+              "materialIds": [
+                "upload:43"
+              ],
+              "unmet": false
+            }
+          ],
+          "unmetCount": 4,
+          "verdict": "4 of 11 elements need review; unavailable evidence or unrecognized wording does not establish a defect."
+        },
+        {
+          "slug": "rc-1923-04-waiver-rent",
+          "name": "Waiver of notice to vacate by acceptance of future rent",
+          "citation": "Associated Estates Corp. v. Bartell, 24 Ohio App.3d 6 (8th Dist. 1985)",
+          "label": "Waiver of notice to vacate by acceptance of future rent (Associated Estates Corp. v. Bartell, 24 Ohio App.3d 6 (8th Dist. 1985))",
+          "summary": "Acceptance after an R.C. 1923.04 notice of rent attributable to a future occupancy period waives that notice; acceptance of only past-due rent does not.",
+          "verification": "verified",
+          "source": "Iskin, Ohio Eviction and Landlord-Tenant Law (6th ed. 2022), \u00a7 II.C.1; Associated Estates Corp. v. Bartell, 24 Ohio App.3d 6, 492 N.E.2d 841 (8th Dist. 1985)",
+          "sourceUrl": "",
+          "invokedBy": "citation",
+          "matched": "Associated Estates Corp. v. Bartell",
+          "excerpt": "nuary 3, 2026. On February 1, Maple accepted Lee's $900 payment and issued a written receipt. Maple nevertheless filed this possession action on the January 3 notice. ARGUMENT Lee expressly invokes Associated Estates Corp. v. Bartell, 24 Ohio App.3d 6 (8th Dist. 1985), and asks the Court to dismiss the possession claim because Maple waived the notice. The landlord served the R.C. 1923.04 notice on January 3. It then accepted Lee's $900 payment on February 1, after service of that notice. The",
+          "audited": true,
+          "briefCoverage": {
+            "reviewedChars": 1005,
+            "totalChars": 1005,
+            "truncated": false
+          },
+          "requiresApplicabilityReview": false,
+          "elements": [
+            {
+              "id": "notice_served",
+              "label": "R.C. 1923.04 notice was served",
+              "requirement": "Identify the notice and its service date.",
+              "severity": "error",
+              "needsRecordSupport": true,
+              "requiredWhen": "",
+              "patterns": [
+                "notice .{0,50}serv"
+              ],
+              "note": "",
+              "origin": "profile",
+              "pled": "yes",
+              "applicability": "applicable",
+              "supported": "yes",
+              "explanation": "This is an unconditional requirement of the invoked waiver rule. The brief identifies the R.C. 1923.04 notice and states it was served on January 3, 2026; the stipulated exhibit confirms service on that date.",
+              "quote": "Maple Apartments served Jordan Lee with an R.C. 1923.04 notice to leave on January 3, 2026.",
+              "materialIds": [
+                "upload:43"
+              ],
+              "unmet": false
+            },
+            {
+              "id": "post_notice_acceptance",
+              "label": "Landlord accepted rent after notice",
+              "requirement": "Identify payment and acceptance after service.",
+              "severity": "error",
+              "needsRecordSupport": true,
+              "requiredWhen": "",
+              "patterns": [
+                "accept.{0,50}rent",
+                "rent .{0,50}accept"
+              ],
+              "note": "",
+              "origin": "profile",
+              "pled": "yes",
+              "applicability": "applicable",
+              "supported": "yes",
+              "explanation": "This is an unconditional requirement of the invoked waiver rule. The brief alleges Maple accepted Lee's $900 payment on February 1, after the January 3 notice, and the record receipt and deposit support acceptance.",
+              "quote": "It then accepted Lee's $900 payment on February 1, after service of that notice.",
+              "materialIds": [
+                "upload:43"
+              ],
+              "unmet": false
+            },
+            {
+              "id": "future_rent",
+              "label": "Accepted payment covered a future occupancy period",
+              "requirement": "Show that some accepted rent was attributable to a period after notice rather than only past-due rent.",
+              "severity": "error",
+              "needsRecordSupport": true,
+              "requiredWhen": "",
+              "patterns": [
+                "future rent",
+                "rent for .{0,40}(month|period)"
+              ],
+              "note": "",
+              "origin": "profile",
+              "pled": "yes",
+              "applicability": "applicable",
+              "supported": "yes",
+              "explanation": "This is an unconditional requirement because the asserted waiver depends on rent attributable to a future occupancy period rather than only arrears. The brief states the receipt applied the payment to March 2026, and the stipulated receipt expressly confirms that allocation.",
+              "quote": "The accepted payment was not limited to arrears: the landlord's receipt expressly applied $900 to March 2026, a future occupancy period after the notice.",
+              "materialIds": [
+                "upload:43"
+              ],
+              "unmet": false
+            }
+          ],
+          "unmetCount": 0,
+          "verdict": "Every element on file is pleaded and supported."
+        }
+      ],
+      "compliance": {
+        "checked": false,
+        "reason": "You turned this check off for this session.",
+        "findings": [],
+        "detection": {
+          "mode": "auto",
+          "reason": "No maintained court profile matched this document's caption or the case record.",
+          "matched": "",
+          "where": "",
+          "courtSlug": ""
+        }
+      },
+      "challenges": [],
+      "challenge_count": 0,
+      "opponent_calls": [],
+      "judge_calls": [],
+      "verdict": "correctness review completed",
+      "assessment": "Correctness review completed. 0 must-fix findings; 0 items need attorney review. Rule elements: no eligible targets",
+      "stage_trace": [
+        {
+          "stage": "document_checks",
+          "method": "deterministic",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "materials",
+          "method": "all",
+          "count": 1,
+          "budgetChars": 150000,
+          "perMaterialChars": 150000,
+          "truncated": [],
+          "trace": []
+        },
+        {
+          "stage": "argument_map",
+          "method": "skipped",
+          "count": 0,
+          "trace": [
+            "No selected check requires a generative argument map."
+          ]
+        },
+        {
+          "stage": "persuasion",
+          "method": "off",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "record_targets",
+          "method": "off",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "opponent:record_support",
+          "method": "off",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "authority_research",
+          "method": "source_specific",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "research_queries",
+          "method": "off",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "research",
+          "method": "retrieval",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "opponent",
+          "method": "off",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "opponent:authority_support",
+          "method": "off",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "rule_elements",
+          "method": "llm",
+          "count": 2,
+          "trace": [
+            {
+              "stage": "rule_elements:rc-1923-04-notice",
+              "method": "llm",
+              "count": 11,
+              "trace": [
+                {
+                  "attempt": 1,
+                  "plan": {
+                    "method": "llm"
+                  },
+                  "success": true,
+                  "code": "rule_elements:rc-1923-04-notice_complete",
+                  "message": "rule_elements:rc-1923-04-notice produced 11 item(s)."
+                }
+              ]
+            },
+            {
+              "stage": "rule_elements:rc-1923-04-waiver-rent",
+              "method": "llm",
+              "count": 3,
+              "trace": [
+                {
+                  "attempt": 1,
+                  "plan": {
+                    "method": "llm"
+                  },
+                  "success": true,
+                  "code": "rule_elements:rc-1923-04-waiver-rent_complete",
+                  "message": "rule_elements:rc-1923-04-waiver-rent produced 3 item(s)."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "stage": "judge",
+          "method": "off",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "judge:rule_elements",
+          "method": "deterministic",
+          "count": 0,
+          "trace": [
+            {
+              "attempt": 1,
+              "plan": {
+                "method": "llm"
+              },
+              "success": false,
+              "code": "judge:rule_elements_empty",
+              "message": "The judge:rule_elements stage produced nothing usable."
+            },
+            {
+              "attempt": 2,
+              "plan": {
+                "method": "deterministic",
+                "repair": "fallback_judge:rule_elements"
+              },
+              "success": false,
+              "code": "judge:rule_elements_empty",
+              "message": "The judge:rule_elements stage produced nothing usable."
+            }
+          ],
+          "checkId": "rule_elements",
+          "batch": 1,
+          "batches": 2,
+          "candidateIds": [
+            "rule_elements:rc-1923-04-notice:notice_served",
+            "rule_elements:rc-1923-04-notice:service_method",
+            "rule_elements:rc-1923-04-notice:special_route",
+            "rule_elements:rc-1923-04-notice:statutory_language",
+            "rule_elements:rc-1923-04-notice:table-confirm-the-complaint-filing-date",
+            "rule_elements:rc-1923-04-notice:table-confirm-the-notice-service-date",
+            "rule_elements:rc-1923-04-notice:table-confirm-whether-the-notice-contains-required-statutory-langu",
+            "rule_elements:rc-1923-04-notice:waiting_period"
+          ],
+          "unavailable": true,
+          "checkUnavailable": true
+        },
+        {
+          "stage": "judge:rule_elements",
+          "method": "deterministic",
+          "count": 0,
+          "trace": [
+            {
+              "attempt": 1,
+              "plan": {
+                "method": "llm"
+              },
+              "success": false,
+              "code": "judge:rule_elements_empty",
+              "message": "The judge:rule_elements stage produced nothing usable."
+            },
+            {
+              "attempt": 2,
+              "plan": {
+                "method": "deterministic",
+                "repair": "fallback_judge:rule_elements"
+              },
+              "success": false,
+              "code": "judge:rule_elements_empty",
+              "message": "The judge:rule_elements stage produced nothing usable."
+            }
+          ],
+          "checkId": "rule_elements",
+          "batch": 2,
+          "batches": 2,
+          "candidateIds": [
+            "rule_elements:rc-1923-04-notice:table-fact-eviction-ground",
+            "rule_elements:rc-1923-04-notice:table-fact-notice-days-between-service-and-filing",
+            "rule_elements:rc-1923-04-notice:table-fact-notice-exists",
+            "rule_elements:rc-1923-04-waiver-rent:future_rent",
+            "rule_elements:rc-1923-04-waiver-rent:notice_served",
+            "rule_elements:rc-1923-04-waiver-rent:post_notice_acceptance"
+          ],
+          "unavailable": true,
+          "checkUnavailable": true
+        },
+        {
+          "stage": "coach",
+          "method": "skipped",
+          "count": 0,
+          "trace": []
+        },
+        {
+          "stage": "assessment",
+          "method": "deterministic",
+          "count": 1,
+          "trace": []
+        }
+      ],
+      "research_trace": [],
+      "model_calls": [
+        {
+          "prompt_key": "argument_gym.rule_elements",
+          "role": "base",
+          "model": "gpt-5.6-terra",
+          "settings": {
+            "temperature": 0,
+            "model": "gpt-5.6-terra",
+            "reasoning_level": "medium"
+          },
+          "status": "complete",
+          "elapsed_seconds": 16.978
+        },
+        {
+          "prompt_key": "argument_gym.rule_elements",
+          "role": "base",
+          "model": "gpt-5.6-terra",
+          "settings": {
+            "temperature": 0,
+            "model": "gpt-5.6-terra",
+            "reasoning_level": "medium"
+          },
+          "status": "complete",
+          "elapsed_seconds": 3.407
+        },
+        {
+          "prompt_key": "argument_gym.correctness_judge",
+          "role": "judge",
+          "model": "mistral-large-3",
+          "settings": {
+            "temperature": 0,
+            "model": "mistral-large-3",
+            "reasoning_level": "medium"
+          },
+          "status": "failed",
+          "error_type": "OpenAIBackendError",
+          "error": "{\"error\":{\"code\":\"Invalid input\",\"message\":\"{\\\"detail\\\":[{\\\"type\\\":\\\"enum\\\",\\\"loc\\\":[\\\"body\\\",\\\"reasoning_effort\\\"],\\\"msg\\\":\\\"Input should be 'none' or 'high'\\\",\\\"input\\\":\\\"medium\\\",\\\"ctx\\\":{\\\"expected\\\":\\\"'none' or 'high'\\\"}}]}\",\"status\":422}}\nPlease check this guide to understand why this error code might have been returned \nhttps://docs.microsoft.com/en-us/azure/machine-learning/how-to-troubles",
+          "elapsed_seconds": 0.498
+        },
+        {
+          "prompt_key": "argument_gym.correctness_judge",
+          "role": "judge",
+          "model": "mistral-large-3",
+          "settings": {
+            "temperature": 0,
+            "model": "mistral-large-3",
+            "reasoning_level": "medium"
+          },
+          "status": "failed",
+          "error_type": "OpenAIBackendError",
+          "error": "{\"error\":{\"code\":\"Invalid input\",\"message\":\"{\\\"detail\\\":[{\\\"type\\\":\\\"enum\\\",\\\"loc\\\":[\\\"body\\\",\\\"reasoning_effort\\\"],\\\"msg\\\":\\\"Input should be 'none' or 'high'\\\",\\\"input\\\":\\\"medium\\\",\\\"ctx\\\":{\\\"expected\\\":\\\"'none' or 'high'\\\"}}]}\",\"status\":422}}\nPlease check this guide to understand why this error code might have been returned \nhttps://docs.microsoft.com/en-us/azure/machine-learning/how-to-troubles",
+          "elapsed_seconds": 0.445
+        }
+      ],
+      "attacks_given_to_judge": 0
+    }
+  ],
+  "public_export": {
+    "removed_fields": [
+      "retrieval"
+    ],
+    "why": "verbatim excerpts of third-party legal corpora retrieved by the research stage; not ours to redistribute and not evidence for any reported figure",
+    "full_record": "report.json, kept locally alongside this file"
+  }
+}
