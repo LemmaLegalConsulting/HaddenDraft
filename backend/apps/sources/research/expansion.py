@@ -147,6 +147,7 @@ def _load_neighbours():
         "neighbors": payload.get("neighbors") or {},
         "builtAt": payload.get("built_at", ""),
         "corpusFingerprint": payload.get("corpus_fingerprint", ""),
+        "corpusIdentity": payload.get("corpus_identity", ""),
         "documentCount": payload.get("document_count", 0),
         "vocabularySize": len(payload.get("neighbors") or {}),
         "parameters": payload.get("parameters") or {},
@@ -156,10 +157,38 @@ def _load_neighbours():
     return built
 
 
-def status():
+def _identity_mismatch(neighbours, corpus_identity):
+    """Why a built table does not describe the corpus being searched, if it does not.
+
+    The table was reported as usable no matter which corpus it came from: it
+    recorded the corpus it was built from and nothing ever compared that with
+    the corpus in hand. A file copied between deployments, or left behind by a
+    re-ingest, went on being described to the reader as "learned from this
+    corpus" -- a claim about provenance that had stopped being true.
+    """
+    if not corpus_identity or not neighbours["available"]:
+        return ""
+    stored = neighbours.get("corpusIdentity")
+    if not stored:
+        return (
+            "This term-neighbour table was built before the corpus it came from was "
+            "recorded, so it cannot be shown to describe the corpus being searched. "
+            "Rebuild it with `manage.py build_research_index`."
+        )
+    if stored != corpus_identity:
+        return (
+            "This term-neighbour table was built from a different corpus "
+            f"({stored}, against {corpus_identity} here), so it is not used. "
+            "Rebuild it with `manage.py build_research_index`."
+        )
+    return ""
+
+
+def status(corpus_identity=""):
     """What the two expansion layers can currently do, for the caller to show."""
     thesaurus = _load_thesaurus()
     neighbours = _load_neighbours()
+    mismatch = _identity_mismatch(neighbours, corpus_identity)
     return {
         "thesaurus": {
             "available": thesaurus["available"] and bool(thesaurus["groups"]),
@@ -167,20 +196,27 @@ def status():
             "verifiedGroupCount": sum(1 for group in thesaurus["groups"] if group["verification"] == "verified"),
         },
         "distributional": {
-            "available": neighbours["available"],
+            "available": neighbours["available"] and not mismatch,
+            "built": neighbours["available"],
+            "matchesCorpus": not mismatch,
             "builtAt": neighbours["builtAt"],
             "corpusFingerprint": neighbours["corpusFingerprint"],
+            "corpusIdentity": neighbours["corpusIdentity"],
             "documentCount": neighbours["documentCount"],
             "vocabularySize": neighbours["vocabularySize"],
             "parameters": neighbours["parameters"],
-            "reason": "" if neighbours["available"] else "Run `manage.py build_research_index` to build the learned term-neighbour table.",
+            "reason": (
+                mismatch if mismatch
+                else "" if neighbours["available"]
+                else "Run `manage.py build_research_index` to build the learned term-neighbour table."
+            ),
         },
         "modes": list(MODES),
         "usesAi": False,
     }
 
 
-def expand(terms, *, mode=DEFAULT_MODE, per_term=4):
+def expand(terms, *, mode=DEFAULT_MODE, per_term=4, corpus_identity=""):
     """Extra search terms for ``terms``, each labelled with where it came from.
 
     Expansions never displace the terms that were typed: the caller weights them
@@ -215,7 +251,11 @@ def expand(terms, *, mode=DEFAULT_MODE, per_term=4):
                     )
 
     if mode in {DISTRIBUTIONAL, "all"}:
-        neighbours = _load_neighbours()["neighbors"]
+        loaded = _load_neighbours()
+        # A table built from another corpus expands nothing here. Saying so is
+        # the caller's job -- `status()` carries the reason -- but using it
+        # anyway while calling it "learned from this corpus" is not an option.
+        neighbours = {} if _identity_mismatch(loaded, corpus_identity) else loaded["neighbors"]
         for term in terms:
             for entry in (neighbours.get(str(term).casefold()) or [])[:per_term]:
                 if not isinstance(entry, (list, tuple)) or len(entry) != 2:

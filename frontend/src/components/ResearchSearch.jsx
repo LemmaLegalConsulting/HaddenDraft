@@ -179,7 +179,13 @@ export function ResearchSearch({ matter, onOpenSource }) {
                   disabled={!aiAvailable}
                   onChange={(event) => apply({ ...state, aiRerank: event.target.checked, offset: 0 })}
                 />
-                <span>Let a model reorder the first page<small>Ranking below the first page stays deterministic. Nothing is removed.</small></span>
+                <span>
+                  Let a model reorder this page of results
+                  <small>
+                    Whichever page you are on, not just the first. Every other page stays in deterministic
+                    order until you visit it, and nothing is ever removed.
+                  </small>
+                </span>
               </label>
               <label className="research-option">
                 <input

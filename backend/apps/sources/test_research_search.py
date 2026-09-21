@@ -627,3 +627,191 @@ class CountyGroupingTests(SimpleTestCase):
         for spelling in ("Cuyahoga", "Cuyahoga County"):
             payload = engine.search("habitability", filters={"county": [spelling]}, index=self.index)
             self.assertEqual(payload["total"], 3, spelling)
+
+
+class GetCannotStartGenerativeWorkTests(TestCase):
+    """A link is opened by crawlers, prefetchers and whoever it was forwarded to."""
+
+    def setUp(self):
+        from django.contrib.auth import get_user_model
+
+        self.user = get_user_model().objects.create_user(username="reader", password="password")
+        self.client.force_login(self.user)
+        from apps.sources.research import index as index_module
+
+        holder = index_module._HOLDER
+        original, original_fingerprint = holder._index, index_module.corpus_fingerprint
+        holder._index = sample_index()
+        index_module.corpus_fingerprint = lambda: holder._index.fingerprint
+        self.addCleanup(setattr, holder, "_index", original)
+        self.addCleanup(setattr, index_module, "corpus_fingerprint", original_fingerprint)
+
+    def test_a_link_asking_for_a_summary_does_not_call_a_model(self):
+        from unittest import mock
+
+        calls = []
+
+        def record(self, **kwargs):
+            calls.append(kwargs)
+            return "an answer"
+
+        with (
+            mock.patch("apps.sources.research_views.settings.AI_DRAFTING_ENABLED", True),
+            mock.patch("apps.sources.research_views.OpenAICompatibleClient.complete", record),
+        ):
+            response = self.client.get(
+                "/api/research/search/", {"q": "habitability", "aiSynthesis": "1", "aiRerank": "1"}
+            )
+
+        payload = response.json()
+        self.assertEqual(calls, [], "A GET must not be able to spend money on a model call.")
+        self.assertTrue(payload["results"])
+        self.assertFalse(payload["ai"]["synthesis"]["applied"])
+        self.assertFalse(payload["ai"]["rerank"]["applied"])
+
+    def test_the_refusal_is_reported_rather_than_the_flag_silently_dropped(self):
+        payload = self.client.get("/api/research/search/", {"q": "habitability", "aiSynthesis": "1"}).json()
+        self.assertTrue(payload["ai"]["synthesis"]["requested"])
+        self.assertIn("POST", payload["ai"]["synthesis"]["reason"])
+
+    def test_a_link_naming_a_matter_does_not_send_it_to_a_model(self):
+        from unittest import mock
+
+        from apps.matters.models import Matter
+
+        matter = Matter.objects.create(
+            external_id="LS-TEST", client_name="A Client", matter_type="Eviction",
+            jurisdiction="Ohio", summary="Confidential matter summary.",
+        )
+        with (
+            mock.patch("apps.sources.research_views.settings.AI_DRAFTING_ENABLED", True),
+            mock.patch("apps.sources.research_views.OpenAICompatibleClient.complete") as complete,
+        ):
+            self.client.get(
+                "/api/research/search/",
+                {"q": "habitability", "aiSynthesis": "1", "matterId": matter.external_id},
+            )
+        complete.assert_not_called()
+
+    def test_the_same_search_as_a_post_still_runs_the_model(self):
+        from unittest import mock
+
+        with (
+            mock.patch("apps.sources.research_views.settings.AI_DRAFTING_ENABLED", True),
+            mock.patch("apps.sources.research_views.OpenAICompatibleClient.complete", return_value="an answer"),
+        ):
+            payload = self.client.post(
+                "/api/research/search/",
+                data={"query": "habitability", "aiSynthesis": True},
+                content_type="application/json",
+            ).json()
+        self.assertTrue(payload["ai"]["synthesis"]["applied"])
+
+
+class RerankHonestyTests(TestCase):
+    """"Applied" has to mean a model actually reordered something."""
+
+    def setUp(self):
+        from django.contrib.auth import get_user_model
+
+        self.client.force_login(get_user_model().objects.create_user(username="r", password="p"))
+        from apps.sources.research import index as index_module
+
+        holder = index_module._HOLDER
+        original, original_fingerprint = holder._index, index_module.corpus_fingerprint
+        holder._index = sample_index()
+        index_module.corpus_fingerprint = lambda: holder._index.fingerprint
+        self.addCleanup(setattr, holder, "_index", original)
+        self.addCleanup(setattr, index_module, "corpus_fingerprint", original_fingerprint)
+
+    def _search(self, response_text):
+        from unittest import mock
+
+        with (
+            mock.patch("apps.sources.research_views.settings.AI_DRAFTING_ENABLED", True),
+            mock.patch("apps.sources.research_views.OpenAICompatibleClient.complete", return_value=response_text),
+        ):
+            return self.client.post(
+                "/api/research/search/",
+                data={"query": "habitability", "aiRerank": True},
+                content_type="application/json",
+            ).json()
+
+    def test_an_order_of_invented_ids_is_not_a_rerank(self):
+        payload = self._search(json.dumps({"order": ["invented-id", "another-invention"]}))
+        self.assertFalse(payload["ai"]["rerank"]["applied"])
+        self.assertIn("named no result it was given", payload["ai"]["rerank"]["reason"])
+
+    def test_an_order_naming_real_results_is_a_rerank(self):
+        baseline = [result["id"] for result in self._search(json.dumps({"order": []}))["results"]]
+        payload = self._search(json.dumps({"order": list(reversed(baseline))}))
+        self.assertTrue(payload["ai"]["rerank"]["applied"])
+        self.assertEqual([result["id"] for result in payload["results"]], list(reversed(baseline)))
+
+    def test_invented_ids_mixed_with_real_ones_still_rerank_on_the_real_ones(self):
+        baseline = [result["id"] for result in self._search(json.dumps({"order": []}))["results"]]
+        payload = self._search(json.dumps({"order": ["nonsense", baseline[-1]]}))
+        self.assertTrue(payload["ai"]["rerank"]["applied"])
+        self.assertEqual(payload["results"][0]["id"], baseline[-1])
+        self.assertEqual({r["id"] for r in payload["results"]}, set(baseline))
+
+
+class LearnedTableProvenanceTests(TestCase):
+    """A table from another corpus must not be described as learned from this one."""
+
+    def test_a_table_built_from_another_corpus_is_not_used(self):
+        from apps.sources.research import expansion as expansion_module
+
+        built = expansion_module._load_neighbours()
+        if not built["available"]:
+            self.skipTest("No learned term-neighbour table is built in this checkout.")
+        identity = built["corpusIdentity"] or "unrecorded"
+        self.assertFalse(
+            any(item.basis == expansion_module.DISTRIBUTIONAL
+                for item in expansion_module.expand(["retaliation"], mode="all", corpus_identity="not-this-corpus")),
+            "A table built elsewhere must not expand a search here.",
+        )
+        status = expansion_module.status("not-this-corpus")["distributional"]
+        self.assertTrue(status["built"])
+        self.assertFalse(status["available"])
+        self.assertFalse(status["matchesCorpus"])
+        self.assertIn("build_research_index", status["reason"])
+        # And the matching case still works, so the gate is not simply off.
+        self.assertTrue(expansion_module.status(identity)["distributional"]["matchesCorpus"])
+
+    def test_an_edit_to_one_record_does_not_invalidate_the_table(self):
+        # The identity is corpus composition, not corpus state. Keyed on the
+        # index fingerprint instead, a single corrected county would have
+        # disabled expansion until somebody re-ran a ten-second build.
+        from apps.sources.research.index import corpus_identity
+
+        first = corpus_identity()
+        self.assertEqual(first, corpus_identity())
+        self.assertTrue(first)
+
+
+class CitationSubdivisionTests(SimpleTestCase):
+    """What a subdivision does is a preference, and the parse says so."""
+
+    def test_the_section_is_required_and_the_subdivision_only_ranks(self):
+        citation = find_citations("R.C. 5321.04(A)(2)")[0]
+        self.assertEqual(citation.subdivision, "(A)(2)")
+        self.assertEqual(citation.to_dict()["required"], ["R.C. 5321.04"])
+        self.assertTrue(citation.to_dict()["ranksHigher"])
+        self.assertIn("5321.04(A)(2)", citation.refinements)
+
+    def test_a_citation_without_a_subdivision_has_nothing_to_refine(self):
+        citation = find_citations("R.C. 5321.04")[0]
+        self.assertEqual(citation.subdivision, "")
+        self.assertEqual(citation.to_dict()["ranksHigher"], [])
+
+    def test_a_document_carrying_the_subdivision_outranks_one_that_only_has_the_section(self):
+        index = index_from_records([
+            record("bare", "treatises", "Commentary on the section",
+                   "This chapter discusses R.C. 5321.04 at length, R.C. 5321.04 throughout."),
+            record("refined", "treatises", "Commentary on the division",
+                   "This chapter discusses R.C. 5321.04(A)(2) and what division (A)(2) of section 5321.04 requires."),
+        ])
+        results = engine.search("R.C. 5321.04(A)(2)", index=index)["results"]
+        self.assertEqual([item["id"] for item in results][0], "refined")
+        self.assertIn("bare", [item["id"] for item in results])

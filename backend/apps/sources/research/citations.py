@@ -21,10 +21,29 @@ from dataclasses import dataclass, field
 
 @dataclass(frozen=True)
 class Citation:
+    """One citation, and the two different things it asks for.
+
+    ``variants`` is the requirement: the spellings of the authority itself,
+    any of which a document must literally contain to be returned.
+
+    ``refinements`` is a preference, not a requirement, and the distinction is
+    the honest answer to a question the code used to get wrong quietly. A
+    reader who types ``R.C. 5321.04(A)(2)`` is pointing at one division of a
+    section -- but the section's own text prints the number once in its
+    heading and the division separately as ``(A)(2)``, so requiring the
+    joined-up string would exclude the statute the reader is asking for.
+    Requiring the section and ranking the division higher returns that section
+    first and the paragraphs discussing the division after it. What must not
+    happen is claiming the narrower thing was required when it was not, so the
+    parse reports both.
+    """
+
     kind: str
     normalized: str
     matched_text: str
     variants: tuple = field(default_factory=tuple)
+    subdivision: str = ""
+    refinements: tuple = field(default_factory=tuple)
 
     def to_dict(self):
         return {
@@ -32,6 +51,11 @@ class Citation:
             "normalized": self.normalized,
             "matchedText": self.matched_text,
             "variants": list(self.variants),
+            "subdivision": self.subdivision,
+            # Spelt out because "citations are requirements" is the promise
+            # this endpoint makes, and for a subdivision it is only half true.
+            "required": list(self.variants[:1]) or [self.normalized],
+            "ranksHigher": list(self.refinements),
         }
 
 
@@ -43,10 +67,19 @@ def _revised_code(match):
     section = match.group("section")
     subdivision = (match.group("subdivision") or "").replace(" ", "")
     normalized = f"R.C. {section}{subdivision}"
+    # How a division is written where it is discussed rather than enacted.
+    refinements = _unique([
+        f"{section}{subdivision}",
+        f"R.C. {section}{subdivision}",
+        f"division {subdivision} of section {section}",
+        subdivision,
+    ]) if subdivision else ()
     return Citation(
         kind="revised_code",
         normalized=normalized,
         matched_text=match.group(0).strip(),
+        subdivision=subdivision,
+        refinements=refinements,
         # The bare section number is a variant because statutory text cites its
         # neighbours as "division (B) of section 5321.04", with no reporter
         # prefix anywhere on the page.

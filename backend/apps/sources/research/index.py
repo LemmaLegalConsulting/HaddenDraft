@@ -16,21 +16,25 @@ corpus.
 
 from __future__ import annotations
 
+import hashlib
 import threading
 import time
 from datetime import datetime, timezone
 
-from apps.sources.library import manifest_paths
+from apps.sources.library import load_manifest, manifest_paths
 from apps.sources.research.bm25 import Bm25Index
 from apps.sources.research.corpus import case_records, library_records
 from apps.sources.research.query import index_tokens
 
 
 class ResearchIndex:
-    def __init__(self, records, bm25, fingerprint, *, build_seconds=0.0):
+    def __init__(self, records, bm25, fingerprint, *, identity="", build_seconds=0.0):
         self.records = records
         self.bm25 = bm25
         self.fingerprint = fingerprint
+        # Which corpus this is, for anything derived from the corpus as a whole
+        # rather than from its current rows -- the learned neighbour table.
+        self.identity = identity
         self.built_at = datetime.now(timezone.utc).isoformat()
         self.build_seconds = build_seconds
 
@@ -84,7 +88,42 @@ def index_from_records(records):
     bm25 = Bm25Index()
     for record in records:
         bm25.add(index_tokens(record.text))
-    return ResearchIndex(list(records), bm25, ("supplied", len(records)))
+    return ResearchIndex(
+        list(records), bm25, ("supplied", len(records)),
+        identity=f"supplied:{len(records)}",
+    )
+
+
+def corpus_identity():
+    """What corpus this is, as distinct from what state it is in.
+
+    ``corpus_fingerprint`` answers "has anything changed at all", which is the
+    right question for an index that must not serve stale rows, and the wrong
+    one for the learned term-neighbour table: that is built from how words
+    co-occur across the whole corpus, and one decision having its county
+    corrected does not change that. Keyed on the fingerprint, the table would
+    be invalidated by the next edit anybody made, which in practice means
+    never being usable.
+
+    So this is composition rather than state -- which documents are here and
+    how many pieces they are in. It survives an edit and it does not survive a
+    re-ingest, a new municipality, or the file being copied from another
+    deployment, which are the cases where the table really does describe a
+    different corpus than the one being searched.
+    """
+    from apps.caselaw.models import CaseLawSearchDocument
+
+    documents = []
+    for path in manifest_paths():
+        manifest = load_manifest(path)
+        if not manifest:
+            continue
+        slug = str(manifest.get("document_slug") or "")
+        if slug:
+            documents.append((slug, len(manifest.get("chunks") or [])))
+    cases = CaseLawSearchDocument.objects.filter(decision__approved_for_search=True).count()
+    payload = repr((sorted(set(documents)), cases))
+    return hashlib.sha256(payload.encode("utf-8")).hexdigest()[:16]
 
 
 def build_index():
@@ -94,7 +133,8 @@ def build_index():
     for record in records:
         bm25.add(index_tokens(record.text))
     return ResearchIndex(
-        records, bm25, corpus_fingerprint(), build_seconds=time.monotonic() - started
+        records, bm25, corpus_fingerprint(),
+        identity=corpus_identity(), build_seconds=time.monotonic() - started,
     )
 
 

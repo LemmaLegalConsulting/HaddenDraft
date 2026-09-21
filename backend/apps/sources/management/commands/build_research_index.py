@@ -29,7 +29,7 @@ from django.core.management.base import BaseCommand
 
 from apps.core.content_library import content_library_dir
 from apps.sources.research.expansion import NEIGHBOURS_PATH, status as expansion_status
-from apps.sources.research.index import research_index, reset_index
+from apps.sources.research.index import corpus_identity, research_index, reset_index
 
 
 SCHEMA_VERSION = 1
@@ -82,6 +82,10 @@ class Command(BaseCommand):
             "built_at": datetime.now(timezone.utc).isoformat(),
             "generator": "manage.py build_research_index",
             "corpus_fingerprint": _fingerprint_digest(index.fingerprint),
+            # Which corpus, not which state of it: an edit to one decision does
+            # not make this table describe a different corpus, and keying it on
+            # the fingerprint would invalidate it every time anyone saved a row.
+            "corpus_identity": corpus_identity(),
             "document_count": index.document_count,
             "parameters": {
                 "min_document_frequency": options["min_document_frequency"],

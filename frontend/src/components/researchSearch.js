@@ -25,7 +25,9 @@ export const EXPANSION_MODES = [
   {
     id: "distributional",
     label: "Terms learned from this corpus",
-    description: "Adds neighbours computed offline from how words co-occur here. No model is involved.",
+    description:
+      "Adds neighbours computed offline from how words co-occur here, and only when the table was built " +
+      "from the corpus being searched. No model is involved.",
   },
   {
     id: "all",
@@ -177,6 +179,10 @@ export function expansionStatus(expansion) {
     missing.push("The reviewed thesaurus could not be read, so no terms of art were added.");
   }
   if (wantsLearned && !status.distributional?.available) {
+    // A table built from another corpus is a different problem from no table
+    // at all, and the reader needs to be able to tell them apart: one is a
+    // command they have not run, the other is a file that does not describe
+    // what they are searching.
     missing.push(status.distributional?.reason || "The learned term-neighbour table has not been built.");
   }
   const unavailable = missing.join(" ");

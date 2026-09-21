@@ -44,6 +44,12 @@ MAX_LIMIT = 100
 # logarithm is what keeps a treatise section that discusses R.C. 5321.04 thirty
 # times from outranking R.C. 5321.04 itself.
 EXACT_WEIGHT = 40.0
+# A document that also contains the division a citation narrowed to. A
+# preference rather than a requirement: see `Citation`. Set above the base
+# exact-match weight so that naming the division a reader asked for counts for
+# more than mentioning the section they asked for a second time; a chapter that
+# discusses the section thirty times can still win, which is what should happen.
+REFINEMENT_WEIGHT = 60.0
 # A document that *is* the cited authority, rather than one that mentions it.
 # Set above any reachable occurrence score, because the section a reader cited
 # belongs above the chapter of commentary that discusses it thirty times.
@@ -104,8 +110,17 @@ def _rarest_token(bm25, tokens):
 
 
 def _citation_candidates(index, citation):
-    """Documents that could contain a citation, narrowed by its rarest identifier."""
-    token = _rarest_token(index.bm25, _identifying_tokens(index_tokens(citation.normalized)))
+    """Documents that could contain a citation, narrowed by its rarest identifier.
+
+    Narrowed on what the citation *requires* -- the section -- rather than on
+    its normalized form. ``R.C. 5321.04(A)(2)`` tokenizes to include the bare
+    ``2`` of the subdivision, which is rare enough to win the narrowing and
+    then admits only documents printing a standalone 2. The section the reader
+    asked for, whose text sets the division out as ``(A)`` and ``(2)`` on
+    separate lines, was not among them.
+    """
+    required = citation.variants[0] if citation.variants else citation.normalized
+    token = _rarest_token(index.bm25, _identifying_tokens(index_tokens(required)))
     return index.bm25.documents_with(token) if token else set()
 
 
@@ -136,6 +151,7 @@ def _requirements(index, parsed):
     required = None
     hits = {}
     identity = {}
+    refined = {}
     unmatched = []
 
     for phrase in parsed.phrases:
@@ -159,6 +175,8 @@ def _requirements(index, parsed):
                 continue
             found.add(ordinal)
             hits[ordinal] = hits.get(ordinal, 0) + occurrences
+            if citation.refinements and _first_occurrence_count(record.text.casefold(), citation.refinements):
+                refined[ordinal] = refined.get(ordinal, 0) + 1
             # The section whose own citation is the one being looked up is the
             # answer; a treatise paragraph citing it is commentary on the
             # answer. Only a record that carries its own authority citation can
@@ -172,7 +190,7 @@ def _requirements(index, parsed):
             unmatched.append({"kind": "citation", "value": citation.normalized})
         required = found if required is None else (required & found)
 
-    return required, hits, identity, unmatched
+    return required, hits, identity, refined, unmatched
 
 
 def _concepts(parsed, expansions):
@@ -304,7 +322,7 @@ def _empty(parsed, merged_filters, expansion_mode, limit, offset, index, fingerp
         "coverage": {"conceptCount": 0, "required": 0},
         "expansion": {
             "mode": expansion_mode, "applied": [], "suppressed": False,
-            "suppressedReason": "", "status": expansion_module.status(),
+            "suppressedReason": "", "status": expansion_module.status(index.identity),
         },
         "unmatched": [],
         "ai": ai_report(),
@@ -346,12 +364,14 @@ def search(
     # An exact query asks whether the corpus contains a specific thing.
     # Broadening it with near neighbours answers a question nobody asked.
     suppressed = parsed.is_exact and expansion_mode != "none"
-    expansions = [] if suppressed else expansion_module.expand(parsed.terms, mode=expansion_mode)
+    expansions = [] if suppressed else expansion_module.expand(
+        parsed.terms, mode=expansion_mode, corpus_identity=index.identity
+    )
     expansion_terms = [item.term for item in expansions]
     concepts = _concepts(parsed, expansions)
     required_coverage = max(1, math.ceil(len(concepts) * COVERAGE_RATIO)) if concepts else 0
 
-    required, exact_hits, identity, unmatched = _requirements(index, parsed)
+    required, exact_hits, identity, refined, unmatched = _requirements(index, parsed)
     # `court:cleveland` with nothing else is a browse: the reader has named a
     # set rather than described one, and every record in that set is an answer.
     # Scoring it as a query of no terms returned an empty list under the note
@@ -389,6 +409,7 @@ def search(
         if exact_hits.get(ordinal):
             total += EXACT_WEIGHT * (1 + math.log(exact_hits[ordinal]))
         total += IDENTITY_WEIGHT * identity.get(ordinal, 0)
+        total += REFINEMENT_WEIGHT * refined.get(ordinal, 0)
         if jurisdiction and _jurisdiction_match(jurisdiction, record):
             total *= JURISDICTION_FACTOR
         if record.metadata.get("supersededOrCriticized"):
@@ -466,7 +487,7 @@ def search(
                 "This query names an exact phrase or citation, so it was run literally without concept expansion."
                 if suppressed else ""
             ),
-            "status": expansion_module.status(),
+            "status": expansion_module.status(index.identity),
         },
         "unmatched": unmatched,
         "ai": ai_report(),

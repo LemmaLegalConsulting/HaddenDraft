@@ -80,6 +80,16 @@ def _request_options(request):
     """
     if request.method == "GET":
         data = request.GET
+        # A GET is supposed to be the shareable, repeatable form of a search, and
+        # a link gets forwarded, crawled and prefetched. Honouring the AI flags
+        # here meant that opening a URL someone sent you could spend money on a
+        # model call and hand it the summary of whichever matter the link named.
+        # The flags are read so the response can say they were refused rather
+        # than silently ignored; generative work needs a POST.
+        refused = [
+            name for name, value in (("aiRerank", data.get("aiRerank")), ("aiSynthesis", data.get("aiSynthesis")))
+            if _truthy(value)
+        ]
         return {
             "query": data.get("q", "") or data.get("query", ""),
             "corpora": data.getlist("corpus"),
@@ -89,8 +99,9 @@ def _request_options(request):
             "offset": data.get("offset"),
             "jurisdiction": data.get("jurisdiction", ""),
             "matter_id": data.get("matterId"),
-            "rerank": _truthy(data.get("aiRerank")),
-            "synthesize": _truthy(data.get("aiSynthesis")),
+            "rerank": False,
+            "synthesize": False,
+            "ai_refused": refused,
         }
     body = json_body(request)
     raw_filters = body.get("filters") if isinstance(body.get("filters"), dict) else {}
@@ -105,6 +116,7 @@ def _request_options(request):
         "matter_id": body.get("matterId"),
         "rerank": _truthy(body.get("aiRerank")),
         "synthesize": _truthy(body.get("aiSynthesis")),
+        "ai_refused": [],
     }
 
 
@@ -159,11 +171,28 @@ def _rerank(payload, *, query, jurisdiction):
             "reason": f"The reranker could not be reached, so results are in deterministic order ({exc}).",
         }
 
-    positions = {identifier: position for position, identifier in enumerate(identifiers) if isinstance(identifier, str)}
+    # Only ids the model was actually shown count. Without this an answer of
+    # {"order": ["invented-id"]} was non-empty, changed nothing, and was
+    # reported as a rerank that had been applied -- the one thing this block
+    # exists to report honestly.
+    candidates = {result["id"] for result in window}
+    # Filter first, then rank. Enumerating before the filter left gaps, so an
+    # invented id in front of a real one pushed the real one's rank past the
+    # default given to everything the model did not mention, and the reorder
+    # silently did nothing.
+    named = [
+        identifier for identifier in identifiers
+        if isinstance(identifier, str) and identifier in candidates
+    ]
+    positions = {identifier: position for position, identifier in enumerate(dict.fromkeys(named))}
     if not positions:
         return {
             "requested": True, "applied": False, "window": len(window),
-            "reason": "The reranker returned no usable order, so results are in deterministic order.",
+            "reason": (
+                "The reranker named no result it was given, so results are in deterministic order."
+                if identifiers else
+                "The reranker returned no usable order, so results are in deterministic order."
+            ),
         }
     # A result the model left out keeps its deterministic position behind the
     # ones it ranked, rather than disappearing: dropping a result is retrieval,
@@ -255,6 +284,17 @@ def research_search(request):
     unavailable = _ai_unavailable_reason()
     rerank_report = None
     synthesis_report = None
+    if options.get("ai_refused"):
+        refused = {
+            "requested": True, "applied": False,
+            "reason": (
+                "A link cannot start generative work. "
+                f"{' and '.join(options['ai_refused'])} was ignored because this search arrived as a GET; "
+                "send the same search as a POST to run it."
+            ),
+        }
+        rerank_report = dict(refused) if "aiRerank" in options["ai_refused"] else None
+        synthesis_report = {**refused, "answer": ""} if "aiSynthesis" in options["ai_refused"] else None
     if options["rerank"]:
         rerank_report = (
             {"requested": True, "applied": False, "reason": unavailable}

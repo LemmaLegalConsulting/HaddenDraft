@@ -673,7 +673,15 @@ returns the library's own answer.
 not hints: only text that literally contains them comes back, and the section a
 citation names outranks the chapter of commentary that discusses it. When
 nothing in the corpus contains one, the search says which phrase or citation
-went unmatched rather than ranking something else into the gap. `court:`,
+went unmatched rather than ranking something else into the gap.
+
+A subdivision is the one deliberate exception, and the response states it
+rather than leaving it to be discovered. `R.C. 5321.04(A)(2)` **requires** the
+section and **ranks** the division higher, because the section's own text
+prints its number once in the heading and sets out `(A)(2)` separately, so
+requiring the joined-up string would exclude the statute being asked for. Each
+parsed citation reports `required` and `ranksHigher` so the difference is
+visible. `court:`,
 `county:`, `municipality:`, `district:`, `year:`, `status:`, `judge:`,
 `title:`, `source:` narrow; `-word` excludes.
 
@@ -691,11 +699,27 @@ co-occurrence by `manage.py build_research_index`. Every result says which of
 the reader's own words it contains, which it does not, and which matches came
 from an expansion. An exact query is never broadened.
 
+The learned table records which corpus it was built from, and is used only when
+that matches the corpus being searched — otherwise it is reported as built but
+not applicable, with the command to rebuild it. The recorded identity is the
+corpus's composition rather than its state, so correcting one decision does not
+invalidate a table, while a re-ingest or a file copied from another deployment
+does.
+
 **AI, when it is asked for.** Reranking and synthesis are off by default, opt-in
 per search, and applied on top of a finished result set. Every response reports
 in words what a model did — including that it did nothing — and a provider that
 is down or switched off degrades to the deterministic results with the reason
-stated, rather than to an error.
+stated, rather than to an error. Reranking reorders the page being viewed and
+never removes a result; a model that answers with ids it was not given is
+reported as unusable rather than as a rerank that happened to change nothing.
+
+**A `GET` cannot start generative work.** The linkable form of a search is
+deterministic by construction: `aiRerank` and `aiSynthesis` in a query string
+are refused and reported, not honoured. A link gets forwarded, crawled and
+prefetched, and opening one should not spend money on a model call or hand it
+the summary of whichever matter the link names. Send the same search as a
+`POST` to run either.
 
 See [`content/research-index/README.md`](content/research-index/README.md) for
 the maintained thesaurus, the district map, the known-answer regression queries,

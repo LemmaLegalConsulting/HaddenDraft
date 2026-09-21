@@ -72,6 +72,13 @@ peaks around 700 MB, because similarity is held as a dense square of the
 vocabulary. `--max-vocabulary` controls that square; the other parameters are
 recorded in the file it writes and reported through the API.
 
+It records the corpus it was built from, and research mode uses it only when
+that matches the corpus being searched; a table from another deployment is
+reported as built but not applicable rather than quietly described as "learned
+from this corpus". The recorded identity is composition — which documents are
+here and in how many pieces — not state, so an edit to one decision does not
+invalidate a table that is still perfectly good.
+
 It is **not committed**, and not because of its size — it is under a megabyte.
 It is derived from the imported case-law corpus as well as the content library,
 and that corpus differs between deployments. A table built from one deployment's

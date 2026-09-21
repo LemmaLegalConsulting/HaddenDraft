@@ -9,6 +9,7 @@ from apps.sources.research.engine import ai_report, search
 from apps.sources.research.expansion import status as expansion_status
 from apps.sources.research.index import (
     corpus_fingerprint,
+    corpus_identity,
     peek_index,
     research_index,
     reset_index,
@@ -18,6 +19,7 @@ from apps.sources.research.index import (
 __all__ = [
     "ai_report",
     "corpus_fingerprint",
+    "corpus_identity",
     "expansion_status",
     "peek_index",
     "research_index",
