@@ -294,6 +294,9 @@ class ManagedSourceVersion(models.Model):
     chunk_count = models.PositiveIntegerField(default=0)
     validation_report = models.JSONField(default=dict, blank=True)
     error = models.TextField(blank=True)
+    # When validation last started. A "validating" row with an old timestamp is
+    # an interrupted worker rather than work in progress.
+    validation_started_at = models.DateTimeField(null=True, blank=True)
     published_at = models.DateTimeField(null=True, blank=True)
     retired_at = models.DateTimeField(null=True, blank=True)
 

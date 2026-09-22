@@ -8,7 +8,24 @@ from apps.sources.models import (
     OrdinanceDocument, OrdinanceOverride, RetrievedDocument, SourceConfiguration,
     UserOAuthConnection, UserResource, UserSourceIdentity,
 )
-from apps.sources.publication import import_version, publish_version, retire_source, rollback_source
+from apps.sources.publication import (
+    PublicationError, import_version, publish_version, retire_source, rollback_source,
+)
+
+
+def _report_refusals(model_admin, request, refused):
+    """Name every selected row the pipeline would not act on.
+
+    The changelist offers rows in every status, so a bulk action routinely
+    meets one it cannot publish. Each is reported by name; the rows around it
+    still go through.
+    """
+    if refused:
+        model_admin.message_user(
+            request,
+            "Not changed: " + "; ".join(refused),
+            level=messages.ERROR,
+        )
 
 
 @admin.register(SourceConfiguration)
@@ -215,11 +232,15 @@ class ManagedSourceAdmin(admin.ModelAdmin):
             content_type = (getattr(upload, "content_type", "") if upload else "text/plain") or ""
             requested_publish = form.cleaned_data.get("publish_immediately", False)
             may_publish = request.user.has_perm("sources.publish_managedsource")
-            version, created = import_version(
-                source=obj, content=content, filename=filename, content_type=content_type,
-                label=form.cleaned_data.get("version_label", ""), actor=request.user,
-                publish=requested_publish and may_publish, background=True,
-            )
+            try:
+                version, created = import_version(
+                    source=obj, content=content, filename=filename, content_type=content_type,
+                    label=form.cleaned_data.get("version_label", ""), actor=request.user,
+                    publish=requested_publish and may_publish, background=True,
+                )
+            except PublicationError as exc:
+                self.message_user(request, f"The version was not published: {exc}", level=messages.ERROR)
+                return
             if requested_publish and not may_publish:
                 self.message_user(
                     request,
@@ -237,8 +258,16 @@ class ManagedSourceAdmin(admin.ModelAdmin):
                     request,
                     f"Version {version.number} {'published' if version.status == 'published' else 'validated and awaiting review'}.",
                 )
+            elif version.status == "validating":
+                self.message_user(
+                    request, f"Version {version.number} is already being validated; no duplicate was created.",
+                )
             else:
-                self.message_user(request, "That exact file is already recorded; no duplicate version was created.")
+                self.message_user(
+                    request,
+                    f"That exact file is already recorded as version {version.number} "
+                    f"({version.get_status_display().lower()}); no duplicate version was created.",
+                )
 
     @admin.display(description="SHA-256")
     def current_checksum(self, obj):
@@ -255,12 +284,19 @@ class ManagedSourceAdmin(admin.ModelAdmin):
 
     @admin.action(description="Restore selected retired sources at their current version", permissions=("publish",))
     def restore_selected(self, request, queryset):
-        restored = 0
+        restored, refused = 0, []
         for source in queryset:
-            if source.current_version:
+            if not source.current_version:
+                refused.append(f"{source.slug}: no current version to restore")
+                continue
+            try:
                 publish_version(source.current_version, actor=request.user)
-                restored += 1
+            except PublicationError as exc:
+                refused.append(f"{source.slug}: {exc}")
+                continue
+            restored += 1
         self.message_user(request, f"Restored {restored} source(s).")
+        _report_refusals(self, request, refused)
 
 
 @admin.register(ManagedSourceVersion)
@@ -294,19 +330,29 @@ class ManagedSourceVersionAdmin(admin.ModelAdmin):
 
     @admin.action(description="Publish selected validated versions", permissions=("publish",))
     def publish_selected(self, request, queryset):
-        published = 0
+        published, refused = 0, []
         for version in queryset:
-            publish_version(version, actor=request.user)
+            try:
+                publish_version(version, actor=request.user)
+            except PublicationError as exc:
+                refused.append(f"{version}: {exc}")
+                continue
             published += 1
         self.message_user(request, f"Published {published} version(s).")
+        _report_refusals(self, request, refused)
 
     @admin.action(description="Roll each source back to the selected version", permissions=("publish",))
     def rollback_selected(self, request, queryset):
-        rolled_back = 0
+        rolled_back, refused = 0, []
         for version in queryset:
-            rollback_source(version.source, version, actor=request.user)
+            try:
+                rollback_source(version.source, version, actor=request.user)
+            except PublicationError as exc:
+                refused.append(f"{version}: {exc}")
+                continue
             rolled_back += 1
         self.message_user(request, f"Rolled back {rolled_back} source(s).")
+        _report_refusals(self, request, refused)
 
 
 @admin.register(ManagedSourceChunk)

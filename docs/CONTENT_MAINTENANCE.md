@@ -24,6 +24,13 @@ version; publishing it supersedes the old live version without deleting its
 audit history. A scanned PDF with no readable text fails validation: upload an
 OCR/plain-text representation rather than publishing an empty source.
 
+Validation runs in the background, so a large document does not hold the
+request open. A version that failed, or whose worker never finished, is
+retried by uploading the same file again: an import that never ran is recorded
+as failed with its reason rather than left looking like work in progress. A
+version still being validated is left alone, and reported as such, until it is
+stale enough that no worker can still be on it.
+
 ## Retire or restore
 
 Use **Retire selected sources from research** to remove a source from active
@@ -44,9 +51,9 @@ The same pipeline is available without the admin:
   --kind treatise --title "Iskin Treatise" --label "2026 edition" --username operator
 
 # After review:
-.venv/bin/python backend/manage.py manage_content_source publish iskin-treatise --version 1 --username operator
+.venv/bin/python backend/manage.py manage_content_source publish iskin-treatise --source-version 1 --username operator
 .venv/bin/python backend/manage.py manage_content_source retire iskin-treatise --username operator
-.venv/bin/python backend/manage.py manage_content_source rollback iskin-treatise --version 1 --username operator
+.venv/bin/python backend/manage.py manage_content_source rollback iskin-treatise --source-version 1 --username operator
 ```
 
 Add `--publish` to an import whose metadata has already been reviewed. Commands

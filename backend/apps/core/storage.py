@@ -374,6 +374,9 @@ def copy_area(source, destination, *, prefix="", content_type="application/octet
     later. Streams via a temporary file instead of reading whole objects into
     memory, because a scanned appellate PDF can be tens of megabytes.
 
+    ``content_type`` may be a callable taking the key, for an area whose
+    objects are not all of one type.
+
     Returns ``(copied, skipped)``.
     """
     import tempfile
@@ -384,10 +387,11 @@ def copy_area(source, destination, *, prefix="", content_type="application/octet
         if skip_existing and destination.exists(key):
             skipped += 1
             continue
+        resolved = content_type(key) if callable(content_type) else content_type
         with tempfile.TemporaryDirectory() as staging:
             staged = Path(staging) / Path(key).name
             source.download_to(key, staged)
-            destination.put_file(local_path=staged, key=key, content_type=content_type)
+            destination.put_file(local_path=staged, key=key, content_type=resolved)
         copied += 1
         if progress:
             progress(key)
