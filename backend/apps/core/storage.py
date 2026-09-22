@@ -7,20 +7,20 @@ which splits every store into two areas:
 
     raw/        what an operator uploads. Source material, in whatever shape it
                 came in. Nothing serves directly out of here.
-    published/  what the application reads and serves. Written by an ingest or
-                publish step, never by hand.
+    validated/  derived artifacts which passed validation but are not live.
+    published/  what the application reads and serves. Written by a publish
+                step, never by hand.
 
 Keeping those apart is what makes a partial upload safe: files can accumulate
 under ``raw/`` for as long as it takes without the running application seeing a
 half-finished corpus, and a publish step is the single moment the change becomes
 visible.
 
-Two backends implement the interface. ``filesystem`` is what local development
+Three backends implement the interface. ``filesystem`` is what local development
 and the current Azure deployment use, where the root is a mounted file share.
-``s3`` talks to any S3-compatible endpoint and is the migration target; it is
-fully implemented but stays dormant until ``DOCUMENT_STORAGE_BACKEND=s3`` and a
-bucket are configured. Callers only ever see :class:`DocumentStorage`, so moving
-between them is configuration rather than code.
+``azure_blob`` uses a native Blob container, while ``s3`` talks to AWS or any
+S3-compatible endpoint. Callers only ever see :class:`DocumentStorage`, so
+moving between them is configuration rather than code.
 """
 from __future__ import annotations
 
@@ -32,8 +32,9 @@ from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 
 RAW = "raw"
+VALIDATED = "validated"
 PUBLISHED = "published"
-AREAS = (RAW, PUBLISHED)
+AREAS = (RAW, VALIDATED, PUBLISHED)
 
 
 class DocumentStorage:
@@ -59,6 +60,10 @@ class DocumentStorage:
 
     def iter_keys(self, prefix=""):
         """Yield every key under ``prefix``, in no guaranteed order."""
+        raise NotImplementedError
+
+    def delete(self, key):
+        """Delete one object. Publication normally retains immutable versions."""
         raise NotImplementedError
 
     def download_to(self, key, local_path):
@@ -121,6 +126,11 @@ class FilesystemDocumentStorage(DocumentStorage):
         root = self.root.resolve()
         for path in sorted(item for item in base.rglob("*") if item.is_file()):
             yield path.resolve().relative_to(root).as_posix()
+
+    def delete(self, key):
+        path = self._path(key)
+        if path.exists():
+            path.unlink()
 
     def download_to(self, key, local_path):
         source = self._path(key)
@@ -196,6 +206,86 @@ class S3DocumentStorage(DocumentStorage):
             for item in page.get("Contents", []):
                 yield item["Key"]
 
+    def delete(self, key):
+        self.client.delete_object(Bucket=self.bucket, Key=self._key(key))
+
+
+class AzureBlobDocumentStorage(DocumentStorage):
+    """Azure Blob Storage backend using one container and area key prefixes."""
+
+    backend_name = "azure_blob"
+
+    def __init__(self, *, container, connection_string="", account_url="", credential=""):
+        if not container:
+            raise ImproperlyConfigured(
+                "DOCUMENT_STORAGE_AZURE_CONTAINER is required for the azure_blob backend."
+            )
+        try:
+            from azure.storage.blob import BlobServiceClient
+        except ImportError as exc:
+            raise ImproperlyConfigured(
+                "Install azure-storage-blob to use DOCUMENT_STORAGE_BACKEND=azure_blob."
+            ) from exc
+        if connection_string:
+            service = BlobServiceClient.from_connection_string(connection_string)
+        elif account_url:
+            if not credential:
+                try:
+                    from azure.identity import DefaultAzureCredential
+                except ImportError as exc:
+                    raise ImproperlyConfigured(
+                        "Install azure-identity for Azure Blob workload identity, or set a credential."
+                    ) from exc
+                credential = DefaultAzureCredential()
+            service = BlobServiceClient(account_url=account_url, credential=credential)
+        else:
+            raise ImproperlyConfigured(
+                "Set DOCUMENT_STORAGE_AZURE_CONNECTION_STRING or DOCUMENT_STORAGE_AZURE_ACCOUNT_URL."
+            )
+        self.container = service.get_container_client(container)
+
+    @staticmethod
+    def _key(key):
+        clean_key = str(key).lstrip("/")
+        if ".." in clean_key.split("/"):
+            raise ValueError("Storage key escapes its area")
+        return clean_key
+
+    def put_file(self, *, local_path, key, content_type="application/octet-stream"):
+        from azure.storage.blob import ContentSettings
+
+        path = Path(local_path)
+        with path.open("rb") as source:
+            self.container.upload_blob(
+                self._key(key), source, overwrite=True,
+                content_settings=ContentSettings(content_type=content_type),
+            )
+        return {"key": key, "size": path.stat().st_size, "sha256": sha256_file(path)}
+
+    def put_bytes(self, *, content, key, content_type="application/octet-stream"):
+        from azure.storage.blob import ContentSettings
+
+        self.container.upload_blob(
+            self._key(key), content, overwrite=True,
+            content_settings=ContentSettings(content_type=content_type),
+        )
+        return {"key": key, "size": len(content), "sha256": hashlib.sha256(content).hexdigest()}
+
+    def exists(self, key):
+        return self.container.get_blob_client(self._key(key)).exists()
+
+    def open(self, key):
+        import io
+
+        return io.BytesIO(self.container.download_blob(self._key(key)).readall())
+
+    def iter_keys(self, prefix=""):
+        for blob in self.container.list_blobs(name_starts_with=self._key(prefix) if prefix else None):
+            yield blob.name
+
+    def delete(self, key):
+        self.container.delete_blob(self._key(key), delete_snapshots="include")
+
 
 class PrefixedDocumentStorage(DocumentStorage):
     """A view of another store scoped under one key prefix.
@@ -236,6 +326,9 @@ class PrefixedDocumentStorage(DocumentStorage):
         for key in self.inner.iter_keys(self._key(prefix) if prefix else self.prefix):
             yield self._strip(key)
 
+    def delete(self, key):
+        return self.inner.delete(self._key(key))
+
     def download_to(self, key, local_path):
         return self.inner.download_to(self._key(key), local_path)
 
@@ -255,6 +348,13 @@ def build_backend():
             access_key_id=settings.DOCUMENT_STORAGE_ACCESS_KEY_ID,
             secret_access_key=settings.DOCUMENT_STORAGE_SECRET_ACCESS_KEY,
             region=settings.DOCUMENT_STORAGE_REGION,
+        )
+    if backend == "azure_blob":
+        return AzureBlobDocumentStorage(
+            container=settings.DOCUMENT_STORAGE_AZURE_CONTAINER,
+            connection_string=settings.DOCUMENT_STORAGE_AZURE_CONNECTION_STRING,
+            account_url=settings.DOCUMENT_STORAGE_AZURE_ACCOUNT_URL,
+            credential=settings.DOCUMENT_STORAGE_AZURE_CREDENTIAL,
         )
     raise ImproperlyConfigured(f"Unsupported DOCUMENT_STORAGE_BACKEND: {backend}")
 

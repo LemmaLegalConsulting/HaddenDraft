@@ -1,3 +1,4 @@
+from django.db import models
 from django.http import JsonResponse
 from django.http import FileResponse
 
@@ -22,7 +23,7 @@ from apps.sources.library import (
     manifest_paths,
     section_tree,
 )
-from apps.sources.models import RetrievedDocument, UserResource
+from apps.sources.models import ManagedSourceChunk, RetrievedDocument, UserResource
 from apps.sources.ordinances import coverage as ordinance_coverage, dataset as ordinance_dataset, dataset_names, cross_references
 from apps.sources.augmentation import augmented_search
 from apps.sources.registry import connector_registry
@@ -191,6 +192,57 @@ def content_source_pdf(request, document_slug, chunk_id):
         return JsonResponse({"error": "No PDF source is available for this content chunk."}, status=404)
     response = FileResponse(pdf_path.open("rb"), content_type="application/pdf", filename=pdf_path.name, as_attachment=False)
     response["Content-Disposition"] = f'inline; filename="{pdf_path.name}"'
+    return allow_document_framing(response)
+
+
+def _managed_chunk(source_id, ordinal):
+    return (
+        ManagedSourceChunk.objects
+        .filter(
+            version__source_id=source_id, ordinal=ordinal,
+            version__source__state="published",
+            version__source__current_version_id=models.F("version_id"),
+        )
+        .select_related("version", "version__source")
+        .first()
+    )
+
+
+@api_login_required
+def managed_source(request, source_id, ordinal):
+    if request.method != "GET":
+        return method_not_allowed(["GET"])
+    chunk = _managed_chunk(source_id, ordinal)
+    if not chunk:
+        return JsonResponse({"error": "Managed source chunk not found"}, status=404)
+    source = chunk.version.source
+    return JsonResponse({"source": {
+        "chunkId": str(chunk.ordinal), "documentSlug": source.slug,
+        "documentTitle": source.title, "documentVersion": chunk.version.label,
+        "heading": chunk.heading, "sectionPath": [], "contentKind": source.kind,
+        "pdfPages": [value for value in (chunk.page_start, chunk.page_end) if value],
+        "sourcePath": chunk.version.published_source_key,
+        "hasPdf": chunk.version.content_type == "application/pdf",
+        "sourceSha256": chunk.version.sha256, "chunkSha256": chunk.sha256,
+        "citation": source.citation, "url": source.source_locator,
+        "jurisdiction": source.jurisdiction, "sourceText": chunk.text,
+    }})
+
+
+@api_login_required
+def managed_source_pdf(request, source_id, ordinal):
+    if request.method != "GET":
+        return method_not_allowed(["GET"])
+    chunk = _managed_chunk(source_id, ordinal)
+    if not chunk or chunk.version.content_type != "application/pdf" or not chunk.version.published_source_key:
+        return JsonResponse({"error": "No published PDF is available for this source."}, status=404)
+    from apps.core.storage import PUBLISHED, get_document_storage
+
+    filename = chunk.version.original_filename or "source.pdf"
+    response = FileResponse(
+        get_document_storage(PUBLISHED).open(chunk.version.published_source_key),
+        content_type="application/pdf", filename=filename, as_attachment=False,
+    )
     return allow_document_framing(response)
 
 
