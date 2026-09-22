@@ -1,4 +1,4 @@
-from django.contrib import admin
+from django.contrib import admin, messages
 from django import forms
 from django.utils import timezone
 from apps.sources.ordinance_storage import store_upload
@@ -160,6 +160,9 @@ class ManagedSourceVersionInline(admin.TabularInline):
     show_change_link = True
     can_delete = False
 
+    def has_add_permission(self, request, obj=None):
+        return False
+
 
 class ManagedSourceEventInline(admin.TabularInline):
     model = ManagedSourceEvent
@@ -167,6 +170,9 @@ class ManagedSourceEventInline(admin.TabularInline):
     fields = ("action", "version", "actor", "detail", "created_at")
     readonly_fields = fields
     can_delete = False
+
+    def has_add_permission(self, request, obj=None):
+        return False
 
 
 @admin.register(ManagedSource)
@@ -215,11 +221,17 @@ class ManagedSourceAdmin(admin.ModelAdmin):
                 publish=requested_publish and may_publish, background=True,
             )
             if requested_publish and not may_publish:
-                self.message_user(request, "The version was validated but not published: publication permission is required.", level="warning")
+                self.message_user(
+                    request,
+                    "The version will remain unpublished after validation: publication permission is required.",
+                    level=messages.WARNING,
+                )
             if version.status == "uploaded":
                 self.message_user(request, f"Version {version.number} was uploaded; validation is running in the background.")
             elif version.status == "failed":
-                self.message_user(request, f"Version {version.number} failed: {version.error}", level="error")
+                self.message_user(
+                    request, f"Version {version.number} failed: {version.error}", level=messages.ERROR,
+                )
             elif created:
                 self.message_user(
                     request,
@@ -267,6 +279,12 @@ class ManagedSourceVersionAdmin(admin.ModelAdmin):
     )
     actions = ("publish_selected", "rollback_selected")
 
+    def has_add_permission(self, request):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
     @admin.display(description="SHA-256")
     def short_checksum(self, obj):
         return obj.sha256[:12]
@@ -297,6 +315,12 @@ class ManagedSourceChunkAdmin(admin.ModelAdmin):
     search_fields = ("version__source__title", "heading", "text", "sha256")
     readonly_fields = ("version", "ordinal", "heading", "text", "page_start", "page_end", "sha256")
 
+    def has_add_permission(self, request):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
     @admin.display(description="SHA-256")
     def short_checksum(self, obj):
         return obj.sha256[:12]
@@ -308,6 +332,12 @@ class ManagedSourceEventAdmin(admin.ModelAdmin):
     list_filter = ("action", "source__kind")
     search_fields = ("source__title", "source__slug", "actor__username")
     readonly_fields = ("source", "version", "action", "actor", "detail", "created_at")
+
+    def has_add_permission(self, request):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
 
 
 class OrdinanceDocumentForm(forms.ModelForm):

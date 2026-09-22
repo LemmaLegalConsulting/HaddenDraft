@@ -78,6 +78,29 @@ class ManagedSourcePublicationTests(TestCase):
         self.assertEqual(first.id, again.id)
         self.assertEqual(self.source.versions.count(), 1)
 
+    def test_reupload_resumes_an_uploaded_version_after_an_interrupted_worker(self):
+        content = b"source text waiting for its worker"
+        with patch("apps.sources.publication.threading.Thread") as thread:
+            queued, created = import_version(
+                source=self.source, content=content, filename="source.txt",
+                content_type="text/plain", actor=self.user, background=True,
+            )
+
+        self.assertTrue(created)
+        self.assertEqual(queued.status, "uploaded")
+        thread.return_value.start.assert_called_once()
+
+        resumed, created_again = import_version(
+            source=self.source, content=content, filename="source.txt",
+            content_type="text/plain", actor=self.user,
+        )
+
+        resumed.refresh_from_db()
+        self.assertFalse(created_again)
+        self.assertEqual(resumed.id, queued.id)
+        self.assertEqual(resumed.status, "pending_review")
+        self.assertEqual(self.source.versions.count(), 1)
+
     def test_invalid_import_never_changes_the_live_version(self):
         live, _ = self.import_text("valid published source")
         failed, created = import_version(
@@ -123,6 +146,41 @@ class ManagedSourcePublicationTests(TestCase):
         self.source.refresh_from_db()
         self.assertEqual(self.source.current_version, live)
         self.assertTrue(published.exists(live.published_manifest_key))
+
+        # The validation work remains reusable after a transient provider
+        # outage; an operator can retry publication without re-uploading.
+        publish_version(candidate, actor=self.user)
+        self.source.refresh_from_db()
+        self.assertEqual(self.source.current_version, candidate)
+
+    def test_raw_storage_failure_is_recorded_instead_of_leaving_an_uploaded_row(self):
+        class BrokenStorage:
+            def put_bytes(self, **_kwargs):
+                raise OSError("provider unavailable")
+
+        with patch("apps.sources.publication.get_document_storage", return_value=BrokenStorage()):
+            version, created = import_version(
+                source=self.source, content=b"readable text", filename="source.txt",
+                content_type="text/plain", actor=self.user,
+            )
+
+        self.assertTrue(created)
+        self.source.refresh_from_db()
+        self.assertEqual(version.status, "failed")
+        self.assertIn("Raw storage failed", version.error)
+        self.assertEqual(self.source.state, "failed")
+        self.assertTrue(ManagedSourceEvent.objects.filter(version=version, action="failed").exists())
+
+        resumed, created_again = import_version(
+            source=self.source, content=b"readable text", filename="source.txt",
+            content_type="text/plain", actor=self.user,
+        )
+        resumed.refresh_from_db()
+        self.assertFalse(created_again)
+        self.assertEqual(resumed.status, "pending_review")
+        self.assertEqual(resumed.error, "")
+        self.source.refresh_from_db()
+        self.assertEqual(self.source.state, "draft")
 
     def test_case_import_proposes_metadata_but_waits_for_review(self):
         case = ManagedSource.objects.create(slug="tenant-v-landlord", title="Uploaded decision", kind="case")

@@ -78,3 +78,22 @@ Grant staff the normal Django view/add/change permissions for managed sources
 and versions. Publication should be limited to content administrators (the
 `sources.publish_managedsource` permission); superusers receive it implicitly.
 
+## Screenshots
+
+The source catalog puts publication state, current version, checksum, and index
+freshness in one operator-facing list:
+
+![Managed legal-source catalog](images/content-maintenance/source-catalog.png)
+
+A newly uploaded decision remains out of research while an administrator
+reviews the proposed court, citation, and decision date:
+
+![Case metadata review before publication](images/content-maintenance/case-metadata-review.png)
+
+Treatise updates retain their complete immutable version and event history:
+
+![Treatise maintenance and audit history](images/content-maintenance/treatise-maintenance.png)
+
+The version list provides explicit publish and rollback actions:
+
+![Managed source version history](images/content-maintenance/version-history.png)

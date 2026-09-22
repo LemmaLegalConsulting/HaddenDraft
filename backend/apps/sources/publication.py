@@ -145,10 +145,14 @@ def import_version(*, source, content, filename="source.txt", content_type="", l
         content = bytes(content)
     digest = hashlib.sha256(content).hexdigest()
     existing = source.versions.filter(sha256=digest).first()
+    created = existing is None
     if existing:
         # A background import first creates the durable row and raw object, then
-        # calls back through here in its worker to do the expensive parsing.
-        if existing.status == "uploaded" and not background:
+        # calls back through here in its worker to do the expensive parsing. An
+        # uploaded row also makes an interrupted worker resumable by re-upload.
+        if existing.status == "uploaded" or (
+            existing.status == "failed" and existing.error.startswith("Raw storage failed:")
+        ):
             version = existing
         else:
             if publish and source.current_version_id != existing.id and existing.status != "uploaded":
@@ -165,7 +169,25 @@ def import_version(*, source, content, filename="source.txt", content_type="", l
             parser_version=PARSER_VERSION, chunker_version=CHUNKER_VERSION, raw_key=raw_key,
         )
         ManagedSourceEvent.objects.create(source=source, version=version, action="uploaded", actor=actor)
-        get_document_storage(RAW).put_bytes(content=content, key=raw_key, content_type=content_type)
+
+    try:
+        get_document_storage(RAW).put_bytes(
+            content=content, key=version.raw_key, content_type=version.content_type,
+        )
+    except Exception as exc:
+        version.status = "failed"
+        version.error = f"Raw storage failed: {exc}"
+        version.validation_report = {"valid": False, "error": version.error}
+        version.save(update_fields=["status", "error", "validation_report"])
+        current = ManagedSource.objects.get(pk=source.pk)
+        if not current.current_version_id:
+            current.state = "failed"
+            current.save(update_fields=["state", "updated_at"])
+        ManagedSourceEvent.objects.create(
+            source=source, version=version, action="failed", actor=actor,
+            detail={"error": version.error},
+        )
+        return version, created
 
     if background:
         source_id = source.pk
@@ -190,11 +212,12 @@ def import_version(*, source, content, filename="source.txt", content_type="", l
         threading.Thread(
             target=work, name=f"managed-source-import-{version.pk}", daemon=True,
         ).start()
-        return version, True
+        return version, created
 
     try:
         version.status = "validating"
-        version.save(update_fields=["status"])
+        version.error = ""
+        version.save(update_fields=["status", "error"])
         text, pages = _extract(content, filename, content_type)
         values = _chunks(text)
         if not values:
@@ -244,13 +267,16 @@ def import_version(*, source, content, filename="source.txt", content_type="", l
             version.save(update_fields=[
                 "validated_manifest_key", "chunk_count", "validation_report", "status",
             ])
+            ManagedSource.objects.filter(
+                pk=source.pk, current_version__isnull=True, state="failed",
+            ).update(state="draft", updated_at=timezone.now())
         ManagedSourceEvent.objects.create(
             source=source, version=version, action="validated", actor=actor,
             detail={"chunk_count": len(values)},
         )
         if publish:
             publish_version(version, actor=actor)
-        return version, True
+        return version, created
     except Exception as exc:
         version.status = "failed"
         version.error = str(exc)
@@ -266,13 +292,17 @@ def import_version(*, source, content, filename="source.txt", content_type="", l
         ManagedSourceEvent.objects.create(
             source=source, version=version, action="failed", actor=actor, detail={"error": str(exc)},
         )
-        return version, True
+        return version, created
 
 
 def publish_version(version, *, actor=None):
     version = ManagedSourceVersion.objects.select_related("source").get(pk=version.pk)
     source = version.source
-    if version.status == "failed" or not version.validated_manifest_key or not version.chunks.exists():
+    if (
+        not version.validated_manifest_key
+        or not version.chunks.exists()
+        or not version.validation_report.get("valid")
+    ):
         raise PublicationError("Only a successfully validated version can be published.")
     validated = get_document_storage(VALIDATED)
     published = get_document_storage(PUBLISHED)
