@@ -8,6 +8,7 @@ from apps.caselaw import views as caselaw_views
 from apps.drafting import views as drafting_views
 from apps.matters import views as matter_views
 from apps.rules import views as rule_views
+from apps.sources import research_views as research_search_views
 from apps.sources import views as source_views
 from apps.templates_app import advice_letter_views
 from apps.templates_app import views as template_views
@@ -86,6 +87,8 @@ urlpatterns = [
     path("api/caselaw/decisions/<int:decision_id>/similar/", caselaw_views.decision_similar, name="api_caselaw_decision_similar"),
     path("api/user-resources/", source_views.user_resources, name="api_user_resources"),
     path("api/research/", source_views.research, name="api_research"),
+    path("api/research/search/", research_search_views.research_search, name="api_research_search"),
+    path("api/research/search/status/", research_search_views.research_search_status, name="api_research_search_status"),
     path("api/templates/", template_views.templates, name="api_templates"),
     path("api/templates/from-example/", template_views.template_from_example, name="api_template_from_example"),
     path("api/drafting-sessions/", drafting_views.sessions, name="api_sessions"),

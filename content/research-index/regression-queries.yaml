@@ -1,0 +1,133 @@
+# Known-answer research queries.
+#
+# Each entry is a question somebody actually asks and an answer that is checkable
+# without judgement: a section looked up by its own citation is the first result,
+# an exact phrase appears in every result that came back, a citation the corpus
+# does not hold returns nothing and says so.  They are the guard against the
+# failure mode retrieval changes have: ranking quietly gets worse, nothing
+# errors, and nobody notices until an advocate does.
+#
+# Add to this file rather than to the test.  A query from a CLE session, a
+# question a colleague could not get an answer to, a citation that should have
+# matched and did not -- each becomes an entry here and is checked from then on.
+#
+# `requires` names the corpora an entry needs.  A checkout without the case-law
+# import skips the case entries and reports them as skipped; it never reports
+# them as passing.
+#
+# Supported expectations:
+#   min_results            at least this many results
+#   max_results            at most this many (for a query that should be narrow)
+#   no_results             the corpus should hold nothing matching
+#   top_result_id          the first result's stable id
+#   top_result_corpus      the first result's corpus
+#   top_result_facets      facet values the first result must carry
+#   contains_ids           ids that must appear within `within` (default 10)
+#   contains_titles        titles that must appear within `within`
+#   every_result_contains  literal text every returned snippet's source must hold
+#   unmatched              phrases or citations the search must report as unheld
+schema_version: 1
+
+queries:
+  - id: statute-by-its-own-citation
+    query: "R.C. 5321.04"
+    why: >-
+      A section looked up by its own citation is the answer.  A treatise chapter
+      that discusses it thirty times is commentary on the answer, and used to
+      outrank it because occurrence counting cannot tell the difference.
+    requires: [statutes]
+    expect:
+      top_result_id: "content:ohio-revised-code:orc-5321-04-01"
+      top_result_corpus: statutes
+
+  - id: eviction-notice-statute-by-citation
+    query: "R.C. 1923.04"
+    why: The notice statute, looked up the way a lawyer writes it in a brief.
+    requires: [statutes]
+    expect:
+      top_result_id: "content:ohio-revised-code:orc-1923-04-01"
+      top_result_corpus: statutes
+
+  - id: statute-citation-written-out
+    query: "Ohio Revised Code 5321.16"
+    why: >-
+      The same section written the long way.  A corpus spells one section four
+      ways; matching only the short form reports the others as absent law.
+    requires: [statutes]
+    expect:
+      top_result_id: "content:ohio-revised-code:orc-5321-16-01"
+
+  - id: citation-the-corpus-does-not-hold
+    query: "2020-Ohio-1234"
+    why: >-
+      A citation this corpus does not hold must return nothing and say which
+      citation went unmatched.  Ranking something else to the top of an empty
+      result would read as an answer.
+    expect:
+      no_results: true
+      unmatched: ["2020-Ohio-1234"]
+
+  - id: exact-phrase-is-exact
+    query: '"notice to leave the premises"'
+    why: >-
+      Every result must literally contain the phrase.  This is the guarantee
+      that separates a research tool from a suggestion engine.
+    requires: [cases]
+    expect:
+      min_results: 1
+      every_result_contains: "notice to leave the premises"
+
+  - id: phrase-the-corpus-does-not-contain
+    query: '"tenant shall be entitled to a unicorn"'
+    why: A phrase nobody wrote returns nothing, and names the phrase that missed.
+    expect:
+      no_results: true
+      unmatched: ["tenant shall be entitled to a unicorn"]
+
+  - id: local-law-beats-state-law-for-a-local-question
+    query: "lead safe certificate Cleveland"
+    why: >-
+      A question naming a city is a question about that city's code.  The
+      ordinance corpus has to win it, or local law is invisible in practice.
+    requires: [ordinances]
+    expect:
+      top_result_corpus: ordinances
+      top_result_facets:
+        municipality: Cleveland
+
+  - id: case-by-public-domain-citation
+    query: "2023-Ohio-3480"
+    why: An Ohio public-domain citation resolves to the one decision that carries it.
+    requires: [cases]
+    expect:
+      max_results: 3
+      contains_titles: ["Roseman v. Roseman"]
+
+  - id: case-by-reporter-citation
+    query: "197 Ohio App. 3d 484"
+    why: >-
+      A reporter citation resolves to its decision even though the corpus writes
+      the series with a space the researcher may not type.
+    requires: [cases]
+    expect:
+      contains_titles: ["Sacksteder v. Gisslen"]
+      within: 3
+
+  - id: case-by-name
+    query: "Roseman v. Roseman"
+    why: A party name is a search anyone runs, and it should not be buried under topic matches.
+    requires: [cases]
+    expect:
+      contains_titles: ["Roseman v. Roseman"]
+      within: 3
+
+  - id: security-deposit-question
+    query: "security deposit wrongfully withheld"
+    why: >-
+      A plain topical question should reach the case law, not only the treatise
+      chapter about it.  Cases being drowned out by secondary sources is the
+      oldest complaint about this corpus.
+    requires: [cases]
+    expect:
+      min_results: 5
+      top_result_corpus: cases

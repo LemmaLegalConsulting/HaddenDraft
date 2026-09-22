@@ -54,6 +54,36 @@ library, not inside a Django app or embedded in Python constants.
   reason. It produces no chunk, so retrieval can never return it as law, and it
   still appears in coverage. An unreachable ordinance that is simply absent
   reads to an advocate as "no local law here", which is the wrong answer.
+- Put a controlled vocabulary in `content/jurisdictions/` and read it only
+  through `apps.core.jurisdictions`. Counties arrive from scanned documents, so
+  the same one reaches the corpus as `Cuyahoga` and as `Cuyahoga County`; left
+  alone that splits a shelf and shows a reader half the cases without saying
+  so. Canonicalize on ingestion, because the database is the only place the fix
+  is durable, *and* on read, because material imported earlier is still there.
+  Match exactly after mechanical tidying and never to a nearest neighbour: the
+  corpus holds `Miami-Dade County`, and an out-of-state county rewritten to the
+  nearest Ohio one sits on an Ohio shelf with nothing looking wrong. Leave what
+  does not match alone and report it.
+- Keep research search deterministic and keep the boundary structural.
+  `backend/apps/sources/research/` answers a search without importing `apps.ai`,
+  and a test enforces that. Reranking and synthesis are opt-in per search,
+  applied on top of a finished result set, and every response reports in words
+  what a model did -- including that it did nothing. A reader who has to infer
+  "no AI" from a missing badge is guessing, and a search that dies because a
+  provider is down is not a library.
+- Expand a query from files, not from a model. Reviewed terms of art live in
+  `content/research-index/thesaurus.yaml` with their own `verification`; the
+  long tail is learned offline by `manage.py build_research_index` from corpus
+  co-occurrence and is reported as learned rather than reviewed. Never expand an
+  exact phrase or a citation: those are requirements, and a near neighbour
+  answers a question nobody asked. Where a phrase or citation matches nothing,
+  say which one missed -- ranking something else into an empty result reads as
+  an answer.
+- Add a known-answer query to `content/research-index/regression-queries.yaml`
+  rather than to the test. Retrieval gets worse the way nothing else does:
+  silently, with no error and no failing test, until an advocate cannot find
+  what they know is there. An entry names the corpora it `requires`, and a
+  checkout without them reports those entries as skipped, never as passing.
 - Put default triage rubrics in `content/triage-rubrics/*.yaml`. Seed new files
   into the database; do not silently overwrite existing admin-managed records.
 - Put the rules mapping a triage outcome to LegalServer case properties in

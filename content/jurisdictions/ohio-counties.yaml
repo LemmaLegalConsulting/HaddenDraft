@@ -1,0 +1,214 @@
+# Ohio's counties, as one controlled vocabulary.
+#
+# Metadata reaches this application from documents rather than from a list, so
+# the same county arrives as "Cuyahoga" on one decision and "Cuyahoga County"
+# on the next.  Left alone that splits a shelf in two: a reader who narrows to
+# one of the spellings is told there are 126 cases when there are 264, and the
+# half they were not shown is invisible rather than merely unselected.
+#
+# So this file is the vocabulary, and `apps.core.jurisdictions` is the only
+# thing that reads it.  Ingestion writes the canonical name, so new material is
+# consistent on the way in; browsing and research canonicalize again as they
+# read, so material imported before this existed groups correctly too.
+#
+# A value that does not match a county here is left exactly as it arrived.
+# That matters more than it sounds: this corpus contains "Miami-Dade County"
+# and "Durham County, North Carolina", and an out-of-state county quietly
+# rewritten to an Ohio one would put a Florida decision on an Ohio shelf.
+# `manage.py normalize_case_counties --report` lists what did not match, so a
+# gap in this file is visible rather than silent.
+#
+# Each entry carries the appellate district that reviews the county, which is
+# also a published fact rather than a judgement, so the district facet is
+# looked up here instead of guessed from a court name.
+#
+# `aliases` is for a spelling that mechanical normalization cannot reach --
+# a historical name, a misspelling the corpus actually contains.  Case,
+# punctuation, a trailing "County"/"Cty."/"Co.", a leading "County of" and a
+# trailing state name are handled in code and need no entry here.
+schema_version: 1
+verification: verified
+source: >-
+  County names as the Ohio Secretary of State lists them; appellate districts
+  per Ohio Rev. Code 2501.01.
+source_url: "https://codes.ohio.gov/ohio-revised-code/section-2501.01"
+verified_on: "2026-09-21"
+state: Ohio
+
+counties:
+  - name: Adams
+    appellate_district: Fourth District
+  - name: Allen
+    appellate_district: Third District
+  - name: Ashland
+    appellate_district: Fifth District
+  - name: Ashtabula
+    appellate_district: Eleventh District
+  - name: Athens
+    appellate_district: Fourth District
+  - name: Auglaize
+    appellate_district: Third District
+  - name: Belmont
+    appellate_district: Seventh District
+  - name: Brown
+    appellate_district: Twelfth District
+  - name: Butler
+    appellate_district: Twelfth District
+  - name: Carroll
+    appellate_district: Seventh District
+  - name: Champaign
+    appellate_district: Second District
+  - name: Clark
+    appellate_district: Second District
+  - name: Clermont
+    appellate_district: Twelfth District
+  - name: Clinton
+    appellate_district: Twelfth District
+  - name: Columbiana
+    appellate_district: Seventh District
+  - name: Coshocton
+    appellate_district: Fifth District
+  - name: Crawford
+    appellate_district: Third District
+  - name: Cuyahoga
+    appellate_district: Eighth District
+  - name: Darke
+    appellate_district: Second District
+  - name: Defiance
+    appellate_district: Third District
+  - name: Delaware
+    appellate_district: Fifth District
+  - name: Erie
+    appellate_district: Sixth District
+  - name: Fairfield
+    appellate_district: Fifth District
+  - name: Fayette
+    appellate_district: Twelfth District
+  - name: Franklin
+    appellate_district: Tenth District
+  - name: Fulton
+    appellate_district: Sixth District
+  - name: Gallia
+    appellate_district: Fourth District
+  - name: Geauga
+    appellate_district: Eleventh District
+  - name: Greene
+    appellate_district: Second District
+  - name: Guernsey
+    appellate_district: Fifth District
+  - name: Hamilton
+    appellate_district: First District
+  - name: Hancock
+    appellate_district: Third District
+  - name: Hardin
+    appellate_district: Third District
+  - name: Harrison
+    appellate_district: Seventh District
+  - name: Henry
+    appellate_district: Third District
+  - name: Highland
+    appellate_district: Fourth District
+  - name: Hocking
+    appellate_district: Fourth District
+  - name: Holmes
+    appellate_district: Fifth District
+  - name: Huron
+    appellate_district: Sixth District
+  - name: Jackson
+    appellate_district: Fourth District
+  - name: Jefferson
+    appellate_district: Seventh District
+  - name: Knox
+    appellate_district: Fifth District
+  - name: Lake
+    appellate_district: Eleventh District
+  - name: Lawrence
+    appellate_district: Fourth District
+  - name: Licking
+    appellate_district: Fifth District
+  - name: Logan
+    appellate_district: Third District
+  - name: Lorain
+    appellate_district: Ninth District
+  - name: Lucas
+    appellate_district: Sixth District
+  - name: Madison
+    appellate_district: Twelfth District
+  - name: Mahoning
+    appellate_district: Seventh District
+  - name: Marion
+    appellate_district: Third District
+  - name: Medina
+    appellate_district: Ninth District
+  - name: Meigs
+    appellate_district: Fourth District
+  - name: Mercer
+    appellate_district: Third District
+  - name: Miami
+    appellate_district: Second District
+  - name: Monroe
+    appellate_district: Seventh District
+  - name: Montgomery
+    appellate_district: Second District
+  - name: Morgan
+    appellate_district: Fifth District
+  - name: Morrow
+    appellate_district: Fifth District
+  - name: Muskingum
+    appellate_district: Fifth District
+  - name: Noble
+    appellate_district: Seventh District
+  - name: Ottawa
+    appellate_district: Sixth District
+  - name: Paulding
+    appellate_district: Third District
+  - name: Perry
+    appellate_district: Fifth District
+  - name: Pickaway
+    appellate_district: Fourth District
+  - name: Pike
+    appellate_district: Fourth District
+  - name: Portage
+    appellate_district: Eleventh District
+  - name: Preble
+    appellate_district: Twelfth District
+  - name: Putnam
+    appellate_district: Third District
+  - name: Richland
+    appellate_district: Fifth District
+  - name: Ross
+    appellate_district: Fourth District
+  - name: Sandusky
+    appellate_district: Sixth District
+  - name: Scioto
+    appellate_district: Fourth District
+  - name: Seneca
+    appellate_district: Third District
+  - name: Shelby
+    appellate_district: Third District
+  - name: Stark
+    appellate_district: Fifth District
+  - name: Summit
+    appellate_district: Ninth District
+  - name: Trumbull
+    appellate_district: Eleventh District
+  - name: Tuscarawas
+    appellate_district: Fifth District
+  - name: Union
+    appellate_district: Third District
+  - name: Van Wert
+    appellate_district: Third District
+  - name: Vinton
+    appellate_district: Fourth District
+  - name: Warren
+    appellate_district: Twelfth District
+  - name: Washington
+    appellate_district: Fourth District
+  - name: Wayne
+    appellate_district: Ninth District
+  - name: Williams
+    appellate_district: Sixth District
+  - name: Wood
+    appellate_district: Sixth District
+  - name: Wyandot
+    appellate_district: Third District

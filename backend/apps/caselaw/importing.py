@@ -11,6 +11,8 @@ from django.conf import settings
 from django.db import transaction
 from django.utils import timezone
 
+from apps.core.jurisdictions import canonical_county
+
 from apps.caselaw.models import (
     CaseLawArtifact,
     CaseLawChunk,
@@ -321,6 +323,11 @@ def decision_defaults(metadata, group, source_sha256, metadata_verified, *, allo
         else:
             values[field] = as_text(metadata_value(metadata, field, TEXT_DEFAULTS.get(field, "")))
 
+    # The county is the one text field with a controlled vocabulary, and the
+    # only place a fix for its spelling is durable: everything that reads the
+    # column afterwards -- the admin, an export, a query nobody has written --
+    # gets the canonical name without having to know to ask for it.
+    values["county"] = canonical_county(values.get("county", ""))
     values["title"] = values["title"] or group.stem
     values["short_title"] = values["short_title"] or values["title"]
     values["normalized_title"] = values["normalized_title"] or re.sub(r"\s+", " ", values["title"].casefold()).strip()

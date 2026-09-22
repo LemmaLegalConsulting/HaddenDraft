@@ -5937,3 +5937,262 @@ div.disclosure-body {
   line-height: 1.45;
   padding: var(--space-2) var(--space-3);
 }
+
+/* Deterministic research search.
+
+   The layout has one job the chat view does not: making the difference between
+   the corpus and a model visible without a legend. So the banner above the
+   results always states which of the two produced them, in words, in every
+   state -- including the ordinary one where nothing generative ran. A badge
+   that appears only when AI is on teaches a reader to read its absence as
+   "probably no AI", which is a guess. */
+.research-search {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.research-search-input {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.research-search-input .form-control {
+  flex: 1;
+}
+
+.research-option-group {
+  border: 1px solid var(--bux-gray-light-60);
+  border-radius: var(--radius);
+  display: grid;
+  gap: var(--space-2);
+  margin-bottom: var(--space-3);
+  padding: var(--space-3);
+}
+
+.research-option-group legend {
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-semibold);
+  padding: 0 var(--space-1);
+  width: auto;
+}
+
+.research-option {
+  align-items: start;
+  display: grid;
+  gap: var(--space-2);
+  grid-template-columns: auto 1fr;
+}
+
+.research-option span {
+  display: grid;
+  font-size: var(--fs-md);
+}
+
+.research-option small,
+.research-facet-unattributed {
+  color: var(--bux-gray-dark-40);
+  font-size: var(--fs-xs);
+}
+
+.research-ai-banner {
+  align-items: start;
+  border: 1px solid;
+  border-radius: var(--radius);
+  display: flex;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+}
+
+.research-ai-banner span {
+  display: grid;
+  gap: 2px;
+}
+
+.research-ai-banner strong {
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-semibold);
+}
+
+.research-ai-banner small {
+  color: inherit;
+  font-size: var(--fs-xs);
+  opacity: 0.85;
+}
+
+.research-ai-deterministic {
+  background: var(--ok-bg);
+  border-color: var(--ok-line);
+  color: var(--ok-text);
+}
+
+.research-ai-assisted {
+  background: var(--info-bg);
+  border-color: var(--info-line);
+  color: var(--info-text);
+}
+
+.research-ai-degraded {
+  background: var(--warn-bg);
+  border-color: var(--warn-line);
+  color: var(--warn-text);
+}
+
+.research-result-count,
+.research-note {
+  color: var(--bux-gray-dark-40);
+  font-size: var(--fs-sm);
+  margin: 0;
+}
+
+.research-note-warn {
+  color: var(--warn-text);
+}
+
+.research-results-layout {
+  align-items: start;
+  display: grid;
+  gap: var(--space-4);
+  grid-template-columns: minmax(180px, 220px) 1fr;
+}
+
+@media (max-width: 900px) {
+  .research-results-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+.research-facets {
+  display: grid;
+  gap: var(--space-2);
+}
+
+/* Facet values read as rows rather than as a bag of pills: a court name is
+   long, and wrapped chips of different widths make a list of them hard to
+   scan for the one a reader is looking for. */
+.research-facet-values {
+  display: grid;
+  gap: var(--space-1);
+  max-height: 240px;
+  overflow-y: auto;
+}
+
+.research-facet-values .jurisdiction-chip {
+  align-items: center;
+  border-radius: var(--radius-sm);
+  display: flex;
+  gap: var(--space-2);
+  justify-content: space-between;
+  text-align: left;
+  width: 100%;
+}
+
+.research-syntax-help {
+  color: var(--bux-gray-dark-40);
+  display: grid;
+  font-size: var(--fs-xs);
+  gap: 2px;
+  list-style: none;
+  margin: 0 0 var(--space-2);
+  padding: 0;
+}
+
+.research-syntax-help code {
+  background: var(--bux-gray-light-90);
+  border-radius: 3px;
+  color: var(--bux-gray-dark-80);
+  padding: 0 4px;
+}
+
+/* A filter that came from the query text is shown but is not a button: it is
+   removed by editing the query, and a chip that did nothing when clicked would
+   be worse than one that says it is not clickable. */
+.research-chip-typed {
+  cursor: default;
+  opacity: 0.85;
+}
+
+.research-active-filters {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+}
+
+.research-result-title {
+  font-size: var(--fs-lg);
+  margin: 0 0 2px;
+}
+
+.research-result-meta,
+.research-result-citation,
+.research-result-passages {
+  color: var(--bux-gray-dark-40);
+  font-size: var(--fs-xs);
+  margin: 0 0 2px;
+}
+
+.research-snippet {
+  font-size: var(--fs-sm);
+  margin: var(--space-2) 0;
+}
+
+/* Three kinds of highlight, because they mean three different things: the
+   reader's exact phrase, a word they typed, and a word the thesaurus or the
+   learned table added on their behalf. Collapsing them into one colour is what
+   makes an expanded search feel like a search that wandered off. */
+.research-match {
+  background: transparent;
+  border-radius: 2px;
+  color: inherit;
+  padding: 0 1px;
+}
+
+.research-match-exact {
+  background: var(--warn-bg);
+  box-shadow: inset 0 -2px 0 var(--warn-line);
+}
+
+.research-match-term {
+  background: var(--info-bg);
+}
+
+.research-match-expansion {
+  background: var(--bux-gray-light-80);
+  border-bottom: 1px dashed var(--bux-gray-dark-20);
+}
+
+.research-expansion-list {
+  display: grid;
+  gap: var(--space-1);
+  list-style: none;
+  margin: var(--space-2) 0 0;
+  padding: 0;
+}
+
+.research-expansion-list li {
+  display: grid;
+  font-size: var(--fs-sm);
+}
+
+.research-synthesis {
+  background: var(--info-bg);
+  border: 1px solid var(--info-line);
+  border-radius: var(--radius);
+  padding: var(--space-3);
+}
+
+.research-synthesis-label {
+  align-items: center;
+  color: var(--info-text);
+  display: flex;
+  font-size: var(--fs-xs);
+  gap: var(--space-1);
+  margin: 0 0 var(--space-2);
+}
+
+.research-paging {
+  display: flex;
+  gap: var(--space-2);
+  justify-content: center;
+  padding: var(--space-3) 0;
+}

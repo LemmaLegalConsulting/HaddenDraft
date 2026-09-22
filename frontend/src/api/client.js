@@ -150,6 +150,11 @@ export const api = {
   newResearchChat: () => request("/research/", { method: "POST", body: JSON.stringify({ action: "new_thread" }) }),
   clearResearchHistory: () => request("/research/", { method: "DELETE" }),
   research: (payload) => request("/research/", { method: "POST", body: JSON.stringify(payload) }),
+  // Deterministic search. Separate from `research` on purpose: that endpoint is
+  // the chat, this one never calls a model unless the payload asks it to, and
+  // says in every response whether one ran.
+  researchSearch: (payload) => request("/research/search/", { method: "POST", body: JSON.stringify(payload) }),
+  researchSearchStatus: () => request("/research/search/status/"),
   createTemplateFromExample: (payload) =>
     request("/templates/from-example/", { method: "POST", body: JSON.stringify(payload) }),
   createSession: (payload) => request("/drafting-sessions/", { method: "POST", body: JSON.stringify(payload) }),

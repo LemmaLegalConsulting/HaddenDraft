@@ -53,6 +53,17 @@ function bodyFor(url) {
   // not whether it survives one the server never sends.
   if (path.startsWith("/advice-letters/addressing")) return { addressing: {} };
   if (path.includes("/chat")) return { messages: [], threads: [] };
+  if (path.startsWith("/research/search/status")) {
+    return {
+      index: { documentCount: 0, documentsByCorpus: {}, stale: false },
+      expansion: { thesaurus: { available: true }, distributional: { available: false, reason: "Not built." }, usesAi: false },
+      corpora: [],
+      facetFields: [],
+      querySyntax: [],
+      ai: { available: false, reason: "AI features are switched off.", default: { rerank: false, synthesis: false } },
+    };
+  }
+  if (path.startsWith("/research/search")) return { results: [], total: 0, facets: [], query: {}, unmatched: [] };
   if (path.startsWith("/research")) return { messages: [], threads: [] };
   return {};
 }
@@ -63,7 +74,7 @@ const SCREENS = [
   { name: "Case", marker: "heading", text: "Cases" },
   { name: "Triage", marker: "heading", text: "Triage case" },
   { name: "Chat", marker: "combobox", text: "Case chat threads" },
-  { name: "Research", marker: "tab", text: "Ask a question" },
+  { name: "Research", marker: "tab", text: "Search the corpus" },
   { name: "Advice letter", marker: "heading", text: "Client advice letter" },
   { name: "Draft", marker: "heading", text: "What do you want to file or accomplish?" },
   { name: "Argument gym", marker: "button", text: "Open session" },

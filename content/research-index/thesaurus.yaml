@@ -1,0 +1,196 @@
+# Terms of art that mean the same thing to a court and different things to a
+# search index.
+#
+# A researcher types "deficient notice"; the opinion says "defective", the
+# statute says "failed to comply", and the treatise heads the section "Notice to
+# Leave the Premises".  This file is the reviewed bridge between them, and it
+# replaces the concept lists that used to sit in Python next to the scorer.
+#
+# A group is symmetric: every term in it expands to every other term.  Keep a
+# group narrow.  "Rent" and "deposit" both involve money and belong in separate
+# groups, because a group that is merely topical turns every query about one
+# into a query about the other.
+#
+# Each group states its own verification, exactly as a court rule or a legal
+# rule element list does:
+#
+#   verified    Checked against the cited authority by a person.
+#   unverified  A starter grouping that has not been checked.
+#
+# Verification is reported with the results.  It does not suppress a group --
+# an expansion only ever adds candidates, and every result says which of the
+# reader's words it actually contains -- but a reader deciding whether a search
+# was thorough is entitled to know which bridges were reviewed.
+#
+# The learned neighbour table built by `manage.py build_research_index` is the
+# other half of expansion.  It is generated from corpus co-occurrence, carries
+# no review, and is reported separately.  Curating a pairing here is how a
+# reviewer overrides what the corpus happened to teach.
+schema_version: 1
+
+groups:
+  - label: Eviction action
+    verification: verified
+    source: "Ohio Rev. Code Chapter 1923 (forcible entry and detainer)"
+    terms:
+      - eviction
+      - evict
+      - forcible entry and detainer
+      - forcible entry
+      - detainer
+      - restitution of the premises
+      - 1923
+
+  - label: Notice terminating a tenancy
+    verification: verified
+    source: "Ohio Rev. Code 1923.04 (three-day notice); R.C. 5321.17 (termination)"
+    terms:
+      - notice to leave the premises
+      - notice to leave
+      - three-day notice
+      - 3-day notice
+      - notice to vacate
+      - termination notice
+      - 1923.04
+
+  - label: Defective notice
+    verification: unverified
+    source: ""
+    terms:
+      - deficient
+      - defective
+      - invalid
+      - insufficient
+      - improper
+      - inadequate
+      - noncompliant
+
+  - label: Landlord repair obligations
+    verification: verified
+    source: "Ohio Rev. Code 5321.04 (landlord obligations); R.C. 5321.07 (rent deposit)"
+    terms:
+      - habitability
+      - habitable
+      - fit and habitable
+      - repair
+      - repairs
+      - defective condition
+      - housing code violation
+      - 5321.04
+
+  - label: Rent escrow
+    verification: verified
+    source: "Ohio Rev. Code 5321.07 to 5321.09 (deposit of rent with the clerk)"
+    terms:
+      - rent escrow
+      - escrow
+      - rent deposit
+      - deposit rent with the clerk
+      - rent depositing
+      - 5321.07
+
+  - label: Security deposit
+    verification: verified
+    source: "Ohio Rev. Code 5321.16 (security deposits)"
+    terms:
+      - security deposit
+      - damage deposit
+      - itemized list of deductions
+      - 5321.16
+
+  - label: Retaliation
+    verification: verified
+    source: "Ohio Rev. Code 5321.02 (retaliatory conduct)"
+    terms:
+      - retaliation
+      - retaliatory
+      - retaliatory eviction
+      - 5321.02
+
+  - label: Subsidized and assisted housing
+    verification: unverified
+    source: ""
+    terms:
+      - subsidized
+      - assisted housing
+      - section 8
+      - housing choice voucher
+      - voucher
+      - hud
+      - rental assistance
+      - project-based
+
+  - label: Service of process
+    verification: unverified
+    source: ""
+    terms:
+      - service
+      - served
+      - service of process
+      - residence service
+      - certified mail
+      - ordinary mail
+      - posting
+
+  - label: Tenancy at will and month to month
+    verification: unverified
+    source: ""
+    terms:
+      - month-to-month
+      - month to month
+      - periodic tenancy
+      - tenancy at will
+      - holdover
+
+  - label: Rent that has not been paid
+    verification: unverified
+    source: ""
+    terms:
+      - nonpayment
+      - non-payment
+      - past due rent
+      - rent arrears
+      - arrearage
+      - delinquent rent
+
+  - label: Pay to stay
+    verification: unverified
+    source: ""
+    terms:
+      - pay to stay
+      - pay-to-stay
+      - tender of rent
+      - accepting rent after notice
+      - waiver of the notice
+
+  - label: Counterclaim and defence
+    verification: unverified
+    source: ""
+    terms:
+      - defense
+      - defence
+      - affirmative defense
+      - counterclaim
+      - setoff
+      - set-off
+
+  - label: Lead hazards
+    verification: unverified
+    source: ""
+    terms:
+      - lead safe
+      - lead-safe
+      - lead hazard
+      - lead paint
+      - lead certification
+
+  - label: Rental registration
+    verification: unverified
+    source: ""
+    terms:
+      - rental registration
+      - rental registry
+      - certificate of occupancy
+      - certificate approving rental occupancy
+      - rental licence
+      - rental license
