@@ -17,6 +17,7 @@ import re
 from dataclasses import dataclass, field
 
 import yaml
+from django.db import models
 
 from apps.core.jurisdictions import appellate_district, canonical_county
 from apps.sources.library import load_manifest, manifest_paths
@@ -339,6 +340,71 @@ def case_records():
                 "sourceUrl": f"/api/caselaw/decisions/{decision.id}/",
                 "pdfUrl": f"/api/caselaw/decisions/{decision.id}/pdf/",
                 "pages": [],
+            },
+        ))
+    return records
+
+
+def managed_records():
+    """Published operator-maintained chunks, selected through the atomic DB pointer."""
+    from apps.sources.models import ManagedSourceChunk
+
+    kind_to_corpus = {
+        "case": CASES, "statute": STATUTES, "ordinance": ORDINANCES,
+        "treatise": TREATISES, "other": TREATISES,
+    }
+    records = []
+    queryset = (
+        ManagedSourceChunk.objects
+        .filter(
+            version__source__state="published",
+            version__source__current_version_id=models.F("version_id"),
+        )
+        .select_related("version", "version__source")
+        .iterator(chunk_size=500)
+    )
+    for chunk in queryset:
+        source = chunk.version.source
+        corpus = kind_to_corpus.get(source.kind, TREATISES)
+        date = source.decision_date
+        citation = source.citation or (
+            f"{source.title}, {source.court}, {date.isoformat()}"
+            if source.kind == "case" and date else source.title
+        )
+        records.append(IndexRecord(
+            key=f"managed:{source.id}:{chunk.version_id}:{chunk.ordinal}",
+            group_key=f"managed:{source.id}",
+            corpus=corpus,
+            title=source.title,
+            text=compact(" ".join([source.title, source.citation, chunk.heading, chunk.text])),
+            citation=citation,
+            authority_citation=source.citation,
+            facets={
+                "sourceType": corpus, "documentSlug": source.slug,
+                "municipality": source.municipality, "county": _county(source.county),
+                "appellateDistrict": source.appellate_district or appellate_district(source.county),
+                "court": source.court, "year": date.isoformat()[:4] if date else "",
+                "publicationStatus": source.publication_status, "judge": "", "title": source.title,
+            },
+            metadata={
+                "managedSourceId": source.id, "managedSourceVersionId": chunk.version_id,
+                "versionNumber": chunk.version.number, "chunkOrdinal": chunk.ordinal,
+                "sourceSha256": chunk.version.sha256, "chunkSha256": chunk.sha256,
+                "sourceLocator": source.source_locator, "sourceSystemId": source.source_system_id,
+                "storageManifestKey": chunk.version.published_manifest_key,
+                "jurisdiction": source.jurisdiction, "court": source.court,
+                "county": _county(source.county), "municipality": source.municipality,
+                "decisionDate": date.isoformat() if date else None,
+                "publicationStatus": source.publication_status, "corpusLabel": CORPUS_LABELS[corpus],
+            },
+            open_target={
+                "kind": "managed", "sourceId": source.id, "versionId": chunk.version_id,
+                "sourceUrl": f"/api/sources/managed/{source.id}/{chunk.ordinal}/",
+                "pdfUrl": (
+                    f"/api/sources/managed/{source.id}/{chunk.ordinal}/pdf/"
+                    if chunk.version.content_type == "application/pdf" else ""
+                ),
+                "pages": [value for value in (chunk.page_start, chunk.page_end) if value],
             },
         ))
     return records

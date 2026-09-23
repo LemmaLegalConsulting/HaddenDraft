@@ -65,6 +65,7 @@ desktop.ini
 # Local case-law acquisition and generated analysis.  These files are
 # reproducible inputs/derivatives and must stay outside the public repository.
 downloaded_cases/
+downloaded_opinions/
 build/
 logs/
 
@@ -107,3 +108,7 @@ docs/slides
 # Real client briefs used for local CLE / testing — named by client surname,
 # never commit.
 cle_real_briefs/
+
+# Licensed Lexis briefs and their generated experiment artifacts.  The source
+# documents may be proprietary and the results include large local databases.
+lexis_real_briefs/

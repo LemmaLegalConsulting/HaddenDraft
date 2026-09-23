@@ -26,10 +26,12 @@ artifact provider. It does not make the source corpus part of Git history.
 
 Case-law artifacts are one tenant of the shared document store in
 [`apps.core.storage`](../backend/apps/core/storage.py), which splits every store
-into two areas:
+into lifecycle areas (the legacy case bundle importer uses raw and published;
+the managed-source workflow also uses validated):
 
 ```text
 raw/caselaw/...        sidecar bundles as downloaded, awaiting ingestion
+validated/...          checked managed-source derivatives, not yet live
 published/caselaw/...  derived artifacts the application serves
 ```
 
@@ -94,7 +96,8 @@ imported zero decisions — so the published layout must stay re-ingestable.
 ## Production Storage
 
 The current deployment uses `filesystem` with `DOCUMENT_STORAGE_ROOT` pointing at
-mounted Azure Files shares, one per area.
+mounted Azure Files shares, one per area. Native Azure Blob is also supported;
+see [Legal content maintenance](CONTENT_MAINTENANCE.md#storage-lifecycle-and-providers).
 
 To move to object storage, install `boto3` and set:
 

@@ -23,7 +23,7 @@ from datetime import datetime, timezone
 
 from apps.sources.library import load_manifest, manifest_paths
 from apps.sources.research.bm25 import Bm25Index
-from apps.sources.research.corpus import case_records, library_records
+from apps.sources.research.corpus import case_records, library_records, managed_records
 from apps.sources.research.query import index_tokens
 
 
@@ -80,7 +80,13 @@ def corpus_fingerprint():
     # answering with the values it was built from, which is the one kind of
     # staleness a reader has no way to notice.
     touched = CaseLawDecision.objects.aggregate(latest=Max("updated_at"))["latest"]
-    return (tuple(manifests), cases, newest, touched.isoformat() if touched else "")
+    from apps.sources.models import ManagedSource
+    managed_count = ManagedSource.objects.filter(state="published", current_version__isnull=False).count()
+    managed_touched = ManagedSource.objects.aggregate(latest=Max("updated_at"))["latest"]
+    return (
+        tuple(manifests), cases, newest, touched.isoformat() if touched else "",
+        managed_count, managed_touched.isoformat() if managed_touched else "",
+    )
 
 
 def index_from_records(records):
@@ -122,13 +128,18 @@ def corpus_identity():
         if slug:
             documents.append((slug, len(manifest.get("chunks") or [])))
     cases = CaseLawSearchDocument.objects.filter(decision__approved_for_search=True).count()
-    payload = repr((sorted(set(documents)), cases))
+    from apps.sources.models import ManagedSource
+    managed = list(
+        ManagedSource.objects.filter(state="published", current_version__isnull=False)
+        .values_list("slug", "current_version__chunk_count")
+    )
+    payload = repr((sorted(set(documents)), cases, sorted(managed)))
     return hashlib.sha256(payload.encode("utf-8")).hexdigest()[:16]
 
 
 def build_index():
     started = time.monotonic()
-    records = [*library_records(), *case_records()]
+    records = [*library_records(), *case_records(), *managed_records()]
     bm25 = Bm25Index()
     for record in records:
         bm25.add(index_tokens(record.text))

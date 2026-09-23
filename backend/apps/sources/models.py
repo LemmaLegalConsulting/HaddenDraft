@@ -200,6 +200,153 @@ class RetrievedDocument(models.Model):
         return self.title
 
 
+class ManagedSource(models.Model):
+    """One operator-maintained legal source and the version currently in research."""
+
+    KIND_CHOICES = [
+        ("treatise", "Treatise or handbook"),
+        ("case", "Case decision"),
+        ("ordinance", "Local ordinance"),
+        ("statute", "Statute or regulation"),
+        ("other", "Other approved legal source"),
+    ]
+    STATE_CHOICES = [
+        ("draft", "Draft / no published version"),
+        ("published", "Published"),
+        ("retired", "Retired"),
+        ("failed", "Latest import failed"),
+    ]
+
+    slug = models.SlugField(max_length=180, unique=True)
+    title = models.CharField(max_length=500)
+    kind = models.CharField(max_length=30, choices=KIND_CHOICES)
+    jurisdiction = models.CharField(max_length=120, blank=True)
+    description = models.TextField(blank=True)
+    source_locator = models.TextField(blank=True, help_text="Publisher URL, path, or other human-readable locator.")
+    source_system_id = models.CharField(max_length=255, blank=True)
+    refresh_command = models.CharField(
+        max_length=80, blank=True,
+        choices=[("", "Manual upload"), ("ohio_revised_code", "Ohio Revised Code"),
+                 ("local_ordinances", "Local ordinances")],
+    )
+
+    # Case-specific fields are deliberately reviewable columns rather than an
+    # opaque model response. They are harmlessly blank for other source kinds.
+    court = models.CharField(max_length=255, blank=True)
+    county = models.CharField(max_length=255, blank=True)
+    municipality = models.CharField(max_length=255, blank=True)
+    appellate_district = models.CharField(max_length=120, blank=True)
+    decision_date = models.DateField(null=True, blank=True)
+    citation = models.CharField(max_length=500, blank=True)
+    publication_status = models.CharField(max_length=80, blank=True)
+
+    state = models.CharField(max_length=20, choices=STATE_CHOICES, default="draft")
+    current_version = models.ForeignKey(
+        "ManagedSourceVersion", null=True, blank=True, on_delete=models.SET_NULL,
+        related_name="current_for_sources", editable=False,
+    )
+    last_successful_refresh_at = models.DateTimeField(null=True, blank=True)
+    last_indexed_at = models.DateTimeField(null=True, blank=True)
+    created_by = models.ForeignKey(
+        "auth.User", null=True, blank=True, on_delete=models.SET_NULL, related_name="created_managed_sources",
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["kind", "title"]
+        permissions = [("publish_managedsource", "Can publish, retire, and roll back managed sources")]
+
+    def __str__(self):
+        return self.title
+
+
+class ManagedSourceVersion(models.Model):
+    STATUS_CHOICES = [
+        ("uploaded", "Uploaded"),
+        ("validating", "Validating"),
+        ("pending_review", "Pending metadata review"),
+        ("published", "Published"),
+        ("superseded", "Superseded"),
+        ("failed", "Failed validation or indexing"),
+    ]
+
+    source = models.ForeignKey(ManagedSource, on_delete=models.CASCADE, related_name="versions")
+    number = models.PositiveIntegerField()
+    label = models.CharField(max_length=255, blank=True)
+    status = models.CharField(max_length=30, choices=STATUS_CHOICES, default="uploaded")
+    original_filename = models.CharField(max_length=500, blank=True)
+    content_type = models.CharField(max_length=120, blank=True)
+    size_bytes = models.BigIntegerField(default=0)
+    sha256 = models.CharField(max_length=64)
+    source_modified_at = models.DateTimeField(null=True, blank=True)
+    source_etag = models.CharField(max_length=500, blank=True)
+    imported_at = models.DateTimeField(auto_now_add=True)
+    imported_by = models.ForeignKey(
+        "auth.User", null=True, blank=True, on_delete=models.SET_NULL, related_name="imported_source_versions",
+    )
+    parser_version = models.CharField(max_length=120)
+    chunker_version = models.CharField(max_length=120)
+    raw_key = models.TextField()
+    validated_manifest_key = models.TextField(blank=True)
+    published_manifest_key = models.TextField(blank=True)
+    published_source_key = models.TextField(blank=True)
+    chunk_count = models.PositiveIntegerField(default=0)
+    validation_report = models.JSONField(default=dict, blank=True)
+    error = models.TextField(blank=True)
+    # When validation last started. A "validating" row with an old timestamp is
+    # an interrupted worker rather than work in progress.
+    validation_started_at = models.DateTimeField(null=True, blank=True)
+    published_at = models.DateTimeField(null=True, blank=True)
+    retired_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        ordering = ["source", "-number"]
+        constraints = [
+            models.UniqueConstraint(fields=["source", "number"], name="sources_unique_managed_version"),
+            models.UniqueConstraint(fields=["source", "sha256"], name="sources_unique_managed_checksum"),
+        ]
+
+    def __str__(self):
+        return f"{self.source.title} v{self.number}"
+
+
+class ManagedSourceChunk(models.Model):
+    version = models.ForeignKey(ManagedSourceVersion, on_delete=models.CASCADE, related_name="chunks")
+    ordinal = models.PositiveIntegerField()
+    heading = models.CharField(max_length=500, blank=True)
+    text = models.TextField()
+    page_start = models.PositiveIntegerField(null=True, blank=True)
+    page_end = models.PositiveIntegerField(null=True, blank=True)
+    sha256 = models.CharField(max_length=64)
+
+    class Meta:
+        ordering = ["version", "ordinal"]
+        constraints = [
+            models.UniqueConstraint(fields=["version", "ordinal"], name="sources_unique_managed_chunk"),
+        ]
+
+    def __str__(self):
+        return f"{self.version} chunk {self.ordinal}"
+
+
+class ManagedSourceEvent(models.Model):
+    source = models.ForeignKey(ManagedSource, on_delete=models.CASCADE, related_name="events")
+    version = models.ForeignKey(
+        ManagedSourceVersion, null=True, blank=True, on_delete=models.SET_NULL, related_name="events",
+    )
+    action = models.CharField(max_length=40)
+    actor = models.ForeignKey("auth.User", null=True, blank=True, on_delete=models.SET_NULL)
+    detail = models.JSONField(default=dict, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return f"{self.source}: {self.action}"
+
+
 class OrdinanceDocument(models.Model):
     """A document standing behind one local-law authority, managed by a person.
 
