@@ -51,3 +51,13 @@ def _warm(app):
 
 
 _warm(application)
+
+# The warm-up is a real request, and a request can open a database connection
+# -- the first one runs the prepared-template sync. Under --preload that happens
+# in the master, and a connection left open there is inherited by every forked
+# worker: several processes then share one Postgres socket and read each
+# other's results, which surfaces as random 500s and as a signed-in advocate's
+# session lookup coming back empty. Close it so each worker opens its own.
+from django.db import connections  # noqa: E402
+
+connections.close_all()

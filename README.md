@@ -105,7 +105,7 @@ Dry-run and import a local case-law corpus:
 Run backend tests:
 
 ```bash
-.venv/bin/python backend/manage.py test apps.ai apps.sources apps.core apps.matters
+(cd backend && ../.venv/bin/python manage.py test)   # every app
 
 # Build the term-neighbour table research-mode query expansion reads. Counting
 # only -- no model is called, during the build or at query time. Not committed:

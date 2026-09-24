@@ -13,6 +13,7 @@ from docxtpl import DocxTemplate
 
 from apps.templates_app.jinja_filters import template_environment
 from apps.templates_app.letterheads import letterhead_context, prepare_letterhead
+from apps.templates_app.models import Letterhead
 
 
 def make_letterhead(path: Path, *, advocate="Julia Bertone", fax="440.352.0015", email="jbertone@example.org"):
@@ -285,3 +286,32 @@ class LetterheadPreparationTests(TestCase):
         self.assertNotIn("<w:hyperlink", document_xml)
         self.assertIn("{{ advocate_email }}", document_xml)
         self.assertTrue(any("mailto" in entry for entry in report.replaced))
+
+
+class DeploymentIndexesLetterheadsTests(TestCase):
+    """What a deployment built by docker/bootstrap.sh has to letter on."""
+
+    def test_sync_content_library_indexes_the_shipped_letterhead(self):
+        # bootstrap runs sync_content_library and never the letterhead
+        # commands, so this is the only path by which a deployed database learns
+        # the letterhead exists. Without it the table stayed empty and every
+        # letter downloaded bare.
+        from io import StringIO
+
+        from django.core.management import call_command
+
+        call_command("sync_content_library", stdout=StringIO())
+
+        placeholder = Letterhead.objects.get(slug="example-legal-aid")
+        self.assertTrue(placeholder.is_active)
+        self.assertTrue(Letterhead.objects.filter(is_default=True, is_active=True).exists())
+
+    def test_sync_leaves_an_admin_uploaded_letterhead_alone(self):
+        from io import StringIO
+
+        from django.core.management import call_command
+
+        Letterhead.objects.create(slug="example-legal-aid", title="Ours", source_kind="upload")
+        call_command("sync_content_library", stdout=StringIO())
+
+        self.assertEqual(Letterhead.objects.get(slug="example-legal-aid").title, "Ours")

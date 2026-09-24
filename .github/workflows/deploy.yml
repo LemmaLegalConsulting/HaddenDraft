@@ -65,11 +65,13 @@ jobs:
         env:
           DJANGO_DEBUG: 'true'
 
+      # Every app, by discovery. A hand-kept list here once left six apps --
+      # the argument gym and validation among them, 263 tests -- out of CI.
+      # Discovery has to start in backend/: from the repository root it finds
+      # no tests at all and still exits 0.
       - name: Backend tests
-        run: |
-          python backend/manage.py test \
-            apps.ai apps.sources apps.core apps.matters \
-            apps.caselaw apps.drafting apps.templates_app
+        working-directory: backend
+        run: python manage.py test
         env:
           DJANGO_DEBUG: 'true'
 

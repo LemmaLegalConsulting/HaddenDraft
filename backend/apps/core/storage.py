@@ -66,6 +66,18 @@ class DocumentStorage:
         """Delete one object. Publication normally retains immutable versions."""
         raise NotImplementedError
 
+    def sha256(self, key):
+        """The object's content digest. Streams it by default; a store that can
+        answer more cheaply overrides this."""
+        digest = hashlib.sha256()
+        handle = self.open(key)
+        try:
+            for block in iter(lambda: handle.read(1024 * 1024), b""):
+                digest.update(block)
+        finally:
+            handle.close()
+        return digest.hexdigest()
+
     def download_to(self, key, local_path):
         """Copy one object to a local path, creating parent directories.
 
@@ -115,6 +127,9 @@ class FilesystemDocumentStorage(DocumentStorage):
 
     def exists(self, key):
         return self._path(key).exists()
+
+    def sha256(self, key):
+        return sha256_file(self._path(key))
 
     def open(self, key):
         return self._path(key).open("rb")
@@ -319,6 +334,9 @@ class PrefixedDocumentStorage(DocumentStorage):
     def exists(self, key):
         return self.inner.exists(self._key(key))
 
+    def sha256(self, key):
+        return self.inner.sha256(self._key(key))
+
     def open(self, key):
         return self.inner.open(self._key(key))
 
@@ -377,6 +395,9 @@ def copy_area(source, destination, *, prefix="", content_type="application/octet
     ``content_type`` may be a callable taking the key, for an area whose
     objects are not all of one type.
 
+    ``skip_existing`` skips an object only when the destination already holds
+    identical content; a changed object is copied over the old one.
+
     Returns ``(copied, skipped)``.
     """
     import tempfile
@@ -384,7 +405,11 @@ def copy_area(source, destination, *, prefix="", content_type="application/octet
     copied = 0
     skipped = 0
     for key in source.iter_keys(prefix):
-        if skip_existing and destination.exists(key):
+        # Skip only what is already there *with the same content*. Skipping on
+        # the key alone meant an updated file uploaded to raw/ -- a regenerated
+        # template, a new letterhead -- was never published: every deploy
+        # reported it "already present" and production kept serving the old one.
+        if skip_existing and destination.exists(key) and destination.sha256(key) == source.sha256(key):
             skipped += 1
             continue
         resolved = content_type(key) if callable(content_type) else content_type
