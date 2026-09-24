@@ -1711,3 +1711,61 @@ class OrdinanceAdminManagementTests(TestCase):
         self.assertTrue(first["storage_key"].endswith(".pdf"))
         self.assertEqual(first["sha256"], hashlib.sha256(b"%PDF-1.4 ordinance").hexdigest())
         self.assertEqual(first["size_bytes"], len(b"%PDF-1.4 ordinance"))
+
+
+class RepealedOrdinanceVisibilityTests(TestCase):
+    """A repeal recorded in the corpus has to reach the library and the search.
+
+    It produces no chunk, so a city whose one relevant chapter was repealed
+    opened in the library as "0 sections", and a search naming it led with a
+    treatise describing the repealed chapter as current law.
+    """
+
+    def _library_with_repeal(self, root):
+        _write_ordinance_library(root)
+        manifest = (root / "ordinances" / "testville-heights" / "manifest.yaml")
+        manifest.write_text(
+            HEIGHTS_MANIFEST.replace("pending_count: 1", "pending_count: 0")
+            .replace("  status: pending\n  pending_reason: Codifier serves a bot challenge.\n", (
+                "  status: no_current_provision\n"
+                "  not_in_force_reason: Ord. 2024-27 repealed the whole chapter.\n"
+                "  repeal_date: '2024-06-04'\n"
+            ))
+            .replace("  text_basis: not_acquired\n", "  text_basis: no_current_provision\n"),
+            encoding="utf-8",
+        )
+
+    def setUp(self):
+        user = User.objects.create_user("repeal-reader", password="unused-here")
+        self.client.force_login(user)
+
+    def test_the_library_document_states_the_repeal(self):
+        with tempfile.TemporaryDirectory() as directory:
+            library = Path(directory)
+            self._library_with_repeal(library)
+            with override_settings(CONTENT_LIBRARY_DIR=library, ORGANIZATION_CONTENT_LIBRARY_DIR=library / "missing"):
+                response = self.client.get("/api/library/ordinances-testville-heights/")
+
+        self.assertEqual(response.status_code, 200)
+        notices = response.json()["coverageNotices"]
+        self.assertEqual(len(notices), 1)
+        self.assertIn("No Pay-to-stay / right to cure provision is in force in Testville Heights", notices[0]["snippet"])
+        self.assertIn("2024-06-04", notices[0]["snippet"])
+
+    def test_a_search_naming_the_city_carries_the_repeal(self):
+        with tempfile.TemporaryDirectory() as directory:
+            library = Path(directory)
+            self._library_with_repeal(library)
+            with override_settings(
+                CONTENT_LIBRARY_DIR=library, ORGANIZATION_CONTENT_LIBRARY_DIR=library / "missing", AI_DRAFTING_ENABLED=False
+            ):
+                response = self.client.post(
+                    "/api/research/search/",
+                    data=json.dumps({"query": "Testville Heights pay to stay"}),
+                    content_type="application/json",
+                )
+
+        self.assertEqual(response.status_code, 200)
+        notices = response.json()["coverageNotices"]
+        self.assertEqual([notice["municipality"] for notice in notices], ["Testville Heights"])
+        self.assertFalse(notices[0]["inForce"])

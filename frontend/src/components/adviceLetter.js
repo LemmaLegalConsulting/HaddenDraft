@@ -70,3 +70,22 @@ export function readingGradeLabel(readability) {
   const target = grade <= 8 ? "within target" : "above the 8th-grade target";
   return `Reading grade ${grade} (${target})`;
 }
+
+// What a client letter would go out missing. The closing tells the client to
+// "call me at: {{ advocate_phone }}" and is signed with the author's name, and
+// a profile nobody filled in produced "please call me at: ." signed
+// "e2e-browser@example.invalid" -- the login standing in for a name, because
+// a new profile's name defaults to the account's email. Neither is something
+// to send a tenant.
+export function letterContactGaps(profile = {}, { username = "", email = "" } = {}) {
+  const gaps = [];
+  const name = String(profile?.displayName || "").trim();
+  const login = [username, email].map((value) => String(value || "").trim().toLowerCase()).filter(Boolean);
+  if (!name || name.includes("@") || login.includes(name.toLowerCase())) {
+    gaps.push("your name (the letter would be signed with your login)");
+  }
+  if (!String(profile?.phone || "").trim()) {
+    gaps.push("your phone number (the letter tells the client to call you)");
+  }
+  return gaps;
+}

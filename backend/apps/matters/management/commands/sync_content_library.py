@@ -4,6 +4,7 @@ from apps.matters.triage import sync_triage_rubric_seeds
 from apps.rules.court_profiles import sync_court_profile_seeds
 from apps.rules.legal_rules import sync_legal_rule_seeds
 from apps.templates_app.content_library import sync_prepared_templates
+from apps.templates_app.letterhead_library import sync_letterheads
 
 
 class Command(BaseCommand):
@@ -63,5 +64,17 @@ class Command(BaseCommand):
         self.stdout.write(
             self.style.SUCCESS(
                 f"Indexed {len(templates) - conflicts} prepared document template(s); {conflicts} slug conflict(s) preserved."
+            )
+        )
+        # Letterheads were indexed only by the commands that prepare one, so a
+        # deployment built by bootstrap had published stationery and an empty
+        # Letterhead table, and every letter downloaded with no letterhead at
+        # all. sync_letterheads leaves admin-uploaded records alone.
+        letterheads = sync_letterheads()
+        letterhead_conflicts = sum(result["status"] == "conflict" for result in letterheads)
+        self.stdout.write(
+            self.style.SUCCESS(
+                f"Indexed {len(letterheads) - letterhead_conflicts} letterhead(s); "
+                f"{letterhead_conflicts} admin-uploaded slug conflict(s) preserved."
             )
         )

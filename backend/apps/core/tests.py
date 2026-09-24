@@ -173,6 +173,38 @@ class ReadinessProbeTests(TestCase):
             self.client.get("/readyz")
 
 
+class PreloadWarmupTests(TestCase):
+    """What the gunicorn master leaves behind for the workers it forks."""
+
+    def test_warmup_closes_the_connections_it_opened_before_workers_fork(self):
+        # The warm-up in config.wsgi is a real request, and the first request in
+        # a process runs the prepared-template sync, which queries the database.
+        # Under --preload that happens in the master. A connection still open
+        # there is inherited by every worker, and several processes sharing one
+        # Postgres socket read each other's results: after a cold start, one
+        # request in four failed with a 500, a 504, or a signed-in user's
+        # session coming back empty. The in-memory test database never really
+        # closes, so this checks the order: the sync ran, then everything closed.
+        import importlib
+
+        from django.db import connections
+
+        import config.wsgi
+        from apps.templates_app import signals
+
+        seen = []
+
+        def record_close():
+            seen.append(signals._initial_sync_done)
+
+        with patch.object(signals, "_initial_sync_done", False), patch.object(
+            connections, "close_all", side_effect=record_close
+        ):
+            importlib.reload(config.wsgi)
+
+        self.assertEqual(seen, [True], "the warm-up must close connections after its first-request work")
+
+
 @override_settings(
     CORS_ALLOWED_ORIGINS=["https://cle-draft.lemmalegal.com"],
     MIDDLEWARE=[

@@ -19,6 +19,13 @@ media
 # This line is what keeps an image built from a developer's machine -- which
 # does have it checked out -- the same size as the one CI builds.
 private-content
+
+# Git-ignored research material: real filed briefs and downloaded opinions. CI
+# never has them, but a deploy from a developer's checkout (az acr build .)
+# would upload and bake them into the image.
+cle_real_briefs
+lexis_real_briefs
+downloaded_opinions
 **/__pycache__
 *.pyc
 

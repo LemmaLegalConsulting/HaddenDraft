@@ -142,7 +142,7 @@ class PlaceholderConversionTests(TestCase):
 
         self.assertEqual(
             paragraph.text,
-            "Served on {{ fields.plaintiff_name }} {{ fields.filing_date }}.",
+            "Served on {{ fields.plaintiff_name }} {{ fields.service_date }}.",
         )
 
     def test_a_blank_on_its_own_line_is_named_from_the_lines_around_it(self):
@@ -827,3 +827,79 @@ class RepositorySnippetRenderingTests(TestCase):
                 output = Path(directory) / f"{index}.docx"
                 _render_docx_template(path, context, output)
                 Document(output)
+
+
+class DistinctDatesStayDistinctTests(TestCase):
+    """A generic [DATE] must not merge dates that mean different things.
+
+    Maintained originals write [DATE] for every date, and the converter bound
+    each unrecognised one to fields.filing_date -- so the Emergency Motion for
+    Heat printed one answer, filled from LegalServer without asking, as its
+    hearing date, filing date, move-in date, and the date the heat went out.
+    """
+
+    def test_a_hearing_named_early_in_a_long_sentence_is_still_a_hearing_date(self):
+        # context_label drops a sentence longer than 80 characters instead of
+        # keeping its tail, so "hearing" never reaches the hint table.
+        converted, _ = convert_text(
+            "This matter is currently set for a first cause hearing on the virtual "
+            "general call docket on [DATE] at [TIME].",
+            "body_1",
+        )
+        self.assertIn("{{ fields.hearing_date }}", converted)
+
+    def test_dates_in_unrelated_sentences_do_not_share_a_field(self):
+        moved_in, _ = convert_text("Defendant has lived in the premises since [DATE].", "body_1")
+        heat_out, _ = convert_text("Defendant has been without heat since at least [DATE], if not longer.", "body_2")
+        self.assertNotIn("fields.filing_date", moved_in)
+        self.assertNotIn("fields.filing_date", heat_out)
+        self.assertNotEqual(moved_in.split("{{")[1], heat_out.split("{{")[1])
+
+    def test_a_date_that_opens_its_sentence_is_named_by_what_follows(self):
+        issued, _ = convert_text("On [DATE], CMHA issued a decision affirming the termination.", "body_1")
+        served, _ = convert_text("On [DATE], CMHA served notice of termination.", "body_2")
+        self.assertIn("cmha_issued_decision", issued)
+        self.assertIn("cmha_served_notice", served)
+
+    def test_a_labelled_date_keeps_its_own_name_whatever_the_sentence_says(self):
+        converted, _ = convert_text("At the hearing the court noted the [Move-In Date].", "body_1")
+        self.assertNotIn("hearing_date", converted)
+        self.assertIn("move_in_date", converted)
+
+
+class TemplateRecommendationTests(TestCase):
+    """What "Let AI suggest template(s)" recommends for a plainly worded goal."""
+
+    # The goal sentences the prepared templates actually carry, from the
+    # deployed database: two shapes of one generated boilerplate.
+    GOALS = {
+        "Affidavit": "Draft the Affidavit filing with case-specific facts, legal grounds, and requested relief.",
+        "CLE Emergency Motion for Heat": (
+            "Draft CLE Emergency Motion for Heat with case-specific facts, legal grounds, and requested relief."
+        ),
+    }
+
+    def _template(self, slug, title):
+        return DocumentTemplate.objects.create(slug=slug, title=title, goal=self.GOALS[title], is_active=True)
+
+    def test_the_document_named_by_the_goal_outranks_the_first_one_alphabetically(self):
+        from apps.templates_app.recommendations import recommend_templates
+
+        templates = [
+            self._template("e2e-test-affidavit", "Affidavit"),
+            self._template("e2e-test-heat-motion", "CLE Emergency Motion for Heat"),
+        ]
+
+        ranked = recommend_templates("The landlord shut off the heat in January; get it restored now.", None, templates)
+
+        self.assertEqual(ranked[0]["template"].slug, "e2e-test-heat-motion")
+        self.assertGreater(ranked[0]["score"], ranked[1]["score"])
+
+    def test_boilerplate_shared_by_every_template_does_not_count_as_a_match(self):
+        from apps.templates_app.recommendations import recommend_templates
+
+        templates = [self._template("e2e-test-affidavit", "Affidavit")]
+
+        ranked = recommend_templates("Draft the filing from the case facts and ask for relief.", None, templates)
+
+        self.assertNotIn("Goal language matches template purpose.", ranked[0]["reasons"])

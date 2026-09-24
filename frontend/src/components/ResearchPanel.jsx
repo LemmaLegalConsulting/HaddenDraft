@@ -239,6 +239,8 @@ export function ResearchPanel({ matter, sources, onResults, legalserverSave = nu
   }
 
   async function clearHistory() {
+    // Clear deletes, unlike New chat, which keeps the old thread; ask first.
+    if (!window.confirm("Delete this conversation? It cannot be recovered. New chat keeps it instead.")) return;
     setBusy(true);
     try { await api.clearResearchHistory(); setMessages([]); setShowHistory(false); }
     catch (err) { setError(err.message || "Could not clear research history."); }
@@ -261,6 +263,8 @@ export function ResearchPanel({ matter, sources, onResults, legalserverSave = nu
 
   async function uploadResource(event) {
     event.preventDefault();
+    // Held before the await: React clears currentTarget once the handler yields.
+    const form = event.currentTarget;
     if (!resourceFile) return;
     setUploadBusy(true);
     setError("");
@@ -274,7 +278,7 @@ export function ResearchPanel({ matter, sources, onResults, legalserverSave = nu
       setResourceTitle("");
       setResourceFile(null);
       setShowUploadForm(false);
-      event.currentTarget.reset();
+      form.reset();
     } catch (err) {
       setError(err.message || "Reference upload failed.");
     } finally {

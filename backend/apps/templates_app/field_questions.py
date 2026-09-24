@@ -79,9 +79,11 @@ GENERATED_FILL_MODES = {"constrained_generation"}
 # so the common ones are written out as questions a person can actually answer.
 FIELD_QUESTIONS = {
     "case_caption": "What caption should appear on this filing?",
+    "document_date": "What date should this document carry?",
     "filing_date": "On what date was this case filed?",
     "filing_year": "In what year was this case filed?",
     "hearing_date": "What is the date of the hearing this document concerns?",
+    "hearing_date_time": "What date and time is the hearing set for?",
     "hearing_time": "What time is the hearing scheduled for?",
     "housing_authority": "Which housing authority administers the subsidy?",
     "magistrate": "Which magistrate or judge is assigned?",
@@ -91,6 +93,7 @@ FIELD_QUESTIONS = {
     "plaintiff_address": "What is the plaintiff's address?",
     "plaintiff_email": "What is the plaintiff's email address?",
     "plaintiff_name": "What is the plaintiff's full name, as it appears on the complaint?",
+    "prior_hearing_date": "On what date was the earlier hearing held?",
     "premises_address": "What is the address of the rental unit?",
     "service_date": "On what date was this document served?",
     "service_recipients": "Who was served, and at what address or email?",
@@ -274,7 +277,12 @@ def template_field_requests(template):
             question = _as_directive(label)
         else:
             kind = KIND_VALUE
-            question = FIELD_QUESTIONS.get(key) or f"What is the {label.lower()}?"
+            question = FIELD_QUESTIONS.get(key) or (
+                # A date named from its own sentence reads badly as "What is the
+                # defendant has lived premises date?"; the template wording
+                # shown beside the question says which date it is.
+                "What date belongs in this sentence?" if key.endswith("_date") else f"What is the {label.lower()}?"
+            )
 
         requests.append(
             TemplateFieldRequest(

@@ -59,6 +59,8 @@ import { TriagePanel } from "./components/TriagePanel.jsx";
 import { ValidationPanel } from "./components/ValidationPanel.jsx";
 import { WakingNotice } from "./components/WakingNotice.jsx";
 import { WorkflowStepper } from "./components/WorkflowStepper.jsx";
+import { initialActiveCase, rememberCase } from "./state/activeCase.js";
+import { waitForDrafts } from "./state/draftJobs.js";
 import { activeDraft, draftWorkspaceReducer, initialDraftWorkspace } from "./state/draftWorkspace.js";
 import { useModalDismiss } from "./hooks/useModalDismiss.js";
 
@@ -103,6 +105,10 @@ export function App() {
   const [selectedMatterId, setSelectedMatterId] = useState(null);
   const [matter, setMatter] = useState(null);
   const [selectedTemplateId, setSelectedTemplateId] = useState(null);
+  // The template list opens on a default so the picker is never empty, but a
+  // default is not a choice: until the advocate picks one (or a draft exists)
+  // the header must not announce a "selected document" on every case.
+  const [templateChosen, setTemplateChosen] = useState(false);
   const [selectedFactIds, setSelectedFactIds] = useState([]);
   const [selectedCuratedFacts, setSelectedCuratedFacts] = useState([]);
   const [selectedBlockKeys, setSelectedBlockKeys] = useState([]);
@@ -247,8 +253,9 @@ export function App() {
     setLegalserverIdentifier(caseResponse.legalserver?.identifier || caseResponse.legalserver?.suggestedIdentifier || "");
     if (append) return;
     // A filter narrows what is listed, not what is being worked on: the active
-    // case stays active even when the current filter would not show it.
-    setSelectedMatterId((current) => current ?? incoming[0]?.id ?? null);
+    // case stays active even when the current filter would not show it. And
+    // the first row is never activated for the advocate: that switched every
+    // screen to a client nobody chose (see state/activeCase.js).
     if (!incoming.length && !selectedMatterId) {
       setMatter(null);
       setSelectedFactIds([]);
@@ -350,6 +357,10 @@ export function App() {
       return;
     }
     let cancelled = false;
+    // Let go of the previous case at once. Its detail takes seconds to load from
+    // LegalServer, and until then every screen still acted on the old client:
+    // "Make active" then "Make plan" drafted for the case just left behind.
+    setMatter((current) => (current && String(current.id) === String(selectedMatterId) ? current : null));
     api.caseDetail(selectedMatterId)
       .then((response) => {
         if (cancelled) return;
@@ -363,10 +374,26 @@ export function App() {
         setMatter(null);
         setSelectedFactIds([]);
         setSelectedCuratedFacts([]);
+        if (err.status === 404) {
+          // A remembered case that no longer opens is forgotten, not retried.
+          rememberCase(auth?.username, null);
+          setSelectedMatterId(null);
+          return;
+        }
         setError(err.message);
       });
     return () => { cancelled = true; };
   }, [auth, selectedMatterId]);
+
+  // Restore the case this advocate last chose, once they are signed in.
+  useEffect(() => {
+    if (!auth?.username) return;
+    setSelectedMatterId((current) => initialActiveCase({ current, username: auth.username }));
+  }, [auth?.username]);
+
+  useEffect(() => {
+    if (auth?.username && selectedMatterId) rememberCase(auth.username, selectedMatterId);
+  }, [auth?.username, selectedMatterId]);
 
   useEffect(() => {
     if (!auth?.isAuthenticated || !selectedMatterId) {
@@ -510,10 +537,12 @@ export function App() {
     () => templates.find((template) => template.id === Number(selectedTemplateId)) || null,
     [selectedTemplateId, templates],
   );
-  const selectedDraftDocument = draftMode === "draft_from_template" ? selectedTemplate : null;
+  const selectedDraftDocument =
+    draftMode === "draft_from_template" && (templateChosen || drafts.length > 0) ? selectedTemplate : null;
 
   function selectDraftTemplate(templateId) {
     setSelectedTemplateId(templateId);
+    setTemplateChosen(Boolean(templateId));
     setTemplateData({});
   }
 
@@ -620,6 +649,7 @@ export function App() {
     if (suggestion.templateIds?.length) {
       setPlanningMode("known");
       setSelectedTemplateId(suggestion.templateIds[0]);
+      setTemplateChosen(true);
     }
   }
 
@@ -729,7 +759,8 @@ export function App() {
       const response = await api.generatePlanDrafts(activeSession.id, {
         requireAllMissingInformation: clarifyMissingFactsBeforeDraft,
       });
-      dispatchWorkspace({ type: "documentsGenerated", drafts: response.drafts });
+      const drafts = await waitForDrafts(response, (jobId) => api.draftGenerationJob(activeSession.id, jobId));
+      dispatchWorkspace({ type: "documentsGenerated", drafts });
       setDraftStep("editor");
     } catch (err) {
       setError(err.message);
@@ -1039,7 +1070,7 @@ export function App() {
         {mode === "case" && <CaseSelector cases={cases} selectedMatterId={selectedMatterId} onSelect={setSelectedMatterId} onPreview={setCasePreviewMatterId} legalserver={legalserver} legalserverLoading={legalserverLoading} search={caseSearch} onSearchChange={setCaseSearch} onSearch={handleCaseSearch} onSearchReset={handleCaseSearchReset} filters={caseFilters} onFiltersChange={applyCaseFilters} listMeta={caseListMeta} onShowMore={() => loadCases({ append: true })} caseBusy={caseBusy} manualCaseBusy={manualCaseBusy} onCreateManualCase={handleCreateManualCase} />}
         {mode === "triage" && <TriagePanel matter={matter} rubrics={triageRubrics} selectedRubricId={selectedTriageRubricId} onSelectRubric={setSelectedTriageRubricId} assessment={triageAssessment} history={triageHistory} busy={busy} manualCaseBusy={manualCaseBusy} onRunTriage={runTriage} onCreateManualCase={handleCreateManualCase} legalserverSave={boot?.legalserverSave} legalserverDelivery={triageDelivery} />}
         {mode === "case_chat" && <CaseChat matter={matter} onAction={handleCaseAction} legalserverSave={boot?.legalserverSave} />}
-        {mode === "advice_letter" && <AdviceLetterPanel matter={matter} authorProfile={draftAuthorProfile} legalserverSave={boot?.legalserverSave} />}
+        {mode === "advice_letter" && <AdviceLetterPanel matter={matter} authorProfile={draftAuthorProfile} legalserverSave={boot?.legalserverSave} account={auth} />}
         {mode === "argument_gym" && (
           <ArgumentGymPanel
             matter={matter}

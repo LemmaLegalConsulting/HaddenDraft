@@ -5,7 +5,8 @@ from django.http import JsonResponse
 from apps.core.http import api_login_required, json_body, method_not_allowed
 from apps.drafting import operations
 from apps.drafting.components import component_history, record_sections
-from apps.drafting.models import DraftDocument, DraftingSession
+from apps.drafting.generation_jobs import fail_if_stalled, job_to_dict, start_job
+from apps.drafting.models import DraftDocument, DraftingSession, DraftGenerationJob
 from apps.drafting.operations import operation_to_dict
 from apps.drafting.packages import derive_relationships, package_payload
 from apps.drafting.serializers import draft_to_dict, session_to_dict
@@ -13,7 +14,6 @@ from apps.drafting.services import (
     advance,
     apply_plan_edits,
     create_draft,
-    create_drafts_from_plan,
     create_or_update_plan,
     initialize_session,
     unanswered_missing_information,
@@ -263,6 +263,17 @@ def generate_plan_drafts(request, session_id):
     if error:
         return error
     if request.method == "GET":
+        job_id = request.GET.get("job")
+        if job_id:
+            job = session.generation_jobs.filter(id=job_id).first()
+            if not job:
+                return JsonResponse({"error": "No such generation for this session."}, status=404)
+            job = fail_if_stalled(job)
+            payload = {"job": job_to_dict(job)}
+            if job.status == DraftGenerationJob.COMPLETE:
+                drafts = session.drafts.select_related("template").filter(id__in=job.draft_ids).order_by("created_at")
+                payload["drafts"] = [draft_to_dict(draft) for draft in drafts]
+            return JsonResponse(payload)
         # A plan can produce several documents, so reopening a session has to be
         # able to recover all of them, not just the one that was generated last.
         drafts = session.drafts.select_related("template").order_by("created_at")
@@ -281,11 +292,15 @@ def generate_plan_drafts(request, session_id):
             },
             status=400,
         )
-    try:
-        drafts = create_drafts_from_plan(session, user=request.user, request=request)
-    except ValueError as exc:
-        return JsonResponse({"error": str(exc)}, status=400)
-    return JsonResponse({"drafts": [draft_to_dict(draft) for draft in drafts]}, status=201)
+    # Generation runs longer than a request may be held open, so it runs in the
+    # background and the client polls the job (apps.drafting.generation_jobs).
+    job = start_job(session, user=request.user)
+    if job.status == DraftGenerationJob.FAILED:
+        return JsonResponse({"error": job.error, "job": job_to_dict(job)}, status=400)
+    if job.status == DraftGenerationJob.COMPLETE:
+        drafts = session.drafts.select_related("template").filter(id__in=job.draft_ids).order_by("created_at")
+        return JsonResponse({"drafts": [draft_to_dict(draft) for draft in drafts], "job": job_to_dict(job)}, status=201)
+    return JsonResponse({"job": job_to_dict(job)}, status=202)
 
 
 @api_login_required

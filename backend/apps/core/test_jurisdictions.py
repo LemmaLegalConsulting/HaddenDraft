@@ -175,3 +175,19 @@ class MigrationTests(TestCase):
         # Reversing must not raise; the spellings it merged are not recoverable
         # and carry nothing the canonical name does not.
         self.assertIs(operation.reverse_code, migrations.RunPython.noop)
+
+
+class MissingVocabularyTests(TestCase):
+    def test_a_missing_vocabulary_file_on_first_use_reads_as_no_vocabulary(self):
+        # A missing file fingerprints as None, which used to match the empty
+        # cache and raise KeyError on the very first lookup in a process.
+        import tempfile
+
+        from django.test import override_settings
+
+        from apps.core import jurisdictions
+
+        jurisdictions._CACHE.clear()
+        with tempfile.TemporaryDirectory() as directory, override_settings(CONTENT_LIBRARY_DIR=directory):
+            self.assertEqual(jurisdictions.canonical_county("Cuyahoga"), jurisdictions.canonical_county("Cuyahoga"))
+        jurisdictions._CACHE.clear()

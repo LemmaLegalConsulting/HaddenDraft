@@ -8,6 +8,26 @@ def _terms(value):
     return set(re.findall(r"[a-z0-9']+", (value or "").casefold()))
 
 
+# Words that say nothing about which document is wanted. Every prepared
+# template's generated goal is the same sentence -- "Draft the <title> filing
+# with case-specific facts, legal grounds, and requested relief" -- so its
+# scaffolding matched any goal that used "the" or "facts", every template tied,
+# and the alphabet chose: "the landlord shut off the heat" recommended the
+# Affidavit over the Emergency Motion for Heat.
+GOAL_MATCH_STOPWORDS = {
+    "a", "an", "and", "are", "as", "at", "be", "by", "for", "from", "get", "has",
+    "have", "in", "into", "is", "it", "its", "now", "of", "on", "or", "our",
+    "so", "that", "the", "their", "them", "they", "this", "to", "was", "we",
+    "were", "will", "with", "you", "your",
+    "case", "draft", "facts", "filing", "grounds", "legal", "relief", "requested",
+    "specific",
+}
+
+
+def _goal_terms(value):
+    return {term for term in _terms(value) if term not in GOAL_MATCH_STOPWORDS}
+
+
 def _contains_phrase(haystack, needle):
     return needle.casefold() in haystack.casefold()
 
@@ -166,7 +186,7 @@ def _drop_conflicts(scored):
 def recommend_templates(goal, matter, templates, *, limit=3):
     """Rank templates with explicit goal/alias matches before any AI ranking."""
     goal_text = goal or getattr(matter, "summary", "") or ""
-    goal_terms = _terms(goal_text)
+    goal_terms = _goal_terms(goal_text)
     jurisdiction = (getattr(matter, "jurisdiction", "") or "").casefold()
     recommendations = []
     for template in templates:
@@ -180,7 +200,7 @@ def recommend_templates(goal, matter, templates, *, limit=3):
                 score += 60
                 reasons.append(f"Goal matches alias: {alias}")
                 break
-        template_goal_terms = _terms(template.goal or template.description or template.title)
+        template_goal_terms = _goal_terms(template.goal or template.description or template.title)
         overlap = goal_terms.intersection(template_goal_terms)
         if overlap:
             score += min(30, 8 * len(overlap))

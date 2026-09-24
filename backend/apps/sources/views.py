@@ -24,7 +24,7 @@ from apps.sources.library import (
     section_tree,
 )
 from apps.sources.models import ManagedSourceChunk, RetrievedDocument, UserResource
-from apps.sources.ordinances import coverage as ordinance_coverage, dataset as ordinance_dataset, dataset_names, cross_references
+from apps.sources.ordinances import document_notices, coverage as ordinance_coverage, dataset as ordinance_dataset, dataset_names, cross_references
 from apps.sources.augmentation import augmented_search
 from apps.sources.registry import connector_registry
 from apps.sources.selection import automatic_source_selection, source_decision_with_counts, source_kinds
@@ -145,6 +145,9 @@ def library_document(request, document_slug):
         "query": query,
         "matchCount": len(matched),
         "tree": section_tree(matched, document_title=manifest.get("document_title", "")),
+        # Repealed or not-yet-acquired local law has no text to list, and must
+        # still be seen: see apps.sources.ordinances.document_notices.
+        "coverageNotices": document_notices(document_slug),
     })
 
 

@@ -350,6 +350,15 @@ LEGALSERVER_TRIAGE_FIELD_MAP = os.environ.get("LEGALSERVER_TRIAGE_FIELD_MAP", "t
 # override_settings and a fake session. Reads are unaffected.
 TESTING = "test" in sys.argv
 LEGALSERVER_ALLOW_WRITES = env_bool("LEGALSERVER_ALLOW_WRITES", True) and not TESTING
+# A case's document list is fetched from LegalServer on every materials load,
+# preview and fact recommendation; the demo site rate-limits after about ten in
+# a row. Cached per process for this long. Off under test, where one case's
+# list must never answer for another's.
+# Draft generation runs on a background thread and the client polls it (see
+# apps.drafting.generation_jobs). Tests run it inline to assert on the result.
+DRAFT_GENERATION_BACKGROUND = env_bool("DRAFT_GENERATION_BACKGROUND", True) and not TESTING
+DRAFT_GENERATION_TIMEOUT_SECONDS = int(os.environ.get("DRAFT_GENERATION_TIMEOUT_SECONDS", "900"))
+LEGALSERVER_DOCUMENT_CACHE_SECONDS = 0 if TESTING else int(os.environ.get("LEGALSERVER_DOCUMENT_CACHE_SECONDS", "120"))
 LEGALSERVER_USERS_PATH = os.environ.get("LEGALSERVER_USERS_PATH", "/api/v1/users")
 LEGALSERVER_USER_FILTER_PARAM = os.environ.get("LEGALSERVER_USER_FILTER_PARAM", "")
 LEGALSERVER_AUTO_MAP_OFFICE365_EMAIL = env_bool("LEGALSERVER_AUTO_MAP_OFFICE365_EMAIL", True)

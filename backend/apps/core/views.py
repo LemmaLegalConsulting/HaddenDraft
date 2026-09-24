@@ -93,9 +93,10 @@ def normalize_ai_text(text):
 
 
 def profile_to_dict(profile, user=None):
-    fallback_name = ""
-    if user:
-        fallback_name = user.get_full_name() or getattr(user, "email", "") or user.get_username()
+    # A real name only. A login or email address standing in for one signed
+    # client letters "e2e-browser@example.invalid"; an empty name is caught and
+    # asked for instead.
+    fallback_name = user.get_full_name() if user else ""
     return {
         "displayName": profile.display_name or fallback_name,
         "salutation": profile.salutation,
@@ -119,7 +120,7 @@ def profile_for_user(user):
         profile, _created = AuthorProfile.objects.get_or_create(
             user=user,
             defaults={
-                "display_name": user.get_full_name() or getattr(user, "email", "") or user.get_username(),
+                "display_name": user.get_full_name(),
                 "email": getattr(user, "email", ""),
             },
         )

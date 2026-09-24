@@ -9,6 +9,7 @@ from django.conf import settings
 from apps.ai.openai_client import OpenAIBackendError, OpenAICompatibleClient
 from apps.ai.prompt_catalog import render_prompt
 from apps.matters.models import TriageAssessment, TriageRubric
+from apps.matters.work_product import without_work_product_notes
 from apps.sources.models import SourceConfiguration
 from apps.core.content_library import content_path
 
@@ -98,7 +99,9 @@ def matter_triage_text(matter, *, max_chars=12000):
     ]
     if facts:
         sections.append("Facts:\n" + "\n".join(facts))
-    raw_lines = list(_flatten_payload(matter.raw_payload or {}))[:80]
+    # The case file also holds what this tool wrote to it; that is not
+    # evidence about the client (apps.matters.work_product).
+    raw_lines = list(_flatten_payload(without_work_product_notes(matter.raw_payload)))[:80]
     if raw_lines:
         sections.append("Case data:\n" + "\n".join(raw_lines))
     text = "\n\n".join(section for section in sections if section.strip())

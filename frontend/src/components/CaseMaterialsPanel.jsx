@@ -86,6 +86,11 @@ export function CaseMaterialsPanel({ matter, selectedFactIds = [], onFactIdsAdde
   const summary = materials?.summary || {};
   const notes = materials?.notes || [];
   const documents = materials?.documents || [];
+  // "Could not fetch" is not "there are none"; say which one this is.
+  const documentsUnavailable = materials?.documentsUnavailable || "";
+  const noDocuments = documentsUnavailable
+    ? <p className="inline-error">{documentsUnavailable}</p>
+    : <p className="muted">No case documents were returned.</p>;
   const customFields = materials?.customFields || [];
   const draftingFacts = materials?.draftingFacts || matter.facts || [];
   const materialTabs = [
@@ -118,6 +123,7 @@ export function CaseMaterialsPanel({ matter, selectedFactIds = [], onFactIdsAdde
         <div className="document-card-heading">
           <div>
             <strong>{item.title}</strong>
+            {item.workProduct && <span className="status-pill needs_review" title={item.workProduct}>Written by this tool · not used as a source of fact</span>}
             <small>{isNote ? `Case note · ${item.date || item.citation || matter.id}` : `${item.source || "Document"} · ${item.filename || item.citation || ""}`}</small>
           </div>
           {isNote ? <TextSelect size={18} /> : <FileText size={18} />}
@@ -200,14 +206,14 @@ export function CaseMaterialsPanel({ matter, selectedFactIds = [], onFactIdsAdde
               </section>
               <section>
                 <div className="case-material-index-heading"><h4>Documents</h4><button className="text-link-button" type="button" onClick={() => setActiveTab("documents")}>Explore documents</button></div>
-                {documents.length ? <ul>{documents.map((item) => <li key={item.id}><FileText size={15} /><span><strong>{item.title}</strong>{(item.filename || item.source) && <small>{item.filename || item.source}</small>}</span></li>)}</ul> : <p className="muted">No case documents were returned.</p>}
+                {documents.length ? <ul>{documents.map((item) => <li key={item.id}><FileText size={15} /><span><strong>{item.title}</strong>{(item.filename || item.source) && <small>{item.filename || item.source}</small>}</span></li>)}</ul> : noDocuments}
               </section>
             </div>
           )}
         </div>
       )}
       {activeTab === "notes" && <div className="document-list">{notes.length ? notes.map((item) => <MaterialCard key={item.id} item={item} type="note" />) : <p className="muted">No case notes were returned.</p>}</div>}
-      {activeTab === "documents" && <div className="document-list">{documents.length ? documents.map((item) => <MaterialCard key={item.id} item={item} type="document" />) : <p className="muted">No case documents were returned.</p>}</div>}
+      {activeTab === "documents" && <div className="document-list">{documents.length > 0 && documentsUnavailable && <p className="inline-error">{documentsUnavailable}</p>}{documents.length ? documents.map((item) => <MaterialCard key={item.id} item={item} type="document" />) : noDocuments}</div>}
       {activeTab === "fields" && (
         customFields.length ? <dl className="custom-field-list">{customFields.map((field) => (
           <div key={field.key}>

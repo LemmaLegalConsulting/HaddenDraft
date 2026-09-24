@@ -238,6 +238,91 @@ class CaseConnectionTests(TestCase):
         self.assertEqual([note["title"] for note in cached["notes"]], ["Old note"])
         self.assertEqual([note["title"] for note in refreshed["notes"]], ["New note"])
 
+    def _rate_limited_matter(self, number):
+        return Matter.objects.create(
+            external_id=number,
+            client_name="Rate Limited Client",
+            matter_type="Conditions",
+            source_system="LegalServer",
+            raw_payload={
+                "matter_uuid": "72d4848e-7187-11f1-bb35-0a2523f9a7d8",
+                "case_number": number,
+                "notes": [{"id": "n", "subject": "Intake", "body": "Intake note."}],
+            },
+        )
+
+    def test_a_legalserver_failure_is_reported_not_read_as_an_empty_case_file(self):
+        # A 429 from LegalServer used to become documentCount 0 and "No case
+        # documents were returned" for a case holding twenty-two.
+        matter = self._rate_limited_matter("26-000040")
+        asked = []
+
+        class RateLimitedClient:
+            configured = True
+
+            def get_matter_documents(self, identifier):
+                asked.append(identifier)
+                raise LegalServerError("LegalServer request failed with status 429: Request rate limit exceeded")
+
+        with self.assertLogs("apps.matters.document_context", level="WARNING"):
+            payload = case_materials_payload(matter, client=RateLimitedClient())
+
+        self.assertEqual(payload["summary"]["documentCount"], 0)
+        self.assertIn("429", payload["documentsUnavailable"])
+        # The UUID is the identifier the documents API answers to, so it goes first.
+        self.assertEqual(asked[0], "72d4848e-7187-11f1-bb35-0a2523f9a7d8")
+
+    def test_a_case_with_no_documents_is_not_reported_as_a_failure(self):
+        matter = self._rate_limited_matter("26-000041")
+
+        class EmptyClient:
+            configured = True
+
+            def get_matter_documents(self, identifier):
+                if identifier == "26-000041":
+                    raise LegalServerError("LegalServer request failed with status 404: Matter not found")
+                return []
+
+        payload = case_materials_payload(matter, client=EmptyClient())
+
+        self.assertEqual(payload["summary"]["documentCount"], 0)
+        self.assertEqual(payload["documentsUnavailable"], "")
+
+    @override_settings(LEGALSERVER_DOCUMENT_CACHE_SECONDS=60)
+    def test_a_failed_fetch_falls_back_to_the_last_list_and_says_so(self):
+        from django.core.cache import cache
+
+        cache.clear()
+        matter = self._rate_limited_matter("26-000042")
+
+        class FlakyClient:
+            configured = True
+            calls = 0
+
+            def get_matter(self, _identifier):
+                return dict(matter.raw_payload)
+
+            def get_matter_notes(self, _identifier):
+                return []
+
+            def get_matter_documents(self, identifier):
+                FlakyClient.calls += 1
+                if FlakyClient.calls > 1:
+                    raise LegalServerError("LegalServer request failed with status 429: Request rate limit exceeded")
+                return [{"id": "doc", "filename": "Notice.pdf", "download_url": "https://files.example/n.pdf"}]
+
+        first = case_materials_payload(matter, client=FlakyClient())
+        cached = case_materials_payload(matter, client=FlakyClient())
+        self.assertEqual(FlakyClient.calls, 1, "a second load within the TTL must not ask LegalServer again")
+        self.assertEqual(cached["summary"]["documentCount"], 1)
+
+        with self.assertLogs("apps.matters.document_context", level="WARNING"):
+            refreshed = case_materials_payload(matter, client=FlakyClient(), force_refresh=True)
+        self.assertEqual(first["documentsUnavailable"], "")
+        self.assertEqual(refreshed["summary"]["documentCount"], 1)
+        self.assertIn("earlier load", refreshed["documentsUnavailable"])
+        cache.clear()
+
     def test_legalserver_upsert_renames_existing_guid_keyed_matter_to_case_number(self):
         existing = Matter.objects.create(
             external_id="d019be06-6d12-47a5-bdfb-2a8a6f71d9ac",

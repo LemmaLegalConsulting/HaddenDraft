@@ -123,7 +123,8 @@ command says otherwise.
   - `.venv/bin/pip install -r requirements.txt`
   - `.venv/bin/python backend/manage.py migrate`
   - `.venv/bin/python backend/manage.py check`
-  - `.venv/bin/python backend/manage.py test apps.ai apps.sources apps.core apps.matters`
+  - `(cd backend && ../.venv/bin/python manage.py test)` -- every app; from the
+    repository root, label-less discovery finds no tests and still exits 0
 - Frontend work happens under `frontend/`:
   - `npm install`
   - `npm run test`

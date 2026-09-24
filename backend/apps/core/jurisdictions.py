@@ -86,7 +86,10 @@ _CACHE = {}
 def _vocabulary():
     path = content_path(*COUNTIES_PATH)
     fingerprint = _fingerprint(path)
-    if _CACHE.get("fingerprint") == fingerprint:
+    # "value" in _CACHE, not just a matching fingerprint: a missing file has
+    # fingerprint None, which also matches an empty cache, and the first call in
+    # a process without the vocabulary raised KeyError instead of reading none.
+    if "value" in _CACHE and _CACHE.get("fingerprint") == fingerprint:
         return _CACHE["value"]
     payload = {}
     if fingerprint is not None:

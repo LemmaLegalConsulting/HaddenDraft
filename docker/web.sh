@@ -28,9 +28,19 @@ NGINX_PID=$!
 # instead of every worker importing it separately. On a 1-vCPU replica those
 # imports otherwise contend for the same core, so this is most of a second off
 # the time a cold-started replica takes to answer its first request.
+#
+# --threads because most of a request's time here is spent waiting on the model
+# provider or LegalServer, not computing. With three single-threaded workers,
+# three advocates waiting on a plan or a draft held every worker, and everyone
+# else's page loads queued behind them -- a 13 ms request took 3.8 s under
+# three 7 s research answers, and nginx cuts a queued request off at 60 s.
+# Threads let a waiting request give up the worker. Each thread may hold its
+# own database connection (CONN_MAX_AGE), so workers x threads x replicas must
+# stay under the server's max_connections: 3 x 4 x 3 = 36.
 gunicorn config.wsgi:application \
   --bind 127.0.0.1:8000 \
   --workers "${GUNICORN_WORKERS:-3}" \
+  --threads "${GUNICORN_THREADS:-4}" \
   --timeout "${GUNICORN_TIMEOUT:-120}" \
   --preload \
   --access-logfile - \

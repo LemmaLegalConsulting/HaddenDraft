@@ -354,7 +354,15 @@ function DocumentShelf({ shelf, loading, onOpenSource }) {
           : `${countSections(tree)} section${countSections(tree) === 1 ? "" : "s"}`}
         {contents?.document?.version ? ` · ${contents.document.version}` : ""}
       </p>
-      {!busy && !tree.length && (
+      {(contents?.coverageNotices || []).map((notice) => (
+        // Repealed or not-yet-acquired local law has no text to list; say what
+        // is known about it rather than letting an empty list read as "none".
+        <div key={notice.id} className="research-note research-note-warn coverage-notice">
+          <strong>{notice.citation || notice.title}</strong>
+          <p>{notice.snippet}</p>
+        </div>
+      ))}
+      {!busy && !tree.length && !(contents?.coverageNotices || []).length && (
         <p className="library-empty">
           {contents?.query ? "Nothing here matches that filter." : "This document has no readable sections."}
         </p>

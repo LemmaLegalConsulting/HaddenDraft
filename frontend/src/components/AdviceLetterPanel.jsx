@@ -10,6 +10,7 @@ import {
   applyRecommendations,
   estimatePages,
   groupByTopic,
+  letterContactGaps,
   moveSection,
   readingGradeLabel,
   reviewWarnings,
@@ -34,7 +35,7 @@ const CONDITIONS = [
   { key: "admission_denied", label: "Denied for subsidized housing" },
 ];
 
-export function AdviceLetterPanel({ matter, authorProfile, legalserverSave = null }) {
+export function AdviceLetterPanel({ matter, authorProfile, legalserverSave = null, account = null }) {
   const [catalog, setCatalog] = useState(null);
   const [delivery, setDelivery] = useState(null);
   const [savingToLegalServer, setSavingToLegalServer] = useState(false);
@@ -57,6 +58,9 @@ export function AdviceLetterPanel({ matter, authorProfile, legalserverSave = nul
   const [filenameEdited, setFilenameEdited] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
+  const contactGaps = letterContactGaps(authorProfile, { username: account?.username, email: account?.email });
+  const [sendWithGaps, setSendWithGaps] = useState(false);
+  const gapsBlock = contactGaps.length > 0 && !sendWithGaps;
   const draftRef = useRef(null);
   const letterFieldsRef = useRef(letterFields);
   const filenameEditedRef = useRef(filenameEdited);
@@ -562,7 +566,7 @@ export function AdviceLetterPanel({ matter, authorProfile, legalserverSave = nul
           />
         </label>
         <div className="button-row compact">
-          <button className="btn btn-primary" type="button" onClick={download} disabled={busy || !draft}>
+          <button className="btn btn-primary" type="button" onClick={download} disabled={busy || !draft || gapsBlock}>
             <Download size={16} /> Download letter
           </button>
           <LegalServerSaveButton
@@ -570,9 +574,22 @@ export function AdviceLetterPanel({ matter, authorProfile, legalserverSave = nul
             busy={savingToLegalServer}
             delivery={delivery}
             bootstrapSave={legalserverSave}
-            disabled={busy || !draft || !matter}
+            disabled={busy || !draft || !matter || gapsBlock}
           />
         </div>
+        {contactGaps.length > 0 && (
+          // This goes to a client. Say what it would go out missing before it
+          // leaves, rather than after they read "please call me at: .".
+          <div className="warning-panel letter-contact-gaps" role="alert">
+            <strong>Your profile is missing what this letter needs:</strong>
+            <ul>{contactGaps.map((gap) => <li key={gap}>{gap}</li>)}</ul>
+            <p>Add them under Profile in the account menu, or send it as it is.</p>
+            <label className="form-check">
+              <input className="form-check-input" type="checkbox" checked={sendWithGaps} onChange={(event) => setSendWithGaps(event.target.checked)} />
+              <span className="form-check-label">Send it without them</span>
+            </label>
+          </div>
+        )}
         </div>
       </details>
 
