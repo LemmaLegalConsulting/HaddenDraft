@@ -144,6 +144,26 @@ class CaseLawImportTests(TestCase):
         self.assertEqual(CaseLawDecision.objects.get().judge, "Updated Judge")
         self.assertEqual(CaseLawArtifact.objects.filter(artifact_type="verified_metadata_json").count(), 1)
 
+    def test_an_unchanged_corpus_is_not_reimported(self):
+        # Every deploy re-runs ingestion twice. An unchanged decision used to be
+        # rewritten each time -- over any correction made since -- and reported
+        # as "imported".
+        with override_settings(DOCUMENT_STORAGE_ROOT=self.storage):
+            ingest_caselaw_directory(self.corpus)
+            CaseLawDecision.objects.update(judge="Corrected In Admin")
+            report = ingest_caselaw_directory(self.corpus)
+
+        self.assertEqual(report["imported"], [])
+        self.assertEqual(len(report["unchanged"]), 1)
+        self.assertEqual(CaseLawDecision.objects.get().judge, "Corrected In Admin")
+
+    def test_force_reimports_an_unchanged_decision(self):
+        with override_settings(DOCUMENT_STORAGE_ROOT=self.storage):
+            ingest_caselaw_directory(self.corpus)
+            report = ingest_caselaw_directory(self.corpus, force=True)
+
+        self.assertEqual(len(report["imported"]), 1)
+
     @override_settings(DOCUMENT_STORAGE_BACKEND="filesystem")
     def test_missing_pdf_can_be_allowed(self):
         (self.corpus / "sample-case.pdf").unlink()

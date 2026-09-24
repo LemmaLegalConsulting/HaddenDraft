@@ -1,0 +1,37 @@
+# Which values of CaseLawDecision.treatment_status mean the same thing, for
+# browsing. Read by apps.caselaw.treatment; the stored values are not changed.
+#
+# treatment_status was filled by a model reading scanned opinions, and it mixed
+# four different things into one field: the review workflow (unchecked,
+# checked), an assessment (good law), the decision's *own* disposition on
+# appeal (affirmed, reversed and remanded), and its publication state
+# (published, final). Only the first two are treatment.
+#
+# A disposition is not treatment. "Reversed and remanded" is usually what this
+# court did to the one below, not what a later court did to this opinion; read
+# as negative treatment it would tell an advocate that good law is bad. So
+# those values are grouped as "not a treatment value" rather than guessed at.
+#
+# Unverified: grouped from the values the corpus holds on 2026-09-23 by reading
+# them, not by checking what the extractor meant by each. A value not listed
+# here is left as it is and still shown.
+verification: unverified
+groups:
+  unchecked:
+    label: Treatment not checked
+    aliases: [unchecked]
+  checked:
+    label: Treatment checked
+    aliases: [checked, reviewed, none]
+  good-law:
+    label: Checked and good law
+    aliases: [good law, positive]
+  not-treatment:
+    label: Not a treatment value (disposition or publication state)
+    aliases:
+      - affirmed
+      - reversed and remanded
+      - affirmed in part, reversed in part
+      - published
+      - final
+      - original

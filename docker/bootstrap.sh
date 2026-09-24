@@ -37,8 +37,9 @@ python manage.py ingest_advice_letters
 # ingested and their derived artifacts written to published/caselaw/. A corpus
 # that is already published is re-indexed from a local directory instead.
 #
-# Both are idempotent: ingest_group skips any decision whose source_sha256 is
-# already recorded, so re-running costs a scan and changes nothing.
+# Both are idempotent: ingest_group leaves a decision alone when its scan, OCR
+# text and sidecars are byte-for-byte the ones already imported (reported as
+# "unchanged"), so re-running costs a checksum per file and changes nothing.
 if [ "${CASELAW_INGEST_FROM_RAW_STORAGE:-true}" = "true" ]; then
   echo "==> Ingesting caselaw from raw storage area"
   python manage.py ingest_caselaw --from-raw-storage

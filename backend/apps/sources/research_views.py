@@ -28,6 +28,7 @@ from apps.ai.prompt_catalog import PromptRenderError, render_prompt
 from apps.core.http import api_login_required, json_body, method_not_allowed
 from apps.core.views import default_jurisdiction_for_user
 from apps.matters.services import matter_for_user
+from apps.sources.ordinances import notice_snippet, pending_notices
 from apps.sources.research import engine, expansion_status
 from apps.sources.research.corpus import CORPORA, CORPUS_LABELS
 from apps.sources.research.expansion import MODES
@@ -280,6 +281,13 @@ def research_search(request):
         jurisdiction=jurisdiction,
     )
     payload["jurisdiction"] = jurisdiction
+    # Local law the corpus knows of but holds no text for -- a repealed chapter,
+    # an ordinance not yet acquired. Such a record produces no chunk, so it can
+    # never rank; without this, "Newburgh Heights pay to stay" led with the
+    # treatise section describing a chapter the city repealed in 2024.
+    payload["coverageNotices"] = [
+        {**notice, "snippet": notice_snippet(notice)} for notice in pending_notices(options["query"])
+    ]
 
     unavailable = _ai_unavailable_reason()
     rerank_report = None

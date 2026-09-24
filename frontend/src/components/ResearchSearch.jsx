@@ -229,6 +229,13 @@ export function ResearchSearch({ matter, onOpenSource }) {
             </p>
           ))}
           {expansion.unavailable && <p className="research-note research-note-warn">{expansion.unavailable}</p>}
+          {(payload.coverageNotices || []).map((notice) => (
+            // Local law the corpus knows of but holds no text for can never
+            // rank as a result, so it is stated ahead of the results instead.
+            <div key={notice.id} className="research-note research-note-warn coverage-notice" role="note">
+              <strong>{notice.citation || notice.title}</strong> {notice.snippet}
+            </div>
+          ))}
 
           <details className="disclosure">
             <summary>

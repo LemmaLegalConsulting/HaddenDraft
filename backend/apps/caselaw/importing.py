@@ -452,6 +452,22 @@ def rebuild_search_documents(decision, ocr_text):
         )
 
 
+def _inputs_unchanged(decision, group):
+    """Whether this group's files are byte-for-byte the ones already imported."""
+    stored = {artifact.artifact_type: artifact.sha256 for artifact in decision.artifacts.all()}
+    current = {
+        artifact_type: sha256_file(path)
+        for artifact_type, path in (
+            ("original_pdf", group.pdf_path),
+            ("ocr_text", group.txt_path),
+            ("metadata_json", group.json_path),
+            ("verified_metadata_json", group.verified_json_path),
+        )
+        if path
+    }
+    return bool(current) and current == stored
+
+
 def ingest_group(group, *, storage, storage_prefix, require_verified, allow_missing_pdf, allow_missing_metadata, allow_missing_text, force):
     if require_verified and not group.verified_json_path:
         return {"status": "skipped", "stem": group.stem, "reason": "missing_verified_metadata"}
@@ -464,9 +480,14 @@ def ingest_group(group, *, storage, storage_prefix, require_verified, allow_miss
 
     metadata, metadata_path, metadata_source = load_group_metadata(group)
     source_sha256 = sha256_file(group.pdf_path) if group.pdf_path else normalized_case_hash(metadata, group)
-    if CaseLawDecision.objects.filter(source_sha256=source_sha256).exists() and not force:
-        # The import is still idempotent: reruns refresh metadata and documents.
-        pass
+    existing = CaseLawDecision.objects.filter(source_sha256=source_sha256).first()
+    if existing and not force and _inputs_unchanged(existing, group):
+        # Every deploy re-runs ingestion, from raw storage and again from the
+        # published copy. Re-importing an unchanged decision rewrote its fields
+        # (over any correction made since), its pages and its search documents,
+        # twice per deploy, and reported all 665 as "imported". A changed scan,
+        # OCR text or sidecar still re-imports; --force always does.
+        return {"status": "unchanged", "stem": group.stem, "decision_id": existing.id}
     allow_search = settings.CASELAW_IMPORT_APPROVE_VERIFIED_FOR_SEARCH if group.metadata_verified else settings.CASELAW_IMPORT_APPROVE_UNVERIFIED_FOR_SEARCH
     defaults = decision_defaults(
         metadata,
@@ -568,6 +589,8 @@ def ingest_caselaw_directory(
         "total_files": total_files,
         "total_cases": len(groups),
         "imported": [],
+        # Already imported from these exact files; nothing was rewritten.
+        "unchanged": [],
         "skipped": [],
         "failed": [],
         "dry_run": dry_run,
@@ -614,7 +637,8 @@ def ingest_caselaw_directory(
                     allow_missing_text=allow_missing_text,
                     force=force,
                 )
-                report["imported" if result["status"] == "imported" else "skipped"].append(result)
+                bucket = result["status"] if result["status"] in {"imported", "unchanged"} else "skipped"
+                report[bucket].append(result)
             except Exception as exc:
                 report["failed"].append({"stem": group.stem, "error": str(exc)})
         batch.imported_cases = len(report["imported"])

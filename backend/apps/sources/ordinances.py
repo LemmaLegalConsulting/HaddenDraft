@@ -331,6 +331,53 @@ def _topic_matches(query, *labels):
     return bool(words & asked)
 
 
+def _section_notice(manifest, section, override, query=""):
+    """A notice for one section the corpus declares but holds no text for."""
+    name = str(manifest.get("municipality", ""))
+    overridden = override.applied_fields() if override else {}
+    return {
+        "id": f"ordinance-coverage:{manifest.get('municipality_slug', '')}:{section.get('key', '')}",
+        "municipality": name,
+        "citation": overridden.get("citation") or str(section.get("citation", "")),
+        "title": overridden.get("title") or str(section.get("title", "")),
+        "topic": str(section.get("topic", "")),
+        "topicLabel": str(section.get("topic_label", "")),
+        "reason": str(section.get("pending_reason", "")),
+        "inForce": section.get("status") != "no_current_provision",
+        "notInForceReason": str(section.get("not_in_force_reason", "")),
+        "repealDate": str(section.get("repeal_date", "")),
+        "legalStatus": overridden.get("legalStatus", ""),
+        "overrideRepealDate": overridden.get("repealDate", ""),
+        "url": str(section.get("codifier_url", "") or manifest.get("source_base_url", "")),
+        "notes": str(section.get("notes", "")),
+        "summary": None if section.get("status") == "no_current_provision" else _dataset_summary(
+            str(manifest.get("municipality_slug", "")), str(section.get("topic", "")),
+        ),
+        "onTopic": _topic_matches(query, section.get("topic", ""), section.get("topic_label", "")),
+    }
+
+
+def document_notices(document_slug):
+    """Every not-in-force or not-yet-acquired section of one ordinance document.
+
+    Such a section produces no chunk, so a document holding only that -- a
+    city whose one relevant chapter was repealed -- opened in the library as
+    "0 sections", which reads as "no local law here" and hides the repeal.
+    """
+    overrides = authority_overrides()
+    notices = []
+    for _path, manifest in ordinance_manifests():
+        if str(manifest.get("document_slug", "")) != document_slug:
+            continue
+        slug = str(manifest.get("municipality_slug", ""))
+        for section in manifest.get("sections", []) or []:
+            if section.get("status") not in {"pending", "no_current_provision"}:
+                continue
+            notice = _section_notice(manifest, section, overrides.get((slug, str(section.get("key", "")))))
+            notices.append({**notice, "snippet": notice_snippet(notice)})
+    return notices
+
+
 def pending_notices(query):
     """Authorities this corpus knows of but holds no text for, for one query.
 
@@ -362,28 +409,7 @@ def pending_notices(query):
         for section in manifest.get("sections", []) or []:
             if section.get("status") not in {"pending", "no_current_provision"}:
                 continue
-            override = overrides.get((slug, str(section.get("key", ""))))
-            overridden = override.applied_fields() if override else {}
-            notices.append({
-                "id": f"ordinance-coverage:{manifest.get('municipality_slug', '')}:{section.get('key', '')}",
-                "municipality": name,
-                "citation": overridden.get("citation") or str(section.get("citation", "")),
-                "title": overridden.get("title") or str(section.get("title", "")),
-                "topic": str(section.get("topic", "")),
-                "topicLabel": str(section.get("topic_label", "")),
-                "reason": str(section.get("pending_reason", "")),
-                "inForce": section.get("status") != "no_current_provision",
-                "notInForceReason": str(section.get("not_in_force_reason", "")),
-                "repealDate": str(section.get("repeal_date", "")),
-                "legalStatus": overridden.get("legalStatus", ""),
-                "overrideRepealDate": overridden.get("repealDate", ""),
-                "url": str(section.get("codifier_url", "") or manifest.get("source_base_url", "")),
-                "notes": str(section.get("notes", "")),
-                "summary": None if section.get("status") == "no_current_provision" else _dataset_summary(
-                    str(manifest.get("municipality_slug", "")), str(section.get("topic", "")),
-                ),
-                "onTopic": _topic_matches(query, section.get("topic", ""), section.get("topic_label", "")),
-            })
+            notices.append(_section_notice(manifest, section, overrides.get((slug, str(section.get("key", "")))), query))
 
     for entry in scope.get("declared_municipalities", []) or []:
         if not isinstance(entry, dict):

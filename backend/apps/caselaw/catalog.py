@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import re
 
+from apps.caselaw.treatment import treatment_group, treatment_label
 from apps.caselaw.values import text_values
 from apps.core.jurisdictions import canonical_county
 
@@ -105,7 +106,19 @@ def canonical_value(facet, value):
         return canonical_county(value).casefold() or text
     if facet == "judge":
         return re.sub(r"^(judge|magistrate|hon\.?|the honorable)\s+", "", text)
+    if facet == "treatmentStatus":
+        # Grouped by the reviewed vocabulary; a value it does not list keeps its
+        # own wording rather than being guessed into a group.
+        group = treatment_group(value)
+        return f"treatment:{group}" if group else text
     return text
+
+
+def _group_label(facet, key):
+    """A vocabulary group's own label, where the facet has one."""
+    if facet == "treatmentStatus" and key.startswith("treatment:"):
+        return treatment_label(key.split(":", 1)[1])
+    return ""
 
 
 def facet_values(row, facet):
@@ -200,7 +213,8 @@ def facet_counts(rows, filters):
                 # Label the group with the spelling that appears most often, so
                 # the chip reads as something a document actually says; ties go
                 # to the fuller wording ("Cuyahoga County" over "Cuyahoga").
-                "value": max(spellings[key].items(), key=lambda item: (item[1], len(item[0])))[0],
+                "value": _group_label(facet, key)
+                or max(spellings[key].items(), key=lambda item: (item[1], len(item[0])))[0],
                 "count": count,
                 "selected": key in selected,
             }

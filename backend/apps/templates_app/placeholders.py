@@ -77,13 +77,20 @@ PLACEHOLDER_ALIASES = {
 # context below rather than by a fixed alias.
 
 CONTEXT_FIELD_HINTS = (
+    # Before "hearing": "the first hearing in this matter was held on [DATE]"
+    # is a past hearing, not the one the case is set for.
+    ("was held", "date", "fields.prior_hearing_date"),
+    ("held on", "date", "fields.prior_hearing_date"),
     ("hearing", "date", "fields.hearing_date"),
+    # "…is set for the virtual general call docket on [DATE]" is the hearing.
+    ("docket", "date", "fields.hearing_date"),
     ("served", "date", "fields.service_date"),
     ("service", "date", "fields.service_date"),
     ("certify", "date", "fields.service_date"),
     ("move-in", "date", "fields.move_in_date"),
     ("moved in", "date", "fields.move_in_date"),
     ("filed", "date", "fields.filing_date"),
+    ("filing", "date", "fields.filing_date"),
     ("terminate", "date", "fields.termination_date"),
 )
 
@@ -173,6 +180,11 @@ def is_instruction(label: str) -> bool:
     return bool(INSTRUCTION_CUE_RE.search(normalized)) and len(normalized.split()) >= 2
 
 
+CONTEXT_LIMIT = 80
+JINJA_EXPRESSION_RE = re.compile(r"\{\{\s*(?:[\w]+\.)*([\w]+)[^}]*\}\}")
+JINJA_TAG_RE = re.compile(r"\{%.*?%\}")
+
+
 def context_label(text: str, start: int, fallback: str) -> str:
     """The words leading up to a fill-in, used to name and type it."""
     prefix = text[:start].strip()
@@ -180,12 +192,57 @@ def context_label(text: str, start: int, fallback: str) -> str:
     # empty trailing segments instead of losing the label to the split.
     segments = [segment.strip(" :,-–—()") for segment in re.split(r"[.;!?]", prefix)]
     for segment in reversed(segments):
-        if 1 <= len(segment) <= 80:
+        if 1 <= len(segment) <= CONTEXT_LIMIT:
             return segment
     return fallback
 
 
-def placeholder_expression(label: str, fallback: str, *, context: str = "", nearby: str = "") -> str:
+def date_context_label(text: str, start: int, fallback: str) -> str:
+    """The words before a date, read so that they can say which date it is.
+
+    Kept apart from context_label so that naming every other kind of fill-in is
+    unchanged. Two differences: a fill-in already converted earlier in the
+    sentence reads as its name -- "Served on {{ fields.plaintiff_name }} [DATE]"
+    is about service, and the dots in the expression no longer split the
+    sentence and lose the word that says so -- and a long sentence keeps the
+    words nearest the blank instead of being discarded. "…a first cause hearing
+    on the virtual general call docket on [DATE]" was read with no context at
+    all, so its hearing date became the filing date.
+    """
+    prefix = JINJA_EXPRESSION_RE.sub(lambda match: match.group(1).replace("_", " "), text[:start])
+    prefix = JINJA_TAG_RE.sub(" ", prefix).strip()
+    segments = [segment.strip(" :,-–—()") for segment in re.split(r"[.;!?]", prefix)]
+    for segment in reversed(segments):
+        if not segment:
+            continue
+        if len(segment) > CONTEXT_LIMIT:
+            tail = segment[-CONTEXT_LIMIT:]
+            segment = tail.split(" ", 1)[1] if " " in tail else tail
+        return segment
+    return fallback
+
+
+def following_label(text: str, end: int) -> str:
+    """The words after a fill-in, up to the end of its clause."""
+    suffix = JINJA_EXPRESSION_RE.sub(lambda match: match.group(1).replace("_", " "), text[end:])
+    suffix = JINJA_TAG_RE.sub(" ", suffix)
+    clause = re.split(r"[.;!?]", suffix, maxsplit=1)[0].strip(" :,-–—()")
+    return clause[:CONTEXT_LIMIT].rsplit(" ", 1)[0] if len(clause) > CONTEXT_LIMIT else clause
+
+
+def _says_something(text: str) -> bool:
+    return any(word not in NAME_STOPWORDS for word in re.findall(r"[a-z0-9]+", str(text or "").lower()))
+
+
+def placeholder_expression(
+    label: str,
+    fallback: str,
+    *,
+    context: str = "",
+    nearby: str = "",
+    following: str = "",
+    date_context: str | None = None,
+) -> str:
     """Map one fill-in to the Jinja path that should replace it.
 
     ``nearby`` is the wording of the surrounding lines. It is deliberately not
@@ -240,10 +297,40 @@ def placeholder_expression(label: str, fallback: str, *, context: str = "", near
         return "{{ fields.premises_address }}"
 
     if normalized == "date" or normalized.endswith(" date") or normalized.startswith("date"):
+        with_time = ""
+        descriptive = set(re.findall(r"[a-z]+", normalized)) - {"date", "time", "and", "of", "the"}
+        if descriptive:
+            # The label names its date ("[Hearing Date]", "[Date of Service]"):
+            # the label, not the sentence around it, says which date it is.
+            for cue, _label_cue, path in CONTEXT_FIELD_HINTS:
+                if cue in normalized:
+                    return "{{ " + path + " }}"
+            return "{{ fields." + _field_name(label, fallback) + " }}"
+        # "[DATE/TIME]" says no more than "[DATE]" does; read it like one, and
+        # keep its time.
+        with_time = "_time" if "time" in normalized else ""
+        # Only a bracketed date is read for standalone-ness: the other paths do
+        # not pass the words around it, so "nothing around it" is unknown there.
+        position_known = date_context is not None
+        date_context = context if date_context is None else date_context
+        date_context_normalized = " ".join(date_context.lower().split())
         for context_cue, label_cue, path in CONTEXT_FIELD_HINTS:
-            if context_cue in context_normalized and label_cue in normalized:
-                return "{{ " + path + " }}"
-        return "{{ fields.filing_date }}"
+            if context_cue in date_context_normalized and label_cue in normalized:
+                return "{{ " + path + with_time + " }}"
+        # A bare [DATE] with no recognized cue is its own date, named from its
+        # sentence. Defaulting every one of them to the filing date printed one
+        # answer as a motion's hearing, filing, move-in and loss-of-heat dates.
+        # "On [DATE], CMHA issued a decision" says what the date is only after it.
+        has_context = date_context != fallback and _says_something(date_context)
+        if not has_context and not following:
+            if position_known:
+                # Alone on its line: the date the letter or memo itself carries.
+                return "{{ fields.document_date }}"
+            # Nothing to name it by; its position at least keeps it separate.
+            return "{{ fields." + _field_name(fallback, fallback) + "_date" + with_time + " }}"
+        name = _field_name(date_context if has_context else following, fallback)
+        name = name if name.endswith("date") else f"{name}_date"
+        return "{{ fields." + name + with_time + " }}"
 
     if normalized == "time" or normalized.endswith(" time"):
         return "{{ fields.hearing_time }}" if "hearing" in context_normalized else "{{ fields.time }}"
@@ -317,7 +404,14 @@ def _bracket_replacements(text, fallback_prefix, conversion, protected=(), nearb
         context = context_label(text, match.start(), fallback)
         if is_instruction(label):
             conversion.instructions.append(_normalize(label))
-        expression = placeholder_expression(label, fallback, context=context, nearby=nearby)
+        expression = placeholder_expression(
+            label,
+            fallback,
+            context=context,
+            nearby=nearby,
+            following=following_label(text, match.end()),
+            date_context=date_context_label(text, match.start(), fallback),
+        )
         _record(conversion, expression)
         replacements.append(_Replacement(match.start(), match.end(), expression))
     return replacements
