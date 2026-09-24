@@ -16,6 +16,13 @@ export default defineConfig({
     trace: "retain-on-failure",
     screenshot: "only-on-failure",
     video: "retain-on-failure",
+    // For a deployment reached by hostname rather than through the dev servers
+    // -- the production-shaped rig in e2e/README.md, or a staging host behind a
+    // private CA. Both are opt-in: a public deployment needs neither.
+    ignoreHTTPSErrors: process.env.E2E_IGNORE_HTTPS_ERRORS === "1",
+    launchOptions: process.env.E2E_HOST_RESOLVER_RULES
+      ? { args: [`--host-resolver-rules=${process.env.E2E_HOST_RESOLVER_RULES}`] }
+      : undefined,
   },
   webServer: process.env.E2E_BASE_URL ? undefined : [
     {

@@ -8,6 +8,10 @@ const legalserverIdentifier = process.env.E2E_LEGALSERVER_IDENTIFIER;
 // would address the static host, which has no API on it.
 const apiBase = process.env.E2E_API_BASE || "/api";
 const api = (path) => `${apiBase}${path}`;
+// Planning, generation and validation call the model when AI is enabled, as it
+// is in production. The dev-server config switches AI off and answers in a
+// second or two; a deployment with it on takes twenty or more.
+const modelTimeout = Number(process.env.E2E_MODEL_TIMEOUT_MS || 180_000);
 
 const caseFiles = [
   { caseNumber: "26-0000045", client: "Eleanor Vance", notes: 1, documents: 4 },
@@ -139,6 +143,7 @@ test.describe("LegalServer sample case files", () => {
 test.describe("template and case combinations", () => {
   for (const combination of draftingMatrix) {
     test(`${combination.client} → ${combination.template}`, async ({ page }) => {
+      test.setTimeout(modelTimeout * 3);
       await login(page);
       await selectCase(page, combination);
       await page.getByRole("button", { name: /^Draft(?:\s|$)/ }).click();
@@ -147,14 +152,14 @@ test.describe("template and case combinations", () => {
       await page.getByLabel("Goal or extra instructions").fill(combination.goal);
       await page.getByRole("button", { name: "Make plan" }).click();
 
-      await expect(page.getByRole("heading", { name: combination.goal })).toBeVisible();
+      await expect(page.getByRole("heading", { name: combination.goal })).toBeVisible({ timeout: modelTimeout });
       await expect(page.getByLabel("Recommended template")).toHaveValue(
         await page.getByLabel("Recommended template").locator("option", { hasText: combination.template }).getAttribute("value"),
       );
       await page.getByText("Pause to review the template's blanks before generating").click();
       await page.getByRole("button", { name: "Generate draft" }).click();
 
-      await expect(page.locator(".draft-editor")).toBeVisible();
+      await expect(page.locator(".draft-editor")).toBeVisible({ timeout: modelTimeout });
       if (combination.expectedBlock) {
         await expect(page.locator(".draft-block-header h4", { hasText: combination.expectedBlock }).first()).toBeVisible();
         await expect(page.locator(".draft-editor")).not.toContainText("No facts selected for this section.");
@@ -168,7 +173,7 @@ test.describe("template and case combinations", () => {
         expect(download.suggestedFilename()).toMatch(new RegExp(`${combination.downloadExtension.replace(".", "\\.")}$`));
       }
       await page.getByRole("button", { name: "Validate", exact: true }).click();
-      await expect(page.getByRole("button", { name: "Recheck", exact: true })).toBeVisible();
+      await expect(page.getByRole("button", { name: "Recheck", exact: true })).toBeVisible({ timeout: modelTimeout });
     });
   }
 });
