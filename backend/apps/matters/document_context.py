@@ -1,7 +1,12 @@
 import hashlib
+import logging
 import re
 
+from django.conf import settings
+from django.core.cache import cache
+
 from apps.sources.connectors.legalserver import (
+    UUID_RE,
     LegalServerClient,
     LegalServerError,
     _display_value,
@@ -10,6 +15,13 @@ from apps.sources.connectors.legalserver import (
 )
 from apps.sources.document_text import DocumentExtractionError, extract_text
 
+
+logger = logging.getLogger(__name__)
+
+DOCUMENT_CACHE_PREFIX = "legalserver-case-documents"
+# How long the last list LegalServer returned stays usable when a later fetch
+# fails. It is shown as such, never as a fresh answer.
+LAST_GOOD_DOCUMENTS_SECONDS = 24 * 60 * 60
 
 NOTE_KEYS = ("case_notes", "notes", "case_note", "intake_notes", "narrative", "description")
 DOCUMENT_KEYS = ("documents", "case_documents", "files", "uploaded_documents", "attachments")
@@ -203,7 +215,70 @@ def _refresh_legalserver_matter_payload(matter, legalserver, *, force=False):
     return raw_payload
 
 
+def _document_identifiers(matter):
+    """The matter's identifiers, UUID first.
+
+    The documents API searches by the matter's UUID; given the human case
+    number it answers 404 every time. Asking that first doubled every document
+    load against LegalServer's rate limit for no chance of an answer.
+    """
+    identifiers = list(_legalserver_identifiers(matter))
+    return sorted(identifiers, key=lambda value: 0 if UUID_RE.match(value) else 1)
+
+
+def _fetch_remote_documents(matter, legalserver, *, force=False):
+    """Return (documents, problem) for a LegalServer matter.
+
+    `problem` is empty when LegalServer answered -- including when it answered
+    that there are no documents -- and a sentence when it could not be asked.
+    The two used to be the same empty list: a 429 from LegalServer showed an
+    advocate "No case documents were returned" for a case holding twenty-two.
+    """
+    ttl = int(getattr(settings, "LEGALSERVER_DOCUMENT_CACHE_SECONDS", 0) or 0)
+    key = f"{DOCUMENT_CACHE_PREFIX}:{matter.pk}"
+    if ttl and not force:
+        cached = cache.get(key)
+        if cached is not None:
+            return cached, ""
+
+    answered = None
+    failures = []
+    for identifier in _document_identifiers(matter):
+        try:
+            documents = legalserver.get_matter_documents(identifier)
+        except LegalServerError as error:
+            failures.append(str(error))
+            continue
+        answered = documents
+        if documents:
+            break
+
+    if answered is not None:
+        if ttl:
+            cache.set(key, answered, ttl)
+            cache.set(f"{key}:last-good", answered, LAST_GOOD_DOCUMENTS_SECONDS)
+        return answered, ""
+
+    reason = failures[-1] if failures else "no identifier LegalServer recognizes"
+    logger.warning("Could not fetch LegalServer documents for matter %s: %s", matter.external_id, reason)
+    stale = cache.get(f"{key}:last-good") if ttl else None
+    if stale is not None:
+        return stale, (
+            f"LegalServer did not return this case's documents just now ({reason}). "
+            "This is the list from an earlier load."
+        )
+    return [], f"LegalServer did not return this case's documents ({reason}). The case may hold documents not shown here."
+
+
 def get_case_documents(matter, *, client=None, include_remote=True, force_refresh=False):
+    documents, _problem = get_case_documents_with_status(
+        matter, client=client, include_remote=include_remote, force_refresh=force_refresh
+    )
+    return documents
+
+
+def get_case_documents_with_status(matter, *, client=None, include_remote=True, force_refresh=False):
+    """Like get_case_documents, plus why the list may be incomplete ("" if not)."""
     legalserver = client or LegalServerClient()
     raw_payload = matter.raw_payload or {}
     remote_available = (
@@ -246,14 +321,9 @@ def get_case_documents(matter, *, client=None, include_remote=True, force_refres
         )
 
     raw_documents = _raw_documents(raw_payload)
+    problem = ""
     if remote_available and not raw_documents:
-        for identifier in _legalserver_identifiers(matter):
-            try:
-                raw_documents = legalserver.get_matter_documents(identifier)
-            except LegalServerError:
-                continue
-            if raw_documents:
-                break
+        raw_documents, problem = _fetch_remote_documents(matter, legalserver, force=force_refresh)
 
     for raw in raw_documents:
         title = _document_title(raw)
@@ -277,7 +347,9 @@ def get_case_documents(matter, *, client=None, include_remote=True, force_refres
                 "raw": raw,
             }
         )
-    return documents
+    from apps.matters.work_product import label_work_product
+
+    return label_work_product(matter, documents), problem
 
 
 def _custom_field_candidates(raw_payload):
@@ -361,7 +433,7 @@ def custom_fields_inventory(matter):
 def case_materials_payload(matter, *, client=None, force_refresh=False):
     from apps.matters.serializers import fact_to_dict
 
-    materials = get_case_documents(matter, client=client, force_refresh=force_refresh)
+    materials, documents_problem = get_case_documents_with_status(matter, client=client, force_refresh=force_refresh)
     notes = [document_to_public_dict(item) for item in materials if item["kind"] == "case_note"]
     documents = [document_to_public_dict(item) for item in materials if item["kind"] == "case_document"]
     custom_fields = custom_fields_inventory(matter)
@@ -373,6 +445,9 @@ def case_materials_payload(matter, *, client=None, force_refresh=False):
             "customFieldCount": len([field for field in custom_fields if field["hasValue"]]),
             "draftingFactCount": len(drafting_facts),
         },
+        # Said in words, and distinct from an empty list: "could not fetch" is
+        # not "there are none".
+        "documentsUnavailable": documents_problem,
         "notes": notes,
         "documents": documents,
         "customFields": custom_fields,

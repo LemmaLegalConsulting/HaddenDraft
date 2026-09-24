@@ -39,6 +39,7 @@ export function FactReview({ matter, facts, selectedFactIds, selectedCuratedFact
     Promise.all([api.caseDocuments(matter.id), api.caseDetail(matter.id)])
       .then(([documentResponse, caseResponse]) => {
         setDocuments(documentResponse.documents || []);
+        if (documentResponse.documentsUnavailable) setError(documentResponse.documentsUnavailable);
         onMatterChange?.(caseResponse.case);
       })
       .catch((err) => setError(err.message))
@@ -90,6 +91,8 @@ export function FactReview({ matter, facts, selectedFactIds, selectedCuratedFact
 
   async function submitUploadedFact(event) {
     event.preventDefault();
+    // Held before the await: React clears currentTarget once the handler yields.
+    const form = event.currentTarget;
     if (!matter?.id || !uploadFile) return;
     setUploadingFact(true);
     setError("");
@@ -102,7 +105,7 @@ export function FactReview({ matter, facts, selectedFactIds, selectedCuratedFact
       mergeSelectedFactIds((response.created || []).map((fact) => fact.id));
       setUploadTitle("");
       setUploadFile(null);
-      event.currentTarget.reset();
+      form.reset();
       setModalOpen(false);
     } catch (err) {
       setError(err.message);

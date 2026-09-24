@@ -68,6 +68,10 @@ def available_materials(workspace, *, client=None):
 
     excluded = excluded_reference_ids(workspace)
     for document in get_case_documents(matter, client=client):
+        # A brief tested against an earlier draft of itself finds its own
+        # assertions "supported". This tool's output is not the case record.
+        if document.get("workProduct"):
+            continue
         materials.append(
             {
                 "id": matter_material_id(document["id"]),

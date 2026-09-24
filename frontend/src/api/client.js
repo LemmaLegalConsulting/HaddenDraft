@@ -177,8 +177,12 @@ export const api = {
     request(`/drafting-sessions/${sessionId}/template-data/`, { method: "POST", body: JSON.stringify({ templateData }) }),
   sessionDrafts: (sessionId) => request(`/drafting-sessions/${sessionId}/drafts/`),
   sessionPackage: (sessionId) => request(`/drafting-sessions/${sessionId}/package/`),
+  // Answers 202 with a job; poll draftGenerationJob until it completes
+  // (state/draftJobs.js does).
   generatePlanDrafts: (sessionId, payload = {}) =>
     request(`/drafting-sessions/${sessionId}/drafts/`, { method: "POST", body: JSON.stringify(payload) }),
+  draftGenerationJob: (sessionId, jobId) =>
+    request(`/drafting-sessions/${sessionId}/drafts/?${new URLSearchParams({ job: String(jobId) })}`),
   generateDraft: (sessionId) => request(`/drafting-sessions/${sessionId}/draft/`, { method: "POST" }),
   updateDraft: (draftId, payload) => request(`/drafts/${draftId}/`, { method: "PATCH", body: JSON.stringify(payload) }),
   draftComponents: (draftId) => request(`/drafts/${draftId}/components/`),

@@ -13,7 +13,7 @@ export const CASE_CONTEXT_CHOICES = [
   {
     id: "existing_case",
     label: "Existing case",
-    description: "Test the brief against the documents already on a HaddenDraft case.",
+    description: "Test the brief against the documents already on a case in this tool.",
   },
   {
     id: "uploaded",

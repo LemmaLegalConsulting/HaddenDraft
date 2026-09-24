@@ -145,7 +145,7 @@ class GymDocument(models.Model):
     MATTER_DOCUMENT = "matter_document"
     SOURCE_TYPE_CHOICES = [
         (UPLOAD, "Uploaded file"),
-        (DRAFT_DOCUMENT, "HaddenDraft document"),
+        (DRAFT_DOCUMENT, "Draft from this tool"),
         (MATTER_DOCUMENT, "Case file document"),
     ]
 

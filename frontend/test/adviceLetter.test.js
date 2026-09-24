@@ -3,6 +3,7 @@ import test from "node:test";
 
 import {
   applyRecommendations,
+  letterContactGaps,
   groupByTopic,
   moveSection,
   readingGradeLabel,
@@ -83,4 +84,17 @@ test("reading grade says whether it clears the target", () => {
   assert.match(readingGradeLabel({ metrics: { flesch_kincaid_grade: 6.2 } }), /within target/);
   assert.match(readingGradeLabel({ metrics: { flesch_kincaid_grade: 10.1 } }), /above the 8th-grade target/);
   assert.equal(readingGradeLabel({}), "");
+});
+
+test("a complete profile leaves no gaps in a letter", () => {
+  assert.deepEqual(letterContactGaps({ displayName: "Dana Advocate", phone: "216-555-0100" }, { username: "dana" }), []);
+});
+
+test("a login standing in for a name, and a missing phone, are both gaps", () => {
+  const gaps = letterContactGaps({ displayName: "e2e-browser@example.invalid", phone: "" }, { username: "e2e-browser" });
+  assert.equal(gaps.length, 2);
+  assert.match(gaps[0], /name/);
+  assert.match(gaps[1], /phone/);
+  assert.equal(letterContactGaps({ displayName: "dana", phone: "1" }, { username: "Dana" }).length, 1);
+  assert.equal(letterContactGaps({}, {}).length, 2);
 });

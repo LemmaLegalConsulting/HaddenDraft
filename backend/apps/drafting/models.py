@@ -289,3 +289,42 @@ class DraftOperation(models.Model):
 
     def __str__(self):
         return f"{self.operation_type} on {self.document_id} ({self.status})"
+
+
+class DraftGenerationJob(models.Model):
+    """One request to generate a plan's drafts, run off the request thread.
+
+    Generation calls the model once per section and took 75 to 161 seconds for
+    the same template on different runs. Held open as a request it outlived
+    nginx's timeout: the browser got a CORS-less 504 ("Failed to fetch") while
+    the server went on to save the draft, and the obvious retry made a second.
+    Now the request returns this row at once and the client polls it.
+    """
+
+    PENDING = "pending"
+    RUNNING = "running"
+    COMPLETE = "complete"
+    FAILED = "failed"
+    STATUS_CHOICES = [
+        (PENDING, "Waiting to start"),
+        (RUNNING, "Generating"),
+        (COMPLETE, "Complete"),
+        (FAILED, "Failed"),
+    ]
+
+    session = models.ForeignKey(DraftingSession, related_name="generation_jobs", on_delete=models.CASCADE)
+    created_by = models.ForeignKey(
+        "auth.User", related_name="draft_generation_jobs", null=True, blank=True, on_delete=models.SET_NULL
+    )
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default=PENDING)
+    error = models.TextField(blank=True)
+    draft_ids = models.JSONField(default=list, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    started_at = models.DateTimeField(null=True, blank=True)
+    completed_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        ordering = ["-created_at", "-id"]
+
+    def __str__(self):
+        return f"Draft generation {self.pk} for session {self.session_id} ({self.status})"

@@ -32,11 +32,13 @@ export function TriagePanel({
 
   async function submitManualCase(event) {
     event.preventDefault();
+    // Held before the await: React clears currentTarget once the handler yields.
+    const form = event.currentTarget;
     const created = await onCreateManualCase?.({ ...manualCase, files: manualFiles });
     if (created) {
       setManualCase({ clientName: "", matterType: "Eviction defense", jurisdiction: "Cleveland Municipal Court - Housing Division", posture: "", notes: "" });
       setManualFiles([]);
-      event.currentTarget.reset();
+      form.reset();
       setCaseSource("existing");
     }
   }

@@ -17,6 +17,7 @@ from apps.drafting.models import DraftDocument
 from apps.matters.client_letter_context import letter_template_fields
 from apps.matters.document_context import chunk_text, custom_fields_inventory, get_case_documents, get_document_text, search_chunks, summarize_text
 from apps.matters.models import MatterFact
+from apps.matters.work_product import evidence_only
 from apps.sources.models import SourceConfiguration
 from apps.templates_app.field_questions import (
     KIND_NARRATIVE,
@@ -890,7 +891,9 @@ def recommend_document_fact_ids(session, limit=8):
     plan = fact_retrieval_plan(session)
     if not plan:
         return []
-    prepared_documents = _prepare_fact_documents(get_case_documents(session.matter))
+    # Never mine this tool's own drafts and notes for facts: an earlier draft's
+    # excerpt once became the next motion's Relevant Facts, placeholders and all.
+    prepared_documents = _prepare_fact_documents(evidence_only(get_case_documents(session.matter)))
     selected = []
     for category in plan:
         for document, chunk in _best_fact_excerpts(prepared_documents, category):

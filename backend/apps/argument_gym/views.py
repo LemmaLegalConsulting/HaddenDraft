@@ -523,7 +523,7 @@ def run_revision(request, run_id):
     draft = run.brief.draft_document
     if not draft:
         return JsonResponse(
-            {"error": "This brief is not a HaddenDraft document, so it has no blocks to revise."},
+            {"error": "This brief was not drafted in this tool, so it has no sections to revise."},
             status=400,
         )
     body = json_body(request)

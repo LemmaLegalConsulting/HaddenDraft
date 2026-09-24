@@ -114,6 +114,12 @@ test("every screen in the sidebar opens and renders", async ({ page }) => {
   // and the per-screen failures below would all be the same one failure.
   await expect(page.locator("nav.mode-list")).toBeVisible();
 
+  // No case is active until the advocate chooses one; the first row is never
+  // chosen for them. Then choose the stub case, as an advocate would.
+  await expect(page.locator(".topbar-case")).toHaveCount(0);
+  await page.getByRole("button", { name: "Make active" }).first().click();
+  await expect(page.locator(".topbar-case")).toContainText(MATTER.client);
+
   for (const screen of SCREENS) {
     await test.step(screen.name, async () => {
       await page.locator("nav.mode-list button", { hasText: screen.name }).click();

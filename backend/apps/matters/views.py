@@ -17,7 +17,7 @@ from apps.matters.document_context import (
     custom_fields_inventory,
     document_to_public_dict,
     get_case_document,
-    get_case_documents,
+    get_case_documents_with_status,
     get_document_file,
     get_document_text,
     search_chunks,
@@ -363,8 +363,10 @@ def case_documents(request, matter_id):
     matter, error = _matter_or_404(request.user, matter_id)
     if error:
         return error
-    documents = [document_to_public_dict(document) for document in get_case_documents(matter)]
-    return JsonResponse({"documents": documents})
+    documents, problem = get_case_documents_with_status(matter)
+    return JsonResponse(
+        {"documents": [document_to_public_dict(document) for document in documents], "documentsUnavailable": problem}
+    )
 
 
 @api_login_required

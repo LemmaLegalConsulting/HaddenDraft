@@ -84,6 +84,8 @@ export function CaseChat({ matter, onAction, legalserverSave = null }) {
 
   async function clearHistory() {
     if (!matter) return;
+    // Clear deletes, unlike New chat, which keeps the old thread; ask first.
+    if (!window.confirm("Delete this conversation? It cannot be recovered. New chat keeps it instead.")) return;
     setBusy(true);
     try { await api.clearCaseChatHistory(matter.id); setMessages([]); setShowHistory(false); }
     catch (err) { setError(err.message || "Could not clear case chat history."); }

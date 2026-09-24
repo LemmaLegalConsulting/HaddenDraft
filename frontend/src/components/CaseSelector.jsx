@@ -119,12 +119,15 @@ export function CaseSelector({
             className="manual-case-form"
             onSubmit={async (event) => {
               event.preventDefault();
+              // Held before the await: React clears currentTarget once the
+              // handler yields, and reset() on null threw after every create.
+              const form = event.currentTarget;
               const created = await onCreateManualCase?.({ ...manualCase, files: manualFiles });
               if (created) {
                 setCaseSource("local");
                 setManualCase({ clientName: "", matterType: "", jurisdiction: "", posture: "", notes: "" });
                 setManualFiles([]);
-                event.currentTarget.reset();
+                form.reset();
                 setManualCaseOpen(false);
               }
             }}
