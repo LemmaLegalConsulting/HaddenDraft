@@ -15,6 +15,8 @@ import { expect, test } from "@playwright/test";
 
 const MATTER = {
   id: 1,
+  routeCaseKey: "26-0001",
+  caseNumber: "26-0001",
   client: "Sample Client",
   matter: "Summary process",
   posture: "Answer due",
@@ -82,19 +84,32 @@ const SCREENS = [
   { name: "Argument gym", marker: "button", text: "Open session" },
 ];
 
+// The case a URL names: by its readable number or its id, and nothing else.
+const ROUTE_KEYS = new Set([MATTER.routeCaseKey, String(MATTER.id)]);
+
 test.beforeEach(async ({ page }) => {
   await page.route("**/api/**", async (route) => {
+    const url = new URL(route.request().url());
+    if (url.pathname.endsWith("/cases/by-route-key/")) {
+      return ROUTE_KEYS.has(url.searchParams.get("key"))
+        ? route.fulfill({ json: { case: MATTER } })
+        : route.fulfill({ status: 404, json: { error: "Case not found or not available to this user" } });
+    }
     await route.fulfill({ json: bodyFor(route.request().url()) });
   });
 });
 
 // Collected per test rather than asserted inline: an exception thrown while
 // rendering must fail the test that opened the screen, not the next one.
-function watchForErrors(page) {
+// `allow` names console errors a test provokes on purpose, such as the 404 the
+// browser logs for a case that does not exist.
+function watchForErrors(page, { allow = [] } = {}) {
   const errors = [];
   page.on("pageerror", (error) => errors.push(`uncaught: ${error.message}`));
   page.on("console", (message) => {
-    if (message.type() === "error") errors.push(`console: ${message.text()}`);
+    if (message.type() !== "error") return;
+    if (allow.some((pattern) => pattern.test(message.text()))) return;
+    errors.push(`console: ${message.text()}`);
   });
   return errors;
 }
@@ -136,6 +151,9 @@ test("the draft workflow steps each render", async ({ page }) => {
   await page.locator("nav.mode-list button", { hasText: "Draft" }).click();
 
   const steps = page.locator(".stepper button.step");
+  // Changing screen is a navigation now, and it renders a moment after the
+  // click; counting at once counted an empty sidebar.
+  await expect(steps.first()).toBeVisible();
   const count = await steps.count();
   expect(count, "the draft stepper listed no steps").toBeGreaterThan(0);
 
@@ -148,6 +166,61 @@ test("the draft workflow steps each render", async ({ page }) => {
   }
 });
 
+
+test("the address bar names the screen and the case, and survives a reload", async ({ page }) => {
+  const errors = watchForErrors(page);
+  await page.goto("/");
+  await expect(page).toHaveURL(/\/cases$/);
+  await page.getByRole("button", { name: "Make active" }).first().click();
+  await expect(page).toHaveURL(/\/cases\/26-0001$/);
+
+  await page.locator("nav.mode-list button", { hasText: "Draft" }).click();
+  await expect(page).toHaveURL(/\/drafting\/26-0001\/new$/);
+  await page.reload();
+  await expect(page.locator(".topbar-case")).toContainText(MATTER.client);
+  await expectScreenRenders(errors, page.getByRole("heading", { name: "What do you want to file or accomplish?" }));
+
+  await page.goBack();
+  await expect(page).toHaveURL(/\/cases\/26-0001$/);
+  await expect(page.getByRole("heading", { name: "Cases" })).toBeVisible();
+});
+
+test("a pasted link opens its own case, even with another one remembered", async ({ page }) => {
+  const errors = watchForErrors(page);
+  await page.addInitScript(() => localStorage.setItem("drafting.activeCase:smoke", "SOMEONE-ELSE"));
+  await page.goto("/triage/26-0001");
+  await expect(page.locator(".topbar-case")).toContainText(MATTER.client);
+  await expectScreenRenders(errors, page.getByRole("heading", { name: "Triage case" }));
+  await expect(page).toHaveURL(/\/triage\/26-0001$/);
+});
+
+test("a link by external id is rewritten to the readable case number", async ({ page }) => {
+  await page.goto("/chat/1");
+  await expect(page).toHaveURL(/\/chat\/26-0001$/);
+  await expect(page.locator(".topbar-case")).toContainText(MATTER.client);
+});
+
+test("a case that does not open shows nothing from any other case", async ({ page }) => {
+  const errors = watchForErrors(page, { allow: [/status of 404/] });
+  await page.goto("/cases/26-0001");
+  await expect(page.locator(".topbar-case")).toContainText(MATTER.client);
+  await page.goto("/drafting/26-9999/new");
+  await expectScreenRenders(errors, page.getByRole("heading", { name: "Case 26-9999 is not available" }));
+  await expect(page.locator(".topbar-case")).toHaveCount(0);
+  await expect(page.getByRole("heading", { name: "What do you want to file or accomplish?" })).toHaveCount(0);
+  await expect(page).toHaveURL(/\/drafting\/26-9999\/new$/);
+
+  // The bad link left the case being worked on alone.
+  await page.getByRole("button", { name: "Choose a case" }).click();
+  await expect(page).toHaveURL(/\/cases\/26-0001$/);
+});
+
+test("a link this version cannot open says so rather than opening something else", async ({ page }) => {
+  const errors = watchForErrors(page);
+  await page.goto("/drafting/26-0001/sessions/184/plan");
+  await expectScreenRenders(errors, page.getByRole("heading", { name: "This page does not exist" }));
+  await expect(page).toHaveURL(/\/drafting\/26-0001\/sessions\/184\/plan$/);
+});
 
 test("fill template upload, optional answers, save and DOCX download", async ({ page }) => {
   const errors = watchForErrors(page);

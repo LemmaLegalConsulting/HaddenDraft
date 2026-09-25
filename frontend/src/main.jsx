@@ -1,7 +1,8 @@
 import React from "react";
 import { createRoot } from "react-dom/client";
+import { RouterProvider } from "react-router/dom";
 
-import { App } from "./App.jsx";
+import { router } from "./routes/router.jsx";
 import { API_BASE } from "./api/client.js";
 import { clearStaleCsrfCookie } from "./api/csrf.js";
 import "./styles/bootstrap-bux.scss";
@@ -16,6 +17,6 @@ clearStaleCsrfCookie({ apiBase: API_BASE, pageOrigin: window.location.origin });
 
 createRoot(document.getElementById("root")).render(
   <React.StrictMode>
-    <App />
+    <RouterProvider router={router} />
   </React.StrictMode>,
 );

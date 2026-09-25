@@ -45,6 +45,10 @@ async function request(path, options = {}) {
       ...options,
     });
   } catch (err) {
+    // A request the caller cancelled -- the advocate moved to another case
+    // before this one answered -- is not a server problem, and must never feed
+    // the "server is waking up" retry loop.
+    if (err?.name === "AbortError") throw err;
     // fetch rejects only when there was no response at all -- the host is
     // unreachable, the connection dropped, DNS failed. Status 0 says exactly
     // that, and is what tells a caller this is worth asking again about.
@@ -79,7 +83,9 @@ export const api = {
   login: (payload) => request("/auth/login/", { method: "POST", body: JSON.stringify(payload) }),
   logout: () => request("/auth/logout/", { method: "POST" }),
   changePassword: (payload) => request("/auth/change-password/", { method: "POST", body: JSON.stringify(payload) }),
-  startOffice365Login: () => request("/auth/office365/start/"),
+  // `returnTo` is the page to come back to; the server keeps it beside the
+  // OAuth state and accepts only an in-app route.
+  startOffice365Login: (returnTo = "") => request(`/auth/office365/start/${returnTo ? `?${new URLSearchParams({ returnTo })}` : ""}`),
   cases: ({ query = "", status = "", assigned = "", problem = "", sort = "", limit = 0, offset = 0 } = {}) => {
     const params = new URLSearchParams();
     if (query) params.set("q", query);
@@ -104,6 +110,9 @@ export const api = {
   connectLegalServer: (payload) => request("/legalserver/account/", { method: "POST", body: JSON.stringify(payload) }),
   disconnectLegalServer: () => request("/legalserver/account/", { method: "DELETE" }),
   caseDetail: (matterId) => request(`/cases/${matterId}/`),
+  // The case a URL names by its readable number. Read-only; `signal` lets a
+  // superseded lookup be cancelled.
+  caseByRouteKey: (caseKey, { signal } = {}) => request(`/cases/by-route-key/?${new URLSearchParams({ key: caseKey })}`, { signal }),
   caseChatHistory: (matterId, threadId) => request(`/cases/${matterId}/chat/${threadId ? `?threadId=${threadId}` : ""}`),
   newCaseChat: (matterId) => request(`/cases/${matterId}/chat/`, { method: "POST", body: JSON.stringify({ action: "new_thread" }) }),
   clearCaseChatHistory: (matterId) => request(`/cases/${matterId}/chat/`, { method: "DELETE" }),

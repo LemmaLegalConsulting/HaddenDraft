@@ -41,6 +41,8 @@ urlpatterns = [
     path("api/cases/", matter_views.cases, name="api_cases"),
     path("api/triage/rubrics/", matter_views.triage_rubrics, name="api_triage_rubrics"),
     path("api/legalserver/account/", matter_views.legalserver_account, name="api_legalserver_account"),
+    # Before the <matter_id> routes, which would otherwise read "by-route-key" as a matter id.
+    path("api/cases/by-route-key/", matter_views.case_by_route_key, name="api_case_by_route_key"),
     path("api/cases/<str:matter_id>/chat/", matter_views.case_chat, name="api_case_chat"),
     path("api/cases/<str:matter_id>/triage/", matter_views.case_triage, name="api_case_triage"),
     path("api/cases/<str:matter_id>/facts/", matter_views.case_facts, name="api_case_facts"),

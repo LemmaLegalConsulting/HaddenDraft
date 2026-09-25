@@ -22,6 +22,33 @@ class Matter(models.Model):
         return f"{self.external_id} - {self.client_name}"
 
 
+class MatterRouteAlias(models.Model):
+    """A readable case number that addresses a matter in an application URL.
+
+    `Matter.external_id` stays the matter's identity; this is only how a link
+    names it. LegalServer can renumber a case, and when it does the old number
+    is kept here, not current, so a bookmark made before the change still opens
+    the same matter. Read and write it only through `apps.matters.route_aliases`.
+    """
+
+    matter = models.ForeignKey(Matter, related_name="route_aliases", on_delete=models.CASCADE)
+    # Where the number came from. Provenance only: a URL carries no source
+    # system, so an alias must identify one matter across all of them.
+    source_system = models.CharField(max_length=120)
+    alias = models.CharField(max_length=120)
+    normalized_alias = models.CharField(max_length=120, unique=True)
+    is_current = models.BooleanField(default=True)
+    first_seen_at = models.DateTimeField(auto_now_add=True)
+    last_seen_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["-is_current", "-last_seen_at"]
+        verbose_name_plural = "matter route aliases"
+
+    def __str__(self):
+        return f"{self.alias} -> {self.matter.external_id}"
+
+
 class MatterFact(models.Model):
     matter = models.ForeignKey(Matter, related_name="facts", on_delete=models.CASCADE)
     slug = models.SlugField(max_length=120)

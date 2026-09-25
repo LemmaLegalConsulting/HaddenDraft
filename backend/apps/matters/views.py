@@ -3,6 +3,7 @@ import mimetypes
 import re
 
 from django.conf import settings
+from django.db.models import prefetch_related_objects
 from django.http import HttpResponse, JsonResponse
 from django.utils.http import content_disposition_header
 
@@ -38,6 +39,7 @@ from apps.matters.legalserver_delivery import (
 )
 from apps.matters.legalserver_notes import triage_case_note_body
 from apps.matters.models import MatterFact, TriageRubric
+from apps.matters.route_aliases import is_remote_lookup_key, resolve_matter_route_key
 from apps.matters.seed import seed_matters
 from apps.matters.serializers import fact_to_dict, matter_to_dict, triage_assessment_to_dict, triage_rubric_to_dict
 from apps.matters.services import (
@@ -106,6 +108,7 @@ def cases(request):
         for matter in demo_matters():
             matters_by_id.setdefault(matter.external_id, matter)
     matters = list(matters_by_id.values())
+    prefetch_related_objects(matters, "route_aliases")
     account = legalserver_account_status(request.user, client=legalserver_client)
     serialized = [
         matter_to_dict(
@@ -286,6 +289,34 @@ def case_detail(request, matter_id):
             return JsonResponse({"error": str(exc)}, status=403)
         return JsonResponse({"legalserverDraftIntake": preview})
     return JsonResponse({"error": "GET, PATCH, or POST required"}, status=405)
+
+
+@api_login_required
+def case_by_route_key(request):
+    """Open the case a URL names by its readable case number.
+
+    Read-only: it resolves, checks access, and serializes. A key that names no
+    case and a key that names someone else's case answer the same 404, so a
+    guessed URL never confirms that a case exists.
+    """
+    if request.method != "GET":
+        return JsonResponse({"error": "GET required"}, status=405)
+    route_key = request.GET.get("key", "").strip()
+    if not route_key:
+        return JsonResponse({"error": "A case key is required"}, status=400)
+    matter = resolve_matter_route_key(request.user, route_key)
+    if not matter and is_remote_lookup_key(route_key):
+        # Not imported here yet -- a link to a case this browser never listed.
+        # Fetching it records its alias, so the second lookup can find it.
+        sync_legalserver_matter(route_key, user=request.user)
+        matter = resolve_matter_route_key(request.user, route_key)
+    if not matter and settings.ENABLE_DEMO_MATTERS:
+        seed_matters()
+        matter = resolve_matter_route_key(request.user, route_key)
+    if not matter:
+        return JsonResponse({"error": "Case not found or not available to this user"}, status=404)
+    matter = matter.__class__.objects.prefetch_related("facts", "route_aliases").get(id=matter.id)
+    return JsonResponse({"case": matter_to_dict(matter, include_facts=True)})
 
 
 @api_login_required

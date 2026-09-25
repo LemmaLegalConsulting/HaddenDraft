@@ -18,8 +18,10 @@ export function CasePreviewModal({
   isActive,
   manualCaseBusy,
   onClose,
-  onMakeActive,
-  onModeChange,
+  // onOpen(matter, mode?): make this the active case, optionally on another
+  // screen. One call, so the screen change is addressed to this case rather
+  // than to whichever one was active a moment ago.
+  onOpen,
   onUpdateManualCase,
 }) {
   const [fullscreen, setFullscreen] = useState(false);
@@ -42,9 +44,8 @@ export function CasePreviewModal({
   if (!matter) return null;
 
   function activateAndGo(mode) {
-    if (!isActive) onMakeActive(matter.id);
     onClose();
-    onModeChange(mode);
+    onOpen(matter, mode);
   }
 
   return (
@@ -82,7 +83,7 @@ export function CasePreviewModal({
           {isActive ? (
             <span className="active-case-indicator"><CheckCircle2 size={16} /> Active case</span>
           ) : (
-            <button className="btn btn-light" type="button" onClick={() => onMakeActive(matter.id)}>
+            <button className="btn btn-light" type="button" onClick={() => onOpen(matter)}>
               <CheckCircle2 size={16} /> Make active case
             </button>
           )}

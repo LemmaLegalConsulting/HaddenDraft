@@ -1,5 +1,6 @@
 import TemplateFillPanel from "./components/TemplateFillPanel.jsx";
 import React, { useEffect, useMemo, useReducer, useRef, useState } from "react";
+import { useLocation, useNavigate } from "react-router";
 import {
   Archive,
   ChevronDown,
@@ -60,6 +61,18 @@ import { TriagePanel } from "./components/TriagePanel.jsx";
 import { ValidationPanel } from "./components/ValidationPanel.jsx";
 import { WakingNotice } from "./components/WakingNotice.jsx";
 import { WorkflowStepper } from "./components/WorkflowStepper.jsx";
+import { RouteNotice } from "./components/RouteNotice.jsx";
+import {
+  CASE_SCOPED_MODES,
+  canonicalPath,
+  caseRouteAction,
+  matterMatchesKey,
+  parseLocation,
+  pathForMode,
+  paths,
+  routeCaseState,
+  signInReturnPath,
+} from "./routes/paths.js";
 import { initialActiveCase, rememberCase } from "./state/activeCase.js";
 import { waitForDrafts } from "./state/draftJobs.js";
 import { activeDraft, draftWorkspaceReducer, initialDraftWorkspace } from "./state/draftWorkspace.js";
@@ -92,7 +105,11 @@ export function App() {
   const [cases, setCases] = useState([]);
   const [templates, setTemplates] = useState([]);
   const [triageRubrics, setTriageRubrics] = useState([]);
-  const [mode, setMode] = useState("case");
+  // The URL says which screen and which case; see routes/paths.js.
+  const location = useLocation();
+  const navigate = useNavigate();
+  const route = useMemo(() => parseLocation(location.pathname), [location.pathname]);
+  const mode = route.mode;
   const [draftMode, setDraftMode] = useState("draft_from_template");
   const [draftStep, setDraftStep] = useState("goal");
   const [draftGoal, setDraftGoal] = useState("");
@@ -104,8 +121,17 @@ export function App() {
   const [allowMultipleDocuments, setAllowMultipleDocuments] = useState(false);
   const [clarifyMissingFactsBeforeDraft, setClarifyMissingFactsBeforeDraft] = useState(true);
   const [draftPlan, setDraftPlan] = useState(null);
-  const [selectedMatterId, setSelectedMatterId] = useState(null);
+  // The case being worked on. A URL that names a case sets it; screens whose
+  // URL carries no case (research, the argument gym) keep it as context.
+  const [activeCaseKey, setActiveCaseKey] = useState(null);
+  const activeCaseKeyRef = useRef(null);
+  activeCaseKeyRef.current = activeCaseKey;
+  // The last route-key lookup: { key, status } -- see routeCaseState().
+  const [caseLookup, setCaseLookup] = useState({ key: null, status: "idle" });
   const [matter, setMatter] = useState(null);
+  const matterRef = useRef(null);
+  matterRef.current = matter;
+  const selectedMatterId = matter?.id ?? null;
   const [selectedTemplateId, setSelectedTemplateId] = useState(null);
   // The template list opens on a default so the picker is never empty, but a
   // default is not a choice: until the advocate picks one (or a draft exists)
@@ -325,6 +351,11 @@ export function App() {
     try {
       await api.logout();
       const response = await api.me();
+      // Nothing of this account's case survives into the next sign-in on this
+      // tab; the URL stays, and is resolved again for whoever signs in.
+      setActiveCaseKey(null);
+      setMatter(null);
+      setCaseLookup({ key: null, status: "idle" });
       setAuth(response.user);
     } catch (err) {
       setError(err.message);
@@ -342,7 +373,8 @@ export function App() {
     setAuthBusy(true);
     setError("");
     try {
-      const response = await api.startOffice365Login();
+      // The page asked for comes back after sign-in; the server checks it.
+      const response = await api.startOffice365Login(signInReturnPath(location.pathname));
       window.location.href = response.authUrl;
     } catch (err) {
       setError(err.message);
@@ -351,51 +383,94 @@ export function App() {
     }
   }
 
+  // Restore the case this advocate last chose, once they are signed in. It
+  // only fills a URL that names no case; a pasted link always wins.
   useEffect(() => {
-    if (!auth?.isAuthenticated || !selectedMatterId) {
+    if (!auth?.username) return;
+    setActiveCaseKey((current) => initialActiveCase({ current, username: auth.username }));
+  }, [auth?.username]);
+
+  const routeAction = useMemo(() => caseRouteAction(route, { activeCaseKey }), [route, activeCaseKey]);
+  const loadCaseKey = routeAction.type === "load" ? routeAction.caseKey : null;
+
+  // A task URL that names no case, while one is active, is rewritten to name
+  // it -- replaced, so Back does not return to the caseless address.
+  useEffect(() => {
+    if (!auth?.isAuthenticated || routeAction.type !== "redirect") return;
+    navigate(routeAction.to, { replace: true });
+  }, [auth?.isAuthenticated, routeAction, navigate]);
+
+  // Open the case the URL names. Read-only: resolving a link never runs,
+  // saves, or generates anything.
+  useEffect(() => {
+    if (!auth?.isAuthenticated) return undefined;
+    if (!loadCaseKey) {
+      setCaseLookup({ key: null, status: "idle" });
       setMatter(null);
       setSelectedFactIds([]);
       setSelectedCuratedFacts([]);
-      return;
+      return undefined;
     }
-    let cancelled = false;
-    // Let go of the previous case at once. Its detail takes seconds to load from
-    // LegalServer, and until then every screen still acted on the old client:
-    // "Make active" then "Make plan" drafted for the case just left behind.
-    setMatter((current) => (current && String(current.id) === String(selectedMatterId) ? current : null));
-    api.caseDetail(selectedMatterId)
+    if (matterMatchesKey(matterRef.current, loadCaseKey)) {
+      setCaseLookup({ key: loadCaseKey, status: "ready" });
+      return undefined;
+    }
+    // Let go of the previous case at once. The next one takes seconds to load
+    // from LegalServer, and until then every screen still acted on the old
+    // client: "Make active" then "Make plan" drafted for the case just left.
+    setMatter(null);
+    setSelectedFactIds([]);
+    setSelectedCuratedFacts([]);
+    setCaseLookup({ key: loadCaseKey, status: "loading" });
+    const controller = new AbortController();
+    api.caseByRouteKey(loadCaseKey, { signal: controller.signal })
       .then((response) => {
-        if (cancelled) return;
-        setMatter(response.case);
-        const defaults = response.case.facts.filter((fact) => fact.selectedByDefault).map((fact) => fact.id);
-        setSelectedFactIds(defaults);
+        if (controller.signal.aborted) return;
+        const loaded = response.case;
+        setMatter(loaded);
+        setSelectedFactIds(loaded.facts.filter((fact) => fact.selectedByDefault).map((fact) => fact.id));
         setSelectedCuratedFacts([]);
+        setActiveCaseKey(loaded.routeCaseKey || loaded.id);
+        setCaseLookup({ key: loadCaseKey, status: "ready" });
       })
       .catch((err) => {
-        if (cancelled) return;
+        if (controller.signal.aborted || err?.name === "AbortError") return;
         setMatter(null);
         setSelectedFactIds([]);
         setSelectedCuratedFacts([]);
         if (err.status === 404) {
-          // A remembered case that no longer opens is forgotten, not retried.
-          rememberCase(auth?.username, null);
-          setSelectedMatterId(null);
+          setCaseLookup({ key: loadCaseKey, status: "unavailable" });
+          if (loadCaseKey === activeCaseKeyRef.current) {
+            // The remembered case no longer opens: forget it, don't retry it.
+            // A bad pasted link leaves the case being worked on alone.
+            rememberCase(auth?.username, null);
+            setActiveCaseKey(null);
+          }
           return;
         }
+        setCaseLookup({ key: loadCaseKey, status: "error" });
         setError(err.message);
       });
-    return () => { cancelled = true; };
-  }, [auth, selectedMatterId]);
+    return () => controller.abort();
+  }, [auth?.isAuthenticated, auth?.username, loadCaseKey]);
 
-  // Restore the case this advocate last chose, once they are signed in.
+  // An old case number or a bare external id opens the case, then the address
+  // is replaced with the link the server gives now.
   useEffect(() => {
-    if (!auth?.username) return;
-    setSelectedMatterId((current) => initialActiveCase({ current, username: auth.username }));
-  }, [auth?.username]);
+    if (!matter || !route.caseKey || caseLookup.status !== "ready" || caseLookup.key !== route.caseKey) return;
+    if (!matter.routeCaseKey || matter.routeCaseKey === route.caseKey) return;
+    const to = canonicalPath(route, matter.routeCaseKey);
+    if (to) navigate(to, { replace: true });
+  }, [matter, route, caseLookup, navigate]);
 
   useEffect(() => {
     if (auth?.username && selectedMatterId) rememberCase(auth.username, selectedMatterId);
   }, [auth?.username, selectedMatterId]);
+
+  // Arriving at /drafting/<case>/new is arriving at setup.
+  useEffect(() => {
+    if (route.mode === "draft" && route.view === "new") setDraftStep("goal");
+  }, [location.key, route.mode, route.view]);
 
   useEffect(() => {
     if (!auth?.isAuthenticated || !selectedMatterId) {
@@ -436,8 +511,10 @@ export function App() {
     try {
       const response = await api.disconnectLegalServer();
       setLegalserver(response.legalserver);
-      setSelectedMatterId(null);
+      // The cases this account could open may have just changed.
+      setActiveCaseKey(null);
       setMatter(null);
+      navigate(paths.cases());
       await loadWorkspace();
     } catch (err) {
       setError(err.message);
@@ -473,10 +550,10 @@ export function App() {
         const withoutDuplicate = current.filter((item) => item.id !== response.case.id);
         return [response.case, ...withoutDuplicate];
       });
-      setSelectedMatterId(response.case.id);
       setMatter(response.case);
       setSelectedFactIds((response.created || []).map((fact) => fact.id));
       setSelectedCuratedFacts([]);
+      openCase(response.case);
       return true;
     } catch (err) {
       setError(err.message);
@@ -722,7 +799,7 @@ export function App() {
       setSession(plannedSession);
       setDraftPlan(response.plan);
       setSelectedBlockKeys(plannedSession.selectedBlockKeys || selectedBlockKeys);
-      setDraftStep("plan");
+      showDraftStep("plan");
     } catch (err) {
       setError(err.message);
     } finally {
@@ -763,7 +840,7 @@ export function App() {
       });
       const drafts = await waitForDrafts(response, (jobId) => api.draftGenerationJob(activeSession.id, jobId));
       dispatchWorkspace({ type: "documentsGenerated", drafts });
-      setDraftStep("editor");
+      showDraftStep("editor");
     } catch (err) {
       setError(err.message);
     } finally {
@@ -773,7 +850,7 @@ export function App() {
 
   function goToQuestionsOrGenerate() {
     if (clarifyMissingFactsBeforeDraft && planQuestionsForReview(draftPlan).length > 0) {
-      setDraftStep("questions");
+      showDraftStep("questions");
       return;
     }
     generateDraftsFromPlan();
@@ -790,7 +867,7 @@ export function App() {
       setSession(recommendation.session);
       if (recommendation.matter) setMatter(recommendation.matter);
       setSelectedFactIds(recommendation.factIds);
-      setDraftStep("facts");
+      showDraftStep("facts");
     } catch (err) {
       setError(err.message);
     } finally {
@@ -800,12 +877,12 @@ export function App() {
 
   async function continueFromFactReview() {
     await saveWorkflow("support_review");
-    setDraftStep("support");
+    showDraftStep("support");
   }
 
   async function continueFromDraftSupport() {
     await saveWorkflow("law_review");
-    setDraftStep("law");
+    showDraftStep("law");
   }
 
   async function continueFromLawReview() {
@@ -826,7 +903,7 @@ export function App() {
     } catch (err) {
       setError(err.message);
     }
-    setDraftStep("outline");
+    showDraftStep("outline");
   }
 
   async function approveOutline() {
@@ -838,7 +915,7 @@ export function App() {
       const response = await api.approveSessionOutline(activeSession.id, { selectedBlockKeys });
       setOutline(response.outline);
       setSession(response.session || activeSession);
-      setDraftStep("editor");
+      showDraftStep("editor");
     } catch (err) {
       setError(err.message);
     } finally {
@@ -899,7 +976,7 @@ export function App() {
       dispatchWorkspace({ type: "documentEdited", draft: saved.draft });
       const response = await api.stressTestDraft(draft.id);
       setGymFocusRun({ run: response.run, workspace: response.workspace });
-      setMode("argument_gym");
+      goToMode("argument_gym");
     } catch (err) {
       setError(err.message);
     } finally {
@@ -975,17 +1052,37 @@ export function App() {
     }
   }
 
-  function openDraft() {
-    setMode("draft");
-    setDraftStep("goal");
+  // Every screen change is a navigation, so the address bar always says where
+  // the advocate is. Drafting opens on setup, as the sidebar always has.
+  function goToMode(nextMode, caseKey = matter?.routeCaseKey || activeCaseKey) {
+    if (nextMode === "draft") setDraftStep("goal");
+    navigate(pathForMode(nextMode, caseKey, { view: nextMode === "draft" ? "new" : null }));
   }
 
-  function selectMode(nextMode) {
-    if (nextMode === "draft") {
-      openDraft();
-      return;
+  // Make a case the active one, on the given screen or the current one. A
+  // screen whose URL carries no case keeps its address and takes the case as
+  // context.
+  function openCase(caseLike, nextMode = mode) {
+    if (!caseLike) return;
+    const caseKey = caseLike.routeCaseKey || caseLike.id;
+    setActiveCaseKey(caseKey);
+    const target = nextMode || "case";
+    if (CASE_SCOPED_MODES.has(target) || target !== mode) goToMode(target, caseKey);
+  }
+
+  function selectCaseById(matterId) {
+    openCase(cases.find((item) => item.id === matterId) || (matter?.id === matterId ? matter : { id: matterId }));
+  }
+
+  // A drafting step past setup is no longer "new". Replaced rather than
+  // pushed: Back leaves drafting instead of stepping through screens it
+  // cannot rebuild yet.
+  function showDraftStep(step) {
+    setDraftStep(step);
+    const current = parseLocation(window.location.pathname);
+    if (step !== "goal" && current.mode === "draft" && current.view === "new" && current.caseKey) {
+      navigate(paths.drafting(current.caseKey), { replace: true });
     }
-    setMode(nextMode);
   }
 
   function handleCaseAction(action) {
@@ -993,26 +1090,24 @@ export function App() {
       setDraftMode("draft_from_scratch");
       setInstructions(action.instructions || action.summary || "");
       setDraftGoal(action.instructions || action.summary || "");
-      setMode("draft");
-      setDraftStep("goal");
+      goToMode("draft");
       return;
     }
     if (action.type === "draft_template") {
       setDraftMode("draft_from_template");
       setDraftGoal(action.instructions || action.summary || "");
-      setMode("draft");
-      setDraftStep("goal");
+      goToMode("draft");
       return;
     }
     if (action.type === "review_documents") {
-      setMode("case");
+      goToMode("case");
       return;
     }
     if (action.type === "search_sources") {
-      setMode("research");
+      goToMode("research");
       return;
     }
-    if (action.type === "case_chat" && action.prompt) setMode("case_chat");
+    if (action.type === "case_chat" && action.prompt) goToMode("case_chat");
   }
 
   const legalserverLoading = workspaceLoading && !legalserver;
@@ -1034,6 +1129,16 @@ export function App() {
     const connectedCount = connectionStates.filter(Boolean).length;
     return `${connectedCount} of ${connectionStates.length} connections active`;
   }, [legalserverConnected, sharepointSource?.status]);
+
+  // A case screen draws its work only once the case its URL names has loaded.
+  // Until then -- or if it never will -- a notice stands in, so one client's
+  // screen is never drawn under another client's address.
+  const caseState = routeCaseState(route, { matter, lookup: caseLookup });
+  const caseScoped = CASE_SCOPED_MODES.has(mode);
+  const caseNotice = caseScoped && ["loading", "unavailable", "error"].includes(caseState) ? caseState : null;
+  // The case browser stays usable beneath its notice; that is where the
+  // advocate goes next.
+  const view = caseNotice && mode !== "case" ? null : mode;
 
   if (!auth?.isAuthenticated) {
     return (
@@ -1057,8 +1162,8 @@ export function App() {
       <WakingNotice />
       <aside className="sidebar">
         <div className="brand"><div className="brand-icon"><Gavel size={22} /></div><div><span className="brand-title">Drafting Tool</span></div></div>
-        <nav className="mode-list">{modeOptions.map((item) => { const Icon = item.icon; return <button key={item.id} className={mode === item.id ? "active" : ""} onClick={() => selectMode(item.id)}><Icon size={18} /><span className="mode-item-label"><span>{item.label}</span>{item.id === "draft" && selectedDraftDocument && <small>Document: {selectedDraftDocument.title}</small>}</span></button>; })}</nav>
-        {mode === "draft" && <WorkflowStepper steps={workflowSteps} activeStep={draftStep} onSelect={setDraftStep} />}
+        <nav className="mode-list">{modeOptions.map((item) => { const Icon = item.icon; return <button key={item.id} className={mode === item.id ? "active" : ""} onClick={() => goToMode(item.id)}><Icon size={18} /><span className="mode-item-label"><span>{item.label}</span>{item.id === "draft" && selectedDraftDocument && <small>Document: {selectedDraftDocument.title}</small>}</span></button>; })}</nav>
+        {view === "draft" && <WorkflowStepper steps={workflowSteps} activeStep={draftStep} onSelect={showDraftStep} />}
         <div className="source-card">
           <button className="source-card-toggle" type="button" aria-expanded={sourceDetailsOpen} onClick={() => setSourceDetailsOpen((current) => !current)}><span className="source-card-title"><Archive size={16} /> Connections</span><span className="source-summary">{sourceSummary}</span><ChevronDown className={sourceDetailsOpen ? "chevron open" : "chevron"} size={16} /></button>
           {sourceDetailsOpen && <div className="source-details"><button className="source-row source-row-button" type="button" onClick={() => setConnectionSettingsOpen(true)} disabled={legalserverLoading}><span>LegalServer account</span><small>{legalserverStatusLabel}</small></button>{legalserver?.syncError && legalserver.syncError !== "not_connected" && <div className="source-row source-row-alert"><span>LegalServer sync</span><small>{legalserver.syncError}</small></div>}{sharepointSource && <div className="source-row" key={sharepointSource.kind}><span>{sharepointSource.label}</span><small>{sharepointSource.status}</small></div>}{researchSources.length > 0 && <div className="source-section-title">Research sources</div>}{researchSources.map((source) => <div className="source-row" key={source.kind}><span>{source.label}</span><small>{source.status}</small></div>)}</div>}
@@ -1067,14 +1172,16 @@ export function App() {
       <main className="workspace">
         <header className="topbar">{matter && <div className="topbar-case"><div className="topbar-case-heading"><h2><button className="topbar-case-preview" type="button" aria-haspopup="dialog" title="Open case preview" onClick={() => setCasePreviewMatterId(matter.id)}><span>{matter.client}</span><FolderOpen size={17} /></button></h2>{selectedDraftDocument && <span className="selected-document-pill" title={`Selected document: ${selectedDraftDocument.title}`}><FileText size={14} /><span>{selectedDraftDocument.title}</span></span>}</div><div className="active-case-banner"><span>{matter.matter}{matter.posture ? ` · ${matter.posture}` : ""}</span><small>{matter.sourceSystem || "LegalServer"} case {matter.id}</small></div></div>}<div className="topbar-actions"><div className="dropdown account-dropdown"><button className="btn btn-light dropdown-toggle account-menu-toggle" type="button" aria-expanded={accountMenuOpen} onClick={() => setAccountMenuOpen((current) => !current)}><UserRound size={16} /><span className="account-name">{accountName}</span></button>{accountMenuOpen && <div className="dropdown-menu dropdown-menu-end show account-menu"><div className="account-menu-header"><span>Signed in as</span><strong>{accountName}</strong></div><button className="dropdown-item" type="button" onClick={() => { setAccountMenuOpen(false); setProfileOpen(true); }}><UserRound size={16} /> Profile</button><button className="dropdown-item" disabled={authBusy} type="button" onClick={handleLogout}><LogOut size={16} /> Sign out</button><div className="dropdown-divider" /><a className="dropdown-item" href={api.adminUrl()}><Settings size={16} /> Admin</a></div>}</div></div></header>
         {profileOpen && <div className="modal-backdrop" role="presentation"><div className="profile-modal" ref={profileModalRef} role="dialog" aria-modal="true" aria-label="Profile"><div className="modal-heading"><h4>Profile</h4><button className="btn btn-light icon-button" type="button" onClick={() => setProfileOpen(false)} title="Close" aria-label="Close"><X size={16} /></button></div><AuthorProfile user={auth} onSaved={(profile) => { updateAuthProfile(profile); setProfileOpen(false); }} /><ChangePassword /></div></div>}
-        {connectionSettingsOpen && <div className="modal-backdrop" role="presentation"><form className="profile-modal connection-modal" ref={connectionModalRef} role="dialog" aria-modal="true" aria-label="LegalServer connection settings" onSubmit={handleLegalServerConnect}><div className="modal-heading"><div><h4>LegalServer Connection</h4><p className="modal-subtitle">{legalserverLoading ? "Checking your saved account." : legalserverConnected ? `Connected as ${legalserver.identifier}` : "Connect a LegalServer account to load assigned matters."}</p></div><button className="btn btn-light icon-button" type="button" onClick={() => setConnectionSettingsOpen(false)} title="Close" aria-label="Close"><X size={16} /></button></div>{!legalserverConfigured && <div className="inline-error">LegalServer API credentials are not configured for this environment.</div>}{legalserver?.syncError && legalserver.syncError !== "not_connected" && <div className="inline-error">LegalServer sync: {legalserver.syncError}</div>}{legalserverConfigured && <><label className="field"><span>{legalserverConnected ? "Connected as" : "LegalServer username or email"}</span><input className="form-control" aria-label="LegalServer identifier" disabled={legalserverLoading || accountBusy} placeholder={legalserver?.suggestedIdentifier || "LegalServer username or email"} value={legalserverIdentifier} onChange={(event) => setLegalserverIdentifier(event.target.value)} /></label><div className="button-row"><button className="btn btn-primary" type="submit" disabled={legalserverLoading || accountBusy || !legalserverIdentifier.trim()}>{accountBusy ? <Loader2 className="spin" size={16} /> : <Link2 size={16} />}{legalserverConnected ? "Update connection" : "Connect LegalServer"}</button>{legalserverConnected && <button className="btn btn-light" type="button" disabled={accountBusy} onClick={handleLegalServerDisconnect}>{accountBusy ? <Loader2 className="spin" size={16} /> : <Unplug size={16} />} Disconnect</button>}</div></>}</form></div>}
+        {connectionSettingsOpen && <div className="modal-backdrop" role="presentation"><form className="profile-modal connection-modal" ref={connectionModalRef} role="dialog" aria-modal="true" aria-label="LegalServer connection settings" onSubmit={handleLegalServerConnect}><div className="modal-heading"><div><h4>LegalServer Connection</h4><p className="modal-subtitle">{legalserverLoading ? "Checking your saved account." : legalserverConnected ? `Connected as ${legalserver.identifier}` : "Connect a LegalServer account to load assigned matters."}</p></div><button className="btn btn-light icon-button" type="button" onClick={() => setConnectionSettingsOpen(false)} title="Close" aria-label="Close"><X size={16} /></button></div>{!legalserverConfigured && <div className="inline-error">LegalServer API credentials are not configured for this environment.</div>}{legalserver?.syncError && legalserver.syncError !== "not_connected" && <div className="inline-error">LegalServer sync: {legalserver.syncError}</div>}{legalserverConfigured && <><label className="field"><span>{legalserverConnected ? "Connected as" : "LegalServer username or email"}</span><input className="form-control" aria-label="LegalServer identifier" disabled={legalserverLoading || accountBusy} value={legalserverIdentifier} onChange={(event) => setLegalserverIdentifier(event.target.value)} /></label><div className="button-row"><button className="btn btn-primary" type="submit" disabled={legalserverLoading || accountBusy || !legalserverIdentifier.trim()}>{accountBusy ? <Loader2 className="spin" size={16} /> : <Link2 size={16} />}{legalserverConnected ? "Update connection" : "Connect LegalServer"}</button>{legalserverConnected && <button className="btn btn-light" type="button" disabled={accountBusy} onClick={handleLegalServerDisconnect}>{accountBusy ? <Loader2 className="spin" size={16} /> : <Unplug size={16} />} Disconnect</button>}</div></>}</form></div>}
         {error && <div className="error-banner alert alert-danger">{error}</div>}
-        {mode === "case" && <CaseSelector cases={cases} selectedMatterId={selectedMatterId} onSelect={setSelectedMatterId} onPreview={setCasePreviewMatterId} legalserver={legalserver} legalserverLoading={legalserverLoading} search={caseSearch} onSearchChange={setCaseSearch} onSearch={handleCaseSearch} onSearchReset={handleCaseSearchReset} filters={caseFilters} onFiltersChange={applyCaseFilters} listMeta={caseListMeta} onShowMore={() => loadCases({ append: true })} caseBusy={caseBusy} manualCaseBusy={manualCaseBusy} onCreateManualCase={handleCreateManualCase} />}
-        {mode === "triage" && <TriagePanel matter={matter} rubrics={triageRubrics} selectedRubricId={selectedTriageRubricId} onSelectRubric={setSelectedTriageRubricId} assessment={triageAssessment} history={triageHistory} busy={busy} manualCaseBusy={manualCaseBusy} onRunTriage={runTriage} onCreateManualCase={handleCreateManualCase} legalserverSave={boot?.legalserverSave} legalserverDelivery={triageDelivery} />}
-        {mode === "case_chat" && <CaseChat matter={matter} onAction={handleCaseAction} legalserverSave={boot?.legalserverSave} />}
-        {mode === "template_fill" && <TemplateFillPanel key={matter?.id || matter?.externalId || "none"} matter={matter} authorProfile={draftAuthorProfile} legalserverSave={boot?.legalserverSave} />}
-        {mode === "advice_letter" && <AdviceLetterPanel matter={matter} authorProfile={draftAuthorProfile} legalserverSave={boot?.legalserverSave} account={auth} />}
-        {mode === "argument_gym" && (
+        {!route.found && <RouteNotice kind="not_found" onChooseCase={() => navigate(paths.cases())} />}
+        {caseNotice && <RouteNotice kind={caseNotice} caseKey={route.caseKey} onChooseCase={() => navigate(paths.cases())} />}
+        {view === "case" && <CaseSelector cases={cases} selectedMatterId={selectedMatterId} onSelect={selectCaseById} onPreview={setCasePreviewMatterId} legalserver={legalserver} legalserverLoading={legalserverLoading} search={caseSearch} onSearchChange={setCaseSearch} onSearch={handleCaseSearch} onSearchReset={handleCaseSearchReset} filters={caseFilters} onFiltersChange={applyCaseFilters} listMeta={caseListMeta} onShowMore={() => loadCases({ append: true })} caseBusy={caseBusy} manualCaseBusy={manualCaseBusy} onCreateManualCase={handleCreateManualCase} />}
+        {view === "triage" && <TriagePanel matter={matter} rubrics={triageRubrics} selectedRubricId={selectedTriageRubricId} onSelectRubric={setSelectedTriageRubricId} assessment={triageAssessment} history={triageHistory} busy={busy} manualCaseBusy={manualCaseBusy} onRunTriage={runTriage} onCreateManualCase={handleCreateManualCase} legalserverSave={boot?.legalserverSave} legalserverDelivery={triageDelivery} />}
+        {view === "case_chat" && <CaseChat matter={matter} onAction={handleCaseAction} legalserverSave={boot?.legalserverSave} />}
+        {view === "template_fill" && <TemplateFillPanel key={matter?.id || matter?.externalId || "none"} matter={matter} authorProfile={draftAuthorProfile} legalserverSave={boot?.legalserverSave} />}
+        {view === "advice_letter" && <AdviceLetterPanel matter={matter} authorProfile={draftAuthorProfile} legalserverSave={boot?.legalserverSave} account={auth} />}
+        {view === "argument_gym" && (
           <ArgumentGymPanel
             matter={matter}
             cases={cases}
@@ -1082,19 +1189,19 @@ export function App() {
             onFocusRunHandled={() => setGymFocusRun(null)}
           />
         )}
-        {mode === "research" && <ResearchPanel matter={matter} sources={boot?.sources || []} onResults={(results) => setSourceResults(results)} legalserverSave={boot?.legalserverSave} />}
-        {mode === "draft" && draftStep === "goal" && <DraftGoalPanel goal={draftGoal} onGoalChange={(value) => { setDraftGoal(value); setInstructions(value); setSelectedGoalSuggestionId(""); }} planningMode={planningMode} onPlanningModeChange={setPlanningMode} allowMultiple={allowMultipleDocuments} onAllowMultipleChange={setAllowMultipleDocuments} selectedTemplateId={selectedTemplateId} onTemplateChange={selectDraftTemplate} templates={templates} matter={matter} busy={busy} onMakePlan={() => makeDraftPlan()} goalSuggestions={goalSuggestions} goalSuggestionGuidance={goalSuggestionGuidance} goalSuggestionsBusy={goalSuggestionsBusy} selectedGoalSuggestionId={selectedGoalSuggestionId} onSuggestGoals={suggestDraftGoals} onSelectGoalSuggestion={selectGoalSuggestion} />}
-        {mode === "draft" && draftStep === "plan" && <DraftPlanReview plan={draftPlan} templates={templates} matter={matter} session={session} busy={busy} authorProfile={draftAuthorProfile} onAuthorProfileChange={setDraftAuthorProfile} selectedFactIds={selectedFactIds} selectedCuratedFacts={selectedCuratedFacts} onFactChange={setSelectedFactIds} onCuratedChange={setSelectedCuratedFacts} onMatterChange={setMatter} onFactIdsAdded={(ids) => setSelectedFactIds((current) => mergeFactIds(current, ids))} selectedResults={sourceResults} onSelectedResultsChange={setSourceResults} onSessionChange={setSession} candidateIssues={candidateIssues} onIssuesChange={setCandidateIssues} clarifyMissingFactsBeforeDraft={clarifyMissingFactsBeforeDraft} onClarifyMissingFactsBeforeDraftChange={setClarifyMissingFactsBeforeDraft} onPlanChange={setDraftPlan} onRegeneratePlan={regenerateDraftPlan} onContinue={goToQuestionsOrGenerate} />}
-        {mode === "draft" && draftStep === "questions" && (
+        {view === "research" && <ResearchPanel matter={matter} sources={boot?.sources || []} onResults={(results) => setSourceResults(results)} legalserverSave={boot?.legalserverSave} />}
+        {view === "draft" && draftStep === "goal" && <DraftGoalPanel goal={draftGoal} onGoalChange={(value) => { setDraftGoal(value); setInstructions(value); setSelectedGoalSuggestionId(""); }} planningMode={planningMode} onPlanningModeChange={setPlanningMode} allowMultiple={allowMultipleDocuments} onAllowMultipleChange={setAllowMultipleDocuments} selectedTemplateId={selectedTemplateId} onTemplateChange={selectDraftTemplate} templates={templates} matter={matter} busy={busy} onMakePlan={() => makeDraftPlan()} goalSuggestions={goalSuggestions} goalSuggestionGuidance={goalSuggestionGuidance} goalSuggestionsBusy={goalSuggestionsBusy} selectedGoalSuggestionId={selectedGoalSuggestionId} onSuggestGoals={suggestDraftGoals} onSelectGoalSuggestion={selectGoalSuggestion} />}
+        {view === "draft" && draftStep === "plan" && <DraftPlanReview plan={draftPlan} templates={templates} matter={matter} session={session} busy={busy} authorProfile={draftAuthorProfile} onAuthorProfileChange={setDraftAuthorProfile} selectedFactIds={selectedFactIds} selectedCuratedFacts={selectedCuratedFacts} onFactChange={setSelectedFactIds} onCuratedChange={setSelectedCuratedFacts} onMatterChange={setMatter} onFactIdsAdded={(ids) => setSelectedFactIds((current) => mergeFactIds(current, ids))} selectedResults={sourceResults} onSelectedResultsChange={setSourceResults} onSessionChange={setSession} candidateIssues={candidateIssues} onIssuesChange={setCandidateIssues} clarifyMissingFactsBeforeDraft={clarifyMissingFactsBeforeDraft} onClarifyMissingFactsBeforeDraftChange={setClarifyMissingFactsBeforeDraft} onPlanChange={setDraftPlan} onRegeneratePlan={regenerateDraftPlan} onContinue={goToQuestionsOrGenerate} />}
+        {view === "draft" && draftStep === "questions" && (
           <DraftQuestionsReview
             plan={draftPlan}
             busy={busy}
             onPlanChange={setDraftPlan}
-            onBack={() => setDraftStep("plan")}
+            onBack={() => showDraftStep("plan")}
             onContinue={generateDraftsFromPlan}
           />
         )}
-        {mode === "draft" && draftStep === "editor" && (
+        {view === "draft" && draftStep === "editor" && (
           <section className="panel editor-panel">
             <DraftSwitcher
               drafts={drafts}
@@ -1145,7 +1252,7 @@ export function App() {
               />
             )}
             <div className="button-row step-actions bottom-step-actions">
-              <button className="btn btn-light" onClick={() => setDraftStep("plan")}>Back to plan</button>
+              <button className="btn btn-light" onClick={() => showDraftStep("plan")}>Back to plan</button>
               {draft && (
                 <div className="button-row compact bottom-step-actions-right">
                   {draftDirtySinceValidation && validationSummary && (
@@ -1193,8 +1300,7 @@ export function App() {
           isActive={Boolean(casePreviewMatter && casePreviewMatter.id === selectedMatterId)}
           manualCaseBusy={manualCaseBusy}
           onClose={() => setCasePreviewMatterId(null)}
-          onMakeActive={setSelectedMatterId}
-          onModeChange={setMode}
+          onOpen={openCase}
           onUpdateManualCase={handleUpdateManualCase}
         />
       </main>
