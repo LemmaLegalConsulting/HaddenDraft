@@ -308,3 +308,46 @@ class TemplateBlock(models.Model):
 
     def __str__(self):
         return f"{self.template}: {self.label}"
+
+
+class TemplateFieldMapping(models.Model):
+    organization = models.ForeignKey("core.OrganizationSettings", on_delete=models.CASCADE)
+    template_slug = models.CharField(max_length=140, blank=True, help_text="Empty applies to every template; otherwise use its slug.")
+    field = models.CharField(max_length=255)
+    source_path = models.CharField(max_length=500, help_text="Path relative to the LegalServer matter payload, e.g. client_address_home.city")
+    formatter = models.CharField(max_length=20, default="display", choices=[("display", "Display value"), ("raw", "Raw value"), ("address", "Address")])
+    enabled = models.BooleanField(default=True)
+
+    class Meta:
+        constraints = [models.UniqueConstraint(fields=["organization", "template_slug", "field"], name="unique_template_field_mapping")]
+        ordering = ["template_slug", "field"]
+
+    def clean(self):
+        from django.core.exceptions import ValidationError
+        from .fill_paths import canonical_path, path_parts
+        try:
+            self.field = canonical_path(self.field)
+            path_parts(self.source_path)
+        except ValueError as error:
+            raise ValidationError(str(error)) from error
+
+    def __str__(self):
+        return f"{self.field} ← {self.source_path}"
+
+
+class FillTemplateUpload(models.Model):
+    """Private prepared DOCX; publishing requires an explicit admin review."""
+    title = models.CharField(max_length=255)
+    slug = models.SlugField(max_length=140, unique=True)
+    matter = models.ForeignKey("matters.Matter", on_delete=models.CASCADE)
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, on_delete=models.SET_NULL)
+    raw_key = models.CharField(max_length=500)
+    prepared_key = models.CharField(max_length=500, blank=True)
+    checksum = models.CharField(max_length=64)
+    report = models.JSONField(default=dict)
+    reviewed_for_sharing = models.BooleanField(default=False, help_text="I reviewed the prepared DOCX and its metadata and confirmed it contains no case-specific or confidential material.")
+    is_published = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.title

@@ -464,3 +464,35 @@ class TemplateBlockAdmin(admin.ModelAdmin):
     @admin.display(boolean=True, description="DOCX template")
     def has_docx_template(self, obj):
         return bool(obj.docx_template)
+
+
+from apps.templates_app.models import FillTemplateUpload, TemplateFieldMapping
+
+
+@admin.register(TemplateFieldMapping)
+class TemplateFieldMappingAdmin(admin.ModelAdmin):
+    list_display = ("field", "source_path", "template_slug", "formatter", "enabled")
+    list_filter = ("enabled", "template_slug")
+    search_fields = ("field", "source_path", "template_slug")
+
+
+@admin.register(FillTemplateUpload)
+class FillTemplateUploadAdmin(admin.ModelAdmin):
+    list_display = ("title", "matter", "created_by", "is_published", "created_at")
+    readonly_fields = ("slug", "matter", "created_by", "raw_key", "prepared_key", "checksum", "report", "is_published", "created_at", "review_download")
+    actions = ["publish_reviewed", "withdraw"]
+
+    @admin.display(description="Review prepared DOCX")
+    def review_download(self, obj):
+        from django.utils.html import format_html
+        return format_html('<a href="/api/template-fill/uploads/{}/file/">Download for review</a>', obj.pk)
+
+    @admin.action(description="Publish reviewed templates to the fill-template library")
+    def publish_reviewed(self, request, queryset):
+        ready = queryset.filter(reviewed_for_sharing=True).exclude(prepared_key="")
+        count = ready.update(is_published=True)
+        self.message_user(request, f"Published {count} reviewed template(s). Unreviewed uploads were not published.")
+
+    @admin.action(description="Withdraw from the shared library")
+    def withdraw(self, request, queryset):
+        queryset.update(is_published=False)

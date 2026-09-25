@@ -6,6 +6,7 @@ from apps.argument_gym import views as gym_views
 from apps.core import views as core_views
 from apps.caselaw import views as caselaw_views
 from apps.drafting import views as drafting_views
+from apps.drafting import template_fill_views as fill_views
 from apps.matters import views as matter_views
 from apps.rules import views as rule_views
 from apps.sources import research_views as research_search_views
@@ -18,6 +19,13 @@ admin.site.site_url = settings.FRONTEND_SITE_URL
 AUTH_PREFIX = "api/" + "auth/"
 
 urlpatterns = [
+    path("api/template-fill/", fill_views.catalog),
+    path("api/template-fill/start/", fill_views.start),
+    path("api/template-fill/sessions/<int:session_id>/", fill_views.session_detail),
+    path("api/template-fill/sessions/<int:session_id>/preview/", fill_views.session_preview),
+    path("api/template-fill/jobs/<int:job_id>/", fill_views.job_detail),
+    path("api/template-fill/jobs/<int:job_id>/file/", fill_views.job_detail, {"download": True}),
+    path("api/template-fill/uploads/<int:upload_id>/file/", fill_views.upload_file),
     path("favicon.ico", core_views.favicon, name="favicon"),
     path("readyz", core_views.readyz, name="readyz"),
     path("admin/", admin.site.urls),

@@ -1,0 +1,68 @@
+# WorkflowDocs support_legalserver.yml delegates these fields to LegalServerLink
+# populate_client(). Paths below are relative to the v2 matter payload.
+# Deliberately no mapping from LegalServer case_number to a court docket number.
+source: WorkflowDocs support_legalserver.yml and LegalServerLink LSAPIs.populate_client
+mappings:
+  clients[0].name.first: first
+  clients[0].name.middle: middle
+  clients[0].name.last: last
+  clients[0].name.suffix: suffix
+  clients[0].name.text: organization_name
+  clients[0].email: client_email_address
+  clients[0].birthdate: date_of_birth
+  clients[0].gender: client_gender
+  clients[0].address.address: client_address_home.street
+  clients[0].address.city: client_address_home.city
+  clients[0].address.state: client_address_home.state
+  clients[0].address.zip: client_address_home.zip
+  clients[0].address.county: client_address_home.county
+  client.name: client_full_name
+  client_name: client_full_name
+  defendant: client_full_name
+  fields.client_name: client_full_name
+  fields.client_email: client_email_address
+  fields.client_phone: client_phone_number
+  fields.client_first_name: first
+  fields.client_last_name: last
+  fields.client_address: client_address_home
+  fields.client_city: client_address_home.city
+  fields.client_state: client_address_home.state
+  fields.client_zip: client_address_home.zip
+  legalserver_adverse_parties: adverse_parties
+  legalserver_non_adverse_parties: non_adverse_parties
+  legalserver_litigations: litigations
+  case.case_number: case_number
+  clients[0].phone_number: home_phone
+  clients[0].mobile_number: mobile_phone
+  clients[0].work_phone: work_phone
+  clients[0].other_phone: other_phone
+  clients[0].preferred_pronouns: pronouns
+  clients[0].language_name: language
+  clients[0].mailing_address.address: client_address_mailing.street
+  clients[0].mailing_address.city: client_address_mailing.city
+  clients[0].mailing_address.state: client_address_mailing.state
+  clients[0].mailing_address.zip: client_address_mailing.zip
+  legalserver_case.case_number: case_number
+  legalserver_case.case_id: case_id
+  legalserver_case.case_title: case_title
+  legalserver_case.cause_number: cause_number
+  legalserver_case.case_disposition: case_disposition
+  legalserver_case.email: case_email_address
+  legalserver_case.is_group: is_group
+  legalserver_case.prescreen_date: prescreen_date
+  legalserver_litigations[0].docket: litigations[0].docket
+  legalserver_litigations[0].caption: litigations[0].caption
+  legalserver_litigations[0].court_name: litigations[0].court_id.organization_name
+  legalserver_litigations[0].court_number: litigations[0].court_number
+  legalserver_litigations[0].judge: litigations[0].judge
+  legalserver_litigations[0].date_served: litigations[0].date_served
+  legalserver_adverse_parties[0].name.first: adverse_parties[0].first
+  legalserver_adverse_parties[0].name.middle: adverse_parties[0].middle
+  legalserver_adverse_parties[0].name.last: adverse_parties[0].last
+  legalserver_adverse_parties[0].name.text: adverse_parties[0].organization_name
+  other_parties[0].name.first: adverse_parties[0].first
+  other_parties[0].name.last: adverse_parties[0].last
+  other_parties[0].name.text: adverse_parties[0].organization_name
+
+formatters:
+  fields.client_address: address

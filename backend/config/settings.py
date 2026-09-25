@@ -356,6 +356,7 @@ LEGALSERVER_ALLOW_WRITES = env_bool("LEGALSERVER_ALLOW_WRITES", True) and not TE
 # list must never answer for another's.
 # Draft generation runs on a background thread and the client polls it (see
 # apps.drafting.generation_jobs). Tests run it inline to assert on the result.
+TEMPLATE_FILL_BACKGROUND = env_bool("TEMPLATE_FILL_BACKGROUND", True) and not TESTING
 DRAFT_GENERATION_BACKGROUND = env_bool("DRAFT_GENERATION_BACKGROUND", True) and not TESTING
 DRAFT_GENERATION_TIMEOUT_SECONDS = int(os.environ.get("DRAFT_GENERATION_TIMEOUT_SECONDS", "900"))
 LEGALSERVER_DOCUMENT_CACHE_SECONDS = 0 if TESTING else int(os.environ.get("LEGALSERVER_DOCUMENT_CACHE_SECONDS", "120"))

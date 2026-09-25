@@ -65,6 +65,13 @@ async function request(path, options = {}) {
 }
 
 export const api = {
+  fillCatalog: (matterId) => request(`/template-fill/?${new URLSearchParams({ matterId })}`),
+  startTemplateFill: (payload) => request("/template-fill/start/", { method: "POST", body: payload instanceof FormData ? payload : JSON.stringify(payload) }),
+  fillSession: (id) => request(`/template-fill/sessions/${id}/`),
+  previewTemplateFill: (id, answers) => request(`/template-fill/sessions/${id}/preview/`, { method: "POST", body: JSON.stringify({ answers }) }),
+  saveTemplateFill: (id, payload, exporting = false) => request(`/template-fill/sessions/${id}/`, { method: exporting ? "POST" : "PATCH", body: JSON.stringify(payload) }),
+  fillJob: (id) => request(`/template-fill/jobs/${id}/`),
+  downloadTemplateFill: (id) => request(`/template-fill/jobs/${id}/file/`),
   bootstrap: () => request("/bootstrap/"),
   me: () => request("/auth/me/"),
   authorProfile: () => request("/author-profile/"),

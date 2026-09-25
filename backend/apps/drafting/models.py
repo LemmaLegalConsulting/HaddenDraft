@@ -3,6 +3,7 @@ from django.db import models
 
 class DraftingSession(models.Model):
     MODE_CHOICES = [
+        ("template_fill", "Fill template — no AI"),
         ("research", "Research"),
         ("draft_from_scratch", "Draft from scratch"),
         ("draft_from_template", "Draft from template"),
@@ -39,6 +40,7 @@ class DraftingSession(models.Model):
         blank=True,
         help_text="Values for fields declared by the selected prepared template.",
     )
+    fill_state = models.JSONField(default=dict, blank=True)
     goal = models.TextField(blank=True)
     draft_plan = models.JSONField(default=dict, blank=True)
     missing_information = models.JSONField(default=list, blank=True)
@@ -328,3 +330,15 @@ class DraftGenerationJob(models.Model):
 
     def __str__(self):
         return f"Draft generation {self.pk} for session {self.session_id} ({self.status})"
+
+
+class TemplateFillJob(models.Model):
+    session = models.ForeignKey(DraftingSession, on_delete=models.CASCADE, related_name="fill_jobs")
+    created_by = models.ForeignKey("auth.User", null=True, on_delete=models.SET_NULL)
+    kind = models.CharField(max_length=20, choices=[("prepare", "Prepare"), ("export", "Export")])
+    status = models.CharField(max_length=20, default="pending")
+    payload = models.JSONField(default=dict)
+    result = models.JSONField(default=dict)
+    error = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    completed_at = models.DateTimeField(null=True)
