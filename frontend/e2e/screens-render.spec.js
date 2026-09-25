@@ -34,6 +34,7 @@ const RESPONSES = {
   "/cases/1/": { case: MATTER },
   "/cases/1/triage/": { assessments: [] },
   "/templates/": { templates: [] },
+  "/template-fill/": { templates: [], sessions: [] },
   "/triage/rubrics/": { rubrics: [] },
   "/author-profile/": { profile: {} },
   "/user-resources/": { resources: [] },
@@ -76,6 +77,7 @@ const SCREENS = [
   { name: "Chat", marker: "combobox", text: "Case chat threads" },
   { name: "Research", marker: "tab", text: "Search the corpus" },
   { name: "Advice letter", marker: "heading", text: "Client advice letter" },
+  { name: "Fill template", marker: "heading", text: "Fill template — no AI" },
   { name: "Draft", marker: "heading", text: "What do you want to file or accomplish?" },
   { name: "Argument gym", marker: "button", text: "Open session" },
 ];
@@ -144,4 +146,77 @@ test("the draft workflow steps each render", async ({ page }) => {
       await expectScreenRenders(errors, page.locator("main.workspace"));
     });
   }
+});
+
+
+test("fill template upload, optional answers, save and DOCX download", async ({ page }) => {
+  const errors = watchForErrors(page);
+  let uploaded = false;
+  const session = { id: 81, title: "Uploaded motion", revision: 0, fields: [
+    { key: "client", path: "client", label: "Client", kind: "text", value: "Sample Client", source: "LegalServer: client_full_name", state: "mapped" },
+    { key: "hearing", path: "hearing", label: "Hearing date", kind: "text", value: null, state: "unanswered", context: [{ text: "The hearing is set for " }, { fields: ["hearing"] }, { text: "." }] },
+    { key: "reason", path: "reason", label: "Reason", kind: "multiline", value: null, state: "unanswered" },
+  ] };
+  const finished = { id: 91, sessionId: 81, kind: "export", status: "complete", result: { filename: "filled.docx", delivery: null } };
+  await page.route("**/api/template-fill/**", async (route) => {
+    const request = route.request();
+    const path = new URL(request.url()).pathname;
+    if (path.endsWith("/start/")) {
+      expect(request.headers()["content-type"]).toContain("multipart/form-data");
+      uploaded = true;
+      return route.fulfill({ json: { job: { id: 90, sessionId: 81, kind: "prepare", status: "complete" } } });
+    }
+    if (path.endsWith("/preview/")) {
+      return route.fulfill({ json: { preview: { header: [], footer: [], truncated: false, assumedOff: [], body: [
+        { kind: "p", segments: [{ text: "Client: " }, { filled: "Sample Client", key: "client", label: "Client" }] },
+        { kind: "p", segments: [{ text: "The hearing is set for " }, { prompt: "Hearing date", key: "hearing" }, { text: "." }] },
+      ] } } });
+    }
+    if (path.endsWith("/sessions/81/")) {
+      if (request.method() !== "GET") {
+        const payload = request.postDataJSON();
+        expect(payload.answers).toEqual({ hearing: "May 1", reason: "Please continue the hearing." });
+        session.fields[2].value = payload.answers.reason;
+        session.revision += 1;
+        if (request.method() === "POST") return route.fulfill({ json: { job: finished, session } });
+      }
+      return route.fulfill({ json: { session, jobs: [] } });
+    }
+    if (path.endsWith("/file/")) return route.fulfill({ contentType: "application/vnd.openxmlformats-officedocument.wordprocessingml.document", headers: { "Content-Disposition": 'attachment; filename="filled.docx"' }, body: "synthetic DOCX download" });
+    return route.fulfill({ json: { templates: [], sessions: uploaded ? [{ id: 81, title: session.title, updatedAt: "2026-09-25T12:00:00Z" }] : [] } });
+  });
+  await page.goto("/");
+  await page.getByRole("button", { name: "Make active" }).first().click();
+  await page.locator("nav.mode-list button", { hasText: "Fill template" }).click();
+  await page.getByLabel("Or upload a DOCX template (up to 15 MB)").setInputFiles({ name: "motion.docx", mimeType: "application/vnd.openxmlformats-officedocument.wordprocessingml.document", buffer: Buffer.from("synthetic upload") });
+  await expect(page.getByRole("textbox", { name: "Client", exact: true })).toHaveValue("Sample Client");
+  await expect(page.locator(".fill-inline-sentence").getByRole("textbox", { name: "Hearing date", exact: true })).toHaveValue("");
+  await page.getByLabel("Type short blanks inside their sentence").uncheck();
+  await expect(page.locator(".fill-inline-sentence")).toHaveCount(0);
+  await expect(page.getByRole("textbox", { name: "Hearing date", exact: true })).toHaveValue("");
+  await page.getByRole("tab", { name: "Preview" }).click();
+  await expect(page.getByRole("article", { name: "Document preview" })).toContainText("The hearing is set for");
+  await page.getByRole("button", { name: "[Enter Hearing date]" }).click();
+  const dialog = page.getByRole("dialog", { name: "Hearing date" });
+  await dialog.getByRole("textbox").fill("May 1");
+  await dialog.getByRole("button", { name: "Cancel" }).click();
+  await expect(page.getByText("All changes saved.")).toBeVisible();
+  await page.getByRole("button", { name: "[Enter Hearing date]" }).click();
+  await dialog.getByRole("textbox").fill("May 1");
+  await dialog.getByRole("button", { name: "Done" }).click();
+  await expect(page.getByText("1 unsaved change")).toBeVisible();
+  await page.getByRole("tab", { name: "Fill in blanks" }).click();
+  await expect(page.getByRole("textbox", { name: "Hearing date", exact: true })).toHaveValue("May 1");
+  await page.getByRole("textbox", { name: "Reason", exact: true }).fill("Please continue the hearing.");
+  // Leaving the screen unmounts the panel; coming back reopens the session with
+  // the unsaved typing restored, rather than an empty template picker.
+  await page.locator("nav.mode-list button", { hasText: "Chat" }).click();
+  await page.locator("nav.mode-list button", { hasText: "Fill template" }).click();
+  await expect(page.getByText(/Restored 2 unsaved changes/)).toBeVisible();
+  await expect(page.getByRole("textbox", { name: "Reason", exact: true })).toHaveValue("Please continue the hearing.");
+  await page.getByRole("button", { name: "Prepare DOCX", exact: true }).click();
+  const downloadPromise = page.waitForEvent("download");
+  await page.getByRole("button", { name: "Download prepared DOCX" }).click();
+  expect((await downloadPromise).suggestedFilename()).toBe("filled.docx");
+  expect(errors).toEqual([]);
 });

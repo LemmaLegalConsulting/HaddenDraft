@@ -63,6 +63,7 @@ def modes(_request):
     return JsonResponse(
         {
             "modes": [
+                {"id": "template_fill", "label": "Fill template — no AI", "description": "Map case fields, optionally complete blanks, and download a DOCX with highlighted prompts."},
                 {
                     "id": "research",
                     "label": "Research",

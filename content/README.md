@@ -308,3 +308,11 @@ repository path.
 [`argument-gym/`](argument-gym/README.md) holds maintained synthetic minimal pairs
 and gold proposition-to-source spans for deterministic benchmark grading. These
 fixtures are evaluation material only and must not be ingested as legal authority.
+
+### Filling templates without AI
+
+Reviewed LegalServer-to-template defaults live in
+[`template-field-maps/`](template-field-maps/README.md), distinct from triage
+write-back maps. Organization edits are maintained in Django admin and survive
+seeding. See [the template-fill workflow](../backend/apps/drafting/TEMPLATE_FILL.md)
+for private uploads, storage paths, APIs, and supported template syntax.

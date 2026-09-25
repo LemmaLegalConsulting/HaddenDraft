@@ -507,6 +507,14 @@ def _full_template_docx(draft, template_path):
 
 
 def render_docx_bytes(draft):
+    if getattr(getattr(draft, "session", None), "mode", "") == "template_fill":
+        from apps.core.storage import get_document_storage
+        key = next((section.get("fillDocxKey") for section in draft.sections if section.get("fillDocxKey")), None)
+        if not key:
+            raise ValueError("The filled document has no saved DOCX. Export it from Fill template.")
+        with get_document_storage().open(key) as stream:
+            return stream.read()
+
     selected_full_template = full_template_path(_draft_template(draft))
     if selected_full_template:
         content = _full_template_docx(draft, selected_full_template)

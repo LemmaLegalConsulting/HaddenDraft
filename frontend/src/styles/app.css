@@ -4193,7 +4193,8 @@ button:disabled {
    Both open the same source viewer, so a section found by browsing is the same
    thing a citation points at. */
 .research-view-tabs,
-.library-browser-tabs {
+.library-browser-tabs,
+.fill-view-tabs {
   border-bottom: 1px solid var(--bux-gray-light-60);
   display: flex;
   flex-wrap: wrap;
@@ -4202,7 +4203,8 @@ button:disabled {
 }
 
 .research-view-tabs button,
-.library-browser-tabs button {
+.library-browser-tabs button,
+.fill-view-tabs button {
   align-items: center;
   background: transparent;
   border: 1px solid transparent;
@@ -4217,12 +4219,14 @@ button:disabled {
 }
 
 .research-view-tabs button:hover,
-.library-browser-tabs button:hover {
+.library-browser-tabs button:hover,
+.fill-view-tabs button:hover {
   background: var(--bux-gray-light-90);
 }
 
 .research-view-tabs button.selected,
-.library-browser-tabs button.selected {
+.library-browser-tabs button.selected,
+.fill-view-tabs button.selected {
   background: var(--bux-white);
   border-color: var(--bux-gray-light-60);
   box-shadow: inset 0 3px 0 var(--bux-scarlet);
@@ -6195,4 +6199,300 @@ div.disclosure-body {
   gap: var(--space-2);
   justify-content: center;
   padding: var(--space-3) 0;
+}
+
+/* Fill template. Every field says which of three states it is in -- filled,
+   blank (becomes a highlighted prompt in Word), or needed before download --
+   with the same tone on the row edge, the status pill, and the summary. An
+   empty box is left looking empty: no placeholder text. */
+.template-fill-panel { display: grid; gap: var(--space-4); }
+.template-fill-panel > h2, .template-fill-panel > p { margin: 0; }
+
+.fill-card {
+  border: 1px solid var(--bux-gray-light-60);
+  border-radius: var(--radius);
+  margin: 0;
+  min-width: 0;
+  padding: var(--space-4);
+}
+
+.fill-card > legend {
+  float: left;
+  font-size: var(--fs-lg);
+  font-weight: var(--fw-semibold);
+  margin-bottom: var(--space-3);
+  padding: 0;
+  width: 100%;
+}
+
+.fill-card > legend + * { clear: left; }
+
+.fill-label {
+  color: var(--bux-gray-dark-40);
+  display: block;
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-bold);
+  margin-bottom: var(--space-2);
+}
+
+.fill-inline {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-bottom: var(--space-4);
+}
+
+.fill-inline .form-select { flex: 1 1 18rem; min-width: 0; }
+
+.fill-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  list-style: none;
+  margin: 0 0 var(--space-4);
+  padding: 0;
+}
+
+.fill-status {
+  border: 1px solid transparent;
+  border-radius: 999px;
+  display: inline-block;
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-semibold);
+  padding: 2px 10px;
+}
+
+.fill-summary .fill-status { font-size: var(--fs-sm); padding: 4px 12px; }
+.fill-status-filled { background: var(--ok-bg); border-color: var(--ok-line); color: var(--ok-text); }
+.fill-status-edited { background: var(--info-bg); border-color: var(--info-line); color: var(--info-text); }
+.fill-status-blank { background: var(--warn-bg); border-color: var(--warn-line); color: var(--warn-text); }
+.fill-status-needed { background: var(--danger-bg); border-color: var(--danger-line); color: var(--danger-text); }
+
+.fill-group + .fill-group { margin-top: var(--space-5); }
+.fill-group > h3 { align-items: center; display: flex; font-size: var(--fs-md); font-weight: var(--fw-semibold); gap: var(--space-2); margin: 0; }
+.fill-group > .muted { font-size: var(--fs-sm); margin: var(--space-1) 0 var(--space-2); }
+
+.fill-group-count {
+  background: var(--bux-gray-light-80);
+  border-radius: 999px;
+  color: var(--bux-gray-dark-40);
+  font-size: var(--fs-xs);
+  padding: 1px 8px;
+}
+
+.fill-field {
+  border-left: 3px solid var(--bux-gray-light-60);
+  border-top: 1px solid var(--bux-gray-light-80);
+  display: grid;
+  gap: var(--space-2) var(--space-4);
+  grid-template-columns: minmax(10rem, 1fr) minmax(0, 2fr);
+  padding: var(--space-3) var(--space-3) var(--space-3) var(--space-3);
+}
+
+.fill-field-filled { border-left-color: var(--ok-line); }
+.fill-field-edited { border-left-color: var(--info-line); }
+.fill-field-blank { border-left-color: var(--warn-line); background: color-mix(in srgb, var(--warn-bg) 45%, transparent); }
+.fill-field-needed { border-left-color: var(--danger-line); background: color-mix(in srgb, var(--danger-bg) 45%, transparent); }
+
+.fill-field-label label { font-size: var(--fs-md); font-weight: var(--fw-semibold); }
+
+/* The sentence the blank sits in. This field's blank is marked; the others
+   show their current value, or their name in a dashed box when still empty. */
+.fill-field-context {
+  color: var(--bux-gray-dark-40);
+  font-size: var(--fs-sm);
+  line-height: 1.7;
+  margin: var(--space-1) 0 0;
+  overflow-wrap: anywhere;
+}
+
+.fill-slot { border-radius: var(--radius-sm); padding: 1px 4px; }
+.fill-slot-this { background: var(--info-bg); box-shadow: inset 0 0 0 1px var(--info-line); color: var(--info-text); font-weight: var(--fw-semibold); }
+.fill-slot-other { color: var(--bux-gray-dark-80); text-decoration: underline dotted var(--bux-gray-dark-20); }
+.fill-slot-empty { border: 1px dashed var(--bux-gray-dark-20); color: var(--bux-gray-dark-20); font-size: var(--fs-xs); }
+
+/* Inline: the sentence reads as written, with a text box in the blank. */
+.fill-field-inline { display: grid; gap: var(--space-1); grid-template-columns: 1fr; }
+.fill-field-inline > label { color: var(--bux-gray-dark-40); font-size: var(--fs-xs); font-weight: var(--fw-semibold); }
+.fill-inline-sentence { color: var(--bux-gray-dark-80); font-size: var(--fs-md); line-height: 2.4; margin: 0; overflow-wrap: anywhere; }
+
+.fill-inline-input.form-control {
+  display: inline-block;
+  height: auto;
+  margin: 0 2px;
+  max-width: 100%;
+  min-width: 8ch;
+  padding: 2px 6px;
+  vertical-align: baseline;
+}
+
+.fill-inline-toggle {
+  align-items: center;
+  display: flex;
+  font-size: var(--fs-sm);
+  gap: var(--space-2);
+  margin: 0 0 var(--space-4);
+}
+
+.fill-inline-toggle .form-check-input { margin: 0; }
+
+.fill-field-input { display: grid; gap: var(--space-1); min-width: 0; }
+.fill-field-input textarea { resize: vertical; }
+
+.fill-field-meta {
+  align-items: center;
+  color: var(--bux-gray-dark-40);
+  display: flex;
+  flex-wrap: wrap;
+  font-size: var(--fs-xs);
+  gap: var(--space-1) var(--space-3);
+  margin: 0;
+}
+
+.fill-export { display: grid; gap: var(--space-2); margin-top: var(--space-5); }
+
+/* Only the status and the buttons stay in view on a long form. */
+.fill-actions {
+  align-items: center;
+  background: var(--bux-white);
+  border-top: 1px solid var(--bux-gray-light-60);
+  bottom: 0;
+  box-shadow: 0 -6px 12px -10px rgb(0 0 0 / 25%);
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-4);
+  justify-content: space-between;
+  margin: var(--space-3) calc(-1 * var(--space-4)) calc(-1 * var(--space-4));
+  padding: var(--space-3) var(--space-4);
+  position: sticky;
+  z-index: 2;
+}
+
+.fill-actions > p { font-size: var(--fs-sm); margin: 0; }
+.fill-actions .button-row { margin: 0; }
+.fill-unsaved { color: var(--info-text); font-weight: var(--fw-semibold); }
+
+@media (max-width: 720px) {
+  .fill-field { grid-template-columns: 1fr; }
+}
+
+/* Fill template preview: the rendered document as a reading view. Values that
+   came from the form and prompts that will be left in Word are marked the
+   same way the field list marks them, and each one leads back to its field. */
+.fill-preview { display: grid; gap: var(--space-3); }
+.fill-preview-notes { display: grid; gap: var(--space-2); }
+.fill-preview-notes p { margin: 0; }
+
+.fill-preview-legend {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  font-size: var(--fs-sm);
+  gap: var(--space-2) var(--space-3);
+}
+
+.fill-preview-assumed {
+  background: var(--danger-bg);
+  border: 1px solid var(--danger-line);
+  border-radius: var(--radius);
+  color: var(--danger-text);
+  font-size: var(--fs-sm);
+  padding: var(--space-2) var(--space-3);
+}
+
+.fill-preview-page {
+  background: var(--bux-white);
+  border: 1px solid var(--bux-gray-light-60);
+  border-radius: var(--radius-sm);
+  box-shadow: 0 1px 3px rgb(0 0 0 / 8%);
+  color: var(--bux-gray-dark-80);
+  font-size: var(--fs-md);
+  line-height: 1.6;
+  margin: 0 auto;
+  max-width: 52rem;
+  padding: 3rem clamp(1rem, 6vw, 4.5rem);
+  tab-size: 6;
+  white-space: pre-wrap;
+  width: 100%;
+}
+
+.fill-preview-page p { margin: 0 0 var(--space-1); overflow-wrap: anywhere; }
+.fill-preview-page .fill-preview-gap { height: var(--space-3); margin: 0; }
+.fill-preview-heading { font-size: var(--fs-lg); font-weight: var(--fw-semibold); }
+.fill-preview-page .is-bold { font-weight: var(--fw-bold); }
+.fill-preview-page .is-italic { font-style: italic; }
+.fill-preview-page .is-underline { text-decoration: underline; }
+
+.fill-preview-region {
+  border-bottom: 1px dashed var(--bux-gray-light-60);
+  color: var(--bux-gray-dark-40);
+  font-size: var(--fs-sm);
+  margin-bottom: var(--space-4);
+  padding-bottom: var(--space-2);
+}
+
+.fill-preview-region:last-child { border-bottom: 0; border-top: 1px dashed var(--bux-gray-light-60); margin: var(--space-4) 0 0; padding: var(--space-2) 0 0; }
+
+.fill-preview-table { border-collapse: collapse; margin: var(--space-2) 0; width: 100%; }
+.fill-preview-table td { border: 1px solid var(--bux-gray-light-60); padding: var(--space-1) var(--space-2); vertical-align: top; }
+
+.fill-preview-value,
+.fill-preview-prompt {
+  border: 0;
+  border-radius: 3px;
+  color: inherit;
+  cursor: pointer;
+  font: inherit;
+  display: inline;
+  height: auto;
+  line-height: inherit;
+  margin: 0;
+  min-height: 0;
+  padding: 0 2px;
+  text-align: inherit;
+  vertical-align: baseline;
+  white-space: pre-wrap;
+}
+
+.fill-preview-value { background: var(--ok-bg); box-shadow: inset 0 -2px 0 var(--ok-line); }
+.fill-preview-prompt { background: #fff2a8; box-shadow: inset 0 -2px 0 var(--warn-line); }
+.fill-preview-legend .fill-preview-value, .fill-preview-legend .fill-preview-prompt { cursor: default; }
+.fill-preview-value:hover, .fill-preview-prompt:hover { filter: brightness(0.95); }
+.fill-preview-value:focus-visible, .fill-preview-prompt:focus-visible { outline: 2px solid var(--info-text); outline-offset: 1px; }
+
+.fill-preview-assumed-link {
+  background: none;
+  border: 0;
+  color: inherit;
+  display: inline;
+  font: inherit;
+  min-height: 0;
+  padding: 0;
+  text-decoration: underline;
+}
+
+/* One blank at a time, opened from the preview. */
+.fill-dialog {
+  border: 1px solid var(--bux-gray-light-60);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 12px 32px rgb(0 0 0 / 20%);
+  max-width: min(36rem, calc(100vw - 2rem));
+  padding: var(--space-5);
+  width: 100%;
+}
+
+.fill-dialog::backdrop { background: rgb(0 0 0 / 35%); }
+.fill-dialog form { display: grid; gap: var(--space-3); }
+.fill-dialog .fill-field-context { margin: 0; }
+.fill-dialog .button-row { justify-content: flex-end; margin: 0; }
+.fill-dialog-title { font-size: var(--fs-lg); font-weight: var(--fw-semibold); }
+
+.fill-notice {
+  background: var(--info-bg);
+  border: 1px solid var(--info-line);
+  border-radius: var(--radius);
+  color: var(--info-text);
+  font-size: var(--fs-sm);
+  margin: 0;
+  padding: var(--space-2) var(--space-3);
 }

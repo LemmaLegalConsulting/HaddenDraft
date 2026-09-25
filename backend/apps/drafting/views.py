@@ -50,13 +50,17 @@ def _session_or_404(user, session_id, *, with_template=False):
     session = queryset.filter(id=session_id).first()
     if not session or not user_can_access_matter(user, session.matter):
         return None, JsonResponse({"error": "Drafting session not found"}, status=404)
+    if session.mode == "template_fill":
+        return None, JsonResponse({"error": "Use the Fill template workspace for this session."}, status=400)
     return session, None
 
 
-def _draft_or_404(user, draft_id):
+def _draft_or_404(user, draft_id, *, allow_fill=False):
     draft = DraftDocument.objects.select_related("session", "session__matter", "session__template").filter(id=draft_id).first()
     if not draft or not user_can_access_matter(user, draft.session.matter):
         return None, JsonResponse({"error": "Draft not found"}, status=404)
+    if draft.session.mode == "template_fill" and not allow_fill:
+        return None, JsonResponse({"error": "Edit this document in Fill template or download it for Word."}, status=400)
     return draft, None
 
 
@@ -80,6 +84,8 @@ def sessions(request):
         return method_not_allowed(["GET", "POST"])
 
     body = json_body(request)
+    if body.get("mode") == "template_fill":
+        return JsonResponse({"error": "Use /api/template-fill/start/ for this mode."}, status=400)
     matter = matter_for_user(request.user, body.get("matterId", ""))
     if not matter:
         return JsonResponse({"error": "Case not found or not available to this user"}, status=404)
@@ -488,9 +494,12 @@ def apply_draft_revision(request, draft_id):
 def export_draft(request, draft_id):
     if request.method != "GET":
         return method_not_allowed(["GET"])
-    draft, error = _draft_or_404(request.user, draft_id)
+    draft, error = _draft_or_404(request.user, draft_id, allow_fill=True)
     if error:
         return error
+    if draft.session.mode == "template_fill":
+        # Delivery was recorded by the background fill export; this is a read.
+        return export_document(draft)
     draft.session.status = "export"
     draft.session.save(update_fields=["status", "updated_at"])
     response = export_document(draft)

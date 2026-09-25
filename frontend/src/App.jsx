@@ -1,3 +1,4 @@
+import TemplateFillPanel from "./components/TemplateFillPanel.jsx";
 import React, { useEffect, useMemo, useReducer, useRef, useState } from "react";
 import {
   Archive,
@@ -82,6 +83,7 @@ const modeOptions = [
   { id: "research", label: "Research", icon: Search },
   { id: "advice_letter", label: "Advice letter", icon: Mail },
   { id: "draft", label: "Draft", icon: PenLine },
+  { id: "template_fill", label: "Fill template", icon: PenLine },
   { id: "argument_gym", label: "Argument gym", icon: Swords },
 ];
 
@@ -1070,6 +1072,7 @@ export function App() {
         {mode === "case" && <CaseSelector cases={cases} selectedMatterId={selectedMatterId} onSelect={setSelectedMatterId} onPreview={setCasePreviewMatterId} legalserver={legalserver} legalserverLoading={legalserverLoading} search={caseSearch} onSearchChange={setCaseSearch} onSearch={handleCaseSearch} onSearchReset={handleCaseSearchReset} filters={caseFilters} onFiltersChange={applyCaseFilters} listMeta={caseListMeta} onShowMore={() => loadCases({ append: true })} caseBusy={caseBusy} manualCaseBusy={manualCaseBusy} onCreateManualCase={handleCreateManualCase} />}
         {mode === "triage" && <TriagePanel matter={matter} rubrics={triageRubrics} selectedRubricId={selectedTriageRubricId} onSelectRubric={setSelectedTriageRubricId} assessment={triageAssessment} history={triageHistory} busy={busy} manualCaseBusy={manualCaseBusy} onRunTriage={runTriage} onCreateManualCase={handleCreateManualCase} legalserverSave={boot?.legalserverSave} legalserverDelivery={triageDelivery} />}
         {mode === "case_chat" && <CaseChat matter={matter} onAction={handleCaseAction} legalserverSave={boot?.legalserverSave} />}
+        {mode === "template_fill" && <TemplateFillPanel key={matter?.id || matter?.externalId || "none"} matter={matter} authorProfile={draftAuthorProfile} legalserverSave={boot?.legalserverSave} />}
         {mode === "advice_letter" && <AdviceLetterPanel matter={matter} authorProfile={draftAuthorProfile} legalserverSave={boot?.legalserverSave} account={auth} />}
         {mode === "argument_gym" && (
           <ArgumentGymPanel
