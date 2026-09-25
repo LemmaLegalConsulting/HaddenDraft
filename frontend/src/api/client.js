@@ -120,9 +120,10 @@ export const api = {
   // The case a URL names by its readable number. Read-only; `signal` lets a
   // superseded lookup be cancelled.
   caseByRouteKey: (caseKey, { signal } = {}) => request(`/cases/by-route-key/?${new URLSearchParams({ key: caseKey })}`, { signal }),
-  caseChatHistory: (matterId, threadId) => request(`/cases/${matterId}/chat/${threadId ? `?threadId=${threadId}` : ""}`),
+  // Read-only. A thread id is that thread or a 404, never a stand-in.
+  caseChatHistory: (matterId, threadId, { signal } = {}) => request(`/cases/${matterId}/chat/${threadId ? `?threadId=${threadId}` : ""}`, { signal }),
   newCaseChat: (matterId) => request(`/cases/${matterId}/chat/`, { method: "POST", body: JSON.stringify({ action: "new_thread" }) }),
-  clearCaseChatHistory: (matterId) => request(`/cases/${matterId}/chat/`, { method: "DELETE" }),
+  clearCaseChatHistory: (matterId, threadId = null) => request(`/cases/${matterId}/chat/${threadId ? `?threadId=${threadId}` : ""}`, { method: "DELETE" }),
   caseChat: (matterId, payload) => request(`/cases/${matterId}/chat/`, { method: "POST", body: JSON.stringify(payload) }),
   caseLegalServer: (matterId) => request(`/cases/${matterId}/legalserver/`),
   saveCaseNoteToLegalServer: (matterId, payload) =>

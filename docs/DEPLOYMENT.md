@@ -219,6 +219,24 @@ DOCUMENT_STORAGE_ROOT=/app/storage
 ORGANIZATION_CONTENT_LIBRARY_DIR=/app/storage/published/private-content
 ```
 
+### Application URLs
+
+Every screen has a readable, reload-safe address — `/drafting/26-0222/sessions/184/plan`,
+`/triage/26-0222/assessments/52` — built and read only in
+`frontend/src/routes/paths.js`. Both hosts already rewrite unknown paths to the
+SPA (`nginx.conf`'s `try_files`, `staticwebapp.config.json`'s
+`navigationFallback`), so no server route is needed for a new screen.
+
+Nested routes roll out one family at a time. To switch a family off, list it at
+build time; its links then point at the family's collection screen, and its URLs
+say they cannot be opened rather than showing something else:
+
+```bash
+VITE_DISABLED_ROUTE_FAMILIES=chat-threads,triage-assessments ./scripts/deploy_static_frontend.sh
+```
+
+The families are listed in `ROUTE_FAMILIES` in `paths.js`.
+
 ## Document storage
 
 Side-loaded documents — the case-law corpus and private organization content —

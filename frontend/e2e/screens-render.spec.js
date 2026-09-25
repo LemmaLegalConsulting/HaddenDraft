@@ -418,6 +418,50 @@ test("a session edited in another window is a conflict too", async ({ page }) =>
   await expect(page.getByRole("textbox").first()).toHaveValue("Their goal");
 });
 
+const ASSESSMENTS = [
+  { id: 52, priority: true, priorityLabel: "Priority", confidence: "high", summary: "Newest summary.", reasoning: "", matchedCriteria: [], missingInformation: [], evidence: [], rubric: { name: "Eviction" }, createdAt: "2026-09-25T12:00:00Z" },
+  { id: 51, priority: false, priorityLabel: "Needs review", confidence: "low", summary: "Older summary.", reasoning: "", matchedCriteria: [], missingInformation: [], evidence: [], rubric: { name: "Eviction" }, createdAt: "2026-09-20T12:00:00Z" },
+];
+
+test("a saved triage assessment opens by its URL and never reruns", async ({ page }) => {
+  await page.route("**/api/cases/1/triage/", (route) => (
+    route.request().method() === "GET" ? route.fulfill({ json: { assessments: ASSESSMENTS } }) : route.fallback()
+  ));
+  const errors = watchForErrors(page);
+  const writes = watchForWrites(page);
+  await page.goto("/triage/26-0001/assessments/51");
+  await expectScreenRenders(errors, page.getByText("Older summary."));
+  await page.getByRole("navigation", { name: "Saved assessments" }).getByRole("link", { name: /Priority/ }).click();
+  await expect(page).toHaveURL(/\/triage\/26-0001\/assessments\/52$/);
+  await expect(page.getByText("Newest summary.")).toBeVisible();
+  await page.goto("/triage/26-0001/assessments/999");
+  await expectScreenRenders(errors, page.getByRole("heading", { name: "This triage assessment is not available" }));
+  await expect(page.getByText("Newest summary.")).toHaveCount(0);
+  expect(writes).toEqual([]);
+});
+
+test("a chat thread opens by its URL, an archived one is read-only, and a missing one is never replaced", async ({ page }) => {
+  await page.route("**/api/cases/1/chat/**", (route) => {
+    const threadId = new URL(route.request().url()).searchParams.get("threadId");
+    const threads = [{ id: 7, active: true, preview: "Current" }, { id: 3, active: false, preview: "Earlier question" }];
+    if (threadId === "999") return route.fulfill({ status: 404, json: { error: "Chat thread not found" } });
+    const messages = threadId === "3" ? [{ role: "user", content: "An earlier question" }] : [{ role: "user", content: "A current question" }];
+    return route.fulfill({ json: { messages, threads, threadId: Number(threadId || 7), currentThreadId: 7 } });
+  });
+  const errors = watchForErrors(page, { allow: [/status of 404/] });
+  const writes = watchForWrites(page);
+  await page.goto("/chat/26-0001/threads/3");
+  await expectScreenRenders(errors, page.getByText("An earlier question"));
+  await expect(page.getByRole("button", { name: "Send" })).toBeDisabled();
+  await page.getByRole("combobox", { name: "Case chat threads" }).selectOption("");
+  await expect(page).toHaveURL(/\/chat\/26-0001$/);
+  await expect(page.getByText("A current question")).toBeVisible();
+  await page.goto("/chat/26-0001/threads/999");
+  await expectScreenRenders(errors, page.getByText("This conversation is not available"));
+  await expect(page.getByText("A current question")).toHaveCount(0);
+  expect(writes).toEqual([]);
+});
+
 test("fill template upload, optional answers, save and DOCX download", async ({ page }) => {
   const errors = watchForErrors(page);
   let uploaded = false;

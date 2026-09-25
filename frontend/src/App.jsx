@@ -772,20 +772,26 @@ export function App() {
     }
   }, [location.key, route.mode, route.view]);
 
+  // The case's saved assessments. Reading them never runs triage.
+  const [triageHistoryFor, setTriageHistoryFor] = useState(null);
   useEffect(() => {
     if (!auth?.isAuthenticated || !selectedMatterId) {
       setTriageAssessment(null);
       setTriageHistory([]);
+      setTriageHistoryFor(null);
       return;
     }
+    setTriageHistoryFor(null);
     api.caseTriage(selectedMatterId)
       .then((response) => {
         setTriageHistory(response.assessments || []);
         setTriageAssessment(response.assessments?.[0] || null);
+        setTriageHistoryFor(selectedMatterId);
       })
       .catch(() => {
         setTriageHistory([]);
         setTriageAssessment(null);
+        setTriageHistoryFor(selectedMatterId);
       });
   }, [auth, selectedMatterId]);
 
@@ -905,6 +911,9 @@ export function App() {
       setTriageAssessment(response.assessment);
       setTriageDelivery(response.legalserver || null);
       setTriageHistory((current) => [response.assessment, ...current.filter((item) => item.id !== response.assessment.id)]);
+      // The new assessment has its own address; reopening it never reruns.
+      const caseKey = matter.routeCaseKey || matter.id;
+      navigate(paths.triageAssessment(caseKey, response.assessment.id));
     } catch (err) {
       setError(err.message);
     } finally {
@@ -1489,6 +1498,12 @@ export function App() {
     })
     : null;
   const draftingCaseKey = matter?.routeCaseKey || route.caseKey;
+  // An assessment named in the URL is shown only if this case has it; the
+  // latest one never stands in for it.
+  const routeAssessmentId = route.mode === "triage" ? route.assessmentId : null;
+  const routeAssessment = routeAssessmentId ? triageHistory.find((item) => item.id === routeAssessmentId) || null : null;
+  const routeAssessmentMissing = Boolean(routeAssessmentId) && triageHistoryFor === selectedMatterId && selectedMatterId != null && !routeAssessment;
+  const shownAssessment = routeAssessmentId ? routeAssessment : triageAssessment;
 
   if (!auth?.isAuthenticated) {
     return (
@@ -1527,8 +1542,22 @@ export function App() {
         {!route.found && <RouteNotice kind="not_found" onChooseCase={() => navigate(paths.cases())} />}
         {caseNotice && <RouteNotice kind={caseNotice} caseKey={route.caseKey} onChooseCase={() => navigate(paths.cases())} />}
         {view === "case" && <CaseSelector cases={cases} selectedMatterId={selectedMatterId} onSelect={selectCaseById} onPreview={setCasePreviewMatterId} legalserver={legalserver} legalserverLoading={legalserverLoading} search={caseSearch} onSearchChange={setCaseSearch} onSearch={handleCaseSearch} onSearchReset={handleCaseSearchReset} filters={caseFilters} onFiltersChange={applyCaseFilters} listMeta={caseListMeta} onShowMore={() => loadCases({ append: true })} caseBusy={caseBusy} manualCaseBusy={manualCaseBusy} onCreateManualCase={handleCreateManualCase} />}
-        {view === "triage" && <TriagePanel matter={matter} rubrics={triageRubrics} selectedRubricId={selectedTriageRubricId} onSelectRubric={setSelectedTriageRubricId} assessment={triageAssessment} history={triageHistory} busy={busy} manualCaseBusy={manualCaseBusy} onRunTriage={runTriage} onCreateManualCase={handleCreateManualCase} legalserverSave={boot?.legalserverSave} legalserverDelivery={triageDelivery} />}
-        {view === "case_chat" && <CaseChat matter={matter} onAction={handleCaseAction} legalserverSave={boot?.legalserverSave} />}
+        {view === "triage" && routeAssessmentMissing && (
+          <RouteNotice kind="assessment_unavailable" caseKey={route.caseKey} onChooseCase={() => navigate(paths.triage(route.caseKey))} />
+        )}
+        {view === "triage" && !routeAssessmentMissing && <TriagePanel matter={matter} rubrics={triageRubrics} selectedRubricId={selectedTriageRubricId} onSelectRubric={setSelectedTriageRubricId} assessment={shownAssessment} history={triageHistory} assessmentHref={(id) => paths.triageAssessment(matter?.routeCaseKey || route.caseKey, id)} onOpenAssessment={(id) => navigate(paths.triageAssessment(matter?.routeCaseKey || route.caseKey, id))} busy={busy} manualCaseBusy={manualCaseBusy} onRunTriage={runTriage} onCreateManualCase={handleCreateManualCase} legalserverSave={boot?.legalserverSave} legalserverDelivery={triageDelivery} />}
+        {view === "case_chat" && (
+          <CaseChat
+            matter={matter}
+            onAction={handleCaseAction}
+            legalserverSave={boot?.legalserverSave}
+            threadId={route.threadId}
+            onThreadChange={(id) => {
+              const caseKey = matter?.routeCaseKey || route.caseKey;
+              navigate(id ? paths.chatThread(caseKey, id) : paths.chat(caseKey));
+            }}
+          />
+        )}
         {view === "template_fill" && <TemplateFillPanel key={matter?.id || matter?.externalId || "none"} matter={matter} authorProfile={draftAuthorProfile} legalserverSave={boot?.legalserverSave} />}
         {view === "advice_letter" && <AdviceLetterPanel matter={matter} authorProfile={draftAuthorProfile} legalserverSave={boot?.legalserverSave} account={auth} />}
         {view === "argument_gym" && (

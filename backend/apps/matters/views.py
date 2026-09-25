@@ -8,7 +8,16 @@ from django.http import HttpResponse, JsonResponse
 from django.utils.http import content_disposition_header
 
 from apps.ai.case_chat import case_chat_reply
-from apps.ai.chat_history import append_message, archive_current_conversation, clear_messages, conversation_list, messages_for_user
+from apps.ai.chat_history import (
+    append_message,
+    archive_current_conversation,
+    clear_messages,
+    conversation_list,
+    current_conversation,
+    is_current_thread,
+    messages_for_user,
+    read_conversation,
+)
 from apps.ai.models import ChatConversation
 from apps.core.http import allow_document_framing, api_login_required
 from apps.core.http import json_body
@@ -57,6 +66,16 @@ from apps.matters.triage import ensure_default_triage_rubric, run_triage
 from apps.sources.document_text import DocumentExtractionError, extract_text
 from apps.sources.connectors.legalserver import LegalServerError
 from apps.sources.models import UserSourceIdentity
+
+
+def _stale_thread():
+    return JsonResponse(
+        {
+            "error": "This conversation is no longer the current one -- a new chat was started in another window. Open the current chat to continue.",
+            "conflict": "thread",
+        },
+        status=409,
+    )
 
 
 def _matter_or_404(user, matter_id):
@@ -692,13 +711,31 @@ def case_chat(request, matter_id):
     if not matter:
         return JsonResponse({"error": "Case not found or not available to this user"}, status=404)
     scope_key = str(matter.id)
+    chat = {"user": request.user, "kind": ChatConversation.CASE, "scope_key": scope_key}
     if request.method == "GET":
-        thread_id = request.GET.get("threadId")
-        return JsonResponse({"messages": messages_for_user(user=request.user, kind=ChatConversation.CASE, scope_key=scope_key, conversation_id=thread_id), "threads": conversation_list(user=request.user, kind=ChatConversation.CASE, scope_key=scope_key)})
+        # Reading never creates a conversation, and a thread named in the URL
+        # is that thread or a 404 -- never the current one standing in for it.
+        try:
+            conversation, messages = read_conversation(**chat, conversation_id=request.GET.get("threadId") or None)
+        except LookupError:
+            return JsonResponse({"error": "Chat thread not found"}, status=404)
+        current = current_conversation(**chat)
+        return JsonResponse(
+            {
+                "messages": messages,
+                "threadId": conversation.id if conversation else None,
+                "currentThreadId": current.id if current else None,
+                "threads": conversation_list(**chat),
+            }
+        )
     if request.method == "DELETE":
-        clear_messages(user=request.user, kind=ChatConversation.CASE, scope_key=scope_key)
+        if not is_current_thread(**chat, thread_id=request.GET.get("threadId")):
+            return _stale_thread()
+        clear_messages(**chat)
         return JsonResponse({"ok": True})
     body = json.loads(request.body.decode("utf-8") or "{}")
+    if body.get("action") != "new_thread" and not is_current_thread(**chat, thread_id=body.get("threadId")):
+        return _stale_thread()
     if body.get("action") == "new_thread":
         archive_current_conversation(user=request.user, kind=ChatConversation.CASE, scope_key=scope_key)
         return JsonResponse({"messages": [], "threads": conversation_list(user=request.user, kind=ChatConversation.CASE, scope_key=scope_key)})
@@ -719,4 +756,5 @@ def case_chat(request, matter_id):
         content=reply["message"],
         metadata={"toolsUsed": reply.get("toolsUsed", []), "actions": reply.get("actions", [])},
     )
-    return JsonResponse(reply)
+    current = current_conversation(**chat)
+    return JsonResponse({**reply, "threadId": current.id if current else None})

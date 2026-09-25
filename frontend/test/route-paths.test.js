@@ -193,3 +193,24 @@ test("a saved session reopens where its saved work is", () => {
   // Advice with nothing to back it falls back to a screen that only reads.
   assert.equal(resumePath("26-0222", 184, { recommendedView: "draft", draftIds: [] }), "/drafting/26-0222/sessions/184/goal");
 });
+
+test("triage assessments and chat threads have their own URLs", () => {
+  assert.equal(paths.triageAssessment("26-0222", 52), "/triage/26-0222/assessments/52");
+  assert.equal(paths.chatThread("26-0222", 42), "/chat/26-0222/threads/42");
+  const thread = parseLocation("/chat/26-0222/threads/42");
+  assert.deepEqual([thread.mode, thread.view, thread.threadId], ["case_chat", "thread", 42]);
+  const assessment = parseLocation("/triage/26-0222/assessments/52");
+  assert.deepEqual([assessment.mode, assessment.view, assessment.assessmentId], ["triage", "assessment", 52]);
+});
+
+test("a switched-off route family links to its collection and cannot be opened", async () => {
+  const { setDisabledRouteFamilies } = await import("../src/routes/paths.js");
+  setDisabledRouteFamilies(["chat-threads"]);
+  try {
+    assert.equal(paths.chatThread("26-0222", 42), "/chat/26-0222");
+    assert.equal(parseLocation("/chat/26-0222/threads/42").found, false);
+    assert.equal(paths.triageAssessment("26-0222", 52), "/triage/26-0222/assessments/52");
+  } finally {
+    setDisabledRouteFamilies([]);
+  }
+});

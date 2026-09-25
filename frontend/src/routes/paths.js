@@ -30,6 +30,35 @@ export const CASE_SCOPED_MODES = new Set(["case", "triage", "case_chat", "advice
 
 const encodeKey = (caseKey) => encodeURIComponent(String(caseKey));
 
+// Route families that can be switched off at build time, one rollout boundary
+// each: VITE_DISABLED_ROUTE_FAMILIES=chat-threads,triage-assessments. A
+// disabled family's links are not built -- its collection screen is linked
+// instead -- and its URLs read as "cannot open yet", never as something else.
+export const ROUTE_FAMILIES = [
+  "drafting-sessions",
+  "triage-assessments",
+  "chat-threads",
+];
+
+function disabledFamilies() {
+  let raw = "";
+  try {
+    raw = import.meta.env?.VITE_DISABLED_ROUTE_FAMILIES || "";
+  } catch {
+    raw = "";
+  }
+  return new Set(String(raw).split(",").map((item) => item.trim()).filter(Boolean));
+}
+
+let DISABLED_FAMILIES = disabledFamilies();
+
+// For tests: which families are off.
+export function setDisabledRouteFamilies(families = []) {
+  DISABLED_FAMILIES = new Set(families);
+}
+
+const familyEnabled = (entry) => !entry.family || !DISABLED_FAMILIES.has(entry.family);
+
 // Every screen this version can open, as { mode, view, pattern }. A pattern is
 // the path after the task root: ":caseKey" is a case's route key, ":…Id" a
 // positive integer, anything else literal. One table drives both reading and
@@ -40,19 +69,21 @@ export const ROUTES = [
   { mode: "draft", view: null, pattern: [] },
   { mode: "draft", view: null, pattern: [":caseKey"] },
   { mode: "draft", view: "new", pattern: [":caseKey", "new"] },
-  { mode: "draft", view: "session", pattern: [":caseKey", "sessions", ":sessionId"] },
-  { mode: "draft", view: "goal", pattern: [":caseKey", "sessions", ":sessionId", "goal"] },
-  { mode: "draft", view: "plan", pattern: [":caseKey", "sessions", ":sessionId", "plan"] },
-  { mode: "draft", view: "questions", pattern: [":caseKey", "sessions", ":sessionId", "questions"] },
-  { mode: "draft", view: "package", pattern: [":caseKey", "sessions", ":sessionId", "package"] },
-  { mode: "draft", view: "job", pattern: [":caseKey", "sessions", ":sessionId", "jobs", ":jobId"] },
-  { mode: "draft", view: "draft", pattern: [":caseKey", "sessions", ":sessionId", "drafts", ":draftId"] },
-  { mode: "draft", view: "history", pattern: [":caseKey", "sessions", ":sessionId", "drafts", ":draftId", "history"] },
-  { mode: "draft", view: "validation", pattern: [":caseKey", "sessions", ":sessionId", "drafts", ":draftId", "validation"] },
+  { mode: "draft", view: "session", family: "drafting-sessions", pattern: [":caseKey", "sessions", ":sessionId"] },
+  { mode: "draft", view: "goal", family: "drafting-sessions", pattern: [":caseKey", "sessions", ":sessionId", "goal"] },
+  { mode: "draft", view: "plan", family: "drafting-sessions", pattern: [":caseKey", "sessions", ":sessionId", "plan"] },
+  { mode: "draft", view: "questions", family: "drafting-sessions", pattern: [":caseKey", "sessions", ":sessionId", "questions"] },
+  { mode: "draft", view: "package", family: "drafting-sessions", pattern: [":caseKey", "sessions", ":sessionId", "package"] },
+  { mode: "draft", view: "job", family: "drafting-sessions", pattern: [":caseKey", "sessions", ":sessionId", "jobs", ":jobId"] },
+  { mode: "draft", view: "draft", family: "drafting-sessions", pattern: [":caseKey", "sessions", ":sessionId", "drafts", ":draftId"] },
+  { mode: "draft", view: "history", family: "drafting-sessions", pattern: [":caseKey", "sessions", ":sessionId", "drafts", ":draftId", "history"] },
+  { mode: "draft", view: "validation", family: "drafting-sessions", pattern: [":caseKey", "sessions", ":sessionId", "drafts", ":draftId", "validation"] },
   { mode: "triage", view: null, pattern: [] },
   { mode: "triage", view: null, pattern: [":caseKey"] },
+  { mode: "triage", view: "assessment", family: "triage-assessments", pattern: [":caseKey", "assessments", ":assessmentId"] },
   { mode: "case_chat", view: null, pattern: [] },
   { mode: "case_chat", view: null, pattern: [":caseKey"] },
+  { mode: "case_chat", view: "thread", family: "chat-threads", pattern: [":caseKey", "threads", ":threadId"] },
   { mode: "template_fill", view: null, pattern: [] },
   { mode: "template_fill", view: null, pattern: [":caseKey"] },
   { mode: "advice_letter", view: null, pattern: [] },
@@ -115,7 +146,7 @@ export function parseLocation(pathname = "/") {
   if (!mode) return NOT_FOUND;
   const rest = segments.slice(1);
   for (const entry of ROUTES) {
-    if (entry.mode !== mode) continue;
+    if (entry.mode !== mode || !familyEnabled(entry)) continue;
     const params = matchPattern(entry.pattern, rest);
     if (params) return { ...emptyRoute(mode, entry.view), ...params };
   }
@@ -133,6 +164,8 @@ export function buildPath(route) {
       (item.pattern.includes(":caseKey") === Boolean(route.caseKey)),
   );
   if (!entry) return null;
+  // A switched-off family links to its collection screen instead.
+  if (!familyEnabled(entry)) return buildPath({ mode: route.mode, view: null, caseKey: route.caseKey });
   const parts = entry.pattern.map((token) => {
     if (!token.startsWith(":")) return token;
     const name = token.slice(1);
@@ -154,6 +187,10 @@ export const paths = {
   draftingJob: (caseKey, sessionId, jobId) => at("draft", "job", { caseKey, sessionId, jobId }),
   draft: (caseKey, sessionId, draftId) => at("draft", "draft", { caseKey, sessionId, draftId }),
   draftView: (caseKey, sessionId, draftId, view) => at("draft", view, { caseKey, sessionId, draftId }),
+  triage: (caseKey) => at("triage", null, { caseKey }),
+  triageAssessment: (caseKey, assessmentId) => at("triage", "assessment", { caseKey, assessmentId }),
+  chat: (caseKey) => at("case_chat", null, { caseKey }),
+  chatThread: (caseKey, threadId) => at("case_chat", "thread", { caseKey, threadId }),
   research: () => "/research/search",
   argumentGym: () => "/argument-gym",
 };
