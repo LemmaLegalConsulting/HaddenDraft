@@ -65,3 +65,9 @@ test("the save status shows the most pressing state", () => {
   assert.equal(saveStatus({ dirty: true }), "dirty");
   assert.equal(saveStatus({}), "saved");
 });
+
+test("an advice letter is its own piece of saved work", () => {
+  assert.equal(leavesSavedWork("/advice-letters/26-0222/drafts/118", "/advice-letters/26-0222/drafts/118/history"), false);
+  assert.equal(leavesSavedWork("/advice-letters/26-0222/drafts/118", "/advice-letters/26-0222/drafts/119"), true);
+  assert.equal(leavesSavedWork("/advice-letters/26-0222/drafts/118", "/drafting/26-0222"), true);
+});

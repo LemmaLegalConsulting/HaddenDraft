@@ -462,6 +462,40 @@ test("a chat thread opens by its URL, an archived one is read-only, and a missin
   expect(writes).toEqual([]);
 });
 
+test("a saved advice letter reopens as saved, without being reassembled", async ({ page }) => {
+  const letter = {
+    id: 118, sessionId: 60, templateId: null, title: "Client advice letter", exportFormat: "docx",
+    sections: [{ key: "seal", label: "Sealing", body: "Edited sealing advice." }],
+    plainText: "Edited sealing advice.", editorState: {}, validationFlags: [], revision: 4,
+    validation: { state: "never" }, updatedAt: "2026-09-25T12:00:00Z",
+  };
+  await page.route("**/api/advice-letters/drafts/**", (route) => {
+    const url = new URL(route.request().url());
+    if (route.request().method() !== "GET") return route.fallback();
+    if (url.pathname.endsWith("/drafts/118/")) {
+      return route.fulfill({ json: { draft: letter, letter: { paragraphs: ["Edited sealing advice."] }, letterFields: { filename: "letter" }, advice: { sessionId: 60, sectionSlugs: ["seal"], region: "CLE", goal: "Explain sealing", conditions: {} } } });
+    }
+    return route.fulfill({ status: 404, json: { error: "Draft not found." } });
+  });
+  const errors = watchForErrors(page, { allow: [/status of 404/] });
+  const writes = watchForWrites(page);
+  await page.goto("/advice-letters/26-0001/drafts/118");
+  await expectScreenRenders(errors, page.getByRole("heading", { name: "Edit the letter" }));
+  await expect(page.locator(".advice-editor-section")).toContainText("Edited sealing advice.");
+  await page.reload();
+  await expectScreenRenders(errors, page.getByRole("heading", { name: "Edit the letter" }));
+  expect(writes, "opening a saved letter must not reassemble it").toEqual([]);
+  await page.goto("/advice-letters/26-0001/drafts/999");
+  await expectScreenRenders(errors, page.getByText("This letter is not available"));
+});
+
+test("a fill session on another case, or missing, does not open", async ({ page }) => {
+  await page.route("**/api/template-fill/sessions/**", (route) => route.fulfill({ status: 404, json: { error: "Session not found" } }));
+  const errors = watchForErrors(page, { allow: [/status of 404/] });
+  await page.goto("/template-fill/26-0001/sessions/555/fields");
+  await expectScreenRenders(errors, page.getByText("This saved work is not available"));
+});
+
 test("fill template upload, optional answers, save and DOCX download", async ({ page }) => {
   const errors = watchForErrors(page);
   let uploaded = false;
@@ -495,6 +529,8 @@ test("fill template upload, optional answers, save and DOCX download", async ({ 
       }
       return route.fulfill({ json: { session, jobs: [] } });
     }
+    if (path.endsWith("/jobs/91/")) return route.fulfill({ json: { job: finished } });
+    if (path.endsWith("/jobs/90/")) return route.fulfill({ json: { job: { id: 90, sessionId: 81, kind: "prepare", status: "complete" } } });
     if (path.endsWith("/file/")) return route.fulfill({ contentType: "application/vnd.openxmlformats-officedocument.wordprocessingml.document", headers: { "Content-Disposition": 'attachment; filename="filled.docx"' }, body: "synthetic DOCX download" });
     return route.fulfill({ json: { templates: [], sessions: uploaded ? [{ id: 81, title: session.title, updatedAt: "2026-09-25T12:00:00Z" }] : [] } });
   });
@@ -507,7 +543,9 @@ test("fill template upload, optional answers, save and DOCX download", async ({ 
   await page.getByLabel("Type short blanks inside their sentence").uncheck();
   await expect(page.locator(".fill-inline-sentence")).toHaveCount(0);
   await expect(page.getByRole("textbox", { name: "Hearing date", exact: true })).toHaveValue("");
+  await expect(page).toHaveURL(/\/template-fill\/26-0001\/sessions\/81\/fields$/);
   await page.getByRole("tab", { name: "Preview" }).click();
+  await expect(page).toHaveURL(/\/template-fill\/26-0001\/sessions\/81\/preview$/);
   await expect(page.getByRole("article", { name: "Document preview" })).toContainText("The hearing is set for");
   await page.getByRole("button", { name: "[Enter Hearing date]" }).click();
   const dialog = page.getByRole("dialog", { name: "Hearing date" });

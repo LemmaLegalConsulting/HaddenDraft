@@ -130,12 +130,16 @@ function FillField({ field, fields, edits, setEdits, inline }) {
   </div>;
 }
 
-export default function TemplateFillPanel({ matter, authorProfile, legalserverSave }) {
+// `route` is what the URL names ({ sessionId, jobId, view }); `onNavigate`
+// moves the URL. The fields/preview tab is part of the address.
+export default function TemplateFillPanel({ matter, authorProfile, legalserverSave, account = "", route = {}, onNavigate }) {
   const matterId = matter?.externalId || matter?.id || "";
-  const fill = useTemplateFill(matterId, authorProfile, legalserverSave);
+  const caseKey = matter?.routeCaseKey || matterId;
+  const fill = useTemplateFill(matterId, authorProfile, legalserverSave, { account, caseKey, route, navigate: onNavigate });
   const [selected, setSelected] = useState("");
   const [inline, setInline] = useState(readInline);
-  const [view, setView] = useState("fields");
+  const view = route.view === "preview" ? "preview" : "fields";
+  const setView = (next) => fill.session && onNavigate?.({ sessionId: fill.session.id, view: next });
   const preview = useFillPreview(fill.session, fill.edits, view === "preview");
   if (!matterId) return <section className="panel"><h2>Fill template — no AI</h2><p>Select a case first.</p></section>;
   const selectedTemplate = fill.catalog.templates.find((template) => `${template.type}:${template.id}` === selected);
@@ -156,6 +160,11 @@ export default function TemplateFillPanel({ matter, authorProfile, legalserverSa
     {fill.error && <p role="alert" className="inline-error">{fill.error}</p>}
     {fill.busy && <p role="status" className="muted">{fill.busy}</p>}
     {fill.notice && <p role="status" className="fill-notice">{fill.notice}</p>}
+    {fill.sessionMissing && <div className="empty-state compact-empty" role="status">
+      <strong className="empty-state-title">This saved work is not available</strong>
+      <p>No fill-template session with this number belongs to this case. Nothing else is opened in its place.</p>
+      <button type="button" className="btn btn-primary" onClick={() => onNavigate?.({})}>Choose a template</button>
+    </div>}
 
     <fieldset className="fill-card" disabled={Boolean(fill.busy)}>
       <legend>Choose a template</legend>

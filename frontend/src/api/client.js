@@ -78,7 +78,8 @@ async function request(path, options = {}) {
 export const api = {
   fillCatalog: (matterId) => request(`/template-fill/?${new URLSearchParams({ matterId })}`),
   startTemplateFill: (payload) => request("/template-fill/start/", { method: "POST", body: payload instanceof FormData ? payload : JSON.stringify(payload) }),
-  fillSession: (id) => request(`/template-fill/sessions/${id}/`),
+  // `caseKey` names the case the URL is on; the server refuses a session on another.
+  fillSession: (id, { caseKey = "" } = {}) => request(`/template-fill/sessions/${id}/${caseKey ? `?${new URLSearchParams({ caseKey })}` : ""}`),
   previewTemplateFill: (id, answers) => request(`/template-fill/sessions/${id}/preview/`, { method: "POST", body: JSON.stringify({ answers }) }),
   saveTemplateFill: (id, payload, exporting = false) => request(`/template-fill/sessions/${id}/`, { method: exporting ? "POST" : "PATCH", body: JSON.stringify(payload) }),
   fillJob: (id) => request(`/template-fill/jobs/${id}/`),
@@ -307,6 +308,9 @@ export const api = {
     request("/advice-letters/export/", { method: "POST", body: JSON.stringify(payload) }),
   adviceLetterDraft: (payload) =>
     request("/advice-letters/drafts/", { method: "POST", body: JSON.stringify(payload) }),
+  // A saved letter as it was saved. Read-only: nothing is reassembled.
+  adviceLetterSavedDraft: (draftId, { caseKey = "" } = {}, { signal } = {}) =>
+    request(`/advice-letters/drafts/${draftId}/${caseKey ? `?${new URLSearchParams({ caseKey })}` : ""}`, { signal }),
   adviceLetterDraftExport: (draftId, payload = {}) =>
     request(`/advice-letters/drafts/${draftId}/export/`, { method: "POST", body: JSON.stringify(payload) }),
   adviceLetterDraftToLegalServer: (draftId, payload = {}) =>

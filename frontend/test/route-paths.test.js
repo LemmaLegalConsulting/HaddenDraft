@@ -214,3 +214,14 @@ test("a switched-off route family links to its collection and cannot be opened",
     setDisabledRouteFamilies([]);
   }
 });
+
+test("fill sessions and advice letters have their own URLs", () => {
+  assert.equal(paths.fillSession("26-0222", 73), "/template-fill/26-0222/sessions/73/fields");
+  assert.equal(paths.fillSession("26-0222", 73, "preview"), "/template-fill/26-0222/sessions/73/preview");
+  assert.equal(paths.fillJob("26-0222", 73, 91), "/template-fill/26-0222/sessions/73/jobs/91");
+  assert.equal(paths.adviceLetter("26-0222", 118), "/advice-letters/26-0222/drafts/118");
+  assert.equal(paths.adviceLetterView("26-0222", 118, "history"), "/advice-letters/26-0222/drafts/118/history");
+  assert.equal(pathForMode("advice_letter", "26-0222", { view: "new" }), "/advice-letters/26-0222/new");
+  const job = parseLocation("/template-fill/26-0222/sessions/73/jobs/91");
+  assert.deepEqual([job.mode, job.view, job.sessionId, job.jobId], ["template_fill", "job", 73, 91]);
+});

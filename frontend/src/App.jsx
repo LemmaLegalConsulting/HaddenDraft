@@ -64,6 +64,7 @@ import { WorkflowStepper } from "./components/WorkflowStepper.jsx";
 import { RouteNotice } from "./components/RouteNotice.jsx";
 import {
   CASE_SCOPED_MODES,
+  MODES_WITH_NEW,
   canonicalPath,
   caseRouteAction,
   matterMatchesKey,
@@ -146,6 +147,10 @@ export function App() {
   const caseState = routeCaseState(route, { matter, lookup: caseLookup });
   const savedDraftingSessions = useSavedSessions(
     route.mode === "draft" && route.view === null && caseState === "ready" ? matter?.routeCaseKey || route.caseKey : null,
+  );
+  const savedLetters = useSavedSessions(
+    route.mode === "advice_letter" && route.view === null && caseState === "ready" ? matter?.routeCaseKey || route.caseKey : null,
+    { workspace: "advice-letters" },
   );
   const [selectedTemplateId, setSelectedTemplateId] = useState(null);
   // The template list opens on a default so the picker is never empty, but a
@@ -604,7 +609,11 @@ export function App() {
   const planDirty = sessionInMemory && planChanged(session, draftPlan);
   const sessionDirty = changedSessionFields.length > 0 || planDirty;
   const documentsDirty = sessionInMemory && hasUnsavedDocuments(workspace);
-  const hasUnsavedWork = sessionDirty || documentsDirty;
+  // Screens that keep their own edits (the advice letter) report them here and
+  // register how to save them, so leaving asks the same way everywhere.
+  const [panelDirty, setPanelDirty] = useState(false);
+  const panelSaveRef = useRef(null);
+  const hasUnsavedWork = sessionDirty || documentsDirty || panelDirty;
 
   // Save the session's choices and plan, if changed. Resolves to the saved
   // session, or null when the save failed -- and a caller about to generate
@@ -684,6 +693,7 @@ export function App() {
   }
 
   async function saveAllWork() {
+    if (panelDirty && panelSaveRef.current && !(await panelSaveRef.current())) return false;
     for (const draftId of workspace.unsavedDraftIds) {
       const target = workspace.drafts.find((item) => item.id === draftId);
       if (target && !(await saveDraftDocument(target))) return false;
@@ -723,6 +733,7 @@ export function App() {
     setDraftPlan(null);
     restoredSelectionRef.current = null;
     dispatchWorkspace({ type: "reset" });
+    setPanelDirty(false);
     setLeaveSave({ busy: false, error: "" });
     blocker.proceed?.();
   }
@@ -1386,7 +1397,7 @@ export function App() {
   // the advocate is. Drafting opens on setup, as the sidebar always has.
   function goToMode(nextMode, caseKey = matter?.routeCaseKey || activeCaseKey) {
     if (nextMode === "draft") setDraftStep("goal");
-    navigate(pathForMode(nextMode, caseKey, { view: nextMode === "draft" ? "new" : null }));
+    navigate(pathForMode(nextMode, caseKey, { view: MODES_WITH_NEW.has(nextMode) ? "new" : null }));
   }
 
   // Make a case the active one, on the given screen or the current one. A
@@ -1558,8 +1569,60 @@ export function App() {
             }}
           />
         )}
-        {view === "template_fill" && <TemplateFillPanel key={matter?.id || matter?.externalId || "none"} matter={matter} authorProfile={draftAuthorProfile} legalserverSave={boot?.legalserverSave} />}
-        {view === "advice_letter" && <AdviceLetterPanel matter={matter} authorProfile={draftAuthorProfile} legalserverSave={boot?.legalserverSave} account={auth} />}
+        {view === "template_fill" && (
+          <TemplateFillPanel
+            key={matter?.id || matter?.externalId || "none"}
+            matter={matter}
+            authorProfile={draftAuthorProfile}
+            legalserverSave={boot?.legalserverSave}
+            account={auth?.username || ""}
+            route={{ sessionId: route.sessionId, jobId: route.jobId, view: route.view }}
+            onNavigate={({ sessionId, jobId, view: fillView } = {}, options = {}) => {
+              const caseKey = matter?.routeCaseKey || route.caseKey;
+              const to = !sessionId ? paths.templateFill(caseKey)
+                : jobId ? paths.fillJob(caseKey, sessionId, jobId)
+                  : paths.fillSession(caseKey, sessionId, fillView || "fields");
+              navigate(to, options);
+            }}
+          />
+        )}
+        {view === "advice_letter" && route.view === null && (
+          <SavedSessionList
+            matter={matter}
+            title="Advice letters"
+            description="Letters saved for this case. Opening one shows it as it was saved; nothing is reassembled."
+            {...savedLetters}
+            sessions={savedLetters.sessions.filter((row) => row.draftId)}
+            onLoadMore={savedLetters.loadMore}
+            sessionHref={(row) => paths.adviceLetter(draftingCaseKey, row.draftId)}
+            newHref={draftingCaseKey ? paths.adviceLetterNew(draftingCaseKey) : "/advice-letters"}
+            newLabel="Start a new letter"
+            onNavigate={(href) => navigate(href)}
+          />
+        )}
+        {view === "advice_letter" && route.view === "new" && draftingCaseKey && (
+          <p className="drafting-saved-link">
+            <a href={paths.adviceLetters(draftingCaseKey)} onClick={(event) => { if (event.button === 0 && !event.metaKey && !event.ctrlKey) { event.preventDefault(); navigate(paths.adviceLetters(draftingCaseKey)); } }}>
+              <FolderOpen size={14} /> Saved letters for this case
+            </a>
+          </p>
+        )}
+        {view === "advice_letter" && route.view !== null && (
+          <AdviceLetterPanel
+            // A new letter and each saved one are separate screens; switching
+            // between them starts clean rather than carrying one into another.
+            key={`${matter?.id || "none"}:${route.draftId || "new"}`}
+            matter={matter}
+            authorProfile={draftAuthorProfile}
+            legalserverSave={boot?.legalserverSave}
+            account={auth}
+            draftId={route.draftId}
+            view={route.view}
+            onDraftCreated={(id) => navigate(paths.adviceLetter(draftingCaseKey, id), { replace: true })}
+            onDirtyChange={setPanelDirty}
+            registerSave={(save) => { panelSaveRef.current = save; }}
+          />
+        )}
         {view === "argument_gym" && (
           <ArgumentGymPanel
             matter={matter}
