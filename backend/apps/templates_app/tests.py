@@ -19,6 +19,7 @@ from apps.templates_app.ingestion import (
     LATITUDE_GENERATE,
     LATITUDE_GUIDED,
     LATITUDE_LOCKED,
+    annotate_document,
     classify_latitude,
     discover_blocks,
     ingest_docx,
@@ -223,6 +224,26 @@ class AffidavitFillInNamingTests(TestCase):
         # The advocate's own rule is still their signature block.
         advocate, _ = self.convert(("____________________________", False), nearby="Respectfully submitted,\nAttorney for Defendant")
         self.assertIn("{{ advocate_signature_block }}", advocate)
+
+    def test_a_bracketed_value_in_a_generated_section_survives(self):
+        # The affidavit's facts section runs on to the signature rule, and the
+        # instruction clean-up deleted "[Defendant Name]" beneath it.
+        document = Document()
+        document.add_heading("FACTS", level=1)
+        document.add_paragraph("[Insert case specific facts]")
+        document.add_paragraph("[Synopsis of situation]")
+        document.add_paragraph("Further affiant sayeth naught.")
+        document.add_paragraph("____________________________")
+        document.add_paragraph("[Defendant Name]")
+        blocks = discover_blocks(document)
+        self.assertEqual(classify_latitude(document, blocks[0]), LATITUDE_GENERATE)
+
+        annotate_document(document, blocks)
+
+        text = [paragraph.text for paragraph in document.paragraphs]
+        self.assertIn("{{ defendant }}", text)
+        self.assertIn("____________________________", text)
+        self.assertFalse(any("Synopsis" in line for line in text), "an instruction is still removed")
 
     def test_day_and_month_outside_a_jurat_are_two_fields(self):
         text, conversion = self.convert(("Signed this ___ day of ________, 20__.", False))
