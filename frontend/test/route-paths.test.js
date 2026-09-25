@@ -6,7 +6,9 @@ import {
   caseRouteAction,
   matterMatchesKey,
   parseLocation,
+  buildPath,
   pathForMode,
+  resumePath,
   routeCaseState,
   paths,
   signInReturnPath,
@@ -39,10 +41,12 @@ test("a case key is encoded, so a stray character cannot add a path segment", ()
   assert.deepEqual(parseLocation("/drafting/A%2FB%20C").caseKey, "A/B C");
 });
 
+const pick = ({ mode, caseKey, view, found }) => ({ mode, caseKey, view, found });
+
 test("reads every route this version can open", () => {
-  assert.deepEqual(parseLocation("/drafting/26-0222"), { mode: "draft", caseKey: "26-0222", view: null, found: true });
-  assert.deepEqual(parseLocation("/drafting/26-0222/new"), { mode: "draft", caseKey: "26-0222", view: "new", found: true });
-  assert.deepEqual(parseLocation("/cases"), { mode: "case", caseKey: null, view: null, found: true });
+  assert.deepEqual(pick(parseLocation("/drafting/26-0222")), { mode: "draft", caseKey: "26-0222", view: null, found: true });
+  assert.deepEqual(pick(parseLocation("/drafting/26-0222/new")), { mode: "draft", caseKey: "26-0222", view: "new", found: true });
+  assert.deepEqual(pick(parseLocation("/cases")), { mode: "case", caseKey: null, view: null, found: true });
   assert.equal(parseLocation("/cases/26-0222/").caseKey, "26-0222");
   assert.equal(parseLocation("/research/search").mode, "research");
   assert.equal(parseLocation("/research").mode, "research");
@@ -58,7 +62,11 @@ test("every mode round-trips through its path", () => {
 
 test("a link this version cannot open is not found, never trimmed to its case", () => {
   for (const path of [
-    "/drafting/26-0222/sessions/184",
+    "/drafting/26-0222/sessions/0",
+    "/drafting/26-0222/sessions/abc",
+    "/drafting/26-0222/sessions/184/drafts",
+    "/drafting/26-0222/sessions/184/drafts/9/export",
+    "/drafting/26-0222/sessions/184/generate",
     "/drafting/26-0222/plan",
     "/cases/26-0222/documents",
     "/triage/26-0222/new",
@@ -140,4 +148,48 @@ test("an old case number stays ready while the URL is rewritten to the new one",
   const route = parseLocation("/drafting/26-0111");
   const matter = { id: "MID-1", routeCaseKey: "26-0999" };
   assert.equal(routeCaseState(route, { matter, lookup: { key: "26-0111", status: "ready" } }), "ready");
+});
+
+test("drafting session, job, and draft routes carry their ids", () => {
+  const draft = parseLocation("/drafting/26-0222/sessions/184/drafts/391/history");
+  assert.equal(draft.view, "history");
+  assert.equal(draft.sessionId, 184);
+  assert.equal(draft.draftId, 391);
+  const job = parseLocation("/drafting/26-0222/sessions/184/jobs/7");
+  assert.deepEqual([job.view, job.sessionId, job.jobId], ["job", 184, 7]);
+  assert.equal(parseLocation("/drafting/26-0222/sessions/184").view, "session");
+  for (const view of ["goal", "plan", "questions", "package"]) {
+    assert.equal(parseLocation(`/drafting/26-0222/sessions/184/${view}`).view, view);
+  }
+});
+
+test("every drafting route builds back to the path it was read from", () => {
+  for (const path of [
+    "/drafting/26-0222",
+    "/drafting/26-0222/new",
+    "/drafting/26-0222/sessions/184",
+    "/drafting/26-0222/sessions/184/plan",
+    "/drafting/26-0222/sessions/184/jobs/7",
+    "/drafting/26-0222/sessions/184/drafts/391",
+    "/drafting/26-0222/sessions/184/drafts/391/validation",
+  ]) {
+    assert.equal(buildPath(parseLocation(path)), path);
+  }
+});
+
+test("renumbering a case keeps the session and draft in the rewritten URL", () => {
+  const route = parseLocation("/drafting/26-0111/sessions/184/drafts/391");
+  assert.equal(canonicalPath(route, "26-0999"), "/drafting/26-0999/sessions/184/drafts/391");
+});
+
+test("a saved session reopens where its saved work is", () => {
+  assert.equal(resumePath("26-0222", 184, { recommendedView: "goal" }), "/drafting/26-0222/sessions/184/goal");
+  assert.equal(resumePath("26-0222", 184, { recommendedView: "plan" }), "/drafting/26-0222/sessions/184/plan");
+  assert.equal(
+    resumePath("26-0222", 184, { recommendedView: "draft", lastDraftId: 392, draftIds: [391, 392] }),
+    "/drafting/26-0222/sessions/184/drafts/392",
+  );
+  assert.equal(resumePath("26-0222", 184, { recommendedView: "job", activeJobId: 7 }), "/drafting/26-0222/sessions/184/jobs/7");
+  // Advice with nothing to back it falls back to a screen that only reads.
+  assert.equal(resumePath("26-0222", 184, { recommendedView: "draft", draftIds: [] }), "/drafting/26-0222/sessions/184/goal");
 });

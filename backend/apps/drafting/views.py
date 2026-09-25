@@ -9,6 +9,14 @@ from apps.drafting.generation_jobs import fail_if_stalled, job_to_dict, start_jo
 from apps.drafting.models import DraftDocument, DraftingSession, DraftGenerationJob
 from apps.drafting.operations import operation_to_dict
 from apps.drafting.packages import derive_relationships, package_payload
+from apps.drafting.resume import (
+    WORKSPACE_MODES,
+    page_bounds,
+    resume_payload,
+    session_in_route,
+    session_summary,
+    sessions_for_matter,
+)
 from apps.drafting.serializers import draft_to_dict, session_to_dict
 from apps.drafting.services import (
     advance,
@@ -33,6 +41,7 @@ from apps.matters.legalserver_delivery import (
 )
 from apps.matters.models import MatterFact
 from apps.matters.serializers import fact_to_dict, matter_to_dict
+from apps.matters.route_aliases import resolve_matter_route_key
 from apps.matters.services import accessible_matters_for_user, matter_for_user, user_can_access_matter
 from apps.templates_app.models import DocumentTemplate
 from apps.validation.repair import validate_with_auto_repair
@@ -43,12 +52,18 @@ from apps.validation.services import validate_document
 SHELL_TEMPLATE_SLUG = "novel-motion-shell"
 
 
-def _session_or_404(user, session_id, *, with_template=False):
+def _session_or_404(user, session_id, *, with_template=False, case_key="", workspace=""):
     queryset = DraftingSession.objects.select_related("matter", "template")
     if with_template:
         queryset = queryset.prefetch_related("template__blocks")
     session = queryset.filter(id=session_id).first()
-    if not session or not user_can_access_matter(user, session.matter):
+    # A session on another case, or in another workspace, answers exactly as a
+    # missing one: a URL must not reveal which case a session belongs to.
+    if (
+        not session
+        or not user_can_access_matter(user, session.matter)
+        or not session_in_route(user, session, case_key=case_key, workspace=workspace)
+    ):
         return None, JsonResponse({"error": "Drafting session not found"}, status=404)
     if session.mode == "template_fill":
         return None, JsonResponse({"error": "Use the Fill template workspace for this session."}, status=400)
@@ -76,6 +91,8 @@ def _advance_or_400(session, payload):
 
 @api_login_required
 def sessions(request):
+    if request.method == "GET" and (request.GET.get("caseKey") or request.GET.get("matterId")):
+        return _session_summaries(request)
     if request.method == "GET":
         accessible_ids = [matter.id for matter in accessible_matters_for_user(request.user)]
         sessions = DraftingSession.objects.select_related("matter", "template").filter(matter_id__in=accessible_ids)
@@ -116,15 +133,53 @@ def sessions(request):
     return JsonResponse({"session": session_to_dict(session)}, status=201)
 
 
+def _session_summaries(request):
+    """One case's saved sessions, newest first, as light rows for a list screen."""
+    case_key = request.GET.get("caseKey", "").strip()
+    matter = (
+        resolve_matter_route_key(request.user, case_key)
+        if case_key
+        else matter_for_user(request.user, request.GET.get("matterId", "").strip())
+    )
+    if not matter:
+        return JsonResponse({"error": "Case not found or not available to this user"}, status=404)
+    workspace = request.GET.get("workspace", "drafting")
+    modes = WORKSPACE_MODES.get(workspace)
+    if modes is None:
+        return JsonResponse({"error": f"Unknown workspace {workspace!r}."}, status=400)
+    mode = request.GET.get("mode", "").strip()
+    if mode:
+        modes = {mode} & modes
+    limit, offset = page_bounds(request.GET.get("limit"), request.GET.get("offset"))
+    page, total = sessions_for_matter(matter, modes=modes, limit=limit, offset=offset)
+    return JsonResponse(
+        {
+            "sessions": [session_summary(session) for session in page],
+            "total": total,
+            "hasMore": offset + len(page) < total,
+        }
+    )
+
+
 @api_login_required
 def session_detail(request, session_id):
+    """A saved session, read-only, with where reopening it should land.
+
+    `caseKey` and `workspace` name the URL the session was opened from; when
+    given, the session must belong to that case and that workspace.
+    """
     if request.method != "GET":
         return method_not_allowed(["GET"])
-    session, error = _session_or_404(request.user, session_id)
+    session, error = _session_or_404(
+        request.user,
+        session_id,
+        case_key=request.GET.get("caseKey", "").strip(),
+        workspace=request.GET.get("workspace", "").strip(),
+    )
     if error:
         return error
     session = DraftingSession.objects.select_related("matter", "template").prefetch_related("matter__facts", "template__blocks").get(id=session.id)
-    return JsonResponse({"session": session_to_dict(session)})
+    return JsonResponse({"session": session_to_dict(session), "resume": resume_payload(session)})
 
 
 @api_login_required

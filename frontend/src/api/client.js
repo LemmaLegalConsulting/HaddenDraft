@@ -174,6 +174,18 @@ export const api = {
   createTemplateFromExample: (payload) =>
     request("/templates/from-example/", { method: "POST", body: JSON.stringify(payload) }),
   createSession: (payload) => request("/drafting-sessions/", { method: "POST", body: JSON.stringify(payload) }),
+  // Saved sessions for one case, as light rows. Read-only.
+  savedSessions: ({ caseKey, workspace = "drafting", limit = 20, offset = 0 }, { signal } = {}) =>
+    request(`/drafting-sessions/?${new URLSearchParams({ caseKey, workspace, limit: String(limit), offset: String(offset) })}`, { signal }),
+  // One saved session and where reopening it should land. `caseKey` and
+  // `workspace` name the URL it was opened from; the server checks both.
+  savedSession: (sessionId, { caseKey = "", workspace = "" } = {}, { signal } = {}) => {
+    const params = new URLSearchParams();
+    if (caseKey) params.set("caseKey", caseKey);
+    if (workspace) params.set("workspace", workspace);
+    const query = params.toString();
+    return request(`/drafting-sessions/${sessionId}/${query ? `?${query}` : ""}`, { signal });
+  },
   advanceSession: (sessionId, payload) =>
     request(`/drafting-sessions/${sessionId}/advance/`, { method: "POST", body: JSON.stringify(payload) }),
   recommendSessionFacts: (sessionId, payload = { apply: true }) =>
@@ -191,14 +203,14 @@ export const api = {
     request(`/drafting-sessions/${sessionId}/plan/`, { method: "PATCH", body: JSON.stringify(payload) }),
   updateSessionTemplateData: (sessionId, templateData) =>
     request(`/drafting-sessions/${sessionId}/template-data/`, { method: "POST", body: JSON.stringify({ templateData }) }),
-  sessionDrafts: (sessionId) => request(`/drafting-sessions/${sessionId}/drafts/`),
+  sessionDrafts: (sessionId, { signal } = {}) => request(`/drafting-sessions/${sessionId}/drafts/`, { signal }),
   sessionPackage: (sessionId) => request(`/drafting-sessions/${sessionId}/package/`),
   // Answers 202 with a job; poll draftGenerationJob until it completes
   // (state/draftJobs.js does).
   generatePlanDrafts: (sessionId, payload = {}) =>
     request(`/drafting-sessions/${sessionId}/drafts/`, { method: "POST", body: JSON.stringify(payload) }),
-  draftGenerationJob: (sessionId, jobId) =>
-    request(`/drafting-sessions/${sessionId}/drafts/?${new URLSearchParams({ job: String(jobId) })}`),
+  draftGenerationJob: (sessionId, jobId, { signal } = {}) =>
+    request(`/drafting-sessions/${sessionId}/drafts/?${new URLSearchParams({ job: String(jobId) })}`, { signal }),
   generateDraft: (sessionId) => request(`/drafting-sessions/${sessionId}/draft/`, { method: "POST" }),
   updateDraft: (draftId, payload) => request(`/drafts/${draftId}/`, { method: "PATCH", body: JSON.stringify(payload) }),
   draftComponents: (draftId) => request(`/drafts/${draftId}/components/`),

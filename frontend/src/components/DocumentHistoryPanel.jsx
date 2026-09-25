@@ -96,8 +96,9 @@ function ComponentHistory({ entry, busy, onRestore }) {
  * done to it. Restoring a version goes through the same operation API the
  * backend records every other change with.
  */
-export function DocumentHistoryPanel({ draft, busy = false, onDraftRestored }) {
-  const [open, setOpen] = useState(false);
+// `initiallyOpen`: a history URL lands on the history, not on a closed toggle.
+export function DocumentHistoryPanel({ draft, busy = false, onDraftRestored, initiallyOpen = false }) {
+  const [open, setOpen] = useState(initiallyOpen);
   const [loading, setLoading] = useState(false);
   const [components, setComponents] = useState([]);
   const [operations, setOperations] = useState([]);

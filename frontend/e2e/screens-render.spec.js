@@ -84,12 +84,50 @@ const SCREENS = [
   { name: "Argument gym", marker: "button", text: "Open session" },
 ];
 
+// One saved drafting session on the stub case, with one generated document.
+const SAVED_DRAFT = {
+  id: 391, sessionId: 184, templateId: null, title: "Answer to complaint", exportFormat: "docx",
+  sections: [{ key: "intro", title: "Introduction", text: "The tenant answers." }],
+  plainText: "The tenant answers.", editorState: {}, validationFlags: [], updatedAt: "2026-09-25T12:00:00Z",
+};
+const SAVED_SESSION = {
+  id: 184, mode: "draft_from_template", status: "draft_review", matter: MATTER, template: null,
+  selectedFactIds: [], selectedCuratedFacts: [], selectedSourceResults: [], selectedBlockKeys: [],
+  authorProfile: {}, templateData: {}, goal: "Answer the complaint", instructions: "Answer the complaint",
+  draftPlan: { documents: [{ title: "Answer to complaint" }] }, missingInformation: [], selectedTemplateIds: [],
+  updatedAt: "2026-09-25T12:00:00Z",
+};
+const SAVED_ROW = {
+  id: 184, mode: "draft_from_template", status: "draft_review", matterId: 1, caseNumber: "26-0001", routeCaseKey: "26-0001",
+  goal: "Answer the complaint", templateTitle: "", plannedDocuments: ["Answer to complaint"], draftCount: 1,
+  createdAt: "2026-09-25T12:00:00Z", updatedAt: "2026-09-25T12:00:00Z",
+};
+
+function draftingBody(url) {
+  const path = url.pathname.replace(/^\/api/, "");
+  if (path === "/drafting-sessions/" && url.searchParams.get("caseKey")) {
+    return { json: { sessions: [SAVED_ROW], total: 1, hasMore: false } };
+  }
+  if (path === "/drafting-sessions/184/") {
+    const caseKey = url.searchParams.get("caseKey");
+    if (caseKey && !ROUTE_KEYS.has(caseKey)) return { status: 404, json: { error: "Drafting session not found" } };
+    return { json: { session: SAVED_SESSION, resume: { recommendedView: "draft", activeJobId: null, draftIds: [391], lastDraftId: 391, hasPlan: true } } };
+  }
+  if (path === "/drafting-sessions/184/drafts/") {
+    if (url.searchParams.get("job")) return { json: { job: { id: 7, sessionId: 184, status: "complete", draftIds: [391] }, drafts: [SAVED_DRAFT] } };
+    return { json: { drafts: [SAVED_DRAFT] } };
+  }
+  return null;
+}
+
 // The case a URL names: by its readable number or its id, and nothing else.
 const ROUTE_KEYS = new Set([MATTER.routeCaseKey, String(MATTER.id)]);
 
 test.beforeEach(async ({ page }) => {
   await page.route("**/api/**", async (route) => {
     const url = new URL(route.request().url());
+    const drafting = route.request().method() === "GET" ? draftingBody(url) : null;
+    if (drafting) return route.fulfill(drafting);
     if (url.pathname.endsWith("/cases/by-route-key/")) {
       return ROUTE_KEYS.has(url.searchParams.get("key"))
         ? route.fulfill({ json: { case: MATTER } })
@@ -148,6 +186,8 @@ test("every screen in the sidebar opens and renders", async ({ page }) => {
 test("the draft workflow steps each render", async ({ page }) => {
   const errors = watchForErrors(page);
   await page.goto("/");
+  // With no case, Draft lists saved work and asks for a case; setup needs one.
+  await page.getByRole("button", { name: "Make active" }).first().click();
   await page.locator("nav.mode-list button", { hasText: "Draft" }).click();
 
   const steps = page.locator(".stepper button.step");
@@ -217,9 +257,90 @@ test("a case that does not open shows nothing from any other case", async ({ pag
 
 test("a link this version cannot open says so rather than opening something else", async ({ page }) => {
   const errors = watchForErrors(page);
-  await page.goto("/drafting/26-0001/sessions/184/plan");
+  await page.goto("/drafting/26-0001/sessions/184/drafts/391/export");
   await expectScreenRenders(errors, page.getByRole("heading", { name: "This page does not exist" }));
-  await expect(page).toHaveURL(/\/drafting\/26-0001\/sessions\/184\/plan$/);
+  await expect(page).toHaveURL(/\/drafting\/26-0001\/sessions\/184\/drafts\/391\/export$/);
+});
+
+// Opening saved work is reading it. Any write while following links is a bug.
+function watchForWrites(page) {
+  const writes = [];
+  page.on("request", (request) => {
+    if (request.url().includes("/api/") && request.method() !== "GET") writes.push(`${request.method()} ${request.url()}`);
+  });
+  return writes;
+}
+
+test("a case's saved drafting work is listed and each row reopens it", async ({ page }) => {
+  const errors = watchForErrors(page);
+  const writes = watchForWrites(page);
+  await page.goto("/drafting/26-0001");
+  await expectScreenRenders(errors, page.getByRole("heading", { name: "Drafting" }));
+  await page.getByRole("link", { name: /Answer to complaint/ }).click();
+  // The session resolves to the document it last saved, replacing itself.
+  await expect(page).toHaveURL(/\/drafting\/26-0001\/sessions\/184\/drafts\/391$/);
+  await expect(page.locator(".draft-switcher, .editor-panel").first()).toBeVisible();
+  await page.goBack();
+  await expect(page).toHaveURL(/\/drafting\/26-0001$/);
+  expect(writes).toEqual([]);
+});
+
+test("a saved document survives a reload without anything being regenerated", async ({ page }) => {
+  const errors = watchForErrors(page);
+  const writes = watchForWrites(page);
+  await page.goto("/drafting/26-0001/sessions/184/drafts/391");
+  await expectScreenRenders(errors, page.locator(".editor-panel"));
+  await page.reload();
+  await expectScreenRenders(errors, page.locator(".editor-panel"));
+  await page.goto("/drafting/26-0001/sessions/184/plan");
+  await expectScreenRenders(errors, page.locator("main.workspace .panel").first());
+  await expect(page).toHaveURL(/\/sessions\/184\/plan$/);
+  expect(writes).toEqual([]);
+});
+
+test("a session opened under the wrong case does not open", async ({ page }) => {
+  const errors = watchForErrors(page, { allow: [/status of 404/] });
+  await page.goto("/drafting/1/sessions/184/plan");
+  // "1" is the stub case's id, so it canonicalizes; an unknown case never opens.
+  await page.goto("/drafting/26-9999/sessions/184/plan");
+  await expectScreenRenders(errors, page.getByRole("heading", { name: "Case 26-9999 is not available" }));
+});
+
+test("a document the session does not have says so", async ({ page }) => {
+  const errors = watchForErrors(page);
+  await page.goto("/drafting/26-0001/sessions/184/drafts/999");
+  await expectScreenRenders(errors, page.getByRole("heading", { name: "This document is not part of this session" }));
+});
+
+test("a generation link reconnects to its job and lands on the document", async ({ page }) => {
+  const writes = watchForWrites(page);
+  await page.goto("/drafting/26-0001/sessions/184/jobs/7");
+  await expect(page).toHaveURL(/\/sessions\/184\/drafts\/391$/);
+  expect(writes).toEqual([]);
+});
+
+test("making a plan gives the new session its own URL, replacing setup", async ({ page }) => {
+  const created = { ...SAVED_SESSION, id: 185, draftPlan: {} };
+  const planned = { ...created, draftPlan: { documents: [{ title: "Answer to complaint" }] }, selectedFactIds: [1] };
+  await page.route("**/api/drafting-sessions/**", async (route) => {
+    const request = route.request();
+    const path = new URL(request.url()).pathname;
+    if (request.method() === "POST" && path.endsWith("/drafting-sessions/")) return route.fulfill({ status: 201, json: { session: created } });
+    if (request.method() === "POST" && path.endsWith("/185/plan/")) return route.fulfill({ json: { session: planned, plan: planned.draftPlan } });
+    if (request.method() === "POST" && path.endsWith("/185/recommend-facts/")) return route.fulfill({ json: { session: planned, factIds: [1] } });
+    return route.fallback();
+  });
+  const errors = watchForErrors(page);
+  await page.goto("/cases/26-0001");
+  await page.locator("nav.mode-list button", { hasText: "Draft" }).click();
+  await expect(page).toHaveURL(/\/drafting\/26-0001\/new$/);
+  await page.getByRole("textbox").first().fill("Answer the complaint");
+  await page.getByRole("button", { name: "Make plan" }).click();
+  await expect(page).toHaveURL(/\/drafting\/26-0001\/sessions\/185\/plan$/);
+  await expectScreenRenders(errors, page.locator(".stepper"));
+  // Setup was replaced: Back leaves drafting rather than offering setup again.
+  await page.goBack();
+  await expect(page).toHaveURL(/\/cases\/26-0001$/);
 });
 
 test("fill template upload, optional answers, save and DOCX download", async ({ page }) => {

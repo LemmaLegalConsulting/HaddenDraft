@@ -70,11 +70,16 @@ import {
   parseLocation,
   pathForMode,
   paths,
+  resumePath,
   routeCaseState,
   signInReturnPath,
 } from "./routes/paths.js";
 import { initialActiveCase, rememberCase } from "./state/activeCase.js";
 import { waitForDrafts } from "./state/draftJobs.js";
+import { blockDefaultsApply, draftScreenFor, hydrateSavedSession, stepForView } from "./state/resumeWorkspace.js";
+import { useSavedSessions } from "./hooks/useSavedSessions.js";
+import { SavedSessionList } from "./components/SavedSessionList.jsx";
+import { DraftJobProgress } from "./components/DraftJobProgress.jsx";
 import { activeDraft, draftWorkspaceReducer, initialDraftWorkspace } from "./state/draftWorkspace.js";
 import { useModalDismiss } from "./hooks/useModalDismiss.js";
 
@@ -111,7 +116,9 @@ export function App() {
   const route = useMemo(() => parseLocation(location.pathname), [location.pathname]);
   const mode = route.mode;
   const [draftMode, setDraftMode] = useState("draft_from_template");
-  const [draftStep, setDraftStep] = useState("goal");
+  // Unsaved setup keeps its step in memory; a saved session's step is its URL.
+  const [localDraftStep, setDraftStep] = useState("goal");
+  const draftStep = (route.mode === "draft" && stepForView(route.view)) || localDraftStep;
   const [draftGoal, setDraftGoal] = useState("");
   const [goalSuggestions, setGoalSuggestions] = useState([]);
   const [goalSuggestionGuidance, setGoalSuggestionGuidance] = useState("");
@@ -132,6 +139,10 @@ export function App() {
   const matterRef = useRef(null);
   matterRef.current = matter;
   const selectedMatterId = matter?.id ?? null;
+  const caseState = routeCaseState(route, { matter, lookup: caseLookup });
+  const savedDraftingSessions = useSavedSessions(
+    route.mode === "draft" && route.view === null && caseState === "ready" ? matter?.routeCaseKey || route.caseKey : null,
+  );
   const [selectedTemplateId, setSelectedTemplateId] = useState(null);
   // The template list opens on a default so the picker is never empty, but a
   // default is not a choice: until the advocate picks one (or a draft exists)
@@ -144,6 +155,14 @@ export function App() {
   const [candidateIssues, setCandidateIssues] = useState([]);
   const [sourceResults, setSourceResults] = useState([]);
   const [session, setSession] = useState(null);
+  const sessionRef = useRef(null);
+  sessionRef.current = session;
+  // The last saved-session lookup: { id, status, resume }.
+  const [sessionLookup, setSessionLookup] = useState({ id: null, status: "idle", resume: null });
+  // What a restored session selected, so template defaults do not replace it.
+  const restoredSelectionRef = useRef(null);
+  const defaultTemplateIdRef = useRef(null);
+  const [jobProgress, setJobProgress] = useState({ jobId: null, status: "idle", error: "" });
   const [outline, setOutline] = useState(null);
   const [workspace, dispatchWorkspace] = useReducer(draftWorkspaceReducer, initialDraftWorkspace);
   const [revisionBusy, setRevisionBusy] = useState(false);
@@ -259,7 +278,8 @@ export function App() {
       setTriageRubrics(rubricResponse.rubrics || []);
       setSelectedTriageRubricId((current) => current || rubricResponse.rubrics?.[0]?.id || "");
       const defaultTemplate = templateResponse.templates.find((item) => item.slug === "answer-counterclaims-cleveland");
-      setSelectedTemplateId(defaultTemplate?.id ?? templateResponse.templates[0]?.id ?? null);
+      defaultTemplateIdRef.current = defaultTemplate?.id ?? templateResponse.templates[0]?.id ?? null;
+      setSelectedTemplateId((current) => current ?? defaultTemplateIdRef.current);
     } finally {
       setWorkspaceLoading(false);
     }
@@ -467,9 +487,125 @@ export function App() {
     if (auth?.username && selectedMatterId) rememberCase(auth.username, selectedMatterId);
   }, [auth?.username, selectedMatterId]);
 
-  // Arriving at /drafting/<case>/new is arriving at setup.
+  // Put a saved session back on screen exactly as it was saved.
+  function applySavedSession(saved, savedDrafts) {
+    const snapshot = hydrateSavedSession(saved, { defaultTemplateId: defaultTemplateIdRef.current });
+    setSession(saved);
+    setDraftMode(snapshot.draftMode);
+    setDraftGoal(snapshot.draftGoal);
+    setInstructions(snapshot.instructions);
+    setPlanningMode(snapshot.planningMode);
+    setAllowMultipleDocuments(snapshot.allowMultipleDocuments);
+    setSelectedTemplateId(snapshot.selectedTemplateId);
+    setTemplateChosen(snapshot.templateChosen);
+    setSelectedFactIds(snapshot.selectedFactIds);
+    setSelectedCuratedFacts(snapshot.selectedCuratedFacts);
+    setSelectedBlockKeys(snapshot.selectedBlockKeys);
+    setTemplateData(snapshot.templateData);
+    setSourceResults(snapshot.sourceResults);
+    setDraftPlan(snapshot.draftPlan);
+    setGoalSuggestions([]);
+    setSelectedGoalSuggestionId("");
+    setOutline(null);
+    if (snapshot.authorProfile) setDraftAuthorProfile((current) => ({ ...current, ...snapshot.authorProfile }));
+    restoredSelectionRef.current = {
+      matterId: saved.matter?.id,
+      selectedFactIds: snapshot.selectedFactIds,
+      templateId: snapshot.selectedTemplateId == null ? null : Number(snapshot.selectedTemplateId),
+    };
+    dispatchWorkspace({ type: "reset" });
+    dispatchWorkspace({ type: "documentsLoaded", drafts: savedDrafts });
+  }
+
+  // Open the saved session a drafting URL names, once its case has opened.
+  // Two reads -- the session and its documents -- and nothing else: no plan,
+  // no generation, no validation. /sessions/<id> then moves on to the
+  // furthest point the session saved, replacing itself in history.
+  const routeSessionId = route.mode === "draft" ? route.sessionId : null;
+  const resolvingSession = route.mode === "draft" && route.view === "session";
+  // Held in memory already -- and on this URL's case, or it is not the same
+  // thing at all: a session from another case never skips the server's check.
+  const holdsRouteSession = (held) => Boolean(held) && held.id === routeSessionId && held.matter?.id != null && held.matter.id === matterRef.current?.id;
   useEffect(() => {
-    if (route.mode === "draft" && route.view === "new") setDraftStep("goal");
+    if (!auth?.isAuthenticated || !routeSessionId || caseState !== "ready") return undefined;
+    if (!resolvingSession && holdsRouteSession(sessionRef.current)) return undefined;
+    const controller = new AbortController();
+    const caseKey = route.caseKey;
+    setSessionLookup({ id: routeSessionId, status: "loading", resume: null });
+    Promise.all([
+      api.savedSession(routeSessionId, { caseKey, workspace: "drafting" }, { signal: controller.signal }),
+      api.sessionDrafts(routeSessionId, { signal: controller.signal }),
+    ])
+      .then(([detail, draftResponse]) => {
+        if (controller.signal.aborted) return;
+        if (!holdsRouteSession(sessionRef.current)) applySavedSession(detail.session, draftResponse.drafts || []);
+        setSessionLookup({ id: routeSessionId, status: "ready", resume: detail.resume });
+        if (resolvingSession) navigate(resumePath(caseKey, routeSessionId, detail.resume), { replace: true });
+      })
+      .catch((err) => {
+        if (controller.signal.aborted || err?.name === "AbortError") return;
+        setSessionLookup({ id: routeSessionId, status: err.status === 404 ? "unavailable" : "error", resume: null });
+        if (err.status !== 404) setError(err.message);
+      });
+    return () => controller.abort();
+    // route.caseKey is read, not watched: rewriting an old case number to the
+    // current one names the same session and must not reload it.
+  }, [auth?.isAuthenticated, routeSessionId, resolvingSession, caseState]);
+
+  // The document a URL names is the one on screen.
+  const routeDraftId = route.mode === "draft" ? route.draftId : null;
+  useEffect(() => {
+    if (!routeDraftId || workspace.activeDraftId === routeDraftId) return;
+    if (workspace.drafts.some((item) => item.id === routeDraftId)) {
+      dispatchWorkspace({ type: "documentSelected", draftId: routeDraftId });
+    }
+  }, [routeDraftId, workspace.activeDraftId, workspace.drafts]);
+
+  // /jobs/<id> reconnects to a generation already running. It polls the job it
+  // names; it never starts one, so a reload cannot make a second draft.
+  const routeJobId = route.mode === "draft" && route.view === "job" ? route.jobId : null;
+  const sessionInMemory = caseState === "ready" && holdsRouteSession(session);
+  useEffect(() => {
+    if (!routeJobId || !sessionInMemory) return undefined;
+    let cancelled = false;
+    const caseKey = route.caseKey;
+    const sessionId = routeSessionId;
+    const stop = new Error("stopped");
+    const sleep = (ms) => new Promise((resolve, reject) => setTimeout(() => (cancelled ? reject(stop) : resolve()), ms));
+    const poll = (jobId) => api.draftGenerationJob(sessionId, jobId);
+    setJobProgress({ jobId: routeJobId, status: "pending", error: "" });
+    poll(routeJobId)
+      .then((first) => waitForDrafts(first, poll, {
+        sleep,
+        onProgress: (job) => { if (!cancelled) setJobProgress({ jobId: routeJobId, status: job.status, error: "" }); },
+      }))
+      .then((generated) => {
+        if (cancelled) return;
+        dispatchWorkspace({ type: "documentsGenerated", drafts: generated });
+        setJobProgress({ jobId: routeJobId, status: "complete", error: "" });
+        const first = generated[0]?.id;
+        navigate(first ? paths.draft(caseKey, sessionId, first) : paths.draftingSessionView(caseKey, sessionId, "plan"), { replace: true });
+      })
+      .catch((err) => {
+        if (cancelled || err === stop) return;
+        setJobProgress({ jobId: routeJobId, status: "failed", error: err.status === 404 ? "This generation is not part of this session." : err.message });
+      });
+    return () => { cancelled = true; };
+  }, [routeJobId, routeSessionId, sessionInMemory]);
+
+  // Arriving at /drafting/<case>/new is arriving at setup, for something new:
+  // a saved session still in memory is let go, so nothing done here can act on
+  // it. What the advocate typed is kept; only the saved work is detached.
+  useEffect(() => {
+    if (route.mode !== "draft" || route.view !== "new") return;
+    setDraftStep("goal");
+    if (sessionRef.current) {
+      setSession(null);
+      setDraftPlan(null);
+      setOutline(null);
+      restoredSelectionRef.current = null;
+      dispatchWorkspace({ type: "reset" });
+    }
   }, [location.key, route.mode, route.view]);
 
   useEffect(() => {
@@ -627,6 +763,9 @@ export function App() {
 
   useEffect(() => {
     if (!selectedTemplate) return;
+    const inputs = { matterId: matter?.id, selectedFactIds, templateId: selectedTemplate.id };
+    if (!blockDefaultsApply(restoredSelectionRef.current, inputs)) return;
+    restoredSelectionRef.current = null;
     const keys = selectedTemplate.blocks
       .filter((block) => block.required || block.selectionRule?.fact_slugs?.some((slug) => matter?.facts?.find((fact) => fact.slug === slug && selectedFactIds.includes(fact.id))))
       .map((block) => block.key);
@@ -799,7 +938,7 @@ export function App() {
       setSession(plannedSession);
       setDraftPlan(response.plan);
       setSelectedBlockKeys(plannedSession.selectedBlockKeys || selectedBlockKeys);
-      showDraftStep("plan");
+      showDraftStep("plan", plannedSession);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -838,9 +977,16 @@ export function App() {
       const response = await api.generatePlanDrafts(activeSession.id, {
         requireAllMissingInformation: clarifyMissingFactsBeforeDraft,
       });
+      const current = parseLocation(window.location.pathname);
+      if (response.job && !response.drafts && current.mode === "draft" && current.caseKey) {
+        // The job has a URL: a reload or a second tab reconnects to it
+        // instead of pressing Generate again and making a second draft.
+        navigate(paths.draftingJob(current.caseKey, activeSession.id, response.job.id));
+        return;
+      }
       const drafts = await waitForDrafts(response, (jobId) => api.draftGenerationJob(activeSession.id, jobId));
       dispatchWorkspace({ type: "documentsGenerated", drafts });
-      showDraftStep("editor");
+      showDraftStep("editor", activeSession, drafts[0]?.id);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -1074,15 +1220,37 @@ export function App() {
     openCase(cases.find((item) => item.id === matterId) || (matter?.id === matterId ? matter : { id: matterId }));
   }
 
-  // A drafting step past setup is no longer "new". Replaced rather than
-  // pushed: Back leaves drafting instead of stepping through screens it
-  // cannot rebuild yet.
-  function showDraftStep(step) {
-    setDraftStep(step);
+  // Move the drafting workflow to a step. Once a session is saved, a step is a
+  // URL; leaving setup replaces /new, because setup has just become that saved
+  // session and Back should not offer to start it again.
+  function showDraftStep(step, activeSession = sessionRef.current, draftId = null) {
     const current = parseLocation(window.location.pathname);
-    if (step !== "goal" && current.mode === "draft" && current.view === "new" && current.caseKey) {
-      navigate(paths.drafting(current.caseKey), { replace: true });
+    const sessionId = activeSession?.id;
+    if (current.mode !== "draft" || !current.caseKey || !sessionId || !["goal", "plan", "questions", "editor"].includes(step)) {
+      setDraftStep(step);
+      return;
     }
+    const replace = current.view === "new";
+    if (step === "editor") {
+      const target = draftId ?? workspace.activeDraftId ?? workspace.drafts[0]?.id;
+      if (!target) {
+        setDraftStep(step);
+        return;
+      }
+      navigate(paths.draft(current.caseKey, sessionId, target), { replace });
+      return;
+    }
+    navigate(paths.draftingSessionView(current.caseKey, sessionId, step), { replace });
+  }
+
+  // Switching documents is navigation too, so a reload keeps the one on screen.
+  function openDraftDocument(draftId) {
+    const current = parseLocation(window.location.pathname);
+    if (current.mode === "draft" && current.caseKey && session?.id) {
+      navigate(paths.draft(current.caseKey, session.id, draftId));
+      return;
+    }
+    dispatchWorkspace({ type: "documentSelected", draftId });
   }
 
   function handleCaseAction(action) {
@@ -1133,12 +1301,19 @@ export function App() {
   // A case screen draws its work only once the case its URL names has loaded.
   // Until then -- or if it never will -- a notice stands in, so one client's
   // screen is never drawn under another client's address.
-  const caseState = routeCaseState(route, { matter, lookup: caseLookup });
   const caseScoped = CASE_SCOPED_MODES.has(mode);
   const caseNotice = caseScoped && ["loading", "unavailable", "error"].includes(caseState) ? caseState : null;
   // The case browser stays usable beneath its notice; that is where the
   // advocate goes next.
   const view = caseNotice && mode !== "case" ? null : mode;
+  const draftScreen = view === "draft"
+    ? draftScreenFor(route, {
+      localStep: localDraftStep,
+      sessionReady: sessionInMemory,
+      draftPresent: routeDraftId == null || workspace.drafts.some((item) => item.id === routeDraftId),
+    })
+    : null;
+  const draftingCaseKey = matter?.routeCaseKey || route.caseKey;
 
   if (!auth?.isAuthenticated) {
     return (
@@ -1163,7 +1338,7 @@ export function App() {
       <aside className="sidebar">
         <div className="brand"><div className="brand-icon"><Gavel size={22} /></div><div><span className="brand-title">Drafting Tool</span></div></div>
         <nav className="mode-list">{modeOptions.map((item) => { const Icon = item.icon; return <button key={item.id} className={mode === item.id ? "active" : ""} onClick={() => goToMode(item.id)}><Icon size={18} /><span className="mode-item-label"><span>{item.label}</span>{item.id === "draft" && selectedDraftDocument && <small>Document: {selectedDraftDocument.title}</small>}</span></button>; })}</nav>
-        {view === "draft" && <WorkflowStepper steps={workflowSteps} activeStep={draftStep} onSelect={showDraftStep} />}
+        {["goal", "plan", "questions", "editor"].includes(draftScreen) && <WorkflowStepper steps={workflowSteps} activeStep={draftStep} onSelect={showDraftStep} />}
         <div className="source-card">
           <button className="source-card-toggle" type="button" aria-expanded={sourceDetailsOpen} onClick={() => setSourceDetailsOpen((current) => !current)}><span className="source-card-title"><Archive size={16} /> Connections</span><span className="source-summary">{sourceSummary}</span><ChevronDown className={sourceDetailsOpen ? "chevron open" : "chevron"} size={16} /></button>
           {sourceDetailsOpen && <div className="source-details"><button className="source-row source-row-button" type="button" onClick={() => setConnectionSettingsOpen(true)} disabled={legalserverLoading}><span>LegalServer account</span><small>{legalserverStatusLabel}</small></button>{legalserver?.syncError && legalserver.syncError !== "not_connected" && <div className="source-row source-row-alert"><span>LegalServer sync</span><small>{legalserver.syncError}</small></div>}{sharepointSource && <div className="source-row" key={sharepointSource.kind}><span>{sharepointSource.label}</span><small>{sharepointSource.status}</small></div>}{researchSources.length > 0 && <div className="source-section-title">Research sources</div>}{researchSources.map((source) => <div className="source-row" key={source.kind}><span>{source.label}</span><small>{source.status}</small></div>)}</div>}
@@ -1190,9 +1365,45 @@ export function App() {
           />
         )}
         {view === "research" && <ResearchPanel matter={matter} sources={boot?.sources || []} onResults={(results) => setSourceResults(results)} legalserverSave={boot?.legalserverSave} />}
-        {view === "draft" && draftStep === "goal" && <DraftGoalPanel goal={draftGoal} onGoalChange={(value) => { setDraftGoal(value); setInstructions(value); setSelectedGoalSuggestionId(""); }} planningMode={planningMode} onPlanningModeChange={setPlanningMode} allowMultiple={allowMultipleDocuments} onAllowMultipleChange={setAllowMultipleDocuments} selectedTemplateId={selectedTemplateId} onTemplateChange={selectDraftTemplate} templates={templates} matter={matter} busy={busy} onMakePlan={() => makeDraftPlan()} goalSuggestions={goalSuggestions} goalSuggestionGuidance={goalSuggestionGuidance} goalSuggestionsBusy={goalSuggestionsBusy} selectedGoalSuggestionId={selectedGoalSuggestionId} onSuggestGoals={suggestDraftGoals} onSelectGoalSuggestion={selectGoalSuggestion} />}
-        {view === "draft" && draftStep === "plan" && <DraftPlanReview plan={draftPlan} templates={templates} matter={matter} session={session} busy={busy} authorProfile={draftAuthorProfile} onAuthorProfileChange={setDraftAuthorProfile} selectedFactIds={selectedFactIds} selectedCuratedFacts={selectedCuratedFacts} onFactChange={setSelectedFactIds} onCuratedChange={setSelectedCuratedFacts} onMatterChange={setMatter} onFactIdsAdded={(ids) => setSelectedFactIds((current) => mergeFactIds(current, ids))} selectedResults={sourceResults} onSelectedResultsChange={setSourceResults} onSessionChange={setSession} candidateIssues={candidateIssues} onIssuesChange={setCandidateIssues} clarifyMissingFactsBeforeDraft={clarifyMissingFactsBeforeDraft} onClarifyMissingFactsBeforeDraftChange={setClarifyMissingFactsBeforeDraft} onPlanChange={setDraftPlan} onRegeneratePlan={regenerateDraftPlan} onContinue={goToQuestionsOrGenerate} />}
-        {view === "draft" && draftStep === "questions" && (
+        {draftScreen === "list" && (
+          <SavedSessionList
+            matter={matter}
+            title="Drafting"
+            description="Saved drafting work for this case. Opening one shows it as it was saved; nothing is regenerated."
+            {...savedDraftingSessions}
+            onLoadMore={savedDraftingSessions.loadMore}
+            sessionHref={(row) => paths.draftingSession(draftingCaseKey, row.id)}
+            newHref={draftingCaseKey ? paths.draftingNew(draftingCaseKey) : paths.draftingHome()}
+            newLabel="Start new drafting"
+            onNavigate={(href) => { if (href.endsWith("/new")) setDraftStep("goal"); navigate(href); }}
+          />
+        )}
+        {(draftScreen === "resolving" || draftScreen === "session_pending") && (
+          <RouteNotice
+            kind={sessionLookup.id === routeSessionId && ["unavailable", "error"].includes(sessionLookup.status) ? `session_${sessionLookup.status}` : "session_loading"}
+            caseKey={route.caseKey}
+            onChooseCase={() => navigate(paths.drafting(draftingCaseKey))}
+          />
+        )}
+        {draftScreen === "draft_missing" && (
+          <RouteNotice kind="draft_unavailable" caseKey={route.caseKey} onChooseCase={() => navigate(paths.draftingSession(draftingCaseKey, routeSessionId))} />
+        )}
+        {draftScreen === "job" && (
+          <DraftJobProgress
+            progress={jobProgress.jobId === routeJobId ? jobProgress : { status: "pending", error: "" }}
+            onBackToPlan={() => navigate(paths.draftingSessionView(draftingCaseKey, routeSessionId, "plan"))}
+          />
+        )}
+        {route.view === "new" && draftScreen === "goal" && draftingCaseKey && (
+          <p className="drafting-saved-link">
+            <a href={paths.drafting(draftingCaseKey)} onClick={(event) => { if (event.button === 0 && !event.metaKey && !event.ctrlKey) { event.preventDefault(); navigate(paths.drafting(draftingCaseKey)); } }}>
+              <FolderOpen size={14} /> Saved drafting work for this case
+            </a>
+          </p>
+        )}
+        {draftScreen === "goal" && <DraftGoalPanel goal={draftGoal} onGoalChange={(value) => { setDraftGoal(value); setInstructions(value); setSelectedGoalSuggestionId(""); }} planningMode={planningMode} onPlanningModeChange={setPlanningMode} allowMultiple={allowMultipleDocuments} onAllowMultipleChange={setAllowMultipleDocuments} selectedTemplateId={selectedTemplateId} onTemplateChange={selectDraftTemplate} templates={templates} matter={matter} busy={busy} onMakePlan={() => makeDraftPlan()} goalSuggestions={goalSuggestions} goalSuggestionGuidance={goalSuggestionGuidance} goalSuggestionsBusy={goalSuggestionsBusy} selectedGoalSuggestionId={selectedGoalSuggestionId} onSuggestGoals={suggestDraftGoals} onSelectGoalSuggestion={selectGoalSuggestion} />}
+        {draftScreen === "plan" && <DraftPlanReview plan={draftPlan} templates={templates} matter={matter} session={session} busy={busy} authorProfile={draftAuthorProfile} onAuthorProfileChange={setDraftAuthorProfile} selectedFactIds={selectedFactIds} selectedCuratedFacts={selectedCuratedFacts} onFactChange={setSelectedFactIds} onCuratedChange={setSelectedCuratedFacts} onMatterChange={setMatter} onFactIdsAdded={(ids) => setSelectedFactIds((current) => mergeFactIds(current, ids))} selectedResults={sourceResults} onSelectedResultsChange={setSourceResults} onSessionChange={setSession} candidateIssues={candidateIssues} onIssuesChange={setCandidateIssues} clarifyMissingFactsBeforeDraft={clarifyMissingFactsBeforeDraft} onClarifyMissingFactsBeforeDraftChange={setClarifyMissingFactsBeforeDraft} onPlanChange={setDraftPlan} onRegeneratePlan={regenerateDraftPlan} onContinue={goToQuestionsOrGenerate} />}
+        {draftScreen === "questions" && (
           <DraftQuestionsReview
             plan={draftPlan}
             busy={busy}
@@ -1201,12 +1412,12 @@ export function App() {
             onContinue={generateDraftsFromPlan}
           />
         )}
-        {view === "draft" && draftStep === "editor" && (
+        {draftScreen === "editor" && (
           <section className="panel editor-panel">
             <DraftSwitcher
               drafts={drafts}
               activeDraftId={draft?.id ?? null}
-              onSelect={(draftId) => dispatchWorkspace({ type: "documentSelected", draftId })}
+              onSelect={openDraftDocument}
               busy={busy}
             />
             <DraftEditor
@@ -1226,13 +1437,21 @@ export function App() {
               drafts={drafts}
               validatedDraftIds={workspace.validatedDraftIds}
               activeDraftId={draft?.id ?? null}
-              onSelectDocument={(draftId) => dispatchWorkspace({ type: "documentSelected", draftId })}
+              onSelectDocument={openDraftDocument}
+              key={`package-${route.view === "package"}`}
+              initiallyOpen={route.view === "package"}
             />
             <DocumentHistoryPanel
               draft={draft}
               busy={busy}
               onDraftRestored={(restored) => dispatchWorkspace({ type: "documentEdited", draft: restored })}
+              key={`history-${route.view === "history"}`}
+              initiallyOpen={route.view === "history"}
             />
+            {route.view === "validation" && draft && !(draft.validationFlags?.length > 0 || validationSummary) && (
+              // Opening this URL shows what is stored; it does not run a check.
+              <p className="muted validation-stored-note">No findings are stored for this document. Validate runs a fresh check.</p>
+            )}
             {draft && (draft.validationFlags?.length > 0 || validationSummary) && (
               <ValidationPanel
                 findings={draft.validationFlags || []}

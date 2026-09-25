@@ -6496,3 +6496,51 @@ div.disclosure-body {
   margin: 0;
   padding: var(--space-2) var(--space-3);
 }
+
+/* Saved work for one case (routes: /drafting/<case>). Each row is a link. */
+.saved-session-rows {
+  display: grid;
+  gap: var(--space-2);
+  list-style: none;
+  margin: var(--space-3) 0;
+  padding: 0;
+}
+
+.saved-session-row {
+  align-items: flex-start;
+  background: var(--bux-white);
+  border: 1px solid var(--bux-gray-light-60);
+  border-radius: var(--radius);
+  color: inherit;
+  display: flex;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  text-decoration: none;
+}
+
+.saved-session-row:hover,
+.saved-session-row:focus-visible {
+  border-color: var(--bux-gray-dark-60);
+}
+
+.saved-session-text {
+  display: grid;
+  gap: var(--space-1);
+  font-size: var(--fs-md);
+}
+
+.drafting-saved-link {
+  font-size: var(--fs-sm);
+  margin: 0 0 var(--space-3);
+}
+
+.drafting-saved-link a {
+  align-items: center;
+  display: inline-flex;
+  gap: var(--space-1);
+}
+
+.validation-stored-note {
+  font-size: var(--fs-sm);
+  margin: var(--space-2) 0;
+}
