@@ -68,7 +68,7 @@ class DraftTemplateIdentityTests(TestCase):
 
         response = self.client.patch(
             f"/api/drafts/{second.id}/",
-            data=json.dumps({"editorState": {"format": "lexical_blocks", "blocks": {}}}),
+            data=json.dumps({"editorState": {"format": "lexical_blocks", "blocks": {}}, "revision": second.revision}),
             content_type="application/json",
         )
         self.assertEqual(response.status_code, 200)

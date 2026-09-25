@@ -1,3 +1,4 @@
+from apps.drafting.revisions import validation_state
 from apps.drafting.services import normalize_status, workflow_step_payload
 from apps.matters.serializers import matter_to_dict
 from apps.templates_app.serializers import template_to_dict
@@ -22,6 +23,8 @@ def session_to_dict(session):
         "missingInformation": session.missing_information,
         "selectedTemplateIds": session.selected_template_ids,
         "instructions": session.instructions,
+        "workflowOptions": session.workflow_options or {},
+        "revision": session.revision,
         "updatedAt": session.updated_at.isoformat(),
     }
 
@@ -39,5 +42,9 @@ def draft_to_dict(draft):
         "plainText": draft.plain_text,
         "editorState": draft.editor_state,
         "validationFlags": draft.validation_flags,
+        "revision": draft.revision,
+        # Which revision the findings above describe: "current", "stale", or
+        # "never" checked. Empty findings mean clean only when current.
+        "validation": validation_state(draft),
         "updatedAt": draft.updated_at.isoformat(),
     }

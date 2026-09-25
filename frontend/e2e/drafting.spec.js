@@ -235,6 +235,10 @@ test.describe("sources of fact", () => {
 });
 
 async function currentSessionId(page) {
+  // The session on screen is in the address bar; the newest session is only
+  // a guess when the URL names none.
+  const inUrl = new URL(page.url()).pathname.match(/\/sessions\/(\d+)/);
+  if (inUrl) return Number(inUrl[1]);
   const sessions = await apiCall(page, "GET", "/drafting-sessions/");
   return sessions.data.sessions?.[0]?.id;
 }

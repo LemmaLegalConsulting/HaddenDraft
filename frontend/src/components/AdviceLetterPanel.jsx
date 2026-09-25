@@ -210,6 +210,9 @@ export function AdviceLetterPanel({ matter, authorProfile, legalserverSave = nul
           sections: currentDraft.sections,
           plainText: currentDraft.plainText,
           editorState: currentDraft.editorState,
+          // The revision these edits were made against; a 409 means another
+          // window saved this letter first, and the edits stay on screen.
+          revision: currentDraft.revision,
         });
         currentDraft = saved.draft;
         setActiveDraft(currentDraft);
@@ -264,6 +267,7 @@ export function AdviceLetterPanel({ matter, authorProfile, legalserverSave = nul
         sections: currentDraft.sections,
         plainText: currentDraft.plainText,
         editorState: currentDraft.editorState,
+        revision: currentDraft.revision,
       });
       setActiveDraft(response.draft);
       setDraftDirty(false);
@@ -301,6 +305,7 @@ export function AdviceLetterPanel({ matter, authorProfile, legalserverSave = nul
         sections,
         plainText,
         editorState,
+        revision: currentDraft.revision,
       });
       setActiveDraft(response.draft);
       setDraftDirty(false);

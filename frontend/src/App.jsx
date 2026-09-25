@@ -1,6 +1,6 @@
 import TemplateFillPanel from "./components/TemplateFillPanel.jsx";
 import React, { useEffect, useMemo, useReducer, useRef, useState } from "react";
-import { useLocation, useNavigate } from "react-router";
+import { useBlocker, useLocation, useNavigate } from "react-router";
 import {
   Archive,
   ChevronDown,
@@ -29,7 +29,7 @@ import {
 } from "lucide-react";
 
 import { api } from "./api/client.js";
-import { retryWhileUnreachable } from "./api/errors.js";
+import { isConflict, retryWhileUnreachable } from "./api/errors.js";
 import { AuthorFields, emptyAuthorProfile } from "./components/AuthorFields.jsx";
 import { AdviceLetterPanel } from "./components/AdviceLetterPanel.jsx";
 import { ArgumentGymPanel } from "./components/ArgumentGymPanel.jsx";
@@ -80,7 +80,11 @@ import { blockDefaultsApply, draftScreenFor, hydrateSavedSession, stepForView } 
 import { useSavedSessions } from "./hooks/useSavedSessions.js";
 import { SavedSessionList } from "./components/SavedSessionList.jsx";
 import { DraftJobProgress } from "./components/DraftJobProgress.jsx";
-import { activeDraft, draftWorkspaceReducer, initialDraftWorkspace } from "./state/draftWorkspace.js";
+import { activeDraft, draftWorkspaceReducer, hasUnsavedDocuments, initialDraftWorkspace } from "./state/draftWorkspace.js";
+import { checkpointFromWorkspace, planChanged, sessionChanges } from "./state/sessionCheckpoint.js";
+import { leavesSavedWork, saveStatus } from "./state/unsavedGuard.js";
+import { SaveStatusBar } from "./components/SaveStatusBar.jsx";
+import { UnsavedChangesDialog } from "./components/UnsavedChangesDialog.jsx";
 import { useModalDismiss } from "./hooks/useModalDismiss.js";
 
 const BASE_WORKFLOW_STEPS = [
@@ -163,6 +167,11 @@ export function App() {
   const restoredSelectionRef = useRef(null);
   const defaultTemplateIdRef = useRef(null);
   const [jobProgress, setJobProgress] = useState({ jobId: null, status: "idle", error: "" });
+  // Saving a session's choices: { saving, failed, error, conflict } where
+  // conflict is the session as another window saved it.
+  const [sessionSave, setSessionSave] = useState({ saving: false, failed: false, error: "", conflict: null });
+  const [documentSave, setDocumentSave] = useState({ saving: false, failed: false, error: "" });
+  const [leaveSave, setLeaveSave] = useState({ busy: false, error: "" });
   const [outline, setOutline] = useState(null);
   const [workspace, dispatchWorkspace] = useReducer(draftWorkspaceReducer, initialDraftWorkspace);
   const [revisionBusy, setRevisionBusy] = useState(false);
@@ -488,7 +497,21 @@ export function App() {
   }, [auth?.username, selectedMatterId]);
 
   // Put a saved session back on screen exactly as it was saved.
-  function applySavedSession(saved, savedDrafts) {
+  async function refreshSession(sessionId) {
+    try {
+      const detail = await api.savedSession(sessionId);
+      // Only called once everything was saved (generation saves first), so
+      // the server's copy -- which generation may have added sources to -- is
+      // what the screen should show.
+      if (sessionRef.current?.id === sessionId) applySavedSession(detail.session);
+    } catch {
+      // A stale revision only means the next save asks; nothing is lost.
+    }
+  }
+
+  // `savedDrafts` null restores the session's choices and leaves the
+  // documents on screen alone.
+  function applySavedSession(saved, savedDrafts = null) {
     const snapshot = hydrateSavedSession(saved, { defaultTemplateId: defaultTemplateIdRef.current });
     setSession(saved);
     setDraftMode(snapshot.draftMode);
@@ -496,6 +519,7 @@ export function App() {
     setInstructions(snapshot.instructions);
     setPlanningMode(snapshot.planningMode);
     setAllowMultipleDocuments(snapshot.allowMultipleDocuments);
+    setClarifyMissingFactsBeforeDraft(snapshot.clarifyMissingFactsBeforeDraft);
     setSelectedTemplateId(snapshot.selectedTemplateId);
     setTemplateChosen(snapshot.templateChosen);
     setSelectedFactIds(snapshot.selectedFactIds);
@@ -513,6 +537,8 @@ export function App() {
       selectedFactIds: snapshot.selectedFactIds,
       templateId: snapshot.selectedTemplateId == null ? null : Number(snapshot.selectedTemplateId),
     };
+    setSessionSave({ saving: false, failed: false, error: "", conflict: null });
+    if (savedDrafts === null) return;
     dispatchWorkspace({ type: "reset" });
     dispatchWorkspace({ type: "documentsLoaded", drafts: savedDrafts });
   }
@@ -565,6 +591,141 @@ export function App() {
   // names; it never starts one, so a reload cannot make a second draft.
   const routeJobId = route.mode === "draft" && route.view === "job" ? route.jobId : null;
   const sessionInMemory = caseState === "ready" && holdsRouteSession(session);
+
+  // What on screen is not saved yet. Tracked only for a saved session: setup
+  // at /new is unsaved by definition and says so.
+  const workspaceSnapshot = {
+    draftGoal, instructions, selectedFactIds, selectedCuratedFacts, sourceResults, selectedBlockKeys,
+    planningMode, selectedTemplateId, templateData, allowMultipleDocuments, clarifyMissingFactsBeforeDraft,
+  };
+  const changedSessionFields = sessionInMemory
+    ? sessionChanges(session, workspaceSnapshot, { defaultTemplateId: defaultTemplateIdRef.current })
+    : [];
+  const planDirty = sessionInMemory && planChanged(session, draftPlan);
+  const sessionDirty = changedSessionFields.length > 0 || planDirty;
+  const documentsDirty = sessionInMemory && hasUnsavedDocuments(workspace);
+  const hasUnsavedWork = sessionDirty || documentsDirty;
+
+  // Save the session's choices and plan, if changed. Resolves to the saved
+  // session, or null when the save failed -- and a caller about to generate
+  // must stop on null rather than draft from what the server does not have.
+  async function saveSessionChanges() {
+    const current = sessionRef.current;
+    if (!current || (!changedSessionFields.length && !planDirty)) return current;
+    setSessionSave({ saving: true, failed: false, error: "", conflict: null });
+    try {
+      let saved = current;
+      if (changedSessionFields.length) {
+        const response = await api.checkpointSession(current.id, { revision: current.revision, ...checkpointFromWorkspace(workspaceSnapshot) });
+        saved = response.session;
+      }
+      if (planDirty) {
+        const response = await api.updateDraftPlan(saved.id, { draftPlan, goal: draftGoal, revision: saved.revision });
+        saved = response.session;
+        setDraftPlan(response.plan);
+      }
+      setSession(saved);
+      setSessionSave({ saving: false, failed: false, error: "", conflict: null });
+      return saved;
+    } catch (err) {
+      if (isConflict(err)) setSessionSave({ saving: false, failed: false, error: "", conflict: err.data.session });
+      else setSessionSave({ saving: false, failed: true, error: err.message, conflict: null });
+      return null;
+    }
+  }
+
+  function resolveSessionConflict(keep) {
+    const theirs = sessionSave.conflict;
+    if (!theirs) return;
+    if (keep === "theirs") {
+      applySavedSession(theirs);
+      setDraftPlan(theirs.draftPlan && Object.keys(theirs.draftPlan).length ? theirs.draftPlan : null);
+      return;
+    }
+    // Keep mine: compare against what they saved, so the next save
+    // deliberately replaces it with what is on screen.
+    setSession(theirs);
+    setSessionSave({ saving: false, failed: false, error: "", conflict: null });
+  }
+
+  // Save one document's edits against the revision they were made on.
+  async function saveDraftDocument(target) {
+    if (!target) return true;
+    setDocumentSave({ saving: true, failed: false, error: "" });
+    try {
+      const response = await api.updateDraft(target.id, {
+        sections: target.sections,
+        plainText: target.plainText,
+        editorState: target.editorState,
+        revision: target.revision,
+      });
+      dispatchWorkspace({ type: "documentEdited", draft: response.draft });
+      setDocumentSave({ saving: false, failed: false, error: "" });
+      return response.draft;
+    } catch (err) {
+      if (isConflict(err)) {
+        dispatchWorkspace({ type: "documentConflict", draft: err.data.draft });
+        setDocumentSave({ saving: false, failed: false, error: "" });
+      } else {
+        setDocumentSave({ saving: false, failed: true, error: err.message });
+      }
+      return null;
+    }
+  }
+
+  function resolveDocumentConflict(keep) {
+    const conflict = workspace.conflict;
+    if (!conflict) return;
+    dispatchWorkspace({ type: "conflictResolved", keep });
+    if (keep === "mine") {
+      const local = workspace.drafts.find((item) => item.id === conflict.draftId);
+      if (local) saveDraftDocument({ ...local, revision: conflict.server.revision });
+    }
+  }
+
+  async function saveAllWork() {
+    for (const draftId of workspace.unsavedDraftIds) {
+      const target = workspace.drafts.find((item) => item.id === draftId);
+      if (target && !(await saveDraftDocument(target))) return false;
+    }
+    return Boolean(await saveSessionChanges());
+  }
+
+  // Leaving saved work with unsaved changes asks first. Moving between the
+  // steps and documents of the same session keeps everything and never asks.
+  const blocker = useBlocker(({ currentLocation, nextLocation }) => (
+    hasUnsavedWork && leavesSavedWork(currentLocation.pathname, nextLocation.pathname)
+  ));
+  useEffect(() => {
+    if (!hasUnsavedWork) return undefined;
+    const warn = (event) => {
+      event.preventDefault();
+      event.returnValue = "";
+    };
+    window.addEventListener("beforeunload", warn);
+    return () => window.removeEventListener("beforeunload", warn);
+  }, [hasUnsavedWork]);
+
+  async function saveAndLeave() {
+    setLeaveSave({ busy: true, error: "" });
+    const ok = await saveAllWork();
+    if (!ok) {
+      setLeaveSave({ busy: false, error: sessionSave.error || documentSave.error || "Another window saved first; resolve that before leaving." });
+      return;
+    }
+    setLeaveSave({ busy: false, error: "" });
+    blocker.proceed?.();
+  }
+
+  function discardAndLeave() {
+    // Drop the edited copy; coming back reloads the session as saved.
+    setSession(null);
+    setDraftPlan(null);
+    restoredSelectionRef.current = null;
+    dispatchWorkspace({ type: "reset" });
+    setLeaveSave({ busy: false, error: "" });
+    blocker.proceed?.();
+  }
   useEffect(() => {
     if (!routeJobId || !sessionInMemory) return undefined;
     let cancelled = false;
@@ -583,6 +744,9 @@ export function App() {
         if (cancelled) return;
         dispatchWorkspace({ type: "documentsGenerated", drafts: generated });
         setJobProgress({ jobId: routeJobId, status: "complete", error: "" });
+        // Generation saves the session too; pick up its new revision so the
+        // next save is not refused as if another window had made it.
+        refreshSession(sessionId);
         const first = generated[0]?.id;
         navigate(first ? paths.draft(caseKey, sessionId, first) : paths.draftingSessionView(caseKey, sessionId, "plan"), { replace: true });
       })
@@ -935,6 +1099,16 @@ export function App() {
         if (recommendation.matter) setMatter(recommendation.matter);
         setSelectedFactIds(recommendation.factIds);
       }
+      // Record how planning was set up, so reopening asks the same way.
+      try {
+        const recorded = await api.checkpointSession(plannedSession.id, {
+          revision: plannedSession.revision,
+          workflowOptions: { planningMode, allowMultipleDocuments, clarifyMissingFactsBeforeDraft },
+        });
+        if (recorded?.session) plannedSession = recorded.session;
+      } catch {
+        // The plan exists either way; the options are a convenience on reopen.
+      }
       setSession(plannedSession);
       setDraftPlan(response.plan);
       setSelectedBlockKeys(plannedSession.selectedBlockKeys || selectedBlockKeys);
@@ -951,7 +1125,7 @@ export function App() {
     setBusy(true);
     setError("");
     try {
-      const response = await api.updateDraftPlan(session.id, { draftPlan: plan, goal: draftGoal });
+      const response = await api.updateDraftPlan(session.id, { draftPlan: plan, goal: draftGoal, revision: session.revision });
       setSession(response.session);
       setDraftPlan(response.plan);
       return response;
@@ -968,14 +1142,18 @@ export function App() {
   }
 
   async function generateDraftsFromPlan() {
-    const saved = await saveDraftPlan();
-    const activeSession = saved?.session || session;
+    // Generation drafts from what the server has. If the plan or choices on
+    // screen could not be saved, generating would draft from something else.
+    const activeSession = await saveSessionChanges();
     if (!activeSession?.id) return;
     setBusy(true);
     setError("");
     try {
       const response = await api.generatePlanDrafts(activeSession.id, {
         requireAllMissingInformation: clarifyMissingFactsBeforeDraft,
+        // One key per click: if the answer is lost and this is retried, the
+        // server returns the same generation instead of starting a second.
+        idempotencyKey: globalThis.crypto?.randomUUID?.() || `${Date.now()}-${Math.random()}`,
       });
       const current = parseLocation(window.location.pathname);
       if (response.job && !response.drafts && current.mode === "draft" && current.caseKey) {
@@ -986,6 +1164,7 @@ export function App() {
       }
       const drafts = await waitForDrafts(response, (jobId) => api.draftGenerationJob(activeSession.id, jobId));
       dispatchWorkspace({ type: "documentsGenerated", drafts });
+      await refreshSession(activeSession.id);
       showDraftStep("editor", activeSession, drafts[0]?.id);
     } catch (err) {
       setError(err.message);
@@ -1114,12 +1293,9 @@ export function App() {
     try {
       // The gym reads the stored document, so the editor's current text is
       // persisted first rather than being silently left out of the run.
-      const saved = await api.updateDraft(draft.id, {
-        sections: draft.sections,
-        plainText: draft.plainText,
-        editorState: draft.editorState,
-      });
-      dispatchWorkspace({ type: "documentEdited", draft: saved.draft });
+      // A refused save (another window saved first) stops here: stress
+      // testing text other than what is on screen would mislead.
+      if (!(await saveDraftDocument(draft))) return;
       const response = await api.stressTestDraft(draft.id);
       setGymFocusRun({ run: response.run, workspace: response.workspace });
       goToMode("argument_gym");
@@ -1154,8 +1330,7 @@ export function App() {
         setTemplateData(sessionResponse.session.templateData);
       }
       if (draft) {
-        const response = await api.updateDraft(draft.id, { sections, plainText, editorState });
-        dispatchWorkspace({ type: "documentEdited", draft: response.draft });
+        await saveDraftDocument({ ...draft, sections, plainText, editorState });
       } else {
         dispatchWorkspace({ type: "documentEdited" });
       }
@@ -1401,6 +1576,15 @@ export function App() {
             </a>
           </p>
         )}
+        {sessionInMemory && ["goal", "plan", "questions"].includes(draftScreen) && (
+          <SaveStatusBar
+            status={saveStatus({ dirty: sessionDirty, saving: sessionSave.saving, failed: sessionSave.failed, conflict: Boolean(sessionSave.conflict) })}
+            error={sessionSave.error}
+            onSave={saveSessionChanges}
+            onKeepMine={() => resolveSessionConflict("mine")}
+            onLoadTheirs={() => resolveSessionConflict("theirs")}
+          />
+        )}
         {draftScreen === "goal" && <DraftGoalPanel goal={draftGoal} onGoalChange={(value) => { setDraftGoal(value); setInstructions(value); setSelectedGoalSuggestionId(""); }} planningMode={planningMode} onPlanningModeChange={setPlanningMode} allowMultiple={allowMultipleDocuments} onAllowMultipleChange={setAllowMultipleDocuments} selectedTemplateId={selectedTemplateId} onTemplateChange={selectDraftTemplate} templates={templates} matter={matter} busy={busy} onMakePlan={() => makeDraftPlan()} goalSuggestions={goalSuggestions} goalSuggestionGuidance={goalSuggestionGuidance} goalSuggestionsBusy={goalSuggestionsBusy} selectedGoalSuggestionId={selectedGoalSuggestionId} onSuggestGoals={suggestDraftGoals} onSelectGoalSuggestion={selectGoalSuggestion} />}
         {draftScreen === "plan" && <DraftPlanReview plan={draftPlan} templates={templates} matter={matter} session={session} busy={busy} authorProfile={draftAuthorProfile} onAuthorProfileChange={setDraftAuthorProfile} selectedFactIds={selectedFactIds} selectedCuratedFacts={selectedCuratedFacts} onFactChange={setSelectedFactIds} onCuratedChange={setSelectedCuratedFacts} onMatterChange={setMatter} onFactIdsAdded={(ids) => setSelectedFactIds((current) => mergeFactIds(current, ids))} selectedResults={sourceResults} onSelectedResultsChange={setSourceResults} onSessionChange={setSession} candidateIssues={candidateIssues} onIssuesChange={setCandidateIssues} clarifyMissingFactsBeforeDraft={clarifyMissingFactsBeforeDraft} onClarifyMissingFactsBeforeDraftChange={setClarifyMissingFactsBeforeDraft} onPlanChange={setDraftPlan} onRegeneratePlan={regenerateDraftPlan} onContinue={goToQuestionsOrGenerate} />}
         {draftScreen === "questions" && (
@@ -1424,11 +1608,7 @@ export function App() {
               draft={draft}
               busy={busy}
               onChange={(sections, plainText, editorState) => dispatchWorkspace({ type: "documentPatched", patch: { sections, plainText, editorState } })}
-              onPersist={async () => {
-                if (!draft) return;
-                const response = await api.updateDraft(draft.id, { sections: draft.sections, plainText: draft.plainText, editorState: draft.editorState });
-                dispatchWorkspace({ type: "documentEdited", draft: response.draft });
-              }}
+              onPersist={() => saveDraftDocument(draft)}
               onRegenerateBlock={regenerateDraftBlock}
               onFillMissingField={fillMissingField}
             />
@@ -1452,6 +1632,9 @@ export function App() {
               // Opening this URL shows what is stored; it does not run a check.
               <p className="muted validation-stored-note">No findings are stored for this document. Validate runs a fresh check.</p>
             )}
+            {draft?.validation?.state === "stale" && (draft.validationFlags?.length > 0) && (
+              <p className="muted validation-stored-note">These findings checked an earlier version of this document. Recheck to see whether they still apply.</p>
+            )}
             {draft && (draft.validationFlags?.length > 0 || validationSummary) && (
               <ValidationPanel
                 findings={draft.validationFlags || []}
@@ -1468,6 +1651,22 @@ export function App() {
                 bootstrapSave={boot?.legalserverSave}
                 delivery={draftDelivery}
                 disabled={exportBusy}
+              />
+            )}
+            {draft && sessionInMemory && (
+              <SaveStatusBar
+                thing="document"
+                status={saveStatus({
+                  dirty: workspace.unsavedDraftIds.includes(draft.id),
+                  saving: documentSave.saving,
+                  failed: documentSave.failed,
+                  conflict: workspace.conflict?.draftId === draft.id,
+                })}
+                error={documentSave.error}
+                // The editor has its own Save; the bar offers one only to retry.
+                onSave={documentSave.failed ? () => saveDraftDocument(draft) : undefined}
+                onKeepMine={() => resolveDocumentConflict("mine")}
+                onLoadTheirs={() => resolveDocumentConflict("theirs")}
               />
             )}
             <div className="button-row step-actions bottom-step-actions">
@@ -1514,6 +1713,14 @@ export function App() {
             />
           </section>
         )}
+        <UnsavedChangesDialog
+          open={blocker.state === "blocked"}
+          busy={leaveSave.busy}
+          error={leaveSave.error}
+          onSave={saveAndLeave}
+          onDiscard={discardAndLeave}
+          onStay={() => { setLeaveSave({ busy: false, error: "" }); blocker.reset?.(); }}
+        />
         <CasePreviewModal
           matter={casePreviewMatter}
           isActive={Boolean(casePreviewMatter && casePreviewMatter.id === selectedMatterId)}

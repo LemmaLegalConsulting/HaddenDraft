@@ -87,15 +87,16 @@ const SCREENS = [
 // One saved drafting session on the stub case, with one generated document.
 const SAVED_DRAFT = {
   id: 391, sessionId: 184, templateId: null, title: "Answer to complaint", exportFormat: "docx",
-  sections: [{ key: "intro", title: "Introduction", text: "The tenant answers." }],
+  sections: [{ key: "intro", label: "Introduction", body: "The tenant answers." }],
   plainText: "The tenant answers.", editorState: {}, validationFlags: [], updatedAt: "2026-09-25T12:00:00Z",
+  revision: 3, validation: { state: "never", checkedRevision: null, validatedAt: "", summary: {} },
 };
 const SAVED_SESSION = {
   id: 184, mode: "draft_from_template", status: "draft_review", matter: MATTER, template: null,
   selectedFactIds: [], selectedCuratedFacts: [], selectedSourceResults: [], selectedBlockKeys: [],
   authorProfile: {}, templateData: {}, goal: "Answer the complaint", instructions: "Answer the complaint",
   draftPlan: { documents: [{ title: "Answer to complaint" }] }, missingInformation: [], selectedTemplateIds: [],
-  updatedAt: "2026-09-25T12:00:00Z",
+  workflowOptions: {}, revision: 2, updatedAt: "2026-09-25T12:00:00Z",
 };
 const SAVED_ROW = {
   id: 184, mode: "draft_from_template", status: "draft_review", matterId: 1, caseNumber: "26-0001", routeCaseKey: "26-0001",
@@ -328,6 +329,7 @@ test("making a plan gives the new session its own URL, replacing setup", async (
     if (request.method() === "POST" && path.endsWith("/drafting-sessions/")) return route.fulfill({ status: 201, json: { session: created } });
     if (request.method() === "POST" && path.endsWith("/185/plan/")) return route.fulfill({ json: { session: planned, plan: planned.draftPlan } });
     if (request.method() === "POST" && path.endsWith("/185/recommend-facts/")) return route.fulfill({ json: { session: planned, factIds: [1] } });
+    if (request.method() === "PATCH" && path.endsWith("/185/")) return route.fulfill({ json: { session: { ...planned, revision: (planned.revision || 0) + 1 } } });
     return route.fallback();
   });
   const errors = watchForErrors(page);
@@ -341,6 +343,79 @@ test("making a plan gives the new session its own URL, replacing setup", async (
   // Setup was replaced: Back leaves drafting rather than offering setup again.
   await page.goBack();
   await expect(page).toHaveURL(/\/cases\/26-0001$/);
+});
+
+async function typeIntoDocument(page, text) {
+  const editable = page.locator(".editor-panel [contenteditable='true']").first();
+  await editable.click();
+  await page.keyboard.press("End");
+  await page.keyboard.type(text);
+}
+
+test("leaving a document with unsaved edits asks first, and Stay keeps them", async ({ page }) => {
+  const errors = watchForErrors(page);
+  await page.goto("/drafting/26-0001/sessions/184/drafts/391");
+  await expectScreenRenders(errors, page.locator(".editor-panel"));
+  await typeIntoDocument(page, " More.");
+  await expect(page.getByText("Unsaved changes", { exact: true })).toBeVisible();
+
+  await page.locator("nav.mode-list button", { hasText: "Triage" }).click();
+  const dialog = page.getByRole("alertdialog", { name: "Leave with unsaved changes?" });
+  await expect(dialog).toBeVisible();
+  await dialog.getByRole("button", { name: "Stay" }).click();
+  await expect(dialog).toBeHidden();
+  await expect(page).toHaveURL(/\/drafts\/391$/);
+  await expect(page.getByText("Unsaved changes", { exact: true })).toBeVisible();
+
+  await page.locator("nav.mode-list button", { hasText: "Triage" }).click();
+  await dialog.getByRole("button", { name: "Discard changes" }).click();
+  await expect(page).toHaveURL(/\/triage\/26-0001$/);
+});
+
+test("a document saved in another window is a conflict, never an overwrite", async ({ page }) => {
+  const theirs = { ...SAVED_DRAFT, revision: 5, plainText: "Their version.", sections: [{ key: "intro", label: "Introduction", body: "Their version." }] };
+  let patches = 0;
+  await page.route("**/api/drafts/391/", async (route) => {
+    if (route.request().method() !== "PATCH") return route.fallback();
+    patches += 1;
+    const body = route.request().postDataJSON();
+    if (body.revision !== 5) {
+      return route.fulfill({ status: 409, json: { error: "This was changed in another window since you opened it.", conflict: "draft", currentRevision: 5, draft: theirs } });
+    }
+    return route.fulfill({ json: { draft: { ...SAVED_DRAFT, ...body, revision: 6 } } });
+  });
+  const errors = watchForErrors(page, { allow: [/status of 409/] });
+  await page.goto("/drafting/26-0001/sessions/184/drafts/391");
+  await expectScreenRenders(errors, page.locator(".editor-panel"));
+  await typeIntoDocument(page, " Mine.");
+  await page.getByRole("button", { name: "Save", exact: true }).click();
+
+  const conflict = page.getByRole("alert").filter({ hasText: "changed in another window" });
+  await expect(conflict).toBeVisible();
+  await expect(page.locator(".editor-panel")).toContainText("Mine.");
+  // Keeping mine is a deliberate overwrite, sent against their revision.
+  await conflict.getByRole("button", { name: "Keep mine and save over it" }).click();
+  await expect(page.getByText("All changes saved")).toBeVisible();
+  expect(patches).toBe(2);
+});
+
+test("a session edited in another window is a conflict too", async ({ page }) => {
+  await page.route("**/api/drafting-sessions/184/", async (route) => {
+    if (route.request().method() !== "PATCH") return route.fallback();
+    return route.fulfill({
+      status: 409,
+      json: { error: "This was changed in another window since you opened it.", conflict: "session", currentRevision: 9, session: { ...SAVED_SESSION, revision: 9, goal: "Their goal" } },
+    });
+  });
+  const errors = watchForErrors(page, { allow: [/status of 409/] });
+  await page.goto("/drafting/26-0001/sessions/184/goal");
+  await expectScreenRenders(errors, page.getByText("All changes saved"));
+  await page.getByRole("textbox").first().fill("My goal");
+  await page.getByRole("status").getByRole("button", { name: "Save" }).click();
+  const conflict = page.getByRole("alert").filter({ hasText: "changed in another window" });
+  await expect(conflict).toBeVisible();
+  await conflict.getByRole("button", { name: "Load the saved version (discard mine)" }).click();
+  await expect(page.getByRole("textbox").first()).toHaveValue("Their goal");
 });
 
 test("fill template upload, optional answers, save and DOCX download", async ({ page }) => {

@@ -58,7 +58,14 @@ async function request(path, options = {}) {
   }
 
   if (!response.ok) {
-    throw new ApiError(errorMessageFrom(await response.text(), response), { status: response.status });
+    const text = await response.text();
+    let data = null;
+    try {
+      data = JSON.parse(text);
+    } catch {
+      data = null;
+    }
+    throw new ApiError(errorMessageFrom(text, response), { status: response.status, data });
   }
 
   const contentType = response.headers.get("content-type") || "";
@@ -179,6 +186,10 @@ export const api = {
     request(`/drafting-sessions/?${new URLSearchParams({ caseKey, workspace, limit: String(limit), offset: String(offset) })}`, { signal }),
   // One saved session and where reopening it should land. `caseKey` and
   // `workspace` name the URL it was opened from; the server checks both.
+  // Save the advocate's choices on a session. `revision` is the one they were
+  // made against; a 409 means another window saved first.
+  checkpointSession: (sessionId, payload) =>
+    request(`/drafting-sessions/${sessionId}/`, { method: "PATCH", body: JSON.stringify(payload) }),
   savedSession: (sessionId, { caseKey = "", workspace = "" } = {}, { signal } = {}) => {
     const params = new URLSearchParams();
     if (caseKey) params.set("caseKey", caseKey);
