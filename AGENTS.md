@@ -186,6 +186,16 @@ Keep changes aligned with the existing workflow boundaries:
 - Frontend derivation and state logic belongs in plain `.js` modules with
   `node --test` coverage under `frontend/test/`; keep `.jsx` components
   presentational so the rules stay testable without a browser runtime.
+- Never use placeholder text in a form control -- no HTML `placeholder`
+  attribute and no editor `placeholder` prop carrying guidance or an example
+  value. Grey text in an empty box reads as a filled-in answer, which is exactly
+  the confusion a review screen exists to prevent: an advocate skims past a
+  blank that looks answered, or mistakes "Enter hearing date" for data. It also
+  vanishes the moment someone types, fails contrast, and is not a reliable
+  accessible name. Put the instruction in the label or in help text beneath the
+  control, linked with `aria-describedby`, and let an empty field look empty.
+  Older screens still carry some placeholders; remove them when you touch those
+  components rather than adding more.
 
 Do not replace reviewable workflow steps with a single free-form agent flow.
 - A filed brief arrives with its exhibits attached and is mostly not a brief.
