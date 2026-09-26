@@ -209,6 +209,14 @@ export const api = {
   recommendSessionSupport: (sessionId, payload = { apply: true }) =>
     request(`/drafting-sessions/${sessionId}/recommend-support/`, { method: "POST", body: JSON.stringify(payload) }),
   sessionOutline: (sessionId) => request(`/drafting-sessions/${sessionId}/outline/`),
+  opposingFiling: (sessionId, { signal } = {}) => request(`/drafting-sessions/${sessionId}/opposing-filing/`, { signal }),
+  chooseOpposingFiling: (sessionId, payload) =>
+    request(`/drafting-sessions/${sessionId}/opposing-filing/`, { method: "PUT", body: JSON.stringify(payload) }),
+  uploadOpposingFiling: (sessionId, formData) =>
+    request(`/drafting-sessions/${sessionId}/opposing-filing/`, { method: "POST", body: formData }),
+  updateOpposingFiling: (sessionId, payload) =>
+    request(`/drafting-sessions/${sessionId}/opposing-filing/`, { method: "PATCH", body: JSON.stringify(payload) }),
+  removeOpposingFiling: (sessionId) => request(`/drafting-sessions/${sessionId}/opposing-filing/`, { method: "DELETE" }),
   approveSessionOutline: (sessionId, payload = {}) =>
     request(`/drafting-sessions/${sessionId}/outline/`, { method: "POST", body: JSON.stringify(payload) }),
   generateDraftPlan: (sessionId, payload = {}) =>

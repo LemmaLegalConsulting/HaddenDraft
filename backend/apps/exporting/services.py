@@ -21,7 +21,11 @@ from apps.templates_app.word_templates import (
 )
 from apps.templates_app.content_library import full_template_path, resolve_content_asset
 from apps.templates_app.spreadsheets import render_workbook
-from apps.templates_app.template_variables import normalize_docxtpl_blocks, template_field_values
+from apps.templates_app.template_variables import (
+    normalize_docxtpl_blocks,
+    template_choice_values,
+    template_field_values,
+)
 from apps.templates_app.jinja_filters import listify, template_environment
 
 
@@ -367,27 +371,11 @@ def _docx_render_context(draft, section):
         "office_name": author["office_name"],
         "office_address": author["address"],
     }
-    context.update(_template_choice_values(template, session.template_data))
+    context.update(template_choice_values(template, session.template_data))
+    from apps.drafting.opposing_filing import render_value as opposing_filing_value
+
+    context["responding_to"] = opposing_filing_value(session)
     return context
-
-
-def _template_choice_values(template, template_data):
-    """Resolve a template's either/or clauses to a chosen option.
-
-    A choice the advocate has not answered falls back to the template's default
-    so the passage still renders. A certificate of service that silently
-    disappeared because nobody picked a service method would be worse than one
-    naming the wrong method, which review catches.
-    """
-    choices = (getattr(template, "metadata", None) or {}).get("choices") or []
-    supplied = template_data or {}
-    values = {}
-    for choice in choices:
-        name = choice.get("name")
-        if not name:
-            continue
-        values[name] = supplied.get(name) or choice.get("default", "")
-    return values
 
 
 def _render_docx_template(template_path, context, output_path):
@@ -506,14 +494,20 @@ def _full_template_docx(draft, template_path):
     return output.getvalue()
 
 
-def render_docx_bytes(draft):
+def render_docx(draft):
+    """Render the draft's Word document. Returns ``(bytes, reports)``.
+
+    ``reports`` carries what export did that a reader should hear about -- for
+    now, the table of authorities: what it lists and what it could not mark.
+    """
+    reports = {}
     if getattr(getattr(draft, "session", None), "mode", "") == "template_fill":
         from apps.core.storage import get_document_storage
         key = next((section.get("fillDocxKey") for section in draft.sections if section.get("fillDocxKey")), None)
         if not key:
             raise ValueError("The filled document has no saved DOCX. Export it from Fill template.")
         with get_document_storage().open(key) as stream:
-            return stream.read()
+            return stream.read(), reports
 
     selected_full_template = full_template_path(_draft_template(draft))
     if selected_full_template:
@@ -538,8 +532,16 @@ def render_docx_bytes(draft):
 
     from apps.drafting.audit import draft_ai_audit
     from apps.exporting.docx_metadata import embed_ai_audit_metadata
+    from apps.exporting.table_of_authorities import apply_table_of_authorities
 
-    return embed_ai_audit_metadata(content, draft_ai_audit(draft))
+    content, authorities = apply_table_of_authorities(content)
+    if authorities is not None:
+        reports["tableOfAuthorities"] = authorities
+    return embed_ai_audit_metadata(content, draft_ai_audit(draft)), reports
+
+
+def render_docx_bytes(draft):
+    return render_docx(draft)[0]
 
 
 def draft_export_filename(draft, extension="docx"):

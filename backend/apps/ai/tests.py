@@ -168,9 +168,13 @@ class PromptCatalogTests(TestCase):
             sources="- Inspection report",
             template_text="Preserve the statutory standard.",
             template_helpers="comma_and_list and pronoun_subjective",
+            block_instructions="- Answer each argument in the opposition.",
+            responding_to="This document answers: Plaintiff's Brief in Opposition.",
         )
 
         self.assertIn("Draft the Argument section", prompt.user)
+        self.assertIn("- Answer each argument in the opposition.", prompt.user)
+        self.assertIn("This document answers: Plaintiff's Brief in Opposition.", prompt.user)
         self.assertIn("- Mold in bedroom", prompt.user)
         self.assertIn("Preserve the statutory standard.", prompt.user)
         self.assertEqual(prompt.default_model, "gpt-5.5")
@@ -340,6 +344,24 @@ class DraftingServiceLLMTests(TestCase):
         self.assertIn("Defendant resides at [Premises Address].", captured_request["user"])
         self.assertIn("Template language is a form and drafting model, not evidence", captured_request["user"])
         self.assertIn("Case note 1", sections[0]["sources"])
+
+    def test_template_signature_includes_bar_number(self):
+        context = GenerationContext(
+            matter=Matter(client_name="Tenant", raw_payload={}),
+            selected_facts=[], selected_curated_facts=[], selected_sources=[],
+            template=None, mode="draft_from_template",
+            author_profile={"displayName": "Example Advocate", "barNumber": "0123456"},
+        )
+        service = ConstrainedDraftingService()
+        self.assertEqual(
+            service.render_template_body("{{ advocate_name_and_bar }}", context),
+            "Example Advocate (0123456)",
+        )
+        context.author_profile.pop("barNumber")
+        self.assertEqual(
+            service.render_template_body("{{ advocate_name_and_bar }}", context),
+            "Example Advocate",
+        )
 
     def test_template_rendering_fills_named_case_fields_before_model_workflow(self):
         matter = Matter.objects.create(

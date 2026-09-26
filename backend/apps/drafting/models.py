@@ -403,3 +403,75 @@ class TemplateFillJob(models.Model):
     error = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     completed_at = models.DateTimeField(null=True)
+
+
+class OpposingFiling(models.Model):
+    """The other side's filing a draft answers: the complaint a motion to dismiss
+    tests, or the brief in opposition a reply rebuts.
+
+    It lives in one of two places. A document already in the case file keeps
+    only a pointer -- the bytes stay in LegalServer and are read through the
+    case-file connector, under that connector's access control, when a draft is
+    generated. A copy the advocate uploads, because it never reached the case
+    file, is stored under the document store's ``raw/`` area with its extracted
+    text, and the exhibits stapled to it are separated from the brief.
+    """
+
+    MATTER_DOCUMENT = "matter_document"
+    UPLOAD = "upload"
+    SOURCE_TYPE_CHOICES = [
+        (MATTER_DOCUMENT, "Case file document"),
+        (UPLOAD, "Uploaded file"),
+    ]
+
+    session = models.OneToOneField(DraftingSession, related_name="opposing_filing", on_delete=models.CASCADE)
+    source_type = models.CharField(max_length=40, choices=SOURCE_TYPE_CHOICES)
+    filing_kind = models.CharField(
+        max_length=60,
+        blank=True,
+        help_text="What the filing is, from the template's list: complaint, brief_in_opposition, ...",
+    )
+    external_reference = models.JSONField(
+        default=dict,
+        blank=True,
+        help_text=(
+            "For a case file document: {'system', 'matterExternalId', 'documentId', 'title', 'url'}. "
+            "The bytes stay in that system."
+        ),
+    )
+    storage_key = models.CharField(
+        max_length=500,
+        blank=True,
+        help_text="Key in the raw/ area of apps.core.storage, for an uploaded copy.",
+    )
+    checksum = models.CharField(max_length=64, blank=True)
+    title = models.CharField(max_length=500)
+    description = models.CharField(
+        max_length=500,
+        blank=True,
+        help_text="How the draft names the filing, e.g. \"Plaintiff's Brief in Opposition\".",
+    )
+    filed_on = models.DateField(null=True, blank=True)
+    original_filename = models.CharField(max_length=500, blank=True)
+    content_type = models.CharField(max_length=255, blank=True)
+    extracted_text = models.TextField(
+        blank=True,
+        help_text="The filing's own text, for an upload. A case file document is read when drafting.",
+    )
+    extraction_metadata = models.JSONField(
+        default=dict,
+        blank=True,
+        help_text="Extractor, page count, the exhibits separated from the filing, and whether text was capped.",
+    )
+    created_by = models.ForeignKey(
+        "auth.User",
+        null=True,
+        blank=True,
+        related_name="+",
+        on_delete=models.SET_NULL,
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.session_id} responds to {self.title}"
