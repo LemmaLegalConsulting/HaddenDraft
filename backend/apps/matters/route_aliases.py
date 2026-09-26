@@ -65,10 +65,20 @@ def route_key_for_matter(matter):
     return alias.alias if alias else matter.external_id
 
 
+# Sync runs for every matter on every case-list load, so it reads first and
+# writes only when something changed: on SQLite even a DELETE or UPDATE that
+# matches nothing takes the write lock, and fifty of them per page load held
+# it long enough to time out an advocate's save in another tab.
+
+
 def _release_aliases_shadowing(matter, alias_model):
-    shadowing = alias_model.objects.filter(normalized_alias=normalize_route_key(matter.external_id)).exclude(
-        matter_id=matter.pk
+    shadowing = list(
+        alias_model.objects.filter(normalized_alias=normalize_route_key(matter.external_id)).exclude(
+            matter_id=matter.pk
+        )
     )
+    if not shadowing:
+        return
     for alias in shadowing:
         logger.warning(
             "Route alias %r for matter %s shadowed the external id of matter %s; released it.",
@@ -76,11 +86,13 @@ def _release_aliases_shadowing(matter, alias_model):
             alias.matter_id,
             matter.pk,
         )
-    shadowing.delete()
+    alias_model.objects.filter(pk__in=[alias.pk for alias in shadowing]).delete()
 
 
 def _retire_current_aliases(matter, alias_model):
-    alias_model.objects.filter(matter_id=matter.pk, is_current=True).update(is_current=False)
+    current = alias_model.objects.filter(matter_id=matter.pk, is_current=True)
+    if current.exists():
+        current.update(is_current=False)
 
 
 def _sync(matter, matter_model, alias_model):
