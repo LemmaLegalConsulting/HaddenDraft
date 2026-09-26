@@ -74,6 +74,7 @@ urlpatterns = [
     path("api/advice-letters/preview/", advice_letter_views.advice_letter_preview, name="api_advice_letter_preview"),
     path("api/advice-letters/export/", advice_letter_views.advice_letter_export, name="api_advice_letter_export"),
     path("api/advice-letters/drafts/", advice_letter_views.advice_letter_draft, name="api_advice_letter_draft"),
+    path("api/advice-letters/drafts/<int:draft_id>/", advice_letter_views.advice_letter_draft_detail, name="api_advice_letter_draft_detail"),
     path("api/advice-letters/drafts/<int:draft_id>/export/", advice_letter_views.advice_letter_draft_export, name="api_advice_letter_draft_export"),
     path(
         "api/advice-letters/drafts/<int:draft_id>/legalserver/",

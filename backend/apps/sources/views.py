@@ -3,7 +3,16 @@ from django.http import JsonResponse
 from django.http import FileResponse
 
 from apps.ai.openai_client import OpenAIBackendError, OpenAICompatibleClient
-from apps.ai.chat_history import append_message, archive_current_conversation, clear_messages, conversation_list, messages_for_user
+from apps.ai.chat_history import (
+    append_message,
+    archive_current_conversation,
+    clear_messages,
+    conversation_list,
+    current_conversation,
+    is_current_thread,
+    messages_for_user,
+    read_conversation,
+)
 from apps.ai.models import ChatConversation
 from apps.ai.prompt_catalog import render_prompt
 from apps.core.http import allow_document_framing, api_login_required, json_body, method_not_allowed
@@ -282,18 +291,46 @@ def content_source_related(request, document_slug, chunk_id):
     return JsonResponse({"related": cross_references(document_slug, chunk_id)})
 
 
+def _stale_research_thread():
+    return JsonResponse(
+        {
+            "error": "This conversation is no longer the current one -- a new chat was started in another window. Open the current chat to continue.",
+            "conflict": "thread",
+        },
+        status=409,
+    )
+
+
 @api_login_required
 def research(request):
+    chat = {"user": request.user, "kind": ChatConversation.RESEARCH}
     if request.method == "GET":
-        thread_id = request.GET.get("threadId")
-        return JsonResponse({"messages": messages_for_user(user=request.user, kind=ChatConversation.RESEARCH, conversation_id=thread_id), "threads": conversation_list(user=request.user, kind=ChatConversation.RESEARCH)})
+        # As for case chat: reading creates nothing, and a named thread is that
+        # thread or a 404, never the current one standing in for it.
+        try:
+            conversation, messages = read_conversation(**chat, conversation_id=request.GET.get("threadId") or None)
+        except LookupError:
+            return JsonResponse({"error": "Research thread not found"}, status=404)
+        current = current_conversation(**chat)
+        return JsonResponse(
+            {
+                "messages": messages,
+                "threadId": conversation.id if conversation else None,
+                "currentThreadId": current.id if current else None,
+                "threads": conversation_list(**chat),
+            }
+        )
     if request.method == "DELETE":
-        clear_messages(user=request.user, kind=ChatConversation.RESEARCH)
+        if not is_current_thread(**chat, thread_id=request.GET.get("threadId")):
+            return _stale_research_thread()
+        clear_messages(**chat)
         return JsonResponse({"ok": True})
     if request.method != "POST":
         return method_not_allowed(["GET", "POST", "DELETE"])
 
     body = json_body(request)
+    if body.get("action") != "new_thread" and not is_current_thread(**chat, thread_id=body.get("threadId")):
+        return _stale_research_thread()
     if body.get("action") == "new_thread":
         archive_current_conversation(user=request.user, kind=ChatConversation.RESEARCH)
         return JsonResponse({"messages": [], "threads": conversation_list(user=request.user, kind=ChatConversation.RESEARCH)})
@@ -408,6 +445,8 @@ def research(request):
             origin="research",
         )
         payload["legalserver"] = delivery_to_dict(delivery)
+    current = current_conversation(**chat)
+    payload["threadId"] = current.id if current else None
     return JsonResponse(payload)
 
 

@@ -6,7 +6,7 @@ import { defineConfig } from "@playwright/test";
 // which is what production actually serves.
 export default defineConfig({
   testDir: "./e2e",
-  testMatch: /screens-render\.spec\.js/,
+  testMatch: /(screens-render|routes-acceptance)\.spec\.js/,
   timeout: 60_000,
   expect: { timeout: 15_000 },
   fullyParallel: false,

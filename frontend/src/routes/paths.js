@@ -38,6 +38,11 @@ export const ROUTE_FAMILIES = [
   "drafting-sessions",
   "triage-assessments",
   "chat-threads",
+  "template-fill-sessions",
+  "advice-letter-drafts",
+  "research-chats",
+  "research-sources",
+  "argument-gym-sessions",
 ];
 
 function disabledFamilies() {
@@ -86,14 +91,34 @@ export const ROUTES = [
   { mode: "case_chat", view: "thread", family: "chat-threads", pattern: [":caseKey", "threads", ":threadId"] },
   { mode: "template_fill", view: null, pattern: [] },
   { mode: "template_fill", view: null, pattern: [":caseKey"] },
+  { mode: "template_fill", view: "session", family: "template-fill-sessions", pattern: [":caseKey", "sessions", ":sessionId"] },
+  { mode: "template_fill", view: "fields", family: "template-fill-sessions", pattern: [":caseKey", "sessions", ":sessionId", "fields"] },
+  { mode: "template_fill", view: "preview", family: "template-fill-sessions", pattern: [":caseKey", "sessions", ":sessionId", "preview"] },
+  { mode: "template_fill", view: "job", family: "template-fill-sessions", pattern: [":caseKey", "sessions", ":sessionId", "jobs", ":jobId"] },
   { mode: "advice_letter", view: null, pattern: [] },
   { mode: "advice_letter", view: null, pattern: [":caseKey"] },
+  { mode: "advice_letter", view: "new", pattern: [":caseKey", "new"] },
+  { mode: "advice_letter", view: "draft", family: "advice-letter-drafts", pattern: [":caseKey", "drafts", ":draftId"] },
+  { mode: "advice_letter", view: "history", family: "advice-letter-drafts", pattern: [":caseKey", "drafts", ":draftId", "history"] },
   { mode: "research", view: null, pattern: [] },
   { mode: "research", view: "search", pattern: ["search"] },
+  { mode: "research", view: "chats", pattern: ["chats"] },
+  { mode: "research", view: "chat", family: "research-chats", pattern: ["chats", ":threadId"] },
+  { mode: "research", view: "library", pattern: ["library"] },
+  { mode: "research", view: "passage", family: "research-sources", pattern: ["library", ":documentSlug", "chunks", ":chunkId"] },
+  { mode: "research", view: "decision", family: "research-sources", pattern: ["decisions", ":decisionId"] },
   { mode: "argument_gym", view: null, pattern: [] },
+  { mode: "argument_gym", view: "workspace", family: "argument-gym-sessions", pattern: ["workspaces", ":workspaceId"] },
+  { mode: "argument_gym", view: "run", family: "argument-gym-sessions", pattern: ["workspaces", ":workspaceId", "runs", ":runId"] },
 ];
 
-const ID_PARAMS = ["sessionId", "jobId", "draftId", "threadId", "assessmentId", "workspaceId", "runId"];
+const ID_PARAMS = ["sessionId", "jobId", "draftId", "threadId", "assessmentId", "workspaceId", "runId", "decisionId"];
+// Named by text rather than number. Each is one encoded path segment.
+const TEXT_PARAMS = {
+  caseKey: (value) => value.trim().length > 0,
+  documentSlug: (value) => /^[A-Za-z0-9][A-Za-z0-9_-]*$/.test(value),
+  chunkId: (value) => value.trim().length > 0 && !/[\/]/.test(value),
+};
 
 function decodeSegment(segment) {
   try {
@@ -114,10 +139,10 @@ function matchPattern(pattern, segments) {
       continue;
     }
     const name = token.slice(1);
-    if (name === "caseKey") {
+    if (TEXT_PARAMS[name]) {
       const value = decodeSegment(segment);
-      if (!value || !value.trim()) return null;
-      params.caseKey = value;
+      if (!value || !TEXT_PARAMS[name](value)) return null;
+      params[name] = value;
     } else {
       if (!/^[1-9][0-9]{0,15}$/.test(segment)) return null;
       params[name] = Number(segment);
@@ -128,7 +153,7 @@ function matchPattern(pattern, segments) {
 
 function emptyRoute(mode, view) {
   const route = { mode, caseKey: null, view, found: true };
-  for (const name of ID_PARAMS) route[name] = null;
+  for (const name of [...ID_PARAMS, ...Object.keys(TEXT_PARAMS)]) route[name] = null;
   return route;
 }
 
@@ -169,7 +194,7 @@ export function buildPath(route) {
   const parts = entry.pattern.map((token) => {
     if (!token.startsWith(":")) return token;
     const name = token.slice(1);
-    return name === "caseKey" ? encodeKey(route.caseKey) : String(route[name]);
+    return TEXT_PARAMS[name] ? encodeURIComponent(String(route[name])) : String(route[name]);
   });
   return `/${[TASK_ROOTS[route.mode], ...parts].join("/")}`;
 }
@@ -191,17 +216,35 @@ export const paths = {
   triageAssessment: (caseKey, assessmentId) => at("triage", "assessment", { caseKey, assessmentId }),
   chat: (caseKey) => at("case_chat", null, { caseKey }),
   chatThread: (caseKey, threadId) => at("case_chat", "thread", { caseKey, threadId }),
+  templateFill: (caseKey) => at("template_fill", null, { caseKey }),
+  fillSession: (caseKey, sessionId, view = "fields") => at("template_fill", view, { caseKey, sessionId }),
+  fillJob: (caseKey, sessionId, jobId) => at("template_fill", "job", { caseKey, sessionId, jobId }),
+  adviceLetters: (caseKey) => at("advice_letter", null, { caseKey }),
+  adviceLetterNew: (caseKey) => at("advice_letter", "new", { caseKey }),
+  adviceLetter: (caseKey, draftId) => at("advice_letter", "draft", { caseKey, draftId }),
+  adviceLetterView: (caseKey, draftId, view) => at("advice_letter", view, { caseKey, draftId }),
   research: () => "/research/search",
+  researchChats: () => at("research", "chats"),
+  researchChat: (threadId) => at("research", "chat", { threadId }),
+  researchLibrary: () => at("research", "library"),
+  researchPassage: (documentSlug, chunkId) => at("research", "passage", { documentSlug, chunkId }),
+  researchDecision: (decisionId) => at("research", "decision", { decisionId }),
   argumentGym: () => "/argument-gym",
+  gymWorkspace: (workspaceId) => at("argument_gym", "workspace", { workspaceId }),
+  gymRun: (workspaceId, runId) => at("argument_gym", "run", { workspaceId, runId }),
 };
 
-// Where a mode's sidebar entry goes. `view` is "new" for drafting setup.
+// Tasks whose sidebar entry opens a fresh setup screen, as they always have;
+// the case's saved work is one link away from it.
+export const MODES_WITH_NEW = new Set(["draft", "advice_letter"]);
+
+// Where a mode's sidebar entry goes. `view` is "new" for a fresh setup screen.
 export function pathForMode(mode, caseKey = null, { view = null } = {}) {
   if (!TASK_ROOTS[mode]) return paths.cases();
   if (mode === "research") return paths.research();
   if (mode === "argument_gym") return paths.argumentGym();
   if (!caseKey) return `/${TASK_ROOTS[mode]}`;
-  return buildPath({ mode, view: mode === "draft" && view === "new" ? "new" : null, caseKey });
+  return buildPath({ mode, view: MODES_WITH_NEW.has(mode) && view === "new" ? "new" : null, caseKey });
 }
 
 // The same screen, addressed by the case's current route key. Used to replace

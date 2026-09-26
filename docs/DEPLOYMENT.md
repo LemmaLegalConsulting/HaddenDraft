@@ -235,7 +235,16 @@ say they cannot be opened rather than showing something else:
 VITE_DISABLED_ROUTE_FAMILIES=chat-threads,triage-assessments ./scripts/deploy_static_frontend.sh
 ```
 
-The families are listed in `ROUTE_FAMILIES` in `paths.js`.
+The families are listed in `ROUTE_FAMILIES` in `paths.js`. The full catalog,
+its rules, and the tests behind each are in [`docs/ROUTES.md`](ROUTES.md).
+
+To check that the production `nginx.conf` sends every route family to the SPA
+and leaves `/api/`, `/admin/`, readiness, and health alone (needs Docker):
+
+```bash
+npm --prefix frontend run build
+scripts/check_spa_routes.sh
+```
 
 ## Document storage
 
