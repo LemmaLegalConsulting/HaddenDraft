@@ -55,7 +55,7 @@ from apps.matters.services import (
 )
 from apps.matters.triage import ensure_default_triage_rubric, run_triage
 from apps.sources.document_text import DocumentExtractionError, extract_text
-from apps.sources.connectors.legalserver import LegalServerError
+from apps.sources.connectors.legalserver import UUID_RE, LegalServerError
 from apps.sources.models import UserSourceIdentity
 
 
@@ -307,9 +307,15 @@ def case_by_route_key(request):
     matter = resolve_matter_route_key(request.user, route_key)
     if not matter and is_remote_lookup_key(route_key):
         # Not imported here yet -- a link to a case this browser never listed.
-        # Fetching it records its alias, so the second lookup can find it.
-        sync_legalserver_matter(route_key, user=request.user)
+        # LegalServer fetches a matter only by UUID ("Invalid matter_uuid" for
+        # a case number), so a readable key is found by search, through the
+        # same access-filtered sync as the case list. Importing it records its
+        # alias, so the second lookup can find it.
+        sync_legalserver_matters_for_user(request.user, query=route_key, limit=5, restrict_to_user=False)
         matter = resolve_matter_route_key(request.user, route_key)
+        if not matter and UUID_RE.match(route_key):
+            sync_legalserver_matter(route_key, user=request.user)
+            matter = resolve_matter_route_key(request.user, route_key)
     if not matter and settings.ENABLE_DEMO_MATTERS:
         seed_matters()
         matter = resolve_matter_route_key(request.user, route_key)
