@@ -70,8 +70,8 @@ test("a link this version cannot open is not found, never trimmed to its case", 
     "/drafting/26-0222/plan",
     "/cases/26-0222/documents",
     "/triage/26-0222/new",
-    "/research/chats/4",
-    "/argument-gym/workspaces/2",
+    "/research/chats/4/export",
+    "/argument-gym/workspaces/2/documents",
     "/api/cases/",
     "/admin/",
     "/nonsense",
@@ -224,4 +224,22 @@ test("fill sessions and advice letters have their own URLs", () => {
   assert.equal(pathForMode("advice_letter", "26-0222", { view: "new" }), "/advice-letters/26-0222/new");
   const job = parseLocation("/template-fill/26-0222/sessions/73/jobs/91");
   assert.deepEqual([job.mode, job.view, job.sessionId, job.jobId], ["template_fill", "job", 73, 91]);
+});
+
+test("research chats, library passages, decisions, and gym runs have URLs", () => {
+  assert.equal(paths.researchChat(42), "/research/chats/42");
+  assert.equal(paths.researchPassage("ohio-landlord-tenant", "c-12.3"), "/research/library/ohio-landlord-tenant/chunks/c-12.3");
+  assert.equal(paths.researchDecision(9), "/research/decisions/9");
+  assert.equal(paths.gymRun(5, 17), "/argument-gym/workspaces/5/runs/17");
+  const passage = parseLocation("/research/library/ohio-landlord-tenant/chunks/c-12.3");
+  assert.deepEqual([passage.view, passage.documentSlug, passage.chunkId], ["passage", "ohio-landlord-tenant", "c-12.3"]);
+  const run = parseLocation("/argument-gym/workspaces/5/runs/17");
+  assert.deepEqual([run.mode, run.view, run.workspaceId, run.runId], ["argument_gym", "run", 5, 17]);
+});
+
+test("a chunk id is one segment; search text never goes in a URL", () => {
+  assert.equal(paths.researchPassage("doc", "a/b"), "/research/library/doc/chunks/a%2Fb");
+  assert.equal(parseLocation("/research/library/doc/chunks/a%2Fb").found, false);
+  assert.equal(parseLocation("/research/library/../chunks/x").found, false);
+  assert.equal(parseLocation("/research/search/tenant%20rights").found, false);
 });

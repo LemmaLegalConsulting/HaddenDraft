@@ -496,6 +496,59 @@ test("a fill session on another case, or missing, does not open", async ({ page 
   await expectScreenRenders(errors, page.getByText("This saved work is not available"));
 });
 
+test("research tabs, threads, and opened decisions have URLs", async ({ page }) => {
+  await page.route("**/api/research/**", (route) => {
+    const url = new URL(route.request().url());
+    if (url.pathname !== "/api/research/" || route.request().method() !== "GET") return route.fallback();
+    const threadId = url.searchParams.get("threadId");
+    if (threadId === "999") return route.fulfill({ status: 404, json: { error: "Research thread not found" } });
+    return route.fulfill({ json: { messages: [], threads: [{ id: 7, active: true, preview: "Current" }, { id: 3, active: false, preview: "Earlier" }], threadId: Number(threadId || 7), currentThreadId: 7 } });
+  });
+  await page.route("**/api/caselaw/decisions/9/**", (route) => route.fulfill({ json: { decision: { id: 9, title: "Smith v. Jones", citation: "2020-Ohio-1" } } }));
+  const errors = watchForErrors(page, { allow: [/status of 404/] });
+  const writes = watchForWrites(page);
+  await page.goto("/research/search");
+  await expectScreenRenders(errors, page.getByRole("tab", { name: "Search the corpus", selected: true }));
+  await page.getByRole("tab", { name: "Ask a question" }).click();
+  await expect(page).toHaveURL(/\/research\/chats$/);
+  await page.getByRole("tab", { name: "Browse the library" }).click();
+  await expect(page).toHaveURL(/\/research\/library$/);
+  await page.reload();
+  await expect(page.getByRole("tab", { name: "Browse the library", selected: true })).toBeVisible();
+
+  await page.goto("/research/decisions/9");
+  const dialog = page.getByRole("dialog", { name: "Smith v. Jones" });
+  await expectScreenRenders(errors, dialog);
+  await dialog.getByRole("button", { name: "Close source preview" }).click();
+  await expect(page).toHaveURL(/\/research\/search$/);
+
+  await page.goto("/research/chats/999");
+  await expectScreenRenders(errors, page.getByText("This conversation is not available"));
+  expect(writes).toEqual([]);
+});
+
+test("an argument gym session and run open by URL, and a mismatched run does not", async ({ page }) => {
+  const workspace = { id: 5, title: "Gym session", documents: [], matterId: "", enabledChecks: null };
+  await page.route("**/api/argument-gym/**", (route) => {
+    const path = new URL(route.request().url()).pathname;
+    if (route.request().method() !== "GET") return route.fallback();
+    if (path.endsWith("/workspaces/5/")) return route.fulfill({ json: { workspace, latestRun: null } });
+    if (path.endsWith("/workspaces/404/")) return route.fulfill({ status: 404, json: { error: "Workspace not found" } });
+    if (path.endsWith("/runs/17/")) return route.fulfill({ json: { run: { id: 17, workspaceId: 6, status: "complete", challenges: [] } } });
+    return route.fallback();
+  });
+  const errors = watchForErrors(page, { allow: [/status of 404/] });
+  const writes = watchForWrites(page);
+  await page.goto("/argument-gym/workspaces/5");
+  await expectScreenRenders(errors, page.getByRole("heading", { name: "Argument gym" }));
+  await expect(page.getByText("This session is not available")).toHaveCount(0);
+  await page.goto("/argument-gym/workspaces/5/runs/17");
+  await expectScreenRenders(errors, page.getByText("This run is not part of this session"));
+  await page.goto("/argument-gym/workspaces/404");
+  await expectScreenRenders(errors, page.getByText("This session is not available"));
+  expect(writes).toEqual([]);
+});
+
 test("fill template upload, optional answers, save and DOCX download", async ({ page }) => {
   const errors = watchForErrors(page);
   let uploaded = false;

@@ -40,6 +40,9 @@ export const ROUTE_FAMILIES = [
   "chat-threads",
   "template-fill-sessions",
   "advice-letter-drafts",
+  "research-chats",
+  "research-sources",
+  "argument-gym-sessions",
 ];
 
 function disabledFamilies() {
@@ -99,10 +102,23 @@ export const ROUTES = [
   { mode: "advice_letter", view: "history", family: "advice-letter-drafts", pattern: [":caseKey", "drafts", ":draftId", "history"] },
   { mode: "research", view: null, pattern: [] },
   { mode: "research", view: "search", pattern: ["search"] },
+  { mode: "research", view: "chats", pattern: ["chats"] },
+  { mode: "research", view: "chat", family: "research-chats", pattern: ["chats", ":threadId"] },
+  { mode: "research", view: "library", pattern: ["library"] },
+  { mode: "research", view: "passage", family: "research-sources", pattern: ["library", ":documentSlug", "chunks", ":chunkId"] },
+  { mode: "research", view: "decision", family: "research-sources", pattern: ["decisions", ":decisionId"] },
   { mode: "argument_gym", view: null, pattern: [] },
+  { mode: "argument_gym", view: "workspace", family: "argument-gym-sessions", pattern: ["workspaces", ":workspaceId"] },
+  { mode: "argument_gym", view: "run", family: "argument-gym-sessions", pattern: ["workspaces", ":workspaceId", "runs", ":runId"] },
 ];
 
-const ID_PARAMS = ["sessionId", "jobId", "draftId", "threadId", "assessmentId", "workspaceId", "runId"];
+const ID_PARAMS = ["sessionId", "jobId", "draftId", "threadId", "assessmentId", "workspaceId", "runId", "decisionId"];
+// Named by text rather than number. Each is one encoded path segment.
+const TEXT_PARAMS = {
+  caseKey: (value) => value.trim().length > 0,
+  documentSlug: (value) => /^[A-Za-z0-9][A-Za-z0-9_-]*$/.test(value),
+  chunkId: (value) => value.trim().length > 0 && !/[\/]/.test(value),
+};
 
 function decodeSegment(segment) {
   try {
@@ -123,10 +139,10 @@ function matchPattern(pattern, segments) {
       continue;
     }
     const name = token.slice(1);
-    if (name === "caseKey") {
+    if (TEXT_PARAMS[name]) {
       const value = decodeSegment(segment);
-      if (!value || !value.trim()) return null;
-      params.caseKey = value;
+      if (!value || !TEXT_PARAMS[name](value)) return null;
+      params[name] = value;
     } else {
       if (!/^[1-9][0-9]{0,15}$/.test(segment)) return null;
       params[name] = Number(segment);
@@ -137,7 +153,7 @@ function matchPattern(pattern, segments) {
 
 function emptyRoute(mode, view) {
   const route = { mode, caseKey: null, view, found: true };
-  for (const name of ID_PARAMS) route[name] = null;
+  for (const name of [...ID_PARAMS, ...Object.keys(TEXT_PARAMS)]) route[name] = null;
   return route;
 }
 
@@ -178,7 +194,7 @@ export function buildPath(route) {
   const parts = entry.pattern.map((token) => {
     if (!token.startsWith(":")) return token;
     const name = token.slice(1);
-    return name === "caseKey" ? encodeKey(route.caseKey) : String(route[name]);
+    return TEXT_PARAMS[name] ? encodeURIComponent(String(route[name])) : String(route[name]);
   });
   return `/${[TASK_ROOTS[route.mode], ...parts].join("/")}`;
 }
@@ -208,7 +224,14 @@ export const paths = {
   adviceLetter: (caseKey, draftId) => at("advice_letter", "draft", { caseKey, draftId }),
   adviceLetterView: (caseKey, draftId, view) => at("advice_letter", view, { caseKey, draftId }),
   research: () => "/research/search",
+  researchChats: () => at("research", "chats"),
+  researchChat: (threadId) => at("research", "chat", { threadId }),
+  researchLibrary: () => at("research", "library"),
+  researchPassage: (documentSlug, chunkId) => at("research", "passage", { documentSlug, chunkId }),
+  researchDecision: (decisionId) => at("research", "decision", { decisionId }),
   argumentGym: () => "/argument-gym",
+  gymWorkspace: (workspaceId) => at("argument_gym", "workspace", { workspaceId }),
+  gymRun: (workspaceId, runId) => at("argument_gym", "run", { workspaceId, runId }),
 };
 
 // Tasks whose sidebar entry opens a fresh setup screen, as they always have;
