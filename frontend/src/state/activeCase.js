@@ -47,3 +47,19 @@ export function rememberCase(username, matterId, store) {
 export function initialActiveCase({ current = null, username = "", store } = {}) {
   return current ?? rememberedCase(username, store) ?? null;
 }
+
+// What a failed case lookup means for the screen, from the server's answer.
+//
+// A 404 with an account reason says this account cannot reach LegalServer
+// cases at all: the fix is the connection, and the case stays remembered
+// because nothing is wrong with it. A plain 404 means this case does not open
+// for this account; anything else is a failure worth reporting.
+export const ACCOUNT_LOOKUP_STATUSES = {
+  legalserver_not_connected: "not_connected",
+  legalserver_identity_mismatch: "identity_mismatch",
+};
+
+export function caseLookupStatus(error) {
+  if (error?.status !== 404) return "error";
+  return ACCOUNT_LOOKUP_STATUSES[error?.data?.reason] || "unavailable";
+}

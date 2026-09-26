@@ -1,5 +1,5 @@
 import React from "react";
-import { ClipboardList, Loader2 } from "lucide-react";
+import { ClipboardList, Link2, Loader2 } from "lucide-react";
 
 import { PanelHeading } from "./PanelHeading.jsx";
 
@@ -15,6 +15,17 @@ const COPY = {
     title: `Case ${caseKey} is not available`,
     description:
       "No case with this number is available to your account. It may not exist, or it may be assigned to someone else. Nothing from another case is shown in its place.",
+  }),
+  // About the account, not the case: the same words for any case number.
+  not_connected: (caseKey) => ({
+    title: `Connect LegalServer to open case ${caseKey}`,
+    description:
+      "Your account is not connected to LegalServer yet, so no LegalServer case can open here. Connect it, and this case opens if it is one you can see in LegalServer.",
+  }),
+  identity_mismatch: (caseKey) => ({
+    title: `Check your LegalServer connection to open case ${caseKey}`,
+    description:
+      "The LegalServer account connected here does not match the account you signed in with, so LegalServer cases cannot open. Update the connection to your own LegalServer account.",
   }),
   error: (caseKey) => ({
     title: `Case ${caseKey} could not be opened`,
@@ -52,7 +63,9 @@ const ACTION_LABEL = {
   draft_unavailable: "Open the session",
 };
 
-export function RouteNotice({ kind, caseKey = "", onChooseCase }) {
+// `action` ({ label, onClick }) replaces the default button with the step
+// that fixes this notice, such as connecting LegalServer.
+export function RouteNotice({ kind, caseKey = "", onChooseCase, action = null }) {
   const copy = (COPY[kind] || COPY.not_found)(caseKey);
   const loading = kind === "loading" || kind === "session_loading";
   return (
@@ -62,7 +75,12 @@ export function RouteNotice({ kind, caseKey = "", onChooseCase }) {
         description={copy.description}
         icon={loading ? <Loader2 className="spin" size={18} /> : null}
       >
-        {!loading && onChooseCase && (
+        {!loading && action && (
+          <button className="btn btn-primary" type="button" onClick={action.onClick}>
+            <Link2 size={16} /> {action.label}
+          </button>
+        )}
+        {!loading && !action && onChooseCase && (
           <button className="btn btn-primary" type="button" onClick={onChooseCase}>
             <ClipboardList size={16} /> {ACTION_LABEL[kind] || "Choose a case"}
           </button>

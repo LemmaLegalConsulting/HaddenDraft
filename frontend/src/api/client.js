@@ -58,7 +58,14 @@ async function request(path, options = {}) {
   }
 
   if (!response.ok) {
-    throw new ApiError(errorMessageFrom(await response.text(), response), { status: response.status });
+    const text = await response.text();
+    let data = null;
+    try {
+      data = JSON.parse(text);
+    } catch {
+      data = null;
+    }
+    throw new ApiError(errorMessageFrom(text, response), { status: response.status, data });
   }
 
   const contentType = response.headers.get("content-type") || "";
