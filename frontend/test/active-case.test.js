@@ -50,3 +50,12 @@ test("storage that throws reads as nothing remembered", () => {
   rememberCase("advocate", "26-0000085", broken);
   assert.equal(initialActiveCase({ username: "advocate", store: broken }), null);
 });
+
+test("a lookup that failed for the account says so, apart from an unavailable case", async () => {
+  const { caseLookupStatus } = await import("../src/state/activeCase.js");
+  assert.equal(caseLookupStatus({ status: 404, data: { reason: "legalserver_not_connected" } }), "not_connected");
+  assert.equal(caseLookupStatus({ status: 404, data: { reason: "legalserver_identity_mismatch" } }), "identity_mismatch");
+  assert.equal(caseLookupStatus({ status: 404, data: { error: "Case not found" } }), "unavailable");
+  assert.equal(caseLookupStatus({ status: 404, data: { reason: "something_new" } }), "unavailable");
+  assert.equal(caseLookupStatus({ status: 500 }), "error");
+});
