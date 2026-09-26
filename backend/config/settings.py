@@ -165,6 +165,12 @@ else:
         "default": {
             "ENGINE": "django.db.backends.sqlite3",
             "NAME": BASE_DIR / "db.sqlite3",
+            # Local development only (production is Postgres). A transaction
+            # that reads, then writes -- a save that checks its revision first
+            # -- fails at once on SQLite if another connection is writing when
+            # it tries to upgrade its lock. IMMEDIATE takes the write lock at
+            # the start and waits for it; the timeout says how long.
+            "OPTIONS": {"transaction_mode": "IMMEDIATE", "timeout": 20},
         }
     }
 
