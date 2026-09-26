@@ -12,8 +12,8 @@ import { packageFindings, packageView, unvalidatedDocuments } from "./documentPa
  * so a reviewer working in one document would otherwise never see that another
  * document contradicts it.
  */
-export function PackagePanel({ sessionId, drafts = [], validatedDraftIds = [], activeDraftId, onSelectDocument }) {
-  const [open, setOpen] = useState(false);
+export function PackagePanel({ sessionId, drafts = [], validatedDraftIds = [], activeDraftId, onSelectDocument, initiallyOpen = false }) {
+  const [open, setOpen] = useState(initiallyOpen);
   const [packageData, setPackageData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");

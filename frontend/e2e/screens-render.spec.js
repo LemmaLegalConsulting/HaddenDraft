@@ -84,12 +84,51 @@ const SCREENS = [
   { name: "Argument gym", marker: "button", text: "Open session" },
 ];
 
+// One saved drafting session on the stub case, with one generated document.
+const SAVED_DRAFT = {
+  id: 391, sessionId: 184, templateId: null, title: "Answer to complaint", exportFormat: "docx",
+  sections: [{ key: "intro", label: "Introduction", body: "The tenant answers." }],
+  plainText: "The tenant answers.", editorState: {}, validationFlags: [], updatedAt: "2026-09-25T12:00:00Z",
+  revision: 3, validation: { state: "never", checkedRevision: null, validatedAt: "", summary: {} },
+};
+const SAVED_SESSION = {
+  id: 184, mode: "draft_from_template", status: "draft_review", matter: MATTER, template: null,
+  selectedFactIds: [], selectedCuratedFacts: [], selectedSourceResults: [], selectedBlockKeys: [],
+  authorProfile: {}, templateData: {}, goal: "Answer the complaint", instructions: "Answer the complaint",
+  draftPlan: { documents: [{ title: "Answer to complaint" }] }, missingInformation: [], selectedTemplateIds: [],
+  workflowOptions: {}, revision: 2, updatedAt: "2026-09-25T12:00:00Z",
+};
+const SAVED_ROW = {
+  id: 184, mode: "draft_from_template", status: "draft_review", matterId: 1, caseNumber: "26-0001", routeCaseKey: "26-0001",
+  goal: "Answer the complaint", templateTitle: "", plannedDocuments: ["Answer to complaint"], draftCount: 1,
+  createdAt: "2026-09-25T12:00:00Z", updatedAt: "2026-09-25T12:00:00Z",
+};
+
+function draftingBody(url) {
+  const path = url.pathname.replace(/^\/api/, "");
+  if (path === "/drafting-sessions/" && url.searchParams.get("caseKey")) {
+    return { json: { sessions: [SAVED_ROW], total: 1, hasMore: false } };
+  }
+  if (path === "/drafting-sessions/184/") {
+    const caseKey = url.searchParams.get("caseKey");
+    if (caseKey && !ROUTE_KEYS.has(caseKey)) return { status: 404, json: { error: "Drafting session not found" } };
+    return { json: { session: SAVED_SESSION, resume: { recommendedView: "draft", activeJobId: null, draftIds: [391], lastDraftId: 391, hasPlan: true } } };
+  }
+  if (path === "/drafting-sessions/184/drafts/") {
+    if (url.searchParams.get("job")) return { json: { job: { id: 7, sessionId: 184, status: "complete", draftIds: [391] }, drafts: [SAVED_DRAFT] } };
+    return { json: { drafts: [SAVED_DRAFT] } };
+  }
+  return null;
+}
+
 // The case a URL names: by its readable number or its id, and nothing else.
 const ROUTE_KEYS = new Set([MATTER.routeCaseKey, String(MATTER.id)]);
 
 test.beforeEach(async ({ page }) => {
   await page.route("**/api/**", async (route) => {
     const url = new URL(route.request().url());
+    const drafting = route.request().method() === "GET" ? draftingBody(url) : null;
+    if (drafting) return route.fulfill(drafting);
     if (url.pathname.endsWith("/cases/by-route-key/")) {
       return ROUTE_KEYS.has(url.searchParams.get("key"))
         ? route.fulfill({ json: { case: MATTER } })
@@ -148,6 +187,8 @@ test("every screen in the sidebar opens and renders", async ({ page }) => {
 test("the draft workflow steps each render", async ({ page }) => {
   const errors = watchForErrors(page);
   await page.goto("/");
+  // With no case, Draft lists saved work and asks for a case; setup needs one.
+  await page.getByRole("button", { name: "Make active" }).first().click();
   await page.locator("nav.mode-list button", { hasText: "Draft" }).click();
 
   const steps = page.locator(".stepper button.step");
@@ -241,9 +282,295 @@ test("an account without LegalServer is told to connect it, and the case then op
 
 test("a link this version cannot open says so rather than opening something else", async ({ page }) => {
   const errors = watchForErrors(page);
-  await page.goto("/drafting/26-0001/sessions/184/plan");
+  await page.goto("/drafting/26-0001/sessions/184/drafts/391/export");
   await expectScreenRenders(errors, page.getByRole("heading", { name: "This page does not exist" }));
-  await expect(page).toHaveURL(/\/drafting\/26-0001\/sessions\/184\/plan$/);
+  await expect(page).toHaveURL(/\/drafting\/26-0001\/sessions\/184\/drafts\/391\/export$/);
+});
+
+// Opening saved work is reading it. Any write while following links is a bug.
+function watchForWrites(page) {
+  const writes = [];
+  page.on("request", (request) => {
+    if (request.url().includes("/api/") && request.method() !== "GET") writes.push(`${request.method()} ${request.url()}`);
+  });
+  return writes;
+}
+
+test("a case's saved drafting work is listed and each row reopens it", async ({ page }) => {
+  const errors = watchForErrors(page);
+  const writes = watchForWrites(page);
+  await page.goto("/drafting/26-0001");
+  await expectScreenRenders(errors, page.getByRole("heading", { name: "Drafting" }));
+  await page.getByRole("link", { name: /Answer to complaint/ }).click();
+  // The session resolves to the document it last saved, replacing itself.
+  await expect(page).toHaveURL(/\/drafting\/26-0001\/sessions\/184\/drafts\/391$/);
+  await expect(page.locator(".draft-switcher, .editor-panel").first()).toBeVisible();
+  await page.goBack();
+  await expect(page).toHaveURL(/\/drafting\/26-0001$/);
+  expect(writes).toEqual([]);
+});
+
+test("a saved document survives a reload without anything being regenerated", async ({ page }) => {
+  const errors = watchForErrors(page);
+  const writes = watchForWrites(page);
+  await page.goto("/drafting/26-0001/sessions/184/drafts/391");
+  await expectScreenRenders(errors, page.locator(".editor-panel"));
+  await page.reload();
+  await expectScreenRenders(errors, page.locator(".editor-panel"));
+  await page.goto("/drafting/26-0001/sessions/184/plan");
+  await expectScreenRenders(errors, page.locator("main.workspace .panel").first());
+  await expect(page).toHaveURL(/\/sessions\/184\/plan$/);
+  expect(writes).toEqual([]);
+});
+
+test("a session opened under the wrong case does not open", async ({ page }) => {
+  const errors = watchForErrors(page, { allow: [/status of 404/] });
+  await page.goto("/drafting/1/sessions/184/plan");
+  // "1" is the stub case's id, so it canonicalizes; an unknown case never opens.
+  await page.goto("/drafting/26-9999/sessions/184/plan");
+  await expectScreenRenders(errors, page.getByRole("heading", { name: "Case 26-9999 is not available" }));
+});
+
+test("a document the session does not have says so", async ({ page }) => {
+  const errors = watchForErrors(page);
+  await page.goto("/drafting/26-0001/sessions/184/drafts/999");
+  await expectScreenRenders(errors, page.getByRole("heading", { name: "This document is not part of this session" }));
+});
+
+test("a generation link reconnects to its job and lands on the document", async ({ page }) => {
+  const writes = watchForWrites(page);
+  await page.goto("/drafting/26-0001/sessions/184/jobs/7");
+  await expect(page).toHaveURL(/\/sessions\/184\/drafts\/391$/);
+  expect(writes).toEqual([]);
+});
+
+test("making a plan gives the new session its own URL, replacing setup", async ({ page }) => {
+  const created = { ...SAVED_SESSION, id: 185, draftPlan: {} };
+  const planned = { ...created, draftPlan: { documents: [{ title: "Answer to complaint" }] }, selectedFactIds: [1] };
+  await page.route("**/api/drafting-sessions/**", async (route) => {
+    const request = route.request();
+    const path = new URL(request.url()).pathname;
+    if (request.method() === "POST" && path.endsWith("/drafting-sessions/")) return route.fulfill({ status: 201, json: { session: created } });
+    if (request.method() === "POST" && path.endsWith("/185/plan/")) return route.fulfill({ json: { session: planned, plan: planned.draftPlan } });
+    if (request.method() === "POST" && path.endsWith("/185/recommend-facts/")) return route.fulfill({ json: { session: planned, factIds: [1] } });
+    if (request.method() === "PATCH" && path.endsWith("/185/")) return route.fulfill({ json: { session: { ...planned, revision: (planned.revision || 0) + 1 } } });
+    return route.fallback();
+  });
+  const errors = watchForErrors(page);
+  await page.goto("/cases/26-0001");
+  await page.locator("nav.mode-list button", { hasText: "Draft" }).click();
+  await expect(page).toHaveURL(/\/drafting\/26-0001\/new$/);
+  await page.getByRole("textbox").first().fill("Answer the complaint");
+  await page.getByRole("button", { name: "Make plan" }).click();
+  await expect(page).toHaveURL(/\/drafting\/26-0001\/sessions\/185\/plan$/);
+  await expectScreenRenders(errors, page.locator(".stepper"));
+  // Setup was replaced: Back leaves drafting rather than offering setup again.
+  await page.goBack();
+  await expect(page).toHaveURL(/\/cases\/26-0001$/);
+});
+
+async function typeIntoDocument(page, text) {
+  const editable = page.locator(".editor-panel [contenteditable='true']").first();
+  await editable.click();
+  await page.keyboard.press("End");
+  await page.keyboard.type(text);
+}
+
+test("leaving a document with unsaved edits asks first, and Stay keeps them", async ({ page }) => {
+  const errors = watchForErrors(page);
+  await page.goto("/drafting/26-0001/sessions/184/drafts/391");
+  await expectScreenRenders(errors, page.locator(".editor-panel"));
+  await typeIntoDocument(page, " More.");
+  await expect(page.getByText("Unsaved changes", { exact: true })).toBeVisible();
+
+  await page.locator("nav.mode-list button", { hasText: "Triage" }).click();
+  const dialog = page.getByRole("alertdialog", { name: "Leave with unsaved changes?" });
+  await expect(dialog).toBeVisible();
+  await dialog.getByRole("button", { name: "Stay" }).click();
+  await expect(dialog).toBeHidden();
+  await expect(page).toHaveURL(/\/drafts\/391$/);
+  await expect(page.getByText("Unsaved changes", { exact: true })).toBeVisible();
+
+  await page.locator("nav.mode-list button", { hasText: "Triage" }).click();
+  await dialog.getByRole("button", { name: "Discard changes" }).click();
+  await expect(page).toHaveURL(/\/triage\/26-0001$/);
+});
+
+test("a document saved in another window is a conflict, never an overwrite", async ({ page }) => {
+  const theirs = { ...SAVED_DRAFT, revision: 5, plainText: "Their version.", sections: [{ key: "intro", label: "Introduction", body: "Their version." }] };
+  let patches = 0;
+  await page.route("**/api/drafts/391/", async (route) => {
+    if (route.request().method() !== "PATCH") return route.fallback();
+    patches += 1;
+    const body = route.request().postDataJSON();
+    if (body.revision !== 5) {
+      return route.fulfill({ status: 409, json: { error: "This was changed in another window since you opened it.", conflict: "draft", currentRevision: 5, draft: theirs } });
+    }
+    return route.fulfill({ json: { draft: { ...SAVED_DRAFT, ...body, revision: 6 } } });
+  });
+  const errors = watchForErrors(page, { allow: [/status of 409/] });
+  await page.goto("/drafting/26-0001/sessions/184/drafts/391");
+  await expectScreenRenders(errors, page.locator(".editor-panel"));
+  await typeIntoDocument(page, " Mine.");
+  await page.getByRole("button", { name: "Save", exact: true }).click();
+
+  const conflict = page.getByRole("alert").filter({ hasText: "changed in another window" });
+  await expect(conflict).toBeVisible();
+  await expect(page.locator(".editor-panel")).toContainText("Mine.");
+  // Keeping mine is a deliberate overwrite, sent against their revision.
+  await conflict.getByRole("button", { name: "Keep mine and save over it" }).click();
+  await expect(page.getByText("All changes saved")).toBeVisible();
+  expect(patches).toBe(2);
+});
+
+test("a session edited in another window is a conflict too", async ({ page }) => {
+  await page.route("**/api/drafting-sessions/184/", async (route) => {
+    if (route.request().method() !== "PATCH") return route.fallback();
+    return route.fulfill({
+      status: 409,
+      json: { error: "This was changed in another window since you opened it.", conflict: "session", currentRevision: 9, session: { ...SAVED_SESSION, revision: 9, goal: "Their goal" } },
+    });
+  });
+  const errors = watchForErrors(page, { allow: [/status of 409/] });
+  await page.goto("/drafting/26-0001/sessions/184/goal");
+  await expectScreenRenders(errors, page.getByText("All changes saved"));
+  await page.getByRole("textbox").first().fill("My goal");
+  await page.getByRole("status").getByRole("button", { name: "Save" }).click();
+  const conflict = page.getByRole("alert").filter({ hasText: "changed in another window" });
+  await expect(conflict).toBeVisible();
+  await conflict.getByRole("button", { name: "Load the saved version (discard mine)" }).click();
+  await expect(page.getByRole("textbox").first()).toHaveValue("Their goal");
+});
+
+const ASSESSMENTS = [
+  { id: 52, priority: true, priorityLabel: "Priority", confidence: "high", summary: "Newest summary.", reasoning: "", matchedCriteria: [], missingInformation: [], evidence: [], rubric: { name: "Eviction" }, createdAt: "2026-09-25T12:00:00Z" },
+  { id: 51, priority: false, priorityLabel: "Needs review", confidence: "low", summary: "Older summary.", reasoning: "", matchedCriteria: [], missingInformation: [], evidence: [], rubric: { name: "Eviction" }, createdAt: "2026-09-20T12:00:00Z" },
+];
+
+test("a saved triage assessment opens by its URL and never reruns", async ({ page }) => {
+  await page.route("**/api/cases/1/triage/", (route) => (
+    route.request().method() === "GET" ? route.fulfill({ json: { assessments: ASSESSMENTS } }) : route.fallback()
+  ));
+  const errors = watchForErrors(page);
+  const writes = watchForWrites(page);
+  await page.goto("/triage/26-0001/assessments/51");
+  await expectScreenRenders(errors, page.getByText("Older summary."));
+  await page.getByRole("navigation", { name: "Saved assessments" }).getByRole("link", { name: /Priority/ }).click();
+  await expect(page).toHaveURL(/\/triage\/26-0001\/assessments\/52$/);
+  await expect(page.getByText("Newest summary.")).toBeVisible();
+  await page.goto("/triage/26-0001/assessments/999");
+  await expectScreenRenders(errors, page.getByRole("heading", { name: "This triage assessment is not available" }));
+  await expect(page.getByText("Newest summary.")).toHaveCount(0);
+  expect(writes).toEqual([]);
+});
+
+test("a chat thread opens by its URL, an archived one is read-only, and a missing one is never replaced", async ({ page }) => {
+  await page.route("**/api/cases/1/chat/**", (route) => {
+    const threadId = new URL(route.request().url()).searchParams.get("threadId");
+    const threads = [{ id: 7, active: true, preview: "Current" }, { id: 3, active: false, preview: "Earlier question" }];
+    if (threadId === "999") return route.fulfill({ status: 404, json: { error: "Chat thread not found" } });
+    const messages = threadId === "3" ? [{ role: "user", content: "An earlier question" }] : [{ role: "user", content: "A current question" }];
+    return route.fulfill({ json: { messages, threads, threadId: Number(threadId || 7), currentThreadId: 7 } });
+  });
+  const errors = watchForErrors(page, { allow: [/status of 404/] });
+  const writes = watchForWrites(page);
+  await page.goto("/chat/26-0001/threads/3");
+  await expectScreenRenders(errors, page.getByText("An earlier question"));
+  await expect(page.getByRole("button", { name: "Send" })).toBeDisabled();
+  await page.getByRole("combobox", { name: "Case chat threads" }).selectOption("");
+  await expect(page).toHaveURL(/\/chat\/26-0001$/);
+  await expect(page.getByText("A current question")).toBeVisible();
+  await page.goto("/chat/26-0001/threads/999");
+  await expectScreenRenders(errors, page.getByText("This conversation is not available"));
+  await expect(page.getByText("A current question")).toHaveCount(0);
+  expect(writes).toEqual([]);
+});
+
+test("a saved advice letter reopens as saved, without being reassembled", async ({ page }) => {
+  const letter = {
+    id: 118, sessionId: 60, templateId: null, title: "Client advice letter", exportFormat: "docx",
+    sections: [{ key: "seal", label: "Sealing", body: "Edited sealing advice." }],
+    plainText: "Edited sealing advice.", editorState: {}, validationFlags: [], revision: 4,
+    validation: { state: "never" }, updatedAt: "2026-09-25T12:00:00Z",
+  };
+  await page.route("**/api/advice-letters/drafts/**", (route) => {
+    const url = new URL(route.request().url());
+    if (route.request().method() !== "GET") return route.fallback();
+    if (url.pathname.endsWith("/drafts/118/")) {
+      return route.fulfill({ json: { draft: letter, letter: { paragraphs: ["Edited sealing advice."] }, letterFields: { filename: "letter" }, advice: { sessionId: 60, sectionSlugs: ["seal"], region: "CLE", goal: "Explain sealing", conditions: {} } } });
+    }
+    return route.fulfill({ status: 404, json: { error: "Draft not found." } });
+  });
+  const errors = watchForErrors(page, { allow: [/status of 404/] });
+  const writes = watchForWrites(page);
+  await page.goto("/advice-letters/26-0001/drafts/118");
+  await expectScreenRenders(errors, page.getByRole("heading", { name: "Edit the letter" }));
+  await expect(page.locator(".advice-editor-section")).toContainText("Edited sealing advice.");
+  await page.reload();
+  await expectScreenRenders(errors, page.getByRole("heading", { name: "Edit the letter" }));
+  expect(writes, "opening a saved letter must not reassemble it").toEqual([]);
+  await page.goto("/advice-letters/26-0001/drafts/999");
+  await expectScreenRenders(errors, page.getByText("This letter is not available"));
+});
+
+test("a fill session on another case, or missing, does not open", async ({ page }) => {
+  await page.route("**/api/template-fill/sessions/**", (route) => route.fulfill({ status: 404, json: { error: "Session not found" } }));
+  const errors = watchForErrors(page, { allow: [/status of 404/] });
+  await page.goto("/template-fill/26-0001/sessions/555/fields");
+  await expectScreenRenders(errors, page.getByText("This saved work is not available"));
+});
+
+test("research tabs, threads, and opened decisions have URLs", async ({ page }) => {
+  await page.route("**/api/research/**", (route) => {
+    const url = new URL(route.request().url());
+    if (url.pathname !== "/api/research/" || route.request().method() !== "GET") return route.fallback();
+    const threadId = url.searchParams.get("threadId");
+    if (threadId === "999") return route.fulfill({ status: 404, json: { error: "Research thread not found" } });
+    return route.fulfill({ json: { messages: [], threads: [{ id: 7, active: true, preview: "Current" }, { id: 3, active: false, preview: "Earlier" }], threadId: Number(threadId || 7), currentThreadId: 7 } });
+  });
+  await page.route("**/api/caselaw/decisions/9/**", (route) => route.fulfill({ json: { decision: { id: 9, title: "Smith v. Jones", citation: "2020-Ohio-1" } } }));
+  const errors = watchForErrors(page, { allow: [/status of 404/] });
+  const writes = watchForWrites(page);
+  await page.goto("/research/search");
+  await expectScreenRenders(errors, page.getByRole("tab", { name: "Search the corpus", selected: true }));
+  await page.getByRole("tab", { name: "Ask a question" }).click();
+  await expect(page).toHaveURL(/\/research\/chats$/);
+  await page.getByRole("tab", { name: "Browse the library" }).click();
+  await expect(page).toHaveURL(/\/research\/library$/);
+  await page.reload();
+  await expect(page.getByRole("tab", { name: "Browse the library", selected: true })).toBeVisible();
+
+  await page.goto("/research/decisions/9");
+  const dialog = page.getByRole("dialog", { name: "Smith v. Jones" });
+  await expectScreenRenders(errors, dialog);
+  await dialog.getByRole("button", { name: "Close source preview" }).click();
+  await expect(page).toHaveURL(/\/research\/search$/);
+
+  await page.goto("/research/chats/999");
+  await expectScreenRenders(errors, page.getByText("This conversation is not available"));
+  expect(writes).toEqual([]);
+});
+
+test("an argument gym session and run open by URL, and a mismatched run does not", async ({ page }) => {
+  const workspace = { id: 5, title: "Gym session", documents: [], matterId: "", enabledChecks: null };
+  await page.route("**/api/argument-gym/**", (route) => {
+    const path = new URL(route.request().url()).pathname;
+    if (route.request().method() !== "GET") return route.fallback();
+    if (path.endsWith("/workspaces/5/")) return route.fulfill({ json: { workspace, latestRun: null } });
+    if (path.endsWith("/workspaces/404/")) return route.fulfill({ status: 404, json: { error: "Workspace not found" } });
+    if (path.endsWith("/runs/17/")) return route.fulfill({ json: { run: { id: 17, workspaceId: 6, status: "complete", challenges: [] } } });
+    return route.fallback();
+  });
+  const errors = watchForErrors(page, { allow: [/status of 404/] });
+  const writes = watchForWrites(page);
+  await page.goto("/argument-gym/workspaces/5");
+  await expectScreenRenders(errors, page.getByRole("heading", { name: "Argument gym" }));
+  await expect(page.getByText("This session is not available")).toHaveCount(0);
+  await page.goto("/argument-gym/workspaces/5/runs/17");
+  await expectScreenRenders(errors, page.getByText("This run is not part of this session"));
+  await page.goto("/argument-gym/workspaces/404");
+  await expectScreenRenders(errors, page.getByText("This session is not available"));
+  expect(writes).toEqual([]);
 });
 
 test("fill template upload, optional answers, save and DOCX download", async ({ page }) => {
@@ -279,6 +606,8 @@ test("fill template upload, optional answers, save and DOCX download", async ({ 
       }
       return route.fulfill({ json: { session, jobs: [] } });
     }
+    if (path.endsWith("/jobs/91/")) return route.fulfill({ json: { job: finished } });
+    if (path.endsWith("/jobs/90/")) return route.fulfill({ json: { job: { id: 90, sessionId: 81, kind: "prepare", status: "complete" } } });
     if (path.endsWith("/file/")) return route.fulfill({ contentType: "application/vnd.openxmlformats-officedocument.wordprocessingml.document", headers: { "Content-Disposition": 'attachment; filename="filled.docx"' }, body: "synthetic DOCX download" });
     return route.fulfill({ json: { templates: [], sessions: uploaded ? [{ id: 81, title: session.title, updatedAt: "2026-09-25T12:00:00Z" }] : [] } });
   });
@@ -291,7 +620,9 @@ test("fill template upload, optional answers, save and DOCX download", async ({ 
   await page.getByLabel("Type short blanks inside their sentence").uncheck();
   await expect(page.locator(".fill-inline-sentence")).toHaveCount(0);
   await expect(page.getByRole("textbox", { name: "Hearing date", exact: true })).toHaveValue("");
+  await expect(page).toHaveURL(/\/template-fill\/26-0001\/sessions\/81\/fields$/);
   await page.getByRole("tab", { name: "Preview" }).click();
+  await expect(page).toHaveURL(/\/template-fill\/26-0001\/sessions\/81\/preview$/);
   await expect(page.getByRole("article", { name: "Document preview" })).toContainText("The hearing is set for");
   await page.getByRole("button", { name: "[Enter Hearing date]" }).click();
   const dialog = page.getByRole("dialog", { name: "Hearing date" });

@@ -1053,8 +1053,14 @@ function GymRevisionModal({ plan, busy, onClose, onUpdateItem, onApply }) {
   );
 }
 
-export function ArgumentGymPanel({ matter = null, cases = [], focusRun = null, onFocusRunHandled = () => {} }) {
+// `workspaceId` and `runId` are what the URL names; `onNavigate({ workspaceId,
+// runId }, options)` moves it. A session or run that does not open says so --
+// the latest session is never shown in its place.
+export function ArgumentGymPanel({ matter = null, cases = [], focusRun = null, onFocusRunHandled = () => {}, workspaceId = null, runId = null, onNavigate = () => {} }) {
   const [workspace, setWorkspace] = useState(null);
+  const [routeMissing, setRouteMissing] = useState("");
+  const workspaceIdRef = useRef(null);
+  workspaceIdRef.current = workspace?.id ?? null;
   const [brief, setBrief] = useState(null);
   const [caseContext, setCaseContext] = useState(matter ? "existing_case" : "none");
   const [caseMaterials, setCaseMaterials] = useState([]);
@@ -1144,6 +1150,8 @@ export function ArgumentGymPanel({ matter = null, cases = [], focusRun = null, o
         // the deadline decide.
         continue;
       }
+      // The page has moved to another session: stop following this run.
+      if (workspaceIdRef.current !== latest.workspaceId) return null;
       setRun(latest);
       if (isRunFinished(latest)) return latest;
     }
@@ -1154,7 +1162,9 @@ export function ArgumentGymPanel({ matter = null, cases = [], focusRun = null, o
   useEffect(() => {
     if (!focusRun) return;
     setWorkspace(focusRun.workspace);
+    workspaceIdRef.current = focusRun.workspace.id;
     setRun(focusRun.run);
+    onNavigate({ workspaceId: focusRun.workspace.id, runId: focusRun.run.id }, { replace: true });
     setBrief({ id: focusRun.run.briefId, title: focusRun.run.briefTitle });
     setCaseContext("existing_case");
     setFilter("open");
@@ -1187,16 +1197,36 @@ export function ArgumentGymPanel({ matter = null, cases = [], focusRun = null, o
       jurisdiction: matter?.jurisdiction || "",
     });
     setWorkspace(response.workspace);
+    workspaceIdRef.current = response.workspace.id;
+    // The new session has an address from the moment it exists.
+    onNavigate({ workspaceId: response.workspace.id }, { replace: true });
     return response.workspace;
-  }, [workspace, caseContext, selectedMatterId, matter]);
+  }, [workspace, caseContext, selectedMatterId, matter, onNavigate]);
 
-  const openSession = async (session) => {
+  const openSession = (session) => {
     setSessionsOpen(false);
+    onNavigate({ workspaceId: session.id });
+  };
+
+  // Load the session the URL names (and the run, if it names one). Reading
+  // only: nothing is started or rerun by opening a link.
+  const loadSessionById = async (id, wantedRunId = null) => {
     setBusy(true);
     setError("");
     setNotice("");
+    setRouteMissing("");
     try {
-      const response = await api.gymWorkspace(session.id);
+      let response;
+      try {
+        response = await api.gymWorkspace(id);
+      } catch (err) {
+        if (err.status === 404) {
+          setRouteMissing("session");
+          return;
+        }
+        throw err;
+      }
+      workspaceIdRef.current = response.workspace.id;
       setWorkspace(response.workspace);
       setRun(response.latestRun);
       setDetection(null);
@@ -1207,6 +1237,7 @@ export function ArgumentGymPanel({ matter = null, cases = [], focusRun = null, o
       setCaseMaterials((response.workspace.documents || []).filter((item) => item.role === "case_record"));
       setCaseContext(response.workspace.matterId ? "existing_case" : "none");
       setSelectedMatterId(response.workspace.matterId || "");
+      if (wantedRunId) await loadRunById(response.workspace.id, wantedRunId);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -1214,8 +1245,55 @@ export function ArgumentGymPanel({ matter = null, cases = [], focusRun = null, o
     }
   };
 
+  const loadRunById = async (id, wantedRunId) => {
+    let named;
+    try {
+      named = (await api.gymRun(wantedRunId)).run;
+    } catch (err) {
+      if (err.status === 404) {
+        setRouteMissing("run");
+        return;
+      }
+      throw err;
+    }
+    // A run from another session is not this session's run, whatever its id.
+    if (named.workspaceId !== id) {
+      setRouteMissing("run");
+      return;
+    }
+    setRouteMissing("");
+    setRun(named);
+    setFilter(defaultFilter(named.challenges || []));
+    if (!isRunFinished(named)) pollRun(named.id);
+  };
+
+  const previousRouteWorkspace = useRef(workspaceId);
+  useEffect(() => {
+    const previous = previousRouteWorkspace.current;
+    previousRouteWorkspace.current = workspaceId;
+    if (!workspaceId) {
+      setRouteMissing("");
+      // Back to /argument-gym from a session: that session leaves the screen.
+      // Only on that move -- a run handed over from the editor arrives on
+      // /argument-gym and is given its own URL a moment later.
+      if (previous && workspaceIdRef.current) startNewSession();
+      return;
+    }
+    if (workspace?.id !== workspaceId) {
+      loadSessionById(workspaceId, runId);
+      return;
+    }
+    if (runId && run?.id !== runId) {
+      setBusy(true);
+      loadRunById(workspaceId, runId).catch((err) => setError(err.message)).finally(() => setBusy(false));
+    }
+  }, [workspaceId, runId]);
+
   const startNewSession = () => {
     setSessionsOpen(false);
+    workspaceIdRef.current = null;
+    setRouteMissing("");
+    if (workspaceId) onNavigate({});
     setWorkspace(null);
     setRun(null);
     setBrief(null);
@@ -1336,6 +1414,8 @@ export function ArgumentGymPanel({ matter = null, cases = [], focusRun = null, o
       }
       const response = await api.runArgumentGym(target.id, { briefId: brief?.id });
       setRun(response.run);
+      // The run has its own address; a reload follows it rather than starting another.
+      onNavigate({ workspaceId: target.id, runId: response.run.id });
       setQueued([]);
       if (!isRunFinished(response.run)) {
         const finished = await pollRun(response.run.id);
@@ -1475,6 +1555,12 @@ export function ArgumentGymPanel({ matter = null, cases = [], focusRun = null, o
           <Plus size={16} /> New
         </button>
       </PanelHeading>
+      {routeMissing && (
+        <div className="empty-state compact-empty" role="status">
+          <strong className="empty-state-title">{routeMissing === "run" ? "This run is not part of this session" : "This session is not available"}</strong>
+          <p>{routeMissing === "run" ? "The session opened, but it has no run with this number." : "No argument gym session with this number is available to you."} Nothing else is shown in its place.</p>
+        </div>
+      )}
 
       {error && <div className="alert alert-danger">{error}</div>}
       {notice && <div className="alert alert-info">{notice}</div>}

@@ -89,3 +89,11 @@ export function letterContactGaps(profile = {}, { username = "", email = "" } = 
   }
   return gaps;
 }
+
+// Whether a change of section selection should reassemble the letter. It
+// should not when the selection is exactly what was just restored from a saved
+// letter: reassembling on load would redo the letter from the catalog and could
+// replace edited text. Only a change the advocate makes reassembles.
+export function assemblyWanted(selected, restoredSelection) {
+  return selected !== restoredSelection;
+}

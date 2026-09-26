@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import { History, Loader2, Plus, Send, Trash2 } from "lucide-react";
 
 import { api } from "../api/client.js";
+import { isConflict } from "../api/errors.js";
+import { chatThreadView } from "../state/chatThreads.js";
 import LegalServerSaveButton from "./LegalServerSaveButton.jsx";
 import { chatTranscriptNote } from "./chatTranscript.js";
 import { MarkdownResponse } from "./MarkdownResponse.jsx";
@@ -17,40 +19,60 @@ function cleanMessage(text = "") {
   return text.replace(/<br\s*\/?>/gi, "\n");
 }
 
-export function CaseChat({ matter, onAction, legalserverSave = null }) {
+// `threadId` is the thread the URL names (null for the current chat), and
+// `onThreadChange(id | null)` moves the URL. The screen never substitutes one
+// conversation for another: a thread that does not open says so.
+export function CaseChat({ matter, onAction, legalserverSave = null, threadId = null, onThreadChange }) {
   const [messages, setMessages] = useState([]);
+  const [currentThreadId, setCurrentThreadId] = useState(null);
+  const [threadMissing, setThreadMissing] = useState(false);
+  const [staleThread, setStaleThread] = useState(false);
   const [input, setInput] = useState("");
   const [busy, setBusy] = useState(false);
   const [historyLoading, setHistoryLoading] = useState(false);
   const [error, setError] = useState("");
   const [showHistory, setShowHistory] = useState(true);
   const [threads, setThreads] = useState([]);
-  const [selectedThreadId, setSelectedThreadId] = useState("");
   const [delivery, setDelivery] = useState(null);
   const [savingToLegalServer, setSavingToLegalServer] = useState(false);
+
+  const view = chatThreadView({ routeThreadId: threadId, currentThreadId });
+  const selectedThreadId = view.readOnly ? String(threadId) : "";
 
   useEffect(() => {
     setInput("");
     setError("");
+    setThreadMissing(false);
+    setStaleThread(false);
+    setDelivery(null);
     if (!matter) {
       setMessages([]);
       setHistoryLoading(false);
       return undefined;
     }
     setHistoryLoading(true);
-    let cancelled = false;
-    api.caseChatHistory(matter.id)
+    const controller = new AbortController();
+    // Reading only: opening the chat never starts a conversation.
+    api.caseChatHistory(matter.id, threadId, { signal: controller.signal })
       .then((response) => {
-        if (!cancelled) { setMessages(response.messages || []); setThreads(response.threads || []); }
+        setMessages(response.messages || []);
+        setThreads(response.threads || []);
+        setCurrentThreadId(response.currentThreadId ?? null);
       })
       .catch((err) => {
-        if (!cancelled) setError(err.message || "Could not load case chat history.");
+        if (controller.signal.aborted || err?.name === "AbortError") return;
+        if (err.status === 404) {
+          setMessages([]);
+          setThreadMissing(true);
+          return;
+        }
+        setError(err.message || "Could not load case chat history.");
       })
       .finally(() => {
-        if (!cancelled) setHistoryLoading(false);
+        if (!controller.signal.aborted) setHistoryLoading(false);
       });
-    return () => { cancelled = true; };
-  }, [matter?.id]);
+    return () => controller.abort();
+  }, [matter?.id, threadId]);
 
   async function submitMessage(content) {
     if (!content || !matter) return;
@@ -60,7 +82,8 @@ export function CaseChat({ matter, onAction, legalserverSave = null }) {
     setBusy(true);
     setError("");
     try {
-      const response = await api.caseChat(matter.id, { content });
+      const response = await api.caseChat(matter.id, { content, threadId: view.writeThreadId ?? undefined });
+      setCurrentThreadId(response.threadId ?? null);
       setMessages([
         ...nextMessages,
         {
@@ -71,6 +94,14 @@ export function CaseChat({ matter, onAction, legalserverSave = null }) {
         },
       ]);
     } catch (err) {
+      if (isConflict(err)) {
+        // Another window started a new chat; this one was about to write
+        // into a conversation that is no longer current.
+        setMessages(messages);
+        setInput(content);
+        setStaleThread(true);
+        return;
+      }
       setError(err.message || "Case chat failed.");
     } finally {
       setBusy(false);
@@ -87,15 +118,25 @@ export function CaseChat({ matter, onAction, legalserverSave = null }) {
     // Clear deletes, unlike New chat, which keeps the old thread; ask first.
     if (!window.confirm("Delete this conversation? It cannot be recovered. New chat keeps it instead.")) return;
     setBusy(true);
-    try { await api.clearCaseChatHistory(matter.id); setMessages([]); setShowHistory(false); }
-    catch (err) { setError(err.message || "Could not clear case chat history."); }
+    try { await api.clearCaseChatHistory(matter.id, view.writeThreadId); setMessages([]); setShowHistory(false); }
+    catch (err) {
+      if (isConflict(err)) setStaleThread(true);
+      else setError(err.message || "Could not clear case chat history.");
+    }
     finally { setBusy(false); }
   }
 
   async function newChat() {
     if (!matter) return;
     setBusy(true);
-    try { const response = await api.newCaseChat(matter.id); setMessages([]); setThreads(response.threads || []); setSelectedThreadId(""); setShowHistory(true); }
+    try {
+      const response = await api.newCaseChat(matter.id);
+      setMessages([]);
+      setThreads(response.threads || []);
+      setCurrentThreadId(null);
+      setShowHistory(true);
+      if (threadId != null) onThreadChange?.(null);
+    }
     catch (err) { setError(err.message || "Could not start a new case chat."); }
     finally { setBusy(false); }
   }
@@ -120,12 +161,9 @@ export function CaseChat({ matter, onAction, legalserverSave = null }) {
     }
   }
 
-  async function selectThread(event) {
-    const threadId = event.target.value;
-    setSelectedThreadId(threadId);
-    setDelivery(null);
-    const response = await api.caseChatHistory(matter.id, threadId);
-    setMessages(response.messages || []);
+  function selectThread(event) {
+    const next = event.target.value;
+    onThreadChange?.(next ? Number(next) : null);
   }
 
   return (
@@ -140,7 +178,14 @@ export function CaseChat({ matter, onAction, legalserverSave = null }) {
           <p>Choose a LegalServer matter to ask case-specific questions.</p>
         </div>
       )}
-      {matter && (
+      {matter && threadMissing && (
+        <div className="empty-state compact-empty" role="status">
+          <strong className="empty-state-title">This conversation is not available</strong>
+          <p>No chat thread with this number belongs to you on this case. No other conversation is shown in its place.</p>
+          <button className="btn btn-primary" type="button" onClick={() => onThreadChange?.(null)}>Open the current chat</button>
+        </div>
+      )}
+      {matter && !threadMissing && (
         <>
           <div className="chat-history-actions">
             <select className="form-select" aria-label="Case chat threads" value={selectedThreadId} onChange={selectThread}>
@@ -191,16 +236,26 @@ export function CaseChat({ matter, onAction, legalserverSave = null }) {
             ))}
           </div>
           {error && <div className="inline-error">{error}</div>}
+          {staleThread && (
+            <div className="inline-error" role="alert">
+              A new chat was started in another window, so this conversation is no longer the current one. Your message was not sent and is still in the box.
+              <button className="btn btn-light" type="button" onClick={() => { setStaleThread(false); onThreadChange?.(null); }}>Open the current chat</button>
+            </div>
+          )}
+          {view.readOnly && <p className="muted">This is an earlier conversation. It is kept as a record; start or open the current chat to ask more.</p>}
           <form className="chat-compose" onSubmit={sendMessage}>
+            <label className="visually-hidden" htmlFor="case-chat-input">Message</label>
             <input className="form-control"
+              id="case-chat-input"
+              aria-describedby="case-chat-input-help"
               value={input}
               onChange={(event) => setInput(event.target.value)}
-              placeholder="Ask about documents, case posture, parties, or drafting strategy"
             />
-            <button className="btn btn-primary" disabled={busy || historyLoading || !!selectedThreadId || !input.trim()}>
+            <button className="btn btn-primary" disabled={busy || historyLoading || view.readOnly || !input.trim()}>
               {busy ? <Loader2 className="spin" size={16} /> : <Send size={16} />} Send
             </button>
           </form>
+          <p className="muted chat-compose-help" id="case-chat-input-help">Ask about documents, case posture, parties, or drafting strategy.</p>
         </>
       )}
     </div>

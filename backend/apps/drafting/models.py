@@ -46,14 +46,33 @@ class DraftingSession(models.Model):
     missing_information = models.JSONField(default=list, blank=True)
     selected_template_ids = models.JSONField(default=list, blank=True)
     instructions = models.TextField(blank=True)
+    # How the advocate set up planning: planningMode, allowMultipleDocuments,
+    # clarifyMissingFactsBeforeDraft. Saved so a reopened session asks the
+    # same way it was asked before.
+    workflow_options = models.JSONField(default=dict, blank=True)
+    # Counts saves of what the advocate chose. A write names the revision it
+    # was based on and is refused if another tab saved first, rather than
+    # silently replacing that tab's work.
+    revision = models.PositiveIntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    # Saves that record where the workflow is, not what anyone chose.
+    UNVERSIONED_FIELDS = frozenset({"status", "updated_at"})
 
     class Meta:
         ordering = ["-updated_at"]
 
     def __str__(self):
         return f"{self.mode}: {self.matter}"
+
+    def save(self, *args, **kwargs):
+        update_fields = kwargs.get("update_fields")
+        if self.pk and (update_fields is None or not set(update_fields) <= self.UNVERSIONED_FIELDS):
+            self.revision = (self.revision or 0) + 1
+            if update_fields is not None:
+                kwargs["update_fields"] = [*update_fields, "revision"]
+        super().save(*args, **kwargs)
 
 
 class DraftDocument(models.Model):
@@ -74,14 +93,35 @@ class DraftDocument(models.Model):
     plain_text = models.TextField()
     editor_state = models.JSONField(default=dict, blank=True)
     validation_flags = models.JSONField(default=list, blank=True)
+    # Counts saves of the document's text. An edit names the revision it was
+    # made against; an edit made against an older one is refused with 409.
+    revision = models.PositiveIntegerField(default=0)
+    # Which revision the stored findings describe. Findings for an older
+    # revision are stale: they checked text that is no longer there.
+    validated_revision = models.PositiveIntegerField(null=True, blank=True)
+    validation_summary = models.JSONField(default=dict, blank=True)
+    validated_at = models.DateTimeField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    # Saves that record a check of the text rather than change it.
+    UNVERSIONED_FIELDS = frozenset(
+        {"validation_flags", "validated_revision", "validation_summary", "validated_at", "updated_at"}
+    )
 
     class Meta:
         ordering = ["-created_at"]
 
     def __str__(self):
         return self.title
+
+    def save(self, *args, **kwargs):
+        update_fields = kwargs.get("update_fields")
+        if self.pk and (update_fields is None or not set(update_fields) <= self.UNVERSIONED_FIELDS):
+            self.revision = (self.revision or 0) + 1
+            if update_fields is not None:
+                kwargs["update_fields"] = [*update_fields, "revision"]
+        super().save(*args, **kwargs)
 
 
 class DocumentComponent(models.Model):
@@ -321,12 +361,33 @@ class DraftGenerationJob(models.Model):
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default=PENDING)
     error = models.TextField(blank=True)
     draft_ids = models.JSONField(default=list, blank=True)
+    # Supplied by the client that asked. A repeated request with the same key
+    # -- a retry after a lost response -- gets this job back, not a second one.
+    idempotency_key = models.CharField(max_length=80, blank=True)
+    # The session revision and a digest of the plan inputs this job drafted
+    # from, so a document can be traced to exactly what was asked for.
+    input_revision = models.PositiveIntegerField(null=True, blank=True)
+    input_hash = models.CharField(max_length=64, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     started_at = models.DateTimeField(null=True, blank=True)
     completed_at = models.DateTimeField(null=True, blank=True)
 
     class Meta:
         ordering = ["-created_at", "-id"]
+        constraints = [
+            # One generation at a time per session, enforced by the database
+            # so two tabs pressing Generate at once cannot both start one.
+            models.UniqueConstraint(
+                fields=["session"],
+                condition=models.Q(status__in=["pending", "running"]),
+                name="one_active_generation_per_session",
+            ),
+            models.UniqueConstraint(
+                fields=["session", "idempotency_key"],
+                condition=~models.Q(idempotency_key=""),
+                name="unique_generation_idempotency_key",
+            ),
+        ]
 
     def __str__(self):
         return f"Draft generation {self.pk} for session {self.session_id} ({self.status})"

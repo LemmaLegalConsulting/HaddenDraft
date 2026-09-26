@@ -10,11 +10,21 @@
 // saved since -- in another window, say -- the draft is dropped rather than
 // laid over newer answers, and the caller says so.
 //
+// Both are kept per signed-in account. Answers typed about a client are the
+// client's information; the next person to sign in on this browser must never
+// have them restored into their screen. With no account there is nothing to
+// key on, so nothing is stored or restored at all.
+//
 // Browser storage can be missing or throw; every access is guarded, and the
 // fallback is the old behaviour, never an error.
 
-const OPEN = "drafting.templateFill.open:";
-const DRAFT = "drafting.templateFill.draft:";
+const OPEN = "drafting.templateFill.v2.open:";
+const DRAFT = "drafting.templateFill.v2.draft:";
+// Written before entries were kept per account. Nothing reads them; they are
+// removed so an unscoped copy of someone's answers does not linger.
+const LEGACY_PREFIXES = ["drafting.templateFill.open:", "drafting.templateFill.draft:"];
+
+const scoped = (prefix, account, id) => `${prefix}${encodeURIComponent(account)}:${id}`;
 
 function storage(store) {
   if (store !== undefined) return store;
@@ -44,38 +54,56 @@ function write(key, value, store) {
   }
 }
 
-export function rememberOpenSession(matterId, sessionId, store) {
-  if (matterId) write(`${OPEN}${matterId}`, sessionId ? String(sessionId) : null, store);
+// A hint only: a URL that names a session always wins over it.
+export function rememberOpenSession(account, matterId, sessionId, store) {
+  if (account && matterId) write(scoped(OPEN, account, matterId), sessionId ? String(sessionId) : null, store);
 }
 
-export function openSessionFor(matterId, store) {
-  return matterId ? read(`${OPEN}${matterId}`, store) : null;
+export function openSessionFor(account, matterId, store) {
+  return account && matterId ? read(scoped(OPEN, account, matterId), store) : null;
 }
 
-export function saveDraft(sessionId, revision, edits, store) {
-  if (!sessionId) return;
+export function saveDraft(account, sessionId, revision, edits, store) {
+  if (!account || !sessionId) return;
   const empty = !edits || Object.keys(edits).length === 0;
-  write(`${DRAFT}${sessionId}`, empty ? null : JSON.stringify({ revision, edits }), store);
+  write(scoped(DRAFT, account, sessionId), empty ? null : JSON.stringify({ revision, edits }), store);
 }
 
-export function clearDraft(sessionId, store) {
-  if (sessionId) write(`${DRAFT}${sessionId}`, null, store);
+export function clearDraft(account, sessionId, store) {
+  if (account && sessionId) write(scoped(DRAFT, account, sessionId), null, store);
 }
 
 // { edits } to restore, { stale: true } when the session moved on, or null.
-export function restoreDraft(sessionId, revision, store) {
-  const raw = read(`${DRAFT}${sessionId}`, store);
+export function restoreDraft(account, sessionId, revision, store) {
+  if (!account) return null;
+  const raw = read(scoped(DRAFT, account, sessionId), store);
   if (!raw) return null;
   try {
     const draft = JSON.parse(raw);
     if (!draft || typeof draft.edits !== "object" || !Object.keys(draft.edits).length) return null;
     if (draft.revision !== revision) {
-      clearDraft(sessionId, store);
+      clearDraft(account, sessionId, store);
       return { stale: true };
     }
     return { edits: draft.edits };
   } catch {
-    clearDraft(sessionId, store);
+    clearDraft(account, sessionId, store);
     return null;
+  }
+}
+
+// Remove entries written before recovery was kept per account.
+export function purgeUnscopedEntries(store) {
+  try {
+    const target = storage(store);
+    if (!target || typeof target.length !== "number") return;
+    const doomed = [];
+    for (let index = 0; index < target.length; index += 1) {
+      const key = target.key(index);
+      if (key && LEGACY_PREFIXES.some((prefix) => key.startsWith(prefix))) doomed.push(key);
+    }
+    doomed.forEach((key) => target.removeItem(key));
+  } catch {
+    // Nothing reads them either way.
   }
 }

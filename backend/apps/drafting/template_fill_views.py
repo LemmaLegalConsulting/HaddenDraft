@@ -13,6 +13,7 @@ from apps.drafting.models import DraftingSession, TemplateFillJob
 from apps.drafting.template_fill import DOCX_TYPE, preview_session, save_answers, session_payload
 from apps.drafting.template_fill_jobs import job_payload, launch
 from apps.matters.legalserver_delivery import wants_delivery
+from apps.matters.route_aliases import resolve_matter_route_key
 from apps.matters.services import matter_for_user, user_can_access_matter
 from apps.templates_app.fill_templates import MAX_DOCX_BYTES
 from apps.templates_app.models import DocumentTemplate, FillTemplateUpload
@@ -100,6 +101,13 @@ def session_detail(request, session_id):
         session = DraftingSession.objects.select_for_update().filter(pk=session_id, mode="template_fill").first()
         if not session or not user_can_access_matter(request.user, session.matter):
             return JsonResponse({"error": "Session not found"}, status=404)
+        # Opened from a URL that names a case: the session must be on it, and
+        # one on another case answers exactly as a missing one.
+        case_key = request.GET.get("caseKey", "").strip()
+        if case_key:
+            named = resolve_matter_route_key(request.user, case_key)
+            if not named or named.pk != session.matter_id:
+                return JsonResponse({"error": "Session not found"}, status=404)
         if request.method == "GET":
             return JsonResponse({"session": session_payload(session), "jobs": [job_payload(j) for j in session.fill_jobs.order_by("-id")[:5]]})
         body = json_body(request)

@@ -27,7 +27,10 @@ import LegalServerSaveToggle from "./LegalServerSaveToggle.jsx";
 import { saveDefault } from "./legalServerSave.js";
 import { LibraryBrowser } from "./LibraryBrowser.jsx";
 import { ResearchSearch } from "./ResearchSearch.jsx";
-import { CaseFacetBrowser, CitationPreviewModal, MarkdownResponse, SourceBrowserModal, SourceFullViewButton } from "./MarkdownResponse.jsx";
+import { CaseFacetBrowser, CitationPreviewModal, MarkdownResponse, SourceBrowserModal, SourceFullViewButton, isCaseLawCitation, isContentLibraryCitation } from "./MarkdownResponse.jsx";
+import { isConflict } from "../api/errors.js";
+import { paths } from "../routes/paths.js";
+import { chatThreadView } from "../state/chatThreads.js";
 import { PanelHeading } from "./PanelHeading.jsx";
 
 const SOURCE_GROUPS = [
@@ -88,7 +91,14 @@ function availableSourceGroups(sources) {
     .filter((group) => group.options.length);
 }
 
-export function ResearchPanel({ matter, sources, onResults, legalserverSave = null }) {
+// Which research view a route shows, and which tab sits under a source that
+// was opened on top of it.
+const TAB_FOR_VIEW = { search: "search", chats: "ask", chat: "ask", library: "browse", passage: "browse" };
+
+// `route` is what the URL names -- the tab, a research thread, or a decision
+// or library passage open in the source viewer -- and `onNavigate(path,
+// options)` moves it. Search text never goes in the URL.
+export function ResearchPanel({ matter, sources, onResults, legalserverSave = null, route = {}, locationState = null, onNavigate }) {
   const [query, setQuery] = useState("");
   const [lastQuery, setLastQuery] = useState("");
   const [selectedSourceIds, setSelectedSourceIds] = useState([]);
@@ -102,7 +112,11 @@ export function ResearchPanel({ matter, sources, onResults, legalserverSave = nu
   const [sourceMode, setSourceMode] = useState("auto");
   const [showHistory, setShowHistory] = useState(true);
   const [threads, setThreads] = useState([]);
-  const [selectedThreadId, setSelectedThreadId] = useState("");
+  const [currentThreadId, setCurrentThreadId] = useState(null);
+  const [threadMissing, setThreadMissing] = useState(false);
+  const [staleThread, setStaleThread] = useState(false);
+  const threadView = chatThreadView({ routeThreadId: route.threadId ?? null, currentThreadId });
+  const selectedThreadId = threadView.readOnly ? String(route.threadId) : "";
   const [resources, setResources] = useState([]);
   const [resourceTitle, setResourceTitle] = useState("");
   const [resourceType, setResourceType] = useState("case");
@@ -124,7 +138,36 @@ export function ResearchPanel({ matter, sources, onResults, legalserverSave = nu
   // corpus; browsing starts from the shelf rather than from a question. They
   // share the source viewer, not the panel -- and searching is the default,
   // because a research library should answer without being asked to generate.
-  const [view, setView] = useState("search");
+  const view = TAB_FOR_VIEW[route.view] || locationState?.tab || "search";
+  const tabPath = { search: paths.research(), ask: paths.researchChats(), browse: paths.researchLibrary() };
+  const setView = (tab) => onNavigate?.(tabPath[tab]);
+
+  // A decision or a library passage opened in the source viewer has its own
+  // URL; the tab it was opened from stays underneath. Other sources open in
+  // place, as before.
+  const routeCitation = route.view === "decision" && route.decisionId
+    ? (locationState?.citation?.metadata?.decisionId === route.decisionId ? locationState.citation : { sourceKind: "local_cases", title: "", metadata: { decisionId: route.decisionId } })
+    : route.view === "passage" && route.documentSlug && route.chunkId
+      ? (locationState?.citation?.metadata?.chunkId === route.chunkId ? locationState.citation : { sourceKind: "rag", title: "", metadata: { documentSlug: route.documentSlug, chunkId: route.chunkId } })
+      : null;
+
+  function openSource(citation) {
+    const state = { tab: view, citation, fromApp: true };
+    if (isCaseLawCitation(citation)) {
+      onNavigate?.(paths.researchDecision(Number(citation.metadata.decisionId)), { state });
+      return;
+    }
+    if (isContentLibraryCitation(citation)) {
+      onNavigate?.(paths.researchPassage(citation.metadata.documentSlug, citation.metadata.chunkId), { state });
+      return;
+    }
+    setCaseSourceCitation(citation);
+  }
+
+  function closeRouteSource() {
+    if (locationState?.fromApp) onNavigate?.(-1);
+    else onNavigate?.(tabPath[view], { replace: true });
+  }
 
   React.useEffect(() => {
     let cancelled = false;
@@ -138,20 +181,33 @@ export function ResearchPanel({ matter, sources, onResults, legalserverSave = nu
     };
   }, []);
 
+  // Reading only; a thread named in the URL is that thread or a notice.
+  const routeThreadId = route.threadId ?? null;
   React.useEffect(() => {
-    let cancelled = false;
-    api.researchHistory()
+    const controller = new AbortController();
+    setThreadMissing(false);
+    setStaleThread(false);
+    setHistoryLoading(true);
+    api.researchHistory(routeThreadId, { signal: controller.signal })
       .then((response) => {
-        if (!cancelled) { setMessages(response.messages || []); setThreads(response.threads || []); }
+        setMessages(response.messages || []);
+        setThreads(response.threads || []);
+        setCurrentThreadId(response.currentThreadId ?? null);
       })
       .catch((err) => {
-        if (!cancelled) setError(err.message || "Could not load research history.");
+        if (controller.signal.aborted || err?.name === "AbortError") return;
+        if (err.status === 404) {
+          setMessages([]);
+          setThreadMissing(true);
+          return;
+        }
+        setError(err.message || "Could not load research history.");
       })
       .finally(() => {
-        if (!cancelled) setHistoryLoading(false);
+        if (!controller.signal.aborted) setHistoryLoading(false);
       });
-    return () => { cancelled = true; };
-  }, []);
+    return () => controller.abort();
+  }, [routeThreadId]);
 
   const sourceGroups = availableSourceGroups(sources);
   const sourceOptions = sourceGroups.flatMap((group) => group.options);
@@ -186,7 +242,11 @@ export function ResearchPanel({ matter, sources, onResults, legalserverSave = nu
         sourceMode,
         useAi,
         saveToLegalServer: Boolean(matter) && saveToLegalServer,
+        // A question continues the thread on screen, and is refused rather
+        // than filed under another if that thread is no longer current.
+        ...(useAi && threadView.writeThreadId ? { threadId: threadView.writeThreadId } : {}),
       });
+      if (response.threadId !== undefined) setCurrentThreadId(response.threadId);
       setDelivery(response.legalserver || null);
       setLastQuery(trimmedQuery);
       setResults(response.results);
@@ -205,7 +265,11 @@ export function ResearchPanel({ matter, sources, onResults, legalserverSave = nu
       }
       setQuery("");
     } catch (err) {
-      setError(err.message || "Source search failed.");
+      if (isConflict(err)) {
+        setStaleThread(true);
+      } else {
+        setError(err.message || "Source search failed.");
+      }
       if (useAi) {
         setMessages(messages);
       }
@@ -242,23 +306,31 @@ export function ResearchPanel({ matter, sources, onResults, legalserverSave = nu
     // Clear deletes, unlike New chat, which keeps the old thread; ask first.
     if (!window.confirm("Delete this conversation? It cannot be recovered. New chat keeps it instead.")) return;
     setBusy(true);
-    try { await api.clearResearchHistory(); setMessages([]); setShowHistory(false); }
-    catch (err) { setError(err.message || "Could not clear research history."); }
+    try { await api.clearResearchHistory(threadView.writeThreadId); setMessages([]); setShowHistory(false); }
+    catch (err) {
+      if (isConflict(err)) setStaleThread(true);
+      else setError(err.message || "Could not clear research history.");
+    }
     finally { setBusy(false); }
   }
 
   async function newChat() {
     setBusy(true);
-    try { const response = await api.newResearchChat(); setMessages([]); setThreads(response.threads || []); setSelectedThreadId(""); setShowHistory(true); }
+    try {
+      const response = await api.newResearchChat();
+      setMessages([]);
+      setThreads(response.threads || []);
+      setCurrentThreadId(null);
+      setShowHistory(true);
+      if (routeThreadId != null) onNavigate?.(paths.researchChats());
+    }
     catch (err) { setError(err.message || "Could not start a new research chat."); }
     finally { setBusy(false); }
   }
 
-  async function selectThread(event) {
-    const threadId = event.target.value;
-    setSelectedThreadId(threadId);
-    const response = await api.researchHistory(threadId);
-    setMessages(response.messages || []);
+  function selectThread(event) {
+    const next = event.target.value;
+    onNavigate?.(next ? paths.researchChat(Number(next)) : paths.researchChats());
   }
 
   async function uploadResource(event) {
@@ -303,8 +375,8 @@ export function ResearchPanel({ matter, sources, onResults, legalserverSave = nu
           <Library size={15} /> Browse the library
         </button>
       </div>
-      {view === "search" && <ResearchSearch matter={matter} onOpenSource={setCaseSourceCitation} />}
-      {view === "browse" && <LibraryBrowser onOpenSource={setCaseSourceCitation} />}
+      {view === "search" && <ResearchSearch matter={matter} onOpenSource={openSource} />}
+      {view === "browse" && <LibraryBrowser onOpenSource={openSource} />}
       {view === "ask" && (
       <>
       <div className="private-reference-panel">
@@ -357,7 +429,20 @@ export function ResearchPanel({ matter, sources, onResults, legalserverSave = nu
           </form>
         </details>
       </div>
-      <form className="research-chat-form" onSubmit={runSearch}>
+      {threadMissing && (
+        <div className="empty-state compact-empty" role="status">
+          <strong className="empty-state-title">This conversation is not available</strong>
+          <p>No research thread with this number is yours. No other conversation is shown in its place.</p>
+          <button className="btn btn-primary" type="button" onClick={() => onNavigate?.(paths.researchChats())}>Open the current chat</button>
+        </div>
+      )}
+      {staleThread && (
+        <div className="inline-error" role="alert">
+          A new chat was started in another window, so this conversation is no longer the current one. Your question was not sent.
+          <button className="btn btn-light" type="button" onClick={() => { setStaleThread(false); onNavigate?.(paths.researchChats()); }}>Open the current chat</button>
+        </div>
+      )}
+      <form className="research-chat-form" onSubmit={runSearch} hidden={threadMissing}>
         <div className="chat-history-actions">
           <select className="form-select" aria-label="Research chat threads" value={selectedThreadId} onChange={selectThread}>
             <option value="">Current chat</option>
@@ -493,7 +578,7 @@ export function ResearchPanel({ matter, sources, onResults, legalserverSave = nu
           key={lastQuery}
           compact
           initialQuery={lastQuery || results.find((result) => result.sourceKind === "local_cases")?.title || ""}
-          onOpenSource={setCaseSourceCitation}
+          onOpenSource={openSource}
         />
       )}
       {jurisdictionChips.length > 0 && (
@@ -540,7 +625,7 @@ export function ResearchPanel({ matter, sources, onResults, legalserverSave = nu
               <button className="text-link-button" type="button" onClick={() => setPreviewCitation(result)}>
                 Preview citation
               </button>
-              <SourceFullViewButton citation={result} onOpen={setCaseSourceCitation} />
+              <SourceFullViewButton citation={result} onOpen={openSource} />
             </div>
           </article>
         ))}
@@ -549,6 +634,7 @@ export function ResearchPanel({ matter, sources, onResults, legalserverSave = nu
       )}
       <CitationPreviewModal citation={previewCitation} onClose={() => setPreviewCitation(null)} />
       <SourceBrowserModal citation={caseSourceCitation} onClose={() => setCaseSourceCitation(null)} />
+      <SourceBrowserModal citation={routeCitation} onClose={closeRouteSource} />
     </div>
   );
 }

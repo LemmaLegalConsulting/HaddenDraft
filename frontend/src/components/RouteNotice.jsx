@@ -31,6 +31,27 @@ const COPY = {
     title: `Case ${caseKey} could not be opened`,
     description: "The case could not be loaded just now. The message above says why.",
   }),
+  session_loading: () => ({
+    title: "Opening saved drafting work",
+    description: "Loading the session this link names, as it was saved. Nothing is regenerated.",
+  }),
+  session_unavailable: () => ({
+    title: "This drafting session is not available",
+    description:
+      "No saved session with this number belongs to this case in your account. Nothing from another session is shown in its place.",
+  }),
+  session_error: () => ({
+    title: "This drafting session could not be opened",
+    description: "The session could not be loaded just now. The message above says why.",
+  }),
+  draft_unavailable: () => ({
+    title: "This document is not part of this session",
+    description: "The session opened, but it has no document with this number.",
+  }),
+  assessment_unavailable: () => ({
+    title: "This triage assessment is not available",
+    description: "This case has no saved assessment with this number. Opening a link never runs triage again.",
+  }),
   not_found: () => ({
     title: "This page does not exist",
     description:
@@ -38,25 +59,35 @@ const COPY = {
   }),
 };
 
+// Where the button goes depends on the notice: a missing case goes back to
+// the case list, a missing session to the case's saved work.
+const ACTION_LABEL = {
+  session_unavailable: "Saved drafting work",
+  session_error: "Saved drafting work",
+  draft_unavailable: "Open the session",
+  assessment_unavailable: "Triage for this case",
+};
+
 // `action` ({ label, onClick }) replaces the default button with the step
 // that fixes this notice, such as connecting LegalServer.
 export function RouteNotice({ kind, caseKey = "", onChooseCase, action = null }) {
   const copy = (COPY[kind] || COPY.not_found)(caseKey);
+  const loading = kind === "loading" || kind === "session_loading";
   return (
-    <section className="panel route-notice" aria-live="polite" aria-busy={kind === "loading"}>
+    <section className="panel route-notice" aria-live="polite" aria-busy={loading}>
       <PanelHeading
         title={copy.title}
         description={copy.description}
-        icon={kind === "loading" ? <Loader2 className="spin" size={18} /> : null}
+        icon={loading ? <Loader2 className="spin" size={18} /> : null}
       >
-        {kind !== "loading" && action && (
+        {!loading && action && (
           <button className="btn btn-primary" type="button" onClick={action.onClick}>
             <Link2 size={16} /> {action.label}
           </button>
         )}
-        {kind !== "loading" && !action && onChooseCase && (
+        {!loading && !action && onChooseCase && (
           <button className="btn btn-primary" type="button" onClick={onChooseCase}>
-            <ClipboardList size={16} /> Choose a case
+            <ClipboardList size={16} /> {ACTION_LABEL[kind] || "Choose a case"}
           </button>
         )}
       </PanelHeading>

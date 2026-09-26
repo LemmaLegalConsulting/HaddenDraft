@@ -26,6 +26,11 @@ export class ApiError extends Error {
   }
 }
 
+/** A save refused because someone else saved first (see apps/drafting/revisions.py). */
+export function isConflict(error) {
+  return error?.status === 409 && Boolean(error?.data?.conflict);
+}
+
 /** Did the server fail to give us an answer, rather than an unwelcome one? */
 export function isServerUnreachable(error) {
   const status = error?.status;
