@@ -1,3 +1,4 @@
+from apps.drafting import opposing_filing
 from apps.drafting.revisions import validation_state
 from apps.drafting.services import normalize_status, workflow_step_payload
 from apps.matters.serializers import matter_to_dict
@@ -24,6 +25,7 @@ def session_to_dict(session):
         "selectedTemplateIds": session.selected_template_ids,
         "instructions": session.instructions,
         "workflowOptions": session.workflow_options or {},
+        "opposingFiling": opposing_filing.to_dict(opposing_filing.filing_for(session)),
         "revision": session.revision,
         "updatedAt": session.updated_at.isoformat(),
     }

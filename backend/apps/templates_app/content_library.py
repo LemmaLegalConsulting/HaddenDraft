@@ -134,6 +134,11 @@ def _template_metadata(manifest: dict) -> dict:
         "fields": manifest.get("fields", []),
         "choices": manifest.get("choices", []),
         "source": manifest.get("source", {}),
+        # A filing that answers the other side's filing names it; see
+        # apps.drafting.responding_to.
+        "respondsTo": manifest.get("responds_to") or {},
+        "verification": manifest.get("verification", ""),
+        "tableOfAuthorities": bool(manifest.get("table_of_authorities")),
     }
 
 

@@ -17,6 +17,7 @@ import json
 from django.db import transaction
 from django.utils import timezone
 
+from apps.drafting import opposing_filing
 from apps.drafting.models import DraftDocument, DraftingSession
 
 
@@ -150,6 +151,8 @@ def generation_inputs_digest(session):
         "blocks": session.selected_block_keys or [],
         "templates": session.selected_template_ids or [],
         "templateData": session.template_data or {},
+        # A reply to a different opposition is a different draft.
+        "opposingFiling": opposing_filing.fingerprint(session),
     }
     encoded = json.dumps(material, sort_keys=True, default=str).encode("utf-8")
     return hashlib.sha256(encoded).hexdigest()

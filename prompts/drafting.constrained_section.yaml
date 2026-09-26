@@ -14,10 +14,15 @@ user prompt: |
   {sources}
   Maintained template language and structure:
   {template_text}
+  The template author's directions for this section:
+  {block_instructions}
+  The other side's filing this document answers:
+  {responding_to}
   Template phrasing capabilities:
   {template_helpers}
   Treat the selected facts and approved sources as the only case evidence. Template language is a form and drafting model, not evidence that its example facts, procedural events, eligibility predicates, discovery plans, payment promises, or requested relief occurred in this case. Follow supplied pronouns exactly and never infer pronouns from a name.
   Preserve the template's organization and applicable legal standards and citations only when the supplied facts establish their factual prerequisites. If a necessary premise or value is missing, use a concise bracketed marker such as [Attorney review required: confirm subsidized-housing status] instead of assuming it. Do not invent citations, procedural history, dates, notices, exhibits, discovery actions, household facts, payment ability, bonds, program eligibility, or requested relief.
+  When this document answers a filing, answer what that filing actually says: attribute to it only arguments and statements it makes, and cite it by page or paragraph where it has them. Its assertions are the other side's positions, not case evidence. If its text is not available, do not guess at its contents.
   For a facts section, convert the evidence into concise chronological pleading paragraphs; do not reproduce intake-note headings, raw bullets, truncation markers, or internal source labels. For an argument section, connect each legal proposition to an expressly supplied fact and omit inapplicable template arguments. For a relief section, request only relief supported by the instructions and applicable template language.
   Return only the section body as plain text. Do not repeat the section heading and do not use Markdown headings, fences, bullets, emphasis markers, or commentary about your drafting process.
 settings:

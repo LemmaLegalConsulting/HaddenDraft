@@ -8,7 +8,7 @@ from django.utils.text import slugify
 from apps.ai.openai_client import OpenAIBackendError, OpenAICompatibleClient
 from apps.ai.prompt_catalog import PromptCatalogError, PromptRenderError, render_prompt
 from apps.ai.services import GenerationContext, drafting_ai
-from apps.drafting import operations
+from apps.drafting import operations, opposing_filing
 from apps.drafting.components import plain_text_from_sections, sync_components
 from apps.drafting.field_answers import resolve_field_requests
 from apps.drafting.packages import derive_relationships
@@ -1388,6 +1388,9 @@ def create_draft(session, *, template=None, block_keys=None, title=None, instruc
         # compose_document walks template.blocks, so there is no usable
         # template-less path here despite the fallbacks further down.
         raise ValueError("Choose a template before generating a draft.")
+    missing_filing = opposing_filing.missing_requirement(session, active_template)
+    if missing_filing:
+        raise ValueError(missing_filing)
     block_keys = block_keys or session.selected_block_keys or [block.key for block in active_template.blocks.all()]
     sections = drafting_ai.compose_document(context, block_keys)
     if missing_by_block:
@@ -1424,6 +1427,7 @@ def regeneration_context(session, *, template=None, instructions=None):
         instructions=instructions if instructions is not None else session.instructions,
         author_profile=session.author_profile,
         template_data=session.template_data,
+        responding_to=opposing_filing.prompt_context(session),
     )
 
 

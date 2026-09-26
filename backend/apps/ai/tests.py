@@ -168,9 +168,13 @@ class PromptCatalogTests(TestCase):
             sources="- Inspection report",
             template_text="Preserve the statutory standard.",
             template_helpers="comma_and_list and pronoun_subjective",
+            block_instructions="- Answer each argument in the opposition.",
+            responding_to="This document answers: Plaintiff's Brief in Opposition.",
         )
 
         self.assertIn("Draft the Argument section", prompt.user)
+        self.assertIn("- Answer each argument in the opposition.", prompt.user)
+        self.assertIn("This document answers: Plaintiff's Brief in Opposition.", prompt.user)
         self.assertIn("- Mold in bedroom", prompt.user)
         self.assertIn("Preserve the statutory standard.", prompt.user)
         self.assertEqual(prompt.default_model, "gpt-5.5")

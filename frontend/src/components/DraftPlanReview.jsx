@@ -7,6 +7,8 @@ import { planQuestionsForReview, unansweredPlanQuestions } from "./planQuestions
 import { DraftSupportReview } from "./DraftSupportReview.jsx";
 import { FactReview } from "./FactReview.jsx";
 import { LawReview } from "./LawReview.jsx";
+import { OpposingFilingPanel } from "./OpposingFilingPanel.jsx";
+import { blocksGeneration, respondsToRequirement } from "./opposingFiling.js";
 import { PanelHeading } from "./PanelHeading.jsx";
 
 function updateDocument(plan, documentId, patch) {
@@ -49,6 +51,9 @@ export function DraftPlanReview({
   const documentItems = plan?.document_items || [];
   const unansweredQuestions = unansweredPlanQuestions(plan);
   const reviewQuestions = planQuestionsForReview(plan);
+  const filingRequirement = respondsToRequirement(documentItems.map((item) => templateBySlug.get(item.template_slug)));
+  const [opposingFiling, setOpposingFiling] = useState(session?.opposingFiling || null);
+  const filingMissing = blocksGeneration(filingRequirement, opposingFiling);
 
   if (!plan) {
     return (
@@ -155,11 +160,14 @@ export function DraftPlanReview({
           <span>Regenerate plan with guidance</span>
           <textarea className="form-control" value={guidance} onChange={(event) => setGuidance(event.target.value)} rows={2} />
         </label>
+        {filingRequirement && session?.id && (
+          <OpposingFilingPanel sessionId={session.id} requirement={filingRequirement} onFilingChange={setOpposingFiling} />
+        )}
         <div className="button-row step-actions">
           <button className="btn btn-light" type="button" disabled={busy} onClick={() => onRegeneratePlan(guidance)}>
             {busy ? <Loader2 className="spin" size={16} /> : <Sparkles size={16} />} Regenerate plan
           </button>
-          <button className="btn btn-primary" type="button" disabled={busy || !documentItems.length} onClick={onContinue}>
+          <button className="btn btn-primary" type="button" disabled={busy || !documentItems.length || filingMissing} onClick={onContinue}>
             {busy ? <Loader2 className="spin" size={16} /> : <CheckCircle2 size={16} />}{" "}
             {clarifyMissingFactsBeforeDraft && reviewQuestions.length > 0 ? "Review questions" : "Generate draft"}
           </button>
