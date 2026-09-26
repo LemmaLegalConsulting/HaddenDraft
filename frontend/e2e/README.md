@@ -46,6 +46,19 @@ found and how each finding was fixed. To document a new, unfixed bug, mark
 its test `test.fail` with the finding's number: it passes while the bug exists
 and fails once it is fixed, as a prompt to remove the marker.
 
+## Stubbed checks (no backend)
+
+`npm run test:smoke` runs two specs against the production build with the API
+stubbed in the browser, so they need no Django, database, or credentials:
+
+| Spec | Covers |
+|---|---|
+| `screens-render.spec.js` | Every screen renders; every route family opens by URL, survives reload, refuses what it does not name, and sends no writes while being opened; conflicts and the leave guard |
+| `routes-acceptance.spec.js` | Deep link through password sign-in, account switch on one tab, a link opened while the server wakes, Back/Forward never writing |
+
+[`docs/ROUTES.md`](../../docs/ROUTES.md) maps each route acceptance scenario to
+the test that covers it.
+
 ## LegalServer case matrix
 
 The Playwright matrix uses the application's ordinary login, LegalServer case

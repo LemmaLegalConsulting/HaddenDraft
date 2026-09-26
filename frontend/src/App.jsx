@@ -457,7 +457,10 @@ export function App() {
     setSelectedCuratedFacts([]);
     setCaseLookup({ key: loadCaseKey, status: "loading" });
     const controller = new AbortController();
-    api.caseByRouteKey(loadCaseKey, { signal: controller.signal })
+    // A link opened cold may be the first thing to wake the server, which
+    // answers its first requests with a 500; that is worth asking again about,
+    // not a reason to call the case unavailable.
+    retryWhileUnreachable(() => api.caseByRouteKey(loadCaseKey, { signal: controller.signal }))
       .then((response) => {
         if (controller.signal.aborted) return;
         const loaded = response.case;
@@ -563,10 +566,10 @@ export function App() {
     const controller = new AbortController();
     const caseKey = route.caseKey;
     setSessionLookup({ id: routeSessionId, status: "loading", resume: null });
-    Promise.all([
+    retryWhileUnreachable(() => Promise.all([
       api.savedSession(routeSessionId, { caseKey, workspace: "drafting" }, { signal: controller.signal }),
       api.sessionDrafts(routeSessionId, { signal: controller.signal }),
-    ])
+    ]))
       .then(([detail, draftResponse]) => {
         if (controller.signal.aborted) return;
         if (!holdsRouteSession(sessionRef.current)) applySavedSession(detail.session, draftResponse.drafts || []);
