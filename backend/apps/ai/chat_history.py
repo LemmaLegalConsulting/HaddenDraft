@@ -32,6 +32,61 @@ def messages_for_user(*, user, kind, scope_key="default", conversation_id=None):
     ]
 
 
+def current_conversation(*, user, kind, scope_key="default"):
+    """The conversation new messages go to, or None -- never creates one."""
+    return ChatConversation.objects.filter(
+        user=user, kind=kind, scope_key=str(scope_key), archived_at__isnull=True
+    ).first()
+
+
+def _message_dicts(conversation):
+    if conversation is None:
+        return []
+    return [
+        {
+            "id": message.id,
+            "role": message.role,
+            "content": message.content,
+            **message.metadata,
+            "createdAt": message.created_at.isoformat(),
+        }
+        for message in conversation.messages.all()
+    ]
+
+
+def read_conversation(*, user, kind, scope_key="default", conversation_id=None):
+    """Read a conversation without creating one.
+
+    With an id, exactly that conversation of this user and scope, or
+    LookupError: an explicit thread that does not resolve must never be
+    answered with some other conversation, or with an empty one that looks
+    like it. Without an id, the current conversation, which may not exist yet.
+    Returns (conversation_or_None, messages).
+    """
+    if conversation_id:
+        conversation = ChatConversation.objects.filter(
+            id=conversation_id, user=user, kind=kind, scope_key=str(scope_key)
+        ).first()
+        if conversation is None:
+            raise LookupError("No such conversation.")
+    else:
+        conversation = current_conversation(user=user, kind=kind, scope_key=scope_key)
+    return conversation, _message_dicts(conversation)
+
+
+def is_current_thread(*, user, kind, scope_key="default", thread_id=None):
+    """Whether a write that names a thread names the one writes go to.
+
+    No thread named means "the current one", as before. A named thread that
+    has since been archived -- another window started a new chat -- is not
+    current, and a message meant for it must not land in a different one.
+    """
+    if not thread_id:
+        return True
+    current = current_conversation(user=user, kind=kind, scope_key=scope_key)
+    return current is not None and str(current.id) == str(thread_id)
+
+
 @transaction.atomic
 def append_message(*, user, kind, scope_key="default", role, content, metadata=None):
     conversation = conversation_for_user(user=user, kind=kind, scope_key=scope_key)

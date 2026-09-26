@@ -183,7 +183,7 @@ class DocumentComponentTests(TestCase):
 
         response = self.client.patch(
             reverse("api_draft_detail", args=[draft.id]),
-            data=json.dumps({"sections": edited}),
+            data=json.dumps({"sections": edited, "revision": draft.revision}),
             content_type="application/json",
         )
 

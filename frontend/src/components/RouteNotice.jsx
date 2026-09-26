@@ -48,6 +48,10 @@ const COPY = {
     title: "This document is not part of this session",
     description: "The session opened, but it has no document with this number.",
   }),
+  assessment_unavailable: () => ({
+    title: "This triage assessment is not available",
+    description: "This case has no saved assessment with this number. Opening a link never runs triage again.",
+  }),
   not_found: () => ({
     title: "This page does not exist",
     description:
@@ -61,6 +65,7 @@ const ACTION_LABEL = {
   session_unavailable: "Saved drafting work",
   session_error: "Saved drafting work",
   draft_unavailable: "Open the session",
+  assessment_unavailable: "Triage for this case",
 };
 
 // `action` ({ label, onClick }) replaces the default button with the step

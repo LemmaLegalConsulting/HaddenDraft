@@ -117,3 +117,45 @@ test("revision plan items are edited in place and cleared once applied", () => {
   assert.equal(applied.revisionPlan, null);
   assert.equal(activeDraft(applied).plainText, "Revised.");
 });
+
+test("typing marks a document unsaved until the server acknowledges it", async () => {
+  const { draftWorkspaceReducer, hasUnsavedDocuments, initialDraftWorkspace } = await import("../src/state/draftWorkspace.js");
+  let state = draftWorkspaceReducer(initialDraftWorkspace, {
+    type: "documentsLoaded",
+    drafts: [{ id: 1, revision: 3, plainText: "a" }],
+  });
+  state = draftWorkspaceReducer(state, { type: "documentPatched", patch: { plainText: "ab" } });
+  assert.equal(hasUnsavedDocuments(state), true);
+  state = draftWorkspaceReducer(state, { type: "documentEdited", draft: { id: 1, revision: 4, plainText: "ab" } });
+  assert.equal(hasUnsavedDocuments(state), false);
+});
+
+test("a refused save keeps the advocate's text and holds the server's beside it", async () => {
+  const { draftWorkspaceReducer, initialDraftWorkspace } = await import("../src/state/draftWorkspace.js");
+  let state = draftWorkspaceReducer(initialDraftWorkspace, { type: "documentsLoaded", drafts: [{ id: 1, revision: 3, plainText: "a" }] });
+  state = draftWorkspaceReducer(state, { type: "documentPatched", patch: { plainText: "mine" } });
+  state = draftWorkspaceReducer(state, { type: "documentConflict", draft: { id: 1, revision: 5, plainText: "theirs" } });
+  assert.equal(state.drafts[0].plainText, "mine");
+  assert.equal(state.conflict.server.plainText, "theirs");
+
+  const theirs = draftWorkspaceReducer(state, { type: "conflictResolved", keep: "theirs" });
+  assert.equal(theirs.drafts[0].plainText, "theirs");
+  assert.deepEqual(theirs.unsavedDraftIds, []);
+
+  const mine = draftWorkspaceReducer(state, { type: "conflictResolved", keep: "mine" });
+  assert.equal(mine.drafts[0].plainText, "mine");
+  assert.equal(mine.drafts[0].revision, 5);
+  assert.deepEqual(mine.unsavedDraftIds, [1]);
+  assert.equal(mine.conflict, null);
+});
+
+test("validation counts only when the server says it checked the text on screen", async () => {
+  const { draftWorkspaceReducer, initialDraftWorkspace } = await import("../src/state/draftWorkspace.js");
+  let state = draftWorkspaceReducer(initialDraftWorkspace, {
+    type: "documentsLoaded",
+    drafts: [{ id: 1, validation: { state: "current" } }, { id: 2, validation: { state: "stale" } }],
+  });
+  assert.deepEqual(state.validatedDraftIds, [1]);
+  state = draftWorkspaceReducer(state, { type: "documentEdited", draft: { id: 1, validation: { state: "stale" } } });
+  assert.deepEqual(state.validatedDraftIds, []);
+});

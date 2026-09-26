@@ -32,6 +32,7 @@ from apps.drafting.source_bindings import bind_current_versions
 from apps.exporting.docx_metadata import embed_ai_audit_metadata
 from apps.matters.legalserver_delivery import delivery_to_dict, save_document, save_draft_ai_audit
 from apps.matters.models import MatterFact
+from apps.matters.route_aliases import resolve_matter_route_key
 from apps.matters.services import matter_for_user, user_can_access_matter
 from apps.templates_app.advice_letter_library import (
     selectable_sections,
@@ -420,6 +421,18 @@ def advice_letter_draft(request):
         session = draft.session
         if body.get("matterId") and body["matterId"] != session.matter.external_id:
             return JsonResponse({"error": "That draft belongs to another case."}, status=400)
+        # Reassembly carries the editor's text forward; made against an older
+        # revision it would lay stale text over newer edits from another window.
+        if "revision" in body and body["revision"] != draft.revision:
+            return JsonResponse(
+                {
+                    "error": "This letter was changed in another window since you opened it.",
+                    "conflict": "draft",
+                    "currentRevision": draft.revision,
+                    "draft": draft_to_dict(draft),
+                },
+                status=409,
+            )
         matter = session.matter
         saved_slugs = _advice_metadata(session).get("sectionSlugs") or []
         slugs = body["sectionSlugs"] if "sectionSlugs" in body else saved_slugs
@@ -576,6 +589,50 @@ def advice_letter_draft(request):
             "letterFields": fields,
         },
         status=201 if not body.get("draftId") else 200,
+    )
+
+
+@api_login_required
+def advice_letter_draft_detail(request, draft_id):
+    """A saved letter as it was saved, for reopening it from a URL.
+
+    Read-only: it reassembles nothing. The letter, the sections it was built
+    from, its addressing, and its goal come back exactly as stored, so opening
+    a link to an edited letter cannot replace the edits with catalog text.
+    """
+    if request.method != "GET":
+        return method_not_allowed(["GET"])
+    draft = (
+        DraftDocument.objects.select_related("session", "session__matter")
+        .filter(id=draft_id, session__mode="advice_letter")
+        .first()
+    )
+    if not draft or not user_can_access_matter(request.user, draft.session.matter):
+        return JsonResponse({"error": "Draft not found."}, status=404)
+    case_key = request.GET.get("caseKey", "").strip()
+    if case_key:
+        named = resolve_matter_route_key(request.user, case_key)
+        if not named or named.pk != draft.session.matter_id:
+            return JsonResponse({"error": "Draft not found."}, status=404)
+    session = draft.session
+    metadata = _advice_metadata(session)
+    payload = _payload_for_draft(draft)
+    letter = letter_from_draft_sections(draft.sections, editor_state=draft.editor_state)
+    fields = dict(metadata.get("letterFields") or {})
+    fields.setdefault("filename", _download_name(payload, letter, session.matter))
+    return JsonResponse(
+        {
+            "draft": draft_to_dict(draft),
+            "letter": _letter_payload(payload, letter, session.matter),
+            "letterFields": fields,
+            "advice": {
+                "sessionId": session.id,
+                "sectionSlugs": metadata.get("sectionSlugs") or [],
+                "region": metadata.get("region", ""),
+                "goal": metadata.get("goal", ""),
+                "conditions": metadata.get("conditions") or {},
+            },
+        }
     )
 
 

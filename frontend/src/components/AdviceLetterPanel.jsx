@@ -16,6 +16,7 @@ import {
   reviewWarnings,
   selectedSections,
   toggleSection,
+  assemblyWanted,
 } from "./adviceLetter";
 import { PanelHeading } from "./PanelHeading.jsx";
 
@@ -35,7 +36,22 @@ const CONDITIONS = [
   { key: "admission_denied", label: "Denied for subsidized housing" },
 ];
 
-export function AdviceLetterPanel({ matter, authorProfile, legalserverSave = null, account = null }) {
+// `draftId` is the saved letter the URL names (null for a new one) and `view`
+// is "history" when the URL asks for its version history. A saved letter is
+// restored as it was saved and is reassembled only when the advocate changes
+// its sections. `onDraftCreated(id)` moves a new letter to its own URL, and
+// `onDirtyChange` / `registerSave` let leaving the screen ask first.
+export function AdviceLetterPanel({
+  matter,
+  authorProfile,
+  legalserverSave = null,
+  account = null,
+  draftId = null,
+  view = null,
+  onDraftCreated,
+  onDirtyChange,
+  registerSave,
+}) {
   const [catalog, setCatalog] = useState(null);
   const [delivery, setDelivery] = useState(null);
   const [savingToLegalServer, setSavingToLegalServer] = useState(false);
@@ -62,6 +78,9 @@ export function AdviceLetterPanel({ matter, authorProfile, legalserverSave = nul
   const [sendWithGaps, setSendWithGaps] = useState(false);
   const gapsBlock = contactGaps.length > 0 && !sendWithGaps;
   const draftRef = useRef(null);
+  // The selection a saved letter was restored with; see assemblyWanted().
+  const restoredSelectionRef = useRef(null);
+  const [draftMissing, setDraftMissing] = useState(false);
   const letterFieldsRef = useRef(letterFields);
   const filenameEditedRef = useRef(filenameEdited);
   const goalRef = useRef(goal);
@@ -98,6 +117,43 @@ export function AdviceLetterPanel({ matter, authorProfile, legalserverSave = nul
     setPreview(null);
     setSelected([]);
   }, [matterId]);
+
+  // Open the saved letter the URL names -- read only, no reassembly.
+  useEffect(() => {
+    if (!matterId || !draftId || draftRef.current?.id === draftId) return undefined;
+    const controller = new AbortController();
+    setDraftMissing(false);
+    api.adviceLetterSavedDraft(draftId, { caseKey: matter?.routeCaseKey || matterId }, { signal: controller.signal })
+      .then((data) => {
+        const slugs = data.advice.sectionSlugs || [];
+        restoredSelectionRef.current = slugs;
+        setSelected(slugs);
+        if (data.advice.region !== undefined) setRegion(data.advice.region);
+        setGoal(data.advice.goal || "");
+        setConditions(data.advice.conditions || {});
+        setLetterFields((current) => ({ ...current, ...(data.letterFields || {}) }));
+        setFilenameEdited(Boolean(data.letterFields?.filename));
+        setActiveDraft(data.draft);
+        setPreview(data.letter);
+        setDraftDirty(false);
+      })
+      .catch((err) => {
+        if (controller.signal.aborted || err?.name === "AbortError") return;
+        if (err.status === 404) setDraftMissing(true);
+        else setError(err.message);
+      });
+    return () => controller.abort();
+  }, [matterId, draftId]);
+
+  // A new letter gets its own address as soon as it exists.
+  useEffect(() => {
+    if (draft?.id && !draftId) onDraftCreated?.(draft.id);
+  }, [draft?.id, draftId]);
+
+  useEffect(() => {
+    onDirtyChange?.(draftDirty);
+  }, [draftDirty]);
+  useEffect(() => () => onDirtyChange?.(false), []);
 
   useEffect(() => {
     let cancelled = false;
@@ -153,6 +209,9 @@ export function AdviceLetterPanel({ matter, authorProfile, legalserverSave = nul
           draftId: draftRef.current?.id,
           currentSections: draftRef.current?.sections,
           currentEditorState: draftRef.current?.editorState,
+          // The revision the carried-forward text was edited on; a 409 means
+          // another window changed the letter and nothing is overwritten.
+          ...(draftRef.current ? { revision: draftRef.current.revision } : {}),
         });
         setActiveDraft(data.draft);
         setDraftDirty(false);
@@ -174,6 +233,7 @@ export function AdviceLetterPanel({ matter, authorProfile, legalserverSave = nul
   );
 
   useEffect(() => {
+    if (!assemblyWanted(selected, restoredSelectionRef.current)) return;
     runPreview(selected);
   }, [selected, runPreview]);
 
@@ -210,6 +270,9 @@ export function AdviceLetterPanel({ matter, authorProfile, legalserverSave = nul
           sections: currentDraft.sections,
           plainText: currentDraft.plainText,
           editorState: currentDraft.editorState,
+          // The revision these edits were made against; a 409 means another
+          // window saved this letter first, and the edits stay on screen.
+          revision: currentDraft.revision,
         });
         currentDraft = saved.draft;
         setActiveDraft(currentDraft);
@@ -254,6 +317,11 @@ export function AdviceLetterPanel({ matter, authorProfile, legalserverSave = nul
     }
   }
 
+  useEffect(() => {
+    registerSave?.(async () => Boolean(await persistDraft()));
+    return () => registerSave?.(null);
+  });
+
   async function persistDraft() {
     const currentDraft = draftRef.current;
     if (!currentDraft || !draftDirtyRef.current) return currentDraft;
@@ -264,6 +332,7 @@ export function AdviceLetterPanel({ matter, authorProfile, legalserverSave = nul
         sections: currentDraft.sections,
         plainText: currentDraft.plainText,
         editorState: currentDraft.editorState,
+        revision: currentDraft.revision,
       });
       setActiveDraft(response.draft);
       setDraftDirty(false);
@@ -301,6 +370,7 @@ export function AdviceLetterPanel({ matter, authorProfile, legalserverSave = nul
         sections,
         plainText,
         editorState,
+        revision: currentDraft.revision,
       });
       setActiveDraft(response.draft);
       setDraftDirty(false);
@@ -331,6 +401,12 @@ export function AdviceLetterPanel({ matter, authorProfile, legalserverSave = nul
       />
 
       {error && <p className="error-text">{error}</p>}
+      {draftMissing && (
+        <div className="empty-state compact-empty" role="status">
+          <strong className="empty-state-title">This letter is not available</strong>
+          <p>No saved advice letter with this number belongs to this case. Nothing else is opened in its place.</p>
+        </div>
+      )}
 
       <div className="field-row">
         <label className="field">
@@ -345,9 +421,10 @@ export function AdviceLetterPanel({ matter, authorProfile, legalserverSave = nul
           <span>What is this letter about?</span>
           <input className="form-control"
             value={goal}
+            aria-describedby="advice-goal-help"
             onChange={(event) => setGoal(event.target.value)}
-            placeholder="e.g. the 3-day notice names a different landlord than the complaint"
           />
+          <small className="muted" id="advice-goal-help">For example: the 3-day notice names a different landlord than the complaint.</small>
         </label>
       </div>
 
@@ -551,12 +628,13 @@ export function AdviceLetterPanel({ matter, authorProfile, legalserverSave = nul
           <span>File name</span>
           <input className="form-control"
             value={letterFields.filename}
+            aria-describedby="advice-filename-help"
             onChange={(event) => {
               setFilenameEdited(true);
               setLetterFields({ ...letterFields, filename: event.target.value });
             }}
-            placeholder="2026-08-02-garcia-robert-advice-letter-security-deposit"
           />
+          <small className="muted" id="advice-filename-help">Suggested from the date, client, and sections; for example 2026-08-02-client-name-advice-letter-topic.</small>
         </label>
         <label className="field">
           <span>Re:</span>
@@ -609,6 +687,8 @@ export function AdviceLetterPanel({ matter, authorProfile, legalserverSave = nul
             onFillMissingField={fillMissingField}
           />
           <DocumentHistoryPanel
+            key={`history-${view === "history"}`}
+            initiallyOpen={view === "history"}
             draft={draft}
             busy={busy}
             onDraftRestored={(restored) => {

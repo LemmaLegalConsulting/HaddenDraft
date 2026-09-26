@@ -11,10 +11,10 @@ import logging
 import threading
 
 from django.conf import settings
-from django.db import close_old_connections
+from django.db import IntegrityError, close_old_connections, transaction
 from django.utils import timezone
 
-from apps.drafting.models import DraftGenerationJob
+from apps.drafting.models import DraftGenerationJob, DraftingSession
 
 logger = logging.getLogger(__name__)
 
@@ -26,6 +26,10 @@ def job_to_dict(job):
         "status": job.status,
         "error": job.error,
         "draftIds": job.draft_ids or [],
+        # What this generation drafted from: compare with the session's current
+        # revision to tell whether the plan has changed since.
+        "inputRevision": job.input_revision,
+        "inputHash": job.input_hash,
         "createdAt": job.created_at.isoformat() if job.created_at else "",
         "completedAt": job.completed_at.isoformat() if job.completed_at else "",
     }
@@ -62,14 +66,47 @@ def _execute(job, *, user):
     return job
 
 
-def start_job(session, *, user):
+def _claim_job(session, *, user, idempotency_key):
+    """The job this request should report: a new one, or the one it duplicates."""
+    from apps.drafting.revisions import generation_inputs_digest
+
+    with transaction.atomic():
+        # Serializes concurrent starts for one session; the partial unique
+        # constraint is the backstop where row locks are not available.
+        locked = DraftingSession.objects.select_for_update().get(pk=session.pk)
+        if idempotency_key:
+            # A retry after a lost response: the same request, the same job,
+            # whatever became of it.
+            repeat = locked.generation_jobs.filter(idempotency_key=idempotency_key).first()
+            if repeat:
+                return repeat, False
+        existing = active_job(locked)
+        if existing:
+            # A second click on Generate while the first is running waits on the
+            # first rather than making a second set of drafts.
+            return existing, False
+        try:
+            with transaction.atomic():
+                job = DraftGenerationJob.objects.create(
+                    session=locked,
+                    created_by=user,
+                    idempotency_key=idempotency_key,
+                    input_revision=locked.revision,
+                    input_hash=generation_inputs_digest(locked),
+                )
+        except IntegrityError:
+            existing = active_job(locked) or locked.generation_jobs.filter(idempotency_key=idempotency_key).first()
+            if existing:
+                return existing, False
+            raise
+    return job, True
+
+
+def start_job(session, *, user, idempotency_key=""):
     """Start generating, or return the generation already under way."""
-    existing = active_job(session)
-    if existing:
-        # A second click on Generate while the first is running waits on the
-        # first rather than making a second set of drafts.
-        return existing
-    job = DraftGenerationJob.objects.create(session=session, created_by=user)
+    job, created = _claim_job(session, user=user, idempotency_key=idempotency_key)
+    if not created:
+        return job
     if not getattr(settings, "DRAFT_GENERATION_BACKGROUND", True):
         return _execute(job, user=user)
 

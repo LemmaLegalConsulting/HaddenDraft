@@ -32,6 +32,7 @@ export function hydrateNewWorkspace({ defaultTemplateId = null, defaultFactIds =
     instructions: "",
     planningMode: "suggest",
     allowMultipleDocuments: false,
+    clarifyMissingFactsBeforeDraft: true,
     selectedTemplateId: defaultTemplateId,
     templateChosen: false,
     selectedFactIds: [...defaultFactIds],
@@ -58,14 +59,18 @@ export function hydrateSavedSession(session, { defaultTemplateId = null } = {}) 
   const selectedTemplateIds = session.selectedTemplateIds || [];
   const templateId = session.template?.id ?? selectedTemplateIds[0] ?? null;
   const plannedDocuments = plan?.documents || [];
+  // Saved options win; a session saved before they were recorded gets them
+  // inferred from what it did save.
+  const options = session.workflowOptions || {};
   return {
     sessionId: session.id,
     draftMode: session.mode === "draft_from_scratch" ? "draft_from_scratch" : "draft_from_template",
     draftGoal: session.goal || "",
     instructions: session.instructions || session.goal || "",
     // A session saved with a chosen template was planned around it.
-    planningMode: selectedTemplateIds.length ? "known" : "suggest",
-    allowMultipleDocuments: plannedDocuments.length > 1,
+    planningMode: options.planningMode ?? (selectedTemplateIds.length ? "known" : "suggest"),
+    allowMultipleDocuments: options.allowMultipleDocuments ?? plannedDocuments.length > 1,
+    clarifyMissingFactsBeforeDraft: options.clarifyMissingFactsBeforeDraft ?? true,
     selectedTemplateId: templateId ?? defaultTemplateId,
     templateChosen: templateId != null,
     selectedFactIds: [...(session.selectedFactIds || [])],

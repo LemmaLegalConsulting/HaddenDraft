@@ -18,6 +18,8 @@ export function TriagePanel({
   onCreateManualCase,
   legalserverSave = null,
   legalserverDelivery = null,
+  assessmentHref = null,
+  onOpenAssessment = null,
 }) {
   const [caseSource, setCaseSource] = React.useState("existing");
   const [saveToLegalServer, setSaveToLegalServer] = React.useState(saveDefault(legalserverSave, "triage"));
@@ -44,7 +46,8 @@ export function TriagePanel({
   }
 
   const activeRubric = rubrics.find((rubric) => String(rubric.id) === String(selectedRubricId)) || rubrics[0];
-  const activeAssessment = assessment || history?.[0] || null;
+  // The assessment the page names (or the latest); never another in its place.
+  const activeAssessment = assessment;
   const canRun = Boolean(matter && activeRubric && !busy);
   const rubricSummary = activeRubric ? shortRubricSummary(activeRubric) : "";
 
@@ -164,7 +167,30 @@ export function TriagePanel({
             <TriageList title="Matched criteria" items={activeAssessment.matchedCriteria} />
             <TriageEvidence evidence={activeAssessment.evidence} />
           </div>
-        ) : (
+        ) : null}
+        {history?.length > 1 && assessmentHref && (
+          <nav className="triage-history" aria-label="Saved assessments">
+            <h3>Saved assessments</h3>
+            <ul>
+              {history.map((item) => (
+                <li key={item.id}>
+                  <a
+                    href={assessmentHref(item.id)}
+                    aria-current={activeAssessment?.id === item.id ? "page" : undefined}
+                    onClick={(event) => {
+                      if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+                      event.preventDefault();
+                      onOpenAssessment?.(item.id);
+                    }}
+                  >
+                    {triageResultTitle(item)} · {item.rubric?.name} · {new Date(item.createdAt).toLocaleString()}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </nav>
+        )}
+        {!activeAssessment && (
           <div className="empty-state compact-empty">
             <strong className="empty-state-title">No triage result yet</strong>
             <p>Choose a rubric, then run triage.</p>

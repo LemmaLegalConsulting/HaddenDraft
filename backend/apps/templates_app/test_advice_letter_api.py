@@ -402,7 +402,7 @@ class AdviceLetterApiTests(TestCase):
         ]
         patch_response = self.client.patch(
             f"/api/drafts/{draft_payload['id']}/",
-            data=json.dumps({"sections": edited_sections, "editorState": {"format": "lexical_blocks", "blocks": {}}}),
+            data=json.dumps({"sections": edited_sections, "editorState": {"format": "lexical_blocks", "blocks": {}}, "revision": draft_payload["revision"]}),
             content_type="application/json",
         )
         self.assertEqual(patch_response.status_code, 200)
