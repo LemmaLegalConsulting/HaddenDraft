@@ -175,7 +175,7 @@ class CaseByRouteKeyApiTests(TestCase):
         response = self.client.get(self.url, {"key": "26-0222"})
         self.assertEqual(response.json()["case"]["routeCaseKey"], "26-0999")
 
-    @patch("apps.matters.views.sync_legalserver_matter", return_value=None)
+    @patch("apps.matters.views.sync_legalserver_matters_for_user")
     def test_unknown_and_inaccessible_cases_answer_identically(self, _sync):
         make_matter("MID-9", "26-0333", assigned="carol@example.org")
         hidden = self.client.get(self.url, {"key": "26-0333"})
@@ -185,18 +185,33 @@ class CaseByRouteKeyApiTests(TestCase):
         self.assertEqual(hidden.json(), unknown.json())
 
     @patch("apps.matters.views.sync_legalserver_matter")
-    def test_a_case_not_yet_imported_is_fetched_then_resolved(self, sync):
-        sync.side_effect = lambda key, user=None: make_matter("MID-7", key)
+    @patch("apps.matters.views.sync_legalserver_matters_for_user")
+    def test_a_case_not_yet_imported_is_found_by_search(self, search, fetch):
+        # LegalServer's matter endpoint takes only a UUID; a case number is
+        # found by searching, which is the access-filtered case-list sync.
+        search.side_effect = lambda user, query, **kwargs: make_matter("MID-7", query)
         response = self.client.get(self.url, {"key": "26-0777"})
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json()["case"]["id"], "MID-7")
-        sync.assert_called_once_with("26-0777", user=self.user)
+        search.assert_called_once_with(self.user, query="26-0777", limit=5, restrict_to_user=False)
+        fetch.assert_not_called()
 
-    @patch("apps.matters.views.sync_legalserver_matter", return_value=None)
-    def test_unsafe_key_is_never_sent_to_legalserver(self, sync):
+    @patch("apps.matters.views.sync_legalserver_matter")
+    @patch("apps.matters.views.sync_legalserver_matters_for_user")
+    def test_a_uuid_key_is_fetched_directly_when_search_misses(self, search, fetch):
+        key = "0f8fad5b-d9cb-469f-a165-70867728950e"
+        fetch.side_effect = lambda matter_id, user=None: make_matter(matter_id, None)
+        response = self.client.get(self.url, {"key": key})
+        self.assertEqual(response.status_code, 200)
+        fetch.assert_called_once_with(key, user=self.user)
+
+    @patch("apps.matters.views.sync_legalserver_matter")
+    @patch("apps.matters.views.sync_legalserver_matters_for_user")
+    def test_unsafe_key_is_never_sent_to_legalserver(self, search, fetch):
         response = self.client.get(self.url, {"key": "../users"})
         self.assertEqual(response.status_code, 404)
-        sync.assert_not_called()
+        search.assert_not_called()
+        fetch.assert_not_called()
 
     def test_key_is_required(self):
         self.assertEqual(self.client.get(self.url).status_code, 400)
