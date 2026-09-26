@@ -248,3 +248,44 @@ class RouteAliasWriteTests(TestCase):
             sync_matter_route_alias(matter)
         writes = [q["sql"] for q in queries if not q["sql"].lstrip().upper().startswith("SELECT")]
         self.assertEqual(writes, [])
+
+
+class ConfiguredLegalServerClient(OfflineLegalServerClient):
+    configured = True
+
+    def find_user(self, identifier):
+        return {}
+
+
+@patch("apps.matters.views.matter_services.LegalServerClient", ConfiguredLegalServerClient)
+@patch("apps.matters.services.LegalServerClient", ConfiguredLegalServerClient)
+@patch("apps.matters.views.sync_legalserver_matters_for_user")
+@override_settings(ENABLE_DEMO_MATTERS=False)
+class UnreachableReasonTests(TestCase):
+    url = "/api/cases/by-route-key/"
+
+    def setUp(self):
+        self.user = get_user_model().objects.create_user("carol", "carol@example.org", "pw")
+        self.client.force_login(self.user)
+
+    def test_an_unconnected_account_is_told_so_for_any_case_number(self, _sync):
+        make_matter("MID-1", "26-0222", assigned="carol@example.org")
+        real = self.client.get(self.url, {"key": "26-0222"})
+        invented = self.client.get(self.url, {"key": "26-9999"})
+        self.assertEqual(real.status_code, 404)
+        # Identical answers: the reason is about the account, not the case.
+        self.assertEqual(real.json(), invented.json())
+        self.assertEqual(real.json()["reason"], "legalserver_not_connected")
+
+    @override_settings(LEGALSERVER_REQUIRE_OFFICE365_EMAIL_MATCH=True)
+    def test_a_mismatched_identity_is_told_so(self, _sync):
+        UserSourceIdentity.objects.create(user=self.user, provider="legalserver", identifier="someone-else@example.org")
+        response = self.client.get(self.url, {"key": "26-0222"})
+        self.assertEqual(response.json()["reason"], "legalserver_identity_mismatch")
+
+    @override_settings(LEGALSERVER_REQUIRE_OFFICE365_EMAIL_MATCH=False)
+    def test_a_connected_account_gets_no_reason(self, _sync):
+        UserSourceIdentity.objects.create(user=self.user, provider="legalserver", identifier="carol@example.org")
+        response = self.client.get(self.url, {"key": "26-9999"})
+        self.assertEqual(response.status_code, 404)
+        self.assertNotIn("reason", response.json())
