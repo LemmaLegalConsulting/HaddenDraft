@@ -16,11 +16,13 @@
  */
 
 export class ApiError extends Error {
-  constructor(message, { status = 0 } = {}) {
+  constructor(message, { status = 0, data = null } = {}) {
     super(message);
     this.name = "ApiError";
     /** The HTTP status, or 0 when the request never got a response at all. */
     this.status = status;
+    /** The parsed JSON body, when there was one -- a 409 carries what is saved now. */
+    this.data = data;
   }
 }
 
