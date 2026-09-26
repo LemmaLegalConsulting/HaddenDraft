@@ -98,3 +98,12 @@ test("a login standing in for a name, and a missing phone, are both gaps", () =>
   assert.equal(letterContactGaps({ displayName: "dana", phone: "1" }, { username: "Dana" }).length, 1);
   assert.equal(letterContactGaps({}, {}).length, 2);
 });
+
+test("restoring a saved letter's sections does not reassemble it; changing them does", async () => {
+  const { assemblyWanted } = await import("../src/components/adviceLetter.js");
+  const restored = ["seal"];
+  assert.equal(assemblyWanted(restored, restored), false);
+  assert.equal(assemblyWanted(["seal", "decarlo"], restored), true);
+  assert.equal(assemblyWanted(["seal"], restored), true, "a new selection, even an equal one, is the advocate's change");
+  assert.equal(assemblyWanted(["seal"], null), true);
+});

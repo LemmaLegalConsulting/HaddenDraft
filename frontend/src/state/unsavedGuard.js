@@ -6,14 +6,20 @@
 
 import { parseLocation } from "../routes/paths.js";
 
+// The piece of saved work a URL is on, or null. A session or letter belongs to
+// one case, so its id alone says whether two URLs are the same work --
+// rewriting an old case number in the URL is not leaving it.
+export function savedWorkKey(route) {
+  if (route?.mode === "draft" && route.sessionId) return `drafting:${route.sessionId}`;
+  if (route?.mode === "advice_letter" && route.draftId) return `advice:${route.draftId}`;
+  return null;
+}
+
 export function leavesSavedWork(currentPathname, nextPathname) {
   if (currentPathname === nextPathname) return false;
-  const current = parseLocation(currentPathname);
-  const next = parseLocation(nextPathname);
-  if (current.mode !== "draft" || !current.sessionId) return true;
-  // A session belongs to one case, so its id alone says whether this is the
-  // same work -- rewriting an old case number in the URL is not leaving it.
-  return !(next.mode === "draft" && next.sessionId === current.sessionId);
+  const current = savedWorkKey(parseLocation(currentPathname));
+  if (!current) return true;
+  return current !== savedWorkKey(parseLocation(nextPathname));
 }
 
 // The single save status a screen shows. "conflict" outranks everything: the

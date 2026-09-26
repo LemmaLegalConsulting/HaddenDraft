@@ -64,6 +64,7 @@ import { WorkflowStepper } from "./components/WorkflowStepper.jsx";
 import { RouteNotice } from "./components/RouteNotice.jsx";
 import {
   CASE_SCOPED_MODES,
+  MODES_WITH_NEW,
   canonicalPath,
   caseRouteAction,
   matterMatchesKey,
@@ -149,6 +150,10 @@ export function App() {
   const caseState = routeCaseState(route, { matter, lookup: caseLookup });
   const savedDraftingSessions = useSavedSessions(
     route.mode === "draft" && route.view === null && caseState === "ready" ? matter?.routeCaseKey || route.caseKey : null,
+  );
+  const savedLetters = useSavedSessions(
+    route.mode === "advice_letter" && route.view === null && caseState === "ready" ? matter?.routeCaseKey || route.caseKey : null,
+    { workspace: "advice-letters" },
   );
   const [selectedTemplateId, setSelectedTemplateId] = useState(null);
   // The template list opens on a default so the picker is never empty, but a
@@ -455,7 +460,10 @@ export function App() {
     setSelectedCuratedFacts([]);
     setCaseLookup({ key: loadCaseKey, status: "loading" });
     const controller = new AbortController();
-    api.caseByRouteKey(loadCaseKey, { signal: controller.signal })
+    // A link opened cold may be the first thing to wake the server, which
+    // answers its first requests with a 500; that is worth asking again about,
+    // not a reason to call the case unavailable.
+    retryWhileUnreachable(() => api.caseByRouteKey(loadCaseKey, { signal: controller.signal }))
       .then((response) => {
         if (controller.signal.aborted) return;
         const loaded = response.case;
@@ -567,10 +575,10 @@ export function App() {
     const controller = new AbortController();
     const caseKey = route.caseKey;
     setSessionLookup({ id: routeSessionId, status: "loading", resume: null });
-    Promise.all([
+    retryWhileUnreachable(() => Promise.all([
       api.savedSession(routeSessionId, { caseKey, workspace: "drafting" }, { signal: controller.signal }),
       api.sessionDrafts(routeSessionId, { signal: controller.signal }),
-    ])
+    ]))
       .then(([detail, draftResponse]) => {
         if (controller.signal.aborted) return;
         if (!holdsRouteSession(sessionRef.current)) applySavedSession(detail.session, draftResponse.drafts || []);
@@ -613,7 +621,11 @@ export function App() {
   const planDirty = sessionInMemory && planChanged(session, draftPlan);
   const sessionDirty = changedSessionFields.length > 0 || planDirty;
   const documentsDirty = sessionInMemory && hasUnsavedDocuments(workspace);
-  const hasUnsavedWork = sessionDirty || documentsDirty;
+  // Screens that keep their own edits (the advice letter) report them here and
+  // register how to save them, so leaving asks the same way everywhere.
+  const [panelDirty, setPanelDirty] = useState(false);
+  const panelSaveRef = useRef(null);
+  const hasUnsavedWork = sessionDirty || documentsDirty || panelDirty;
 
   // Save the session's choices and plan, if changed. Resolves to the saved
   // session, or null when the save failed -- and a caller about to generate
@@ -693,6 +705,7 @@ export function App() {
   }
 
   async function saveAllWork() {
+    if (panelDirty && panelSaveRef.current && !(await panelSaveRef.current())) return false;
     for (const draftId of workspace.unsavedDraftIds) {
       const target = workspace.drafts.find((item) => item.id === draftId);
       if (target && !(await saveDraftDocument(target))) return false;
@@ -732,6 +745,7 @@ export function App() {
     setDraftPlan(null);
     restoredSelectionRef.current = null;
     dispatchWorkspace({ type: "reset" });
+    setPanelDirty(false);
     setLeaveSave({ busy: false, error: "" });
     blocker.proceed?.();
   }
@@ -781,20 +795,26 @@ export function App() {
     }
   }, [location.key, route.mode, route.view]);
 
+  // The case's saved assessments. Reading them never runs triage.
+  const [triageHistoryFor, setTriageHistoryFor] = useState(null);
   useEffect(() => {
     if (!auth?.isAuthenticated || !selectedMatterId) {
       setTriageAssessment(null);
       setTriageHistory([]);
+      setTriageHistoryFor(null);
       return;
     }
+    setTriageHistoryFor(null);
     api.caseTriage(selectedMatterId)
       .then((response) => {
         setTriageHistory(response.assessments || []);
         setTriageAssessment(response.assessments?.[0] || null);
+        setTriageHistoryFor(selectedMatterId);
       })
       .catch(() => {
         setTriageHistory([]);
         setTriageAssessment(null);
+        setTriageHistoryFor(selectedMatterId);
       });
   }, [auth, selectedMatterId]);
 
@@ -916,6 +936,9 @@ export function App() {
       setTriageAssessment(response.assessment);
       setTriageDelivery(response.legalserver || null);
       setTriageHistory((current) => [response.assessment, ...current.filter((item) => item.id !== response.assessment.id)]);
+      // The new assessment has its own address; reopening it never reruns.
+      const caseKey = matter.routeCaseKey || matter.id;
+      navigate(paths.triageAssessment(caseKey, response.assessment.id));
     } catch (err) {
       setError(err.message);
     } finally {
@@ -1388,7 +1411,7 @@ export function App() {
   // the advocate is. Drafting opens on setup, as the sidebar always has.
   function goToMode(nextMode, caseKey = matter?.routeCaseKey || activeCaseKey) {
     if (nextMode === "draft") setDraftStep("goal");
-    navigate(pathForMode(nextMode, caseKey, { view: nextMode === "draft" ? "new" : null }));
+    navigate(pathForMode(nextMode, caseKey, { view: MODES_WITH_NEW.has(nextMode) ? "new" : null }));
   }
 
   // Make a case the active one, on the given screen or the current one. A
@@ -1428,6 +1451,11 @@ export function App() {
     }
     navigate(paths.draftingSessionView(current.caseKey, sessionId, step), { replace });
   }
+
+  // Stable, because the gym panel lists it among its callbacks' dependencies.
+  const gymNavigate = React.useCallback(({ workspaceId, runId } = {}, options = {}) => {
+    navigate(!workspaceId ? paths.argumentGym() : runId ? paths.gymRun(workspaceId, runId) : paths.gymWorkspace(workspaceId), options);
+  }, [navigate]);
 
   // Switching documents is navigation too, so a reload keeps the one on screen.
   function openDraftDocument(draftId) {
@@ -1503,6 +1531,12 @@ export function App() {
     })
     : null;
   const draftingCaseKey = matter?.routeCaseKey || route.caseKey;
+  // An assessment named in the URL is shown only if this case has it; the
+  // latest one never stands in for it.
+  const routeAssessmentId = route.mode === "triage" ? route.assessmentId : null;
+  const routeAssessment = routeAssessmentId ? triageHistory.find((item) => item.id === routeAssessmentId) || null : null;
+  const routeAssessmentMissing = Boolean(routeAssessmentId) && triageHistoryFor === selectedMatterId && selectedMatterId != null && !routeAssessment;
+  const shownAssessment = routeAssessmentId ? routeAssessment : triageAssessment;
 
   if (!auth?.isAuthenticated) {
     return (
@@ -1541,19 +1575,98 @@ export function App() {
         {!route.found && <RouteNotice kind="not_found" onChooseCase={() => navigate(paths.cases())} />}
         {caseNotice && <RouteNotice kind={caseNotice} caseKey={route.caseKey} action={caseNoticeAction} onChooseCase={() => navigate(paths.cases())} />}
         {view === "case" && <CaseSelector cases={cases} selectedMatterId={selectedMatterId} onSelect={selectCaseById} onPreview={setCasePreviewMatterId} legalserver={legalserver} legalserverLoading={legalserverLoading} search={caseSearch} onSearchChange={setCaseSearch} onSearch={handleCaseSearch} onSearchReset={handleCaseSearchReset} filters={caseFilters} onFiltersChange={applyCaseFilters} listMeta={caseListMeta} onShowMore={() => loadCases({ append: true })} caseBusy={caseBusy} manualCaseBusy={manualCaseBusy} onCreateManualCase={handleCreateManualCase} />}
-        {view === "triage" && <TriagePanel matter={matter} rubrics={triageRubrics} selectedRubricId={selectedTriageRubricId} onSelectRubric={setSelectedTriageRubricId} assessment={triageAssessment} history={triageHistory} busy={busy} manualCaseBusy={manualCaseBusy} onRunTriage={runTriage} onCreateManualCase={handleCreateManualCase} legalserverSave={boot?.legalserverSave} legalserverDelivery={triageDelivery} />}
-        {view === "case_chat" && <CaseChat matter={matter} onAction={handleCaseAction} legalserverSave={boot?.legalserverSave} />}
-        {view === "template_fill" && <TemplateFillPanel key={matter?.id || matter?.externalId || "none"} matter={matter} authorProfile={draftAuthorProfile} legalserverSave={boot?.legalserverSave} />}
-        {view === "advice_letter" && <AdviceLetterPanel matter={matter} authorProfile={draftAuthorProfile} legalserverSave={boot?.legalserverSave} account={auth} />}
+        {view === "triage" && routeAssessmentMissing && (
+          <RouteNotice kind="assessment_unavailable" caseKey={route.caseKey} onChooseCase={() => navigate(paths.triage(route.caseKey))} />
+        )}
+        {view === "triage" && !routeAssessmentMissing && <TriagePanel matter={matter} rubrics={triageRubrics} selectedRubricId={selectedTriageRubricId} onSelectRubric={setSelectedTriageRubricId} assessment={shownAssessment} history={triageHistory} assessmentHref={(id) => paths.triageAssessment(matter?.routeCaseKey || route.caseKey, id)} onOpenAssessment={(id) => navigate(paths.triageAssessment(matter?.routeCaseKey || route.caseKey, id))} busy={busy} manualCaseBusy={manualCaseBusy} onRunTriage={runTriage} onCreateManualCase={handleCreateManualCase} legalserverSave={boot?.legalserverSave} legalserverDelivery={triageDelivery} />}
+        {view === "case_chat" && (
+          <CaseChat
+            matter={matter}
+            onAction={handleCaseAction}
+            legalserverSave={boot?.legalserverSave}
+            threadId={route.threadId}
+            onThreadChange={(id) => {
+              const caseKey = matter?.routeCaseKey || route.caseKey;
+              navigate(id ? paths.chatThread(caseKey, id) : paths.chat(caseKey));
+            }}
+          />
+        )}
+        {view === "template_fill" && (
+          <TemplateFillPanel
+            key={matter?.id || matter?.externalId || "none"}
+            matter={matter}
+            authorProfile={draftAuthorProfile}
+            legalserverSave={boot?.legalserverSave}
+            account={auth?.username || ""}
+            route={{ sessionId: route.sessionId, jobId: route.jobId, view: route.view }}
+            onNavigate={({ sessionId, jobId, view: fillView } = {}, options = {}) => {
+              const caseKey = matter?.routeCaseKey || route.caseKey;
+              const to = !sessionId ? paths.templateFill(caseKey)
+                : jobId ? paths.fillJob(caseKey, sessionId, jobId)
+                  : paths.fillSession(caseKey, sessionId, fillView || "fields");
+              navigate(to, options);
+            }}
+          />
+        )}
+        {view === "advice_letter" && route.view === null && (
+          <SavedSessionList
+            matter={matter}
+            title="Advice letters"
+            description="Letters saved for this case. Opening one shows it as it was saved; nothing is reassembled."
+            {...savedLetters}
+            sessions={savedLetters.sessions.filter((row) => row.draftId)}
+            onLoadMore={savedLetters.loadMore}
+            sessionHref={(row) => paths.adviceLetter(draftingCaseKey, row.draftId)}
+            newHref={draftingCaseKey ? paths.adviceLetterNew(draftingCaseKey) : "/advice-letters"}
+            newLabel="Start a new letter"
+            onNavigate={(href) => navigate(href)}
+          />
+        )}
+        {view === "advice_letter" && route.view === "new" && draftingCaseKey && (
+          <p className="drafting-saved-link">
+            <a href={paths.adviceLetters(draftingCaseKey)} onClick={(event) => { if (event.button === 0 && !event.metaKey && !event.ctrlKey) { event.preventDefault(); navigate(paths.adviceLetters(draftingCaseKey)); } }}>
+              <FolderOpen size={14} /> Saved letters for this case
+            </a>
+          </p>
+        )}
+        {view === "advice_letter" && route.view !== null && (
+          <AdviceLetterPanel
+            // A new letter and each saved one are separate screens; switching
+            // between them starts clean rather than carrying one into another.
+            key={`${matter?.id || "none"}:${route.draftId || "new"}`}
+            matter={matter}
+            authorProfile={draftAuthorProfile}
+            legalserverSave={boot?.legalserverSave}
+            account={auth}
+            draftId={route.draftId}
+            view={route.view}
+            onDraftCreated={(id) => navigate(paths.adviceLetter(draftingCaseKey, id), { replace: true })}
+            onDirtyChange={setPanelDirty}
+            registerSave={(save) => { panelSaveRef.current = save; }}
+          />
+        )}
         {view === "argument_gym" && (
           <ArgumentGymPanel
             matter={matter}
             cases={cases}
             focusRun={gymFocusRun}
             onFocusRunHandled={() => setGymFocusRun(null)}
+            workspaceId={route.mode === "argument_gym" ? route.workspaceId : null}
+            runId={route.mode === "argument_gym" ? route.runId : null}
+            onNavigate={gymNavigate}
           />
         )}
-        {view === "research" && <ResearchPanel matter={matter} sources={boot?.sources || []} onResults={(results) => setSourceResults(results)} legalserverSave={boot?.legalserverSave} />}
+        {view === "research" && (
+          <ResearchPanel
+            matter={matter}
+            sources={boot?.sources || []}
+            onResults={(results) => setSourceResults(results)}
+            legalserverSave={boot?.legalserverSave}
+            route={route}
+            locationState={location.state}
+            onNavigate={(to, options) => navigate(to, options)}
+          />
+        )}
         {draftScreen === "list" && (
           <SavedSessionList
             matter={matter}

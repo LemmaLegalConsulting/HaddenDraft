@@ -442,6 +442,137 @@ test("a session edited in another window is a conflict too", async ({ page }) =>
   await expect(page.getByRole("textbox").first()).toHaveValue("Their goal");
 });
 
+const ASSESSMENTS = [
+  { id: 52, priority: true, priorityLabel: "Priority", confidence: "high", summary: "Newest summary.", reasoning: "", matchedCriteria: [], missingInformation: [], evidence: [], rubric: { name: "Eviction" }, createdAt: "2026-09-25T12:00:00Z" },
+  { id: 51, priority: false, priorityLabel: "Needs review", confidence: "low", summary: "Older summary.", reasoning: "", matchedCriteria: [], missingInformation: [], evidence: [], rubric: { name: "Eviction" }, createdAt: "2026-09-20T12:00:00Z" },
+];
+
+test("a saved triage assessment opens by its URL and never reruns", async ({ page }) => {
+  await page.route("**/api/cases/1/triage/", (route) => (
+    route.request().method() === "GET" ? route.fulfill({ json: { assessments: ASSESSMENTS } }) : route.fallback()
+  ));
+  const errors = watchForErrors(page);
+  const writes = watchForWrites(page);
+  await page.goto("/triage/26-0001/assessments/51");
+  await expectScreenRenders(errors, page.getByText("Older summary."));
+  await page.getByRole("navigation", { name: "Saved assessments" }).getByRole("link", { name: /Priority/ }).click();
+  await expect(page).toHaveURL(/\/triage\/26-0001\/assessments\/52$/);
+  await expect(page.getByText("Newest summary.")).toBeVisible();
+  await page.goto("/triage/26-0001/assessments/999");
+  await expectScreenRenders(errors, page.getByRole("heading", { name: "This triage assessment is not available" }));
+  await expect(page.getByText("Newest summary.")).toHaveCount(0);
+  expect(writes).toEqual([]);
+});
+
+test("a chat thread opens by its URL, an archived one is read-only, and a missing one is never replaced", async ({ page }) => {
+  await page.route("**/api/cases/1/chat/**", (route) => {
+    const threadId = new URL(route.request().url()).searchParams.get("threadId");
+    const threads = [{ id: 7, active: true, preview: "Current" }, { id: 3, active: false, preview: "Earlier question" }];
+    if (threadId === "999") return route.fulfill({ status: 404, json: { error: "Chat thread not found" } });
+    const messages = threadId === "3" ? [{ role: "user", content: "An earlier question" }] : [{ role: "user", content: "A current question" }];
+    return route.fulfill({ json: { messages, threads, threadId: Number(threadId || 7), currentThreadId: 7 } });
+  });
+  const errors = watchForErrors(page, { allow: [/status of 404/] });
+  const writes = watchForWrites(page);
+  await page.goto("/chat/26-0001/threads/3");
+  await expectScreenRenders(errors, page.getByText("An earlier question"));
+  await expect(page.getByRole("button", { name: "Send" })).toBeDisabled();
+  await page.getByRole("combobox", { name: "Case chat threads" }).selectOption("");
+  await expect(page).toHaveURL(/\/chat\/26-0001$/);
+  await expect(page.getByText("A current question")).toBeVisible();
+  await page.goto("/chat/26-0001/threads/999");
+  await expectScreenRenders(errors, page.getByText("This conversation is not available"));
+  await expect(page.getByText("A current question")).toHaveCount(0);
+  expect(writes).toEqual([]);
+});
+
+test("a saved advice letter reopens as saved, without being reassembled", async ({ page }) => {
+  const letter = {
+    id: 118, sessionId: 60, templateId: null, title: "Client advice letter", exportFormat: "docx",
+    sections: [{ key: "seal", label: "Sealing", body: "Edited sealing advice." }],
+    plainText: "Edited sealing advice.", editorState: {}, validationFlags: [], revision: 4,
+    validation: { state: "never" }, updatedAt: "2026-09-25T12:00:00Z",
+  };
+  await page.route("**/api/advice-letters/drafts/**", (route) => {
+    const url = new URL(route.request().url());
+    if (route.request().method() !== "GET") return route.fallback();
+    if (url.pathname.endsWith("/drafts/118/")) {
+      return route.fulfill({ json: { draft: letter, letter: { paragraphs: ["Edited sealing advice."] }, letterFields: { filename: "letter" }, advice: { sessionId: 60, sectionSlugs: ["seal"], region: "CLE", goal: "Explain sealing", conditions: {} } } });
+    }
+    return route.fulfill({ status: 404, json: { error: "Draft not found." } });
+  });
+  const errors = watchForErrors(page, { allow: [/status of 404/] });
+  const writes = watchForWrites(page);
+  await page.goto("/advice-letters/26-0001/drafts/118");
+  await expectScreenRenders(errors, page.getByRole("heading", { name: "Edit the letter" }));
+  await expect(page.locator(".advice-editor-section")).toContainText("Edited sealing advice.");
+  await page.reload();
+  await expectScreenRenders(errors, page.getByRole("heading", { name: "Edit the letter" }));
+  expect(writes, "opening a saved letter must not reassemble it").toEqual([]);
+  await page.goto("/advice-letters/26-0001/drafts/999");
+  await expectScreenRenders(errors, page.getByText("This letter is not available"));
+});
+
+test("a fill session on another case, or missing, does not open", async ({ page }) => {
+  await page.route("**/api/template-fill/sessions/**", (route) => route.fulfill({ status: 404, json: { error: "Session not found" } }));
+  const errors = watchForErrors(page, { allow: [/status of 404/] });
+  await page.goto("/template-fill/26-0001/sessions/555/fields");
+  await expectScreenRenders(errors, page.getByText("This saved work is not available"));
+});
+
+test("research tabs, threads, and opened decisions have URLs", async ({ page }) => {
+  await page.route("**/api/research/**", (route) => {
+    const url = new URL(route.request().url());
+    if (url.pathname !== "/api/research/" || route.request().method() !== "GET") return route.fallback();
+    const threadId = url.searchParams.get("threadId");
+    if (threadId === "999") return route.fulfill({ status: 404, json: { error: "Research thread not found" } });
+    return route.fulfill({ json: { messages: [], threads: [{ id: 7, active: true, preview: "Current" }, { id: 3, active: false, preview: "Earlier" }], threadId: Number(threadId || 7), currentThreadId: 7 } });
+  });
+  await page.route("**/api/caselaw/decisions/9/**", (route) => route.fulfill({ json: { decision: { id: 9, title: "Smith v. Jones", citation: "2020-Ohio-1" } } }));
+  const errors = watchForErrors(page, { allow: [/status of 404/] });
+  const writes = watchForWrites(page);
+  await page.goto("/research/search");
+  await expectScreenRenders(errors, page.getByRole("tab", { name: "Search the corpus", selected: true }));
+  await page.getByRole("tab", { name: "Ask a question" }).click();
+  await expect(page).toHaveURL(/\/research\/chats$/);
+  await page.getByRole("tab", { name: "Browse the library" }).click();
+  await expect(page).toHaveURL(/\/research\/library$/);
+  await page.reload();
+  await expect(page.getByRole("tab", { name: "Browse the library", selected: true })).toBeVisible();
+
+  await page.goto("/research/decisions/9");
+  const dialog = page.getByRole("dialog", { name: "Smith v. Jones" });
+  await expectScreenRenders(errors, dialog);
+  await dialog.getByRole("button", { name: "Close source preview" }).click();
+  await expect(page).toHaveURL(/\/research\/search$/);
+
+  await page.goto("/research/chats/999");
+  await expectScreenRenders(errors, page.getByText("This conversation is not available"));
+  expect(writes).toEqual([]);
+});
+
+test("an argument gym session and run open by URL, and a mismatched run does not", async ({ page }) => {
+  const workspace = { id: 5, title: "Gym session", documents: [], matterId: "", enabledChecks: null };
+  await page.route("**/api/argument-gym/**", (route) => {
+    const path = new URL(route.request().url()).pathname;
+    if (route.request().method() !== "GET") return route.fallback();
+    if (path.endsWith("/workspaces/5/")) return route.fulfill({ json: { workspace, latestRun: null } });
+    if (path.endsWith("/workspaces/404/")) return route.fulfill({ status: 404, json: { error: "Workspace not found" } });
+    if (path.endsWith("/runs/17/")) return route.fulfill({ json: { run: { id: 17, workspaceId: 6, status: "complete", challenges: [] } } });
+    return route.fallback();
+  });
+  const errors = watchForErrors(page, { allow: [/status of 404/] });
+  const writes = watchForWrites(page);
+  await page.goto("/argument-gym/workspaces/5");
+  await expectScreenRenders(errors, page.getByRole("heading", { name: "Argument gym" }));
+  await expect(page.getByText("This session is not available")).toHaveCount(0);
+  await page.goto("/argument-gym/workspaces/5/runs/17");
+  await expectScreenRenders(errors, page.getByText("This run is not part of this session"));
+  await page.goto("/argument-gym/workspaces/404");
+  await expectScreenRenders(errors, page.getByText("This session is not available"));
+  expect(writes).toEqual([]);
+});
+
 test("fill template upload, optional answers, save and DOCX download", async ({ page }) => {
   const errors = watchForErrors(page);
   let uploaded = false;
@@ -475,6 +606,8 @@ test("fill template upload, optional answers, save and DOCX download", async ({ 
       }
       return route.fulfill({ json: { session, jobs: [] } });
     }
+    if (path.endsWith("/jobs/91/")) return route.fulfill({ json: { job: finished } });
+    if (path.endsWith("/jobs/90/")) return route.fulfill({ json: { job: { id: 90, sessionId: 81, kind: "prepare", status: "complete" } } });
     if (path.endsWith("/file/")) return route.fulfill({ contentType: "application/vnd.openxmlformats-officedocument.wordprocessingml.document", headers: { "Content-Disposition": 'attachment; filename="filled.docx"' }, body: "synthetic DOCX download" });
     return route.fulfill({ json: { templates: [], sessions: uploaded ? [{ id: 81, title: session.title, updatedAt: "2026-09-25T12:00:00Z" }] : [] } });
   });
@@ -487,7 +620,9 @@ test("fill template upload, optional answers, save and DOCX download", async ({ 
   await page.getByLabel("Type short blanks inside their sentence").uncheck();
   await expect(page.locator(".fill-inline-sentence")).toHaveCount(0);
   await expect(page.getByRole("textbox", { name: "Hearing date", exact: true })).toHaveValue("");
+  await expect(page).toHaveURL(/\/template-fill\/26-0001\/sessions\/81\/fields$/);
   await page.getByRole("tab", { name: "Preview" }).click();
+  await expect(page).toHaveURL(/\/template-fill\/26-0001\/sessions\/81\/preview$/);
   await expect(page.getByRole("article", { name: "Document preview" })).toContainText("The hearing is set for");
   await page.getByRole("button", { name: "[Enter Hearing date]" }).click();
   const dialog = page.getByRole("dialog", { name: "Hearing date" });

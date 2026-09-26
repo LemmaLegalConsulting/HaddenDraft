@@ -11,7 +11,7 @@ here. A session that exists but belongs to another case answers exactly as a
 session that does not exist, so a URL never reveals which case a session is on.
 """
 
-from django.db.models import Count
+from django.db.models import Count, Min
 
 from apps.drafting.models import DraftGenerationJob, DraftingSession
 from apps.drafting.services import normalize_status
@@ -96,6 +96,8 @@ def session_summary(session):
         "templateTitle": template.title if template else "",
         "plannedDocuments": [item.get("title", "") for item in plan_documents if isinstance(item, dict)],
         "draftCount": draft_count,
+        # A letter is one document; its list row links straight to it.
+        "draftId": getattr(session, "first_draft_id", None),
         "createdAt": session.created_at.isoformat(),
         "updatedAt": session.updated_at.isoformat(),
     }
@@ -117,7 +119,7 @@ def sessions_for_matter(matter, *, modes, limit, offset):
     queryset = (
         DraftingSession.objects.select_related("matter", "template")
         .filter(matter=matter, mode__in=modes)
-        .annotate(draft_count=Count("drafts"))
+        .annotate(draft_count=Count("drafts"), first_draft_id=Min("drafts__id"))
         .order_by("-updated_at", "-id")
     )
     total = queryset.count()

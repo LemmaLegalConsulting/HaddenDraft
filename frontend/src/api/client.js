@@ -78,7 +78,8 @@ async function request(path, options = {}) {
 export const api = {
   fillCatalog: (matterId) => request(`/template-fill/?${new URLSearchParams({ matterId })}`),
   startTemplateFill: (payload) => request("/template-fill/start/", { method: "POST", body: payload instanceof FormData ? payload : JSON.stringify(payload) }),
-  fillSession: (id) => request(`/template-fill/sessions/${id}/`),
+  // `caseKey` names the case the URL is on; the server refuses a session on another.
+  fillSession: (id, { caseKey = "" } = {}) => request(`/template-fill/sessions/${id}/${caseKey ? `?${new URLSearchParams({ caseKey })}` : ""}`),
   previewTemplateFill: (id, answers) => request(`/template-fill/sessions/${id}/preview/`, { method: "POST", body: JSON.stringify({ answers }) }),
   saveTemplateFill: (id, payload, exporting = false) => request(`/template-fill/sessions/${id}/`, { method: exporting ? "POST" : "PATCH", body: JSON.stringify(payload) }),
   fillJob: (id) => request(`/template-fill/jobs/${id}/`),
@@ -120,9 +121,10 @@ export const api = {
   // The case a URL names by its readable number. Read-only; `signal` lets a
   // superseded lookup be cancelled.
   caseByRouteKey: (caseKey, { signal } = {}) => request(`/cases/by-route-key/?${new URLSearchParams({ key: caseKey })}`, { signal }),
-  caseChatHistory: (matterId, threadId) => request(`/cases/${matterId}/chat/${threadId ? `?threadId=${threadId}` : ""}`),
+  // Read-only. A thread id is that thread or a 404, never a stand-in.
+  caseChatHistory: (matterId, threadId, { signal } = {}) => request(`/cases/${matterId}/chat/${threadId ? `?threadId=${threadId}` : ""}`, { signal }),
   newCaseChat: (matterId) => request(`/cases/${matterId}/chat/`, { method: "POST", body: JSON.stringify({ action: "new_thread" }) }),
-  clearCaseChatHistory: (matterId) => request(`/cases/${matterId}/chat/`, { method: "DELETE" }),
+  clearCaseChatHistory: (matterId, threadId = null) => request(`/cases/${matterId}/chat/${threadId ? `?threadId=${threadId}` : ""}`, { method: "DELETE" }),
   caseChat: (matterId, payload) => request(`/cases/${matterId}/chat/`, { method: "POST", body: JSON.stringify(payload) }),
   caseLegalServer: (matterId) => request(`/cases/${matterId}/legalserver/`),
   saveCaseNoteToLegalServer: (matterId, payload) =>
@@ -169,9 +171,10 @@ export const api = {
   ordinanceDataset: (name) => request(`/ordinances/datasets/${encodeURIComponent(name)}/`),
   contentSourcePdfUrl: (documentSlug, chunkId, page) =>
     `${API_BASE}/sources/content/${encodeURIComponent(documentSlug)}/${encodeURIComponent(chunkId)}/pdf/${page ? `#page=${page}` : ""}`,
-  researchHistory: (threadId) => request(`/research/${threadId ? `?threadId=${threadId}` : ""}`),
+  // Read-only. A thread id is that thread or a 404, never a stand-in.
+  researchHistory: (threadId, { signal } = {}) => request(`/research/${threadId ? `?threadId=${threadId}` : ""}`, { signal }),
   newResearchChat: () => request("/research/", { method: "POST", body: JSON.stringify({ action: "new_thread" }) }),
-  clearResearchHistory: () => request("/research/", { method: "DELETE" }),
+  clearResearchHistory: (threadId = null) => request(`/research/${threadId ? `?threadId=${threadId}` : ""}`, { method: "DELETE" }),
   research: (payload) => request("/research/", { method: "POST", body: JSON.stringify(payload) }),
   // Deterministic search. Separate from `research` on purpose: that endpoint is
   // the chat, this one never calls a model unless the payload asks it to, and
@@ -306,6 +309,9 @@ export const api = {
     request("/advice-letters/export/", { method: "POST", body: JSON.stringify(payload) }),
   adviceLetterDraft: (payload) =>
     request("/advice-letters/drafts/", { method: "POST", body: JSON.stringify(payload) }),
+  // A saved letter as it was saved. Read-only: nothing is reassembled.
+  adviceLetterSavedDraft: (draftId, { caseKey = "" } = {}, { signal } = {}) =>
+    request(`/advice-letters/drafts/${draftId}/${caseKey ? `?${new URLSearchParams({ caseKey })}` : ""}`, { signal }),
   adviceLetterDraftExport: (draftId, payload = {}) =>
     request(`/advice-letters/drafts/${draftId}/export/`, { method: "POST", body: JSON.stringify(payload) }),
   adviceLetterDraftToLegalServer: (draftId, payload = {}) =>

@@ -70,8 +70,8 @@ test("a link this version cannot open is not found, never trimmed to its case", 
     "/drafting/26-0222/plan",
     "/cases/26-0222/documents",
     "/triage/26-0222/new",
-    "/research/chats/4",
-    "/argument-gym/workspaces/2",
+    "/research/chats/4/export",
+    "/argument-gym/workspaces/2/documents",
     "/api/cases/",
     "/admin/",
     "/nonsense",
@@ -192,4 +192,54 @@ test("a saved session reopens where its saved work is", () => {
   assert.equal(resumePath("26-0222", 184, { recommendedView: "job", activeJobId: 7 }), "/drafting/26-0222/sessions/184/jobs/7");
   // Advice with nothing to back it falls back to a screen that only reads.
   assert.equal(resumePath("26-0222", 184, { recommendedView: "draft", draftIds: [] }), "/drafting/26-0222/sessions/184/goal");
+});
+
+test("triage assessments and chat threads have their own URLs", () => {
+  assert.equal(paths.triageAssessment("26-0222", 52), "/triage/26-0222/assessments/52");
+  assert.equal(paths.chatThread("26-0222", 42), "/chat/26-0222/threads/42");
+  const thread = parseLocation("/chat/26-0222/threads/42");
+  assert.deepEqual([thread.mode, thread.view, thread.threadId], ["case_chat", "thread", 42]);
+  const assessment = parseLocation("/triage/26-0222/assessments/52");
+  assert.deepEqual([assessment.mode, assessment.view, assessment.assessmentId], ["triage", "assessment", 52]);
+});
+
+test("a switched-off route family links to its collection and cannot be opened", async () => {
+  const { setDisabledRouteFamilies } = await import("../src/routes/paths.js");
+  setDisabledRouteFamilies(["chat-threads"]);
+  try {
+    assert.equal(paths.chatThread("26-0222", 42), "/chat/26-0222");
+    assert.equal(parseLocation("/chat/26-0222/threads/42").found, false);
+    assert.equal(paths.triageAssessment("26-0222", 52), "/triage/26-0222/assessments/52");
+  } finally {
+    setDisabledRouteFamilies([]);
+  }
+});
+
+test("fill sessions and advice letters have their own URLs", () => {
+  assert.equal(paths.fillSession("26-0222", 73), "/template-fill/26-0222/sessions/73/fields");
+  assert.equal(paths.fillSession("26-0222", 73, "preview"), "/template-fill/26-0222/sessions/73/preview");
+  assert.equal(paths.fillJob("26-0222", 73, 91), "/template-fill/26-0222/sessions/73/jobs/91");
+  assert.equal(paths.adviceLetter("26-0222", 118), "/advice-letters/26-0222/drafts/118");
+  assert.equal(paths.adviceLetterView("26-0222", 118, "history"), "/advice-letters/26-0222/drafts/118/history");
+  assert.equal(pathForMode("advice_letter", "26-0222", { view: "new" }), "/advice-letters/26-0222/new");
+  const job = parseLocation("/template-fill/26-0222/sessions/73/jobs/91");
+  assert.deepEqual([job.mode, job.view, job.sessionId, job.jobId], ["template_fill", "job", 73, 91]);
+});
+
+test("research chats, library passages, decisions, and gym runs have URLs", () => {
+  assert.equal(paths.researchChat(42), "/research/chats/42");
+  assert.equal(paths.researchPassage("ohio-landlord-tenant", "c-12.3"), "/research/library/ohio-landlord-tenant/chunks/c-12.3");
+  assert.equal(paths.researchDecision(9), "/research/decisions/9");
+  assert.equal(paths.gymRun(5, 17), "/argument-gym/workspaces/5/runs/17");
+  const passage = parseLocation("/research/library/ohio-landlord-tenant/chunks/c-12.3");
+  assert.deepEqual([passage.view, passage.documentSlug, passage.chunkId], ["passage", "ohio-landlord-tenant", "c-12.3"]);
+  const run = parseLocation("/argument-gym/workspaces/5/runs/17");
+  assert.deepEqual([run.mode, run.view, run.workspaceId, run.runId], ["argument_gym", "run", 5, 17]);
+});
+
+test("a chunk id is one segment; search text never goes in a URL", () => {
+  assert.equal(paths.researchPassage("doc", "a/b"), "/research/library/doc/chunks/a%2Fb");
+  assert.equal(parseLocation("/research/library/doc/chunks/a%2Fb").found, false);
+  assert.equal(parseLocation("/research/library/../chunks/x").found, false);
+  assert.equal(parseLocation("/research/search/tenant%20rights").found, false);
 });
