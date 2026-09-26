@@ -387,8 +387,8 @@ def find_occurrences(text, registry):
             registry.aliases.setdefault(member["key"], key)
             if member.get("volume"):
                 registry.reporter_volumes.setdefault(
-                    (member["volume"], _normalize_reporter(member["reporter"])), key
-                )
+                    (member["volume"], _normalize_reporter(member["reporter"])), set()
+                ).add(key)
         registry.authorities[key].occurrences += 1
         occurrences.append(
             Occurrence(start=cluster_start, end=cluster_end, key=key, first=first, name_span=name_span)
@@ -399,15 +399,19 @@ def find_occurrences(text, registry):
     for match in _SHORT_FORM_RE.finditer(text):
         if any(match.start() < end and start < match.end() for start, end in marked_spans):
             continue
-        key = registry.reporter_volumes.get((match.group("volume"), _normalize_reporter(match.group("reporter"))))
-        if key:
+        candidates = registry.reporter_volumes.get((match.group("volume"), _normalize_reporter(match.group("reporter"))), set())
+        if len(candidates) == 1:
+            key = next(iter(candidates))
             registry.authorities[key].occurrences += 1
             occurrences.append(Occurrence(start=match.start(), end=match.end(), key=key))
         else:
             registry.unmarked.append(
                 {
                     "text": match.group(0),
-                    "reason": "Short form of a decision not cited in full earlier in the document.",
+                    "reason": (
+                        "Ambiguous short form: multiple decisions share this reporter volume. Mark it in Word."
+                        if candidates else "Short form of a decision not cited in full earlier in the document."
+                    ),
                 }
             )
     for match in _DOCKET_ONLY_RE.finditer(text):

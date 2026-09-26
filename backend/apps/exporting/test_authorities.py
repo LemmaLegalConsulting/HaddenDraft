@@ -9,6 +9,17 @@ def authorities(*paragraphs):
 
 
 class CaseCitationTests(SimpleTestCase):
+    def test_shared_reporter_volume_short_form_is_reported_as_ambiguous(self):
+        registry, marks = authorities(
+            "Alpha v. Beta, 75 Ohio St.3d 100.",
+            "Gamma v. Delta, 75 Ohio St.3d 280.",
+            "Gamma, 75 Ohio St.3d at 293.",
+        )
+        self.assertEqual(marks[2], [])
+        self.assertEqual([item.occurrences for item in registry.ordered()], [1, 1])
+        self.assertIn("Ambiguous", registry.report()["unmarked"][0]["reason"])
+
+
     def test_parallel_cites_pinpoints_and_parenthetical_make_one_entry(self):
         registry, marks = authorities(
             "See Dresher v. Burt, 75 Ohio St.3d 280, 293, 662 N.E.2d 264 (1996). The rule is settled."

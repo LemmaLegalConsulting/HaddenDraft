@@ -403,6 +403,11 @@ def apply_table_of_authorities(docx_bytes, config=None):
     """
     source = zipfile.ZipFile(io.BytesIO(docx_bytes))
     document = etree.fromstring(source.read("word/document.xml"))
+    note_parts = {
+        name: etree.fromstring(source.read(name))
+        for name in ("word/footnotes.xml", "word/endnotes.xml")
+        if name in source.namelist()
+    }
     body = document.find(_w("body"))
     paragraphs = list(body.iter(_w("p")))
     spans = _field_instructions(paragraphs)
@@ -413,12 +418,12 @@ def apply_table_of_authorities(docx_bytes, config=None):
     config = config or load_config()
     numbers = category_numbers(config)
     categories_by_number = {number: key for key, number in numbers.items()}
-    if any((text.text or "").lstrip().startswith("TA ") for text in body.iter(_w("instrText"))):
+    if any((text.text or "").lstrip().startswith("TA ") for root in (body, *note_parts.values()) for text in root.iter(_w("instrText"))):
         # The author marked citations in Word. Their marks and their table are
         # theirs: adding marks of our own, or rebuilding a table from only the
         # citations we recognize, would drop entries they chose. Word is still
         # asked to refresh the table when the file opens.
-        return _rewrite_parts(source, document), {
+        return _rewrite_parts(source, document, note_parts), {
             "authorities": [],
             "unmarked": [],
             "marked": 0,
@@ -438,6 +443,16 @@ def apply_table_of_authorities(docx_bytes, config=None):
         for index, paragraph in enumerate(paragraphs)
         if index not in excluded and _paragraph_style(paragraph) not in GENERATED_TABLE_STYLES
     ]
+
+    for root in note_parts.values():
+        note_paragraphs = list(root.iter(_w("p")))
+        note_excluded = set()
+        for field in _field_instructions(note_paragraphs):
+            note_excluded.update(range(field["start"], field["end"] + 1))
+        readable.extend(
+            paragraph for index, paragraph in enumerate(note_paragraphs)
+            if index not in note_excluded and _paragraph_style(paragraph) not in GENERATED_TABLE_STYLES
+        )
 
     registry, marks = collect_authorities(["".join(text for _run, _child, text in _text_segments(p)) for p in readable], config)
     marked = sum(
@@ -464,16 +479,18 @@ def apply_table_of_authorities(docx_bytes, config=None):
         for row in config.get("categories") or []
         if row["key"] in filled
     ]
-    return _rewrite_parts(source, document), report
+    return _rewrite_parts(source, document, note_parts), report
 
 
-def _rewrite_parts(source, document):
+def _rewrite_parts(source, document, note_parts):
     output = io.BytesIO()
     with zipfile.ZipFile(output, "w", zipfile.ZIP_DEFLATED) as target:
         for item in source.infolist():
             data = source.read(item.filename)
             if item.filename == "word/document.xml":
                 data = etree.tostring(document, xml_declaration=True, encoding="UTF-8", standalone=True)
+            elif item.filename in note_parts:
+                data = etree.tostring(note_parts[item.filename], xml_declaration=True, encoding="UTF-8", standalone=True)
             elif item.filename == "word/settings.xml":
                 data = _ensure_update_fields(data)
             elif item.filename == "word/styles.xml":

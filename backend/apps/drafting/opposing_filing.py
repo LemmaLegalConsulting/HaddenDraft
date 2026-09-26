@@ -303,7 +303,8 @@ def filing_text(filing, *, client=None):
     """``(text, problem)``: the filing's text, and why it is missing ("" if not). Never raises."""
     if filing.source_type == OpposingFiling.UPLOAD:
         return filing.extracted_text, ""
-    from apps.matters.document_context import get_case_documents, get_document_text
+    from apps.matters.document_context import _document_url, get_case_documents, get_document_file, get_document_text
+    from apps.argument_gym.ingestion import ingest_upload
 
     reference = filing.external_reference or {}
     try:
@@ -319,7 +320,37 @@ def filing_text(filing, *, client=None):
         document = None
     if not document:
         return "", "The case file document could not be read; it may have been removed or the case file is unreachable."
-    return get_document_text(document, client=client), ""
+    try:
+        if _document_url(document.get("raw") or {}):
+            downloaded = get_document_file(document, client=client)
+            ingested = ingest_upload(
+                downloaded["content"],
+                filename=document.get("filename") or downloaded["filename"],
+                content_type=downloaded["content_type"],
+            )
+        else:
+            ingested = ingest_upload(
+                get_document_text(document, client=client).encode("utf-8"),
+                filename="filing.txt",
+                content_type="text/plain",
+            )
+        # Keep the external reference and extraction facts, without persisting
+        # another copy of the case file's brief or attachments.
+        metadata = dict(ingested["metadata"])
+        metadata.pop("units", None)
+        if metadata.get("split"):
+            metadata["split"] = {
+                key: value for key, value in metadata["split"].items() if key != "exhibits"
+            }
+        metadata["exhibits"] = [
+            {"title": exhibit["title"], "pageRange": exhibit["pageRange"]}
+            for exhibit in ingested.get("exhibits") or []
+        ]
+        filing.extraction_metadata = metadata
+        filing.save(update_fields=["extraction_metadata", "updated_at"])
+        return ingested["text"], ""
+    except Exception:  # noqa: BLE001 - never fall back to an unsplit filing
+        return "", "The case file document could not be extracted and separated from its exhibits."
 
 
 def prompt_context(session, *, client=None):

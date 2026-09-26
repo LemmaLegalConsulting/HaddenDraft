@@ -138,6 +138,12 @@ class ConstrainedDraftingService:
                 or "[Court Case Number]"
             ),
             "advocate_name": author.get("displayName") or "Advocate",
+            "advocate_bar_number": author.get("barNumber") or "",
+            "advocate_name_and_bar": (
+                f"{author.get('displayName') or 'Advocate'} ({author['barNumber']})"
+                if author.get("barNumber")
+                else author.get("displayName") or "Advocate"
+            ),
             "advocate_signoff": author.get("signoff") or "Respectfully submitted,",
             "advocate_salutation": author.get("salutation") or "",
             "advocate_organization": author.get("organization") or "",

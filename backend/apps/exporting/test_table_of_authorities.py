@@ -53,7 +53,57 @@ def _field_codes(document_xml):
     return codes
 
 
+def _with_note(data, part, text, *, author_mark=False):
+    root = etree.Element(f"{W}{part}", nsmap={"w": W[1:-1]})
+    note = etree.SubElement(root, f"{W}{part[:-1]}", {f"{W}id": "1"})
+    paragraph = etree.SubElement(note, f"{W}p")
+    run = etree.SubElement(paragraph, f"{W}r")
+    etree.SubElement(run, f"{W}t").text = text
+    if author_mark:
+        for tag, value in (("fldChar", "begin"), ("instrText", r' TA \l "Author citation" '), ("fldChar", "end")):
+            run = etree.SubElement(paragraph, f"{W}r")
+            element = etree.SubElement(run, f"{W}{tag}")
+            if tag == "fldChar":
+                element.set(f"{W}fldCharType", value)
+            else:
+                element.text = value
+    output = io.BytesIO()
+    with zipfile.ZipFile(io.BytesIO(data)) as source, zipfile.ZipFile(output, "w") as target:
+        for item in source.infolist():
+            target.writestr(item, source.read(item.filename))
+        target.writestr(f"word/{part}.xml", etree.tostring(root))
+    return output.getvalue()
+
+
 class TableOfAuthoritiesExportTests(SimpleTestCase):
+    def test_note_only_authorities_are_marked_and_listed(self):
+        for part in ("footnotes", "endnotes"):
+            with self.subTest(part=part):
+                data = _with_note(_docx([["Body text."]]), part, "Alpha v. Beta, 75 Ohio St.3d 100.")
+                result, report = apply_table_of_authorities(data)
+                self.assertEqual(report["marked"], 1)
+                self.assertIn("Alpha v. Beta", _part(result, "word/document.xml"))
+                self.assertTrue(any(code.startswith("TA ") for code in _field_codes(_part(result, f"word/{part}.xml"))))
+
+    def test_note_author_marks_preserve_the_authors_table(self):
+        for part in ("footnotes", "endnotes"):
+            with self.subTest(part=part):
+                data = _with_note(_docx([["R.C. 5321.04."]]), part, "Author citation.", author_mark=True)
+                result, report = apply_table_of_authorities(data)
+                self.assertTrue(report["authorMarked"])
+                self.assertEqual(report["marked"], 0)
+                self.assertEqual(_part(result, "word/document.xml"), _part(data, "word/document.xml"))
+                self.assertEqual(
+                    _field_codes(_part(result, f"word/{part}.xml")),
+                    _field_codes(_part(data, f"word/{part}.xml")),
+                )
+
+    def test_unresolved_note_citations_are_reported(self):
+        data = _with_note(_docx([["Body."]]), "footnotes", "Gamma, 75 Ohio St.3d at 293.")
+        _result, report = apply_table_of_authorities(data)
+        self.assertEqual(len(report["unmarked"]), 1)
+
+
     def test_a_document_without_a_toa_field_is_returned_unchanged(self):
         data = _docx([["Dresher v. Burt, 75 Ohio St.3d 280 (1996)."]], with_toa=False)
         result, report = apply_table_of_authorities(data)

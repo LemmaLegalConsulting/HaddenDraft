@@ -1,5 +1,8 @@
 import io
 import tempfile
+from unittest.mock import patch
+
+from apps.argument_gym.testing import build_pdf
 from pathlib import Path
 
 from django.contrib.auth.models import User
@@ -118,6 +121,40 @@ class OpposingFilingApiTests(TestCase):
         # The text is read from the case file when drafting.
         context = opposing_filing.prompt_context(self.session)
         self.assertIn("acceptance of rent was inadvertent", context["text"])
+
+    def test_linked_pdf_exhibits_are_separated_without_copying_the_file(self):
+        document_id = self._document_id("2026-09-12")
+        filing = opposing_filing.choose_case_document(self.session, document_id)
+        document = {
+            "id": document_id, "filename": "opposition.pdf",
+            "raw": {"url": "https://example.test/opposition.pdf"},
+        }
+        pdf = build_pdf(["The opposition argument.", "EXHIBIT A", "The lease requires monthly rent."])
+        with patch("apps.matters.document_context.get_case_documents", return_value=[document]), patch(
+            "apps.matters.document_context.get_document_file",
+            return_value={"content": pdf, "filename": "opposition.pdf", "content_type": "application/pdf"},
+        ):
+            context = opposing_filing.prompt_context(self.session)
+        self.assertIn("opposition argument", context["text"])
+        self.assertNotIn("monthly rent", context["text"])
+        self.assertEqual(context["exhibits"], ["Exhibit A (pages 2-3)"])
+        filing.refresh_from_db()
+        self.assertEqual(filing.external_reference["documentId"], document_id)
+        self.assertEqual(filing.storage_key, "")
+        self.assertEqual(filing.extracted_text, "")
+        self.assertEqual(filing.extraction_metadata["split"]["briefPageCount"], 1)
+        self.assertNotIn("monthly rent", str(filing.extraction_metadata))
+
+    def test_linked_download_failure_does_not_use_unsplit_text(self):
+        document_id = self._document_id("2026-09-12")
+        opposing_filing.choose_case_document(self.session, document_id)
+        document = {"id": document_id, "raw": {"url": "https://example.test/filing.pdf", "text": "Unsplit exhibits"}}
+        with patch("apps.matters.document_context.get_case_documents", return_value=[document]), patch(
+            "apps.matters.document_context.get_document_file", side_effect=ValueError("Unavailable"),
+        ):
+            context = opposing_filing.prompt_context(self.session)
+        self.assertEqual(context["text"], "")
+        self.assertIn("could not be extracted", context["note"])
 
     def test_a_document_outside_the_case_file_is_refused(self):
         response = self.client.put(self.url, {"documentId": "not-here"}, content_type="application/json")
