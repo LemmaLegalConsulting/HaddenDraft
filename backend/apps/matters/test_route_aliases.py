@@ -223,3 +223,28 @@ class CaseByRouteKeyApiTests(TestCase):
     def test_requires_sign_in(self):
         self.client.logout()
         self.assertIn(self.client.get(self.url, {"key": "26-0222"}).status_code, (401, 403))
+
+
+@offline
+class RouteAliasWriteTests(TestCase):
+    """Re-syncing an unchanged matter must not write: the case list does it for every row."""
+
+    def test_resyncing_an_unchanged_matter_writes_nothing(self):
+        from django.db import connection
+        from django.test.utils import CaptureQueriesContext
+
+        matter = make_matter("MID-1", "26-0222")
+        with CaptureQueriesContext(connection) as queries:
+            sync_matter_route_alias(matter)
+        writes = [q["sql"] for q in queries if not q["sql"].lstrip().upper().startswith("SELECT")]
+        self.assertEqual(writes, [])
+
+    def test_a_matter_without_a_number_writes_nothing_either(self):
+        from django.db import connection
+        from django.test.utils import CaptureQueriesContext
+
+        matter = make_matter("MANUAL-1", None)
+        with CaptureQueriesContext(connection) as queries:
+            sync_matter_route_alias(matter)
+        writes = [q["sql"] for q in queries if not q["sql"].lstrip().upper().startswith("SELECT")]
+        self.assertEqual(writes, [])
