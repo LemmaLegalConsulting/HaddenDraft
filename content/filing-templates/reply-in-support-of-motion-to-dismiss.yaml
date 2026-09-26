@@ -1,0 +1,142 @@
+# Maintained source for the Reply in Support of Motion to Dismiss template
+# package. Edit this file, then run `manage.py build_filing_templates`.
+#
+# Like the summary-judgment reply, this answers one filing and cannot be drafted
+# without it, so the brief in opposition is required. The dismissal ground is
+# the same named choice the motion uses, so a reply keeps the standard its
+# motion invoked: under Civ.R. 12(B)(6) the court reads only the complaint, and
+# an opposition cannot amend it by argument; under Civ.R. 12(B)(1) the court
+# may weigh evidence.
+schema_version: 1
+slug: reply-in-support-of-motion-to-dismiss
+title: Reply in Support of Motion to Dismiss
+kind: brief
+verification: starter
+description: >-
+  Defendant's reply to the plaintiff's brief in opposition to dismissal,
+  answering the opposition point by point, with a Word-native table of
+  authorities and certificate of service.
+goal: >-
+  Answer the plaintiff's brief in opposition and show that the complaint still
+  fails to state a claim or to invoke the court's jurisdiction.
+negative_goal: >-
+  Do not use to make the motion to dismiss itself or to raise defects the motion
+  did not identify.
+aliases:
+  - reply brief
+  - reply in support
+  - reply to brief in opposition
+  - motion to dismiss reply
+jurisdiction: Ohio
+responds_to:
+  required: true
+  expects: [brief_in_opposition]
+  question: Which brief in opposition is this reply answering?
+  help: >-
+    The reply is drafted against the opposition, argument by argument. Choose it
+    from the case file, or upload the copy you were served if it is not there.
+choices:
+  - name: dismissal_ground
+    label: Ground the motion to dismiss relied on
+    default: failure_to_state_a_claim
+    options:
+      - value: failure_to_state_a_claim
+        label: Failure to state a claim -- Civ.R. 12(B)(6)
+      - value: lack_of_subject_matter_jurisdiction
+        label: Lack of subject-matter jurisdiction -- Civ.R. 12(B)(1)
+
+blocks:
+  - key: opening
+    label: Opening
+    type: argument
+    ai_latitude: guided
+    body: |
+      Defendant {{ defendant }}, by and through counsel, replies to {{ responding_to.description }}, and in further support of Defendant's Motion to Dismiss.
+
+  - key: introduction
+    label: Introduction
+    type: argument
+    ai_latitude: generate
+    instructions:
+      - In one or two short paragraphs, say why the opposition does not cure the defect the motion identified. Do not restate the motion.
+    body: |
+      {{ "[Attorney review required: draft the introduction]" }}
+
+  - key: review-limits
+    label: What the court may consider
+    type: argument
+    ai_latitude: guided
+    body: |
+      {% if dismissal_ground == "lack_of_subject_matter_jurisdiction" %}
+
+      On a Civ.R. 12(B)(1) motion the question is whether the complaint raises any cause of action cognizable by the forum, and the court may consider pertinent evidentiary material in answering it. *State ex rel. Bush v. Spurlock*, 42 Ohio St.3d 77, 80, 537 N.E.2d 641 (1989); *Southgate Dev. Corp. v. Columbia Gas Transm. Corp.*, 48 Ohio St.2d 211, 358 N.E.2d 526 (1976), paragraph one of the syllabus. A party's characterization of that material in a brief does not supply the jurisdiction the complaint lacks.
+
+      {% else %}
+
+      A Civ.R. 12(B)(6) motion is decided on the complaint. The court may not rely on allegations or evidence outside the complaint in ruling on it. *State ex rel. Fuqua v. Alexander*, 79 Ohio St.3d 206, 207, 680 N.E.2d 985 (1997). New factual assertions in a brief in opposition therefore cannot save a complaint that fails to state a claim.
+
+      {% endif %}
+
+  - key: reply-argument
+    label: Reply argument
+    type: argument
+    ai_latitude: generate
+    instructions:
+      - Answer the arguments in the brief in opposition in the order it makes them, under numbered headings that each state why that argument fails.
+      - Quote or cite the opposition by page when characterizing it, and never attribute to it an argument it does not make.
+      - Point out where the opposition relies on facts that are not in the complaint. Do not raise a defect the motion did not identify.
+      - Cite only authorities supplied in the selected sources, in full the first time.
+    body: |
+      {{ "[Attorney review required: answer each argument in the opposition]" }}
+
+  - key: conclusion
+    label: Conclusion
+    type: relief
+    ai_latitude: guided
+    body: |
+      For these reasons and those in Defendant's Motion to Dismiss, Defendant respectfully asks the Court to grant the motion and dismiss Plaintiff's Complaint.
+
+  - key: signature
+    label: Signature
+    type: signature
+    ai_latitude: locked
+    body: |
+      Respectfully submitted,
+
+      /s/ {{ advocate_name }}
+      {{ advocate_name_and_bar }}
+      {{ advocate_organization }}
+      {{ advocate_address }}
+      {{ advocate_phone }}
+      {{ advocate_email }}
+      Counsel for Defendant
+
+  - key: certificate-of-service
+    label: Certificate of service
+    type: certificate
+    ai_latitude: locked
+    body: |
+      I certify that on {{ fields.service_date }}, a copy of the foregoing Reply in Support of Motion to Dismiss was served on {{ fields.service_recipients }}.
+
+      /s/ {{ advocate_name }}
+      {{ advocate_name_and_bar }}
+      Counsel for Defendant
+
+document:
+  - caption: DEFENDANT'S REPLY IN SUPPORT OF MOTION TO DISMISS
+  - block: opening
+  - table_of_authorities
+  - heading: I. INTRODUCTION
+  - block: introduction
+  - heading: II. LAW AND ARGUMENT
+  - heading: A. What the court may consider
+    level: 2
+  - block: review-limits
+  - heading: B. The opposition does not cure the defect
+    level: 2
+  - block: reply-argument
+  - heading: III. CONCLUSION
+  - block: conclusion
+  - block: signature
+  - title: CERTIFICATE OF SERVICE
+  - block: certificate-of-service

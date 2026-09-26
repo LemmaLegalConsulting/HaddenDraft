@@ -78,9 +78,20 @@ clickable_prototype.js
 # Organization-specific templates must never be committed to this public repo.
 # private-content/ (now a submodule)
 content/original_templates/
-content/document-templates/
+# Only the public filing templates generated from content/filing-templates/
+# by `manage.py build_filing_templates` are committed, each named explicitly so
+# a private package copied here is still ignored.
+content/document-templates/*
+!content/document-templates/motion-for-summary-judgment/
+!content/document-templates/motion-to-dismiss/
+!content/document-templates/reply-in-support-of-motion-for-summary-judgment/
+!content/document-templates/reply-in-support-of-motion-to-dismiss/
 content/docx-snippets/*/
 !content/docx-snippets/_shared/
+!content/docx-snippets/motion-for-summary-judgment/
+!content/docx-snippets/motion-to-dismiss/
+!content/docx-snippets/reply-in-support-of-motion-for-summary-judgment/
+!content/docx-snippets/reply-in-support-of-motion-to-dismiss/
 # content/treatises/ (now a submodule)
 # The ordinance corpus is generated, unversioned data: municipality directories
 # are written by scripts/ingest_local_ordinances.py and the inbox holds the

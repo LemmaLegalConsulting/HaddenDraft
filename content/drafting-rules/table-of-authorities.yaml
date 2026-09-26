@@ -1,0 +1,97 @@
+# How a filing's table of authorities is built from Word's own fields.
+#
+# Export marks every recognized citation with a TA field and fills one TOA
+# field per category, so the table is Word's native table: an advocate who
+# adds a citation in Word marks it with Alt+Shift+I and presses F9, and the
+# table rebuilds with page numbers. Nothing here computes a page number.
+#
+# `number` is Word's category number (the \c switch). Word ships 1-7 as Cases,
+# Statutes, Other Authorities, Rules, Treatises, Regulations, and
+# Constitutional Provisions; the numbers are kept so a table an advocate
+# extends with Word's Mark Citation dialog lands in the same category.
+# `heading` is written as its own paragraph rather than taken from Word's \h
+# switch, because Word reads \h headings from the local installation's
+# category list, and a renamed category on one machine would retitle the
+# table on that machine only.
+#
+# Categories render in the order listed. A category with no marked citation
+# is removed from the table rather than printed empty.
+schema_version: 1
+
+# Word prints "passim" instead of page numbers for an authority cited on five
+# or more pages when the TOA field carries \p. Ohio practice varies; off keeps
+# every page listed.
+passim: false
+
+categories:
+  - key: cases
+    number: 1
+    heading: Cases
+  - key: constitutional-provisions
+    number: 7
+    heading: Constitutional Provisions
+  - key: statutes
+    number: 2
+    heading: Statutes and Ordinances
+  - key: rules
+    number: 4
+    heading: Rules
+  - key: regulations
+    number: 6
+    heading: Regulations
+  - key: other
+    number: 3
+    heading: Other Authorities
+
+# Citation kinds recognized by apps.sources.research.citations and the
+# category each files under. A case is a reporter or public-domain citation.
+parser_kinds:
+  ohio_public_domain: cases
+  reporter: cases
+  revised_code: statutes
+  federal_code:
+    # 42 U.S.C. is a statute; 24 C.F.R. is a regulation. The parser reports
+    # both as federal_code and the normalized form says which.
+    by_label:
+      U.S.C.: statutes
+      C.F.R.: regulations
+
+# Forms the research parser does not read. Each pattern must capture `name`
+# (the authority as the table prints it) and may capture `subdivision`, which
+# is dropped from the table entry: a table lists Civ.R. 56 once, not Civ.R.
+# 56(C) and Civ.R. 56(E) separately.
+patterns:
+  - category: rules
+    label: Ohio rules of procedure and evidence
+    # Not after a period, so the "App.R." inside "Loc.App.R." is not read twice.
+    regex: '(?<![.\w])(?P<name>(?:Civ|Crim|Evid|App|Juv|Sup|Prof\.Cond|Traf)\.\s?R\.\s?\d+(?:\.\d+)?)(?P<subdivision>(?:\s?\([A-Za-z0-9]{1,4}\))*)'
+  - category: rules
+    label: Local rules
+    regex: '\b(?P<name>Loc\.\s?(?:App\.\s?)?R\.\s?\d+(?:\.\d+)?)(?P<subdivision>(?:\s?\([A-Za-z0-9]{1,4}\))*)'
+  - category: rules
+    label: Federal rules
+    regex: '\b(?P<name>Fed\.\s?R\.\s?(?:Civ|Evid|App)\.\s?P?\.?\s?\d+)(?P<subdivision>(?:\s?\([A-Za-z0-9]{1,4}\))*)'
+  - category: statutes
+    label: Codified municipal ordinances
+    # "Cleveland Cod.Ord. 375.08", "Cleveland Codified Ordinances 375.08",
+    # "C.C.O. 375.08". A bare "Section 375.08" is not claimed: the same shape
+    # is a Revised Code section written without its prefix.
+    regex: '\b(?P<name>(?:[A-Z][a-z]+(?:\s[A-Z][a-z]+)?\s)?(?:Cod\.\s?Ord\.|Codified\sOrdinances?|C\.C\.O\.)\s?(?:§+\s?)?\d{2,4}\.\d{1,3})(?P<subdivision>(?:\s?\([A-Za-z0-9]{1,4}\))*)'
+  - category: regulations
+    label: Ohio Administrative Code
+    regex: '\b(?P<name>(?:Ohio\s)?Adm\.\s?Code\s\d{1,4}(?::\d+)?-\d+-\d+(?:\.\d+)?)(?P<subdivision>(?:\s?\([A-Za-z0-9]{1,4}\))*)'
+  - category: constitutional-provisions
+    label: Ohio Constitution
+    regex: '\b(?P<name>Ohio\sConst(?:itution)?\.?,?\s(?:art|Article)\.?\s[IVXL]+,\s§\s?\d+[a-z]?)'
+  - category: constitutional-provisions
+    label: United States Constitution
+    regex: '\b(?P<name>U\.\s?S\.\s?Const(?:itution)?\.?,?\s(?:amend\.|Amendment|art\.)\s[IVXL]+(?:,\s§\s?\d+)?)'
+
+# Case citations the research parser does not read. Each captures `key`, the
+# form that identifies the decision; the case name is read from the text
+# before it, as for any other case.
+case_patterns:
+  - label: Westlaw
+    regex: '\b(?P<key>(?:19|20)\d{2}\sWL\s\d{3,9})'
+  - label: Supreme Court Reporter
+    regex: '\b(?P<key>\d{1,4}\sS\.\s?Ct\.\s\d{1,5})'

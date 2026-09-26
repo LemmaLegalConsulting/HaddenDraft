@@ -1,5 +1,5 @@
 import re
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 
 from django.conf import settings
 from jinja2 import ChainableUndefined
@@ -9,7 +9,11 @@ from apps.ai.prompt_catalog import render_prompt
 from apps.matters.client_letter_context import letter_template_fields
 from apps.sources.models import SourceConfiguration
 from apps.templates_app.placeholders import convert_text
-from apps.templates_app.template_variables import normalize_docxtpl_blocks, template_field_values
+from apps.templates_app.template_variables import (
+    normalize_docxtpl_blocks,
+    template_choice_values,
+    template_field_values,
+)
 from apps.templates_app.jinja_filters import TEMPLATE_HELPERS_GUIDE, listify, template_environment
 
 
@@ -24,6 +28,23 @@ class GenerationContext:
     instructions: str = ""
     author_profile: dict | None = None
     template_data: dict | None = None
+    # The other side's filing this document answers, from
+    # apps.drafting.opposing_filing.prompt_context; None when it answers none.
+    responding_to: dict | None = None
+
+
+def responding_to_prompt(responding_to):
+    """The opposing filing as a drafting prompt states it, or a plain "None"."""
+    if not responding_to:
+        return "- None. This document does not answer a particular filing."
+    lines = [f"This document answers: {responding_to.get('description') or 'the filing below'}."]
+    if responding_to.get("note"):
+        lines.append(f"Note: {responding_to['note']}")
+    if responding_to.get("exhibits"):
+        lines.append("Exhibits attached to it (their text is not included): " + "; ".join(responding_to["exhibits"]))
+    text = (responding_to.get("text") or "").strip()
+    lines.append("Its text:\n" + text if text else "Its text is not available; do not describe its contents.")
+    return "\n".join(lines)
 
 
 class ConstrainedDraftingService:
@@ -117,6 +138,12 @@ class ConstrainedDraftingService:
                 or "[Court Case Number]"
             ),
             "advocate_name": author.get("displayName") or "Advocate",
+            "advocate_bar_number": author.get("barNumber") or "",
+            "advocate_name_and_bar": (
+                f"{author.get('displayName') or 'Advocate'} ({author['barNumber']})"
+                if author.get("barNumber")
+                else author.get("displayName") or "Advocate"
+            ),
             "advocate_signoff": author.get("signoff") or "Respectfully submitted,",
             "advocate_salutation": author.get("salutation") or "",
             "advocate_organization": author.get("organization") or "",
@@ -125,7 +152,12 @@ class ConstrainedDraftingService:
             "advocate_address": author.get("address") or "",
             "advocate_contact": contact,
             "advocate_signature_image": "[signature image]" if author.get("signatureImage") else "",
+            "responding_to": {
+                "description": (getattr(context, "responding_to", None) or {}).get("description")
+                or "[Attorney review required: identify the filing this document answers]",
+            },
         }
+        values.update(template_choice_values(getattr(context, "template", None), getattr(context, "template_data", None)))
         normalized_body = normalize_docxtpl_blocks(normalized_body)
         return template_environment(undefined=ChainableUndefined).from_string(normalized_body).render(values)
 
@@ -153,6 +185,7 @@ class ConstrainedDraftingService:
         fallback,
         template_text=None,
         section_kind="section",
+        block_instructions=(),
     ):
         ai_config = SourceConfiguration.effective_settings("openai", {"enabled": settings.AI_DRAFTING_ENABLED})
         if str(ai_config.get("enabled", "")).lower() in {"0", "false", "no", "off"}:
@@ -183,6 +216,8 @@ class ConstrainedDraftingService:
             sources=sources or "- None",
             template_text=template_text or fallback or "- None",
             template_helpers=TEMPLATE_HELPERS_GUIDE,
+            block_instructions="\n".join(f"- {item}" for item in block_instructions if item) or "- None",
+            responding_to=responding_to_prompt(getattr(context, "responding_to", None)),
         )
         try:
             generated = self.normalize_generated_text(client.complete(
@@ -208,25 +243,24 @@ class ConstrainedDraftingService:
             fallback = self.render_template_body(fallback, context)
         label = section.get("label", "Draft block")
         if instruction:
-            scoped_context = GenerationContext(
-                matter=context.matter,
-                selected_facts=context.selected_facts,
-                selected_curated_facts=context.selected_curated_facts,
-                selected_sources=context.selected_sources,
-                template=context.template,
-                mode=context.mode,
+            scoped_context = replace(
+                context,
                 instructions=f"{context.instructions}\n\nBlock refinement instruction: {instruction}".strip(),
-                author_profile=context.author_profile,
-                template_data=context.template_data,
             )
         else:
             scoped_context = context
+        block = (
+            context.template.blocks.filter(key=section.get("key")).first()
+            if context.template is not None and section.get("key")
+            else None
+        )
         return self.generate_constrained_section(
             label=label,
             context=scoped_context,
             fallback=fallback,
             template_text=fallback,
             section_kind=section.get("blockType") or "section",
+            block_instructions=getattr(block, "ai_instructions", None) or (),
         )
 
     def compose_document(self, context, selected_block_keys):
@@ -256,6 +290,7 @@ class ConstrainedDraftingService:
                     fallback=evidence_fallback,
                     template_text=template_text,
                     section_kind="facts",
+                    block_instructions=getattr(block, "ai_instructions", None) or (),
                 )
             elif block.block_type == "facts":
                 body = self.generate_curated_facts_section(selected_facts, context.selected_curated_facts)
@@ -267,6 +302,7 @@ class ConstrainedDraftingService:
                     fallback=fallback,
                     template_text=fallback,
                     section_kind=block.block_type,
+                    block_instructions=getattr(block, "ai_instructions", None) or (),
                 )
             elif has_template_tokens:
                 body = self.render_template_body(block.body, context)

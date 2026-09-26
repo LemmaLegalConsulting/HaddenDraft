@@ -254,6 +254,42 @@ Key extension points:
 - Add a court's filing-format rules as `content/court-rules/<slug>.yaml`, seed them with `sync_content_library`, and maintain them in Django admin under **Court profiles**. Only a profile marked `verified`, citing the court's own local rule, reports error-level findings.
 ## Prepared Templates
 
+### Court filings: motions, memoranda, and replies
+
+Motion for Summary Judgment, Motion to Dismiss, and a reply in support of each
+are maintained as YAML in `content/filing-templates/<slug>.yaml` rather than as
+Word originals: a motion with a memorandum, tables of contents and authorities,
+an exhibit index, and a certificate of service has a structure worth stating
+instead of guessing. Generate their packages after editing a spec:
+
+```bash
+.venv/bin/python backend/manage.py build_filing_templates          # write and re-index
+.venv/bin/python backend/manage.py build_filing_templates --check  # fail if a package is stale
+```
+
+The output (`content/document-templates/<slug>/` and
+`content/docx-snippets/<slug>/`) is generated and committed; do not edit it by
+hand. The maintained legal standards are marked `verification: starter`.
+
+**Table of authorities.** Any exported document that contains a Word `TOA`
+field gets its citations marked with Word's own `TA` fields and each `TOA`
+field filled, grouped by the categories in
+`content/drafting-rules/table-of-authorities.yaml`. Page numbers are filled in
+by Word when it updates the document's fields, which it offers to do on open;
+nothing here computes them, and validation reports them as unmeasured. A
+citation that could not be marked (a decision cited only by docket number, a
+case whose name could not be read) is a validation warning. A document whose
+author already marked citations in Word is left as the author built it.
+
+**Responding to a filing.** A template's `responds_to` says whether it answers
+the other side's filing: a reply requires the brief in opposition, a motion to
+dismiss recommends the complaint. The plan screen asks for it: a case-file
+document is linked by reference and read through LegalServer when drafting, or a
+copy that is not in the case file is uploaded to the `raw/` storage area with
+its exhibits set aside (`/api/drafting-sessions/<id>/opposing-filing/`). A
+template that requires the filing will not generate without it.
+
+
 `ingest_document_templates` converts maintained originals into template packages
 that keep the author's wording:
 

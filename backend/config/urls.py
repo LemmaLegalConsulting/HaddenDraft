@@ -111,6 +111,7 @@ urlpatterns = [
     path("api/drafting-sessions/<int:session_id>/recommend-goals/", drafting_views.recommend_session_goals, name="api_session_recommend_goals"),
     path("api/drafting-sessions/<int:session_id>/recommend-support/", drafting_views.recommend_session_support, name="api_session_recommend_support"),
     path("api/drafting-sessions/<int:session_id>/outline/", drafting_views.session_outline, name="api_session_outline"),
+    path("api/drafting-sessions/<int:session_id>/opposing-filing/", drafting_views.session_opposing_filing, name="api_session_opposing_filing"),
     path("api/drafting-sessions/<int:session_id>/plan/", drafting_views.draft_plan, name="api_draft_plan"),
     path("api/drafting-sessions/<int:session_id>/template-data/", drafting_views.update_session_template_data, name="api_session_template_data"),
     path("api/drafting-sessions/<int:session_id>/drafts/", drafting_views.generate_plan_drafts, name="api_generate_plan_drafts"),

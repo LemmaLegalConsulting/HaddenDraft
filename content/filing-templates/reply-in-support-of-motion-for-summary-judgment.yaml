@@ -1,0 +1,126 @@
+# Maintained source for the Reply in Support of Motion for Summary Judgment
+# template package. Edit this file, then run `manage.py build_filing_templates`.
+#
+# A reply answers one filing: the opposition brief. It cannot be drafted
+# without it -- a reply written from the motion alone answers arguments the
+# other side never made -- so the template requires the opposition, and
+# generation refuses to run until it is identified, from the case file or by
+# upload. `responding_to` in the wording below is that filing.
+schema_version: 1
+slug: reply-in-support-of-motion-for-summary-judgment
+title: Reply in Support of Motion for Summary Judgment
+kind: brief
+verification: starter
+description: >-
+  Defendant's reply to the plaintiff's brief in opposition to summary judgment,
+  answering the opposition point by point, with a Word-native table of
+  authorities and certificate of service.
+goal: >-
+  Answer the plaintiff's brief in opposition and show that it identifies no
+  genuine issue of material fact for trial.
+negative_goal: >-
+  Do not use to make the summary-judgment motion itself or to raise new grounds
+  for judgment that the motion did not make.
+aliases:
+  - reply brief
+  - reply in support
+  - reply to brief in opposition
+  - summary judgment reply
+  - msj reply
+jurisdiction: Ohio
+responds_to:
+  required: true
+  expects: [brief_in_opposition]
+  question: Which brief in opposition is this reply answering?
+  help: >-
+    The reply is drafted against the opposition, argument by argument. Choose it
+    from the case file, or upload the copy you were served if it is not there.
+choices: []
+
+blocks:
+  - key: opening
+    label: Opening
+    type: argument
+    ai_latitude: guided
+    body: |
+      Defendant {{ defendant }}, by and through counsel, replies to {{ responding_to.description }}, and in further support of Defendant's Motion for Summary Judgment.
+
+  - key: introduction
+    label: Introduction
+    type: argument
+    ai_latitude: generate
+    instructions:
+      - In one or two short paragraphs, say why the opposition does not identify a genuine issue of material fact. Do not restate the motion.
+    body: |
+      {{ "[Attorney review required: draft the introduction]" }}
+
+  - key: opposition-burden
+    label: The opposing party's burden
+    type: argument
+    ai_latitude: guided
+    body: |
+      Once a moving party has identified the portions of the record showing that no genuine issue of material fact exists, the nonmoving party "may not rest upon the mere allegations or denials of the party's pleadings, but the party's response, by affidavit or as otherwise provided in this rule, must set forth specific facts showing that there is a genuine issue for trial." Civ.R. 56(E); *Dresher v. Burt*, 75 Ohio St.3d 280, 293, 662 N.E.2d 264 (1996). Argument in a brief is not evidence. An issue of fact is genuine only if it is supported by Civ.R. 56(C) material.
+
+  - key: reply-argument
+    label: Reply argument
+    type: argument
+    ai_latitude: generate
+    instructions:
+      - Answer the arguments in the brief in opposition in the order it makes them, under numbered headings that each state why that argument fails.
+      - Quote or cite the opposition by page when characterizing it, and never attribute to it an argument it does not make.
+      - For each fact the opposition says is disputed, say whether it is supported by Civ.R. 56(C) material and whether it is material to the claims.
+      - Do not raise a ground for judgment that the motion did not make. Cite only authorities supplied in the selected sources, in full the first time.
+    body: |
+      {{ "[Attorney review required: answer each argument in the opposition]" }}
+
+  - key: conclusion
+    label: Conclusion
+    type: relief
+    ai_latitude: guided
+    body: |
+      The opposition identifies no genuine issue of material fact. For these reasons and those in Defendant's Motion for Summary Judgment, Defendant respectfully asks the Court to grant the motion and enter judgment in Defendant's favor.
+
+  - key: signature
+    label: Signature
+    type: signature
+    ai_latitude: locked
+    body: |
+      Respectfully submitted,
+
+      /s/ {{ advocate_name }}
+      {{ advocate_name_and_bar }}
+      {{ advocate_organization }}
+      {{ advocate_address }}
+      {{ advocate_phone }}
+      {{ advocate_email }}
+      Counsel for Defendant
+
+  - key: certificate-of-service
+    label: Certificate of service
+    type: certificate
+    ai_latitude: locked
+    body: |
+      I certify that on {{ fields.service_date }}, a copy of the foregoing Reply in Support of Motion for Summary Judgment was served on {{ fields.service_recipients }}.
+
+      /s/ {{ advocate_name }}
+      {{ advocate_name_and_bar }}
+      Counsel for Defendant
+
+document:
+  - caption: DEFENDANT'S REPLY IN SUPPORT OF MOTION FOR SUMMARY JUDGMENT
+  - block: opening
+  - table_of_authorities
+  - heading: I. INTRODUCTION
+  - block: introduction
+  - heading: II. LAW AND ARGUMENT
+  - heading: A. The opposition must show a genuine issue with evidence, not argument
+    level: 2
+  - block: opposition-burden
+  - heading: B. The opposition identifies no genuine issue of material fact
+    level: 2
+  - block: reply-argument
+  - heading: III. CONCLUSION
+  - block: conclusion
+  - block: signature
+  - title: CERTIFICATE OF SERVICE
+  - block: certificate-of-service

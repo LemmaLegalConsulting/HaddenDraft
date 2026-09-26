@@ -1,0 +1,197 @@
+# Maintained source for the Motion to Dismiss template package.
+# Edit this file, then run `manage.py build_filing_templates`; the package
+# under document-templates/ and docx-snippets/ is generated from it.
+#
+# A motion to dismiss answers the complaint, so the template asks for it. The
+# ground is a named choice: failure to state a claim (Civ.R. 12(B)(6)) is the
+# first option and the default, and lack of subject-matter jurisdiction
+# (Civ.R. 12(B)(1)) -- the ground Cleveland Housing Court practice uses for a
+# defective termination notice -- is the alternative. The two grounds have
+# different standards and different limits on what the court may consider, so
+# the standard and the motion's wording change with the choice.
+schema_version: 1
+slug: motion-to-dismiss
+title: Motion to Dismiss
+kind: motion
+verification: starter
+description: >-
+  Defendant's Civ.R. 12(B) motion to dismiss the complaint, with a memorandum in
+  support, Word-native table of authorities, and certificate of service.
+goal: >-
+  Ask the court to dismiss the complaint for failure to state a claim or for
+  lack of subject-matter jurisdiction.
+negative_goal: >-
+  Do not use when the defense depends on evidence outside the complaint under
+  Civ.R. 12(B)(6) (use the Motion for Summary Judgment), or to answer an
+  opposition brief (use the reply).
+aliases:
+  - dismiss complaint
+  - civ.r. 12(b)(6)
+  - civ.r. 12(b)(1)
+  - failure to state a claim
+  - lack of subject matter jurisdiction
+  - defective notice
+jurisdiction: Ohio
+responds_to:
+  required: false
+  recommended: true
+  expects: [complaint, amended_complaint]
+  question: Which complaint does this motion ask the court to dismiss?
+  help: >-
+    A motion to dismiss tests the complaint, so the draft is written against it.
+    Choose the complaint from the case file or upload the copy you were served.
+choices:
+  - name: dismissal_ground
+    label: Ground for dismissal
+    default: failure_to_state_a_claim
+    options:
+      - value: failure_to_state_a_claim
+        label: Failure to state a claim -- Civ.R. 12(B)(6)
+      - value: lack_of_subject_matter_jurisdiction
+        label: Lack of subject-matter jurisdiction -- Civ.R. 12(B)(1)
+
+blocks:
+  - key: motion
+    label: Motion
+    type: argument
+    ai_latitude: guided
+    instructions:
+      - State the ground and the defect in one or two sentences; the argument belongs in the memorandum.
+    body: |
+      {% if dismissal_ground == "lack_of_subject_matter_jurisdiction" %}
+
+      Now comes Defendant {{ defendant }}, by and through counsel, and moves this Court under Civ.R. 12(B)(1) to dismiss Plaintiff's Complaint for lack of subject-matter jurisdiction.
+
+      {% else %}
+
+      Now comes Defendant {{ defendant }}, by and through counsel, and moves this Court under Civ.R. 12(B)(6) to dismiss Plaintiff's Complaint for failure to state a claim upon which relief can be granted.
+
+      {% endif %}
+
+      The grounds for this motion are set out in the attached Memorandum in Support, which is incorporated here.
+
+  - key: motion-signature
+    label: Signature on the motion
+    type: signature
+    ai_latitude: locked
+    body: |
+      Respectfully submitted,
+
+      /s/ {{ advocate_name }}
+      {{ advocate_name_and_bar }}
+      {{ advocate_organization }}
+      {{ advocate_address }}
+      {{ advocate_phone }}
+      {{ advocate_email }}
+      Counsel for Defendant
+
+  - key: introduction
+    label: Introduction
+    type: argument
+    ai_latitude: generate
+    instructions:
+      - In one or two short paragraphs, name the defect in the complaint and the dismissal it requires.
+    body: |
+      {{ "[Attorney review required: draft the introduction]" }}
+
+  - key: statement-of-the-case
+    label: Statement of the case
+    type: facts
+    ai_latitude: generate
+    instructions:
+      - State what the complaint alleges and what is attached to it, citing the complaint by paragraph or exhibit. For a Civ.R. 12(B)(6) motion, do not rely on facts outside the complaint and its attachments.
+      - Describe the complaint's allegations as allegations ("Plaintiff alleges"), never as established facts.
+    body: |
+      {{ "[Attorney review required: summarize the complaint's allegations]" }}
+
+  - key: dismissal-standard
+    label: Standard for dismissal
+    type: argument
+    ai_latitude: guided
+    body: |
+      {% if dismissal_ground == "lack_of_subject_matter_jurisdiction" %}
+
+      The standard for a Civ.R. 12(B)(1) motion is whether any cause of action cognizable by the forum has been raised in the complaint. *State ex rel. Bush v. Spurlock*, 42 Ohio St.3d 77, 80, 537 N.E.2d 641 (1989). In deciding that question the court is not confined to the allegations of the complaint and may consider pertinent evidentiary material without converting the motion into one for summary judgment. *Southgate Dev. Corp. v. Columbia Gas Transm. Corp.*, 48 Ohio St.2d 211, 358 N.E.2d 526 (1976), paragraph one of the syllabus. Whenever it appears that the court lacks jurisdiction of the subject matter, the court shall dismiss the action. Civ.R. 12(H)(3).
+
+      {% else %}
+
+      A motion to dismiss for failure to state a claim upon which relief can be granted tests the sufficiency of the complaint. *State ex rel. Hanson v. Guernsey Cty. Bd. of Commrs.*, 65 Ohio St.3d 545, 548, 605 N.E.2d 378 (1992). Dismissal is proper when it appears beyond doubt from the complaint that the plaintiff can prove no set of facts entitling the plaintiff to recovery. *O'Brien v. Univ. Community Tenants Union, Inc.*, 42 Ohio St.2d 242, 327 N.E.2d 753 (1975), syllabus. The court presumes the complaint's factual allegations are true and draws all reasonable inferences in the plaintiff's favor, *Mitchell v. Lawson Milk Co.*, 40 Ohio St.3d 190, 192, 532 N.E.2d 753 (1988), but it does not accept unsupported legal conclusions as true.
+
+      {% endif %}
+
+  - key: argument
+    label: Argument
+    type: argument
+    ai_latitude: generate
+    instructions:
+      - Organize the argument under numbered headings, one per defect, each stating the conclusion the court should reach.
+      - Tie each defect to a specific paragraph or exhibit of the complaint. Cite only authorities supplied in the selected sources.
+      - Write citations in full the first time (case name, reporter or public-domain citation, court and year) so the table of authorities can list them.
+    body: |
+      {{ "[Attorney review required: draft the argument]" }}
+
+  - key: conclusion
+    label: Conclusion
+    type: relief
+    ai_latitude: guided
+    body: |
+      For these reasons, Defendant respectfully asks the Court to grant this motion, dismiss Plaintiff's Complaint, and grant any further relief that is just.
+
+  - key: memorandum-signature
+    label: Signature on the memorandum
+    type: signature
+    ai_latitude: locked
+    body: |
+      Respectfully submitted,
+
+      /s/ {{ advocate_name }}
+      {{ advocate_name_and_bar }}
+      Counsel for Defendant
+
+  - key: exhibit-index
+    label: Index of exhibits
+    type: optional_clause
+    ai_latitude: generate
+    list: true
+    required: false
+    heading_when_filled: INDEX OF EXHIBITS
+    instructions:
+      - Only for a Civ.R. 12(B)(1) motion that relies on material outside the complaint. List each exhibit as "Exhibit A: <description>", only from the selected facts and sources.
+    body: |
+      {{ "[Attorney review required: list the exhibits]" }}
+
+  - key: certificate-of-service
+    label: Certificate of service
+    type: certificate
+    ai_latitude: locked
+    body: |
+      I certify that on {{ fields.service_date }}, a copy of the foregoing Motion to Dismiss and its Memorandum in Support was served on {{ fields.service_recipients }}.
+
+      /s/ {{ advocate_name }}
+      {{ advocate_name_and_bar }}
+      Counsel for Defendant
+
+document:
+  - caption: DEFENDANT'S MOTION TO DISMISS
+  - block: motion
+  - block: motion-signature
+  - page_break
+  - title: MEMORANDUM IN SUPPORT OF DEFENDANT'S MOTION TO DISMISS
+  - table_of_authorities
+  - heading: I. INTRODUCTION
+  - block: introduction
+  - heading: II. STATEMENT OF THE CASE
+  - block: statement-of-the-case
+  - heading: III. LAW AND ARGUMENT
+  - heading: A. The standard for dismissal
+    level: 2
+  - block: dismissal-standard
+  - heading: B. The complaint must be dismissed
+    level: 2
+  - block: argument
+  - heading: IV. CONCLUSION
+  - block: conclusion
+  - block: memorandum-signature
+  - block: exhibit-index
+  - title: CERTIFICATE OF SERVICE
+  - block: certificate-of-service

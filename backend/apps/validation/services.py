@@ -24,7 +24,7 @@ from apps.templates_app.template_variables import (
     normalize_field_path,
     template_field_label,
 )
-from apps.validation.findings import error_finding, sort_and_condense_findings, warning_finding
+from apps.validation.findings import error_finding, info_finding, sort_and_condense_findings, warning_finding
 from apps.validation.packages import validate_package_consistency
 from apps.validation.rendered import extract_docx_text
 from apps.validation.source_integrity import validate_source_bindings
@@ -83,13 +83,15 @@ def build_validation_snapshot(draft, *, include_docx=True):
         "docxTables": [],
         "docxProfile": {},
         "docxRenderError": None,
+        "tableOfAuthorities": None,
     }
     if not include_docx:
         return snapshot
     try:
-        from apps.exporting.services import render_docx_bytes
+        from apps.exporting.services import render_docx
 
-        docx_bytes = render_docx_bytes(draft)
+        docx_bytes, reports = render_docx(draft)
+        snapshot["tableOfAuthorities"] = reports.get("tableOfAuthorities")
         profile = extract_docx_text(docx_bytes)
         snapshot["docxBytes"] = docx_bytes
         snapshot["docxText"] = profile["text"]
@@ -650,6 +652,81 @@ def validate_citations(draft, snapshot):
     return findings
 
 
+def validate_table_of_authorities(draft, snapshot):
+    """Say what the exported table of authorities lists, and what it could not.
+
+    A table that silently omits an authority looks complete, so every citation
+    export could not mark is a warning. Page numbers are reported as unmeasured:
+    Word fills them in when it updates the table's fields, and nothing here lays
+    the document out, so no page number is ever reported as checked.
+    """
+    report = snapshot.get("tableOfAuthorities")
+    if not report:
+        return []
+    if report.get("authorMarked"):
+        return [
+            info_finding(
+                draft_id=draft.id,
+                rule_code="I452",
+                category="table_of_authorities",
+                target="toa:author-marked",
+                message=report["pageNumbersReason"],
+                location={"view": "docx"},
+                action={
+                    "type": "review_citation",
+                    "label": "Check the table of authorities in Word.",
+                    "payload": {},
+                },
+            )
+        ]
+    authorities = report.get("authorities") or []
+    categories = ", ".join(
+        f"{row['heading']} ({row['count']})" for row in report.get("categories") or []
+    ) or "none"
+    findings = [
+        info_finding(
+            draft_id=draft.id,
+            rule_code="I450",
+            category="table_of_authorities",
+            target="toa:summary",
+            message=(
+                f"The table of authorities lists {len(authorities)} "
+                f"{'authority' if len(authorities) == 1 else 'authorities'}: {categories}. "
+                "Page numbers are not measured here; Word fills them in when it updates the "
+                "document's fields, which it offers to do when the file opens."
+            ),
+            location={"view": "docx"},
+            action={
+                "type": "review_citation",
+                "label": "Open the export in Word and accept the prompt to update fields.",
+                "payload": {"authorities": [item["longCite"] for item in authorities]},
+            },
+        )
+    ]
+    for item in report.get("unmarked") or []:
+        count = item.get("count")
+        builder = info_finding if count else warning_finding
+        findings.append(
+            builder(
+                draft_id=draft.id,
+                rule_code="I451" if count else "W451",
+                category="table_of_authorities",
+                target=f"toa:unmarked:{item['text'][:80]}",
+                message=(
+                    f"{item['reason']} ({count} in this document)" if count
+                    else f"Not listed in the table of authorities: {item['text']}. {item['reason']}"
+                ),
+                location={"view": "docx", "excerpt": item["text"][:200]},
+                action={
+                    "type": "review_citation",
+                    "label": "Check the table of authorities in Word.",
+                    "payload": {"citation": item["text"]},
+                },
+            )
+        )
+    return findings
+
+
 # --- 3.6 selected fact/source support rules ----------------------------------
 
 
@@ -963,6 +1040,7 @@ def validate_document(draft, *, include_docx=True):
     findings.extend(validate_structure(draft, snapshot))
     findings.extend(validate_rendered_docx_consistency(draft, snapshot))
     findings.extend(validate_citations(draft, snapshot))
+    findings.extend(validate_table_of_authorities(draft, snapshot))
     findings.extend(validate_selected_fact_support(draft, snapshot))
     findings.extend(validate_filing_profile(draft, snapshot))
     findings.extend(validate_source_bindings(draft, snapshot, citation_pattern=CITATION_RE))

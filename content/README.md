@@ -18,7 +18,11 @@ content/                       # public, safe-to-commit defaults
 │   └── markdown/             # deterministic Markdown derivatives, organized by treatise slug
 ├── drafting-rules/
 │   ├── style-guides/source/  # court manuals and drafting guidance, not substantive authority
-│   └── checks/               # versioned machine-readable drafting/quality rules
+│   ├── checks/               # versioned machine-readable drafting/quality rules
+│   └── table-of-authorities.yaml  # TOA categories and citation forms for export
+├── filing-templates/         # maintained specs for motion/memorandum/reply templates
+├── document-templates/       # generated from filing-templates/; public slugs only
+├── docx-snippets/<slug>/     # generated block snippets for those public templates
 ├── statutes/
 │   └── ohio-revised-code/    # configured official-code scope and generated section index
 ├── court-rules/              # one YAML per court: identity and filing-format requirements

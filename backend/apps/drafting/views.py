@@ -4,7 +4,7 @@ from django.db import transaction
 from django.http import JsonResponse
 
 from apps.core.http import api_login_required, json_body, method_not_allowed
-from apps.drafting import operations
+from apps.drafting import operations, opposing_filing
 from apps.drafting.components import component_history, record_sections
 from apps.drafting.generation_jobs import fail_if_stalled, job_to_dict, start_job
 from apps.drafting.models import DraftDocument, DraftingSession, DraftGenerationJob
@@ -393,6 +393,9 @@ def generate_plan_drafts(request, session_id):
         drafts = session.drafts.select_related("template").order_by("created_at")
         return JsonResponse({"drafts": [draft_to_dict(draft) for draft in drafts]})
     body = json_body(request)
+    missing_filing = opposing_filing.missing_for_session(session)
+    if missing_filing:
+        return JsonResponse({"error": missing_filing, "opposingFilingRequired": True}, status=400)
     plan = session.draft_plan or {}
     blocking_missing = unanswered_missing_information(
         plan,
@@ -415,6 +418,77 @@ def generate_plan_drafts(request, session_id):
         drafts = session.drafts.select_related("template").filter(id__in=job.draft_ids).order_by("created_at")
         return JsonResponse({"drafts": [draft_to_dict(draft) for draft in drafts], "job": job_to_dict(job)}, status=201)
     return JsonResponse({"job": job_to_dict(job)}, status=202)
+
+
+@api_login_required
+def session_opposing_filing(request, session_id):
+    """The other side's filing this session's document answers.
+
+    GET reports it, what the template asks for, and the case-file documents to
+    choose from. PUT picks one of those; POST uploads a copy that is not in the
+    case file; PATCH changes how the draft names it; DELETE clears it.
+    """
+    if request.method not in {"GET", "PUT", "POST", "PATCH", "DELETE"}:
+        return method_not_allowed(["GET", "PUT", "POST", "PATCH", "DELETE"])
+    session, error = _session_or_404(request.user, session_id)
+    if error:
+        return error
+
+    def payload(**extra):
+        return {
+            "opposingFiling": opposing_filing.to_dict(opposing_filing.filing_for(session)),
+            "requirement": opposing_filing.requirement(session.template),
+            "missing": opposing_filing.missing_for_session(session),
+            **extra,
+        }
+
+    try:
+        if request.method == "GET":
+            choices, problem = opposing_filing.case_file_choices(session)
+            return JsonResponse(payload(caseFileDocuments=choices, caseFileProblem=problem))
+        if request.method == "DELETE":
+            opposing_filing.remove(session)
+            return JsonResponse(payload())
+        if request.method == "POST":
+            upload = request.FILES.get("file")
+            if not upload:
+                return JsonResponse({"error": "Choose the file to upload."}, status=400)
+            opposing_filing.upload_filing(
+                session,
+                upload.read(),
+                filename=upload.name,
+                content_type=upload.content_type or "",
+                user=request.user,
+                filing_kind=request.POST.get("filingKind", ""),
+                description=request.POST.get("description", ""),
+                filed_on=opposing_filing.parse_filed_on(request.POST.get("filedOn", "")),
+            )
+            return JsonResponse(payload(), status=201)
+        body = json_body(request)
+        if request.method == "PUT":
+            if not body.get("documentId"):
+                return JsonResponse({"error": "Choose a document from the case file."}, status=400)
+            opposing_filing.choose_case_document(
+                session,
+                body["documentId"],
+                user=request.user,
+                filing_kind=str(body.get("filingKind") or ""),
+                description=str(body.get("description") or ""),
+                filed_on=opposing_filing.parse_filed_on(body.get("filedOn") or ""),
+            )
+            return JsonResponse(payload())
+        filing = opposing_filing.filing_for(session)
+        if not filing:
+            return JsonResponse({"error": "Identify the filing before describing it."}, status=400)
+        opposing_filing.update_details(
+            filing,
+            description=body.get("description"),
+            filed_on=body.get("filedOn"),
+            filing_kind=body.get("filingKind"),
+        )
+        return JsonResponse(payload())
+    except opposing_filing.OpposingFilingError as exc:
+        return JsonResponse({"error": str(exc)}, status=400)
 
 
 @api_login_required

@@ -1,0 +1,174 @@
+# Maintained source for the Motion for Summary Judgment template package.
+# Edit this file, then run `manage.py build_filing_templates`; the package
+# under document-templates/ and docx-snippets/ is generated from it.
+#
+# Structure follows the Cleveland Housing Court summary-judgment filings the
+# working group collected: a one-page motion, then a memorandum in support
+# with an introduction, a statement of undisputed facts, the Civ.R. 56
+# standard, the argument, and a conclusion, followed by the exhibits and a
+# certificate of service. Only settled Ohio authority is maintained here; the
+# argument itself is drafted per case.
+schema_version: 1
+slug: motion-for-summary-judgment
+title: Motion for Summary Judgment
+kind: motion
+verification: starter
+description: >-
+  Defendant's Civ.R. 56 motion with a memorandum in support, table of contents,
+  Word-native table of authorities, exhibit index, and certificate of service.
+goal: >-
+  Ask the court to enter judgment for the defendant without trial because the
+  record shows no genuine dispute of material fact.
+negative_goal: >-
+  Do not use to attack the complaint on its face (use the Motion to Dismiss) or
+  to answer an opposition brief (use the reply).
+aliases:
+  - summary judgment
+  - msj
+  - civ.r. 56
+  - no genuine issue of material fact
+  - judgment as a matter of law
+jurisdiction: Ohio
+responds_to:
+  required: false
+  expects: [complaint, counterclaim, motion]
+  question: Does this motion answer a particular filing from the other side?
+  help: >-
+    A summary-judgment motion usually stands on the record, not on one filing.
+    Identify one if the motion answers it -- for example, a complaint whose
+    claims the motion defeats.
+choices: []
+
+blocks:
+  - key: motion
+    label: Motion
+    type: argument
+    ai_latitude: guided
+    instructions:
+      - State the claims on which judgment is sought. Keep the motion to the request and its grounds; the argument belongs in the memorandum.
+    body: |
+      Now comes Defendant {{ defendant }}, by and through counsel, and moves this Court under Civ.R. 56 for summary judgment in Defendant's favor on the claims in Plaintiff's Complaint. There is no genuine issue as to any material fact, and Defendant is entitled to judgment as a matter of law.
+
+      The grounds for this motion are set out in the attached Memorandum in Support, which is incorporated here. The motion is supported by the exhibits listed in the Index of Exhibits.
+
+  - key: motion-signature
+    label: Signature on the motion
+    type: signature
+    ai_latitude: locked
+    body: |
+      Respectfully submitted,
+
+      /s/ {{ advocate_name }}
+      {{ advocate_name_and_bar }}
+      {{ advocate_organization }}
+      {{ advocate_address }}
+      {{ advocate_phone }}
+      {{ advocate_email }}
+      Counsel for Defendant
+
+  - key: introduction
+    label: Introduction
+    type: argument
+    ai_latitude: generate
+    instructions:
+      - In two or three short paragraphs, say what the case is about, why no material fact is in dispute, and what judgment Defendant asks for.
+    body: |
+      {{ "[Attorney review required: draft the introduction]" }}
+
+  - key: statement-of-undisputed-facts
+    label: Statement of undisputed material facts
+    type: facts
+    ai_latitude: generate
+    instructions:
+      - State only facts shown by Civ.R. 56(C) materials -- pleadings, depositions, answers to interrogatories, written admissions, affidavits, transcripts of evidence, and written stipulations of fact.
+      - End each fact with a citation to the exhibit that shows it, such as (Ex. A, Aff. of Defendant, para. 4). Mark any fact without record support for attorney review instead of stating it.
+    body: |
+      {{ "[Attorney review required: state each undisputed fact with its record citation]" }}
+
+  - key: summary-judgment-standard
+    label: Summary judgment standard
+    type: argument
+    ai_latitude: guided
+    body: |
+      Summary judgment is appropriate when (1) no genuine issue as to any material fact remains to be litigated, (2) the moving party is entitled to judgment as a matter of law, and (3) it appears from the evidence that reasonable minds can come to but one conclusion, and viewing the evidence most strongly in favor of the nonmoving party, that conclusion is adverse to that party. *Temple v. Wean United, Inc.*, 50 Ohio St.2d 317, 327, 364 N.E.2d 267 (1977); Civ.R. 56(C).
+
+      The moving party bears the initial burden of informing the court of the basis for the motion and identifying those portions of the record that demonstrate the absence of a genuine issue of material fact on the essential elements of the nonmoving party's claims. *Dresher v. Burt*, 75 Ohio St.3d 280, 293, 662 N.E.2d 264 (1996). Once the moving party meets that burden, the nonmoving party "may not rest upon the mere allegations or denials of the party's pleadings," but must set forth specific facts showing that there is a genuine issue for trial. Civ.R. 56(E); *Dresher* at 293.
+
+  - key: argument
+    label: Argument
+    type: argument
+    ai_latitude: generate
+    instructions:
+      - Organize the argument under numbered headings, one per ground for judgment, each stating the conclusion the court should reach.
+      - Connect each legal proposition to a fact in the Statement of Undisputed Material Facts. Cite only authorities supplied in the selected sources.
+      - Write citations in full the first time (case name, reporter or public-domain citation, court and year) so the table of authorities can list them.
+    body: |
+      {{ "[Attorney review required: draft the argument]" }}
+
+  - key: conclusion
+    label: Conclusion
+    type: relief
+    ai_latitude: guided
+    body: |
+      There is no genuine issue of material fact, and Defendant is entitled to judgment as a matter of law. Defendant respectfully asks the Court to grant this motion and enter judgment in Defendant's favor on Plaintiff's Complaint, and to grant any further relief that is just.
+
+  - key: memorandum-signature
+    label: Signature on the memorandum
+    type: signature
+    ai_latitude: locked
+    body: |
+      Respectfully submitted,
+
+      /s/ {{ advocate_name }}
+      {{ advocate_name_and_bar }}
+      Counsel for Defendant
+
+  - key: exhibit-index
+    label: Index of exhibits
+    type: optional_clause
+    ai_latitude: generate
+    list: true
+    heading_when_filled: INDEX OF EXHIBITS
+    instructions:
+      - List each exhibit the Statement of Undisputed Material Facts cites, in order, as "Exhibit A: <description>". Name the affiant for each affidavit.
+      - List only exhibits that appear among the selected facts and sources. Never invent one; mark a needed exhibit that is not in the record for attorney review.
+    body: |
+      {{ "[Attorney review required: list the exhibits]" }}
+
+  - key: certificate-of-service
+    label: Certificate of service
+    type: certificate
+    ai_latitude: locked
+    body: |
+      I certify that on {{ fields.service_date }}, a copy of the foregoing Motion for Summary Judgment, with its Memorandum in Support and exhibits, was served on {{ fields.service_recipients }}.
+
+      /s/ {{ advocate_name }}
+      {{ advocate_name_and_bar }}
+      Counsel for Defendant
+
+document:
+  - caption: DEFENDANT'S MOTION FOR SUMMARY JUDGMENT
+  - block: motion
+  - block: motion-signature
+  - page_break
+  - title: MEMORANDUM IN SUPPORT OF DEFENDANT'S MOTION FOR SUMMARY JUDGMENT
+  - table_of_contents
+  - table_of_authorities
+  - page_break
+  - heading: I. INTRODUCTION
+  - block: introduction
+  - heading: II. STATEMENT OF UNDISPUTED MATERIAL FACTS
+  - block: statement-of-undisputed-facts
+  - heading: III. LAW AND ARGUMENT
+  - heading: A. The summary judgment standard
+    level: 2
+  - block: summary-judgment-standard
+  - heading: B. Defendant is entitled to judgment as a matter of law
+    level: 2
+  - block: argument
+  - heading: IV. CONCLUSION
+  - block: conclusion
+  - block: memorandum-signature
+  - block: exhibit-index
+  - title: CERTIFICATE OF SERVICE
+  - block: certificate-of-service

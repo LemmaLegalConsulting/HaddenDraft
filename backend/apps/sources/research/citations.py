@@ -151,7 +151,7 @@ _PATTERNS = (
     (
         re.compile(
             r"\b(?:o\.?\s?r\.?\s?c\.?|ohio\s+rev(?:ised)?\.?\s+code(?:\s+ann\.?)?|r\.\s?c\.)\s*"
-            r"(?:§+\s*)?(?P<section>\d{3,4}\.\d{1,3})(?P<subdivision>(?:\s*\([A-Za-z0-9]{1,3}\))*)",
+            r"(?:§+\s*)?(?P<section>\d{1,4}\.\d{1,3})(?P<subdivision>(?:\s*\([A-Za-z0-9]{1,3}\))*)",
             re.I,
         ),
         _revised_code,
@@ -175,18 +175,26 @@ _PATTERNS = (
 )
 
 
-def find_citations(text):
-    """Every citation in ``text``, longest match first, without overlaps."""
+def _matches(text):
+    """Each citation with its ``(start, end)``, longest match first, without overlaps."""
     consumed = []
-    found = []
     for pattern, build in _PATTERNS:
         for match in pattern.finditer(str(text or "")):
             span = match.span()
             if any(span[0] < end and start < span[1] for start, end in consumed):
                 continue
             consumed.append(span)
-            found.append(build(match))
-    return found
+            yield build(match), span
+
+
+def find_citations(text):
+    """Every citation in ``text``, longest match first, without overlaps."""
+    return [citation for citation, _span in _matches(text)]
+
+
+def find_citation_spans(text):
+    """Every citation in ``text`` with its ``(start, end)``, in reading order."""
+    return sorted(_matches(text), key=lambda item: item[1][0])
 
 
 def strip_citations(text, citations):

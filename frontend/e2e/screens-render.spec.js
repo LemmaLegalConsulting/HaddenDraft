@@ -648,3 +648,54 @@ test("fill template upload, optional answers, save and DOCX download", async ({ 
   expect((await downloadPromise).suggestedFilename()).toBe("filled.docx");
   expect(errors).toEqual([]);
 });
+
+test("a reply's plan asks for the opposition before it will generate", async ({ page }) => {
+  const errors = watchForErrors(page);
+  const reply = {
+    id: 44, slug: "reply-in-support-of-motion-to-dismiss", title: "Reply in Support of Motion to Dismiss", kind: "brief",
+    jurisdiction: "Ohio", blocks: [],
+    metadata: {
+      respondsTo: {
+        required: true,
+        expects: ["brief_in_opposition"],
+        question: "Which brief in opposition is this reply answering?",
+      },
+    },
+  };
+  const session = {
+    ...SAVED_SESSION, id: 186, status: "outline_review", template: reply, opposingFiling: null,
+    draftPlan: { summary: "Reply to the opposition", document_items: [{ id: "doc-1", title: reply.title, template_slug: reply.slug, selected_block_keys: [] }] },
+  };
+  const opposition = { documentId: "opp-1", title: "Plaintiff's Brief in Opposition.pdf", date: "2026-09-12", kind: "case_document" };
+  const chosen = {
+    id: 5, sourceType: "matter_document", filingKind: "brief_in_opposition", title: opposition.title,
+    description: "Plaintiff's Brief in Opposition", displayName: "Plaintiff's Brief in Opposition, filed September 12, 2026",
+    filedOn: "2026-09-12", documentId: "opp-1", exhibits: [],
+  };
+  const requirement = session.template.metadata.respondsTo;
+  await page.route("**/api/templates/", (route) => route.fulfill({ json: { templates: [reply] } }));
+  await page.route((url) => url.pathname.endsWith("/api/drafting-sessions/186/"), (route) => route.fulfill({
+    json: { session, resume: { recommendedView: "plan", activeJobId: null, draftIds: [], lastDraftId: null, hasPlan: true } },
+  }));
+  await page.route((url) => url.pathname.endsWith("/api/drafting-sessions/186/opposing-filing/"), (route) => {
+    if (route.request().method() === "PUT") {
+      return route.fulfill({ json: { opposingFiling: chosen, requirement, missing: "" } });
+    }
+    return route.fulfill({
+      json: { opposingFiling: null, requirement, missing: "Required.", caseFileDocuments: [opposition], caseFileProblem: "" },
+    });
+  });
+
+  await page.goto("/drafting/26-0001/sessions/186/plan");
+  await expectScreenRenders(errors, page.getByRole("heading", { name: "Responding to" }));
+  const generate = page.getByRole("button", { name: /Generate draft|Review questions/ });
+  await expect(generate).toBeDisabled();
+  await page.screenshot({ path: "test-results-smoke/responding-to-missing.png", fullPage: true });
+
+  await page.getByLabel("Case file document").selectOption({ label: "Plaintiff's Brief in Opposition.pdf (2026-09-12)" });
+  await page.getByRole("button", { name: "Use this document" }).click();
+  await expect(page.getByText("Plaintiff's Brief in Opposition, filed September 12, 2026")).toBeVisible();
+  await expect(generate).toBeEnabled();
+  await page.screenshot({ path: "test-results-smoke/responding-to-chosen.png", fullPage: true });
+  expect(errors).toEqual([]);
+});

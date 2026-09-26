@@ -119,6 +119,25 @@ ALIAS_TEMPLATE_DATA_KEYS = {
 }
 
 
+def template_choice_values(template, template_data):
+    """Resolve a template's either/or clauses to a chosen option.
+
+    A choice the advocate has not answered falls back to the template's default
+    so the passage still renders. A certificate of service that silently
+    disappeared because nobody picked a service method would be worse than one
+    naming the wrong method, which review catches.
+    """
+    choices = (getattr(template, "metadata", None) or {}).get("choices") or []
+    supplied = template_data or {}
+    values = {}
+    for choice in choices:
+        name = choice.get("name")
+        if not name:
+            continue
+        values[name] = supplied.get(name) or choice.get("default", "")
+    return values
+
+
 def normalize_field_path(path):
     value = str(path)
     bracketed = re.fullmatch(r'fields\["([^"]+)"\]', value)
