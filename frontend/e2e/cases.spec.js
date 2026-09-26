@@ -47,7 +47,9 @@ test.describe("case list", () => {
 
     let release;
     const held = new Promise((resolve) => { release = resolve; });
-    await page.route(`**/cases/${HEAT_CASE.caseNumber}/`, async (route) => {
+    // The case opens through the route-key lookup the URL drives.
+    const caseLookup = (url) => url.pathname.endsWith("/cases/by-route-key/") && url.searchParams.get("key") === HEAT_CASE.caseNumber;
+    await page.route(caseLookup, async (route) => {
       if (route.request().method() === "GET") await held;
       await route.continue();
     });

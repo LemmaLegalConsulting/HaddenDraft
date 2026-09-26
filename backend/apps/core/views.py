@@ -16,6 +16,7 @@ from django.views.decorators.csrf import ensure_csrf_cookie
 
 from apps.core.http import api_login_required, json_body, json_body_errors_to_400, method_not_allowed
 from apps.core.models import AuthorProfile, OrganizationSettings
+from apps.core.return_paths import safe_return_path
 from apps.matters.seed import seed_matters
 from apps.matters.legalserver_delivery import delivery_defaults
 from apps.matters.services import legalserver_account_status
@@ -269,6 +270,9 @@ def office365_start(request):
         )
     state = secrets.token_urlsafe(24)
     request.session["office365_oauth_state"] = state
+    # Kept server-side beside the state, never passed through Microsoft, so
+    # the only return target is one this session asked for and we validated.
+    request.session["office365_return_path"] = safe_return_path(request.GET.get("returnTo", ""))
     params = {
         "client_id": settings.OFFICE365_CLIENT_ID,
         "response_type": "code",
@@ -373,7 +377,8 @@ def office365_callback(request):
     default_legalserver_identity_from_office365(user, claims)
     login(request, user, backend="django.contrib.auth.backends.ModelBackend")
     request.session.pop("office365_oauth_state", None)
-    return redirect(settings.FRONTEND_SITE_URL)
+    return_path = safe_return_path(request.session.pop("office365_return_path", ""))
+    return redirect(f"{settings.FRONTEND_SITE_URL.rstrip('/')}{return_path}" if return_path else settings.FRONTEND_SITE_URL)
 
 
 def readyz(_request):

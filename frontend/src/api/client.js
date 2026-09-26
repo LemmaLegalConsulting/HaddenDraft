@@ -45,6 +45,10 @@ async function request(path, options = {}) {
       ...options,
     });
   } catch (err) {
+    // A request the caller cancelled -- the advocate moved to another case
+    // before this one answered -- is not a server problem, and must never feed
+    // the "server is waking up" retry loop.
+    if (err?.name === "AbortError") throw err;
     // fetch rejects only when there was no response at all -- the host is
     // unreachable, the connection dropped, DNS failed. Status 0 says exactly
     // that, and is what tells a caller this is worth asking again about.
@@ -54,7 +58,14 @@ async function request(path, options = {}) {
   }
 
   if (!response.ok) {
-    throw new ApiError(errorMessageFrom(await response.text(), response), { status: response.status });
+    const text = await response.text();
+    let data = null;
+    try {
+      data = JSON.parse(text);
+    } catch {
+      data = null;
+    }
+    throw new ApiError(errorMessageFrom(text, response), { status: response.status, data });
   }
 
   const contentType = response.headers.get("content-type") || "";
@@ -67,7 +78,8 @@ async function request(path, options = {}) {
 export const api = {
   fillCatalog: (matterId) => request(`/template-fill/?${new URLSearchParams({ matterId })}`),
   startTemplateFill: (payload) => request("/template-fill/start/", { method: "POST", body: payload instanceof FormData ? payload : JSON.stringify(payload) }),
-  fillSession: (id) => request(`/template-fill/sessions/${id}/`),
+  // `caseKey` names the case the URL is on; the server refuses a session on another.
+  fillSession: (id, { caseKey = "" } = {}) => request(`/template-fill/sessions/${id}/${caseKey ? `?${new URLSearchParams({ caseKey })}` : ""}`),
   previewTemplateFill: (id, answers) => request(`/template-fill/sessions/${id}/preview/`, { method: "POST", body: JSON.stringify({ answers }) }),
   saveTemplateFill: (id, payload, exporting = false) => request(`/template-fill/sessions/${id}/`, { method: exporting ? "POST" : "PATCH", body: JSON.stringify(payload) }),
   fillJob: (id) => request(`/template-fill/jobs/${id}/`),
@@ -79,7 +91,9 @@ export const api = {
   login: (payload) => request("/auth/login/", { method: "POST", body: JSON.stringify(payload) }),
   logout: () => request("/auth/logout/", { method: "POST" }),
   changePassword: (payload) => request("/auth/change-password/", { method: "POST", body: JSON.stringify(payload) }),
-  startOffice365Login: () => request("/auth/office365/start/"),
+  // `returnTo` is the page to come back to; the server keeps it beside the
+  // OAuth state and accepts only an in-app route.
+  startOffice365Login: (returnTo = "") => request(`/auth/office365/start/${returnTo ? `?${new URLSearchParams({ returnTo })}` : ""}`),
   cases: ({ query = "", status = "", assigned = "", problem = "", sort = "", limit = 0, offset = 0 } = {}) => {
     const params = new URLSearchParams();
     if (query) params.set("q", query);
@@ -104,9 +118,13 @@ export const api = {
   connectLegalServer: (payload) => request("/legalserver/account/", { method: "POST", body: JSON.stringify(payload) }),
   disconnectLegalServer: () => request("/legalserver/account/", { method: "DELETE" }),
   caseDetail: (matterId) => request(`/cases/${matterId}/`),
-  caseChatHistory: (matterId, threadId) => request(`/cases/${matterId}/chat/${threadId ? `?threadId=${threadId}` : ""}`),
+  // The case a URL names by its readable number. Read-only; `signal` lets a
+  // superseded lookup be cancelled.
+  caseByRouteKey: (caseKey, { signal } = {}) => request(`/cases/by-route-key/?${new URLSearchParams({ key: caseKey })}`, { signal }),
+  // Read-only. A thread id is that thread or a 404, never a stand-in.
+  caseChatHistory: (matterId, threadId, { signal } = {}) => request(`/cases/${matterId}/chat/${threadId ? `?threadId=${threadId}` : ""}`, { signal }),
   newCaseChat: (matterId) => request(`/cases/${matterId}/chat/`, { method: "POST", body: JSON.stringify({ action: "new_thread" }) }),
-  clearCaseChatHistory: (matterId) => request(`/cases/${matterId}/chat/`, { method: "DELETE" }),
+  clearCaseChatHistory: (matterId, threadId = null) => request(`/cases/${matterId}/chat/${threadId ? `?threadId=${threadId}` : ""}`, { method: "DELETE" }),
   caseChat: (matterId, payload) => request(`/cases/${matterId}/chat/`, { method: "POST", body: JSON.stringify(payload) }),
   caseLegalServer: (matterId) => request(`/cases/${matterId}/legalserver/`),
   saveCaseNoteToLegalServer: (matterId, payload) =>
@@ -153,9 +171,10 @@ export const api = {
   ordinanceDataset: (name) => request(`/ordinances/datasets/${encodeURIComponent(name)}/`),
   contentSourcePdfUrl: (documentSlug, chunkId, page) =>
     `${API_BASE}/sources/content/${encodeURIComponent(documentSlug)}/${encodeURIComponent(chunkId)}/pdf/${page ? `#page=${page}` : ""}`,
-  researchHistory: (threadId) => request(`/research/${threadId ? `?threadId=${threadId}` : ""}`),
+  // Read-only. A thread id is that thread or a 404, never a stand-in.
+  researchHistory: (threadId, { signal } = {}) => request(`/research/${threadId ? `?threadId=${threadId}` : ""}`, { signal }),
   newResearchChat: () => request("/research/", { method: "POST", body: JSON.stringify({ action: "new_thread" }) }),
-  clearResearchHistory: () => request("/research/", { method: "DELETE" }),
+  clearResearchHistory: (threadId = null) => request(`/research/${threadId ? `?threadId=${threadId}` : ""}`, { method: "DELETE" }),
   research: (payload) => request("/research/", { method: "POST", body: JSON.stringify(payload) }),
   // Deterministic search. Separate from `research` on purpose: that endpoint is
   // the chat, this one never calls a model unless the payload asks it to, and
@@ -165,6 +184,22 @@ export const api = {
   createTemplateFromExample: (payload) =>
     request("/templates/from-example/", { method: "POST", body: JSON.stringify(payload) }),
   createSession: (payload) => request("/drafting-sessions/", { method: "POST", body: JSON.stringify(payload) }),
+  // Saved sessions for one case, as light rows. Read-only.
+  savedSessions: ({ caseKey, workspace = "drafting", limit = 20, offset = 0 }, { signal } = {}) =>
+    request(`/drafting-sessions/?${new URLSearchParams({ caseKey, workspace, limit: String(limit), offset: String(offset) })}`, { signal }),
+  // One saved session and where reopening it should land. `caseKey` and
+  // `workspace` name the URL it was opened from; the server checks both.
+  // Save the advocate's choices on a session. `revision` is the one they were
+  // made against; a 409 means another window saved first.
+  checkpointSession: (sessionId, payload) =>
+    request(`/drafting-sessions/${sessionId}/`, { method: "PATCH", body: JSON.stringify(payload) }),
+  savedSession: (sessionId, { caseKey = "", workspace = "" } = {}, { signal } = {}) => {
+    const params = new URLSearchParams();
+    if (caseKey) params.set("caseKey", caseKey);
+    if (workspace) params.set("workspace", workspace);
+    const query = params.toString();
+    return request(`/drafting-sessions/${sessionId}/${query ? `?${query}` : ""}`, { signal });
+  },
   advanceSession: (sessionId, payload) =>
     request(`/drafting-sessions/${sessionId}/advance/`, { method: "POST", body: JSON.stringify(payload) }),
   recommendSessionFacts: (sessionId, payload = { apply: true }) =>
@@ -182,14 +217,14 @@ export const api = {
     request(`/drafting-sessions/${sessionId}/plan/`, { method: "PATCH", body: JSON.stringify(payload) }),
   updateSessionTemplateData: (sessionId, templateData) =>
     request(`/drafting-sessions/${sessionId}/template-data/`, { method: "POST", body: JSON.stringify({ templateData }) }),
-  sessionDrafts: (sessionId) => request(`/drafting-sessions/${sessionId}/drafts/`),
+  sessionDrafts: (sessionId, { signal } = {}) => request(`/drafting-sessions/${sessionId}/drafts/`, { signal }),
   sessionPackage: (sessionId) => request(`/drafting-sessions/${sessionId}/package/`),
   // Answers 202 with a job; poll draftGenerationJob until it completes
   // (state/draftJobs.js does).
   generatePlanDrafts: (sessionId, payload = {}) =>
     request(`/drafting-sessions/${sessionId}/drafts/`, { method: "POST", body: JSON.stringify(payload) }),
-  draftGenerationJob: (sessionId, jobId) =>
-    request(`/drafting-sessions/${sessionId}/drafts/?${new URLSearchParams({ job: String(jobId) })}`),
+  draftGenerationJob: (sessionId, jobId, { signal } = {}) =>
+    request(`/drafting-sessions/${sessionId}/drafts/?${new URLSearchParams({ job: String(jobId) })}`, { signal }),
   generateDraft: (sessionId) => request(`/drafting-sessions/${sessionId}/draft/`, { method: "POST" }),
   updateDraft: (draftId, payload) => request(`/drafts/${draftId}/`, { method: "PATCH", body: JSON.stringify(payload) }),
   draftComponents: (draftId) => request(`/drafts/${draftId}/components/`),
@@ -274,6 +309,9 @@ export const api = {
     request("/advice-letters/export/", { method: "POST", body: JSON.stringify(payload) }),
   adviceLetterDraft: (payload) =>
     request("/advice-letters/drafts/", { method: "POST", body: JSON.stringify(payload) }),
+  // A saved letter as it was saved. Read-only: nothing is reassembled.
+  adviceLetterSavedDraft: (draftId, { caseKey = "" } = {}, { signal } = {}) =>
+    request(`/advice-letters/drafts/${draftId}/${caseKey ? `?${new URLSearchParams({ caseKey })}` : ""}`, { signal }),
   adviceLetterDraftExport: (draftId, payload = {}) =>
     request(`/advice-letters/drafts/${draftId}/export/`, { method: "POST", body: JSON.stringify(payload) }),
   adviceLetterDraftToLegalServer: (draftId, payload = {}) =>

@@ -3,11 +3,21 @@ import mimetypes
 import re
 
 from django.conf import settings
+from django.db.models import prefetch_related_objects
 from django.http import HttpResponse, JsonResponse
 from django.utils.http import content_disposition_header
 
 from apps.ai.case_chat import case_chat_reply
-from apps.ai.chat_history import append_message, archive_current_conversation, clear_messages, conversation_list, messages_for_user
+from apps.ai.chat_history import (
+    append_message,
+    archive_current_conversation,
+    clear_messages,
+    conversation_list,
+    current_conversation,
+    is_current_thread,
+    messages_for_user,
+    read_conversation,
+)
 from apps.ai.models import ChatConversation
 from apps.core.http import allow_document_framing, api_login_required
 from apps.core.http import json_body
@@ -38,6 +48,7 @@ from apps.matters.legalserver_delivery import (
 )
 from apps.matters.legalserver_notes import triage_case_note_body
 from apps.matters.models import MatterFact, TriageRubric
+from apps.matters.route_aliases import is_remote_lookup_key, resolve_matter_route_key
 from apps.matters.seed import seed_matters
 from apps.matters.serializers import fact_to_dict, matter_to_dict, triage_assessment_to_dict, triage_rubric_to_dict
 from apps.matters.services import (
@@ -53,8 +64,18 @@ from apps.matters.services import (
 )
 from apps.matters.triage import ensure_default_triage_rubric, run_triage
 from apps.sources.document_text import DocumentExtractionError, extract_text
-from apps.sources.connectors.legalserver import LegalServerError
+from apps.sources.connectors.legalserver import UUID_RE, LegalServerError
 from apps.sources.models import UserSourceIdentity
+
+
+def _stale_thread():
+    return JsonResponse(
+        {
+            "error": "This conversation is no longer the current one -- a new chat was started in another window. Open the current chat to continue.",
+            "conflict": "thread",
+        },
+        status=409,
+    )
 
 
 def _matter_or_404(user, matter_id):
@@ -106,6 +127,7 @@ def cases(request):
         for matter in demo_matters():
             matters_by_id.setdefault(matter.external_id, matter)
     matters = list(matters_by_id.values())
+    prefetch_related_objects(matters, "route_aliases")
     account = legalserver_account_status(request.user, client=legalserver_client)
     serialized = [
         matter_to_dict(
@@ -286,6 +308,63 @@ def case_detail(request, matter_id):
             return JsonResponse({"error": str(exc)}, status=403)
         return JsonResponse({"legalserverDraftIntake": preview})
     return JsonResponse({"error": "GET, PATCH, or POST required"}, status=405)
+
+
+def _legalserver_account_reason(user):
+    """Why this account could not reach any LegalServer case, if that is why.
+
+    It describes the viewer, never the case: an account with no LegalServer
+    connection gets the same reason for every case number, real or not, so it
+    reveals nothing about which cases exist -- and it tells the advocate the
+    one thing they can fix, instead of suggesting the case is someone else's.
+    """
+    client = matter_services.LegalServerClient()
+    if not client.configured:
+        return ""
+    profile = matter_services.legalserver_access_profile_for_user(user, client=client)
+    if not profile.identifier:
+        return "legalserver_not_connected"
+    if profile.error == "identity_mismatch":
+        return "legalserver_identity_mismatch"
+    return ""
+
+
+@api_login_required
+def case_by_route_key(request):
+    """Open the case a URL names by its readable case number.
+
+    Read-only: it resolves, checks access, and serializes. A key that names no
+    case and a key that names someone else's case answer the same 404, so a
+    guessed URL never confirms that a case exists.
+    """
+    if request.method != "GET":
+        return JsonResponse({"error": "GET required"}, status=405)
+    route_key = request.GET.get("key", "").strip()
+    if not route_key:
+        return JsonResponse({"error": "A case key is required"}, status=400)
+    matter = resolve_matter_route_key(request.user, route_key)
+    if not matter and is_remote_lookup_key(route_key):
+        # Not imported here yet -- a link to a case this browser never listed.
+        # LegalServer fetches a matter only by UUID ("Invalid matter_uuid" for
+        # a case number), so a readable key is found by search, through the
+        # same access-filtered sync as the case list. Importing it records its
+        # alias, so the second lookup can find it.
+        sync_legalserver_matters_for_user(request.user, query=route_key, limit=5, restrict_to_user=False)
+        matter = resolve_matter_route_key(request.user, route_key)
+        if not matter and UUID_RE.match(route_key):
+            sync_legalserver_matter(route_key, user=request.user)
+            matter = resolve_matter_route_key(request.user, route_key)
+    if not matter and settings.ENABLE_DEMO_MATTERS:
+        seed_matters()
+        matter = resolve_matter_route_key(request.user, route_key)
+    if not matter:
+        payload = {"error": "Case not found or not available to this user"}
+        reason = _legalserver_account_reason(request.user)
+        if reason:
+            payload["reason"] = reason
+        return JsonResponse(payload, status=404)
+    matter = matter.__class__.objects.prefetch_related("facts", "route_aliases").get(id=matter.id)
+    return JsonResponse({"case": matter_to_dict(matter, include_facts=True)})
 
 
 @api_login_required
@@ -661,13 +740,31 @@ def case_chat(request, matter_id):
     if not matter:
         return JsonResponse({"error": "Case not found or not available to this user"}, status=404)
     scope_key = str(matter.id)
+    chat = {"user": request.user, "kind": ChatConversation.CASE, "scope_key": scope_key}
     if request.method == "GET":
-        thread_id = request.GET.get("threadId")
-        return JsonResponse({"messages": messages_for_user(user=request.user, kind=ChatConversation.CASE, scope_key=scope_key, conversation_id=thread_id), "threads": conversation_list(user=request.user, kind=ChatConversation.CASE, scope_key=scope_key)})
+        # Reading never creates a conversation, and a thread named in the URL
+        # is that thread or a 404 -- never the current one standing in for it.
+        try:
+            conversation, messages = read_conversation(**chat, conversation_id=request.GET.get("threadId") or None)
+        except LookupError:
+            return JsonResponse({"error": "Chat thread not found"}, status=404)
+        current = current_conversation(**chat)
+        return JsonResponse(
+            {
+                "messages": messages,
+                "threadId": conversation.id if conversation else None,
+                "currentThreadId": current.id if current else None,
+                "threads": conversation_list(**chat),
+            }
+        )
     if request.method == "DELETE":
-        clear_messages(user=request.user, kind=ChatConversation.CASE, scope_key=scope_key)
+        if not is_current_thread(**chat, thread_id=request.GET.get("threadId")):
+            return _stale_thread()
+        clear_messages(**chat)
         return JsonResponse({"ok": True})
     body = json.loads(request.body.decode("utf-8") or "{}")
+    if body.get("action") != "new_thread" and not is_current_thread(**chat, thread_id=body.get("threadId")):
+        return _stale_thread()
     if body.get("action") == "new_thread":
         archive_current_conversation(user=request.user, kind=ChatConversation.CASE, scope_key=scope_key)
         return JsonResponse({"messages": [], "threads": conversation_list(user=request.user, kind=ChatConversation.CASE, scope_key=scope_key)})
@@ -688,4 +785,5 @@ def case_chat(request, matter_id):
         content=reply["message"],
         metadata={"toolsUsed": reply.get("toolsUsed", []), "actions": reply.get("actions", [])},
     )
-    return JsonResponse(reply)
+    current = current_conversation(**chat)
+    return JsonResponse({**reply, "threadId": current.id if current else None})

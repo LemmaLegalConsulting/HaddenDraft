@@ -3,6 +3,7 @@ from datetime import datetime, time
 from django.utils import timezone
 from django.utils.dateparse import parse_date, parse_datetime
 
+from apps.matters.route_aliases import route_key_for_matter
 from apps.sources.connectors.legalserver import _display_value
 
 
@@ -54,9 +55,13 @@ def matter_details(matter):
     return [{"label": label, "value": value} for label, value in details if value]
 
 
+def payload_case_number(raw_payload):
+    """The case number the source system displays, or "" when it gives none."""
+    return _first_display(raw_payload or {}, "case_number", "matter_identification_number", "case_id")
+
+
 def matter_case_number(matter):
-    raw = matter.raw_payload or {}
-    return _first_display(raw, "case_number", "matter_identification_number", "case_id") or matter.external_id
+    return payload_case_number(matter.raw_payload) or matter.external_id
 
 
 def _parse_payload_date(value):
@@ -216,6 +221,9 @@ def matter_to_dict(matter, include_facts=False, *, legalserver_client=None, view
         "title": title,
         "client": matter.client_name,
         "caseNumber": matter_case_number(matter),
+        # What links are built from. Usually the case number; a matter with no
+        # readable number, or one whose number collides, routes by its id.
+        "routeCaseKey": route_key_for_matter(matter),
         "matter": matter.matter_type,
         "jurisdiction": matter.jurisdiction,
         "posture": matter.posture,

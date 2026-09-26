@@ -5,6 +5,7 @@ from uuid import uuid4
 from django.conf import settings
 
 from apps.matters.models import Matter
+from apps.matters.route_aliases import sync_matter_route_alias
 from apps.sources.connectors.legalserver import (
     LegalServerClient,
     LegalServerError,
@@ -71,6 +72,7 @@ def upsert_matter_from_legalserver(payload):
         matter.save()
     else:
         matter = Matter.objects.create(external_id=external_id, **defaults)
+    sync_matter_route_alias(matter)
     return matter
 
 

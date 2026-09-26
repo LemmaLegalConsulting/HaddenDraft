@@ -41,6 +41,8 @@ urlpatterns = [
     path("api/cases/", matter_views.cases, name="api_cases"),
     path("api/triage/rubrics/", matter_views.triage_rubrics, name="api_triage_rubrics"),
     path("api/legalserver/account/", matter_views.legalserver_account, name="api_legalserver_account"),
+    # Before the <matter_id> routes, which would otherwise read "by-route-key" as a matter id.
+    path("api/cases/by-route-key/", matter_views.case_by_route_key, name="api_case_by_route_key"),
     path("api/cases/<str:matter_id>/chat/", matter_views.case_chat, name="api_case_chat"),
     path("api/cases/<str:matter_id>/triage/", matter_views.case_triage, name="api_case_triage"),
     path("api/cases/<str:matter_id>/facts/", matter_views.case_facts, name="api_case_facts"),
@@ -72,6 +74,7 @@ urlpatterns = [
     path("api/advice-letters/preview/", advice_letter_views.advice_letter_preview, name="api_advice_letter_preview"),
     path("api/advice-letters/export/", advice_letter_views.advice_letter_export, name="api_advice_letter_export"),
     path("api/advice-letters/drafts/", advice_letter_views.advice_letter_draft, name="api_advice_letter_draft"),
+    path("api/advice-letters/drafts/<int:draft_id>/", advice_letter_views.advice_letter_draft_detail, name="api_advice_letter_draft_detail"),
     path("api/advice-letters/drafts/<int:draft_id>/export/", advice_letter_views.advice_letter_draft_export, name="api_advice_letter_draft_export"),
     path(
         "api/advice-letters/drafts/<int:draft_id>/legalserver/",
