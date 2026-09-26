@@ -460,7 +460,10 @@ export function App() {
     setSelectedCuratedFacts([]);
     setCaseLookup({ key: loadCaseKey, status: "loading" });
     const controller = new AbortController();
-    api.caseByRouteKey(loadCaseKey, { signal: controller.signal })
+    // A link opened cold may be the first thing to wake the server, which
+    // answers its first requests with a 500; that is worth asking again about,
+    // not a reason to call the case unavailable.
+    retryWhileUnreachable(() => api.caseByRouteKey(loadCaseKey, { signal: controller.signal }))
       .then((response) => {
         if (controller.signal.aborted) return;
         const loaded = response.case;
@@ -572,10 +575,10 @@ export function App() {
     const controller = new AbortController();
     const caseKey = route.caseKey;
     setSessionLookup({ id: routeSessionId, status: "loading", resume: null });
-    Promise.all([
+    retryWhileUnreachable(() => Promise.all([
       api.savedSession(routeSessionId, { caseKey, workspace: "drafting" }, { signal: controller.signal }),
       api.sessionDrafts(routeSessionId, { signal: controller.signal }),
-    ])
+    ]))
       .then(([detail, draftResponse]) => {
         if (controller.signal.aborted) return;
         if (!holdsRouteSession(sessionRef.current)) applySavedSession(detail.session, draftResponse.drafts || []);
@@ -1449,6 +1452,11 @@ export function App() {
     navigate(paths.draftingSessionView(current.caseKey, sessionId, step), { replace });
   }
 
+  // Stable, because the gym panel lists it among its callbacks' dependencies.
+  const gymNavigate = React.useCallback(({ workspaceId, runId } = {}, options = {}) => {
+    navigate(!workspaceId ? paths.argumentGym() : runId ? paths.gymRun(workspaceId, runId) : paths.gymWorkspace(workspaceId), options);
+  }, [navigate]);
+
   // Switching documents is navigation too, so a reload keeps the one on screen.
   function openDraftDocument(draftId) {
     const current = parseLocation(window.location.pathname);
@@ -1643,9 +1651,22 @@ export function App() {
             cases={cases}
             focusRun={gymFocusRun}
             onFocusRunHandled={() => setGymFocusRun(null)}
+            workspaceId={route.mode === "argument_gym" ? route.workspaceId : null}
+            runId={route.mode === "argument_gym" ? route.runId : null}
+            onNavigate={gymNavigate}
           />
         )}
-        {view === "research" && <ResearchPanel matter={matter} sources={boot?.sources || []} onResults={(results) => setSourceResults(results)} legalserverSave={boot?.legalserverSave} />}
+        {view === "research" && (
+          <ResearchPanel
+            matter={matter}
+            sources={boot?.sources || []}
+            onResults={(results) => setSourceResults(results)}
+            legalserverSave={boot?.legalserverSave}
+            route={route}
+            locationState={location.state}
+            onNavigate={(to, options) => navigate(to, options)}
+          />
+        )}
         {draftScreen === "list" && (
           <SavedSessionList
             matter={matter}

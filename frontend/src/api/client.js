@@ -171,9 +171,10 @@ export const api = {
   ordinanceDataset: (name) => request(`/ordinances/datasets/${encodeURIComponent(name)}/`),
   contentSourcePdfUrl: (documentSlug, chunkId, page) =>
     `${API_BASE}/sources/content/${encodeURIComponent(documentSlug)}/${encodeURIComponent(chunkId)}/pdf/${page ? `#page=${page}` : ""}`,
-  researchHistory: (threadId) => request(`/research/${threadId ? `?threadId=${threadId}` : ""}`),
+  // Read-only. A thread id is that thread or a 404, never a stand-in.
+  researchHistory: (threadId, { signal } = {}) => request(`/research/${threadId ? `?threadId=${threadId}` : ""}`, { signal }),
   newResearchChat: () => request("/research/", { method: "POST", body: JSON.stringify({ action: "new_thread" }) }),
-  clearResearchHistory: () => request("/research/", { method: "DELETE" }),
+  clearResearchHistory: (threadId = null) => request(`/research/${threadId ? `?threadId=${threadId}` : ""}`, { method: "DELETE" }),
   research: (payload) => request("/research/", { method: "POST", body: JSON.stringify(payload) }),
   // Deterministic search. Separate from `research` on purpose: that endpoint is
   // the chat, this one never calls a model unless the payload asks it to, and
