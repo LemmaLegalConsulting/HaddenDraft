@@ -310,6 +310,25 @@ def case_detail(request, matter_id):
     return JsonResponse({"error": "GET, PATCH, or POST required"}, status=405)
 
 
+def _legalserver_account_reason(user):
+    """Why this account could not reach any LegalServer case, if that is why.
+
+    It describes the viewer, never the case: an account with no LegalServer
+    connection gets the same reason for every case number, real or not, so it
+    reveals nothing about which cases exist -- and it tells the advocate the
+    one thing they can fix, instead of suggesting the case is someone else's.
+    """
+    client = matter_services.LegalServerClient()
+    if not client.configured:
+        return ""
+    profile = matter_services.legalserver_access_profile_for_user(user, client=client)
+    if not profile.identifier:
+        return "legalserver_not_connected"
+    if profile.error == "identity_mismatch":
+        return "legalserver_identity_mismatch"
+    return ""
+
+
 @api_login_required
 def case_by_route_key(request):
     """Open the case a URL names by its readable case number.
@@ -339,7 +358,11 @@ def case_by_route_key(request):
         seed_matters()
         matter = resolve_matter_route_key(request.user, route_key)
     if not matter:
-        return JsonResponse({"error": "Case not found or not available to this user"}, status=404)
+        payload = {"error": "Case not found or not available to this user"}
+        reason = _legalserver_account_reason(request.user)
+        if reason:
+            payload["reason"] = reason
+        return JsonResponse(payload, status=404)
     matter = matter.__class__.objects.prefetch_related("facts", "route_aliases").get(id=matter.id)
     return JsonResponse({"case": matter_to_dict(matter, include_facts=True)})
 
