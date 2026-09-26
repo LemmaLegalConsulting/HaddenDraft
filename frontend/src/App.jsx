@@ -75,7 +75,7 @@ import {
   routeCaseState,
   signInReturnPath,
 } from "./routes/paths.js";
-import { initialActiveCase, rememberCase } from "./state/activeCase.js";
+import { caseLookupStatus, initialActiveCase, rememberCase } from "./state/activeCase.js";
 import { waitForDrafts } from "./state/draftJobs.js";
 import { blockDefaultsApply, draftScreenFor, hydrateSavedSession, stepForView } from "./state/resumeWorkspace.js";
 import { useSavedSessions } from "./hooks/useSavedSessions.js";
@@ -140,6 +140,9 @@ export function App() {
   activeCaseKeyRef.current = activeCaseKey;
   // The last route-key lookup: { key, status } -- see routeCaseState().
   const [caseLookup, setCaseLookup] = useState({ key: null, status: "idle" });
+  // Bumped after connecting LegalServer, so a case that could not be reached
+  // before is looked up again.
+  const [caseLookupAttempt, setCaseLookupAttempt] = useState(0);
   const [matter, setMatter] = useState(null);
   const matterRef = useRef(null);
   matterRef.current = matter;
@@ -472,7 +475,13 @@ export function App() {
         setMatter(null);
         setSelectedFactIds([]);
         setSelectedCuratedFacts([]);
-        if (err.status === 404) {
+        const status = caseLookupStatus(err);
+        if (status === "not_connected" || status === "identity_mismatch") {
+          // Nothing is wrong with the case; the account cannot reach it yet.
+          setCaseLookup({ key: loadCaseKey, status });
+          return;
+        }
+        if (status === "unavailable") {
           setCaseLookup({ key: loadCaseKey, status: "unavailable" });
           if (loadCaseKey === activeCaseKeyRef.current) {
             // The remembered case no longer opens: forget it, don't retry it.
@@ -486,7 +495,7 @@ export function App() {
         setError(err.message);
       });
     return () => controller.abort();
-  }, [auth?.isAuthenticated, auth?.username, loadCaseKey]);
+  }, [auth?.isAuthenticated, auth?.username, loadCaseKey, caseLookupAttempt]);
 
   // An old case number or a bare external id opens the case, then the address
   // is replaced with the link the server gives now.
@@ -815,6 +824,8 @@ export function App() {
       setLegalserver(response.legalserver);
       await loadWorkspace();
       setConnectionSettingsOpen(false);
+      // A case this link could not reach before may open now.
+      setCaseLookupAttempt((current) => current + 1);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -1502,7 +1513,10 @@ export function App() {
   // Until then -- or if it never will -- a notice stands in, so one client's
   // screen is never drawn under another client's address.
   const caseScoped = CASE_SCOPED_MODES.has(mode);
-  const caseNotice = caseScoped && ["loading", "unavailable", "error"].includes(caseState) ? caseState : null;
+  const caseNotice = caseScoped && ["loading", "unavailable", "error", "not_connected", "identity_mismatch"].includes(caseState) ? caseState : null;
+  const caseNoticeAction = ["not_connected", "identity_mismatch"].includes(caseNotice)
+    ? { label: caseNotice === "not_connected" ? "Connect LegalServer" : "Check LegalServer connection", onClick: () => setConnectionSettingsOpen(true) }
+    : null;
   // The case browser stays usable beneath its notice; that is where the
   // advocate goes next.
   const view = caseNotice && mode !== "case" ? null : mode;
@@ -1556,7 +1570,7 @@ export function App() {
         {connectionSettingsOpen && <div className="modal-backdrop" role="presentation"><form className="profile-modal connection-modal" ref={connectionModalRef} role="dialog" aria-modal="true" aria-label="LegalServer connection settings" onSubmit={handleLegalServerConnect}><div className="modal-heading"><div><h4>LegalServer Connection</h4><p className="modal-subtitle">{legalserverLoading ? "Checking your saved account." : legalserverConnected ? `Connected as ${legalserver.identifier}` : "Connect a LegalServer account to load assigned matters."}</p></div><button className="btn btn-light icon-button" type="button" onClick={() => setConnectionSettingsOpen(false)} title="Close" aria-label="Close"><X size={16} /></button></div>{!legalserverConfigured && <div className="inline-error">LegalServer API credentials are not configured for this environment.</div>}{legalserver?.syncError && legalserver.syncError !== "not_connected" && <div className="inline-error">LegalServer sync: {legalserver.syncError}</div>}{legalserverConfigured && <><label className="field"><span>{legalserverConnected ? "Connected as" : "LegalServer username or email"}</span><input className="form-control" aria-label="LegalServer identifier" disabled={legalserverLoading || accountBusy} value={legalserverIdentifier} onChange={(event) => setLegalserverIdentifier(event.target.value)} /></label><div className="button-row"><button className="btn btn-primary" type="submit" disabled={legalserverLoading || accountBusy || !legalserverIdentifier.trim()}>{accountBusy ? <Loader2 className="spin" size={16} /> : <Link2 size={16} />}{legalserverConnected ? "Update connection" : "Connect LegalServer"}</button>{legalserverConnected && <button className="btn btn-light" type="button" disabled={accountBusy} onClick={handleLegalServerDisconnect}>{accountBusy ? <Loader2 className="spin" size={16} /> : <Unplug size={16} />} Disconnect</button>}</div></>}</form></div>}
         {error && <div className="error-banner alert alert-danger">{error}</div>}
         {!route.found && <RouteNotice kind="not_found" onChooseCase={() => navigate(paths.cases())} />}
-        {caseNotice && <RouteNotice kind={caseNotice} caseKey={route.caseKey} onChooseCase={() => navigate(paths.cases())} />}
+        {caseNotice && <RouteNotice kind={caseNotice} caseKey={route.caseKey} action={caseNoticeAction} onChooseCase={() => navigate(paths.cases())} />}
         {view === "case" && <CaseSelector cases={cases} selectedMatterId={selectedMatterId} onSelect={selectCaseById} onPreview={setCasePreviewMatterId} legalserver={legalserver} legalserverLoading={legalserverLoading} search={caseSearch} onSearchChange={setCaseSearch} onSearch={handleCaseSearch} onSearchReset={handleCaseSearchReset} filters={caseFilters} onFiltersChange={applyCaseFilters} listMeta={caseListMeta} onShowMore={() => loadCases({ append: true })} caseBusy={caseBusy} manualCaseBusy={manualCaseBusy} onCreateManualCase={handleCreateManualCase} />}
         {view === "triage" && routeAssessmentMissing && (
           <RouteNotice kind="assessment_unavailable" caseKey={route.caseKey} onChooseCase={() => navigate(paths.triage(route.caseKey))} />

@@ -256,6 +256,30 @@ test("a case that does not open shows nothing from any other case", async ({ pag
   await expect(page).toHaveURL(/\/cases\/26-0001$/);
 });
 
+test("an account without LegalServer is told to connect it, and the case then opens", async ({ page }) => {
+  let connected = false;
+  await page.route((url) => url.pathname.endsWith("/api/cases/by-route-key/"), (route) => (
+    connected
+      ? route.fulfill({ json: { case: MATTER } })
+      : route.fulfill({ status: 404, json: { error: "Case not found or not available to this user", reason: "legalserver_not_connected" } })
+  ));
+  await page.route("**/api/legalserver/account/", (route) => {
+    if (route.request().method() !== "POST") return route.fallback();
+    connected = true;
+    return route.fulfill({ json: { legalserver: { configured: true, connected: true, identifier: "smoke@example.org" } } });
+  });
+  const errors = watchForErrors(page, { allow: [/status of 404/] });
+  await page.goto("/cases/26-0001");
+  await expectScreenRenders(errors, page.getByRole("heading", { name: "Connect LegalServer to open case 26-0001" }));
+  await expect(page.getByText("assigned to someone else")).toHaveCount(0);
+  await page.getByRole("button", { name: "Connect LegalServer" }).first().click();
+  const dialog = page.getByRole("dialog", { name: "LegalServer connection settings" });
+  await dialog.getByLabel("LegalServer identifier").fill("smoke@example.org");
+  await dialog.getByRole("button", { name: "Connect LegalServer" }).click();
+  await expect(page.locator(".topbar-case")).toContainText(MATTER.client);
+  await expect(page).toHaveURL(/\/cases\/26-0001$/);
+});
+
 test("a link this version cannot open says so rather than opening something else", async ({ page }) => {
   const errors = watchForErrors(page);
   await page.goto("/drafting/26-0001/sessions/184/drafts/391/export");
