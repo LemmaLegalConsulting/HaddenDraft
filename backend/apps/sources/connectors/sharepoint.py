@@ -138,9 +138,13 @@ class SharePointClient:
         try:
             if response.status_code == 302:
                 location = response.headers.get("Location", "")
-                parsed = urlsplit(location)
+                try:
+                    parsed = urlsplit(location)
+                    port = parsed.port
+                except ValueError as exc:
+                    raise SharePointError("Graph returned an invalid download URL.", code="invalid_response") from exc
                 host = (parsed.hostname or "").lower()
-                if (parsed.scheme != "https" or parsed.username or parsed.password or parsed.port not in (None, 443)
+                if (parsed.scheme != "https" or parsed.username or parsed.password or port not in (None, 443)
                         or not any(host.endswith("." + domain) for domain in ("sharepoint.com", "1drv.com"))):
                     raise SharePointError("Graph returned an unsupported download host.", code="invalid_response")
                 response.close()
@@ -154,6 +158,8 @@ class SharePointClient:
             raise SharePointError("The SharePoint download failed. Retry retrieval.", code="download_failed") from exc
         finally:
             response.close()
+        if item.get("size") is not None and len(content) != item["size"]:
+            raise SharePointError("The SharePoint download was incomplete. Retry retrieval.", code="download_failed")
         current = self.get_item(item_id)
         if not item.get("eTag") or current.get("eTag") != item["eTag"]:
             raise SharePointError("The SharePoint version could not be confirmed. Retry retrieval.", code="version_changed")

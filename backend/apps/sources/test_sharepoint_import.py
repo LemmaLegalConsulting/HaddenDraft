@@ -68,6 +68,13 @@ class GraphDownloadTests(TestCase):
             self.client.get_document("folder")
         self.session.get.assert_not_called()
 
+    def test_truncated_body_is_not_importable(self):
+        self.client.get_item.return_value = {**self.item, "size": 10}
+        self.session.get.return_value = self.response()
+        with self.assertRaises(SharePointError) as caught:
+            self.client.get_document("item")
+        self.assertEqual(caught.exception.code, "download_failed")
+
 
 class SharePointImportTests(ManagedSourceFixture, TestCase):
     def graph_client(self, content=b"Approved library text"):
@@ -116,3 +123,10 @@ class SharePointImportTests(ManagedSourceFixture, TestCase):
         self.assertEqual(version.status, "failed")
         self.assertTrue(version.error)
         self.assertEqual(version.source_provenance["itemId"], "item")
+
+    def test_import_provenance_is_read_only_in_admin(self):
+        from django.contrib.admin.sites import site
+        from apps.sources.admin import ManagedSourceVersionAdmin
+        from apps.sources.models import ManagedSourceVersion
+        admin = ManagedSourceVersionAdmin(ManagedSourceVersion, site)
+        self.assertIn("source_provenance", admin.readonly_fields)

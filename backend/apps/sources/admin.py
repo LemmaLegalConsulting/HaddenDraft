@@ -309,7 +309,7 @@ class ManagedSourceVersionAdmin(admin.ModelAdmin):
     search_fields = ("source__title", "source__slug", "original_filename", "sha256", "error")
     readonly_fields = (
         "source", "number", "status", "original_filename", "content_type", "size_bytes", "sha256",
-        "source_modified_at", "source_etag", "imported_at", "imported_by", "parser_version",
+        "source_modified_at", "source_etag", "source_provenance", "imported_at", "imported_by", "parser_version",
         "chunker_version", "raw_key", "validated_manifest_key", "published_manifest_key", "published_source_key",
         "chunk_count", "validation_report", "error", "published_at", "retired_at",
     )
