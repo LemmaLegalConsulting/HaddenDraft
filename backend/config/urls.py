@@ -11,6 +11,7 @@ from apps.matters import views as matter_views
 from apps.rules import views as rule_views
 from apps.sources import research_views as research_search_views
 from apps.sources import views as source_views
+from apps.sources import sharepoint_views
 from apps.templates_app import advice_letter_views
 from apps.templates_app import views as template_views
 
@@ -81,6 +82,7 @@ urlpatterns = [
         advice_letter_views.advice_letter_draft_legalserver,
         name="api_advice_letter_draft_legalserver",
     ),
+    path("api/sharepoint/precedents/", sharepoint_views.precedent_search, name="api_sharepoint_precedents"),
     path("api/sources/", source_views.sources, name="api_sources"),
     path("api/library/", source_views.library, name="api_library"),
     path("api/library/<slug:document_slug>/", source_views.library_document, name="api_library_document"),

@@ -881,3 +881,12 @@ retrying. Download redirects use a separate unauthenticated HTTPS session for
 standard `*.sharepoint.com` / `*.1drv.com` hosts; sovereign-cloud download hosts
 are not supported by this integration. Temporary download URLs are never saved.
 See [the SharePoint boundary](docs/ARCHITECTURE.md#sharepoint-document-boundary).
+
+Authenticated `GET /api/sharepoint/precedents/?q=lease&limit=25` searches the
+configured library and returns the existing source-result shape with Graph
+provenance. `q` is required (up to 500 characters); `limit` is 1–50, default 25.
+Results keep Graph's ordering. The response explains that AI did nothing and
+that this is a bounded result window, not the whole library. Requests cannot
+select another site or drive. Search stores no results or document bytes.
+An unconfigured connection returns 503; Graph authentication, permission,
+not-found, and throttle failures return 401/403/404/429 with an error code.
