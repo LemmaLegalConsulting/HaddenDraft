@@ -890,3 +890,8 @@ that this is a bounded result window, not the whole library. Requests cannot
 select another site or drive. Search stores no results or document bytes.
 An unconfigured connection returns 503; Graph authentication, permission,
 not-found, and throttle failures return 401/403/404/429 with an error code.
+
+In **Research → Browse the library → SharePoint precedents**, enter a search to
+see document names, metadata, and links that open originals in SharePoint.
+Empty results, missing configuration, denied access, and throttling are shown as
+distinct states. Searching and opening links do not publish documents.

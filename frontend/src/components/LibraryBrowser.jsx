@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { BookOpen, Building2, ChevronDown, ChevronRight, FileText, Landmark, Library, Loader2, Search, X } from "lucide-react";
 
+import { SharePointPrecedents } from "./SharePointPrecedents.jsx";
 import { api } from "../api/client.js";
 import {
   DEFAULT_PAGE_SIZE,
@@ -27,6 +28,7 @@ import { catalogLabel, documentLoadLabel, filterLabel } from "./loadingStatus.js
 import { SourceFullViewButton } from "./MarkdownResponse.jsx";
 
 const TABS = [
+  { id: "sharepoint", label: "SharePoint precedents", icon: FileText },
   { id: "cases", label: "Cases", icon: Landmark },
   { id: "treatise", label: "Treatises and handbooks", icon: BookOpen },
   { id: "statute", label: "Statutes", icon: Library },
@@ -102,6 +104,7 @@ function CaseCatalog({ onOpenSource }) {
 
   return (
     <div className="case-catalog">
+      <p id="case-catalog-query-help">Search case names, dockets, facts, and citations.</p>
       <form
         className="case-catalog-search"
         onSubmit={(event) => {
@@ -112,7 +115,7 @@ function CaseCatalog({ onOpenSource }) {
       >
         <input className="form-control"
           aria-label="Search the case catalog"
-          placeholder="Search case names, dockets, facts, and citations"
+          aria-describedby="case-catalog-query-help"
           value={draftQuery}
           onChange={(event) => setDraftQuery(event.target.value)}
         />
@@ -330,6 +333,7 @@ function DocumentShelf({ shelf, loading, onOpenSource }) {
           </button>
         ))}
       </div>
+      <p id="library-section-filter-help">Filter by section heading or citation.</p>
       <form
         className="case-facet-search"
         onSubmit={(event) => {
@@ -339,7 +343,7 @@ function DocumentShelf({ shelf, loading, onOpenSource }) {
       >
         <input className="form-control"
           aria-label={`Filter the contents of ${activeDocument?.title || "this document"}`}
-          placeholder="Filter by section heading or citation"
+          aria-describedby="library-section-filter-help"
           value={draftFilter}
           onChange={(event) => setDraftFilter(event.target.value)}
         />
@@ -430,7 +434,7 @@ export function LibraryBrowser({ onOpenSource }) {
         })}
       </div>
       {error && <div className="inline-error">{error}</div>}
-      {tab === "cases" ? (
+      {tab === "sharepoint" ? <SharePointPrecedents /> : tab === "cases" ? (
         <CaseCatalog onOpenSource={onOpenSource} />
       ) : (
         <DocumentShelf

@@ -699,3 +699,34 @@ test("a reply's plan asks for the opposition before it will generate", async ({ 
   await page.screenshot({ path: "test-results-smoke/responding-to-chosen.png", fullPage: true });
   expect(errors).toEqual([]);
 });
+
+test("SharePoint precedents show source metadata, empty results, and permission failures", async ({ page }) => {
+  const errors = watchForErrors(page, { allow: [/status of 403/] });
+  await page.route("**/api/sharepoint/precedents/**", (route) => {
+    const url = new URL(route.request().url());
+    expect(url.searchParams.get("limit")).toBe("25");
+    if (url.searchParams.get("q") === "denied") return route.fulfill({ status: 403, json: { error: "Your SharePoint connection does not have permission." } });
+    return route.fulfill({ json: {
+      results: url.searchParams.get("q") === "empty" ? [] : [{ id: "sp:item", title: "Sample lease brief", snippet: "Practice library document", url: "https://example.sharepoint.com/brief", metadata: { mimeType: "application/pdf", modifiedAt: "2026-09-01", path: "/Library" } }],
+      usedAi: false, aiSummary: "No AI was used. Results are returned in Microsoft Graph order.",
+      coverage: "Showing files from up to 25 Graph matches in the configured library.",
+    } });
+  });
+  await page.goto("/research/library");
+  await page.getByRole("tab", { name: "SharePoint precedents" }).click();
+  const query = page.getByRole("textbox", { name: "Search SharePoint precedents" });
+  await expect(query).not.toHaveAttribute("placeholder");
+  await query.fill("lease");
+  await page.getByRole("button", { name: "Search", exact: true }).click();
+  await expect(page.getByText("Sample lease brief", { exact: true })).toBeVisible();
+  await expect(page.getByText("No AI was used. Results are returned in Microsoft Graph order.")).toBeVisible();
+  await expect(page.getByRole("link", { name: "Open in SharePoint (new tab)" })).toHaveAttribute("href", "https://example.sharepoint.com/brief");
+  await query.fill("empty");
+  await page.getByRole("button", { name: "Search", exact: true }).click();
+  await expect(page.getByText("No matching files were returned. Try different search words.")).toBeVisible();
+  await query.fill("denied");
+  await page.getByRole("button", { name: "Search", exact: true }).click();
+  await expect(page.getByRole("alert")).toContainText("does not have permission");
+  await expect(page.getByText("No matching files were returned. Try different search words.")).toHaveCount(0);
+  expect(errors).toEqual([]);
+});
