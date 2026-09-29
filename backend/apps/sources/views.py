@@ -1,3 +1,4 @@
+from apps.sources.sharepoint_http import graph_errors
 from django.db import models
 from django.http import JsonResponse
 from django.http import FileResponse
@@ -302,6 +303,7 @@ def _stale_research_thread():
 
 
 @api_login_required
+@graph_errors
 def research(request):
     chat = {"user": request.user, "kind": ChatConversation.RESEARCH}
     if request.method == "GET":

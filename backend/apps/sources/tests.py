@@ -58,7 +58,7 @@ class FakeSession:
         self.text = text
         self.calls = []
 
-    def get(self, url, headers=None, params=None, timeout=None):
+    def get(self, url, headers=None, params=None, timeout=None, **kwargs):
         self.calls.append({"url": url, "headers": headers, "params": params, "timeout": timeout})
         return FakeResponse(self.payload, status_code=self.status_code, headers=self.headers, text=self.text)
 
