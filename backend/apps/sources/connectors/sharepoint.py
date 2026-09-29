@@ -1,5 +1,6 @@
+import hashlib
 import time
-from urllib.parse import quote
+from urllib.parse import quote, urlsplit
 
 from django.utils import timezone
 
@@ -121,6 +122,65 @@ class SharePointClient:
 
     def get_item(self, item_id):
         return self._get(self.item_path(item_id))
+
+    def get_document(self, item_id, *, max_bytes=25 * 1024 * 1024):
+        """Download a file and reject a version changed during retrieval.
+
+        Download capabilities are short lived and never leave this method.
+        The download session carries neither the Graph token nor netrc auth.
+        """
+        item = self.get_item(item_id)
+        if "file" not in item or "remoteItem" in item:
+            raise SharePointError("Choose a file in the configured SharePoint drive.", code="unsupported_item")
+        if item.get("size", 0) > max_bytes:
+            raise SharePointError("The SharePoint document exceeds the download limit.", code="too_large")
+        response = self._request(self.item_path(item_id) + "/content", stream=True)
+        try:
+            if response.status_code == 302:
+                location = response.headers.get("Location", "")
+                parsed = urlsplit(location)
+                host = (parsed.hostname or "").lower()
+                if (parsed.scheme != "https" or parsed.username or parsed.password or parsed.port not in (None, 443)
+                        or not any(host.endswith("." + domain) for domain in ("sharepoint.com", "1drv.com"))):
+                    raise SharePointError("Graph returned an unsupported download host.", code="invalid_response")
+                response.close()
+                with requests.Session() as download:
+                    download.trust_env = False
+                    with download.get(location, timeout=20, stream=True, allow_redirects=False) as content_response:
+                        content = self._read_content(content_response, max_bytes)
+            else:
+                content = self._read_content(response, max_bytes)
+        except requests.RequestException as exc:
+            raise SharePointError("The SharePoint download failed. Retry retrieval.", code="download_failed") from exc
+        finally:
+            response.close()
+        current = self.get_item(item_id)
+        if not item.get("eTag") or current.get("eTag") != item["eTag"]:
+            raise SharePointError("The SharePoint version could not be confirmed. Retry retrieval.", code="version_changed")
+        return {
+            "content": content,
+            "metadata": {
+                **item_metadata(item, site_id=self.site_id, drive_id=self.drive_id),
+                "sha256": hashlib.sha256(content).hexdigest(),
+                "fetchedAt": timezone.now().isoformat(),
+            },
+        }
+
+    @staticmethod
+    def _read_content(response, max_bytes):
+        if response.status_code != 200:
+            code, message = ERRORS.get(response.status_code, ("download_failed", "The SharePoint download failed."))
+            raise SharePointError(message, status_code=response.status_code, code=code)
+        chunks, size = [], 0
+        started = time.monotonic()
+        for chunk in response.iter_content(chunk_size=65536):
+            size += len(chunk)
+            if size > max_bytes:
+                raise SharePointError("The SharePoint document exceeds the download limit.", code="too_large")
+            if time.monotonic() - started > 60:
+                raise SharePointError("The SharePoint download took too long.", code="download_failed")
+            chunks.append(chunk)
+        return b"".join(chunks)
 
     def search_drive(self, query, *, limit=10):
         # OData string literals double apostrophes before URL encoding.

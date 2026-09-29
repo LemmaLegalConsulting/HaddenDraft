@@ -854,3 +854,30 @@ alignment, factual certainty, and quotation fidelity. Run
 offline harness checks. `run_gym_benchmark` exports inputs, grades recorded
 responses, or explicitly runs a live model; see the linked guide for commands
 and the distinction between harness tests and model-performance evidence.
+
+### Import an approved SharePoint library item
+
+Configure the SharePoint site, drive and service token in Source configurations
+(or `SHAREPOINT_SITE_ID`, `SHAREPOINT_DRIVE_ID`, `SHAREPOINT_ACCESS_TOKEN`). In
+managed sources, create a source and set **Source system id** to
+`sharepoint:<configured-drive-id>:<approved-item-id>`. This explicit operator
+binding approves the item for staging into the shared corpus; select only
+material suitable for publication to the application's users.
+
+```bash
+.venv/bin/python backend/manage.py import_sharepoint_source approved-source-slug
+```
+
+The command downloads at most 25 MiB, verifies that the ETag did not change during
+retrieval, stages the bytes through `DocumentStorage`, and runs the existing
+publication parser. Review metadata and publish using the managed-source admin.
+No request waits for the download or extraction. Re-running unchanged bytes is a
+no-op; failed extraction can be retried through the same command. Scans without
+readable text report failure rather than producing empty retrieval chunks.
+
+Graph 401/403/404/429 failures are explicit. A short throttle delay is retried
+once; longer delays are reported for later retry. Renew expired tokens before
+retrying. Download redirects use a separate unauthenticated HTTPS session for
+standard `*.sharepoint.com` / `*.1drv.com` hosts; sovereign-cloud download hosts
+are not supported by this integration. Temporary download URLs are never saved.
+See [the SharePoint boundary](docs/ARCHITECTURE.md#sharepoint-document-boundary).

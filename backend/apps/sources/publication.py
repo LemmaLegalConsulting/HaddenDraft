@@ -164,6 +164,7 @@ def _manifest(version, chunks):
             "source_sha256": version.sha256, "source_modified_at": (
                 version.source_modified_at.isoformat() if version.source_modified_at else None
             ),
+            "source_provenance": version.source_provenance,
             "source_etag": version.source_etag, "imported_at": version.imported_at.isoformat(),
             "parser_version": version.parser_version, "chunker_version": version.chunker_version,
         },
@@ -233,7 +234,7 @@ def is_publishable(version):
 
 
 def import_version(*, source, content, filename="source.txt", content_type="", label="", actor=None,
-                   source_modified_at=None, source_etag="", publish=False, background=False):
+                   source_modified_at=None, source_etag="", source_provenance=None, publish=False, background=False):
     """Validate and stage an immutable version; optionally make it live."""
     if not isinstance(content, bytes):
         content = bytes(content)
@@ -270,6 +271,7 @@ def import_version(*, source, content, filename="source.txt", content_type="", l
                     source=source, number=number, label=label, original_filename=filename,
                     content_type=content_type, size_bytes=len(content), sha256=digest,
                     source_modified_at=source_modified_at, source_etag=source_etag, imported_by=actor,
+                    source_provenance=source_provenance or {},
                     parser_version=PARSER_VERSION, chunker_version=CHUNKER_VERSION, raw_key=raw_key,
                 )
                 ManagedSourceEvent.objects.create(
@@ -281,7 +283,7 @@ def import_version(*, source, content, filename="source.txt", content_type="", l
             return import_version(
                 source=source, content=content, filename=filename, content_type=content_type,
                 label=label, actor=actor, source_modified_at=source_modified_at,
-                source_etag=source_etag, publish=publish, background=background,
+                source_etag=source_etag, source_provenance=source_provenance, publish=publish, background=background,
             )
 
     try:
@@ -311,7 +313,7 @@ def import_version(*, source, content, filename="source.txt", content_type="", l
                 import_version(
                     source=worker_source, content=content, filename=filename, content_type=content_type,
                     label=label, actor=worker_actor, source_modified_at=source_modified_at,
-                    source_etag=source_etag, publish=publish,
+                    source_etag=source_etag, source_provenance=source_provenance, publish=publish,
                 )
             except Exception as exc:
                 logger.exception("Background import of managed source version %s failed", version_id)
