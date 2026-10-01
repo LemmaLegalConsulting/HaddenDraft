@@ -161,6 +161,7 @@ export const api = {
   // Facet narrowing repeats a parameter name per selected value, so the catalog
   // takes pairs rather than an object.
   caselawCatalog: (params = []) => request(`/caselaw/catalog/${params.length ? `?${new URLSearchParams(params)}` : ""}`),
+  sharepointPrecedents: (query, { signal } = {}) => request(`/sharepoint/precedents/?${new URLSearchParams({ q: query, limit: "25" })}`, { signal }),
   library: () => request("/library/"),
   libraryDocument: (documentSlug, query = "") =>
     request(`/library/${encodeURIComponent(documentSlug)}/${query ? `?${new URLSearchParams({ q: query })}` : ""}`),

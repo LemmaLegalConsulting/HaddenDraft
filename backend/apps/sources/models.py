@@ -281,6 +281,7 @@ class ManagedSourceVersion(models.Model):
     sha256 = models.CharField(max_length=64)
     source_modified_at = models.DateTimeField(null=True, blank=True)
     source_etag = models.CharField(max_length=500, blank=True)
+    source_provenance = models.JSONField(default=dict, blank=True)
     imported_at = models.DateTimeField(auto_now_add=True)
     imported_by = models.ForeignKey(
         "auth.User", null=True, blank=True, on_delete=models.SET_NULL, related_name="imported_source_versions",

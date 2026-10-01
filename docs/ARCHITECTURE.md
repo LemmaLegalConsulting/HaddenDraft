@@ -158,3 +158,38 @@ implementation belongs behind this provider boundary, selected explicitly by an
 administrator at the organization/package level. It should preserve remote item
 identity, ETag, modified time, source path, checksum, and import time alongside
 every processed record; it should not silently replace repository defaults.
+
+### SharePoint document boundary
+
+SharePoint is an optional, read-only upstream integration. The supported library
+workflow searches the configured Graph site/drive with the effective delegated
+or configured service identity, opens original documents in SharePoint, and lets
+an operator stage individually approved items into managed-source publication.
+Graph enforces that identity's permissions. A delegated authentication failure
+never retries with service credentials; expired connections require sign-in or
+operator token renewal. Service credentials should be scoped to the approved
+library, since all application users using that fallback share its permissions.
+
+Graph metadata and bounded byte downloads live in `apps.sources.connectors.sharepoint`.
+The adapter `apps.sources.sharepoint_import` uses the existing publication parser
+and `DocumentStorage` raw/validated/published areas, including Azure Blob when
+configured. Azure-native published storage remains the runtime corpus. Searches
+do not import documents, and importing does not publish them. No SharePoint
+writeback, storage provider replacement, or synchronization daemon is introduced.
+
+For approval, an operator creates/edits a managed source and sets its
+`source_system_id` to `sharepoint:<configured-drive-id>:<approved-item-id>`.
+The import command accepts that source's slug, never an arbitrary URL or drive.
+The command uses the configured service identity; Graph may still deny an
+approved item. Approval means this material may enter the application's shared
+corpus after publication review, independently of the original library's ACLs.
+Version provenance records site/drive/item IDs, original web URL and parent path,
+name, MIME type, modified time, ETag, fetch time and SHA-256 before parsing. It
+never records a temporary authenticated download URL. Duplicate bytes preserve
+the first imported version and its provenance; a changed version with new bytes
+creates a new candidate. Failed extraction remains visible on the version.
+
+The existing case-folder inventory remains available, but CLE's use of SharePoint
+for case-document content is not confirmed in this repository. Connecting those
+bytes to case-context selection (#45) is deferred until that workflow is confirmed.
+OCR/full-text corpus coverage (#60) is a separate workstream.
