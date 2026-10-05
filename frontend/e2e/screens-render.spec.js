@@ -730,3 +730,144 @@ test("SharePoint precedents show source metadata, empty results, and permission 
   await expect(page.getByText("No matching files were returned. Try different search words.")).toHaveCount(0);
   expect(errors).toEqual([]);
 });
+
+test("gym review foregrounds fixes and lets the author open style notes", async ({ page }) => {
+  const workspace = { id: 5, title: "Sample review", documents: [], matterId: "", enabledChecks: [] };
+  const run = {
+    id: 17, workspaceId: 5, status: "complete", briefTitle: "Sample brief",
+    checksRun: [
+      { id: "grammar", label: "Grammar", status: "on" },
+      { id: "passive_voice", label: "Passive voice", status: "off" },
+      { id: "readability", label: "Readability", status: "unavailable", reason: "No measurable text" },
+    ],
+    checkResults: { grammar: { findings: [
+      { severity: "error", message: "An unmatched quotation needs repair." },
+      { severity: "info", message: "Consider shortening this sentence." },
+    ] } },
+    compliance: { checked: true, findings: [{ severity: "info", message: "Page count could not be measured." }] },
+    challenges: [{ id: 9, disposition: "open", severity: "high", categoryLabel: "Record support",
+      opponentArgument: "The factual assertion lacks a record citation.",
+      judgeAssessment: "The missing record citation weakens this assertion.", suggestedResponse: "Add the supporting record citation.", target: { blockKey: "argument" }, researchCoverage: {} },
+      ...[10, 11, 12, 13].map((id) => ({ id, disposition: "open", severity: "low", opponentArgument: `Additional challenge ${id}`, suggestedResponse: `Response ${id}`, target: {} })),
+    ],
+  };
+  await page.route("**/api/argument-gym/**", (route) => {
+    const path = new URL(route.request().url()).pathname;
+    if (path.endsWith("/challenges/9/") && route.request().method() === "POST") {
+      run.challenges[0].disposition = route.request().postDataJSON().disposition;
+      return route.fulfill({ json: { challenge: run.challenges[0] } });
+    }
+    if (path.endsWith("/workspaces/5/")) return route.fulfill({ json: { workspace, latestRun: run } });
+    if (path.endsWith("/runs/17/")) return route.fulfill({ json: { run } });
+    return route.fallback();
+  });
+  const errors = watchForErrors(page);
+  const writes = watchForWrites(page);
+  await page.goto("/argument-gym/workspaces/5/runs/17");
+  await expectScreenRenders(errors, page.getByRole("heading", { name: "What matters most" }));
+  await expect(page.locator(".gym-priority")).toHaveCount(3);
+  await page.screenshot({ path: test.info().outputPath("gym-priorities.png"), fullPage: true });
+  await expect(page.locator(".gym-priority").first()).toContainText("Add the supporting record citation.");
+  await page.locator(".gym-priority").first().click();
+  await expect(page.getByRole("heading", { name: "What to do" })).toBeVisible();
+  await expect(page.locator(".gym-response-text")).toHaveText("Add the supporting record citation.");
+  await expect(page.getByText("The missing record citation weakens this assertion.", { exact: false })).not.toBeVisible();
+  await page.screenshot({ path: test.info().outputPath("gym-finding.png"), fullPage: true });
+  await page.getByText("Why: what opposing counsel and the judge said", { exact: true }).click();
+  await expect(page.getByText("The missing record citation weakens this assertion.", { exact: false })).toBeVisible();
+  await page.getByRole("button", { name: "Add to revision plan", exact: true }).click();
+  await expect(page.getByRole("button", { name: "Open revision plan (1)" })).toBeVisible();
+  await page.getByRole("button", { name: "Next finding" }).click();
+  await expect(page.getByRole("heading", { name: "Additional challenge 10" })).toBeVisible();
+  await expect(page.locator(".gym-finding-nav").first()).toBeFocused();
+  await page.getByRole("button", { name: "Previous finding" }).click();
+  await expect(page.getByRole("button", { name: "Remove from revision plan" })).toBeVisible();
+  await page.getByRole("button", { name: "Back to priorities" }).click();
+  await expect(page.locator(".gym-priority").first()).toBeFocused();
+  await page.getByRole("button", { name: "Show 2 more challenges" }).click();
+  await expect(page.locator(".gym-priority")).toHaveCount(5);
+  await page.getByRole("button", { name: "Show the first three" }).click();
+  await expect(page.locator(".gym-priority")).toHaveCount(3);
+  await expect(page.getByText("An unmatched quotation needs repair.")).toBeVisible();
+  await expect(page.getByText("Page count could not be measured.")).toBeVisible();
+  await expect(page.getByText("Consider shortening this sentence.")).not.toBeVisible();
+  await expect(page.getByText("1 ran, 1 off, 1 could not run.", { exact: true })).toBeVisible();
+  await page.locator(".gym-style-review > summary").click();
+  await expect(page.getByText("Consider shortening this sentence.")).toBeVisible();
+  await expect(page.locator(".gym-style-review").getByText("Passive voice — off", { exact: true })).toBeVisible();
+  await expect(page.getByText("Readability — could not run: No measurable text")).toBeVisible();
+  await page.locator(".gym-style-review > summary").click();
+  await expect(page.getByText("Consider shortening this sentence.")).not.toBeVisible();
+  await page.setViewportSize({ width: 390, height: 844 });
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBeTruthy();
+  await page.screenshot({ path: test.info().outputPath("gym-mobile.png"), fullPage: true });
+  expect(writes).toEqual([]);
+  await page.locator(".gym-priority").first().click();
+  await page.getByRole("button", { name: "Addressed", exact: true }).click();
+  await expect(page.getByRole("heading", { name: "What matters most" })).toBeFocused();
+  await page.getByRole("button", { name: "Handled (1)" }).click();
+  await page.locator(".gym-priority").click();
+  await expect(page.getByRole("button", { name: "Reopen", exact: true })).toBeVisible();
+});
+
+test("compact gym lenses stay reachable from a finding and separate pleaded from supported", async ({ page }) => {
+  const workspace = { id: 5, title: "Sample review", documents: [], enabledChecks: [] };
+  const run = {
+    id: 17, workspaceId: 5, status: "complete", briefTitle: "Sample brief",
+    checksRun: [
+      { id: "rule_elements", label: "Elements", status: "on" },
+      { id: "record_audit", label: "Record review", status: "unavailable", reason: "No case file" },
+      { id: "passive_voice", label: "Passive voice", status: "off" },
+    ],
+    materials: [{ id: 7, title: "Sample notice", origin: "upload" }],
+    ruleAudit: [{ slug: "sample-rule", label: "Sample rule", verification: "starter", requiresApplicabilityReview: true, unmetCount: 1, elements: [
+      { id: "notice", label: "Notice element", pled: "yes", supported: "nothing_supplied", unmet: true, explanation: "The brief asserts notice but the record does not establish it.", materialIds: [7] },
+      { id: "timing", label: "Timing element", pled: "unknown", supported: "unknown" },
+    ] }],
+    challenges: [
+      { id: 9, disposition: "open", severity: "high", category: "legal_authority", opponentArgument: "Review the cited authority", suggestedResponse: "Check the cited passage", target: { blockKey: "argument" } },
+      { id: 10, disposition: "addressed", severity: "medium", category: "record_conflict", opponentArgument: "Review the notice date", suggestedResponse: "Check the notice", target: {} },
+    ],
+  };
+  await page.route("**/api/argument-gym/**", (route) => {
+    const path = new URL(route.request().url()).pathname;
+    if (path.endsWith("/workspaces/5/")) return route.fulfill({ json: { workspace, latestRun: run } });
+    if (path.endsWith("/runs/17/")) return route.fulfill({ json: { run } });
+    return route.fallback();
+  });
+  const errors = watchForErrors(page);
+  const writes = watchForWrites(page);
+  await page.goto("/argument-gym/workspaces/5/runs/17");
+  await page.locator(".gym-priority").first().click();
+  await page.getByRole("button", { name: "Add to revision plan", exact: true }).click();
+  await page.getByRole("button", { name: "Compact overview", exact: true }).click();
+  const overview = page.getByRole("region", { name: "Compact overview", exact: true });
+  await expectScreenRenders(errors, overview.getByRole("heading", { name: "Review at a glance" }));
+  await expect(overview.getByText(/Unverified element list/)).toBeVisible();
+  await expect(overview.getByText(/Possible rule match/)).toBeVisible();
+  const notice = overview.getByRole("row", { name: /Notice element/ });
+  await expect(notice.getByRole("cell", { name: "pleaded", exact: true })).toBeVisible();
+  await expect(notice.getByRole("cell", { name: "nothing supplied supports it", exact: true })).toBeVisible();
+  await expect(notice.getByText("Sample notice", { exact: true })).toBeVisible();
+  await expect(overview.getByRole("row", { name: /Timing element/ })).toContainText("Unknown / not assessed");
+  await page.screenshot({ path: test.info().outputPath("gym-overview.png"), fullPage: true });
+  await page.getByRole("button", { name: "Focused review", exact: true }).click();
+  await expect(page.getByRole("heading", { name: "Review the cited authority", exact: true })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Remove from revision plan" })).toBeVisible();
+  await page.getByRole("button", { name: "Compact overview", exact: true }).click();
+  await overview.getByRole("button", { name: /^Language & style/ }).click();
+  await expect(overview.getByText("Passive voice — off", { exact: true })).toBeVisible();
+  await overview.getByRole("button", { name: /^Case record/ }).click();
+  await expect(overview.getByRole("region", { name: "Case record", exact: true })).toContainText("could not run");
+  await overview.getByRole("button", { name: "Review the notice date", exact: true }).click();
+  await expect(page.getByRole("heading", { name: "Review the notice date", exact: true })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Reopen", exact: true })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Open revision plan (1)" })).toBeVisible();
+  await page.getByRole("button", { name: "Compact overview", exact: true }).click();
+  await expect(overview.getByRole("button", { name: /^Case record/ })).toHaveAttribute("aria-pressed", "true");
+  await overview.getByRole("button", { name: /^Elements & evidence/ }).click();
+  await page.setViewportSize({ width: 390, height: 844 });
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBeTruthy();
+  await page.screenshot({ path: test.info().outputPath("gym-overview-mobile.png"), fullPage: true });
+  expect(writes).toEqual([]);
+});

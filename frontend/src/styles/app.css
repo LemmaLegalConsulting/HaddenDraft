@@ -5325,13 +5325,7 @@ button:disabled {
   align-items: start;
   display: grid;
   gap: var(--space-5);
-  grid-template-columns: minmax(0, 1fr) minmax(220px, 260px);
-}
-
-@media (max-width: 1000px) {
-  .gym-results {
-    grid-template-columns: 1fr;
-  }
+  grid-template-columns: minmax(0, 1fr);
 }
 
 .gym-worklist {
@@ -6569,4 +6563,238 @@ div.disclosure-body {
 
 .unsaved-dialog h4 {
   font-size: var(--fs-lg);
+}
+
+/* Keep the review in one reading column; optional language notes follow the work. */
+.gym-panel .gym-main {
+  width: 100%;
+  max-width: 800px;
+  margin-inline: auto;
+}
+
+.gym-review-heading {
+  font-size: 1.15rem;
+  margin: 0 0 var(--space-4);
+}
+
+.gym-panel .gym-audit {
+  background: transparent;
+  border: 0;
+  border-top: 1px solid var(--gym-line);
+  border-radius: 0;
+  padding: var(--space-5) 0 0;
+}
+
+.gym-panel .gym-style-review {
+  margin-top: var(--space-4);
+}
+
+.gym-panel .gym-style-review > summary {
+  flex-wrap: wrap;
+}
+
+/* Concept E: priorities first, then one finding with its reasoning on demand. */
+.gym-priorities,
+.gym-focused-review {
+  padding-block: var(--space-5);
+}
+
+.gym-panel .gym-priorities-title,
+.gym-panel .gym-finding-title {
+  font-family: Georgia, "Times New Roman", serif;
+  font-weight: 400;
+  font-size: clamp(1.6rem, 3vw, 2.3rem);
+  line-height: 1.25;
+  margin: 0 0 var(--space-4);
+  overflow-wrap: anywhere;
+}
+
+.gym-priority-list {
+  margin: var(--space-5) 0;
+  padding-left: 1.8rem;
+}
+
+.gym-priority-list li {
+  padding-left: var(--space-3);
+}
+
+.gym-priority-list li::marker {
+  color: var(--gym-quiet);
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 1.2rem;
+}
+
+.gym-priority {
+  justify-items: start;
+  justify-content: stretch;
+  background: transparent;
+  border: 0;
+  border-radius: 4px;
+  color: var(--gym-ink);
+  display: grid;
+  gap: var(--space-2);
+  padding: var(--space-4) var(--space-2);
+  text-align: left;
+  width: 100%;
+  overflow-wrap: anywhere;
+}
+
+.gym-priority:hover strong {
+  text-decoration: underline;
+}
+
+.gym-priority span,
+.gym-priority small {
+  color: var(--gym-quiet);
+}
+
+.gym-show-more {
+  border-top: 1px solid var(--gym-line);
+  padding-block: var(--space-4);
+}
+
+.gym-finding-nav {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin-bottom: var(--space-5);
+}
+
+.gym-focused-review .gym-challenge {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  opacity: 1;
+  gap: var(--space-5);
+  margin-bottom: var(--space-5);
+}
+
+.gym-focused-review .gym-card-actions {
+  border-top: 0;
+  padding-top: 0;
+}
+
+.gym-response-text {
+  white-space: pre-wrap;
+}
+
+.gym-assessment-detail summary {
+  cursor: pointer;
+}
+
+.gym-assessment-detail p {
+  margin-top: var(--space-3);
+}
+
+.gym-view-switch {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  padding-block: var(--space-3);
+  background: var(--bux-white);
+  border-bottom: 1px solid var(--gym-line);
+}
+
+.gym-lens-layout {
+  display: grid;
+  grid-template-columns: minmax(170px, 220px) minmax(0, 1fr);
+  gap: var(--space-5);
+  align-items: start;
+}
+
+.gym-lenses {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.gym-lens {
+  display: grid;
+  justify-content: stretch;
+  justify-items: start;
+  gap: var(--space-1);
+  padding: var(--space-3);
+  border: 1px solid var(--gym-line);
+  border-radius: 6px;
+  background: var(--bux-white);
+  color: var(--gym-ink);
+  text-align: left;
+  width: 100%;
+}
+
+.gym-lens[aria-pressed="true"] {
+  background: var(--bux-gray-light-90);
+  border-left: 3px solid var(--bux-scarlet);
+}
+
+.gym-lens span,
+.gym-lens small {
+  color: var(--gym-quiet);
+}
+
+.gym-lens-content {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.gym-overview-findings {
+  display: grid;
+  gap: var(--space-4);
+  padding: 0;
+  list-style: none;
+}
+
+.gym-overview-findings li {
+  display: grid;
+  gap: var(--space-1);
+}
+
+.gym-overview-findings button {
+  text-align: left;
+}
+
+.gym-matrix-rule + .gym-matrix-rule {
+  margin-top: var(--space-5);
+}
+
+.gym-element-matrix {
+  width: 100%;
+  min-width: 480px;
+  table-layout: fixed;
+  border-collapse: collapse;
+  font-size: var(--fs-sm);
+}
+
+.gym-element-matrix th,
+.gym-element-matrix td {
+  padding: var(--space-3);
+  vertical-align: top;
+  border-bottom: 1px solid var(--gym-line);
+}
+
+.gym-element-matrix th {
+  text-align: left;
+}
+
+.gym-element-matrix small {
+  display: block;
+  font-weight: normal;
+  color: var(--gym-quiet);
+}
+
+.gym-element-matrix blockquote {
+  margin: var(--space-2) 0;
+}
+
+.gym-element-matrix ul {
+  padding-left: 1rem;
+}
+
+@media (max-width: 760px) {
+  .gym-lens-layout { grid-template-columns: minmax(0, 1fr); }
+  .gym-lenses { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }

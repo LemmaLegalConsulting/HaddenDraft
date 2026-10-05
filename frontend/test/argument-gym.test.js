@@ -562,3 +562,111 @@ test("checks that did not run are one badge, not a section", () => {
   assert.equal(summary.label, "2 could not run · 1 off");
   assert.equal(summary.unavailable.length, 2);
 });
+
+test("optional language review keeps errors and unknown checks in the main review", async () => {
+  const { reviewCheckGroups } = await import("../src/components/argumentGym.js");
+  const error = { severity: "error", message: "Missing closing quote" };
+  const note = { severity: "info", message: "Consider a shorter sentence" };
+  const run = {
+    checksRun: [{ id: "grammar", label: "Grammar", status: "on" }],
+    checkResults: {
+      grammar: { findings: [note, error] },
+      new_check: { findings: [note] },
+      custom_style: { findings: [note] },
+    },
+  };
+  const before = JSON.stringify(run);
+  const groups = reviewCheckGroups(run, [{ id: "custom_style", category: "language" }]);
+  assert.deepEqual(groups.primary.find((group) => group.id === "grammar").findings, [error]);
+  assert.ok(groups.primary.some((group) => group.id === "new_check"));
+  assert.equal(groups.styleCount, 2);
+  assert.deepEqual(groups.style.find((group) => group.id === "grammar").findings, [note]);
+  assert.equal(JSON.stringify(run), before);
+});
+
+test("style review preserves off, unavailable, and checked with no findings", async () => {
+  const { reviewCheckGroups } = await import("../src/components/argumentGym.js");
+  const checksRun = [
+    { id: "grammar", status: "on" },
+    { id: "passive_voice", status: "off" },
+    { id: "readability", status: "unavailable", reason: "No text" },
+  ];
+  const groups = reviewCheckGroups({ checksRun, checkResults: { grammar: { findings: [] } } });
+  assert.equal(groups.styleCount, 0);
+  assert.equal(groups.style.length, 1);
+  assert.deepEqual(groups.styleChecks, checksRun);
+  assert.equal(checkStatusSummary(groups.styleChecks), "1 ran, 1 off, 1 could not run.");
+  assert.deepEqual(reviewCheckGroups().styleChecks, []);
+});
+
+test("the priority overview caps the existing ranking and keeps the rest reachable", async () => {
+  const { challengeReview, challengePreview } = await import("../src/components/argumentGym.js");
+  const challenges = [
+    { id: 1, severity: "low", disposition: "open" },
+    { id: 2, severity: "high", disposition: "addressed" },
+    { id: 3, severity: "high", disposition: "open" },
+    { id: 4, severity: "medium", disposition: "open" },
+    { id: 5, severity: "medium", disposition: "open" },
+  ];
+  const before = JSON.stringify(challenges);
+  const initial = challengeReview(challenges);
+  assert.deepEqual(initial.shown.map((item) => item.id), [3, 4, 5]);
+  assert.equal(initial.hidden, 1);
+  assert.equal(initial.total, 4);
+  const expanded = challengeReview(challenges, { showAll: true, selectedId: 1 });
+  assert.equal(expanded.selected.id, 1);
+  assert.equal(expanded.previous.id, 5);
+  assert.equal(expanded.next, null);
+  assert.equal(expanded.hidden, 0);
+  assert.equal(challengeReview(challenges, { selectedId: 2 }).selected, null);
+  assert.equal(challengeReview(challenges, { filter: "resolved", selectedId: 2 }).selected.id, 2);
+  assert.equal(JSON.stringify(challenges), before);
+  assert.equal(challengeReview([]).total, 0);
+  assert.equal(challengeReview([]).next, null);
+  const preview = challengePreview({ opponentArgument: "Actual argument", recommendation: "Actual recommendation" });
+  assert.equal(preview.title, "Actual argument");
+  assert.equal(preview.action, "Actual recommendation");
+});
+
+
+test("handling the last open challenge keeps a route to handled findings", () => {
+  const filters = availableFilters([{ id: 1, disposition: "addressed" }], "open");
+  assert.deepEqual(filters.map((filter) => [filter.id, filter.count]), [["all", 1], ["open", 0], ["resolved", 1]]);
+  assert.deepEqual(availableFilters([], "open"), []);
+});
+
+test("the matrix separates pleading from support and preserves uncertain provenance", async () => {
+  const { elementMatrix } = await import("../src/components/argumentGym.js");
+  const rules = [{ slug: "sample", verification: "starter", elements: [
+    { id: "notice", label: "Notice", pled: "yes", supported: "nothing_supplied", materialIds: [7, 8], unmet: true },
+    { id: "timing", label: "Timing", pled: "unknown", supported: "unknown" },
+    { id: "relief", label: "Relief", pled: "yes", supported: "yes", needsRecordSupport: false },
+  ] }];
+  const before = JSON.stringify(rules);
+  const matrix = elementMatrix(rules, [{ id: "7", title: "Sample notice" }]);
+  assert.match(matrix[0].verificationLabel, /Unverified/);
+  assert.equal(matrix[0].rows[0].pleadedLabel, "pleaded");
+  assert.equal(matrix[0].rows[0].supportedLabel, "nothing supplied supports it");
+  assert.deepEqual(matrix[0].rows[0].materials, ["Sample notice", "Material 8 (details unavailable)"]);
+  assert.equal(matrix[0].rows[1].pleadedLabel, "Unknown / not assessed");
+  assert.equal(matrix[0].rows[1].supportedLabel, "Unknown / not assessed");
+  assert.equal(matrix[0].rows[2].supportedLabel, "Not required by this profile");
+  assert.equal(JSON.stringify(rules), before);
+});
+
+test("overview lenses describe the saved run, including off and unavailable checks", async () => {
+  const { overviewLenses } = await import("../src/components/argumentGym.js");
+  const lenses = overviewLenses({
+    challenges: [{ id: 1, category: "record_conflict", disposition: "addressed" }, { id: 2, category: "legal_authority" }],
+    checksRun: [{ id: "rule_elements", status: "off" }, { id: "record_audit", status: "unavailable" }],
+    compliance: { checked: true, findings: [{ severity: "info", message: "Unmeasured" }] },
+    checkResults: { grammar: { findings: [{ severity: "error" }, { severity: "info" }] } },
+  });
+  assert.equal(lenses.find((lens) => lens.id === "argument").challenges.length, 2);
+  assert.equal(lenses.find((lens) => lens.id === "record").challenges[0].disposition, "addressed");
+  assert.match(lenses.find((lens) => lens.id === "record").status, /could not run/);
+  assert.match(lenses.find((lens) => lens.id === "elements").status, /off/);
+  assert.equal(lenses.find((lens) => lens.id === "filing").compliance.unmeasured.length, 1);
+  assert.equal(lenses.find((lens) => lens.id === "style").groups[0].findings.length, 1);
+  assert.ok(overviewLenses().every((lens) => lens.status === "Execution not recorded."));
+});
