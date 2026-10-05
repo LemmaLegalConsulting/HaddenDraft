@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
   AlertTriangle,
   Check,
@@ -25,14 +25,17 @@ import {
   JURISDICTION_MODES,
   RUN_POLL_MS,
   RUN_POLL_TIMEOUT_MS,
-  auditBadges,
+  checkStatusSummary,
+  reviewCheckGroups,
   availableFilters,
   canStartRun,
   caseOptions,
   challengeSummary,
+  challengeReview,
+  challengePreview,
+  overviewLenses,
   checklistItemsFromText,
   checklistItemsToText,
-  clamp,
   cleanJurisdictionDetail,
   complianceGroups,
   complianceSummary,
@@ -45,15 +48,12 @@ import {
   emptyStateMessage,
   evidenceCount,
   exhibitSummary,
-  findingsByCheck,
   groupChecks,
   isRunFinished,
   materialsByOrigin,
   matterFilterOptions,
-  rankedChallenges,
   replaceChallenge,
   rerunSummary,
-  responseBullets,
   revisionTargets,
   runActionsDisabled,
   runProgressFraction,
@@ -140,10 +140,11 @@ function SessionBrowser({ open, sessions, matters, matterId, onMatterChange, que
           ))}
         </select>
       </label>
+      <label className="form-label" htmlFor="gym-session-search">Find a session</label>
       <input
         className="form-control"
         type="search"
-        placeholder="Find a session"
+        id="gym-session-search"
         value={query}
         onChange={(event) => onQueryChange(event.target.value)}
       />
@@ -251,7 +252,6 @@ function JurisdictionControls({ workspace, courts, courtTypes, detection, busy, 
                 Division or district
                 <input
                   className="form-control"
-                  placeholder="Eighth Appellate District"
                   value={detail.division || ""}
                   onChange={(event) => patchDetail({ division: event.target.value })}
                 />
@@ -347,10 +347,11 @@ function ChecklistEditor({ checklists, activeId, busy, onSave, onDelete, onSelec
         </label>
         <label className="form-label">
           Items
+          <span id="gym-checklist-help" className="muted">For example: Every date in the statement of facts appears in a document in the file.</span>
           <textarea
             className="form-control"
             rows={6}
-            placeholder={"Every date in the statement of facts appears in a document in the file.\nEach authority cited is still good law."}
+            aria-describedby="gym-checklist-help"
             value={text}
             onChange={(event) => setText(event.target.value)}
           />
@@ -510,10 +511,9 @@ function PassivePhraseModal({ open, phrases, busy, onClose, onSave }) {
   );
 }
 
-function AuditSummary({ run, onOpenArtifact, actionsDisabled }) {
-  const badges = auditBadges(run);
+function AuditSummary({ run, catalog, onOpenArtifact, actionsDisabled }) {
   const skipped = skippedChecksSummary(run.checksRun || []);
-  const checkGroups = findingsByCheck(run.checkResults || {}, run.checksRun || []);
+  const { primary: checkGroups, style, styleChecks, styleCount } = reviewCheckGroups(run, catalog);
   const compliance = complianceGroups(run.compliance || {});
   const rules = run.ruleAudit || [];
   // Findings first; the rules that were satisfied are a list, not a report.
@@ -522,23 +522,14 @@ function AuditSummary({ run, onOpenArtifact, actionsDisabled }) {
   const checklist = run.checklistResults?.results || [];
 
   return (
-    <aside className="gym-audit">
-      <h4>Audit</h4>
-      {badges.length === 0 && <p className="muted">No technical checks ran.</p>}
-      <ul className="gym-badges">
-        {badges.map((badge) => (
-          <li key={badge.id} className={`tone-${badge.tone}`}>
-            <span className="gym-badge-count">{badge.count}</span>
-            <span>
-              {badge.label}
-              {badge.note && <small>{badge.note}</small>}
-            </span>
-          </li>
-        ))}
-      </ul>
+    <section className="gym-audit" aria-label="Filing and document review">
+      <h4>Filing and document review</h4>
+      <p className="muted">{checkStatusSummary(run.checksRun) || "Check execution was not recorded for this run."}</p>
+      {!compliance.checked && <p className="muted">{compliance.reason || "Filing-format rules were not applied."}</p>}
+      {compliance.checked && compliance.total === 0 && <p className="muted">Filing format: no findings from the rules checked.</p>}
 
       {unmetRules.length > 0 && (
-        <details className="gym-audit-detail">
+        <details className="gym-audit-detail" open>
           <summary>Unmet elements</summary>
           {unmetRules.map((audit) => (
             <div key={audit.slug} className="gym-audit-rule">
@@ -560,7 +551,7 @@ function AuditSummary({ run, onOpenArtifact, actionsDisabled }) {
 
       {metRules.length > 0 && (
         <details className="gym-audit-detail">
-          <summary>Rules carried ({metRules.length})</summary>
+          <summary>Other rules reviewed ({metRules.length})</summary>
           <ul className="gym-plain-list">
             {metRules.map((audit) => (
               <li key={audit.slug}>{audit.label}</li>
@@ -570,14 +561,14 @@ function AuditSummary({ run, onOpenArtifact, actionsDisabled }) {
       )}
 
       {compliance.checked && compliance.total > 0 && (
-        <details className="gym-audit-detail">
-          <summary>Filing format</summary>
+        <details className="gym-audit-detail" open>
+          <summary>Filing format · {compliance.total} to review</summary>
           <FindingLines findings={[...compliance.errors, ...compliance.warnings, ...compliance.unmeasured]} />
         </details>
       )}
 
       {checkGroups.some((group) => group.findings.length > 0) && (
-        <details className="gym-audit-detail">
+        <details className="gym-audit-detail" open>
           <summary>Document checks</summary>
           {checkGroups
             .filter((group) => group.findings.length > 0)
@@ -591,7 +582,7 @@ function AuditSummary({ run, onOpenArtifact, actionsDisabled }) {
       )}
 
       {checklist.length > 0 && (
-        <details className="gym-audit-detail">
+        <details className="gym-audit-detail" open={checklist.some((item) => item.outcome !== "pass")}>
           <summary>Your checklist</summary>
           <ul className="gym-finding-lines">
             {checklist.map((item) => (
@@ -601,6 +592,26 @@ function AuditSummary({ run, onOpenArtifact, actionsDisabled }) {
               </li>
             ))}
           </ul>
+        </details>
+      )}
+
+      {(style.length > 0 || styleChecks.length > 0) && (
+        <details className="gym-audit-detail gym-style-review">
+          <summary>Language and style <span className="gym-badge-inline">{styleCount} {styleCount === 1 ? "note" : "notes"} · optional review</span></summary>
+          <p className="muted">{checkStatusSummary(styleChecks) || "Check execution was not recorded."} Opening these notes does not change which checks run.</p>
+          {style.map((group) => (
+            <div key={group.id} className="gym-audit-rule">
+              <h5>{group.label}</h5>
+              {group.summary && <p className="muted">{group.summary}</p>}
+              {group.findings.length > 0 && <FindingLines findings={group.findings} />}
+              {group.findings.length === 0 && (
+                <p className="muted">{group.errors.length ? "Errors appear in Document checks above." : styleChecks.some((check) => check.id === group.id && check.status === "on") ? "No findings from this check." : "No findings recorded; see check status below."}</p>
+              )}
+            </div>
+          ))}
+          {styleChecks.filter((check) => check.status !== "on").map((check) => (
+            <p key={check.id} className="muted">{check.label} — {check.status === "off" ? "off" : `could not run: ${check.reason || "No reason recorded"}`}</p>
+          ))}
         </details>
       )}
 
@@ -633,7 +644,7 @@ function AuditSummary({ run, onOpenArtifact, actionsDisabled }) {
           Stress-test report
         </button>
       </div>
-    </aside>
+    </section>
   );
 }
 
@@ -703,11 +714,9 @@ function EvidenceModal({ challenge, onClose }) {
 }
 
 function ChallengeCard({ challenge, busy, queued, onDisposition, onResearch, onQueueRevision, onCopy, onEvidence }) {
-  const [expanded, setExpanded] = useState(false);
   const target = targetLabel(challenge.target);
   const evidence = evidenceCount(challenge);
-  const bullets = responseBullets(challenge.suggestedResponse || challenge.recommendation);
-  const verdict = clamp(challenge.judgeAssessment, 240);
+  const response = challenge.suggestedResponse || challenge.recommendation;
   const remaining = challenge.researchCoverage?.remainingVulnerability;
 
   return (
@@ -721,79 +730,23 @@ function ChallengeCard({ challenge, busy, queued, onDisposition, onResearch, onQ
         {challenge.recurring && <span className="gym-recurring">raised again</span>}
       </header>
 
-      <p className="gym-claim">{challenge.opponentArgument}</p>
-
-      {challenge.judgeAssessment && (
-        <p className="gym-verdict-line">
-          <span className="gym-verdict-label">{challenge.judgeVerdict || "assessment"}</span>
-          {verdict.text}
-        </p>
-      )}
-
-      {bullets.length > 0 && (
-        <div className="gym-fix">
-          <h5>Suggested fix</h5>
-          {bullets.length === 1 ? (
-            <p>{bullets[0]}</p>
-          ) : (
-            <ul>
-              {bullets.map((line) => (
-                <li key={line}>{line}</li>
-              ))}
-            </ul>
-          )}
-        </div>
-      )}
-
-      <div className="gym-card-more">
-        {evidence > 0 && (
-          <button className="text-link-button" type="button" onClick={() => onEvidence(challenge)}>
-            Evidence ({evidence})
-          </button>
-        )}
-        <button className="text-link-button" type="button" onClick={() => setExpanded((open) => !open)}>
-          {expanded ? "Less" : "Context"}
-        </button>
-        {remaining && <span className="gym-remaining">Still exposed: {remaining}</span>}
+      <h3 className="gym-finding-title">{challenge.opponentArgument}</h3>
+      {challenge.briefCurrentlySays && <blockquote className="gym-quote">{challenge.briefCurrentlySays}</blockquote>}
+      <div className="gym-fix">
+        <h4>What to do</h4>
+        <p className="gym-response-text">{response || "No suggested response was recorded. Review the reasoning and sources before deciding how to address this."}</p>
       </div>
-
-      {expanded && (
-        <div className="gym-card-context">
-          {challenge.whyItMatters && (
-            <p>
-              <span className="gym-context-label">Why it matters</span>
-              {challenge.whyItMatters}
-            </p>
-          )}
-          {verdict.truncated && (
-            <p>
-              <span className="gym-context-label">Judge assessment</span>
-              {challenge.judgeAssessment}
-            </p>
-          )}
-          {challenge.briefCurrentlySays && (
-            <blockquote className="gym-quote">{challenge.briefCurrentlySays}</blockquote>
-          )}
-          {challenge.suggestedResponse && challenge.recommendation && (
-            <p>
-              <span className="gym-context-label">Coaching</span>
-              {challenge.recommendation}
-            </p>
-          )}
-        </div>
-      )}
+      {remaining && <p className="gym-remaining">Still exposed: {remaining}</p>}
 
       <div className="gym-card-actions">
-        <button className="text-link-button" type="button" disabled={busy} onClick={() => onResearch(challenge)}>
-          {busy ? <Loader2 className="spin" size={14} /> : <Search size={14} />} Research
-        </button>
         {challenge.target?.blockKey && (
           <button
-            className={`text-link-button${queued ? " active" : ""}`}
+            className={`btn ${queued ? "btn-light" : "btn-primary"}`}
+            aria-pressed={queued}
             type="button"
             onClick={() => onQueueRevision(challenge)}
           >
-            {queued ? <Check size={14} /> : <FileText size={14} />} {queued ? "In plan" : "Add to plan"}
+            {queued ? <Check size={14} /> : <FileText size={14} />} {queued ? "Remove from revision plan" : "Add to revision plan"}
           </button>
         )}
         <button className="text-link-button" type="button" onClick={() => onCopy(challenge)}>
@@ -816,7 +769,174 @@ function ChallengeCard({ challenge, busy, queued, onDisposition, onResearch, onQ
           <X size={14} /> {challenge.disposition === "dismissed" ? "Undismiss" : "Dismiss"}
         </button>
       </div>
+      <details className="gym-audit-detail">
+        <summary>Why: what opposing counsel and the judge said</summary>
+        <div className="gym-card-context">
+          <p><span className="gym-context-label">Opposing counsel</span>{challenge.opponentArgument}</p>
+          <p><span className="gym-context-label">Judge · {challenge.judgeVerdict || "assessment"}</span>{challenge.judgeAssessment || "No judge assessment was recorded."}</p>
+          {challenge.whyItMatters && <p><span className="gym-context-label">Why it matters</span>{challenge.whyItMatters}</p>}
+          {challenge.suggestedResponse && challenge.recommendation && <p><span className="gym-context-label">Coaching</span>{challenge.recommendation}</p>}
+        </div>
+      </details>
+      <details className="gym-audit-detail">
+        <summary>What this was based on{evidence > 0 ? ` · ${evidence} sources` : ""}</summary>
+        <p className="muted">{coverageSummary(challenge.researchCoverage)}</p>
+        <button className="text-link-button" type="button" onClick={() => onEvidence(challenge)}>Review evidence and coverage</button>
+        <button className="text-link-button" type="button" disabled={busy} onClick={() => onResearch(challenge)}>
+          {busy ? <Loader2 className="spin" size={14} /> : <Search size={14} />} Research
+        </button>
+      </details>
     </article>
+  );
+}
+
+function CompactOverview({ run, catalog, active, onOpenChallenge }) {
+  const [lensId, setLensId] = useState("elements");
+  const lenses = overviewLenses(run, catalog);
+  const lens = lenses.find((item) => item.id === lensId) || lenses[0];
+  if (!active) return null;
+
+  return (
+    <section className="gym-overview" aria-label="Compact overview">
+      <h3>Review at a glance</h3>
+      <p className="muted">Choose a lens. These are results from this run; switching lenses does not run a check.</p>
+      <div className="gym-lens-layout">
+        <nav className="gym-lenses" aria-label="Review lenses">
+          {lenses.map((item) => (
+            <button key={item.id} type="button" className="gym-lens" aria-pressed={lens.id === item.id} aria-controls="gym-lens-content" onClick={() => setLensId(item.id)}>
+              <strong>{item.label}</strong><span>{item.summary}</span><small>{item.status}</small>
+            </button>
+          ))}
+        </nav>
+        <section id="gym-lens-content" className="gym-lens-content" aria-label={lens.label}>
+          <h4>{lens.question}</h4>
+          <p className="muted">{lens.status}</p>
+          {lens.challenges && (
+            lens.challenges.length ? <ul className="gym-overview-findings">
+              {lens.challenges.map((challenge) => <li key={challenge.id}>
+                <button className="text-link-button" type="button" onClick={() => onOpenChallenge(challenge.id)}>{challengePreview(challenge).title}</button>
+                <span className="muted">{targetLabel(challenge.target)} · {challenge.disposition || "open"} · {challenge.severity || "severity not recorded"}</span>
+              </li>)}
+            </ul> : <p>No challenges recorded for this lens. Check execution and coverage before drawing a conclusion.</p>
+          )}
+          {lens.matrix && (lens.matrix.length ? lens.matrix.map((rule) => (
+            <section className="gym-matrix-rule" key={rule.slug}>
+              <h5>{rule.label || rule.citation || rule.name}</h5>
+              <p className="muted">{rule.verificationLabel}</p>
+              {rule.requiresApplicabilityReview && <p>Possible rule match: confirm that this rule applies.</p>}
+              {rule.source && <p className="muted">Source: {rule.source}</p>}
+              {rule.sourceUrl && <a href={rule.sourceUrl} target="_blank" rel="noreferrer">Open rule source</a>}
+              <div className="gym-table-scroll" tabIndex={0} role="region" aria-label={`${rule.label || rule.citation || rule.name} element matrix`}>
+                <table className="gym-element-matrix">
+                  <thead><tr><th scope="col">Element</th><th scope="col">Brief says it</th><th scope="col">Record supports it</th><th scope="col">Basis recorded</th></tr></thead>
+                  <tbody>{rule.rows.map((row) => <tr key={row.id}>
+                    <th scope="row">{row.label}{row.unmet && <small>Needs review</small>}</th>
+                    <td>{row.pleadedLabel}</td><td>{row.supportedLabel}</td>
+                    <td>
+                      {row.explanation && <p>{row.explanation}</p>}
+                      {row.quote && <blockquote>{row.quote}</blockquote>}
+                      {row.materials.length > 0 && <ul>{row.materials.map((title, index) => <li key={index}>{title}</li>)}</ul>}
+                      {!row.explanation && !row.quote && !row.materials.length && <span className="muted">No basis recorded.</span>}
+                    </td>
+                  </tr>)}</tbody>
+                </table>
+              </div>
+              {rule.rows.length === 0 && <p>No element results recorded for this rule.</p>}
+            </section>
+          )) : <p>No element audit recorded. This does not establish that every element is pleaded or supported.</p>)}
+          {lens.compliance && <>
+            <h5>Filing rules</h5>
+            <p className="muted">{!lens.compliance.checked ? lens.compliance.reason || "Filing-format rules were not applied." : lens.compliance.total ? `${lens.compliance.unmeasured.length} properties could not be measured.` : "No findings from the filing rules checked."}</p>
+            {lens.compliance.total > 0 && <FindingLines findings={[...lens.compliance.errors, ...lens.compliance.warnings, ...lens.compliance.unmeasured]} />}
+          </>}
+          {lens.groups && (lens.groups.length ? lens.groups.map((group) => <section key={group.id} className="gym-audit-rule">
+            <h5>{group.label}</h5>
+            {group.summary && <p>{group.summary}</p>}
+            {group.findings.length ? <FindingLines findings={group.findings} /> : <p className="muted">No findings recorded in this lens. Check execution is reported above.</p>}
+            {lens.id === "style" && group.errors.length > 0 && <p>Errors from this check appear under Filing &amp; form.</p>}
+          </section>) : <p>No document findings recorded in this lens.</p>)}
+          {lens.checks && lens.checks.filter((check) => check.status !== "on").map((check) => <p key={check.id} className="muted">{check.label} — {check.status === "off" ? "off" : `could not run: ${check.reason || "No reason recorded"}`}</p>)}
+          {lens.checklist && (lens.checklist.length ? <ul className="gym-finding-lines">{lens.checklist.map((item) => <li key={item.itemId}><strong>{item.item}</strong><p>{item.outcome?.replaceAll("_", " ") || "Outcome not recorded"}: {item.finding}</p></li>)}</ul> : <p>No checklist answers recorded.</p>)}
+        </section>
+      </div>
+    </section>
+  );
+}
+
+function ChallengeReview({ challenges, filter, requestedChallenge, busyChallengeId, queued, onDisposition, onResearch, onCopy, onEvidence, onQueueRevision }) {
+  const [showAll, setShowAll] = useState(false);
+  const [selectedId, setSelectedId] = useState(null);
+  const review = challengeReview(challenges, { filter, showAll, selectedId });
+  const headingRef = useRef(null);
+  const returnFocusId = useRef(null);
+  const listRef = useRef(null);
+
+  useEffect(() => {
+    if (requestedChallenge) {
+      setShowAll(true);
+      setSelectedId(requestedChallenge.id);
+    }
+  }, [requestedChallenge]);
+
+  useEffect(() => {
+    if (review.selected) {
+      returnFocusId.current = review.selected.id;
+      headingRef.current?.focus();
+    } else if (returnFocusId.current !== null) {
+      const button = listRef.current?.querySelector(`[data-challenge-id="${returnFocusId.current}"]`);
+      (button || headingRef.current)?.focus();
+      returnFocusId.current = null;
+      setSelectedId(null);
+    }
+  }, [review.selected?.id]);
+
+  const openFinding = (id) => {
+    returnFocusId.current = id;
+    setSelectedId(id);
+  };
+
+  if (review.selected) return (
+    <section className="gym-focused-review">
+      <div className="gym-finding-nav" ref={headingRef} tabIndex={-1} aria-label={`Finding ${review.selectedIndex + 1} of ${review.shown.length} shown`}>
+        <button className="text-link-button" type="button" onClick={() => setSelectedId(null)}>← Back to priorities</button>
+        <span className="muted">{review.selectedIndex + 1} of {review.shown.length} shown{review.hidden ? ` · ${review.hidden} more in the list` : ""}</span>
+      </div>
+      <ChallengeCard
+        key={review.selected.id}
+        challenge={review.selected}
+        busy={busyChallengeId === review.selected.id}
+        queued={queued.includes(review.selected.id)}
+        onDisposition={onDisposition} onResearch={onResearch} onCopy={onCopy}
+        onEvidence={onEvidence} onQueueRevision={onQueueRevision}
+      />
+      <nav className="gym-finding-nav" aria-label="Findings">
+        {review.previous && <button className="text-link-button" type="button" onClick={() => openFinding(review.previous.id)}>← Previous finding</button>}
+        {review.next ? <button className="text-link-button" type="button" onClick={() => openFinding(review.next.id)}>Next finding →</button> : <button className="text-link-button" type="button" onClick={() => setSelectedId(null)}>Return to priorities</button>}
+      </nav>
+    </section>
+  );
+
+  return (
+    <section className="gym-priorities" ref={listRef}>
+      <h3 className="gym-priorities-title" ref={headingRef} tabIndex={-1}>{filter === "resolved" ? "Handled challenges" : filter === "all" ? "All challenges" : "What matters most"}</h3>
+      {review.total > 0 ? <>
+        <p className="muted">{filter === "open" ? "Start with the highest-ranked open challenges. Open one to decide what to do." : "Open a finding to review its response and disposition."}</p>
+        <ol className="gym-priority-list">
+          {review.shown.map((challenge) => {
+            const preview = challengePreview(challenge);
+            return <li key={challenge.id}>
+              <button type="button" className="gym-priority" data-challenge-id={challenge.id} onClick={() => openFinding(challenge.id)}>
+                <strong>{preview.title}</strong>
+                <span>{preview.target ? `${preview.target} · ` : ""}{preview.action}</span>
+                {challenge.disposition && challenge.disposition !== "open" && <small>{challenge.disposition}</small>}
+              </button>
+            </li>;
+          })}
+        </ol>
+        {review.hidden > 0 && <button className="text-link-button gym-show-more" type="button" onClick={() => setShowAll(true)}>Show {review.hidden} more {review.hidden === 1 ? "challenge" : "challenges"}</button>}
+        {showAll && review.total > 3 && <button className="text-link-button gym-show-more" type="button" onClick={() => setShowAll(false)}>Show the first three</button>}
+      </> : <p>{emptyStateMessage(challenges, filter)}</p>}
+    </section>
   );
 }
 
@@ -1068,6 +1188,17 @@ export function ArgumentGymPanel({ matter = null, cases = [], focusRun = null, o
   const [selectedMatterId, setSelectedMatterId] = useState(matter?.id || "");
   const [run, setRun] = useState(null);
   const [filter, setFilter] = useState("open");
+  const [reviewMode, setReviewMode] = useState("priorities");
+  const reviewViewRef = useRef(null);
+  const changeReviewMode = (mode) => {
+    setReviewMode(mode);
+    requestAnimationFrame(() => reviewViewRef.current?.scrollIntoView({ block: "start" }));
+  };
+  const [requestedChallenge, setRequestedChallenge] = useState(null);
+  useEffect(() => {
+    setReviewMode("priorities");
+    setRequestedChallenge(null);
+  }, [run?.id]);
   const [queued, setQueued] = useState([]);
   const [plan, setPlan] = useState(null);
   const [artifact, setArtifact] = useState(null);
@@ -1525,7 +1656,6 @@ export function ArgumentGymPanel({ matter = null, cases = [], focusRun = null, o
   };
 
   const challenges = run?.challenges || [];
-  const visible = useMemo(() => rankedChallenges(challenges, { filter }), [challenges, filter]);
   const readiness = canStartRun({
     briefDocument: brief,
     caseContext,
@@ -1535,7 +1665,7 @@ export function ArgumentGymPanel({ matter = null, cases = [], focusRun = null, o
   const { canRevise } = revisionTargets(challenges, queued);
   // A prep sheet built from half a run is worse than no prep sheet.
   const actionsDisabled = runActionsDisabled({ run, busy });
-  const filters = availableFilters(challenges);
+  const filters = availableFilters(challenges, filter);
   // A run exists the moment it starts; results are a different thing.
   const view = runView(run);
 
@@ -1723,18 +1853,24 @@ export function ArgumentGymPanel({ matter = null, cases = [], focusRun = null, o
           {run.assessment && (
             <section className="gym-assessment">
               {run.verdict && <span className="gym-verdict-chip">{run.verdict}</span>}
-              <p>{run.assessment}</p>
+              <details className="gym-assessment-detail"><summary>Read the overall assessment</summary><p>{run.assessment}</p></details>
             </section>
           )}
 
-          {(filters.length > 0 || queued.length > 0) && (
+          <nav ref={reviewViewRef} className="gym-view-switch" aria-label="Review view">
+            <button className={`btn ${reviewMode === "priorities" ? "btn-primary" : "btn-light"}`} type="button" aria-pressed={reviewMode === "priorities"} onClick={() => changeReviewMode("priorities")}>Focused review</button>
+            <button className={`btn ${reviewMode === "overview" ? "btn-primary" : "btn-light"}`} type="button" aria-pressed={reviewMode === "overview"} onClick={() => changeReviewMode("overview")}>Compact overview</button>
+          </nav>
+
+          {((reviewMode === "priorities" && filters.length > 0) || queued.length > 0) && (
             <div className="gym-filter button-row compact">
-              {filters.map((item) => (
+              {reviewMode === "priorities" && filters.map((item) => (
                 <button
                   key={item.id}
                   type="button"
                   className={`btn ${filter === item.id ? "btn-primary" : "btn-light"}`}
-                  onClick={() => setFilter(item.id)}
+                  aria-pressed={filter === item.id}
+                  onClick={() => { setRequestedChallenge(null); setFilter(item.id); }}
                 >
                   {item.label} ({item.count})
                 </button>
@@ -1752,35 +1888,23 @@ export function ArgumentGymPanel({ matter = null, cases = [], focusRun = null, o
             </div>
           )}
 
+          <div hidden={reviewMode !== "overview"}>
+            <CompactOverview active={reviewMode === "overview"} key={run.id} run={run} catalog={checkCatalog} onOpenChallenge={(id) => {
+              setFilter("all");
+              setRequestedChallenge({ id });
+              setReviewMode("priorities");
+            }} />
+          </div>
+          <div hidden={reviewMode !== "priorities"}>
           <div className="gym-results">
-            <div className="gym-worklist">
-              {visible.length === 0 ? (
-                <div className="empty-state compact">
-                  <p>{emptyStateMessage(challenges, filter)}</p>
-                </div>
-              ) : (
-                <div className="gym-challenge-list">
-                  {visible.map((challenge) => (
-                    <ChallengeCard
-                      key={challenge.id}
-                      challenge={challenge}
-                      busy={busyChallengeId === challenge.id}
-                      queued={queued.includes(challenge.id)}
-                      onDisposition={setDisposition}
-                      onResearch={researchChallenge}
-                      onCopy={copyChallenge}
-                      onEvidence={setEvidenceChallenge}
-                      onQueueRevision={(item) =>
-                        setQueued((current) =>
-                          current.includes(item.id) ? current.filter((id) => id !== item.id) : [...current, item.id],
-                        )
-                      }
-                    />
-                  ))}
-                </div>
-              )}
-            </div>
-            <AuditSummary run={run} onOpenArtifact={openArtifact} actionsDisabled={actionsDisabled} />
+            <ChallengeReview
+              key={`${run.id}-${filter}`}
+              requestedChallenge={requestedChallenge} challenges={challenges} filter={filter} busyChallengeId={busyChallengeId} queued={queued}
+              onDisposition={setDisposition} onResearch={researchChallenge} onCopy={copyChallenge} onEvidence={setEvidenceChallenge}
+              onQueueRevision={(item) => setQueued((current) => current.includes(item.id) ? current.filter((id) => id !== item.id) : [...current, item.id])}
+            />
+            <AuditSummary key={run.id} run={run} catalog={checkCatalog} onOpenArtifact={openArtifact} actionsDisabled={actionsDisabled} />
+          </div>
           </div>
 
           <details className="disclosure gym-config">

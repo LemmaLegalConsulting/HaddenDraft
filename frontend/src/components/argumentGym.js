@@ -479,15 +479,14 @@ export function runProgressFraction(run) {
 
 // Filters
 
-// A filter that would show nothing is not a choice, it is a dead end. Only
-// offer the ones that have something behind them, and never offer a single
-// option as though it were a choice.
-export function availableFilters(challenges = []) {
+// Keep an emptied active filter reachable after the last disposition changes,
+// alongside the filter containing the work. Otherwise there is no way back.
+export function availableFilters(challenges = [], activeFilter = null) {
   const counts = challengeCounts(challenges);
   const options = [
     { id: "open", label: "Open", count: counts.open },
     { id: "resolved", label: "Handled", count: counts.addressed + counts.dismissed },
-  ].filter((option) => option.count > 0);
+  ].filter((option) => option.count > 0 || (challenges.length > 0 && option.id === activeFilter));
   if (options.length < 2) return [];
   return [{ id: "all", label: "All", count: counts.total }, ...options];
 }
@@ -662,4 +661,96 @@ export function skippedChecksSummary(checksRun = []) {
       .filter(Boolean)
       .join(" · "),
   };
+}
+
+// Presentation only: opening style details never changes the checks selected
+// for a run. Unknown checks stay in the main review; errors are never tucked
+// away with optional language suggestions.
+export function reviewCheckGroups(run = {}, catalog = []) {
+  const languageIds = new Set(["grammar", "confused_words", "passive_voice", "readability"]);
+  for (const check of catalog) {
+    if (check.category === "language") languageIds.add(check.id);
+  }
+  const primary = [];
+  const style = [];
+  for (const group of findingsByCheck(run.checkResults || {}, run.checksRun || [])) {
+    if (!languageIds.has(group.id)) {
+      primary.push(group);
+      continue;
+    }
+    if (group.errors.length) primary.push({ ...group, findings: group.errors });
+    style.push({ ...group, findings: group.findings.filter((finding) => finding.severity !== "error") });
+  }
+  const styleChecks = (run.checksRun || []).filter((check) => languageIds.has(check.id));
+  return {
+    primary,
+    style,
+    styleChecks,
+    styleCount: style.reduce((count, group) => count + group.findings.length, 0),
+  };
+}
+
+// A short entry point, not a new legal assessment. The existing judge ranking
+// determines order, and the remainder stays explicitly reachable.
+export function challengeReview(challenges = [], { filter = "open", showAll = false, selectedId = null } = {}) {
+  const ranked = rankedChallenges(challenges, { filter });
+  const shown = showAll ? ranked : ranked.slice(0, 3);
+  const selectedIndex = shown.findIndex((challenge) => challenge.id === selectedId);
+  return {
+    shown,
+    total: ranked.length,
+    hidden: ranked.length - shown.length,
+    selected: shown[selectedIndex] || null,
+    selectedIndex,
+    previous: shown[selectedIndex - 1] || null,
+    next: selectedIndex >= 0 ? shown[selectedIndex + 1] || null : null,
+  };
+}
+
+export function challengePreview(challenge = {}) {
+  return {
+    title: clamp(challenge.opponentArgument || "Review this challenge", 160).text,
+    action: clamp(challenge.recommendation || challenge.suggestedResponse || "Open this finding to review the reasoning and evidence.", 150).text,
+    target: targetLabel(challenge.target),
+  };
+}
+
+export function elementMatrix(ruleAudit = [], materials = []) {
+  const titles = new Map(materials.map((material) => [String(material.id), material.title]));
+  return ruleAudit.map((audit) => ({
+    ...audit,
+    verificationLabel: audit.verification === "verified" ? "Verified element list" : "Unverified element list — confirm the rule and its elements before relying on this audit.",
+    rows: (audit.elements || []).map((element) => ({
+      ...element,
+      pleadedLabel: PLED_LABELS[element.pled] || "Unknown / not assessed",
+      supportedLabel: element.needsRecordSupport === false
+        ? "Not required by this profile"
+        : SUPPORT_LABELS[element.supported] || "Unknown / not assessed",
+      materials: (element.materialIds || []).map((id) => titles.get(String(id)) || `Material ${id} (details unavailable)`),
+    })),
+  }));
+}
+
+// Lenses describe the saved run, never the next run's selected checks. Counts
+// are findings, not scores; no recorded result is not a passed check.
+export function overviewLenses(run = {}, catalog = []) {
+  const countLabel = (count, unit) => `${count} ${unit}${count === 1 ? "" : "s"}`;
+  const challenges = rankedChallenges(run.challenges || []);
+  const record = challenges.filter((item) => ["factual_support", "record_conflict"].includes(item.category));
+  const groups = reviewCheckGroups(run, catalog);
+  const compliance = complianceGroups(run.compliance || {});
+  const matrix = elementMatrix(run.ruleAudit || [], run.materials || []);
+  const checklist = run.checklistResults?.results || [];
+  const status = (ids) => {
+    const entries = (run.checksRun || []).filter((check) => ids.includes(check.id));
+    return checkStatusSummary(entries) || "Execution not recorded.";
+  };
+  return [
+    { id: "argument", label: "Argument", question: "What could opposing counsel argue?", summary: challengeSummary(challenges), status: status(["adversarial"]), challenges },
+    { id: "elements", label: "Elements & evidence", question: "What is pleaded, and what supports it?", summary: `${countLabel(matrix.length, "rule list")} · ${countLabel(matrix.reduce((sum, rule) => sum + rule.rows.filter((row) => row.unmet).length, 0), "element")} flagged for review`, status: status(["rule_elements"]), matrix },
+    { id: "record", label: "Case record", question: "Where does the record need attention?", summary: countLabel(record.length, "record-related challenge"), status: status(["record_audit"]), challenges: record },
+    { id: "filing", label: "Filing & form", question: "Which filing and document checks need attention?", summary: `${countLabel(compliance.total, "filing finding")} · ${countLabel(groups.primary.reduce((sum, group) => sum + group.findings.length, 0), "document finding")}`, status: status(["court_formatting", "pleading_form", "draft_validation"]), compliance, groups: groups.primary },
+    { id: "style", label: "Language & style", question: "Would you like to review the writing?", summary: `${countLabel(groups.styleCount, "note")} · optional review`, status: checkStatusSummary(groups.styleChecks) || "Execution not recorded.", groups: groups.style, checks: groups.styleChecks },
+    { id: "checklist", label: "Your checklist", question: "What did your review questions find?", summary: `${countLabel(checklist.length, "answer")} recorded`, status: status(["custom_checklist"]), checklist },
+  ];
 }

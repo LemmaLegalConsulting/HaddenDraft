@@ -61,7 +61,9 @@ test.describe("argument gym", () => {
       const run = (await apiCall(page, "GET", `/argument-gym/runs/${runId}/`)).data.run;
       expect(run.status, run.error || "").toBe("complete");
       expect(run.challenges?.length ?? 0, "a defective brief draws challenges").toBeGreaterThan(0);
-      await expect(page.locator("article.gym-challenge").first()).toBeVisible({ timeout: 60_000 });
+      await expect(page.locator(".gym-priority").first()).toBeVisible({ timeout: 60_000 });
+      await page.locator(".gym-priority").first().click();
+      await expect(page.locator("article.gym-challenge")).toBeVisible();
     });
 
     await test.step("a challenge is dispositioned and the choice sticks", async () => {
